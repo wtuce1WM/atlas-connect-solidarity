@@ -34,11 +34,11 @@ export type PickerMedia = {
   title?: string | null;
   thumbnail?: string | null;
   duration?: number | null;
-  source: "fiche" | "generic" | "landscape" | "library" | "generic_video" | "other";
+  source: "fiche" | "generic" | "library" | "generic_video" | "other";
   scope?: "global" | "business";
   libraryId?: string;
   orientation?: "landscape" | "portrait" | "square" | null;
-  /** Fiche d'origine (utile pour les médias cross-fiches : générique / landscape). */
+  /** Fiche d'origine (utile pour les médias cross-fiches : générique). */
   ownerName?: string | null;
   /** Le média est aussi publié sur la fiche courante. */
   onFiche?: boolean;
@@ -55,8 +55,6 @@ type SourceFilter =
   | "library_business"
   | "library_global";
 
-const isInternalVideoUrl = (u: string) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
-
 const documentVideoUrl = (d: any): string | null => {
   const url = d?.youtube_video_url || d?.instagram_video_url || d?.tiktok_video_url || d?.url;
   return typeof url === "string" && url.trim() ? url.trim() : null;
@@ -64,6 +62,49 @@ const documentVideoUrl = (d: any): string | null => {
 
 const ratioToOrientation = (w: number, h: number): "landscape" | "portrait" | "square" =>
   w > h * 1.05 ? "landscape" : h > w * 1.05 ? "portrait" : "square";
+
+const isInternalVideoUrl = (u: string) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
+
+const detectOrientation = (m: PickerMedia): Promise<"landscape" | "portrait" | "square" | null> => {
+  return new Promise((resolve) => {
+    const timeout = window.setTimeout(() => resolve(null), 2500);
+    if (m.kind === "image") {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        window.clearTimeout(timeout);
+        resolve(ratioToOrientation(img.naturalWidth, img.naturalHeight));
+      };
+      img.onerror = () => {
+        window.clearTimeout(timeout);
+        resolve(null);
+      };
+      img.src = m.url;
+    } else if (isInternalVideoUrl(m.url)) {
+      const v = document.createElement("video");
+      v.crossOrigin = "anonymous";
+      v.muted = true;
+      v.playsInline = true;
+      v.preload = "metadata";
+      v.onloadedmetadata = () => {
+        window.clearTimeout(timeout);
+        if (v.videoWidth && v.videoHeight) {
+          resolve(ratioToOrientation(v.videoWidth, v.videoHeight));
+        } else {
+          resolve(null);
+        }
+      };
+      v.onerror = () => {
+        window.clearTimeout(timeout);
+        resolve(null);
+      };
+      v.src = m.url;
+    } else {
+      window.clearTimeout(timeout);
+      resolve(null);
+    }
+  });
+};
 
 const fmtDur = (s?: number | null) => {
   if (s == null || !Number.isFinite(s)) return null;
@@ -77,7 +118,6 @@ const SOURCE_LABEL: Record<PickerMedia["source"] | "library_global" | "library_b
   fiche: "Fiche",
   generic: "Badge Générique",
   generic_video: "Vidéo générique",
-  landscape: "Landscape",
   other: "Autre fiche",
   library: "Bibliothèque",
   library_global: "Bibliothèque globale",
@@ -284,41 +324,31 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         });
       }
 
-      // 2) Badges transverses : « Generic » et « vidéos landscape » — toutes fiches confondues
-      const { data: badgeRows } = await supabase
+      // 2) Badge transverse « Generic » — toutes fiches confondues
+      const { data: genericBadgeRows } = await supabase
         .from("badges")
         .select("id, name_fr")
-        .or("name_fr.ilike.generic,name_fr.ilike.%landscape%");
-      const badgeIdByKind: Record<"generic" | "landscape", string | undefined> = {
-        generic: (badgeRows ?? []).find((b: any) => /^generic$/i.test(b.name_fr))?.id,
-        landscape: (badgeRows ?? []).find((b: any) => /landscape/i.test(b.name_fr))?.id,
-      };
+        .ilike("name_fr", "generic");
+      const genericBadgeId = (genericBadgeRows ?? []).find((b: any) => /^generic$/i.test(b.name_fr))?.id;
+      let genericDocIds: string[] = [];
+      if (genericBadgeId) {
+        const { data: genericLinks } = await supabase
+          .from("business_document_badges")
+          .select("document_id")
+          .eq("badge_id", genericBadgeId)
+          .limit(1000);
+        genericDocIds = (genericLinks ?? []).map((l: any) => String(l.document_id));
+      }
 
-      const badgedDocIds: Record<"generic" | "landscape", string[]> = { generic: [], landscape: [] };
-      await Promise.all(
-        (["generic", "landscape"] as const).map(async (k) => {
-          const bid = badgeIdByKind[k];
-          if (!bid) return;
-          const { data } = await supabase
-            .from("business_document_badges")
-            .select("document_id")
-            .eq("badge_id", bid)
-            .limit(1000);
-          badgedDocIds[k] = (data ?? []).map((l: any) => String(l.document_id));
-        }),
-      );
-
-      const allBadgedIds = [...new Set([...badgedDocIds.generic, ...badgedDocIds.landscape])];
-      if (allBadgedIds.length) {
-        const genericSet = new Set(badgedDocIds.generic);
-        const landscapeSet = new Set(badgedDocIds.landscape);
+      if (genericDocIds.length) {
+        const genericSet = new Set(genericDocIds);
         const badgedDocs: any[] = [];
-        for (let i = 0; i < allBadgedIds.length; i += 200) {
+        for (let i = 0; i < genericDocIds.length; i += 200) {
           const { data, error } = await supabase
             .from("business_documents")
             .select("id, url, name, thumbnail_url, business_id, youtube_video_url, instagram_video_url, tiktok_video_url")
             .eq("type", "video")
-            .in("id", allBadgedIds.slice(i, i + 200));
+            .in("id", genericDocIds.slice(i, i + 200));
           if (error) throw error;
           if (data) badgedDocs.push(...data);
         }
@@ -335,18 +365,12 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         for (const d of badgedDocs) {
           const mediaUrl = documentVideoUrl(d);
           if (!mediaUrl) continue;
-          // Landscape prime dans le filtre : les deux badges sont possibles sur un doc
-          const src: PickerMedia["source"] = landscapeSet.has(String(d.id))
-            ? "landscape"
-            : genericSet.has(String(d.id))
-              ? "generic"
-              : "fiche";
           out.push({
             url: mediaUrl,
             kind: "video",
             title: d.name ?? "Vidéo",
             thumbnail: d.thumbnail_url ?? null,
-            source: src,
+            source: genericSet.has(String(d.id)) ? "generic" : "fiche",
             ownerName: ownerNames.get(String(d.business_id)) ?? null,
           });
         }
@@ -441,17 +465,19 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
 
       // Déduplication par URL, la bibliothèque staff prime (elle porte les métadonnées)
       const seen = new Set<string>();
-      setItems(
-        out
-          .filter((m) => {
-            const k = m.url.trim().toLowerCase();
-            if (seen.has(k)) return false;
-            seen.add(k);
-            return true;
-          })
-          // un média badgé qui appartient aussi à la fiche courante reste visible dans « Fiche »
-          .map((m) => ({ ...m, onFiche: ficheUrls.has(m.url.trim().toLowerCase()) })),
-      );
+      const deduped = out
+        .filter((m) => {
+          const k = m.url.trim().toLowerCase();
+          if (seen.has(k)) return false;
+          seen.add(k);
+          return true;
+        })
+        // un média badgé qui appartient aussi à la fiche courante reste visible dans « Fiche »
+        .map((m) => ({ ...m, onFiche: ficheUrls.has(m.url.trim().toLowerCase()) }));
+
+      // Détection réelle des orientations (images + vidéos internes) pour le filtre Landscape
+      const orientations = await Promise.all(deduped.map((m) => detectOrientation(m)));
+      setItems(deduped.map((m, i) => ({ ...m, orientation: m.orientation ?? orientations[i] })));
     } catch (e: any) {
       toast.error(`Chargement des médias impossible : ${e.message ?? e}`);
     } finally {
@@ -542,7 +568,7 @@ export function VideoMediaPickerDialog({
       case "generic_video":
         return m.source === "generic_video";
       case "landscape":
-        return m.source === "landscape";
+        return m.orientation === "landscape";
       case "other":
         return m.source === "other";
       case "library_business":
@@ -650,7 +676,7 @@ export function VideoMediaPickerDialog({
       fiche: typeBase.filter((m) => matchSource(m, "fiche")).length,
       generic: typeBase.filter((m) => m.source === "generic").length,
       genericVideo: typeBase.filter((m) => m.source === "generic_video").length,
-      landscape: typeBase.filter((m) => m.source === "landscape").length,
+      landscape: typeBase.filter((m) => m.orientation === "landscape").length,
       other: typeBase.filter((m) => m.source === "other").length,
       libBiz: typeBase.filter((m) => m.source === "library" && m.scope === "business").length,
       libGlobal: typeBase.filter((m) => m.source === "library" && m.scope === "global").length,
@@ -695,8 +721,9 @@ export function VideoMediaPickerDialog({
             <DialogHeader>
               <DialogTitle>Médias du montage</DialogTitle>
               <DialogDescription className="text-xs">
-                Fiche · Générique · Landscape · Bibliothèque staff (globale ou rattachée). Les médias importés ici sont
-                réservés au staff et ne sont jamais publiés sur le site.
+                Fiche · Générique · Bibliothèque staff (globale ou rattachée). Le filtre « Format paysage 16:9 » sélectionne
+                les médias dont les dimensions réelles sont au format paysage. Les médias importés ici sont réservés au
+                staff et ne sont jamais publiés sur le site.
               </DialogDescription>
             </DialogHeader>
 
@@ -721,7 +748,7 @@ export function VideoMediaPickerDialog({
                 <option value="fiche">Fiche · {activeTypeLabel} ({counts.fiche})</option>
                 <option value="generic_video">Vidéos génériques ({counts.genericVideo})</option>
                 <option value="generic">Badge Générique ({counts.generic})</option>
-                <option value="landscape">Landscape ({counts.landscape})</option>
+                <option value="landscape">Format paysage 16:9 ({counts.landscape})</option>
                 <option value="other">Autre fiche par slug · {activeTypeLabel} ({counts.other})</option>
                 <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({counts.libBiz})</option>
                 <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({counts.libGlobal})</option>
