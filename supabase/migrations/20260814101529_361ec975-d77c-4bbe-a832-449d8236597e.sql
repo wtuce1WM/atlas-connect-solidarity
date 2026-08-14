@@ -1,0 +1,2 @@
+ALTER TABLE public.video_scenario_steps DROP CONSTRAINT IF EXISTS video_scenario_steps_step_type_check;
+ALTER TABLE public.video_scenario_steps ADD CONSTRAINT video_scenario_steps_step_type_check CHECK (step_type IS NULL OR step_type = ANY (ARRAY['hook','video','photos','text_overlay','counter','map_reveal','split_screen','logo_merge','icon_grid','outro']));
