@@ -151,7 +151,16 @@ function Tile({
   const [orientation, setOrientation] = useState<"landscape" | "portrait" | "square" | null>(
     item.orientation ?? null,
   );
+  const [ratio, setRatio] = useState<number>(
+    item.orientation === "portrait" ? 9 / 16 : item.orientation === "square" ? 1 : 16 / 9,
+  );
   const [duration, setDuration] = useState<number | null>(item.duration ?? null);
+
+  const isVideoTile = item.kind === "video";
+  // Même gabarit que le picker de Studio Vidéo IA : vidéo au ratio natif, demi-taille.
+  const BASE = 300;
+  const width = ratio >= 1 ? BASE / 2 : (BASE / 2) * ratio;
+  const height = ratio >= 1 ? BASE / 2 / ratio : BASE / 2;
 
   const noteOrientation = (o: "landscape" | "portrait" | "square") => {
     setOrientation(o);
@@ -174,14 +183,26 @@ function Tile({
     }
   };
 
+  const copyId = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!item.mediaId) return;
+    try {
+      await navigator.clipboard.writeText(item.mediaId);
+      toast.success("ID copié");
+    } catch {
+      toast.error("Copie impossible");
+    }
+  };
+
   return (
-    <div className="relative">
+    <div className={`relative ${isVideoTile ? "shrink-0" : ""}`} style={isVideoTile ? { width: Math.round(width) } : undefined}>
       <button
         type="button"
         onClick={onSelect}
-        className={`relative w-full aspect-[4/3] rounded-md overflow-hidden border-2 bg-black/90 ${
-          selected ? "border-primary" : "border-transparent hover:border-primary/40"
-        }`}
+        className={`relative w-full rounded-md overflow-hidden border-2 bg-black/90 ${
+          isVideoTile ? "" : "aspect-[4/3]"
+        } ${selected ? "border-primary" : "border-transparent hover:border-primary/40"}`}
+        style={isVideoTile ? { height: Math.round(height) } : undefined}
       >
         {item.kind === "video" ? (
           isInternalVideoUrl(item.url) ? (
@@ -194,7 +215,10 @@ function Tile({
               className="w-full h-full object-contain"
               onLoadedMetadata={(e) => {
                 const v = e.currentTarget;
-                if (v.videoWidth && v.videoHeight) noteOrientation(ratioToOrientation(v.videoWidth, v.videoHeight));
+                if (v.videoWidth && v.videoHeight) {
+                  setRatio(v.videoWidth / v.videoHeight);
+                  noteOrientation(ratioToOrientation(v.videoWidth, v.videoHeight));
+                }
                 if (Number.isFinite(v.duration)) setDuration(v.duration);
               }}
               onEnded={() => setPlaying(false)}
@@ -274,6 +298,24 @@ function Tile({
         </p>
       )}
 
+      {item.ownerName && (
+        <p className="text-[10px] font-semibold truncate" title={item.ownerName}>
+          {item.ownerName}
+        </p>
+      )}
+
+      {item.mediaId && (
+        <button
+          type="button"
+          onClick={copyId}
+          title={`Copier l'ID ${item.mediaId}`}
+          className="mt-0.5 flex items-center gap-1 max-w-full text-[9px] font-mono text-muted-foreground hover:text-foreground"
+        >
+          <Copy className="h-2.5 w-2.5 shrink-0" />
+          <span className="truncate">{item.mediaId}</span>
+        </button>
+      )}
+
       {onDelete && (
         <Button
           type="button"
@@ -292,6 +334,7 @@ function Tile({
     </div>
   );
 }
+
 
 /* ------------------------------------------------------------- data hooks */
 
