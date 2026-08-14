@@ -34,7 +34,7 @@ export type PickerMedia = {
   title?: string | null;
   thumbnail?: string | null;
   duration?: number | null;
-  source: "fiche" | "generic" | "landscape" | "library";
+  source: "fiche" | "generic" | "landscape" | "library" | "generic_video" | "other";
   scope?: "global" | "business";
   libraryId?: string;
   orientation?: "landscape" | "portrait" | "square" | null;
@@ -45,7 +45,15 @@ export type PickerMedia = {
 };
 
 type TypeFilter = "all" | "image" | "video";
-type SourceFilter = "all" | "fiche" | "generic" | "landscape" | "library_business" | "library_global";
+type SourceFilter =
+  | "all"
+  | "fiche"
+  | "generic"
+  | "generic_video"
+  | "landscape"
+  | "other"
+  | "library_business"
+  | "library_global";
 
 const isInternalVideoUrl = (u: string) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
 
@@ -67,8 +75,10 @@ const fmtDur = (s?: number | null) => {
 
 const SOURCE_LABEL: Record<PickerMedia["source"] | "library_global" | "library_business", string> = {
   fiche: "Fiche",
-  generic: "Générique",
+  generic: "Badge Générique",
+  generic_video: "Vidéo générique",
   landscape: "Landscape",
+  other: "Autre fiche",
   library: "Bibliothèque",
   library_global: "Bibliothèque globale",
   library_business: "Bibliothèque fiche",
@@ -178,11 +188,7 @@ function Tile({
               ? item.scope === "global"
                 ? "globale"
                 : "fiche · staff"
-              : item.source === "generic"
-                ? "générique"
-                : item.source === "landscape"
-                  ? "landscape"
-                  : "fiche"}
+              : SOURCE_LABEL[item.source]}
           </span>
           {orientation && (
             <span
@@ -246,7 +252,7 @@ function Tile({
 
 /* ------------------------------------------------------------- data hooks */
 
-export function useVideoMediaSources(businessId: string | null, open: boolean) {
+export function useVideoMediaSources(businessId: string | null, open: boolean, otherSlug?: string) {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<PickerMedia[]>([]);
 
@@ -378,6 +384,61 @@ export function useVideoMediaSources(businessId: string | null, open: boolean) {
         }
       }
 
+      // 4) Vraies vidéos génériques (table `generic_videos`), distinctes du badge « Generic »
+      const { data: gen } = await supabase
+        .from("generic_videos" as any)
+        .select("id, url, name, thumbnail_url, instagram_account, tiktok_account, youtube_account")
+        .order("sort_order", { ascending: true })
+        .limit(500);
+      for (const g of (gen ?? []) as any[]) {
+        const url = typeof g.url === "string" ? g.url.trim() : "";
+        if (!url) continue;
+        out.push({
+          url,
+          kind: "video",
+          title: g.name ?? "Vidéo générique",
+          thumbnail: g.thumbnail_url ?? null,
+          source: "generic_video",
+          ownerName: g.instagram_account || g.tiktok_account || g.youtube_account || null,
+        });
+      }
+
+      // 5) Bibliothèque globale : médias publics d'une autre fiche, par slug
+      const slug = (otherSlug ?? "").trim();
+      if (slug.length >= 2) {
+        const { data: others } = await supabase
+          .from("businesses")
+          .select("id, name, slug")
+          .or(`slug.ilike.%${slug}%,name.ilike.%${slug}%`)
+          .limit(5);
+        for (const o of (others ?? []) as any[]) {
+          const [{ data: ob }, { data: odocs }] = await Promise.all([
+            supabase.from("businesses").select("images").eq("id", o.id).maybeSingle(),
+            supabase
+              .from("business_documents")
+              .select("id, url, name, thumbnail_url, youtube_video_url, instagram_video_url, tiktok_video_url")
+              .eq("business_id", o.id)
+              .eq("type", "video"),
+          ]);
+          for (const url of ((ob as any)?.images ?? []) as string[]) {
+            if (typeof url === "string" && url.trim())
+              out.push({ url: url.trim(), kind: "image", source: "other", ownerName: o.name });
+          }
+          for (const d of (odocs ?? []) as any[]) {
+            const mediaUrl = documentVideoUrl(d);
+            if (!mediaUrl) continue;
+            out.push({
+              url: mediaUrl,
+              kind: "video",
+              title: d.name ?? "Vidéo",
+              thumbnail: d.thumbnail_url ?? null,
+              source: "other",
+              ownerName: o.name,
+            });
+          }
+        }
+      }
+
       // Déduplication par URL, la bibliothèque staff prime (elle porte les métadonnées)
       const seen = new Set<string>();
       setItems(
@@ -396,7 +457,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean) {
     } finally {
       setLoading(false);
     }
-  }, [businessId]);
+  }, [businessId, otherSlug]);
 
   useEffect(() => {
     if (open) void load();
@@ -431,7 +492,9 @@ export function VideoMediaPickerDialog({
   triggerClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const { items, loading, reload } = useVideoMediaSources(businessId, open);
+  const [slugQuery, setSlugQuery] = useState("");
+  const [otherSlug, setOtherSlug] = useState("");
+  const { items, loading, reload } = useVideoMediaSources(businessId, open, otherSlug);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>(allow === "all" ? "all" : allow);
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [search, setSearch] = useState("");
@@ -463,8 +526,12 @@ export function VideoMediaPickerDialog({
         return m.source === "fiche" || !!m.onFiche;
       case "generic":
         return m.source === "generic";
+      case "generic_video":
+        return m.source === "generic_video";
       case "landscape":
         return m.source === "landscape";
+      case "other":
+        return m.source === "other";
       case "library_business":
         return m.source === "library" && m.scope === "business";
       case "library_global":
@@ -569,7 +636,9 @@ export function VideoMediaPickerDialog({
       all: typeBase.length,
       fiche: typeBase.filter((m) => matchSource(m, "fiche")).length,
       generic: typeBase.filter((m) => m.source === "generic").length,
+      genericVideo: typeBase.filter((m) => m.source === "generic_video").length,
       landscape: typeBase.filter((m) => m.source === "landscape").length,
+      other: typeBase.filter((m) => m.source === "other").length,
       libBiz: typeBase.filter((m) => m.source === "library" && m.scope === "business").length,
       libGlobal: typeBase.filter((m) => m.source === "library" && m.scope === "global").length,
     }),
@@ -630,8 +699,10 @@ export function VideoMediaPickerDialog({
               >
                 <option value="all">Toutes les sources ({counts.all})</option>
                 <option value="fiche">Fiche ({counts.fiche})</option>
+                <option value="generic_video">Vidéos génériques ({counts.genericVideo})</option>
                 <option value="generic">Badge Générique ({counts.generic})</option>
                 <option value="landscape">Landscape ({counts.landscape})</option>
+                <option value="other">Autre fiche par slug ({counts.other})</option>
                 <option value="library_business">Bibliothèque fiche ({counts.libBiz})</option>
                 <option value="library_global">Bibliothèque globale ({counts.libGlobal})</option>
               </select>
@@ -641,6 +712,24 @@ export function VideoMediaPickerDialog({
                 placeholder="Rechercher…"
                 className="h-8 w-44 text-xs"
               />
+              <form
+                className="flex items-center gap-1"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setOtherSlug(slugQuery);
+                  if (slugQuery.trim().length >= 2) setSourceFilter("other");
+                }}
+              >
+                <Input
+                  value={slugQuery}
+                  onChange={(e) => setSlugQuery(e.target.value)}
+                  placeholder="slug d'une autre fiche…"
+                  className="h-8 w-44 text-xs"
+                />
+                <Button type="submit" size="sm" variant="outline" className="h-8 text-xs">
+                  Charger
+                </Button>
+              </form>
               <div className="ml-auto flex items-center gap-2">
                 <select
                   value={uploadScope}
