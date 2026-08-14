@@ -792,32 +792,17 @@ const HookScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storyboa
       >
         {logo && <PromoLogo src={logo} size={stage.width * (wide ? 0.16 : 0.28)} />}
         {title && (
-          <span
-            style={{
-              fontFamily: displayFont,
-              fontSize: wide ? size.h1 : size.h2,
-              fontWeight: weight.bold,
-              lineHeight: 1.08,
-              color: palette.cream,
-            }}
-          >
+          <SceneTitle wide={wide} level={1}>
             {title}
-          </span>
+          </SceneTitle>
         )}
         <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.09])} stageWidth={stage.width} />
         {subtitle && (
-          <span
-            style={{
-              fontFamily: bodyFont,
-              fontSize: size.lead,
-              letterSpacing: 3,
-              textTransform: "uppercase",
-              color: alpha("cream", 0.82),
-            }}
-          >
+          <SceneBody style={{ letterSpacing: 3, textTransform: "uppercase", color: alpha("cream", 0.82) }}>
             {subtitle}
-          </span>
+          </SceneBody>
         )}
+
       </div>
     </SceneBackdrop>
   );
