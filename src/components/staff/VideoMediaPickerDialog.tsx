@@ -327,6 +327,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean) {
         }
       }
 
+      const ficheUrls = new Set<string>();
       if (businessId) {
         // 3) Médias publics de la fiche courante
         const [{ data: biz }, { data: docs }] = await Promise.all([
@@ -339,10 +340,14 @@ export function useVideoMediaSources(businessId: string | null, open: boolean) {
         ]);
 
         for (const url of ((biz as any)?.images ?? []) as string[]) {
-          if (typeof url === "string" && url.trim()) out.push({ url, kind: "image", source: "fiche" });
+          if (typeof url === "string" && url.trim()) {
+            ficheUrls.add(url.trim().toLowerCase());
+            out.push({ url, kind: "image", source: "fiche" });
+          }
         }
         for (const d of (docs ?? []) as any[]) {
           if (!d.url || !isInternalVideoUrl(String(d.url))) continue;
+          ficheUrls.add(String(d.url).trim().toLowerCase());
           out.push({
             url: String(d.url),
             kind: "video",
@@ -353,16 +358,18 @@ export function useVideoMediaSources(businessId: string | null, open: boolean) {
         }
       }
 
-
       // Déduplication par URL, la bibliothèque staff prime (elle porte les métadonnées)
       const seen = new Set<string>();
       setItems(
-        out.filter((m) => {
-          const k = m.url.trim().toLowerCase();
-          if (seen.has(k)) return false;
-          seen.add(k);
-          return true;
-        }),
+        out
+          .filter((m) => {
+            const k = m.url.trim().toLowerCase();
+            if (seen.has(k)) return false;
+            seen.add(k);
+            return true;
+          })
+          // un média badgé qui appartient aussi à la fiche courante reste visible dans « Fiche »
+          .map((m) => ({ ...m, onFiche: ficheUrls.has(m.url.trim().toLowerCase()) })),
       );
     } catch (e: any) {
       toast.error(`Chargement des médias impossible : ${e.message ?? e}`);
