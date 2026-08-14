@@ -487,7 +487,7 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number; wide?: boolean }>
       {segs.map((s, i) => {
         const from = cursor;
         cursor += s.frames;
-        const overlay = (p.text || "").trim() || null;
+        const overlay = overlayHtml;
         return (
           <Sequence key={`${s.kind}-${i}`} from={from} durationInFrames={s.frames}>
             {s.kind === "hook" && <HookScene p={p} frames={s.frames} manifest={manifest} wide={wide} />}
