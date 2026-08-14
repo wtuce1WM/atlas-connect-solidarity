@@ -1281,6 +1281,55 @@ const VideoStoryboardPanel = () => {
     setDirty(true);
   };
 
+  /** Médias affectés à l'ensemble du montage, puis propagés à toutes les étapes média. */
+  const isVideoUrl = (u: string) => /\.(mp4|mov|webm|m4v)(\?|$)/i.test(u);
+
+  const applyGlobalMedia = (urls: string[], includeBackgrounds: boolean) => {
+    const pool = urls.slice(0, 30);
+    const videos = pool.filter(isVideoUrl);
+    setSections((prev) =>
+      prev.map((s) => {
+        const cfg = s.config ?? {};
+        if (s.step_type === "video") {
+          return { ...s, config: { ...cfg, assetUrls: (videos.length ? videos : pool), assetUrl: "" } };
+        }
+        if (s.step_type === "photos") {
+          return { ...s, config: { ...cfg, media: pool, images: [] } };
+        }
+        if (includeBackgrounds && pool.length > 0) {
+          return {
+            ...s,
+            config: { ...cfg, bgMode: "medias", bgMedia: pool, bgImages: [], bgVideoUrl: "" },
+          };
+        }
+        return s;
+      }),
+    );
+    setDirty(true);
+  };
+
+  const clearAllMedia = () => {
+    setSections((prev) =>
+      prev.map((s) => ({
+        ...s,
+        config: {
+          ...(s.config ?? {}),
+          assetUrls: [],
+          assetUrl: "",
+          media: [],
+          images: [],
+          bgMode: "none",
+          bgMedia: [],
+          bgImages: [],
+          bgVideoUrl: "",
+        },
+      })),
+    );
+    setDirty(true);
+    toast.success("Médias retirés de toutes les étapes");
+  };
+
+
   const addSection = () => {
     if (!board) return;
     if (sections.length >= MAX_SECTIONS) {
