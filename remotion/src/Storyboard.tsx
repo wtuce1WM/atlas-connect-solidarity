@@ -824,28 +824,44 @@ const HookScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storyboa
 };
 
 /**
- * `video` — vidéo plein cadre (asset 1WM ou vidéo interne de la fiche).
- * config : { assetUrl, sound, title }
+ * `video` — une ou plusieurs vidéos plein cadre, montées à la suite dans la
+ * durée de la section (parts égales).
+ * config : { assetUrls: string[] } — repli : { assetUrl | videoUrl } puis la
+ * vidéo de la fiche. `sound` conserve la piste audio.
  */
 const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: StoryboardSection }> = ({ wide, p, section }) => {
   const { enter, out } = useSceneFade();
+  const { durationInFrames } = useVideoConfig();
   const cfg = section.config ?? {};
   const stage = wide ? STAGE_LANDSCAPE : STAGE_PORTRAIT;
-  const src = assetUrl(str(cfg, "assetUrl") ?? str(cfg, "videoUrl") ?? p.videoUrl);
+  const many = Array.isArray(cfg.assetUrls)
+    ? (cfg.assetUrls as unknown[]).filter((v): v is string => typeof v === "string" && !!v.trim())
+    : [];
+  const single = str(cfg, "assetUrl") ?? str(cfg, "videoUrl") ?? p.videoUrl ?? null;
+  const clips = (many.length ? many : single ? [single] : []).slice(0, 30);
   const title = str(cfg, "title");
   const muted = !cfg.sound;
+  const per = clips.length ? Math.max(1, Math.floor(durationInFrames / clips.length)) : durationInFrames;
 
   return (
     <SceneBackdrop>
       <AbsoluteFill style={{ opacity: out }}>
-        {src ? (
-          <OffthreadVideo
-            src={src}
-            muted={muted}
-            volume={muted ? 0 : 1}
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-          />
-        ) : null}
+        {clips.map((raw, i) => {
+          const src = assetUrl(raw);
+          if (!src) return null;
+          const from = i * per;
+          const frames = i === clips.length - 1 ? Math.max(1, durationInFrames - from) : per;
+          return (
+            <Sequence key={`${raw}-${i}`} from={from} durationInFrames={frames} layout="none">
+              <OffthreadVideo
+                src={src}
+                muted={muted}
+                volume={muted ? 0 : 1}
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </Sequence>
+          );
+        })}
         <AbsoluteFill
           style={{
             background: `linear-gradient(to top, ${alpha("night", 0.78)} 4%, ${alpha("night", 0)} 45%)`,
@@ -865,18 +881,9 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
               transform: `translateY(${interpolate(enter, [0, 1], [22, 0])}px)`,
             }}
           >
-            <span
-              style={{
-                fontFamily: displayFont,
-                fontSize: wide ? size.h3 : size.h4,
-                fontWeight: weight.bold,
-                lineHeight: 1.1,
-                color: palette.cream,
-                textShadow: `0 4px 24px ${alpha("night", 0.85)}`,
-              }}
-            >
+            <SceneTitle wide={wide} level={3} style={{ textShadow: `0 4px 24px ${alpha("night", 0.85)}` }}>
               {title}
-            </span>
+            </SceneTitle>
             <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.06])} stageWidth={stage.width} />
           </div>
         )}
@@ -884,6 +891,7 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
     </SceneBackdrop>
   );
 };
+
 
 /**
  * `photos` — jusqu'à 30 médias plein cadre (images en Ken Burns ET vidéos),
