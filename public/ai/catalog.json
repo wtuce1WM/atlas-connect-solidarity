@@ -2,9 +2,9 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-13T13:13:40.409Z",
+    "generated_at": "2026-08-14T14:43:11.261Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
-    "count": 1848
+    "count": 1849
   },
   "businesses": [
     {
@@ -3873,7 +3873,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/04c6cc34-f784-4411-a519-4aef41713d1b-1770467917949-u0ybfe.jpg",
       "google_rating": 4.5,
-      "google_review_count": 1535,
+      "google_review_count": 1537,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -17906,8 +17906,8 @@
       "slug": "carre-eden-shopping-center",
       "url": "https://oneworldmorocco.com/carre-eden-shopping-center",
       "name": "Carré Eden Shopping Center",
-      "hook": "Le centre commercial de référence à Marrakech, situé en plein cœur du quartier Guéliz.",
-      "description": "Carré Eden Shopping Center est le centre commercial de référence à Marrakech, situé en plein cœur du quartier Guéliz sur l'avenue Mohammed V. Ouvert depuis le 8 mai 2014, il a remplacé l'ancien Marché central datant du protectorat. Avec une surface commerciale de 15 400 m² répartis sur trois étages, le Carré Eden accueille plus de 56 enseignes dont certaines exclusives à Marrakech comme H&M, Starbucks et Nespresso. Le centre propose un large choix de boutiques mode femme, homme et enfant, beauté",
+      "hook": "Le centre commercial réunissant boutiques, cafés et restaurants, situé en plein cœur de Guéliz.",
+      "description": "Au cœur de Guéliz, Carré Eden Shopping Center s’inscrit dans l’un des quartiers centraux de Marrakech. Installé sur l’avenue Mohammed V, entre les rues Tariq Ibn Ziyad, Souriya et Liberté, ce centre commercial moderne constitue une destination dédiée au shopping et à la restauration. Il a ouvert ses portes le 8 mai 2014, à l’emplacement de l’ancien Marché central datant du protectorat. Le centre déploie une surface commerciale de 15 400 m² répartie sur trois étages. Il rassemble plus de 56 ensei",
       "main_category": "Commerce",
       "categories": [
         "Centre commercial"
@@ -17925,7 +17925,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2b627b5c-ee12-4855-a3f6-2fb570aca35d-1770922681631-be37rn.jpg",
       "google_rating": 4.1,
-      "google_review_count": 10685,
+      "google_review_count": 10698,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -23720,7 +23720,7 @@
       "id": "4e84f395-d1b1-4691-ad4a-59be442e3d28",
       "slug": "cote-bougie",
       "url": "https://oneworldmorocco.com/cote-bougie",
-      "name": "Côté Bougie",
+      "name": "Côté Bougie eShop",
       "hook": "Bougies artisanales parfumées & home fragrances – savoir-faire marocain, senteurs de Grasse.",
       "description": "Côté Bougie est, depuis plus de 20 ans, une maison artisanale et familiale spécialisée dans la fabrication de bougies parfumées et de home fragrances à Marrakech. Chaque création est le fruit d'un savoir-faire transmis de génération en génération, mêlant matières nobles (terre cuite, céramique émaillée, sabra, cuir tressé) et fragrances naturelles élaborées à Grasse. Collections phares : Raphia, Tamegroute, Céramique, Intemporelle, Tamtam, Cloche. La marque propose également des diffuseurs à bât",
       "main_category": "Commerce",
@@ -26122,7 +26122,8 @@
         "Ateliers"
       ],
       "services": [
-        "Cuisine marocaine"
+        "Cuisine marocaine",
+        "Cuisine"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -26133,10 +26134,10 @@
       "address": "Rue Riad Zitoun el Jdid",
       "phone": "+212524427177",
       "whatsapp": null,
-      "website": "https://www.moroccan-cam.com/fr/moroccancookingclass",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/f695e6a4-b385-4060-a217-41020229feb8-1774634931393-ugim2m.jpg",
-      "google_rating": 4.7,
-      "google_review_count": 912,
+      "google_rating": 4.8,
+      "google_review_count": 1159,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -26204,7 +26205,7 @@
       "social": {
         "instagram": "https://www.instagram.com/moroccanculinaryartmuseum/",
         "facebook": "https://www.facebook.com/moroccanculinaryartmuseum/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d19571202-Reviews-Moroccan_Culinary_Art_Museum-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -28380,7 +28381,7 @@
       "id": "7f08974a-f334-484b-a00a-de2bf54d9ac0",
       "slug": "deserted-photo-booth",
       "url": "https://oneworldmorocco.com/deserted-photo-booth",
-      "name": " Deserted Photo Booth",
+      "name": "Deserted Photo Booth",
       "hook": "Une cabine photo vintage pour un souvenir original. Capturez la nostalgie marocaine en 4 poses.",
       "description": "Deserted Photo Booth propose à Marrakech une expérience simple, ludique et particulièrement originale : une cabine photo vintage où l’on vient immortaliser son séjour avec une série de clichés imprimés. Installée au 36 Rue Kennaria , dans la Médina, cette petite adresse est devenue une halte appréciée des voyageurs à la recherche d’un souvenir différent des photos touristiques traditionnelles. Le concept repose sur une séance rapide de quatre poses , avec la possibilité de choisir entre des phot",
       "main_category": "Commerce",
@@ -32333,7 +32334,7 @@
       "website": "https://www.fairmont.com/en/hotels/marrakech/fairmont-royal-palm-marrakech/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/8bb40757-0437-4060-8ea3-28b4e17e714c-1775283766540-hbj3qk.jpg",
       "google_rating": 4.7,
-      "google_review_count": 1590,
+      "google_review_count": 1598,
       "price_range": "200 à 500€",
       "min_price_mad": 415,
       "languages": [],
@@ -45555,7 +45556,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e9fb7268-74cb-4211-ac40-8e5e192935b4-1777272052457-2haukm.jpg",
       "google_rating": 4.4,
-      "google_review_count": 5510,
+      "google_review_count": 5540,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -47961,10 +47962,10 @@
       "address": "Derb Assehbe",
       "phone": "+212524387010",
       "whatsapp": null,
-      "website": null,
+      "website": "https://www.cenizaro.com/lamaisonarabe/marrakech",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/74976129-5f0b-4305-984e-dc834ecede13-1774731581629-0d0prb.webp",
       "google_rating": 4.5,
-      "google_review_count": 1535,
+      "google_review_count": 1537,
       "price_range": "$$",
       "min_price_mad": 287,
       "languages": [],
@@ -49285,7 +49286,8 @@
         "Massage",
         "Piscine privative",
         "Salle de sport",
-        "Palais"
+        "Palais",
+        "Bar"
       ],
       "city": "Marrakech",
       "neighborhood": "Palmeraie",
@@ -49293,24 +49295,24 @@
       "country": "MA",
       "latitude": 31.672772,
       "longitude": -7.9293549,
-      "address": "Djnan Abiad, La Palmeraie",
+      "address": "Djnan Abiad",
       "phone": "+212 5243-29244",
       "whatsapp": "+212661917233",
       "website": "https://www.hotelksarcharbagh.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/c6bdc70b-94e3-42cd-a3d9-8a27337cdfcc-1775884528214-szsp8y.jpg",
       "google_rating": 4.6,
-      "google_review_count": 177,
+      "google_review_count": 187,
       "price_range": "500 à 1000€",
       "min_price_mad": 600,
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://www.hotelksarcharbagh.com/",
+      "booking_url": "https://be.synxis.com/?adult=1&arrive=2026-04-11&chain=22402&child=0&currency=EUR&depart=2026-04-12&hotel=8721&level=hotel&locale=fr-FR&productcurrency=EUR&rooms=1&src=24C",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/ksarcharbagh",
         "facebook": "https://www.facebook.com/profile.php?id=100063654576239",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d503098-Reviews-Ksar_Char_Bagh_Small_Luxury_hotel-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -50080,7 +50082,7 @@
       "website": "https://www.riadclairefontaine.com",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/f926be88-0257-49f0-b256-1f200ef861e6-1771561057680-yot0vm.jpg",
       "google_rating": 4.9,
-      "google_review_count": 225,
+      "google_review_count": 243,
       "price_range": "100 à 200€",
       "min_price_mad": 150,
       "languages": [],
@@ -50091,7 +50093,7 @@
       "social": {
         "instagram": "https://www.instagram.com/riadlaclairefontaine/",
         "facebook": null,
-        "tripadvisor": "https://www.tripadvisor.co.uk/ShowUserReviews-g293734-d2313020-La_Claire_Fontaine_Riad_Boutique_Hotel_Restaurant-Marrakech_Marrakech_Safi.html",
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d2313020-Reviews-La_Claire_Fontaine_Riad_Boutique_Hotel_Restaurant-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -51307,7 +51309,6 @@
         "Piscine",
         "Climatisé",
         "Massage",
-        "Vue sur mer",
         "Salle de sport",
         "Cadre spectaculaire",
         "Terrasse",
@@ -51332,7 +51333,8 @@
         "Ascenseur",
         "Salle de Billard",
         "Piano Bar",
-        "Climatisation"
+        "Climatisation",
+        "Vue montagne"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -51346,7 +51348,7 @@
       "website": "https://mamounia.com/fr/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/3bb71910-c17e-4ce1-a130-42c369a645a7-1770378452397-ifhe6f.jpeg",
       "google_rating": 4.5,
-      "google_review_count": 9164,
+      "google_review_count": 9423,
       "price_range": "500 à 1000€",
       "min_price_mad": 678,
       "languages": [
@@ -51364,7 +51366,7 @@
       ],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://mamounia.com/fr/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/lamamouniamarrakech/?hl=fr",
@@ -54754,7 +54756,11 @@
         "Mocktails",
         "Omelette",
         "Milkshakes",
-        "Smoothies"
+        "Smoothies",
+        "Brunch",
+        "Viande",
+        "Poisson",
+        "Plats végétariens"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -59748,7 +59754,7 @@
       "website": "https://lesoukounerestaurant.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/218d124b-7267-45d0-8d2a-7069b2d9e3fd-1775380088118-cl74lk.jpg",
       "google_rating": 4.8,
-      "google_review_count": 38,
+      "google_review_count": 40,
       "price_range": "200 à 500€",
       "min_price_mad": 350,
       "languages": [],
@@ -62631,7 +62637,7 @@
       "website": "https://m-avenue.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/fe0ab0ca-e324-4f26-87c5-23ae6a867c3f-1774592776454-7f2c9sq.jpg",
       "google_rating": 4.5,
-      "google_review_count": 4294,
+      "google_review_count": 4327,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -62996,7 +63002,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1773a156-b282-4d02-bfd6-7239db7a5bee-1772610469343-sah5v.webp",
       "google_rating": 4.9,
-      "google_review_count": 193,
+      "google_review_count": 194,
       "price_range": "200 à 500€",
       "min_price_mad": 407,
       "languages": [],
@@ -71773,18 +71779,21 @@
     },
     {
       "id": "19522534-3ead-4959-af59-16c7954a327f",
-      "slug": "musee-de-l-art-culinaire-marocain",
-      "url": "https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain",
+      "slug": "musee-de-l-art-culinaire-marocain-1",
+      "url": "https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain-1",
       "name": "Musée de l'Art Culinaire Marocain",
-      "hook": null,
-      "description": "Dans la médina, avec ses murs en pisé, ses rues et ruelles, vous êtes invités à vous perdre et à pousser les portes des habitations dissimulées derrière de hautes murailles. Une fois entrés dans ceux du musée culinaire marocain, vous vous retrouverez dans un refuge qui vous fera oublier le bruit et la chaleur du monde extérieur. Ce palais du XVIIIe siècle, ayant appartenu à un notable de Marrakech, s'étend sur 5000 m2 et possède deux cours ou patios intérieurs (dont un de plus de 700 m2), pavés ",
+      "hook": "Découvrez les secrets de la cuisine marocaine dans un palais du XVIIIe siècle.",
+      "description": "Au cœur de la médina de Marrakech , derrière les hautes murailles en pisé et les portes discrètes qui bordent les ruelles, se cache un lieu étonnant : le Musée de l’Art Culinaire Marocain . Ici, il suffit de pousser une porte pour laisser derrière soi le bruit, l’agitation et la chaleur des rues. Vous entrez dans un véritable refuge architectural , installé dans un somptueux palais du XVIIIᵉ siècle, où l’histoire de Marrakech et celle de la gastronomie marocaine se rencontrent. Un palais de 5 00",
       "main_category": "Culture",
       "categories": [
-        "Musées"
+        "Musées",
+        "Sites touristiques"
       ],
       "services": [
         "Entrée payante",
-        "Culture & traditions"
+        "Culture & traditions",
+        "Palais",
+        "Musées thématiques"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -71795,10 +71804,10 @@
       "address": "Rue Riad Zitoun el Jdid",
       "phone": "+212524427177",
       "whatsapp": null,
-      "website": "https://www.moroccan-cam.com/fr",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/19522534-3ead-4959-af59-16c7954a327f-1774616489683-btz61.jpg",
-      "google_rating": 4.7,
-      "google_review_count": 912,
+      "google_rating": 4.8,
+      "google_review_count": 1159,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -71866,7 +71875,7 @@
       "social": {
         "instagram": "https://www.instagram.com/moroccanculinaryartmuseum/",
         "facebook": "https://www.facebook.com/moroccanculinaryartmuseum/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d19571202-Reviews-Moroccan_Culinary_Art_Museum-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -80843,7 +80852,7 @@
       "country": "MA",
       "latitude": 31.6799629,
       "longitude": -7.9342894,
-      "address": "SALAH 7 ABYAD, Commune d'Ennakhil",
+      "address": "SALAH 7 ABYAD, Ennakhil",
       "phone": "+212524298600",
       "whatsapp": "+212 666 243 930",
       "website": "https://www.palaisronsard.com/fr/index.html",
@@ -80855,12 +80864,12 @@
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://www.palaisronsard.com/fr/index.html",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/palaisronsardmarrakech/",
         "facebook": "https://www.facebook.com/PalaisRonsardMarrakech/",
-        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d16815904-Reviews-Palais_Ronsard_Relais_Chateaux-Marrakech_Marrakech_Safi.html?m=66827",
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d16815904-Reviews-Palais_Ronsard-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -84263,7 +84272,11 @@
         "Cocktails",
         "Salades",
         "Vue montagne",
-        "Piscine"
+        "Piscine",
+        "Poisson",
+        "Viande",
+        "Barbecue",
+        "Au feu de bois"
       ],
       "city": "Marrakech",
       "neighborhood": "Route de l’Ourika",
@@ -84340,7 +84353,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.mandarinoriental.com/fr/marrakech/la-medina/dine/pool-garden",
+      "booking_url": "https://www.sevenrooms.com/explore/momrkpoolgarden/reservations/create/search",
       "menu_url": null,
       "social": {
         "instagram": "https://instagram.com/mo_marrakech",
@@ -91774,13 +91787,13 @@
       "country": "MA",
       "latitude": 31.6324375,
       "longitude": -8.0008628,
-      "address": "El Hara n1 Bab Doukkala",
+      "address": "El Hara n1",
       "phone": "+212524430663",
       "whatsapp": null,
-      "website": "https://www.riadelhara.com/",
+      "website": "https://reservation.riadelhara.com/fr-FR/rooms",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/10e9f1d4-02b4-4af4-8e8f-be774af36a0f-1774861618405-nnscbq.jpg",
       "google_rating": 4.9,
-      "google_review_count": 123,
+      "google_review_count": 148,
       "price_range": "200 à 500€",
       "min_price_mad": 216,
       "languages": [],
@@ -91829,12 +91842,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.riadelhara.com/fr-FR/rooms",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/riadelhara/",
         "facebook": null,
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d25071865-Reviews-Riad_El_Hara-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -92966,7 +92979,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/703c2d86-e475-4ccc-9dfa-69b0c1718e3d-1782112105525-fc2m1.webp",
       "google_rating": 4.2,
-      "google_review_count": 2037,
+      "google_review_count": 2038,
       "price_range": "500 à 1000€",
       "min_price_mad": 675,
       "languages": [],
@@ -97883,7 +97896,7 @@
       "slug": "salon-de-the-du-musee-de-l-art-culinaire-marocain",
       "url": "https://oneworldmorocco.com/salon-de-the-du-musee-de-l-art-culinaire-marocain",
       "name": "Salon de thé du Musée de l'Art Culinaire Marocain",
-      "hook": null,
+      "hook": "Elégant salon de thé est conçu pour offrir aux visiteurs une expérience relaxante et culturellement immersive.",
       "description": "Niché au cœur de Marrakech, le Salon de Thé du Musée des Arts Culinaires du Maroc offre une occasion unique de découvrir la richesse des saveurs et des traditions culinaires marocaines. Cet élégant salon de thé est conçu pour offrir aux visiteurs une expérience relaxante et culturellement immersive, alliant le plaisir de déguster des thés marocains exquis à la découverte du célèbre patrimoine culinaire du pays. Au Salon de Thé, vous pourrez savourer une large sélection de thés marocains traditio",
       "main_category": "Restauration",
       "categories": [
@@ -97907,8 +97920,8 @@
       "whatsapp": null,
       "website": "https://www.moroccan-cam.com/fr/salondethemarocain",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/de578534-e6b1-4c09-ac6b-20fe7e4f5d51-1774631834835-cark7b.jpg",
-      "google_rating": 4.7,
-      "google_review_count": 912,
+      "google_rating": 4.8,
+      "google_review_count": 1159,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -97971,12 +97984,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.moroccan-cam.com/fr/salondethemarocain",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/moroccanculinaryartmuseum/",
         "facebook": "https://www.facebook.com/moroccanculinaryartmuseum/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d19571202-Reviews-Moroccan_Culinary_Art_Museum-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -103203,7 +103216,7 @@
       "slug": "the-farm-marrakech",
       "url": "https://oneworldmorocco.com/the-farm-marrakech",
       "name": "The Farm Marrakech",
-      "hook": "The Farm Marrakech – Restaurant & Piscine de Charme",
+      "hook": "The Farm Marrakech – Restaurant & Piscine de Charme. Adults only.",
       "description": "Découvrez notre beach club à Marrakech au cœur d’une oliveraie paisible. Profitez d’une grande piscine (accessible aux personnes de +18 ans) à Marrakech, d’un restaurant raffiné, de DJ sets et d’une ambiance beldi chic unique à seulement 15 minutes du centre-ville. Bienvenue à « The Farm Piscine et Restaurant », un havre de paix niché au cœur d’une oliveraie centenaire, à seulement 15 minutes de la vibrante Marrakech. Nous incarnons l’authenticité beldi chic, offrant un cadre paisible et raffiné",
       "main_category": "Restauration",
       "categories": [
@@ -103258,8 +103271,8 @@
       "whatsapp": "+212 6 63 87 43 71",
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/03dfb3bd-2021-418a-99d6-aec1fb0f7ac6-1775898053473-6kzkj.jpg",
-      "google_rating": 4.5,
-      "google_review_count": 95,
+      "google_rating": 4.3,
+      "google_review_count": 132,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -103322,7 +103335,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://thefarmmarrakech.com/",
+      "booking_url": "https://thefarmmarrakech.com/contact-the-farm-marrakech/",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/thefarm_marrakech/",
@@ -104018,10 +104031,10 @@
       "address": null,
       "phone": "+212525081515",
       "whatsapp": null,
-      "website": "https://www.oberoihotels.com/hotels-in-morocco-marrakech",
+      "website": "https://www.oberoihotels.com/hotels-in-morocco-marrakech/accommodation/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2b941637-c411-48d9-96c0-6e4f4781f97a-1781519593155-1pt9xn.jpg",
       "google_rating": 4.8,
-      "google_review_count": 755,
+      "google_review_count": 784,
       "price_range": "$$$$",
       "min_price_mad": 1024,
       "languages": [],
@@ -122577,9 +122590,9 @@
       "id": "a402ff7c-98e8-4fa4-a935-8f2b32620073",
       "slug": "madame-a-marrakech",
       "url": "https://oneworldmorocco.com/madame-a-marrakech",
-      "name": " Madame à Marrakech",
+      "name": "Madame à Marrakech",
       "hook": "Le magazine chic et pratique de Marrakech 💕",
-      "description": "",
+      "description": "Madame à Marrakech est le magazine de référence pour celles et ceux qui souhaitent découvrir Marrakech autrement : ses nouvelles adresses, ses créateurs, ses restaurants, ses lieux culturels, ses tendances, ses expériences bien-être, sa mode et tout ce qui fait l’art de vivre de la ville. Depuis sa création par Aurore Chaffangeon , le magazine s’est construit autour d’une ambition claire : proposer un regard à la fois élégant, curieux, exigeant et pratique sur Marrakech . Lancé avec des fonds pe",
       "main_category": "Culture",
       "categories": [
         "Edition"
@@ -122673,7 +122686,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ab2964f7-18de-447c-b6e4-f82422cd56e7-1780812690763-a2y0f.jpg",
       "google_rating": 5,
-      "google_review_count": 115,
+      "google_review_count": 117,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -124634,7 +124647,7 @@
       "website": "https://www.oatlas.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2196bc38-b85a-49d5-a3c4-e907ddb87a79-1779833216039-nv4gxp.jpg",
       "google_rating": 4.9,
-      "google_review_count": 54,
+      "google_review_count": 55,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -151538,6 +151551,109 @@
       }
     },
     {
+      "id": "19522534-3ead-4959-af59-16c7954a327f",
+      "slug": "musee-de-l-art-culinaire-marocain-1",
+      "url": "https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain-1",
+      "name": "Musée de l'Art Culinaire Marocain",
+      "hook": "Découvrez les secrets de la cuisine marocaine dans un palais du XVIIIe siècle.",
+      "description": "Au cœur de la médina de Marrakech , derrière les hautes murailles en pisé et les portes discrètes qui bordent les ruelles, se cache un lieu étonnant : le Musée de l’Art Culinaire Marocain . Ici, il suffit de pousser une porte pour laisser derrière soi le bruit, l’agitation et la chaleur des rues. Vous entrez dans un véritable refuge architectural , installé dans un somptueux palais du XVIIIᵉ siècle, où l’histoire de Marrakech et celle de la gastronomie marocaine se rencontrent. Un palais de 5 00",
+      "main_category": "Culture",
+      "categories": [
+        "Musées",
+        "Sites touristiques"
+      ],
+      "services": [
+        "Entrée payante",
+        "Culture & traditions",
+        "Palais",
+        "Musées thématiques"
+      ],
+      "city": "Marrakech",
+      "neighborhood": "Medina",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.6215687,
+      "longitude": -7.9842764,
+      "address": "Rue Riad Zitoun el Jdid",
+      "phone": "+212524427177",
+      "whatsapp": null,
+      "website": null,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/19522534-3ead-4959-af59-16c7954a327f-1774616489683-btz61.jpg",
+      "google_rating": 4.8,
+      "google_review_count": 1159,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": {
+        "friday": {
+          "open": "09:00",
+          "close": "20:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "monday": {
+          "open": "09:00",
+          "close": "20:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "sunday": {
+          "open": "09:00",
+          "close": "20:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "tuesday": {
+          "open": "09:00",
+          "close": "20:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "saturday": {
+          "open": "09:00",
+          "close": "20:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "thursday": {
+          "open": "09:00",
+          "close": "20:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "wednesday": {
+          "open": "09:00",
+          "close": "20:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        }
+      },
+      "is_open_24h": false,
+      "booking_url": "https://www.moroccan-cam.com/fr/mcamactivities?category=882213b8-e7c0-450d-af0a-a84cac3af3d7",
+      "menu_url": null,
+      "social": {
+        "instagram": "https://www.instagram.com/moroccanculinaryartmuseum/",
+        "facebook": "https://www.facebook.com/moroccanculinaryartmuseum/",
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d19571202-Reviews-Moroccan_Culinary_Art_Museum-Marrakech_Marrakech_Safi.html?m=66827",
+        "youtube": null,
+        "linkedin": null
+      }
+    },
+    {
       "id": "1a9aecac-82b8-41c4-a2e7-d2b73285306c",
       "slug": "un-the-au-bout-du-monde-mirleft",
       "url": "https://oneworldmorocco.com/un-the-au-bout-du-monde-mirleft",
@@ -152040,7 +152156,7 @@
       "url": "https://oneworldmorocco.com/elevate-cycle",
       "name": "Elevate Cycle",
       "hook": "Une expérience immersive de cyclisme en salle de 45 minutes, unique en son genre à Marrakech.",
-      "description": "L'expérience Elevate Elevate Cycle propose bien plus qu'une simple séance de sport : nous offrons une expérience immersive de cyclisme en salle de 45 minutes, unique en son genre. Notre séance signature allie musique, rythme et mouvement pour créer une atmosphère où vous pouvez vous évader tout en repoussant vos limites. Mais nous ne nous arrêtons pas au cyclisme. Nous proposons également : Des séances de renforcement musculaire fonctionnel pour gagner en puissance et en endurance Des cours de P",
+      "description": "Au cœur de Guéliz, Elevate Cycle se présente comme le premier studio de cyclisme en salle de Marrakech. Dans un espace spacieux de 400 m², l’établissement propose une expérience sportive pensée pour dépasser le simple entraînement. Ici, la séance devient un moment d’immersion, porté par une atmosphère collective et par l’envie de progresser à chaque passage sur le vélo. La séance signature dure 45 minutes et associe musique, rythme et mouvement. Cette combinaison accompagne l’effort et crée une ",
       "main_category": "Sport & Loisirs",
       "categories": [
         "Fitness",
@@ -152256,7 +152372,7 @@
       "website": "https://m-avenue.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/fe0ab0ca-e324-4f26-87c5-23ae6a867c3f-1774592776454-7f2c9sq.jpg",
       "google_rating": 4.5,
-      "google_review_count": 4294,
+      "google_review_count": 4327,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],

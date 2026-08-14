@@ -1181,6 +1181,12 @@ export function VideoMediaPickerDialog({
               charge automatiquement dès la saisie d’un nom ou slug.
             </p>
 
+            <p className="text-[11px] text-muted-foreground">
+              Bibliothèque fiche / globale = les médias que le staff importe (upload/drag&drop) dans{" "}
+              <code>video_media_library</code> : « fiche » = rattachés à l’établissement associé, « globale » =
+              réutilisables partout, hors des médias publics de la fiche.
+            </p>
+
             {sourceFilter === "landscape" && (
               <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
                 <span>
