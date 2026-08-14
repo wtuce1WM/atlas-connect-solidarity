@@ -1884,16 +1884,19 @@ const VideoStoryboardPanel = () => {
         </CardContent>
       </Card>
 
+      <StoryboardGuide />
+      </div>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
-          <CardTitle className="text-black text-base">Rendus du storyboard</CardTitle>
+          <CardTitle className="text-black text-base">Rendus des montages</CardTitle>
           <Button size="sm" variant="outline" onClick={loadJobs}>
             <RotateCcw className="h-4 w-4 mr-1" /> Rafraîchir
           </Button>
         </CardHeader>
         <CardContent>
           {jobs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun rendu storyboard pour le moment.</p>
+            <p className="text-sm text-muted-foreground">Aucun rendu de montage pour le moment.</p>
           ) : (
             <div className="divide-y">
               {jobs.map((j) => (
@@ -1932,8 +1935,6 @@ const VideoStoryboardPanel = () => {
         </CardContent>
       </Card>
 
-      <StoryboardGuide />
-      </div>
 
     </div>
   );
