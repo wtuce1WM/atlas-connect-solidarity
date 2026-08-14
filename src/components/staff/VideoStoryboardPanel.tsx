@@ -789,6 +789,7 @@ const VideoStoryboardPanel = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [rendering, setRendering] = useState(false);
+  const [jobs, setJobs] = useState<StoryboardJob[]>([]);
   const [dirty, setDirty] = useState(false);
 
 
