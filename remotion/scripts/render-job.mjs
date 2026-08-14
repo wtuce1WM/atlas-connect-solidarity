@@ -84,6 +84,66 @@ function getVideoDurationSeconds(videoPath) {
     return null;
   }
 }
+const MEDIA_EXT = /\.(mp4|mov|webm|m4v|ogv|jpe?g|png|webp|avif|gif|mp3|m4a|wav|aac)(\?|#|$)/i;
+const DL_DIR = path.resolve(__dirname, "../public/dl");
+
+function extOf(url) {
+  const m = new URL(url).pathname.match(/\.([a-z0-9]{2,5})$/i);
+  return m ? m[1].toLowerCase() : "bin";
+}
+
+async function downloadMedia(url) {
+  const key = Buffer.from(url).toString("base64url").slice(-40);
+  const file = `${key}.${extOf(url)}`;
+  const dest = path.join(DL_DIR, file);
+  if (fs.existsSync(dest) && fs.statSync(dest).size > 0) return `dl/${file}`;
+  if (!fs.existsSync(DL_DIR)) fs.mkdirSync(DL_DIR, { recursive: true });
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 90000);
+    try {
+      const r = await fetch(url, {
+        redirect: "follow",
+        signal: ctrl.signal,
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; OWMRenderer/1.0)", Accept: "*/*" },
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const buf = Buffer.from(await r.arrayBuffer());
+      if (buf.length === 0) throw new Error("fichier vide");
+      fs.writeFileSync(dest, buf);
+      console.log(`⬇️  Média internalisé (${(buf.length / 1048576).toFixed(1)} Mo) : ${url}`);
+      return `dl/${file}`;
+    } catch (e) {
+      console.warn(`⚠️  Téléchargement échoué (essai ${attempt}/3) ${url} : ${e?.message || e}`);
+      if (fs.existsSync(dest)) fs.rmSync(dest, { force: true });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  return null;
+}
+
+/** Réécrit récursivement toute URL média http(s) des props vers un fichier local. */
+async function internalizeRemoteMedia(value) {
+  if (typeof value === "string") {
+    if (!/^https?:\/\//i.test(value) || !MEDIA_EXT.test(value)) return value;
+    const local = await downloadMedia(value);
+    return local ?? value;
+  }
+  if (Array.isArray(value)) {
+    const out = [];
+    for (const v of value) out.push(await internalizeRemoteMedia(v));
+    return out;
+  }
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) out[k] = await internalizeRemoteMedia(v);
+    return out;
+  }
+  return value;
+}
+
 
 async function renderOne() {
   console.log("🔍 Recherche d'une vidéo en file d'attente...");
