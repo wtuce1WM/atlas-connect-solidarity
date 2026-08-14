@@ -620,9 +620,9 @@ const MapRevealScene: React.FC<{ wide: boolean; section: StoryboardSection }> = 
                 }}
               />
               {label && (
-                <span
+                <SceneBody
+                  small
                   style={{
-                    fontFamily: bodyFont,
                     fontSize: size.label,
                     color: palette.cream,
                     whiteSpace: "nowrap",
@@ -630,7 +630,7 @@ const MapRevealScene: React.FC<{ wide: boolean; section: StoryboardSection }> = 
                   }}
                 >
                   {label}
-                </span>
+                </SceneBody>
               )}
             </div>
           );
@@ -649,33 +649,13 @@ const MapRevealScene: React.FC<{ wide: boolean; section: StoryboardSection }> = 
               opacity: enter,
             }}
           >
-            {kicker && (
-              <span
-                style={{
-                  fontFamily: bodyFont,
-                  fontSize: size.caption,
-                  letterSpacing: 3,
-                  textTransform: "uppercase",
-                  color: palette.gold,
-                }}
-              >
-                {kicker}
-              </span>
-            )}
+            {kicker && <SceneKicker>{kicker}</SceneKicker>}
             {title && (
-              <span
-                style={{
-                  fontFamily: displayFont,
-                  fontSize: wide ? size.h2 : size.h3,
-                  fontWeight: weight.bold,
-                  lineHeight: 1.08,
-                  color: palette.cream,
-                  textShadow: `0 4px 24px ${alpha("night", 0.85)}`,
-                }}
-              >
+              <SceneTitle wide={wide} style={{ textShadow: `0 4px 24px ${alpha("night", 0.85)}` }}>
                 {title}
-              </span>
+              </SceneTitle>
             )}
+
             <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.07])} stageWidth={stage.width} />
           </div>
         )}
