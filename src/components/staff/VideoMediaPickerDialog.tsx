@@ -492,7 +492,9 @@ export function VideoMediaPickerDialog({
   triggerClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const { items, loading, reload } = useVideoMediaSources(businessId, open);
+  const [slugQuery, setSlugQuery] = useState("");
+  const [otherSlug, setOtherSlug] = useState("");
+  const { items, loading, reload } = useVideoMediaSources(businessId, open, otherSlug);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>(allow === "all" ? "all" : allow);
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [search, setSearch] = useState("");
@@ -524,8 +526,12 @@ export function VideoMediaPickerDialog({
         return m.source === "fiche" || !!m.onFiche;
       case "generic":
         return m.source === "generic";
+      case "generic_video":
+        return m.source === "generic_video";
       case "landscape":
         return m.source === "landscape";
+      case "other":
+        return m.source === "other";
       case "library_business":
         return m.source === "library" && m.scope === "business";
       case "library_global":
