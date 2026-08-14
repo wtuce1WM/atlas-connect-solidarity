@@ -521,9 +521,12 @@ export function VideoMediaPickerDialog({
   const [open, setOpen] = useState(false);
   const [slugQuery, setSlugQuery] = useState("");
   const [otherSlug, setOtherSlug] = useState("");
-  const { items, loading, reload } = useVideoMediaSources(businessId, open, otherSlug);
+  const [slugOptions, setSlugOptions] = useState<{ id: string; name: string; slug: string | null }[]>([]);
+  const { items, loading, reload, setItems } = useVideoMediaSources(businessId, open, otherSlug);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>(allow === "all" ? "all" : allow);
-  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
+  // Par défaut on ouvre sur les médias de la fiche (« Fiche · vidéos » quand la
+  // scène n'accepte que des vidéos) : c'est le cas d'usage courant.
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("fiche");
   const [search, setSearch] = useState("");
   const [uploadScope, setUploadScope] = useState<"global" | "business">(businessId ? "business" : "global");
   const [uploading, setUploading] = useState(false);
@@ -535,17 +538,35 @@ export function VideoMediaPickerDialog({
   }, [allow]);
 
   useEffect(() => {
-    const slug = slugQuery.trim();
-    if (slug.length < 2) {
+    if (open) setSourceFilter("fiche");
+  }, [open]);
+
+  // Auto-complete sur les autres fiches (nom ou slug) — aucun bouton à cliquer.
+  useEffect(() => {
+    const q = slugQuery.trim();
+    if (q.length < 2) {
+      setSlugOptions([]);
       setOtherSlug("");
       return;
     }
-    const timer = window.setTimeout(() => {
-      setOtherSlug(slug);
+    let alive = true;
+    const timer = window.setTimeout(async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, slug")
+        .or(`slug.ilike.%${q}%,name.ilike.%${q}%`)
+        .limit(8);
+      if (!alive) return;
+      setSlugOptions((data ?? []) as any[]);
+      setOtherSlug(q);
       setSourceFilter("other");
-    }, 350);
-    return () => window.clearTimeout(timer);
+    }, 300);
+    return () => {
+      alive = false;
+      window.clearTimeout(timer);
+    };
   }, [slugQuery]);
+
 
   /** Base restreinte par `allow` + type : sert aussi aux compteurs du menu déroulant. */
   const typeBase = useMemo(
