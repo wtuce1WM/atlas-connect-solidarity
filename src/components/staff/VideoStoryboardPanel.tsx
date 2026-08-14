@@ -627,7 +627,7 @@ const StoryboardGuide = () => {
       type: "photos",
       icon: <Image className="h-4 w-4" />,
       title: "Photos plein écran",
-      body: "Carrousel de 1 à 4 images avec mouvement Ken Burns (zoom_in, zoom_out, none). Les URLs saisies sont prioritaires ; sinon le moteur utilise les images de la fiche.",
+      body: "Carrousel de 1 à 4 images avec mouvement Ken Burns (zoom_in, zoom_out, none). Les images choisies dans le sélecteur sont prioritaires ; sinon le moteur utilise les images de la fiche.",
     },
     {
       type: "text_overlay",
