@@ -188,11 +188,7 @@ function Tile({
               ? item.scope === "global"
                 ? "globale"
                 : "fiche · staff"
-              : item.source === "generic"
-                ? "générique"
-                : item.source === "landscape"
-                  ? "landscape"
-                  : "fiche"}
+              : SOURCE_LABEL[item.source]}
           </span>
           {orientation && (
             <span
