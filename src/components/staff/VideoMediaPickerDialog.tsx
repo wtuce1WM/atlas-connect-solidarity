@@ -1162,8 +1162,8 @@ export function VideoMediaPickerDialog({
                 Aucun média pour ces filtres. Glissez-déposez ou importez un fichier pour alimenter la bibliothèque.
               </p>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pt-2">
-                {pageItems.map((m) => (
+              (() => {
+                const renderTile = (m: PickerMedia) => (
                   <Tile
                     key={m.url}
                     item={m}
@@ -1176,11 +1176,35 @@ export function VideoMediaPickerDialog({
                       noteOrientation(m, o);
                       void setOrientationOnce(m, o);
                     }}
-
                   />
-                ))}
-              </div>
+                );
+                const vids = pageItems.filter((m) => m.kind === "video");
+                const imgs = pageItems.filter((m) => m.kind === "image");
+                return (
+                  <div className="space-y-5 pt-2">
+                    {vids.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Vidéos · {vids.length}
+                        </div>
+                        <div className="flex flex-wrap items-start gap-3">{vids.map(renderTile)}</div>
+                      </div>
+                    )}
+                    {imgs.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Images · {imgs.length}
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                          {imgs.map(renderTile)}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()
             )}
+
 
             {!loading && filtered.length > PAGE_SIZE && (
               <div className="flex items-center justify-between gap-2 border-t pt-3">
