@@ -558,7 +558,7 @@ const SortableSection = ({
             </label>
           </div>
           {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
-          <ConfigFields section={section} patch={patch} />
+          <ConfigFields section={section} patch={patch} businessId={businessId} format={format} />
         </div>
       )}
     </div>
