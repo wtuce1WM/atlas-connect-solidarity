@@ -90,6 +90,11 @@ export const promoDefaults: BusinessPromoProps = {
 
 const f = (sec: number) => Math.max(1, Math.round(sec * PROMO_FPS));
 
+/** Polices avec repli emoji : sans ce repli, les emojis du Rich Text sortent en tofu. */
+const EMOJI = `"Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Twemoji Mozilla"`;
+const displayFont = `${display}, ${EMOJI}`;
+const bodyFont = `${body}, ${EMOJI}`;
+
 /** Découpe du montage en segments effectifs (blocs décochés = ignorés). */
 export const promoSegments = (p: BusinessPromoProps) => {
   const images = (p.images || []).slice(0, 4);
