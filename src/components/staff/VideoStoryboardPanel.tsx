@@ -29,6 +29,8 @@ import {
   Play,
 } from "lucide-react";
 import { toast } from "sonner";
+import { VideoMediaPickerDialog } from "@/components/staff/VideoMediaPickerDialog";
+
 import {
   DndContext,
   closestCenter,
