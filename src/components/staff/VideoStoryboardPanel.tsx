@@ -1198,6 +1198,54 @@ const VideoStoryboardPanel = () => {
     toast.success("Storyboard créé");
   };
 
+  /** Duplication : le montage courant enregistré + toutes ses étapes. */
+  const duplicateBoard = async () => {
+    if (!board) return;
+    if (dirty) {
+      toast.error("Enregistre le montage avant de le dupliquer");
+      return;
+    }
+    const { data, error } = await supabase
+      .from("video_storyboards" as any)
+      .insert({
+        name: `${board.name} (copie)`,
+        scenario_type: board.scenario_type,
+        format: board.format,
+        business_id: board.business_id,
+        preview_scale: board.preview_scale,
+        max_duration_sec: board.max_duration_sec,
+      } as any)
+      .select("id")
+      .maybeSingle();
+    if (error || !data) {
+      toast.error(`Duplication impossible : ${error?.message ?? "inconnue"}`);
+      return;
+    }
+    const newId = (data as any).id as string;
+    if (sections.length > 0) {
+      const rows = sections.map((s, i) => ({
+        storyboard_id: newId,
+        mode: s.mode ?? "corporate",
+        scene_key: s.scene_key || `${s.step_type}_${i + 1}`,
+        step_type: s.step_type,
+        label: s.label,
+        position: (i + 1) * 10,
+        duration_sec: s.duration_sec,
+        enabled: s.enabled,
+        config: s.config ?? {},
+      }));
+      const { error: stepErr } = await supabase.from("video_scenario_steps" as any).insert(rows as any);
+      if (stepErr) {
+        toast.error(`Étapes non copiées : ${stepErr.message}`);
+        return;
+      }
+    }
+    await loadBoards();
+    setLegacyMode(null);
+    setCurrentId(newId);
+    toast.success("Montage dupliqué");
+  };
+
   const deleteBoard = async () => {
     if (!board) return;
     const { error } = await supabase.from("video_storyboards" as any).delete().eq("id", board.id);
