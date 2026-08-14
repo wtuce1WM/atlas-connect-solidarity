@@ -4,6 +4,12 @@ import { assetUrl } from "./lib/assetUrl";
 import { palette, alpha, display, body, size, weight } from "./tokens";
 import { PromoLogo } from "./promo/PromoLogo";
 import { resolveStoryboardIcon } from "./icons/registry";
+import {
+  FeedEffectsOverlay,
+  FeedMotionBlurWrapper,
+  mergeEffects,
+  type FeedEffectsConfig,
+} from "./effects/FeedEffects";
 
 /**
  * Moteur de storyboard manuel — SOURCE UNIQUE.
@@ -62,6 +68,8 @@ export type StoryboardProps = {
   hook?: string | null;
   photos?: string[] | null;
   videoUrl?: string | null;
+  /** Effets de motion design du montage (grade global). Absent = aucun effet. */
+  effects?: FeedEffectsConfig | null;
   sections: StoryboardSection[];
 };
 
@@ -74,6 +82,7 @@ export const storyboardDefaults: StoryboardProps = {
   hook: null,
   photos: null,
   videoUrl: null,
+  effects: null,
   sections: [{ step_type: "logo_merge", duration_sec: 6, config: {} }],
 };
 
@@ -1310,6 +1319,7 @@ export const Storyboard: React.FC<StoryboardProps> = (props) => {
   return (
     <AbsoluteFill style={{ background: palette.night }}>
       <AbsoluteFill>
+        <FeedMotionBlurWrapper effects={p.effects ?? null}>
         <div
           style={{
             position: "absolute",
@@ -1325,12 +1335,22 @@ export const Storyboard: React.FC<StoryboardProps> = (props) => {
             flexShrink: 0,
           }}
         >
-          {plans.map((plan) => (
-            <Sequence key={plan.key} from={plan.from} durationInFrames={plan.frames} layout="none">
-              <SectionScene wide={wide} p={p} section={plan.section} />
-            </Sequence>
-          ))}
+          {plans.map((plan) => {
+            // Héritage : `config.effects` de l'étape surcharge seulement les
+            // accents du montage (voir STEP_EFFECT_KEYS).
+            const stepEffects = mergeEffects(
+              p.effects ?? null,
+              (plan.section.config?.effects as Partial<FeedEffectsConfig> | undefined) ?? null,
+            );
+            return (
+              <Sequence key={plan.key} from={plan.from} durationInFrames={plan.frames} layout="none">
+                <SectionScene wide={wide} p={p} section={plan.section} />
+                {stepEffects && <FeedEffectsOverlay effects={{ ...stepEffects, motionBlur: false }} />}
+              </Sequence>
+            );
+          })}
         </div>
+        </FeedMotionBlurWrapper>
       </AbsoluteFill>
     </AbsoluteFill>
   );

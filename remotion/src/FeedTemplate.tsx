@@ -480,6 +480,25 @@ const WideVideo: React.FC<{ m: FeedManifest }> = ({ m }) => {
 };
 
 
+/**
+ * Couche d'effets ciblée : les accents (tracé SVG) peuvent être limités à la
+ * phase « accroche » (défilement) ou « fiche » (détail ouvert). Le grade
+ * global (grain, vignette, fuites) reste appliqué en continu.
+ */
+const ScopedFeedEffects: React.FC<{ m: FeedManifest; effects: FeedEffectsConfig | null }> = ({ m, effects }) => {
+  const frame = useCurrentFrame();
+  if (!effects) return null;
+  const plan = buildPlan(m);
+  const inHook = frame < plan.swipeEnd;
+  return (
+    <FeedEffectsOverlay
+      effects={effects}
+      phase={inHook ? "hook" : "detail"}
+      phaseStartFrame={inHook ? 0 : plan.swipeEnd}
+    />
+  );
+};
+
 export const FeedTemplate: React.FC<FeedTemplateProps> = ({ manifest, format }) => {
   if (!manifest) return <AbsoluteFill style={{ backgroundColor: "#000" }} />;
   const m = manifest;
@@ -511,7 +530,7 @@ export const FeedTemplate: React.FC<FeedTemplateProps> = ({ manifest, format }) 
             </div>
           )}
         </FeedMotionBlurWrapper>
-        <FeedEffectsOverlay effects={effects} />
+        <ScopedFeedEffects m={m} effects={effects} />
       </AbsoluteFill>
     );
   }
@@ -537,7 +556,7 @@ export const FeedTemplate: React.FC<FeedTemplateProps> = ({ manifest, format }) 
           <Stage m={m} />
         </div>
       </FeedMotionBlurWrapper>
-      <FeedEffectsOverlay effects={effects} />
+      <ScopedFeedEffects m={m} effects={effects} />
     </AbsoluteFill>
   );
 };

@@ -33,6 +33,12 @@ import VideoIconPickerDialog from "@/components/staff/VideoIconPickerDialog";
 import { VideoMediaPickerDialog } from "@/components/staff/VideoMediaPickerDialog";
 import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
 import { Copy } from "lucide-react";
+import {
+  MontageEffectsBlock,
+  StepEffectsBlock,
+  hasAnyMontageEffect,
+  type MontageEffects,
+} from "@/components/staff/video-effects";
 
 import {
   DndContext,
@@ -91,6 +97,8 @@ type Storyboard = {
   business_id: string | null;
   preview_scale: number;
   max_duration_sec: number;
+  /** Grade global de motion design du montage (null = aucun effet). */
+  effects?: MontageEffects | null;
   created_at?: string | null;
   updated_at?: string | null;
 };
@@ -820,6 +828,17 @@ const SortableSection = ({
           </div>
           {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
           <ConfigFields section={section} patch={patch} businessId={businessId} format={format} />
+          <div className="mt-3 grid">
+            <StepEffectsBlock
+              value={(section.config?.effects as Partial<MontageEffects> | undefined) ?? null}
+              onChange={(v) => {
+                const next = { ...(section.config ?? {}) };
+                if (v) next.effects = v;
+                else delete next.effects;
+                patch({ config: next });
+              }}
+            />
+          </div>
         </div>
       )}
     </div>
@@ -1094,7 +1113,7 @@ const VideoStoryboardPanel = () => {
   const loadBoards = useCallback(async () => {
     const { data, error } = await supabase
       .from("video_storyboards" as any)
-      .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, created_at, updated_at")
+      .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, effects, created_at, updated_at")
       .order("created_at", { ascending: false });
     if (error) {
       toast.error("Chargement des storyboards impossible");
@@ -1128,7 +1147,7 @@ const VideoStoryboardPanel = () => {
     const [boardRes, stepsRes] = await Promise.all([
       supabase
         .from("video_storyboards" as any)
-        .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, created_at, updated_at")
+        .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, effects, created_at, updated_at")
         .eq("id", id)
         .maybeSingle(),
       supabase
@@ -1231,6 +1250,7 @@ const VideoStoryboardPanel = () => {
         business_id: board.business_id,
         preview_scale: board.preview_scale,
         max_duration_sec: board.max_duration_sec,
+        effects: board.effects ?? null,
       } as any)
       .select("id")
       .maybeSingle();
@@ -1411,6 +1431,7 @@ const VideoStoryboardPanel = () => {
         business_id: biz?.id ?? null,
         preview_scale: board.preview_scale,
         max_duration_sec: board.max_duration_sec,
+        effects: board.effects ?? null,
       } as any)
       .eq("id", board.id);
 
@@ -1507,6 +1528,8 @@ const VideoStoryboardPanel = () => {
         hook: hookFr,
         photos,
         videoUrl,
+        // Grade global : rien n'est transmis si aucun effet n'est activé.
+        ...(hasAnyMontageEffect(board.effects) ? { effects: board.effects } : {}),
         sections: sections
           .filter((s) => s.enabled)
           .map((s) => ({
@@ -1826,6 +1849,14 @@ const VideoStoryboardPanel = () => {
                   (si activé) les fonds média. Chaque étape reste modifiable individuellement ensuite.
                 </span>
               </div>
+
+              <MontageEffectsBlock
+                value={board.effects ?? null}
+                onChange={(v) => {
+                  setBoard((prev) => (prev ? { ...prev, effects: v } : prev));
+                  setDirty(true);
+                }}
+              />
 
               <div className="flex flex-wrap items-center gap-2">
                 <select
