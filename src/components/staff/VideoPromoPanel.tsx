@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import VideoJobMeta from "@/components/staff/VideoJobMeta";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Rocket, RefreshCw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -83,6 +84,7 @@ const VideoPromoPanel = () => {
 
   const [submitting, setSubmitting] = useState(false);
   const [jobs, setJobs] = useState<PromoJob[]>([]);
+  const [jobBusinessNames, setJobBusinessNames] = useState<Record<string, string>>({});
 
   const images = useMemo(() => (biz?.images || []).slice(0, 4), [biz]);
   /** Longueur du texte hors balises : la limite de 500 porte sur le contenu lisible. */
@@ -101,11 +103,21 @@ const VideoPromoPanel = () => {
   const loadJobs = async () => {
     const { data } = await supabase
       .from("video_jobs")
-      .select("id, title, status, output_url, error_message, created_at, template_id")
+      .select(
+        "id, title, status, output_url, error_message, created_at, template_id, duration_sec, business_id, template_props, scenario_json",
+      )
       .like("template_id", "business-promo%")
       .order("created_at", { ascending: false })
       .limit(12);
-    setJobs((data ?? []) as PromoJob[]);
+    const rows = (data ?? []) as PromoJob[];
+    setJobs(rows);
+    const ids = Array.from(new Set(rows.map((r) => r.business_id).filter(Boolean))) as string[];
+    if (ids.length) {
+      const { data: biz } = await supabase.from("businesses").select("id, name").in("id", ids);
+      const map: Record<string, string> = {};
+      ((biz as any[]) ?? []).forEach((b) => (map[b.id] = b.name));
+      setJobBusinessNames(map);
+    }
   };
 
   useEffect(() => {
@@ -480,26 +492,29 @@ const VideoPromoPanel = () => {
           ) : (
             <div className="divide-y">
               {jobs.map((j) => (
-                <div key={j.id} className="py-2 flex items-center gap-3 flex-wrap text-sm">
-                  <Badge
-                    variant={j.status === "done" ? "default" : j.status === "error" ? "destructive" : "outline"}
-                    className="text-[10px]"
-                  >
-                    {j.status}
-                  </Badge>
-                  <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
-                  <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
-                  <span className="text-[11px] text-muted-foreground">
-                    {new Date(j.created_at).toLocaleString("fr-FR")}
-                  </span>
-                  {j.output_url && (
-                    <a href={j.output_url} target="_blank" rel="noreferrer" className="text-[11px] underline text-primary ml-auto">
-                      Ouvrir la vidéo
-                    </a>
-                  )}
-                  {j.error_message && (
-                    <span className="text-[11px] text-destructive ml-auto max-w-md truncate">{j.error_message}</span>
-                  )}
+                <div key={j.id} className="py-3 space-y-2">
+                  <div className="flex items-center gap-3 flex-wrap text-sm">
+                    <Badge
+                      variant={j.status === "done" ? "default" : j.status === "error" ? "destructive" : "outline"}
+                      className="text-[10px]"
+                    >
+                      {j.status}
+                    </Badge>
+                    <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
+                    <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
+                    {j.output_url && (
+                      <a href={j.output_url} target="_blank" rel="noreferrer" className="text-[11px] underline text-primary ml-auto">
+                        Ouvrir la vidéo
+                      </a>
+                    )}
+                    {j.error_message && (
+                      <span className="text-[11px] text-destructive ml-auto max-w-md truncate">{j.error_message}</span>
+                    )}
+                  </div>
+                  <VideoJobMeta
+                    job={j}
+                    businessName={j.business_id ? jobBusinessNames[j.business_id] : undefined}
+                  />
                 </div>
               ))}
             </div>
