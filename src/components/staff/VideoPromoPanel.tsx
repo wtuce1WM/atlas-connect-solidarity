@@ -124,32 +124,51 @@ const VideoPromoPanel = () => {
     setVideoUrl(internal?.url ?? null);
   };
 
-  const runSearch = async () => {
+  /**
+   * Saisie auto-complete : debounce 250 ms sur le champ. Une URL 1WM est
+   * résolue directement (fiche ou /search?openBusiness=), sinon on propose les
+   * établissements dont le nom ou le slug correspond.
+   */
+  useEffect(() => {
     const raw = query.trim();
-    if (!raw) return;
-    setSearching(true);
-    const cols = "id, name, slug, city, hook_fr, images, logo_url";
-    const parsed = parseOwmUrl(raw);
-    if (parsed) {
-      const q = supabase.from("businesses").select(cols);
-      const { data } = parsed.id ? await q.eq("id", parsed.id).limit(1) : await q.eq("slug", parsed.slug!).limit(1);
-      const found = ((data ?? []) as any[])[0];
-      setSearching(false);
-      if (!found) {
-        toast.error("Aucun établissement pour cette URL 1WM");
-        return;
-      }
-      await selectBusiness(found as Biz);
+    if (raw.length < 2 || (biz && raw === biz.name)) {
+      setResults([]);
       return;
     }
-    const { data } = await supabase
-      .from("businesses")
-      .select(cols)
-      .or(`name.ilike.%${raw}%,slug.ilike.%${raw}%`)
-      .limit(12);
-    setResults((data ?? []) as Biz[]);
-    setSearching(false);
-  };
+    const cols = "id, name, slug, city, hook_fr, images, logo_url";
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      setSearching(true);
+      const parsed = parseOwmUrl(raw);
+      if (parsed) {
+        const q = supabase.from("businesses").select(cols);
+        const { data } = parsed.id ? await q.eq("id", parsed.id).limit(1) : await q.eq("slug", parsed.slug!).limit(1);
+        const found = ((data ?? []) as any[])[0];
+        if (cancelled) return;
+        setSearching(false);
+        if (!found) {
+          toast.error("Aucun établissement pour cette URL 1WM");
+          return;
+        }
+        await selectBusiness(found as Biz);
+        return;
+      }
+      const { data } = await supabase
+        .from("businesses")
+        .select(cols)
+        .or(`name.ilike.%${raw}%,slug.ilike.%${raw}%`)
+        .limit(12);
+      if (cancelled) return;
+      setResults((data ?? []) as Biz[]);
+      setSearching(false);
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+
 
   const submit = async () => {
     if (!biz) {
