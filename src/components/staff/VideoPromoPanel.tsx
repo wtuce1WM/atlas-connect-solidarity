@@ -74,8 +74,9 @@ const VideoPromoPanel = () => {
   const [format, setFormat] = useState<"portrait" | "landscape">("portrait");
   const [variant, setVariant] = useState<"fullscreen" | "mockup">("fullscreen");
   const [mockupBg, setMockupBg] = useState(PRESET_BG[0].value);
-  const [blocks, setBlocks] = useState({ hook: true, video: true, photos: true, text: false, outro: true });
-  const [seconds, setSeconds] = useState({ hook: 3, video: 5, photo: 1.5, text: 4, outro: 2.5 });
+  const [blocks, setBlocks] = useState({ hook: true, video: true, photos: true, outro: true });
+  const [seconds, setSeconds] = useState({ hook: 3, video: 5, photo: 1.5, outro: 2.5 });
+
   const [submitting, setSubmitting] = useState(false);
   const [jobs, setJobs] = useState<PromoJob[]>([]);
 
