@@ -1,6 +1,7 @@
 import React from "react";
 import { Img, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { palette, alpha } from "../tokens";
+import { assetUrl } from "../lib/assetUrl";
 
 /**
  * Révélation d'un logo transparent (webp/png), même grammaire que les logos
@@ -53,7 +54,7 @@ export const PromoLogo: React.FC<{
         />
       )}
       <Img
-        src={src}
+        src={assetUrl(src) ?? src}
         style={{
           position: "relative",
           width: size,

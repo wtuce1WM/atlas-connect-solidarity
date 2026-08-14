@@ -14,6 +14,7 @@ import { PhoneFrame, phoneGeometry } from "./PhoneFrame";
 import { PromoLogo } from "./promo/PromoLogo";
 import { FeedBackdrop, useFeedManifest } from "./promo/FeedBackdrop";
 import type { FeedManifest } from "./FeedTemplate";
+import { assetUrl } from "./lib/assetUrl";
 
 /**
  * Template « Promo business » — aucun Playwright, aucun appel IA.
@@ -133,10 +134,13 @@ const MediaFill: React.FC<{ src: string; kind: "img" | "video"; durationFrames: 
     objectFit: "cover",
     transform: `scale(${scale})`,
   };
+  // Médias internalisés par le worker (`dl/…`) : résolution obligatoire via staticFile.
+  const resolved = assetUrl(src);
+  if (!resolved) return null;
   return kind === "video" ? (
-    <OffthreadVideo src={src} muted style={styleFill} />
+    <OffthreadVideo src={resolved} muted style={styleFill} />
   ) : (
-    <Img src={src} style={styleFill} />
+    <Img src={resolved} style={styleFill} />
   );
 };
 
