@@ -640,10 +640,292 @@ const SplitScreenScene: React.FC<{ wide: boolean; section: StoryboardSection }> 
 };
 
 /**
+ * `hook` — accroche d'ouverture : logo de la fiche, accroche, ville.
+ * config : { title, subtitle, kicker } — repli sur les props fiche.
+ */
+const HookScene: React.FC<{ wide: boolean; p: StoryboardProps; section: StoryboardSection }> = ({ wide, p, section }) => {
+  const { enter, out } = useSceneFade();
+  const cfg = section.config ?? {};
+  const stage = wide ? STAGE_LANDSCAPE : STAGE_PORTRAIT;
+  const logo = assetUrl(p.logoUrl ?? p.brandLogoUrl);
+  const title = str(cfg, "title") ?? str(cfg, "hook") ?? p.hook ?? p.businessName ?? "";
+  const subtitle = str(cfg, "subtitle") ?? p.city ?? null;
+
+  return (
+    <SceneBackdrop>
+      <div
+        style={{
+          opacity: out * enter,
+          transform: `translateY(${interpolate(enter, [0, 1], [30, 0])}px)`,
+          width: stage.width * 0.8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: stage.width * 0.03,
+          textAlign: "center",
+        }}
+      >
+        {logo && <PromoLogo src={logo} size={stage.width * (wide ? 0.16 : 0.28)} />}
+        {title && (
+          <span
+            style={{
+              fontFamily: displayFont,
+              fontSize: wide ? size.h1 : size.h2,
+              fontWeight: weight.bold,
+              lineHeight: 1.08,
+              color: palette.cream,
+            }}
+          >
+            {title}
+          </span>
+        )}
+        <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.09])} stageWidth={stage.width} />
+        {subtitle && (
+          <span
+            style={{
+              fontFamily: bodyFont,
+              fontSize: size.lead,
+              letterSpacing: 3,
+              textTransform: "uppercase",
+              color: alpha("cream", 0.82),
+            }}
+          >
+            {subtitle}
+          </span>
+        )}
+      </div>
+    </SceneBackdrop>
+  );
+};
+
+/**
+ * `video` — vidéo plein cadre (asset 1WM ou vidéo interne de la fiche).
+ * config : { assetUrl, sound, title }
+ */
+const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: StoryboardSection }> = ({ wide, p, section }) => {
+  const { enter, out } = useSceneFade();
+  const cfg = section.config ?? {};
+  const stage = wide ? STAGE_LANDSCAPE : STAGE_PORTRAIT;
+  const src = assetUrl(str(cfg, "assetUrl") ?? str(cfg, "videoUrl") ?? p.videoUrl);
+  const title = str(cfg, "title");
+  const muted = !cfg.sound;
+
+  return (
+    <SceneBackdrop>
+      <AbsoluteFill style={{ opacity: out }}>
+        {src ? (
+          <OffthreadVideo
+            src={src}
+            muted={muted}
+            volume={muted ? 0 : 1}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        ) : null}
+        <AbsoluteFill
+          style={{
+            background: `linear-gradient(to top, ${alpha("night", 0.78)} 4%, ${alpha("night", 0)} 45%)`,
+          }}
+        />
+        {title && (
+          <div
+            style={{
+              position: "absolute",
+              left: stage.width * 0.07,
+              bottom: stage.height * 0.09,
+              maxWidth: stage.width * 0.72,
+              display: "flex",
+              flexDirection: "column",
+              gap: stage.width * 0.012,
+              opacity: enter,
+              transform: `translateY(${interpolate(enter, [0, 1], [22, 0])}px)`,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: displayFont,
+                fontSize: wide ? size.h3 : size.h4,
+                fontWeight: weight.bold,
+                lineHeight: 1.1,
+                color: palette.cream,
+                textShadow: `0 4px 24px ${alpha("night", 0.85)}`,
+              }}
+            >
+              {title}
+            </span>
+            <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.06])} stageWidth={stage.width} />
+          </div>
+        )}
+      </AbsoluteFill>
+    </SceneBackdrop>
+  );
+};
+
+/**
+ * `photos` — jusqu'à 4 photos plein cadre en Ken Burns, la durée de la section
+ * étant partagée à parts égales. Les URLs explicites (`images`) priment sur les
+ * photos de la fiche.
+ */
+const PhotosScene: React.FC<{ wide: boolean; p: StoryboardProps; section: StoryboardSection }> = ({ wide, p, section }) => {
+  const frame = useCurrentFrame();
+  const { durationInFrames, fps } = useVideoConfig();
+  const cfg = section.config ?? {};
+  const stage = wide ? STAGE_LANDSCAPE : STAGE_PORTRAIT;
+  const explicit = Array.isArray(cfg.images)
+    ? (cfg.images as unknown[]).filter((v): v is string => typeof v === "string" && !!v.trim())
+    : [];
+  const count = Math.min(4, Math.max(1, num(cfg, "count") ?? 4));
+  const pool = (explicit.length ? explicit : (p.photos ?? []).filter(Boolean)).slice(0, count);
+  const move = str(cfg, "kenBurns") ?? "zoom_in";
+  const title = str(cfg, "title");
+
+  const shots = pool.length ? pool : [null];
+  const per = durationInFrames / shots.length;
+  const index = Math.min(shots.length - 1, Math.floor(frame / per));
+  const local = frame - index * per;
+  const progress = Math.min(1, Math.max(0, local / per));
+  const fade = Math.min(
+    interpolate(local, [0, Math.round(fps * 0.35)], [0, 1], { extrapolateRight: "clamp" }),
+    interpolate(local, [per - Math.round(fps * 0.35), per], [1, 0], { extrapolateLeft: "clamp" }),
+  );
+  const scale =
+    move === "none" ? 1.02 : move === "zoom_out" ? interpolate(progress, [0, 1], [1.14, 1.02]) : interpolate(progress, [0, 1], [1.02, 1.14]);
+  const src = assetUrl(shots[index]);
+
+  return (
+    <SceneBackdrop>
+      <AbsoluteFill>
+        {src ? (
+          <Img
+            src={src}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              opacity: fade,
+              transform: `scale(${scale})`,
+            }}
+          />
+        ) : null}
+        <AbsoluteFill
+          style={{ background: `linear-gradient(to top, ${alpha("night", 0.7)} 6%, ${alpha("night", 0)} 48%)` }}
+        />
+        {title && (
+          <span
+            style={{
+              position: "absolute",
+              left: stage.width * 0.07,
+              bottom: stage.height * 0.09,
+              maxWidth: stage.width * 0.75,
+              fontFamily: displayFont,
+              fontSize: wide ? size.h3 : size.h4,
+              fontWeight: weight.bold,
+              color: palette.cream,
+              textShadow: `0 4px 24px ${alpha("night", 0.85)}`,
+            }}
+          >
+            {title}
+          </span>
+        )}
+      </AbsoluteFill>
+    </SceneBackdrop>
+  );
+};
+
+/**
+ * `text_overlay` — texte riche (H1/H2/p/strong/em, emojis) sur fond nuit.
+ * config : { html }
+ */
+const TextOverlayScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({ wide, section }) => {
+  const { enter, out } = useSceneFade();
+  const cfg = section.config ?? {};
+  const stage = wide ? STAGE_LANDSCAPE : STAGE_PORTRAIT;
+  const html = str(cfg, "html") ?? str(cfg, "text") ?? "";
+  // Balises tolérées uniquement : le reste est neutralisé (pas de script/style).
+  const safe = html.replace(/<\s*\/?\s*(?!\/?(h1|h2|h3|p|br|strong|b|em|i|ul|ol|li|span)\b)[^>]*>/gi, "");
+
+  return (
+    <SceneBackdrop>
+      <div
+        style={{
+          opacity: out * enter,
+          transform: `translateY(${interpolate(enter, [0, 1], [24, 0])}px)`,
+          width: stage.width * 0.78,
+          textAlign: "center",
+          fontFamily: bodyFont,
+          fontSize: wide ? size.lead : size.h4,
+          lineHeight: 1.4,
+          color: palette.cream,
+        }}
+        dangerouslySetInnerHTML={{ __html: safe }}
+      />
+    </SceneBackdrop>
+  );
+};
+
+/**
+ * `outro` — signature de fin : logo 1WM, tagline, ville. Pas de nom d'établissement.
+ * config : { tagline, city }
+ */
+const OutroScene: React.FC<{ wide: boolean; p: StoryboardProps; section: StoryboardSection }> = ({ wide, p, section }) => {
+  const { enter, out } = useSceneFade(0.6);
+  const cfg = section.config ?? {};
+  const stage = wide ? STAGE_LANDSCAPE : STAGE_PORTRAIT;
+  const logo = assetUrl(p.brandLogoUrl ?? p.logoUrl);
+  const tagline = str(cfg, "tagline");
+  const city = str(cfg, "city") ?? p.city ?? null;
+
+  return (
+    <SceneBackdrop>
+      <div
+        style={{
+          opacity: out * enter,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: stage.width * 0.03,
+          textAlign: "center",
+        }}
+      >
+        {logo && <PromoLogo src={logo} size={stage.width * (wide ? 0.18 : 0.32)} />}
+        <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.1])} stageWidth={stage.width} />
+        {tagline && (
+          <span
+            style={{
+              fontFamily: displayFont,
+              fontSize: wide ? size.h3 : size.h4,
+              fontWeight: weight.semibold,
+              color: palette.cream,
+            }}
+          >
+            {tagline}
+          </span>
+        )}
+        {city && (
+          <span
+            style={{
+              fontFamily: bodyFont,
+              fontSize: size.caption,
+              letterSpacing: 4,
+              textTransform: "uppercase",
+              color: palette.gold,
+            }}
+          >
+            {city}
+          </span>
+        )}
+      </div>
+    </SceneBackdrop>
+  );
+};
+
+/**
  * Carte typographique neutre : filet de sécurité pour tout `step_type` dont la
  * grammaire visuelle n'est pas encore implémentée. Le film ne casse jamais et
  * le timing du storyboard reste exact — la scène affiche son intention.
  */
+
 const PlaceholderScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({ wide, section }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
