@@ -245,26 +245,23 @@ const VideoPromoPanel = () => {
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+          <div className="grid gap-3">
             <label className="text-xs text-muted-foreground grid gap-1">
               Établissement — nom, slug ou URL 1WM
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") runSearch();
-                }}
                 placeholder="Chaabi Payment  ·  https://oneworldmorocco.com/fiche/chaabi-payment"
                 className="h-9 text-xs"
               />
+              <span className="text-[11px]">
+                {searching ? "Recherche…" : "Saisie automatique : tape 2 caractères, ou colle une URL 1WM."}
+              </span>
             </label>
-            <Button variant="outline" className="self-end h-9" onClick={runSearch} disabled={searching}>
-              <Search className="h-4 w-4 mr-1" /> Chercher
-            </Button>
           </div>
 
           {results.length > 0 && (
-            <div className="rounded-lg border divide-y">
+            <div className="rounded-lg border divide-y max-h-72 overflow-y-auto">
               {results.map((r) => (
                 <button
                   key={r.id}
@@ -278,6 +275,7 @@ const VideoPromoPanel = () => {
               ))}
             </div>
           )}
+
 
           {biz && (
             <div className="rounded-lg border p-3 flex flex-wrap items-center gap-3 text-xs">
