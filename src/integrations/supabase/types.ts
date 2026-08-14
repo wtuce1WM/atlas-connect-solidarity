@@ -8071,6 +8071,66 @@ export type Database = {
         }
         Relationships: []
       }
+      video_media_library: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          created_by: string | null
+          duration_sec: number | null
+          id: string
+          kind: string
+          orientation: string | null
+          storage_path: string | null
+          tags: string[]
+          title: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          duration_sec?: number | null
+          id?: string
+          kind: string
+          orientation?: string | null
+          storage_path?: string | null
+          tags?: string[]
+          title?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          duration_sec?: number | null
+          id?: string
+          kind?: string
+          orientation?: string | null
+          storage_path?: string | null
+          tags?: string[]
+          title?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_media_library_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_media_library_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       video_scenario_configs: {
         Row: {
           business_id: string | null

@@ -29,6 +29,8 @@ import {
   Play,
 } from "lucide-react";
 import { toast } from "sonner";
+import { VideoMediaPickerDialog } from "@/components/staff/VideoMediaPickerDialog";
+
 import {
   DndContext,
   closestCenter,
@@ -111,9 +113,13 @@ const mmss = (sec: number) => {
 const ConfigFields = ({
   section,
   patch,
+  businessId,
+  format,
 }: {
   section: Section;
   patch: (values: Partial<Section>) => void;
+  businessId: string | null;
+  format: "portrait" | "landscape";
 }) => {
   const cfg = section.config ?? {};
   const set = (key: string, value: any) => patch({ config: { ...cfg, [key]: value } });
@@ -130,6 +136,28 @@ const ConfigFields = ({
     </label>
   );
 
+  /** Sélecteur de média unique adossé à la bibliothèque (fiche / générique / staff). */
+  const mediaOne = (
+    key: string,
+    label: string,
+    allow: "image" | "video" | "all",
+    hint?: string,
+  ) => (
+    <div className="grid gap-1">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <VideoMediaPickerDialog
+        businessId={businessId}
+        format={format}
+        allow={allow}
+        label={cfg[key] ? "Changer le média" : "Choisir un média"}
+        value={cfg[key] ? [String(cfg[key])] : []}
+        onChange={(urls) => set(key, urls[0] ?? "")}
+      />
+      {hint && <span className="text-[11px] text-muted-foreground">{hint}</span>}
+    </div>
+  );
+
+
   switch (section.step_type) {
     case "hook":
       return (
@@ -141,7 +169,12 @@ const ConfigFields = ({
     case "video":
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          {text("assetUrl", "URL de la vidéo (asset 1WM)", "laisser vide = vidéo interne de la fiche")}
+          {mediaOne(
+            "assetUrl",
+            "Vidéo de la section",
+            "video",
+            "Vide = première vidéo interne de la fiche.",
+          )}
           <label className="text-xs text-muted-foreground grid gap-1">
             Son de la vidéo
             <span className="flex items-center gap-2 h-8">
@@ -167,26 +200,27 @@ const ConfigFields = ({
           </label>
           {text("kenBurns", "Mouvement (zoom_in, zoom_out, none)", "zoom_in")}
           {text("title", "Titre affiché (optionnel)")}
-          <label className="text-xs text-muted-foreground grid gap-1 md:col-span-2">
-            URLs des photos (une par ligne, prioritaires sur les photos de la fiche)
-            <Textarea
-              value={Array.isArray(cfg.images) ? (cfg.images as string[]).join("\n") : ""}
-              onChange={(e) =>
-                set(
-                  "images",
-                  e.target.value
-                    .split("\n")
-                    .map((v) => v.trim())
-                    .filter(Boolean)
-                    .slice(0, 4),
-                )
-              }
-              rows={3}
-              className="text-xs"
+          <div className="grid gap-1 md:col-span-2">
+            <span className="text-xs text-muted-foreground">
+              Photos du carrousel (1 à 4, ordre de sélection conservé)
+            </span>
+            <VideoMediaPickerDialog
+              businessId={businessId}
+              format={format}
+              allow="image"
+              multiple
+              max={4}
+              label="Choisir les photos"
+              value={Array.isArray(cfg.images) ? (cfg.images as string[]) : []}
+              onChange={(urls) => set("images", urls.slice(0, 4))}
             />
-          </label>
+            <span className="text-[11px] text-muted-foreground">
+              Vide = photos publiques de la fiche.
+            </span>
+          </div>
         </div>
       );
+
     case "text_overlay":
       return (
         <label className="text-xs text-muted-foreground grid gap-1">
@@ -301,7 +335,7 @@ const ConfigFields = ({
       return (
         <div className="grid gap-3">
           <div className="grid gap-3 md:grid-cols-2">
-            {text("mapUrl", "Image de carte (URL)", "https://…")}
+            {mediaOne("mapUrl", "Image de carte", "image", "Capture ou plan importé dans la bibliothèque globale.")}
             {text("title", "Titre", "Tout à moins d'1 km")}
             {text("kicker", "Sur-titre", "Géolocalisé")}
             <label className="text-xs text-muted-foreground grid gap-1">
@@ -380,15 +414,18 @@ const ConfigFields = ({
         return (
           <div className="grid gap-2 rounded-md border p-2">
             <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>
-            <label className="text-xs text-muted-foreground grid gap-1">
-              Image (URL)
-              <Input
-                value={p.imageUrl ?? ""}
-                onChange={(e) => setPanel("imageUrl", e.target.value)}
-                placeholder="https://…"
-                className="h-8 text-xs"
+            <div className="grid gap-1">
+              <span className="text-xs text-muted-foreground">Image du panneau</span>
+              <VideoMediaPickerDialog
+                businessId={businessId}
+                format={format}
+                allow="image"
+                label={p.imageUrl ? "Changer l'image" : "Choisir une image"}
+                value={p.imageUrl ? [String(p.imageUrl)] : []}
+                onChange={(urls) => setPanel("imageUrl", urls[0] ?? "")}
               />
-            </label>
+            </div>
+
             <label className="text-xs text-muted-foreground grid gap-1">
               Titre
               <Input
@@ -419,14 +456,16 @@ const ConfigFields = ({
     case "logo_merge":
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          {text("partnerLogoUrl", "Logo partenaire (SVG/PNG transparent)", "https://…")}
+          {mediaOne(
+            "partnerLogoUrl",
+            "Logo partenaire (PNG/SVG transparent)",
+            "image",
+            "Vide = logo de la fiche. Importer les logos en « global » pour les réutiliser.",
+          )}
           {text("caption", "Signature", "1WM × Partenaire")}
-          <p className="md:col-span-2 text-[11px] text-muted-foreground">
-            Prochaine étape technique : chemin d'upload dédié et scopé aux logos transparents (pas d'upload média
-            généraliste).
-          </p>
         </div>
       );
+
     case "outro":
       return (
         <div className="grid gap-3 md:grid-cols-2">
@@ -447,6 +486,8 @@ const SortableSection = ({
   onToggle,
   patch,
   remove,
+  businessId,
+  format,
 }: {
   section: Section;
   index: number;
@@ -455,9 +496,12 @@ const SortableSection = ({
   onToggle: () => void;
   patch: (values: Partial<Section>) => void;
   remove: () => void;
+  businessId: string | null;
+  format: "portrait" | "landscape";
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
   const hint = STEP_TYPES.find((s) => s.value === section.step_type)?.hint;
+
 
   return (
     <div
@@ -553,7 +597,7 @@ const SortableSection = ({
             </label>
           </div>
           {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
-          <ConfigFields section={section} patch={patch} />
+          <ConfigFields section={section} patch={patch} businessId={businessId} format={format} />
         </div>
       )}
     </div>
@@ -583,7 +627,7 @@ const StoryboardGuide = () => {
       type: "photos",
       icon: <Image className="h-4 w-4" />,
       title: "Photos plein écran",
-      body: "Carrousel de 1 à 4 images avec mouvement Ken Burns (zoom_in, zoom_out, none). Les URLs saisies sont prioritaires ; sinon le moteur utilise les images de la fiche.",
+      body: "Carrousel de 1 à 4 images avec mouvement Ken Burns (zoom_in, zoom_out, none). Les images choisies dans le sélecteur sont prioritaires ; sinon le moteur utilise les images de la fiche.",
     },
     {
       type: "text_overlay",
@@ -689,10 +733,18 @@ const StoryboardGuide = () => {
               <Info className="h-4 w-4" /> Règles de priorité des assets
             </div>
             <p className="text-xs text-muted-foreground">
-              Quand une section demande un média, le moteur utilise dans cet ordre : (1) l'URL saisie manuellement dans
-              la configuration, (2) l'asset correspondant de la fiche associée, (3) un fallback visuel générique. C'est
-              pourquoi lier un établissement accélère le paramétrage : la plupart des champs peuvent rester vides.
+              Quand une section demande un média, le moteur utilise dans cet ordre : (1) le média choisi dans le
+              sélecteur de la section, (2) l'asset correspondant de la fiche associée, (3) un fallback visuel générique.
+              C'est pourquoi lier un établissement accélère le paramétrage : la plupart des champs peuvent rester vides.
             </p>
+            <p className="text-xs text-muted-foreground">
+              Le sélecteur agrège quatre sources : les médias publics de la fiche, les vidéos portant le badge
+              « Générique », la bibliothèque staff rattachée à la fiche et la bibliothèque staff globale (B-roll ville,
+              logos, plans, captures). Les médias importés via « Importer » vont dans la bibliothèque staff : ils ne
+              s'affichent jamais sur le site public. Un badge d'orientation (16:9 / 9:16) passe en orange quand le média
+              ne correspond pas au format du storyboard.
+            </p>
+
           </div>
         </div>
 
@@ -1270,7 +1322,10 @@ const VideoStoryboardPanel = () => {
                           onToggle={() => setExpanded((prev) => (prev === s.id ? null : s.id))}
                           patch={(values) => patchSection(s.id, values)}
                           remove={() => removeSection(s.id)}
+                          businessId={board.business_id}
+                          format={board.format}
                         />
+
                       ))}
                     </div>
                   </SortableContext>
