@@ -8187,6 +8187,7 @@ export type Database = {
         Row: {
           body: string | null
           business_id: string | null
+          config: Json
           created_at: string
           duration_sec: number
           enabled: boolean
@@ -8197,6 +8198,8 @@ export type Database = {
           mode: string
           position: number
           scene_key: string
+          step_type: string | null
+          storyboard_id: string | null
           title: string | null
           updated_at: string
           widget_keys: string[]
@@ -8204,6 +8207,7 @@ export type Database = {
         Insert: {
           body?: string | null
           business_id?: string | null
+          config?: Json
           created_at?: string
           duration_sec?: number
           enabled?: boolean
@@ -8214,6 +8218,8 @@ export type Database = {
           mode: string
           position?: number
           scene_key: string
+          step_type?: string | null
+          storyboard_id?: string | null
           title?: string | null
           updated_at?: string
           widget_keys?: string[]
@@ -8221,6 +8227,7 @@ export type Database = {
         Update: {
           body?: string | null
           business_id?: string | null
+          config?: Json
           created_at?: string
           duration_sec?: number
           enabled?: boolean
@@ -8231,6 +8238,8 @@ export type Database = {
           mode?: string
           position?: number
           scene_key?: string
+          step_type?: string | null
+          storyboard_id?: string | null
           title?: string | null
           updated_at?: string
           widget_keys?: string[]
@@ -8245,6 +8254,64 @@ export type Database = {
           },
           {
             foreignKeyName: "video_scenario_steps_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_scenario_steps_storyboard_id_fkey"
+            columns: ["storyboard_id"]
+            isOneToOne: false
+            referencedRelation: "video_storyboards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_storyboards: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          format: string
+          id: string
+          max_duration_sec: number
+          name: string
+          preview_scale: number
+          scenario_type: string
+          updated_at: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          format?: string
+          id?: string
+          max_duration_sec?: number
+          name: string
+          preview_scale?: number
+          scenario_type?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          format?: string
+          id?: string
+          max_duration_sec?: number
+          name?: string
+          preview_scale?: number
+          scenario_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_storyboards_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_storyboards_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
