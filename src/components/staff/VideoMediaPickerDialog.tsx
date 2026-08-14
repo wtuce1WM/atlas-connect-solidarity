@@ -61,6 +61,7 @@ const fmtDur = (s?: number | null) => {
 const SOURCE_LABEL: Record<PickerMedia["source"] | "library_global" | "library_business", string> = {
   fiche: "Fiche",
   generic: "Générique",
+  landscape: "Landscape",
   library: "Bibliothèque",
   library_global: "Bibliothèque globale",
   library_business: "Bibliothèque fiche",
