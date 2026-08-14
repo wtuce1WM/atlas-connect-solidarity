@@ -479,33 +479,48 @@ export function VideoMediaPickerDialog({
     else toast.info(`${max} médias maximum pour cette section.`);
   };
 
-  const upload = async (file: File) => {
+  const uploadOne = async (file: File) => {
     const kind: "image" | "video" = file.type.startsWith("video") ? "video" : "image";
+    const ext = file.name.split(".").pop()?.toLowerCase() || (kind === "video" ? "mp4" : "jpg");
+    const path = `${uploadScope === "business" && businessId ? businessId : "global"}/${crypto.randomUUID()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("video-assets").upload(path, file, {
+      cacheControl: "31536000",
+      upsert: false,
+      contentType: file.type || undefined,
+    });
+    if (upErr) throw upErr;
+    const { data: pub } = supabase.storage.from("video-assets").getPublicUrl(path);
+    const { data: me } = await supabase.auth.getUser();
+    const { error: insErr } = await supabase.from("video_media_library").insert({
+      business_id: uploadScope === "business" ? businessId : null,
+      kind,
+      url: pub.publicUrl,
+      title: file.name.replace(/\.[^.]+$/, "").slice(0, 120),
+      storage_path: path,
+      created_by: me.user?.id ?? null,
+    });
+    if (insErr) throw insErr;
+  };
+
+  const uploadFiles = async (files: File[]) => {
+    const usable = files.filter((f) => f.type.startsWith("image") || f.type.startsWith("video"));
+    if (usable.length === 0) {
+      toast.error("Seules les images et vidéos sont acceptées.");
+      return;
+    }
     setUploading(true);
+    let ok = 0;
     try {
-      const ext = file.name.split(".").pop()?.toLowerCase() || (kind === "video" ? "mp4" : "jpg");
-      const path = `${uploadScope === "business" && businessId ? businessId : "global"}/${crypto.randomUUID()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("video-assets").upload(path, file, {
-        cacheControl: "31536000",
-        upsert: false,
-        contentType: file.type || undefined,
-      });
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("video-assets").getPublicUrl(path);
-      const { data: me } = await supabase.auth.getUser();
-      const { error: insErr } = await supabase.from("video_media_library").insert({
-        business_id: uploadScope === "business" ? businessId : null,
-        kind,
-        url: pub.publicUrl,
-        title: file.name.replace(/\.[^.]+$/, "").slice(0, 120),
-        storage_path: path,
-        created_by: me.user?.id ?? null,
-      });
-      if (insErr) throw insErr;
-      toast.success("Média ajouté à la bibliothèque");
+      for (const f of usable) {
+        try {
+          await uploadOne(f);
+          ok += 1;
+        } catch (e: any) {
+          toast.error(`${f.name} : ${e.message ?? e}`);
+        }
+      }
+      if (ok > 0) toast.success(`${ok} média${ok > 1 ? "s" : ""} ajouté${ok > 1 ? "s" : ""} à la bibliothèque staff`);
       await reload();
-    } catch (e: any) {
-      toast.error(`Envoi impossible : ${e.message ?? e}`);
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -529,14 +544,17 @@ export function VideoMediaPickerDialog({
     await supabase.from("video_media_library").update({ orientation: o }).eq("id", m.libraryId);
   };
 
+  // Compteurs alignés sur les filtres réellement appliqués (type + allow)
   const counts = useMemo(
     () => ({
-      fiche: items.filter((m) => m.source === "fiche").length,
-      generic: items.filter((m) => m.source === "generic").length,
-      libBiz: items.filter((m) => m.source === "library" && m.scope === "business").length,
-      libGlobal: items.filter((m) => m.source === "library" && m.scope === "global").length,
+      all: typeBase.length,
+      fiche: typeBase.filter((m) => matchSource(m, "fiche")).length,
+      generic: typeBase.filter((m) => m.source === "generic").length,
+      landscape: typeBase.filter((m) => m.source === "landscape").length,
+      libBiz: typeBase.filter((m) => m.source === "library" && m.scope === "business").length,
+      libGlobal: typeBase.filter((m) => m.source === "library" && m.scope === "global").length,
     }),
-    [items],
+    [typeBase],
   );
 
   const selectedItems = value
