@@ -115,63 +115,79 @@ const bgImagesOf = (cfg: Record<string, unknown> | null | undefined): string[] =
 
 const bgVideoOf = (cfg: Record<string, unknown> | null | undefined) => str(cfg, "bgVideoUrl");
 
+/** Extension vidéo reconnue : sert à choisir Img ou OffthreadVideo dans une liste mixte. */
+export const isVideoAsset = (url: string) => /\.(mp4|m4v|mov|webm|ogv)(\?|#|$)/i.test(url);
+
+/**
+ * Playlist de fond d'une scène : liste ordonnée mixte (images ET vidéos, 30 max).
+ * Compatibilité descendante : `bgImages` puis `bgVideoUrl` si `bgMedia` est absent.
+ */
+const bgMediaOf = (cfg: Record<string, unknown> | null | undefined): string[] => {
+  const mixed = Array.isArray(cfg?.bgMedia)
+    ? (cfg!.bgMedia as unknown[]).filter((v): v is string => typeof v === "string" && !!v.trim())
+    : [];
+  if (mixed.length) return mixed.slice(0, 30);
+  const images = bgImagesOf(cfg);
+  if (images.length) return images;
+  const video = bgVideoOf(cfg);
+  return video ? [video] : [];
+};
+
 const hasBgMedia = (section: StoryboardSection) => {
   const cfg = section.config ?? {};
   const mode = str(cfg, "bgMode");
-  if (mode === "video") return !!bgVideoOf(cfg);
-  if (mode === "images") return bgImagesOf(cfg).length > 0;
-  return false;
+  if (!mode || mode === "none") return false;
+  return bgMediaOf(cfg).length > 0;
 };
 
-/** Couche de fond média (images en fondu enchaîné ou vidéo), derrière la scène. */
-const SceneMediaBackdrop: React.FC<{ section: StoryboardSection }> = ({ section }) => {
+/** Un plan de la playlist : image en Ken Burns ou vidéo muette, en fondu. */
+const MediaShot: React.FC<{ src: string; frames: number }> = ({ src, frames }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames, fps } = useVideoConfig();
-  const cfg = section.config ?? {};
-  const mode = str(cfg, "bgMode");
-
-  if (mode === "video") {
-    const src = assetUrl(bgVideoOf(cfg));
-    if (!src) return null;
-    return (
-      <AbsoluteFill>
-        <OffthreadVideo src={src} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <AbsoluteFill style={{ background: alpha("night", 0.45) }} />
-      </AbsoluteFill>
-    );
-  }
-
-  const images = bgImagesOf(cfg).map((u) => assetUrl(u)).filter((u): u is string => !!u);
-  if (!images.length) return null;
-
-  const per = durationInFrames / images.length;
-  const index = Math.min(images.length - 1, Math.floor(frame / per));
-  const local = frame - index * per;
-  const fadeFrames = Math.min(Math.round(fps * 0.4), Math.max(1, Math.round(per / 3)));
+  const { fps } = useVideoConfig();
+  const fadeFrames = Math.min(Math.round(fps * 0.4), Math.max(1, Math.round(frames / 3)));
   const fade = Math.min(
-    interpolate(local, [0, fadeFrames], [0, 1], { extrapolateRight: "clamp" }),
-    interpolate(local, [per - fadeFrames, per], [1, 0], { extrapolateLeft: "clamp" }),
+    interpolate(frame, [0, fadeFrames], [0, 1], { extrapolateRight: "clamp" }),
+    interpolate(frame, [frames - fadeFrames, frames], [1, 0], { extrapolateLeft: "clamp" }),
   );
-  const scale = interpolate(Math.min(1, local / per), [0, 1], [1.02, 1.1]);
+  const resolved = assetUrl(src);
+  if (!resolved) return null;
+  const cover: React.CSSProperties = {
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    opacity: fade,
+  };
+  if (isVideoAsset(src)) return <OffthreadVideo src={resolved} muted style={cover} />;
+  const scale = interpolate(frame, [0, frames], [1.02, 1.1], { extrapolateRight: "clamp" });
+  return <Img src={resolved} style={{ ...cover, transform: `scale(${scale})` }} />;
+};
+
+/** Couche de fond média (playlist mixte images/vidéos), derrière la scène. */
+const SceneMediaBackdrop: React.FC<{ section: StoryboardSection }> = ({ section }) => {
+  const { durationInFrames } = useVideoConfig();
+  const media = bgMediaOf(section.config ?? {});
+  if (!media.length) return null;
+
+  const per = Math.max(1, Math.floor(durationInFrames / media.length));
 
   return (
     <AbsoluteFill>
-      <Img
-        src={images[index]}
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          opacity: fade,
-          transform: `scale(${scale})`,
-        }}
-      />
+      {media.map((src, i) => {
+        const from = i * per;
+        const frames = i === media.length - 1 ? Math.max(1, durationInFrames - from) : per;
+        return (
+          <Sequence key={`${src}-${i}`} from={from} durationInFrames={frames} layout="none">
+            <MediaShot src={src} frames={frames} />
+          </Sequence>
+        );
+      })}
       <AbsoluteFill style={{ background: alpha("night", 0.45) }} />
     </AbsoluteFill>
   );
 };
+
 
 /* ------------------------------------------------------------------ scènes */
 
