@@ -1105,11 +1105,14 @@ const VideoStoryboardPanel = () => {
     setCurrentId((prev) => prev ?? list[0]?.id ?? null);
   }, []);
 
+  // Rendus de tous les montages : storyboards manuels + scénarios automatiques.
   const loadJobs = useCallback(async () => {
     const { data } = await supabase
       .from("video_jobs")
       .select("id, title, status, output_url, error_message, created_at, duration_sec, template_id")
-      .like("template_id", "storyboard%")
+      .or(
+        "template_id.like.storyboard%,template_id.eq.business-showcase,template_id.eq.corporate-vertical",
+      )
       .order("created_at", { ascending: false })
       .limit(12);
     setJobs((data ?? []) as StoryboardJob[]);
@@ -1648,7 +1651,32 @@ const VideoStoryboardPanel = () => {
         </CardContent>
       </Card>
 
-      {legacyMode && <VideoScenarioConfigPanel initialMode={legacyMode} hideModeSwitch />}
+      {legacyMode && (
+        <>
+          <VideoScenarioConfigPanel initialMode={legacyMode} hideModeSwitch />
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-black text-base flex items-center gap-2">
+                <Rocket className="h-4 w-4" /> Rendu du scénario automatique
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                Ce montage utilise le moteur <strong>Studio Vidéo IA</strong> (
+                <code>{legacyMode === "business" ? "business-showcase" : "corporate-vertical"}</code>) : le
+                déroulé configuré ci-dessus est appliqué, mais le rendu a besoin d'un prompt et d'un
+                établissement. On lance donc le rendu depuis Studio Vidéo, et les jobs produits
+                apparaissent dans « Rendus des montages » ci-dessous, comme ceux des storyboards manuels.
+              </p>
+              <Button size="sm" variant="secondary" asChild>
+                <a href="/studio-video" target="_blank" rel="noreferrer">
+                  <Rocket className="h-4 w-4 mr-1" /> Lancer un rendu dans Studio Vidéo IA
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       <div className={legacyMode ? "hidden" : "space-y-6"}>
       <Card>
@@ -1881,16 +1909,19 @@ const VideoStoryboardPanel = () => {
         </CardContent>
       </Card>
 
+      <StoryboardGuide />
+      </div>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
-          <CardTitle className="text-black text-base">Rendus du storyboard</CardTitle>
+          <CardTitle className="text-black text-base">Rendus des montages</CardTitle>
           <Button size="sm" variant="outline" onClick={loadJobs}>
             <RotateCcw className="h-4 w-4 mr-1" /> Rafraîchir
           </Button>
         </CardHeader>
         <CardContent>
           {jobs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun rendu storyboard pour le moment.</p>
+            <p className="text-sm text-muted-foreground">Aucun rendu de montage pour le moment.</p>
           ) : (
             <div className="divide-y">
               {jobs.map((j) => (
@@ -1929,8 +1960,6 @@ const VideoStoryboardPanel = () => {
         </CardContent>
       </Card>
 
-      <StoryboardGuide />
-      </div>
 
     </div>
   );
