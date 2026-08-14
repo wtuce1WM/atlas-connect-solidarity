@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LogOut, ListOrdered, LayoutDashboard, Film, Rocket } from "lucide-react";
+import { ArrowLeft, LogOut, ListOrdered, LayoutDashboard, Film, Rocket, Clapperboard } from "lucide-react";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
 import VideoDashboardPanel from "@/components/staff/VideoDashboardPanel";
 import LatestVideosPanel from "@/components/staff/LatestVideosPanel";
 import VideoGeneratePanel from "@/components/staff/VideoGeneratePanel";
+import VideoStoryboardPanel from "@/components/staff/VideoStoryboardPanel";
+
 
 
 
@@ -92,6 +94,10 @@ const StaffVideos = () => {
               <ListOrdered className="h-4 w-4" />
               Scénario
             </TabsTrigger>
+            <TabsTrigger value="storyboard" className="gap-2">
+              <Clapperboard className="h-4 w-4" />
+              Storyboard
+            </TabsTrigger>
             <TabsTrigger value="generate" className="gap-2">
               <Rocket className="h-4 w-4" />
               Générer
@@ -107,6 +113,9 @@ const StaffVideos = () => {
           <TabsContent value="scenario">
             <VideoScenarioConfigPanel />
           </TabsContent>
+          <TabsContent value="storyboard">
+            <VideoStoryboardPanel />
+          </TabsContent>
           <TabsContent value="generate">
             <VideoGeneratePanel />
           </TabsContent>
@@ -114,6 +123,7 @@ const StaffVideos = () => {
             <LatestVideosPanel />
           </TabsContent>
         </Tabs>
+
 
 
 
