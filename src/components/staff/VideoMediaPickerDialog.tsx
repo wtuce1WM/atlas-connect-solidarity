@@ -1067,6 +1067,8 @@ export function VideoMediaPickerDialog({
                 <option value="other">Autre fiche par slug · {activeTypeLabel} ({counts.other})</option>
                 <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({counts.libBiz})</option>
                 <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({counts.libGlobal})</option>
+                <option value="render_feed">Rendus · Scénario Feed ({counts.renderFeed})</option>
+                <option value="render_promo">Rendus · Promo business ({counts.renderPromo})</option>
               </select>
               <Input
                 value={search}
