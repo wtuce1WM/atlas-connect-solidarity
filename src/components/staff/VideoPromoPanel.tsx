@@ -550,7 +550,7 @@ const VideoPromoPanel = () => {
               <span className="font-medium text-foreground">clip source</span> (sans intro ni outro), réutilisable tel
               quel comme média dans un montage Storyboard.
             </p>
-            {(variant === "mockup" || variant === "browser") && (
+            {isFramed(variant) && (
               <div className="grid gap-1 text-xs text-muted-foreground">
                 Fond uni du mockup
                 <div className="flex items-center gap-2">
@@ -581,7 +581,7 @@ const VideoPromoPanel = () => {
                 <span className="text-muted-foreground">Aucun logo sur la fiche — intro/outro sans animation de logo.</span>
               )}
             </div>
-            {variant === "mockup" || variant === "browser" ? (
+            {isFramed(variant) ? (
               <label className="text-xs text-muted-foreground grid gap-1">
                 Fond derrière le mockup — URL /search (optionnel)
                 <Input
