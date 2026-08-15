@@ -554,11 +554,28 @@ const VideoPromoPanel = () => {
 
 
 
+          <VideoRenderPresetBar
+            kind="promo"
+            config={promoConfig}
+            businessId={biz?.id ?? null}
+            defaultName={biz ? `Promo — ${biz.name}` : undefined}
+            onApply={applyPromoConfig}
+            onDirtyChange={handlePresetState}
+          />
+
           <div className="flex items-center justify-between gap-3 flex-wrap border-t pt-3">
-            <span className="text-xs text-muted-foreground">Durée estimée : ~{estimated}s</span>
-            <Button onClick={submit} disabled={submitting}>
+            <span className="text-xs text-muted-foreground">
+              Durée estimée : ~{estimated}s
+              {(!presetId || presetDirty) && (
+                <>
+                  <br />
+                  Enregistre la configuration pour activer « Rendre ».
+                </>
+              )}
+            </span>
+            <Button onClick={submit} disabled={submitting || !presetId || presetDirty}>
               <Rocket className="h-4 w-4 mr-2" />
-              {submitting ? "Envoi…" : "Générer la vidéo"}
+              {submitting ? "Envoi…" : "Rendre"}
             </Button>
           </div>
         </CardContent>
