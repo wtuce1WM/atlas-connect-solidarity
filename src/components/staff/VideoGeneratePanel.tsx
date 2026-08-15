@@ -12,6 +12,7 @@ import { Film, PlayCircle, RefreshCw, Rocket, Sparkles, Wand2 } from "lucide-rea
 import { toast } from "sonner";
 import VideoPromoPanel from "@/components/staff/VideoPromoPanel";
 import VideoJobMeta from "@/components/staff/VideoJobMeta";
+import VideoRenderPresetBar from "@/components/staff/VideoRenderPresetBar";
 
 /**
  * Onglet « Générer » du back-office vidéo.
