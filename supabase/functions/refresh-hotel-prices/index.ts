@@ -26,10 +26,25 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Allow server-to-server calls (pg_cron) authenticated with the service role key,
+  // Allow server-to-server calls (pg_cron) authenticated with a valid service_role key,
   // otherwise require a signed-in staff user.
   const bearer = (req.headers.get("Authorization") || "").replace("Bearer ", "").trim();
-  const isServiceCall = !!bearer && bearer === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  let isServiceCall = !!bearer && bearer === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!isServiceCall && bearer) {
+    // Accept any signature-verified service_role token (e.g. legacy key stored in vault).
+    try {
+      const verifier = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+      );
+      const { data: claimsData } = await verifier.auth.getClaims(bearer);
+      if ((claimsData?.claims as Record<string, unknown> | undefined)?.role === "service_role") {
+        isServiceCall = true;
+      }
+    } catch {
+      // ignore — fall through to staff check
+    }
+  }
   if (!isServiceCall) {
     const auth = await assertStaff(req, corsHeaders);
     if (auth instanceof Response) return auth;
