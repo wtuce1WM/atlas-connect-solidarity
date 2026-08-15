@@ -558,6 +558,107 @@ const ConfigFields = ({
         </div>
       );
     }
+    case "svg_flow": {
+      const nodes: any[] = Array.isArray(cfg.nodes) ? cfg.nodes : [];
+      const setNodes = (next: any[]) => set("nodes", next.slice(0, 8));
+      const setNode = (i: number, key: string, value: any) =>
+        setNodes(nodes.map((it, idx) => (idx === i ? { ...it, [key]: value } : it)));
+      const layout = ["hub", "loop"].includes(cfg.layout as string) ? (cfg.layout as string) : "chain";
+      const speed = ["slow", "fast"].includes(cfg.speed as string) ? (cfg.speed as string) : "normal";
+      const linkCount = layout === "loop" && nodes.length > 2 ? nodes.length : Math.max(0, nodes.length - 1);
+      return (
+        <div className="grid gap-3">
+          <div className="grid gap-3 md:grid-cols-4">
+            {text("kicker", "Sur-titre (optionnel)", "Comment ça marche")}
+            {text("title", "Titre de la scène (optionnel)", "Trois étapes, zéro friction")}
+            <label className="text-xs text-muted-foreground grid gap-1">
+              Disposition
+              <select
+                value={layout}
+                onChange={(e) => set("layout", e.target.value)}
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+              >
+                <option value="chain">Enchaînement (A → B → C)</option>
+                <option value="hub">Étoile (1er nœud au centre)</option>
+                <option value="loop">Circuit fermé (boucle)</option>
+              </select>
+            </label>
+            <label className="text-xs text-muted-foreground grid gap-1">
+              Vitesse du tracé
+              <select
+                value={speed}
+                onChange={(e) => set("speed", e.target.value)}
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+              >
+                <option value="slow">Lente</option>
+                <option value="normal">Normale</option>
+                <option value="fast">Rapide</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="grid gap-2">
+            {nodes.map((it, i) => (
+              <div key={i} className="grid gap-2 rounded-md border p-2 md:grid-cols-[10rem_1fr_1fr_2rem] md:items-end">
+                <div className="grid gap-1">
+                  <span className="text-xs text-muted-foreground">
+                    {layout === "hub" && i === 0 ? "Nœud central" : `Nœud ${i + 1}`}
+                  </span>
+                  <VideoIconPickerDialog
+                    value={typeof it.icon === "string" ? it.icon : null}
+                    onChange={(key) => setNode(i, "icon", key)}
+                  />
+                </div>
+                <label className="text-xs text-muted-foreground grid gap-1">
+                  Titre (optionnel)
+                  <Input
+                    value={it.title ?? ""}
+                    onChange={(e) => setNode(i, "title", e.target.value.slice(0, 60))}
+                    className="h-8 text-xs"
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground grid gap-1">
+                  Texte (optionnel)
+                  <Input
+                    value={it.text ?? ""}
+                    onChange={(e) => setNode(i, "text", e.target.value.slice(0, 120))}
+                    className="h-8 text-xs"
+                  />
+                </label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 px-2"
+                  onClick={() => setNodes(nodes.filter((_, idx) => idx !== i))}
+                >
+                  ×
+                </Button>
+              </div>
+            ))}
+            {nodes.length < 8 && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-7 w-fit text-xs"
+                onClick={() => setNodes([...nodes, { icon: "", title: "", text: "" }])}
+              >
+                + Ajouter un nœud
+              </Button>
+            )}
+            <span className="text-[11px] text-muted-foreground">
+              {nodes.length < 2
+                ? "Ajoutez au moins 2 nœuds : le tracé relie les nœuds entre eux."
+                : `${linkCount} liaison(s) tracée(s) sur ${section.duration_sec} s — chaque nœud apparaît quand sa liaison est tracée, puis tout reste à l'écran.`}
+            </span>
+          </div>
+
+          {text("body", "Phrase de bas de scène (optionnelle)", "Un parcours simple, du premier contact à la réservation.")}
+          <div className="grid md:grid-cols-2">{bgMediaBlock()}</div>
+        </div>
+      );
+    }
     case "map_reveal": {
       const points: any[] = Array.isArray(cfg.points) ? cfg.points : [];
       const setPoint = (i: number, key: string, value: any) =>
