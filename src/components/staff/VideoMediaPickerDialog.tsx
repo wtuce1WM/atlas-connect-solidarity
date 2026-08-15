@@ -164,7 +164,8 @@ function Tile({
   const [duration, setDuration] = useState<number | null>(item.duration ?? null);
 
   const isVideoTile = item.kind === "video";
-  // Même gabarit que le picker de Studio Vidéo IA : vidéo au ratio natif, demi-taille.
+  // En grille (4 colonnes) la tuile remplit sa cellule ; sinon ratio natif demi-taille.
+  const freeSize = isVideoTile && !gridCell;
   const BASE = 300;
   const width = ratio >= 1 ? BASE / 2 : (BASE / 2) * ratio;
   const height = ratio >= 1 ? BASE / 2 / ratio : BASE / 2;
