@@ -336,7 +336,7 @@ const VideoGeneratePanel = () => {
   };
 
   return (
-    <Tabs defaultValue="feed" className="space-y-6">
+    <Tabs defaultValue="feed" className="space-y-6 form-legible">
       <TabsList>
         <TabsTrigger value="feed" className="gap-2">
           <Film className="h-4 w-4" /> Scénario Feed
