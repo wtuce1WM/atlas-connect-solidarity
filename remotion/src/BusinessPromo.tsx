@@ -11,6 +11,7 @@ import {
 } from "remotion";
 import { palette, alpha, display, body, size, weight } from "./tokens";
 import { PhoneFrame, phoneGeometry } from "./PhoneFrame";
+import { BrowserFrame, browserGeometry } from "./BrowserFrame";
 import { PromoLogo } from "./promo/PromoLogo";
 import { FeedBackdrop, useFeedManifest } from "./promo/FeedBackdrop";
 import type { FeedManifest } from "./FeedTemplate";
@@ -59,9 +60,13 @@ export type BusinessPromoProps = {
   videoUrl?: string | null;
   images: string[];
   format: "portrait" | "landscape";
-  variant: "fullscreen" | "mockup";
-  /** fond uni de la variante mockup */
+  variant: "fullscreen" | "mockup" | "browser";
+  /** fond uni des variantes mockup / navigateur */
   mockupBg?: string;
+  /** URL affichée dans la barre d'adresse de la variante navigateur */
+  browserUrl?: string | null;
+  /** clip source : montage sans intro (hook) ni outro, réutilisable dans un storyboard */
+  clipSource?: boolean;
   blocks: PromoBlocks;
   seconds: PromoSeconds;
 };
@@ -85,6 +90,8 @@ export const promoDefaults: BusinessPromoProps = {
   format: "portrait",
   variant: "fullscreen",
   mockupBg: palette.ink,
+  browserUrl: "oneworldmorocco.com",
+  clipSource: false,
   blocks: { hook: true, video: true, photos: true, outro: true },
   seconds: { hook: 3, video: 5, photo: 1.5, outro: 2.5 },
 };
@@ -100,12 +107,12 @@ const bodyFont = `${body}, ${EMOJI}`;
 export const promoSegments = (p: BusinessPromoProps) => {
   const images = (p.images || []).slice(0, 4);
   const segs: { kind: "hook" | "video" | "photo" | "outro"; frames: number; index?: number }[] = [];
-  if (p.blocks?.hook) segs.push({ kind: "hook", frames: f(p.seconds?.hook ?? 3) });
+  if (p.blocks?.hook && !p.clipSource) segs.push({ kind: "hook", frames: f(p.seconds?.hook ?? 3) });
   if (p.blocks?.video && p.videoUrl) segs.push({ kind: "video", frames: f(p.seconds?.video ?? 5) });
   if (p.blocks?.photos) {
     images.forEach((_, i) => segs.push({ kind: "photo", frames: f(p.seconds?.photo ?? 1.5), index: i }));
   }
-  if (p.blocks?.outro) segs.push({ kind: "outro", frames: f(p.seconds?.outro ?? 2.5) });
+  if (p.blocks?.outro && !p.clipSource) segs.push({ kind: "outro", frames: f(p.seconds?.outro ?? 2.5) });
   return segs.length ? segs : [{ kind: "outro" as const, frames: f(2) }];
 };
 
@@ -519,9 +526,10 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
   const p = { ...promoDefaults, ...raw } as BusinessPromoProps;
   const { width, height } = useVideoConfig();
   const isMockup = p.variant === "mockup";
+  const isBrowser = p.variant === "browser";
 
   // Portrait plein écran : le stage occupe tout le cadre (échelle 1:1).
-  if (p.format !== "landscape" && !isMockup) {
+  if (p.format !== "landscape" && !isMockup && !isBrowser) {
     return <Stage p={p} />;
   }
 
@@ -540,6 +548,25 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
         <PhoneFrame height={phoneH}>
           <Stage p={p} scale={screenW / PROMO_PORTRAIT.width} />
         </PhoneFrame>
+      </AbsoluteFill>
+    );
+  }
+
+  // Mockup navigateur : cadre desktop 16:9 centré sur fond uni (le stage reste paysage).
+  if (isBrowser) {
+    const frameW = Math.round(width * (p.format === "landscape" ? 0.82 : 0.94));
+    const { screenW } = browserGeometry(frameW);
+    return (
+      <AbsoluteFill
+        style={{
+          background: p.mockupBg || palette.ink,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <BrowserFrame width={frameW} url={p.browserUrl || "oneworldmorocco.com"}>
+          <Stage p={p} scale={screenW / LANDSCAPE_STAGE.width} wide />
+        </BrowserFrame>
       </AbsoluteFill>
     );
   }
