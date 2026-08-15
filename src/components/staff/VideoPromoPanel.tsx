@@ -531,19 +531,26 @@ const VideoPromoPanel = () => {
                 <span className="text-muted-foreground">Aucun logo sur la fiche — intro/outro sans animation de logo.</span>
               )}
             </div>
-            <label className="text-xs text-muted-foreground grid gap-1">
-              Fond d'écran vidéo — URL /search (swipe vertical, optionnel)
-              <Input
-                value={bgFeedUrl}
-                onChange={(e) => setBgFeedUrl(e.target.value)}
-                placeholder="https://oneworldmorocco.com/search?pinIds=…"
-                className="h-9 text-xs"
-              />
-              <span className="text-[11px]">
-                Déclenche une capture Playwright du feed : les vidéos des résultats défilent en fond derrière le logo,
-                le hook et le texte. Sans URL, le fond reste la vidéo/photo de la fiche floutée.
+            {variant === "mockup" || variant === "browser" ? (
+              <label className="text-xs text-muted-foreground grid gap-1">
+                Fond derrière le mockup — URL /search (optionnel)
+                <Input
+                  value={bgFeedUrl}
+                  onChange={(e) => setBgFeedUrl(e.target.value)}
+                  placeholder="https://oneworldmorocco.com/search?pinIds=…"
+                  className="h-9 text-xs"
+                />
+                <span className="text-[11px]">
+                  Déclenche une capture Playwright du feed : les vidéos des résultats défilent derrière le cadre
+                  smartphone / navigateur. Sans URL, le fond reste la couleur unie choisie ci-dessus.
+                </span>
+              </label>
+            ) : (
+              <span className="text-[11px] text-muted-foreground">
+                Fond feed /search : disponible uniquement avec un montage « Mockup smartphone » ou « Mockup navigateur »
+                — en plein écran, les médias de la fiche occupent tout le cadre.
               </span>
-            </label>
+            )}
           </div>
 
           <div className="rounded-lg border p-3 grid gap-3">
