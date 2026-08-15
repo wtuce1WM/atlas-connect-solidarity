@@ -67,15 +67,17 @@ const StepVoiceOverBlock = ({
     }
     setBusy(true);
     try {
+      // On demande la variante JSON (audio_base64) : invoke() décode les réponses
+      // binaires en texte et corrompt le MP3. Le data-URI est décodé nativement.
       const { data, error } = await supabase.functions.invoke("elevenlabs-tts", {
-        body: { text: clean.slice(0, MAX_VOICE_CHARS), voiceId, lang: "fr" },
+        body: { text: clean.slice(0, MAX_VOICE_CHARS), voiceId, lang: "fr", withTimestamps: true },
       });
       if (error) throw error;
-      const blob =
-        data instanceof Blob
-          ? data
-          : new Blob([data as ArrayBuffer], { type: "audio/mpeg" });
+      const b64 = (data as any)?.audio_base64;
+      if (!b64 || typeof b64 !== "string") throw new Error("Audio vide renvoyé par le service vocal");
+      const blob = await (await fetch(`data:audio/mpeg;base64,${b64}`)).blob();
       if (blob.size < 500) throw new Error("Audio vide renvoyé par le service vocal");
+
 
       const path = `voiceover/${crypto.randomUUID()}.mp3`;
       const up = await supabase.storage
