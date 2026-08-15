@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import VideoJobMeta from "@/components/staff/VideoJobMeta";
+import VideoRenderPresetBar from "@/components/staff/VideoRenderPresetBar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Rocket, RefreshCw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
