@@ -38,6 +38,13 @@ type Biz = {
   logo_url: string | null;
 };
 
+/** Montages disponibles : plein écran ou cadres mockup. */
+type PromoVariant = "fullscreen" | "mockup" | "browser" | "multi" | "split";
+/** Variantes encadrées : fond feed et fond uni s'appliquent. */
+const FRAMED: PromoVariant[] = ["mockup", "browser", "multi", "split"];
+const isFramed = (v: PromoVariant) => FRAMED.includes(v);
+
+
 type PromoJob = {
   id: string;
   title: string | null;
