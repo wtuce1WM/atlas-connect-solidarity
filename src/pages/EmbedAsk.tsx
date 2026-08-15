@@ -1396,7 +1396,9 @@ const EmbedAsk = () => {
               </div>
 
               {weatherPayload && (
-                <EmbedWeatherWidget data={weatherPayload} lang={lang} />
+                /* Encre du bloc prévisions alignée sur le fond réel de l'hôte :
+                   overlay Full Description = fond sombre transparent → encre claire. */
+                <EmbedWeatherWidget data={weatherPayload} lang={lang} ink={bgInk ?? "light"} />
               )}
 
               {tidesCity && (

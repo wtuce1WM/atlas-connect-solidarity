@@ -303,8 +303,12 @@ export default function EmbedReviewsWidget({
   const compactRows = shape === "square" || (!large && shape === "horizontal");
 
   const header = (
-    <div className="space-y-1">
-      <p className={`text-[11px] uppercase tracking-[0.15em] ${cMuted}`}>{L.customerReviews}</p>
+    <div className={`space-y-1 ${hideReviewText ? "text-center" : ""}`}>
+      {/* Overlay Full Description (notexts=1) : l'hôte affiche déjà son propre titre
+          « Avis clients » — on supprime le kicker redondant au-dessus du nom. */}
+      {!hideReviewText && (
+        <p className={`text-[11px] uppercase tracking-[0.15em] ${cMuted}`}>{L.customerReviews}</p>
+      )}
       <h2 className={`${large ? "text-lg" : "text-base"} font-bold leading-tight`}>{business.name}</h2>
     </div>
   );
@@ -342,7 +346,8 @@ export default function EmbedReviewsWidget({
       <div
         className={
           hideReviewText
-            ? "flex flex-wrap justify-center gap-2"
+            ? /* Overlay : badges empilés et centrés les uns au-dessus des autres */
+              "flex flex-col items-center gap-2"
             : shape === "square"
               ? "grid grid-cols-1 gap-1.5"
               : "space-y-2"
@@ -475,7 +480,8 @@ export default function EmbedReviewsWidget({
 
 
 
-  const signature = (
+  // Overlay Full Description : pas de signature (l'hôte est déjà oneworldmorocco.com)
+  const signature = hideReviewText ? null : (
     <div className="pt-1 text-center">
       <a
         href="https://oneworldmorocco.com"
