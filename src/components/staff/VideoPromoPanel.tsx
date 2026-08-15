@@ -326,14 +326,17 @@ const VideoPromoPanel = () => {
         text: textLength > 0 ? text : null,
         logoUrl,
         // Le fond feed n'a de sens que derrière un mockup.
-        bgFeedUrl:
-          variant === "mockup" || variant === "browser" ? bgFeedUrl.trim() || null : null,
+        bgFeedUrl: isFramed(variant) ? bgFeedUrl.trim() || null : null,
         videoUrl: blocks.video ? videoUrl : null,
         images,
         format,
         variant,
         mockupBg,
-        browserUrl: variant === "browser" ? browserUrl.trim() || "oneworldmorocco.com" : null,
+        browserUrl:
+          variant === "browser" || variant === "multi"
+            ? browserUrl.trim() || "oneworldmorocco.com"
+            : null,
+        splitSide: variant === "split" ? splitSide : null,
         clipSource,
         blocks,
         seconds,
