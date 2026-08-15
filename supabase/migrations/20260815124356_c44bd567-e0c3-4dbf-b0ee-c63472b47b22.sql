@@ -1,0 +1,1 @@
+update public.video_jobs set status='pending', error_message=null, updated_at=now() where title='Promo TEST split média/texte — Chaabi Payment';

@@ -158,7 +158,8 @@ const hasBgMedia = (section: StoryboardSection) => {
  */
 export type StoryboardVoice = { url: string; gain: number; duckBg: number; delaySec: number };
 
-const num = (v: unknown, fallback: number, min: number, max: number) => {
+/** Borne une valeur numérique libre (config voix off) entre min et max. */
+const clampNum = (v: unknown, fallback: number, min: number, max: number) => {
   const n = typeof v === "number" ? v : Number(v);
   if (!Number.isFinite(n)) return fallback;
   return Math.min(max, Math.max(min, n));
@@ -172,9 +173,9 @@ export const voiceOf = (cfg: Record<string, unknown> | null | undefined): Storyb
   if (raw.enabled === false) return null;
   return {
     url,
-    gain: num(raw.gain, 1, 0, 2),
-    duckBg: num(raw.duckBg, 0.15, 0, 1),
-    delaySec: num(raw.delaySec, 0, 0, 30),
+    gain: clampNum(raw.gain, 1, 0, 2),
+    duckBg: clampNum(raw.duckBg, 0.15, 0, 1),
+    delaySec: clampNum(raw.delaySec, 0, 0, 30),
   };
 };
 
