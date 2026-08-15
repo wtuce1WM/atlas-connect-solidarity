@@ -61,11 +61,20 @@ export type BusinessPromoProps = {
   videoUrl?: string | null;
   images: string[];
   format: "portrait" | "landscape";
-  variant: "fullscreen" | "mockup" | "browser";
+  /**
+   * fullscreen : médias plein cadre
+   * mockup     : cadre smartphone
+   * browser    : cadre navigateur desktop
+   * multi      : navigateur + smartphone côte à côte (multi-écrans)
+   * split      : cadre smartphone d'un côté, texte riche de l'autre
+   */
+  variant: "fullscreen" | "mockup" | "browser" | "multi" | "split";
   /** fond uni des variantes mockup / navigateur */
   mockupBg?: string;
   /** URL affichée dans la barre d'adresse de la variante navigateur */
   browserUrl?: string | null;
+  /** variante split : colonne du mockup (le texte occupe l'autre colonne) */
+  splitSide?: "left" | "right";
   /** clip source : montage sans intro (hook) ni outro, réutilisable dans un storyboard */
   clipSource?: boolean;
   blocks: PromoBlocks;
