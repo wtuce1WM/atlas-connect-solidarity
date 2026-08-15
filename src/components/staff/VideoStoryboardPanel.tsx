@@ -1098,6 +1098,7 @@ const VideoStoryboardPanel = () => {
   const [saving, setSaving] = useState(false);
   const [rendering, setRendering] = useState(false);
   const [jobs, setJobs] = useState<StoryboardJob[]>([]);
+  const [jobBusinessNames, setJobBusinessNames] = useState<Record<string, string>>({});
   const [dirty, setDirty] = useState(false);
   /** Scénario auto sélectionné dans le même sélecteur (null = storyboard manuel). */
   const [legacyMode, setLegacyMode] = useState<"business" | "corporate" | null>(null);
