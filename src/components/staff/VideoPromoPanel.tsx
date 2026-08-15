@@ -315,7 +315,9 @@ const VideoPromoPanel = () => {
         tagline: tagline.trim() || null,
         text: textLength > 0 ? text : null,
         logoUrl,
-        bgFeedUrl: bgFeedUrl.trim() || null,
+        // Le fond feed n'a de sens que derrière un mockup.
+        bgFeedUrl:
+          variant === "mockup" || variant === "browser" ? bgFeedUrl.trim() || null : null,
         videoUrl: blocks.video ? videoUrl : null,
         images,
         format,
