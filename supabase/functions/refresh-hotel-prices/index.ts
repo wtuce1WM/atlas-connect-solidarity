@@ -26,8 +26,14 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const auth = await assertStaff(req, corsHeaders);
-  if (auth instanceof Response) return auth;
+  // Allow server-to-server calls (pg_cron) authenticated with the service role key,
+  // otherwise require a signed-in staff user.
+  const bearer = (req.headers.get("Authorization") || "").replace("Bearer ", "").trim();
+  const isServiceCall = !!bearer && bearer === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!isServiceCall) {
+    const auth = await assertStaff(req, corsHeaders);
+    if (auth instanceof Response) return auth;
+  }
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
