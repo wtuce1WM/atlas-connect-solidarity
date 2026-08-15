@@ -610,8 +610,18 @@ const VideoPromoPanel = () => {
                       </a>
                     )}
                     {j.error_message && (
-                      <span className="text-[11px] text-destructive ml-auto max-w-md truncate">{j.error_message}</span>
+                      <span className="text-[11px] text-destructive max-w-md truncate">{j.error_message}</span>
                     )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-[11px] ml-auto"
+                      onClick={() => relaunchJob(j)}
+                      disabled={relaunching === j.id}
+                    >
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                      {relaunching === j.id ? "Relance…" : "Rendre à nouveau"}
+                    </Button>
                   </div>
                   <VideoJobMeta
                     job={j}
