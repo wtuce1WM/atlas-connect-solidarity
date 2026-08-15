@@ -90,8 +90,13 @@ const VideoRenderPresetBar = ({
     toast.success(`Configuration « ${p.name} » chargée`);
   };
 
+  // Enregistrer : met à jour la configuration courante, ou la crée si aucune
+  // n'est sélectionnée (sinon le bouton restait grisé et bloquait « Rendre »).
   const saveExisting = async () => {
-    if (!currentId) return;
+    if (!currentId) {
+      await saveAsNew();
+      return;
+    }
     setBusy(true);
     const { error } = await supabase
       .from("video_render_presets" as any)
@@ -179,7 +184,7 @@ const VideoRenderPresetBar = ({
           placeholder={defaultName || "Nom de la configuration"}
           className="h-9 max-w-xs"
         />
-        <Button size="sm" onClick={saveExisting} disabled={busy || !currentId}>
+        <Button size="sm" onClick={saveExisting} disabled={busy}>
           <Save className="h-4 w-4 mr-1" /> Enregistrer
         </Button>
         <Button size="sm" variant="outline" onClick={saveAsNew} disabled={busy}>
