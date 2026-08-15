@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { trackEvent, trackPageView, setUserId, captureAttribution, getStoredAttribution, trackAhaMoment } from "@/lib/analytics";
+import { trackEvent, trackPageView, setUserId, captureAttribution, getStoredAttribution, trackAhaMoment, setInternalTraffic } from "@/lib/analytics";
 import { startWebVitals } from "@/lib/webVitals";
 
 const RETURNING_KEY = "ga-first-visit-at-v1";
@@ -117,6 +117,25 @@ const AnalyticsTracker = () => {
     });
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  // Trafic interne : toute session portant un rôle staff/admin est taguée
+  // traffic_type=internal (à exclure via un filtre de données GA4).
+  useEffect(() => {
+    let cancelled = false;
+    const detect = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) { if (!cancelled) setInternalTraffic(false); return; }
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id);
+      if (!cancelled) setInternalTraffic(!!roles && roles.length > 0);
+    };
+    detect().catch(() => {});
+    const { data: sub } = supabase.auth.onAuthStateChange(() => { detect().catch(() => {}); });
+    return () => { cancelled = true; sub.subscription.unsubscribe(); };
+  }, []);
+
 
   // Global click delegation : outbound, WhatsApp, tel, mailto, data-track-event
   useEffect(() => {

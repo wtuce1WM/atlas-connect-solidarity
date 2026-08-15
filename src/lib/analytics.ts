@@ -78,29 +78,107 @@ function getInAppBrowser(): string | null {
 
 let pwaLaunchFired = false;
 
+// ---- Content grouping + trafic interne ----------------------------------
+
+/** Catégorise une URL interne en content_group GA4 (natif, aucune dimension à créer). */
+export function getContentGroup(path: string): string {
+  let p = (path || "/").split("?")[0].split("#")[0];
+  p = p.replace(/^\/(en|fr|es|de|it)(?=\/|$)/, "");
+  if (!p || p === "/") return "Home";
+  const seg = p.replace(/^\//, "").split("/");
+  const first = seg[0];
+  switch (first) {
+    case "search": return "Recherche";
+    case "blog": return "Blog";
+    case "embed": return "Widget";
+    case "club": return "Club";
+    case "affiliates": return "Affiliés";
+    case "staff":
+    case "studio-video": return "Staff";
+    case "fiche":
+    case "business": return "Fiche";
+    case "destination": return "Destination";
+    case "categorie":
+    case "category": return "Catégorie";
+    case "map":
+    case "carte": return "Carte";
+    default: return seg.length === 1 ? "Fiche" : "Autre";
+  }
+}
+
+let internalTraffic = false;
+
+/** Marque la session comme trafic interne (staff/admin) : tag GA4 + coupure sur /staff/*. */
+export function setInternalTraffic(value: boolean) {
+  internalTraffic = value;
+  try { sessionStorage.setItem("ga-internal-traffic-v1", value ? "1" : "0"); } catch { /* noop */ }
+  if (typeof window !== "undefined" && typeof window.gtag === "function" && value) {
+    window.gtag("set", { traffic_type: "internal" });
+  }
+}
+
+export function isInternalTraffic(): boolean {
+  if (internalTraffic) return true;
+  try { return sessionStorage.getItem("ga-internal-traffic-v1") === "1"; } catch { return false; }
+}
+
+/** Coupure totale des hits : back-office (toujours) + sessions internes en back-office. */
+function isSuppressed(): boolean {
+  if (typeof window === "undefined") return true;
+  const p = window.location.pathname;
+  return /^\/(staff|studio-video)(\/|$)/.test(p);
+}
+
+function baseParams() {
+  return isInternalTraffic() ? { traffic_type: "internal" } : {};
+}
+
 export function trackPageView(path: string, title?: string) {
   if (typeof window === "undefined" || typeof window.gtag !== "function") return;
+  if (isSuppressed()) return;
   const app_mode = getAppMode();
   const in_app_browser = getInAppBrowser();
   window.gtag("event", "page_view", {
     page_path: path,
     page_location: window.location.href,
     page_title: title ?? document.title,
+    content_group: getContentGroup(path),
     app_mode,
     is_pwa: app_mode === "standalone",
     in_app_browser: in_app_browser ?? "none",
+    ...baseParams(),
     send_to: GA_ID,
   });
   // Fire-once par session pour isoler proprement les lancements PWA / webview.
   if (!pwaLaunchFired) {
     pwaLaunchFired = true;
     if (app_mode === "standalone") {
-      window.gtag("event", "pwa_launch", { app_mode, in_app_browser: in_app_browser ?? "none" });
+      window.gtag("event", "pwa_launch", { app_mode, in_app_browser: in_app_browser ?? "none", ...baseParams() });
     }
     if (in_app_browser) {
-      window.gtag("event", "in_app_browser_launch", { in_app_browser, app_mode });
+      window.gtag("event", "in_app_browser_launch", { in_app_browser, app_mode, ...baseParams() });
     }
   }
+}
+
+/**
+ * page_view virtuel : les fiches ouvertes en slide-panel réécrivent l'URL via
+ * replaceState, ce qui n'émet aucun hit GA4. On envoie donc un page_view
+ * explicite avec content_group = "Fiche" pour pouvoir comparer Home vs Fiche.
+ */
+export function trackVirtualPageView(path: string, title?: string, extra: Record<string, unknown> = {}) {
+  if (typeof window === "undefined" || typeof window.gtag !== "function") return;
+  if (isSuppressed()) return;
+  window.gtag("event", "page_view", {
+    page_path: path,
+    page_location: window.location.origin + path,
+    page_title: title ?? document.title,
+    content_group: getContentGroup(path),
+    virtual: true,
+    ...baseParams(),
+    ...extra,
+    send_to: GA_ID,
+  });
 }
 
 export function trackEvent(
@@ -108,8 +186,10 @@ export function trackEvent(
   params: Record<string, unknown> = {}
 ) {
   if (typeof window === "undefined" || typeof window.gtag !== "function") return;
-  window.gtag("event", name, params);
+  if (isSuppressed()) return;
+  window.gtag("event", name, { ...baseParams(), ...params });
 }
+
 
 /** Associe l'ID utilisateur connecté à GA4 (cross-device). Passer null pour reset. */
 export function setUserId(userId: string | null) {
