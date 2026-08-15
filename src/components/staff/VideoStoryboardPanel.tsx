@@ -1131,13 +1131,27 @@ const VideoStoryboardPanel = () => {
   const loadJobs = useCallback(async () => {
     const { data } = await supabase
       .from("video_jobs")
-      .select("id, title, status, output_url, error_message, created_at, duration_sec, template_id")
+      .select(
+        "id, title, status, output_url, error_message, created_at, duration_sec, template_id, business_id, template_props, scenario_json",
+      )
       .or(
         "template_id.like.storyboard%,template_id.eq.business-showcase,template_id.eq.corporate-vertical",
       )
       .order("created_at", { ascending: false })
       .limit(12);
-    setJobs((data ?? []) as StoryboardJob[]);
+    const rows = (data ?? []) as StoryboardJob[];
+    setJobs(rows);
+    const ids = Array.from(new Set(rows.map((r) => r.business_id).filter(Boolean))) as string[];
+    if (ids.length > 0) {
+      const { data: bizRows } = await supabase.from("businesses").select("id, name").in("id", ids);
+      const map: Record<string, string> = {};
+      (bizRows ?? []).forEach((b: any) => {
+        map[b.id] = b.name;
+      });
+      setJobBusinessNames(map);
+    } else {
+      setJobBusinessNames({});
+    }
   }, []);
 
   useEffect(() => {
