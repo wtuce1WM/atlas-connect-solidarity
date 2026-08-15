@@ -893,6 +893,7 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
   const single = str(cfg, "assetUrl") ?? str(cfg, "videoUrl") ?? p.videoUrl ?? null;
   const clips = (many.length ? many : single ? [single] : []).slice(0, 30);
   const title = str(cfg, "title");
+  const duck = React.useContext(VoiceDuckContext);
   const muted = !cfg.sound;
   const per = clips.length ? Math.max(1, Math.floor(durationInFrames / clips.length)) : durationInFrames;
 
