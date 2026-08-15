@@ -99,6 +99,8 @@ const VARIANT_LABELS: Record<string, string> = {
   fullscreen: "Plein écran",
   mockup: "Mockup smartphone",
   browser: "Mockup navigateur",
+  multi: "Multi-écrans (navigateur + smartphone)",
+  split: "Split média / texte",
 };
 
 /** Promo business : montage (plein écran / mockup) + fond d'écran vidéo (capture feed). */
