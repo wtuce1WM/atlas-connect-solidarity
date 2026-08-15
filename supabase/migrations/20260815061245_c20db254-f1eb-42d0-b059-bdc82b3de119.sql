@@ -1,0 +1,1 @@
+SELECT cron.schedule('refresh-hotel-prices-oneshot', '* * * * *', 'SELECT public.trigger_refresh_hotel_prices();');
