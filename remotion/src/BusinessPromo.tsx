@@ -528,8 +528,22 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number; wide?: boolean }>
 export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
   const p = { ...promoDefaults, ...raw } as BusinessPromoProps;
   const { width, height } = useVideoConfig();
+  const frame = useCurrentFrame();
   const isMockup = p.variant === "mockup";
   const isBrowser = p.variant === "browser";
+  // Décor feed : uniquement le fond derrière un mockup.
+  const bgManifest = useFeedManifest(isMockup || isBrowser ? p.bgFeedManifest : null);
+
+  /** Fond du mockup : capture feed animée si fournie, sinon fond uni. */
+  const MockupBackdrop = () =>
+    bgManifest ? (
+      <>
+        <AbsoluteFill>
+          <FeedBackdrop manifest={bgManifest} frame={frame} />
+        </AbsoluteFill>
+        <AbsoluteFill style={{ background: "rgba(0,0,0,0.35)" }} />
+      </>
+    ) : null;
 
   // Portrait plein écran : le stage occupe tout le cadre (échelle 1:1).
   if (p.format !== "landscape" && !isMockup && !isBrowser) {
@@ -548,6 +562,7 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
           alignItems: "center",
         }}
       >
+        <MockupBackdrop />
         <PhoneFrame height={phoneH}>
           <Stage p={p} scale={screenW / PROMO_PORTRAIT.width} />
         </PhoneFrame>
@@ -567,12 +582,14 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
           alignItems: "center",
         }}
       >
+        <MockupBackdrop />
         <BrowserFrame width={frameW} url={p.browserUrl || "oneworldmorocco.com"}>
           <Stage p={p} scale={screenW / LANDSCAPE_STAGE.width} wide />
         </BrowserFrame>
       </AbsoluteFill>
     );
   }
+
 
   // Paysage plein écran : cadre 16:9 natif, aucune bande noire.
   return (
