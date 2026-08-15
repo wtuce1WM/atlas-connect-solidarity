@@ -346,7 +346,8 @@ export default function EmbedReviewsWidget({
       <div
         className={
           hideReviewText
-            ? "flex flex-wrap justify-center gap-2"
+            ? /* Overlay : badges empilés et centrés les uns au-dessus des autres */
+              "flex flex-col items-center gap-2"
             : shape === "square"
               ? "grid grid-cols-1 gap-1.5"
               : "space-y-2"
