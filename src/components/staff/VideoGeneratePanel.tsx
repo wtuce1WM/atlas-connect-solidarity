@@ -302,6 +302,33 @@ const VideoGeneratePanel = () => {
     loadJobs();
   };
 
+  /** Relance un rendu à l'identique depuis un job existant (aucune ressaisie). */
+  const relaunchJob = async (job: FeedJob) => {
+    setRelaunching(job.id);
+    const { data: auth } = await supabase.auth.getUser();
+    const { error } = await supabase.from("video_jobs").insert({
+      user_id: auth.user?.id ?? null,
+      business_id: job.business_id,
+      title: job.title,
+      prompt: `Relance — ${job.title ?? job.id.slice(0, 8)}`,
+      status: "pending",
+      duration_sec: job.duration_sec,
+      template_id: job.template_id,
+      template_props: job.template_props,
+      scenario_json: job.scenario_json,
+    } as any);
+    if (error) {
+      setRelaunching(null);
+      toast.error(`Relance impossible : ${error.message}`);
+      return;
+    }
+    const { error: wfError } = await supabase.functions.invoke("trigger-render-workflow", { body: {} });
+    setRelaunching(null);
+    if (wfError) toast.warning("Job créé, déclenchement GitHub à refaire au prochain cycle.");
+    else toast.success("Rendu relancé à l'identique.");
+    loadJobs();
+  };
+
   const openCorporateStudio = () => {
     localStorage.setItem("studio-video:mode", "corporate");
     navigate("/studio-video");
