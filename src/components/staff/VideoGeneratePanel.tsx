@@ -117,8 +117,86 @@ const VideoGeneratePanel = () => {
   const [jobs, setJobs] = useState<FeedJob[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
   const [jobBusinessNames, setJobBusinessNames] = useState<Record<string, string>>({});
+  /** Couple Enregistrer / Rendre : le rendu part d'une configuration persistée. */
+  const [presetDirty, setPresetDirty] = useState(true);
+  const [presetId, setPresetId] = useState<string | null>(null);
+  const [relaunching, setRelaunching] = useState<string | null>(null);
 
   const autoSlug = useMemo(() => slug.trim() || slugify(label || "feed"), [slug, label]);
+
+  /** Configuration sérialisable de l'écran Feed (ce qui est enregistré). */
+  const feedConfig = useMemo(
+    () => ({
+      url,
+      label,
+      slug,
+      format,
+      steps,
+      stepSeconds,
+      detailSeconds,
+      hookHold,
+      sectionPause,
+      sectionMove,
+      sections,
+      effectsOn,
+      intensity,
+      strokeColor,
+      pathFrames,
+      motionBlurSamples,
+      pathScope,
+    }),
+    [
+      url,
+      label,
+      slug,
+      format,
+      steps,
+      stepSeconds,
+      detailSeconds,
+      hookHold,
+      sectionPause,
+      sectionMove,
+      sections,
+      effectsOn,
+      intensity,
+      strokeColor,
+      pathFrames,
+      motionBlurSamples,
+      pathScope,
+    ],
+  );
+
+  const applyFeedConfig = useCallback((c: any) => {
+    if (!c || typeof c !== "object") return;
+    setUrl(c.url ?? "");
+    setLabel(c.label ?? "");
+    setSlug(c.slug ?? "");
+    setFormat(c.format === "landscape" ? "landscape" : "portrait");
+    setSteps(Number(c.steps ?? 6));
+    setStepSeconds(Number(c.stepSeconds ?? 3));
+    setDetailSeconds(Number(c.detailSeconds ?? 21));
+    setHookHold(Number(c.hookHold ?? 50));
+    setSectionPause(Number(c.sectionPause ?? 75));
+    setSectionMove(Number(c.sectionMove ?? 50));
+    setSections(Array.isArray(c.sections) ? c.sections : DEFAULT_SECTIONS);
+    setEffectsOn({
+      grain: !!c.effectsOn?.grain,
+      vignette: !!c.effectsOn?.vignette,
+      lightLeaks: !!c.effectsOn?.lightLeaks,
+      pathDraw: !!c.effectsOn?.pathDraw,
+      motionBlur: !!c.effectsOn?.motionBlur,
+    });
+    setIntensity(Number(c.intensity ?? 50));
+    setStrokeColor(c.strokeColor ?? STROKE_PRESETS[0].value);
+    setPathFrames(Number(c.pathFrames ?? 45));
+    setMotionBlurSamples(Number(c.motionBlurSamples ?? 3));
+    setPathScope((c.pathScope as PathScope) ?? "all");
+  }, []);
+
+  const handlePresetState = useCallback((dirty: boolean, id: string | null) => {
+    setPresetDirty(dirty);
+    setPresetId(id);
+  }, []);
 
   const loadJobs = async () => {
     setLoadingJobs(true);
