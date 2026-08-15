@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Img, OffthreadVideo, Sequence, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { assetUrl } from "./lib/assetUrl";
 import { palette, alpha, display, body, size, weight } from "./tokens";
 import { PromoLogo } from "./promo/PromoLogo";
@@ -147,6 +147,41 @@ const hasBgMedia = (section: StoryboardSection) => {
   if (!mode || mode === "none") return false;
   return bgMediaOf(cfg).length > 0;
 };
+
+/* ------------------------------------------------------------------ voix off par étape */
+
+/**
+ * Voix off d'une étape : le back-office génère un MP3 (ElevenLabs) et le stocke
+ * dans le bucket `video-assets`, puis persiste l'URL dans `config.voice`.
+ * Le moteur ne synthétise jamais à la volée — le rendu reste déterministe.
+ * `duckBg` atténue le son du média de l'étape pendant la voix (0 = silence).
+ */
+export type StoryboardVoice = { url: string; gain: number; duckBg: number; delaySec: number };
+
+const num = (v: unknown, fallback: number, min: number, max: number) => {
+  const n = typeof v === "number" ? v : Number(v);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+};
+
+export const voiceOf = (cfg: Record<string, unknown> | null | undefined): StoryboardVoice | null => {
+  const raw = cfg?.voice as Record<string, unknown> | undefined;
+  if (!raw || typeof raw !== "object") return null;
+  const url = typeof raw.url === "string" && raw.url.trim() ? raw.url.trim() : null;
+  if (!url) return null;
+  if (raw.enabled === false) return null;
+  return {
+    url,
+    gain: num(raw.gain, 1, 0, 2),
+    duckBg: num(raw.duckBg, 0.15, 0, 1),
+    delaySec: num(raw.delaySec, 0, 0, 30),
+  };
+};
+
+/** Multiplicateur de volume appliqué aux médias de la scène (1 = pas de voix). */
+const VoiceDuckContext = React.createContext(1);
+
+
 
 /** Un plan de la playlist : image en Ken Burns ou vidéo muette, en fondu. */
 const MediaShot: React.FC<{ src: string; frames: number }> = ({ src, frames }) => {
@@ -858,6 +893,7 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
   const single = str(cfg, "assetUrl") ?? str(cfg, "videoUrl") ?? p.videoUrl ?? null;
   const clips = (many.length ? many : single ? [single] : []).slice(0, 30);
   const title = str(cfg, "title");
+  const duck = React.useContext(VoiceDuckContext);
   const muted = !cfg.sound;
   const per = clips.length ? Math.max(1, Math.floor(durationInFrames / clips.length)) : durationInFrames;
 
@@ -874,7 +910,7 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
               <OffthreadVideo
                 src={src}
                 muted={muted}
-                volume={muted ? 0 : 1}
+                volume={muted ? 0 : duck}
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
               />
             </Sequence>
@@ -1807,13 +1843,28 @@ export const Storyboard: React.FC<StoryboardProps> = (props) => {
               p.effects ?? null,
               (plan.section.config?.effects as Partial<FeedEffectsConfig> | undefined) ?? null,
             );
+            const voice = voiceOf(plan.section.config ?? {});
+            const voiceSrc = voice ? assetUrl(voice.url) : null;
+            const voiceFrom = voice ? Math.round(voice.delaySec * STORYBOARD_FPS) : 0;
             return (
               <Sequence key={plan.key} from={plan.from} durationInFrames={plan.frames} layout="none">
-                <SectionScene wide={wide} p={p} section={plan.section} />
+                <VoiceDuckContext.Provider value={voiceSrc ? voice!.duckBg : 1}>
+                  <SectionScene wide={wide} p={p} section={plan.section} />
+                </VoiceDuckContext.Provider>
                 {stepEffects && <FeedEffectsOverlay effects={{ ...stepEffects, motionBlur: false }} />}
+                {voiceSrc && (
+                  <Sequence
+                    from={Math.min(voiceFrom, Math.max(0, plan.frames - 1))}
+                    durationInFrames={Math.max(1, plan.frames - voiceFrom)}
+                    layout="none"
+                  >
+                    <Audio src={voiceSrc} volume={voice!.gain} />
+                  </Sequence>
+                )}
               </Sequence>
             );
           })}
+
         </div>
         </FeedMotionBlurWrapper>
       </AbsoluteFill>

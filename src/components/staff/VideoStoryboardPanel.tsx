@@ -34,6 +34,7 @@ import SvgFlowBeatsEditor, { type FlowBeat } from "@/components/staff/SvgFlowBea
 import { VideoMediaPickerDialog } from "@/components/staff/VideoMediaPickerDialog";
 import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
 import VideoJobMeta from "@/components/staff/VideoJobMeta";
+import StepVoiceOverBlock, { type StepVoice } from "@/components/staff/StepVoiceOverBlock";
 import { Copy } from "lucide-react";
 import {
   MontageEffectsBlock,
@@ -946,7 +947,17 @@ const SortableSection = ({
           </div>
           {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
           <ConfigFields section={section} patch={patch} businessId={businessId} format={format} />
-          <div className="mt-3 grid">
+          <div className="mt-3 grid gap-3">
+            <StepVoiceOverBlock
+              value={(section.config?.voice as StepVoice | undefined) ?? null}
+              durationSec={section.duration_sec}
+              onChange={(v) => {
+                const next = { ...(section.config ?? {}) };
+                if (v) next.voice = v;
+                else delete next.voice;
+                patch({ config: next });
+              }}
+            />
             <StepEffectsBlock
               value={(section.config?.effects as Partial<MontageEffects> | undefined) ?? null}
               onChange={(v) => {
@@ -957,6 +968,7 @@ const SortableSection = ({
               }}
             />
           </div>
+
         </div>
       )}
     </div>
