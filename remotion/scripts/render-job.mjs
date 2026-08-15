@@ -313,9 +313,14 @@ async function renderOne() {
     });
 
 
-    // Audio : activé si une bande son globale est définie ou si le fond continu doit garder son son
-    const wantsAudio = Boolean(props?.soundtrackUrl) || Boolean(props?.continuousBgSound);
-    console.log(`🔊 Audio ${wantsAudio ? "activé" : "désactivé"} (soundtrack=${Boolean(props?.soundtrackUrl)}, bgSound=${Boolean(props?.continuousBgSound)})`);
+    // Audio : bande son globale, son du fond continu, ou voix off d'au moins une étape du storyboard
+    const hasVoiceOver = Array.isArray(props?.sections)
+      && props.sections.some((s) => {
+        const v = s?.config?.voice;
+        return v && v.enabled !== false && typeof v.url === "string" && v.url.trim().length > 0;
+      });
+    const wantsAudio = Boolean(props?.soundtrackUrl) || Boolean(props?.continuousBgSound) || hasVoiceOver;
+    console.log(`🔊 Audio ${wantsAudio ? "activé" : "désactivé"} (soundtrack=${Boolean(props?.soundtrackUrl)}, bgSound=${Boolean(props?.continuousBgSound)}, voix off=${hasVoiceOver})`);
 
     console.log("🎥 Rendu...");
     await renderMedia({
