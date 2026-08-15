@@ -45,6 +45,7 @@ export type StoryboardStepType =
   | "map_reveal"
   | "split_screen"
   | "icon_grid"
+  | "svg_flow"
   | "logo_merge"
   | "outro";
 
@@ -1262,7 +1263,6 @@ const SvgFlowScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({
     return intro + linkIndex * beatF + drawF * 0.75;
   };
 
-  const svgSize = Math.min(boardW, boardH * (wide ? 1.6 : 0.78));
   const boxSize = (wide ? stage.height : stage.width) * (nodes.length > 5 ? 0.11 : 0.15);
   const px = (v: number) => (v / 1000) * boardW;
   const py = (v: number) => (v / 1000) * boardH;
@@ -1359,7 +1359,6 @@ const SvgFlowScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({
               </div>
             );
           })}
-          <span style={{ display: "none" }}>{svgSize}</span>
         </div>
 
         {bodyText && <SceneBody>{bodyText}</SceneBody>}
@@ -1452,6 +1451,8 @@ const SectionSceneInner: React.FC<{ wide: boolean; p: StoryboardProps; section: 
       return <SplitScreenScene wide={wide} section={section} />;
     case "icon_grid":
       return <IconGridScene wide={wide} section={section} />;
+    case "svg_flow":
+      return <SvgFlowScene wide={wide} section={section} />;
     case "hook":
       return <HookScene wide={wide} p={p} section={section} />;
     case "video":
