@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import VideoIconPickerDialog from "@/components/staff/VideoIconPickerDialog";
+import SvgFlowBeatsEditor, { type FlowBeat } from "@/components/staff/SvgFlowBeatsEditor";
 import { VideoMediaPickerDialog } from "@/components/staff/VideoMediaPickerDialog";
 import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
 import VideoJobMeta from "@/components/staff/VideoJobMeta";
@@ -653,6 +654,16 @@ const ConfigFields = ({
                 : `${linkCount} liaison(s) tracée(s) sur ${section.duration_sec} s — chaque nœud apparaît quand sa liaison est tracée, puis tout reste à l'écran.`}
             </span>
           </div>
+
+          <SvgFlowBeatsEditor
+            beats={Array.isArray(cfg.beats) ? (cfg.beats as FlowBeat[]) : []}
+            duration={section.duration_sec}
+            nodeCount={nodes.length}
+            linkCount={linkCount}
+            timing={(cfg.timing as string) === "manual" ? "manual" : "sequence"}
+            onTiming={(t) => set("timing", t)}
+            onChange={(next) => set("beats", next)}
+          />
 
           {text("body", "Phrase de bas de scène (optionnelle)", "Un parcours simple, du premier contact à la réservation.")}
           <div className="grid md:grid-cols-2">{bgMediaBlock()}</div>
