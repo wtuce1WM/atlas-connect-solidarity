@@ -121,6 +121,9 @@ type StoryboardJob = {
   created_at: string;
   duration_sec: number | null;
   template_id: string | null;
+  business_id?: string | null;
+  template_props?: any;
+  scenario_json?: any;
 };
 
 
