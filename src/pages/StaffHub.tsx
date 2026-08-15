@@ -7,6 +7,7 @@ import logoGold from "@/assets/logoGOLDsimple.webp";
 import RichTextEditor from "@/components/staff/RichTextEditor";
 import { toast } from "sonner";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
+import FrequentationPanel from "@/components/staff/FrequentationPanel";
 
 interface CityCount { city: string; count: number }
 interface CatCount { main_category: string; count: number }
