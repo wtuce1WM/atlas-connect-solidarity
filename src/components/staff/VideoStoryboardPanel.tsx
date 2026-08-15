@@ -1022,7 +1022,7 @@ const StoryboardGuide = () => {
       type: "svg_flow",
       icon: <LayoutTemplate className="h-4 w-4" />,
       title: "Tracé SVG animé (liaisons)",
-      body: "2 à 8 nœuds (icône + Titre et/ou Texte optionnels) reliés par un tracé animé au frame (strokeDashoffset). Trois dispositions : Enchaînement (parcours A → B → C), Étoile (le 1er nœud est le centre, les autres rayonnent) et Circuit fermé (boucle). Trois vitesses de tracé. La durée de l'étape (5 à 30 s) est découpée en battements : chaque nœud apparaît quand la liaison qui y mène est tracée, puis tout reste à l'écran. À distinguer des effets de motion design : ici c'est une scène à part entière (contenu), pas un calque appliqué au montage.",
+      body: "2 à 8 nœuds (icône + Titre et/ou Texte optionnels) reliés par un tracé animé au frame (strokeDashoffset). Trois dispositions : Enchaînement (A → B → C), Étoile (1er nœud au centre) et Circuit fermé. Trois vitesses. Sans réglage, chaque nœud apparaît quand sa liaison est tracée, puis tout reste à l'écran. TIMELINE INTERNE (battements) : de 3 à 30 s, on déclare une suite de battements — Nœud, Liaison, Titre, Hook, Sous-hook, Chiffre/% (compteur animé, même moteur que la scène Compteur). Mode Séquence = les battements se partagent la durée à parts égales (changer 8 s en 25 s ne demande aucune ressaisie) ; mode Manuel = début et durée en secondes. Les textes et chiffres se posent au cadre (haut/centre/bas) ou se collent à un nœud. Durées minimales de lisibilité imposées : 1,2 s pour un texte, 1,5 s pour un chiffre ; la frise signale en rouge un débordement ou deux textes superposés sur la même ancre. À distinguer des effets de motion design : ici c'est une scène (contenu), pas un calque du montage.",
     },
     {
 
