@@ -34,6 +34,7 @@ import SvgFlowBeatsEditor, { type FlowBeat } from "@/components/staff/SvgFlowBea
 import { VideoMediaPickerDialog } from "@/components/staff/VideoMediaPickerDialog";
 import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
 import VideoJobMeta from "@/components/staff/VideoJobMeta";
+import StepVoiceOverBlock, { type StepVoice } from "@/components/staff/StepVoiceOverBlock";
 import { Copy } from "lucide-react";
 import {
   MontageEffectsBlock,
