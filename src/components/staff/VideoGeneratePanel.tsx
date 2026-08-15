@@ -630,13 +630,27 @@ const VideoGeneratePanel = () => {
             </div>
           </div>
 
+          <VideoRenderPresetBar
+            kind="feed"
+            config={feedConfig}
+            defaultName={label.trim() || autoSlug}
+            onApply={applyFeedConfig}
+            onDirtyChange={handlePresetState}
+          />
+
           <div className="flex items-center justify-between gap-3 flex-wrap border-t pt-3">
             <span className="text-xs text-muted-foreground">
               Durée estimée : ~{Math.round(stepSeconds * Math.max(0, steps - 1) + detailSeconds)}s
+              {(!presetId || presetDirty) && (
+                <>
+                  <br />
+                  Enregistre la configuration pour activer « Rendre ».
+                </>
+              )}
             </span>
-            <Button onClick={submitFeed} disabled={submitting}>
+            <Button onClick={submitFeed} disabled={submitting || !presetId || presetDirty}>
               <Rocket className="h-4 w-4 mr-2" />
-              {submitting ? "Envoi…" : "Générer la vidéo"}
+              {submitting ? "Envoi…" : "Rendre"}
             </Button>
           </div>
         </CardContent>
