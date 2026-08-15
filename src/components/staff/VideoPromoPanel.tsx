@@ -190,6 +190,86 @@ const VideoPromoPanel = () => {
   }, [query]);
 
 
+  /** Configuration sérialisable de l'écran Promo (ce qui est enregistré). */
+  const promoConfig = useMemo(
+    () => ({
+      businessId: biz?.id ?? null,
+      hook,
+      tagline,
+      text,
+      bgFeedUrl,
+      format,
+      variant,
+      mockupBg,
+      blocks,
+      seconds,
+    }),
+    [biz?.id, hook, tagline, text, bgFeedUrl, format, variant, mockupBg, blocks, seconds],
+  );
+
+  const applyPromoConfig = useCallback(async (c: any) => {
+    if (!c || typeof c !== "object") return;
+    setHook(c.hook ?? "");
+    setTagline(c.tagline ?? "");
+    setText(c.text ?? "");
+    setBgFeedUrl(c.bgFeedUrl ?? "");
+    setFormat(c.format === "landscape" ? "landscape" : "portrait");
+    setVariant(c.variant === "mockup" ? "mockup" : "fullscreen");
+    setMockupBg(c.mockupBg ?? PRESET_BG[0].value);
+    setBlocks({
+      hook: c.blocks?.hook ?? true,
+      video: c.blocks?.video ?? true,
+      photos: c.blocks?.photos ?? true,
+      outro: c.blocks?.outro ?? true,
+    });
+    setSeconds({
+      hook: Number(c.seconds?.hook ?? 3),
+      video: Number(c.seconds?.video ?? 5),
+      photo: Number(c.seconds?.photo ?? 1.5),
+      outro: Number(c.seconds?.outro ?? 2.5),
+    });
+    if (c.businessId) {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, slug, city, hook_fr, images, logo_url")
+        .eq("id", c.businessId)
+        .maybeSingle();
+      if (data) await selectBusiness(data as Biz);
+    }
+  }, []);
+
+  const handlePresetState = useCallback((dirty: boolean, id: string | null) => {
+    setPresetDirty(dirty);
+    setPresetId(id);
+  }, []);
+
+  /** Relance un rendu à l'identique depuis un job existant (aucune ressaisie). */
+  const relaunchJob = async (job: PromoJob) => {
+    setRelaunching(job.id);
+    const { data: auth } = await supabase.auth.getUser();
+    const { error } = await supabase.from("video_jobs").insert({
+      user_id: auth.user?.id ?? null,
+      business_id: job.business_id,
+      title: job.title,
+      prompt: `Relance — ${job.title ?? job.id.slice(0, 8)}`,
+      status: "pending",
+      duration_sec: job.duration_sec,
+      template_id: job.template_id,
+      template_props: job.template_props,
+      scenario_json: job.scenario_json,
+    } as any);
+    if (error) {
+      setRelaunching(null);
+      toast.error(`Relance impossible : ${error.message}`);
+      return;
+    }
+    const { error: wfError } = await supabase.functions.invoke("trigger-render-workflow", { body: {} });
+    setRelaunching(null);
+    if (wfError) toast.warning("Job créé, déclenchement GitHub à refaire au prochain cycle.");
+    else toast.success("Rendu relancé à l'identique.");
+    loadJobs();
+  };
+
   const submit = async () => {
     if (!biz) {
       toast.error("Sélectionne un établissement (nom, slug ou URL 1WM)");
