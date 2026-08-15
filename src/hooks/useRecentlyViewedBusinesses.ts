@@ -55,15 +55,25 @@ if (typeof window !== "undefined") {
       trackViewInternal(e.detail);
       // GA4 event — visibilité produit sur les fiches ouvertes
       try {
-        import("@/lib/analytics").then(({ trackEvent, trackAhaMoment }) => {
+        import("@/lib/analytics").then(({ trackEvent, trackAhaMoment, trackVirtualPageView }) => {
           trackEvent("view_business", {
             business_id: e.detail?.id,
             business_name: e.detail?.name,
             city: e.detail?.city ?? undefined,
             is_youtube_channel: !!e.detail?.isYoutubeChannel,
           });
+          // page_view virtuel : le slide-panel réécrit l'URL via replaceState,
+          // GA4 ne verrait sinon jamais l'ouverture de fiche.
+          if (e.detail?.slug) {
+            trackVirtualPageView(
+              `/fiche/${e.detail.slug}`,
+              e.detail?.name ? `${e.detail.name} | One World Morocco` : undefined,
+              { business_id: e.detail?.id, city: e.detail?.city ?? undefined },
+            );
+          }
           trackAhaMoment("first_view_business", { business_id: e.detail?.id });
         });
+
         // Internal business_events log (dashboard partenaire)
         import("@/lib/businessAnalytics").then(({ trackBusinessEvent }) => {
           if (e.detail?.id) trackBusinessEvent(e.detail.id, "view");
