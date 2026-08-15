@@ -24,9 +24,9 @@ import { assetUrl } from "./lib/assetUrl";
  *
  * Deux enrichissements optionnels :
  *  - `logoUrl` : logo transparent animé dans l'intro et l'outro.
- *  - `bgFeedManifest` : décor plein écran issu d'une capture feed (/search),
- *    swipe vertical continu derrière le logo / le hook.
- */
+ *  - `bgFeedManifest` : décor animé issu d'une capture feed (/search), utilisé
+ *    uniquement comme fond derrière un mockup (smartphone / navigateur). En
+ *    plein écran il est ignoré : les médias de la fiche occupent tout le cadre.
 
 export type PromoBlocks = {
   hook: boolean;
