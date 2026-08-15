@@ -910,7 +910,7 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
               <OffthreadVideo
                 src={src}
                 muted={muted}
-                volume={muted ? 0 : 1}
+                volume={muted ? 0 : duck}
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
               />
             </Sequence>
