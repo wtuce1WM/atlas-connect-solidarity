@@ -1179,3 +1179,23 @@ body[data-map-overlay="1"] .owm-panel-searchbar {
   .owm-popup-appear { animation: fade-in 0.2s ease-out both; }
 }
 
+
+/* ==========================================================================
+   Formulaires backoffice vidéo — lisibilité
+   Les labels sont en gris (muted) et englobent les champs : sans règle
+   explicite, la valeur saisie hérite du gris et devient indistinguable
+   d'un placeholder ou d'une valeur par défaut.
+   ========================================================================== */
+.form-legible input,
+.form-legible textarea,
+.form-legible select {
+  @apply text-foreground font-medium;
+}
+.form-legible input::placeholder,
+.form-legible textarea::placeholder {
+  @apply text-muted-foreground/55 font-normal italic;
+}
+.form-legible label > span:first-child,
+.form-legible label > .field-label {
+  @apply font-semibold;
+}
