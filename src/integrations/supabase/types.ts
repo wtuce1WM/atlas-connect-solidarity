@@ -9752,6 +9752,7 @@ export type Database = {
         }
       }
       touch_club_member_activity: { Args: never; Returns: undefined }
+      trigger_refresh_hotel_prices: { Args: never; Returns: undefined }
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
