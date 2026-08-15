@@ -294,6 +294,25 @@ const HookScene: React.FC<{
  * Montserrat via `display`, corps en Avenir/Nunito via `body`, mêmes tailles et
  * mêmes espacements que l'intro et l'outro.
  */
+/** Feuille de style partagée du Rich Text (surimpression + colonne split). */
+const richCss = `
+  .promo-rich > *:first-child { margin-top: 0; }
+  .promo-rich > *:last-child { margin-bottom: 0; }
+  .promo-rich h1, .promo-rich h2, .promo-rich h3, .promo-rich h4 {
+    font-family: ${displayFont}; font-weight: ${weight.medium}; color: ${palette.cream};
+    line-height: 1.08; margin: 0 0 16px;
+  }
+  .promo-rich h1 { font-size: ${size.h3}px; }
+  .promo-rich h2 { font-size: ${size.h4}px; }
+  .promo-rich h3, .promo-rich h4 { font-size: ${size.body}px; }
+  .promo-rich p { margin: 0 0 14px; }
+  .promo-rich strong { font-weight: ${weight.bold}; color: ${palette.cream}; }
+  .promo-rich em { font-style: italic; }
+  .promo-rich ul, .promo-rich ol { margin: 0 0 14px; padding-left: 1.3em; }
+  .promo-rich li { margin: 0 0 8px; }
+  .promo-rich a { color: ${palette.gold}; text-decoration: none; }
+`;
+
 const RichOverlay: React.FC<{ html: string; frames: number }> = ({ html, frames }) => {
   const frame = useCurrentFrame();
   const fade = interpolate(
