@@ -72,6 +72,7 @@ export type StepType =
   | "map_reveal"
   | "split_screen"
   | "icon_grid"
+  | "svg_flow"
   | "logo_merge"
   | "outro";
 
@@ -84,6 +85,7 @@ const STEP_TYPES: Array<{ value: StepType; label: string; hint: string }> = [
   { value: "map_reveal", label: "Carte / localisation", hint: "Révélation géographique." },
   { value: "split_screen", label: "Écran partagé", hint: "Média d'un côté, texte de l'autre." },
   { value: "icon_grid", label: "Icônes (grille / battements)", hint: "1 à 8 icônes curatées, Titre et/ou Texte, durée découpée au choix." },
+  { value: "svg_flow", label: "Tracé SVG animé (liaisons)", hint: "2 à 8 nœuds à icônes reliés par un tracé animé, 5 à 30 s." },
   { value: "logo_merge", label: "Fusion de logos", hint: "Lockup 1WM + logo partenaire." },
   { value: "outro", label: "Outro", hint: "Logo + tagline." },
 ];
@@ -903,6 +905,12 @@ const StoryboardGuide = () => {
       icon: <LayoutTemplate className="h-4 w-4" />,
       title: "Icônes (grille / battements)",
       body: "1 à 8 icônes de la bibliothèque curatée (17 catégories), chacune avec Titre et/ou Texte optionnels. Deux affichages : Grille simultanée (entrée en cascade, tout reste à l'écran) ou Battements (la durée de l'étape est découpée à parts égales, une icône plein cadre par battement, avec indicateur de progression). Un fond média peut être ajouté. Le picker affiche un aperçu 120 px au survol.",
+    },
+    {
+      type: "svg_flow",
+      icon: <LayoutTemplate className="h-4 w-4" />,
+      title: "Tracé SVG animé (liaisons)",
+      body: "2 à 8 nœuds (icône + Titre et/ou Texte optionnels) reliés par un tracé animé au frame (strokeDashoffset). Trois dispositions : Enchaînement (parcours A → B → C), Étoile (le 1er nœud est le centre, les autres rayonnent) et Circuit fermé (boucle). Trois vitesses de tracé. La durée de l'étape (5 à 30 s) est découpée en battements : chaque nœud apparaît quand la liaison qui y mène est tracée, puis tout reste à l'écran. À distinguer des effets de motion design : ici c'est une scène à part entière (contenu), pas un calque appliqué au montage.",
     },
     {
 
