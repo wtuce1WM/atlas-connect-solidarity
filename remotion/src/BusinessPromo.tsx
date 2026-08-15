@@ -469,7 +469,9 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number; wide?: boolean }>
 }) => {
   const segs = promoSegments(p);
   const images = (p.images || []).slice(0, 4);
-  const manifest = useFeedManifest(p.bgFeedManifest);
+  // Le décor feed n'est plus utilisé dans le stage : il sert uniquement de fond
+  // derrière un mockup (cf. BusinessPromo plus bas).
+  const manifest: FeedManifest | null = null;
   const stage = wide ? LANDSCAPE_STAGE : PROMO_PORTRAIT;
   const overlayHtml = (p.text || "").trim() || null;
   // Fenêtre continue du texte : du premier au dernier plan média, sans réapparition
