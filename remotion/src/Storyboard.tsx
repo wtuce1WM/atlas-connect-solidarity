@@ -424,6 +424,37 @@ const list = (cfg: Record<string, unknown> | null | undefined, key: string) => {
 const frNumber = (n: number, decimals: number) =>
   n.toLocaleString("fr-FR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).replace(/\u202f|\u00a0/g, "\u202f");
 
+/**
+ * Décompte animé — SOURCE UNIQUE partagée par la scène `counter` et les
+ * battements `metric` de `svg_flow`. Toute autre implémentation d'un compteur
+ * serait une seconde source de vérité pour le même effet.
+ */
+export const countUpText = ({
+  frame,
+  fps,
+  to,
+  from = 0,
+  delaySec = 0,
+  decimals = 0,
+  rollSec = 1.4,
+}: {
+  frame: number;
+  fps: number;
+  to: number;
+  from?: number;
+  delaySec?: number;
+  decimals?: number;
+  rollSec?: number;
+}) => {
+  const roll = spring({
+    frame: frame - Math.round(fps * delaySec),
+    fps,
+    durationInFrames: Math.max(1, Math.round(fps * rollSec)),
+    config: { damping: 200 },
+  });
+  return frNumber(from + (to - from) * roll, decimals);
+};
+
 /** Filet d'or commun à toutes les scènes (largeur animable). */
 const GoldRule: React.FC<{ width: number; stageWidth: number }> = ({ width, stageWidth }) => (
   <div
@@ -506,13 +537,7 @@ const CounterScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({
               return Number.isFinite(n) ? n : 0;
             })();
             // Décompte échelonné : chaque chiffre démarre légèrement après le précédent.
-            const roll = spring({
-              frame: frame - Math.round(fps * (0.25 + i * 0.22)),
-              fps,
-              durationInFrames: Math.round(fps * 1.4),
-              config: { damping: 200 },
-            });
-            const shown = frNumber(target * roll, decimals);
+            const shown = countUpText({ frame, fps, delaySec: 0.25 + i * 0.22, to: target, decimals });
             const label = typeof it.label === "string" ? it.label : "";
             const prefix = typeof it.prefix === "string" ? it.prefix : "";
             const suffix = typeof it.suffix === "string" ? it.suffix : "";
