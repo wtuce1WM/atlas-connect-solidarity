@@ -150,8 +150,19 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
         email: email.trim(),
       };
       if (authData.user?.id) (payload as any).user_id = authData.user.id;
-      const { error } = await supabase.from("club_members" as any).insert(payload as any);
+      const { data: inserted, error } = await (supabase
+        .from("club_members" as any)
+        .insert(payload as any)
+        .select("id")
+        .single() as any);
       if (error) throw error;
+      // Email de bienvenue Club (une seule fois par membre, garde côté serveur)
+      if (inserted?.id) {
+        supabase.functions
+          .invoke("send-club-welcome", { body: { member_id: inserted.id } })
+          .catch((e) => console.error("send-club-welcome failed", e));
+      }
+
       setIsRegistered(true);
       toast({ title: t.successTitle, description: t.successMsg });
       trackClubSignupCompleted("email");

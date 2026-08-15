@@ -3844,6 +3844,7 @@ export type Database = {
           twitter: string | null
           user_id: string | null
           website: string | null
+          welcome_email_sent_at: string | null
           whatsapp: string | null
           youtube: string | null
         }
@@ -3871,6 +3872,7 @@ export type Database = {
           twitter?: string | null
           user_id?: string | null
           website?: string | null
+          welcome_email_sent_at?: string | null
           whatsapp?: string | null
           youtube?: string | null
         }
@@ -3898,6 +3900,7 @@ export type Database = {
           twitter?: string | null
           user_id?: string | null
           website?: string | null
+          welcome_email_sent_at?: string | null
           whatsapp?: string | null
           youtube?: string | null
         }
@@ -9789,6 +9792,7 @@ export type Database = {
           twitter: string | null
           user_id: string | null
           website: string | null
+          welcome_email_sent_at: string | null
           whatsapp: string | null
           youtube: string | null
         }

@@ -404,7 +404,12 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         if (data) {
           setMemberId(data.id);
           currentMemberId = data.id;
+          // Email de bienvenue Club (garde anti-doublon côté serveur)
+          supabase.functions
+            .invoke("send-club-welcome", { body: { member_id: data.id } })
+            .catch((e) => console.error("send-club-welcome failed", e));
         }
+
       }
 
       // Sync personas

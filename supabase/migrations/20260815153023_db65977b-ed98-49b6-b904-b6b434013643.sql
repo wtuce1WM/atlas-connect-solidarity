@@ -1,0 +1,1 @@
+ALTER TABLE public.club_members ADD COLUMN IF NOT EXISTS welcome_email_sent_at timestamptz;

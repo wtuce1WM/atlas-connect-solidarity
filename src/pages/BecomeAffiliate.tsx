@@ -242,6 +242,22 @@ const BecomeAffiliate = () => {
           },
         },
       });
+
+      // 3. Accusé de réception au demandeur
+      const stamp = Date.now();
+      await supabase.functions.invoke('send-transactional-email', {
+        body: {
+          templateName: 'affiliate-request-received',
+          recipientEmail: form.email.trim(),
+          idempotencyKey: `affiliate-req-ack-${form.email.trim().toLowerCase()}-${stamp}`,
+          templateData: {
+            businessName: form.businessName,
+            firstName: form.firstName,
+            city: form.city,
+          },
+        },
+      });
+
       setFormSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
 
