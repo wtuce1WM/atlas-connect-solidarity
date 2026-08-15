@@ -27,6 +27,7 @@ import { assetUrl } from "./lib/assetUrl";
  *  - `bgFeedManifest` : décor animé issu d'une capture feed (/search), utilisé
  *    uniquement comme fond derrière un mockup (smartphone / navigateur). En
  *    plein écran il est ignoré : les médias de la fiche occupent tout le cadre.
+ */
 
 export type PromoBlocks = {
   hook: boolean;
