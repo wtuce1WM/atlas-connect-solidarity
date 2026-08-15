@@ -217,11 +217,12 @@ const VideoPromoPanel = () => {
       variant,
       mockupBg,
       browserUrl,
+      splitSide,
       clipSource,
       blocks,
       seconds,
     }),
-    [biz?.id, hook, tagline, text, bgFeedUrl, format, variant, mockupBg, browserUrl, clipSource, blocks, seconds],
+    [biz?.id, hook, tagline, text, bgFeedUrl, format, variant, mockupBg, browserUrl, splitSide, clipSource, blocks, seconds],
   );
 
   const applyPromoConfig = useCallback(async (c: any) => {
@@ -231,9 +232,10 @@ const VideoPromoPanel = () => {
     setText(c.text ?? "");
     setBgFeedUrl(c.bgFeedUrl ?? "");
     setFormat(c.format === "landscape" ? "landscape" : "portrait");
-    setVariant(c.variant === "mockup" || c.variant === "browser" ? c.variant : "fullscreen");
+    setVariant(isFramed(c.variant) ? (c.variant as PromoVariant) : "fullscreen");
     setMockupBg(c.mockupBg ?? PRESET_BG[0].value);
     setBrowserUrl(c.browserUrl ?? "oneworldmorocco.com");
+    setSplitSide(c.splitSide === "right" ? "right" : "left");
     setBlocks({
       hook: c.blocks?.hook ?? true,
       video: c.blocks?.video ?? true,
