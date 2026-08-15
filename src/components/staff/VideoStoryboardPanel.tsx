@@ -1974,34 +1974,34 @@ const VideoStoryboardPanel = () => {
           ) : (
             <div className="divide-y">
               {jobs.map((j) => (
-                <div key={j.id} className="py-2 flex items-center gap-3 flex-wrap text-sm">
-                  <Badge
-                    variant={j.status === "done" ? "default" : j.status === "error" ? "destructive" : "outline"}
-                    className="text-[10px]"
-                  >
-                    {j.status}
-                  </Badge>
-                  <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
-                  <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
-                  {j.duration_sec != null && (
-                    <span className="text-[11px] text-muted-foreground">{j.duration_sec}s</span>
-                  )}
-                  <span className="text-[11px] text-muted-foreground">
-                    {new Date(j.created_at).toLocaleString("fr-FR")}
-                  </span>
-                  {j.output_url && (
-                    <a
-                      href={j.output_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[11px] underline text-primary ml-auto"
+                <div key={j.id} className="py-3 space-y-2">
+                  <div className="flex items-center gap-3 flex-wrap text-sm">
+                    <Badge
+                      variant={j.status === "done" ? "default" : j.status === "error" ? "destructive" : "outline"}
+                      className="text-[10px]"
                     >
-                      Ouvrir la vidéo
-                    </a>
-                  )}
-                  {j.error_message && (
-                    <span className="text-[11px] text-destructive ml-auto max-w-md truncate">{j.error_message}</span>
-                  )}
+                      {j.status}
+                    </Badge>
+                    <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
+                    <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
+                    {j.output_url && (
+                      <a
+                        href={j.output_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] underline text-primary ml-auto"
+                      >
+                        Ouvrir la vidéo
+                      </a>
+                    )}
+                    {j.error_message && (
+                      <span className="text-[11px] text-destructive ml-auto max-w-md truncate">{j.error_message}</span>
+                    )}
+                  </div>
+                  <VideoJobMeta
+                    job={j}
+                    businessName={j.business_id ? jobBusinessNames[j.business_id] : undefined}
+                  />
                 </div>
               ))}
             </div>
