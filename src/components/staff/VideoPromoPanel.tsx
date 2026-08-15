@@ -78,8 +78,11 @@ const VideoPromoPanel = () => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [bgFeedUrl, setBgFeedUrl] = useState("");
   const [format, setFormat] = useState<"portrait" | "landscape">("portrait");
-  const [variant, setVariant] = useState<"fullscreen" | "mockup">("fullscreen");
+  const [variant, setVariant] = useState<"fullscreen" | "mockup" | "browser">("fullscreen");
   const [mockupBg, setMockupBg] = useState(PRESET_BG[0].value);
+  const [browserUrl, setBrowserUrl] = useState("oneworldmorocco.com");
+  /** Clip source : rendu sans intro/outro, réutilisable comme média dans un storyboard. */
+  const [clipSource, setClipSource] = useState(false);
   const [blocks, setBlocks] = useState({ hook: true, video: true, photos: true, outro: true });
   const [seconds, setSeconds] = useState({ hook: 3, video: 5, photo: 1.5, outro: 2.5 });
 
@@ -97,13 +100,13 @@ const VideoPromoPanel = () => {
 
   const estimated = useMemo(() => {
     let s = 0;
-    if (blocks.hook) s += seconds.hook;
+    if (blocks.hook && !clipSource) s += seconds.hook;
     if (blocks.video && videoUrl) s += seconds.video;
     if (blocks.photos) s += seconds.photo * images.length;
     // Le texte n'est plus une étape : il est en surimpression sur Vidéo/Photos.
-    if (blocks.outro) s += seconds.outro;
+    if (blocks.outro && !clipSource) s += seconds.outro;
     return Math.round(s * 10) / 10;
-  }, [blocks, seconds, videoUrl, images.length, textLength]);
+  }, [blocks, seconds, videoUrl, images.length, textLength, clipSource]);
 
   const loadJobs = async () => {
     const { data } = await supabase
@@ -202,10 +205,12 @@ const VideoPromoPanel = () => {
       format,
       variant,
       mockupBg,
+      browserUrl,
+      clipSource,
       blocks,
       seconds,
     }),
-    [biz?.id, hook, tagline, text, bgFeedUrl, format, variant, mockupBg, blocks, seconds],
+    [biz?.id, hook, tagline, text, bgFeedUrl, format, variant, mockupBg, browserUrl, clipSource, blocks, seconds],
   );
 
   const applyPromoConfig = useCallback(async (c: any) => {
@@ -215,8 +220,10 @@ const VideoPromoPanel = () => {
     setText(c.text ?? "");
     setBgFeedUrl(c.bgFeedUrl ?? "");
     setFormat(c.format === "landscape" ? "landscape" : "portrait");
-    setVariant(c.variant === "mockup" ? "mockup" : "fullscreen");
+    setVariant(c.variant === "mockup" || c.variant === "browser" ? c.variant : "fullscreen");
     setMockupBg(c.mockupBg ?? PRESET_BG[0].value);
+    setBrowserUrl(c.browserUrl ?? "oneworldmorocco.com");
+    setClipSource(!!c.clipSource);
     setBlocks({
       hook: c.blocks?.hook ?? true,
       video: c.blocks?.video ?? true,
@@ -280,7 +287,7 @@ const VideoPromoPanel = () => {
       toast.error("Le texte dépasse 500 caractères");
       return;
     }
-    if (blocks.hook && !hook.trim()) {
+    if (blocks.hook && !clipSource && !hook.trim()) {
       toast.error("Renseigne le hook ou décoche le bloc Hook");
       return;
     }
@@ -293,7 +300,7 @@ const VideoPromoPanel = () => {
     const payload = {
       user_id: auth.user?.id ?? null,
       business_id: biz.id,
-      title: `Promo — ${biz.name}`,
+      title: `Promo${clipSource ? " clip" : ""} — ${biz.name}`,
       prompt: hook.trim() || biz.name,
       status: "pending",
       duration_sec: Math.round(estimated),
@@ -312,6 +319,8 @@ const VideoPromoPanel = () => {
         format,
         variant,
         mockupBg,
+        browserUrl: variant === "browser" ? browserUrl.trim() || "oneworldmorocco.com" : null,
+        clipSource,
         blocks,
         seconds,
       },
@@ -454,12 +463,48 @@ const VideoPromoPanel = () => {
                 <Button size="sm" variant={variant === "mockup" ? "default" : "outline"} onClick={() => setVariant("mockup")}>
                   Mockup smartphone
                 </Button>
+                <Button
+                  size="sm"
+                  variant={variant === "browser" ? "default" : "outline"}
+                  onClick={() => {
+                    setVariant("browser");
+                    setFormat("landscape");
+                  }}
+                >
+                  Mockup navigateur
+                </Button>
               </div>
               <span className="text-[11px]">
                 Le paysage est désormais un vrai cadre 16:9 (logo à gauche, accroche à droite), sans bandes noires.
               </span>
             </div>
-            {variant === "mockup" && (
+            {variant === "browser" && (
+              <label className="grid gap-1 text-xs text-muted-foreground">
+                URL affichée dans la barre d'adresse
+                <Input
+                  value={browserUrl}
+                  onChange={(e) => setBrowserUrl(e.target.value)}
+                  placeholder="oneworldmorocco.com"
+                  className="h-9 text-xs"
+                />
+                <span className="text-[11px]">
+                  Cadre desktop 16:9 sur fond uni — conçu pour les captures d'écrans réels 1WM en paysage.
+                </span>
+              </label>
+            )}
+            <label className="flex items-start gap-2 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={clipSource}
+                onChange={(e) => setClipSource(e.target.checked)}
+                className="mt-0.5"
+              />
+              <span>
+                <span className="font-medium text-foreground">Clip source</span> — rendu sans intro (hook) ni outro,
+                réutilisable tel quel comme média dans un montage Storyboard.
+              </span>
+            </label>
+            {(variant === "mockup" || variant === "browser") && (
               <div className="grid gap-1 text-xs text-muted-foreground">
                 Fond uni du mockup
                 <div className="flex items-center gap-2">
