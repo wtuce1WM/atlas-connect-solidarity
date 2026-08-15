@@ -371,7 +371,11 @@ const StaffHub = () => {
           </div>
         </div>}
 
+        {/* Fréquentation */}
+        <FrequentationPanel />
+
         {/* Quick access */}
+
         <div className="max-w-4xl mx-auto">
           <h2 className="text-lg font-semibold text-muted-foreground mb-4">Accès rapide</h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
