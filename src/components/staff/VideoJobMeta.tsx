@@ -95,10 +95,29 @@ const collectEffects = (job: VideoJobMetaRow): string[] => {
     .map(([k]) => EFFECT_LABELS[k] ?? k);
 };
 
+const VARIANT_LABELS: Record<string, string> = {
+  fullscreen: "Plein écran",
+  mockup: "Mockup smartphone",
+  browser: "Mockup navigateur",
+};
+
+/** Promo business : montage (plein écran / mockup) + fond d'écran vidéo (capture feed). */
+const promoInfo = (job: VideoJobMetaRow) => {
+  const p = job.template_props ?? {};
+  if (p.kind !== "promo") return null;
+  return {
+    montage: VARIANT_LABELS[String(p.variant ?? "fullscreen")] ?? String(p.variant ?? "—"),
+    bgFeed: p.bgFeedUrl ? "oui" : "non",
+    bgFeedUrl: p.bgFeedUrl ? String(p.bgFeedUrl) : null,
+    clip: p.clipSource ? "oui (sans intro/outro)" : "non",
+  };
+};
+
 const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessName?: string }) => {
   const steps = collectSteps(job);
   const effects = collectEffects(job);
   const fileName = videoJobFileName(job.output_url, job.title || businessName);
+  const promo = promoInfo(job);
 
   return (
     <div className="rounded-lg border bg-muted/30 p-3 grid gap-2 md:grid-cols-3 text-[11px] text-muted-foreground w-full">
@@ -126,6 +145,25 @@ const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessNam
         <span className="font-semibold text-black">Effets / motion design</span>{" "}
         {effects.length > 0 ? effects.join(", ") : "aucun activé"}
       </div>
+      {promo && (
+        <div className="md:col-span-3 grid gap-1 md:grid-cols-3 border-t pt-2">
+          <div>
+            <span className="font-semibold text-black">Montage</span> {promo.montage}
+          </div>
+          <div>
+            <span className="font-semibold text-black">Fond d'écran vidéo</span> {promo.bgFeed}
+          </div>
+          <div>
+            <span className="font-semibold text-black">Clip source</span> {promo.clip}
+          </div>
+          {promo.bgFeedUrl && (
+            <div className="md:col-span-3 break-all">
+              <span className="font-semibold text-black">URL du fond</span> {promo.bgFeedUrl}
+            </div>
+          )}
+        </div>
+      )}
+
       {steps.length > 0 && (
         <div className="md:col-span-3 flex flex-wrap gap-1">
           {steps.map((t, i) => (

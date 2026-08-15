@@ -81,10 +81,13 @@ const VideoPromoPanel = () => {
   const [variant, setVariant] = useState<"fullscreen" | "mockup" | "browser">("fullscreen");
   const [mockupBg, setMockupBg] = useState(PRESET_BG[0].value);
   const [browserUrl, setBrowserUrl] = useState("oneworldmorocco.com");
-  /** Clip source : rendu sans intro/outro, réutilisable comme média dans un storyboard. */
-  const [clipSource, setClipSource] = useState(false);
   const [blocks, setBlocks] = useState({ hook: true, video: true, photos: true, outro: true });
   const [seconds, setSeconds] = useState({ hook: 3, video: 5, photo: 1.5, outro: 2.5 });
+  /**
+   * Clip source : déduit des blocs. Sans Hook ni Outro, le rendu est un pur clip
+   * réutilisable comme média dans un montage Storyboard — pas d'option séparée.
+   */
+  const clipSource = !blocks.hook && !blocks.outro;
 
   const [submitting, setSubmitting] = useState(false);
   const [jobs, setJobs] = useState<PromoJob[]>([]);
@@ -100,11 +103,11 @@ const VideoPromoPanel = () => {
 
   const estimated = useMemo(() => {
     let s = 0;
-    if (blocks.hook && !clipSource) s += seconds.hook;
+    if (blocks.hook) s += seconds.hook;
     if (blocks.video && videoUrl) s += seconds.video;
     if (blocks.photos) s += seconds.photo * images.length;
     // Le texte n'est plus une étape : il est en surimpression sur Vidéo/Photos.
-    if (blocks.outro && !clipSource) s += seconds.outro;
+    if (blocks.outro) s += seconds.outro;
     return Math.round(s * 10) / 10;
   }, [blocks, seconds, videoUrl, images.length, textLength, clipSource]);
 
@@ -223,7 +226,6 @@ const VideoPromoPanel = () => {
     setVariant(c.variant === "mockup" || c.variant === "browser" ? c.variant : "fullscreen");
     setMockupBg(c.mockupBg ?? PRESET_BG[0].value);
     setBrowserUrl(c.browserUrl ?? "oneworldmorocco.com");
-    setClipSource(!!c.clipSource);
     setBlocks({
       hook: c.blocks?.hook ?? true,
       video: c.blocks?.video ?? true,
@@ -287,7 +289,7 @@ const VideoPromoPanel = () => {
       toast.error("Le texte dépasse 500 caractères");
       return;
     }
-    if (blocks.hook && !clipSource && !hook.trim()) {
+    if (blocks.hook && !hook.trim()) {
       toast.error("Renseigne le hook ou décoche le bloc Hook");
       return;
     }
@@ -492,18 +494,12 @@ const VideoPromoPanel = () => {
                 </span>
               </label>
             )}
-            <label className="flex items-start gap-2 text-xs text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={clipSource}
-                onChange={(e) => setClipSource(e.target.checked)}
-                className="mt-0.5"
-              />
-              <span>
-                <span className="font-medium text-foreground">Clip source</span> — rendu sans intro (hook) ni outro,
-                réutilisable tel quel comme média dans un montage Storyboard.
-              </span>
-            </label>
+            <p className="text-[11px] text-muted-foreground">
+              Décoche <span className="font-medium text-foreground">Hook</span> et{" "}
+              <span className="font-medium text-foreground">Outro</span> dans « Blocs et durées » pour obtenir un{" "}
+              <span className="font-medium text-foreground">clip source</span> (sans intro ni outro), réutilisable tel
+              quel comme média dans un montage Storyboard.
+            </p>
             {(variant === "mockup" || variant === "browser") && (
               <div className="grid gap-1 text-xs text-muted-foreground">
                 Fond uni du mockup
