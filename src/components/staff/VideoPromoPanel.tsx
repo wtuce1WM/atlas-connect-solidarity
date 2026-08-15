@@ -490,12 +490,34 @@ const VideoPromoPanel = () => {
                 >
                   Mockup navigateur
                 </Button>
+                <Button
+                  size="sm"
+                  variant={variant === "multi" ? "default" : "outline"}
+                  onClick={() => {
+                    setVariant("multi");
+                    setFormat("landscape");
+                  }}
+                >
+                  Multi-écrans
+                </Button>
+                <Button
+                  size="sm"
+                  variant={variant === "split" ? "default" : "outline"}
+                  onClick={() => {
+                    setVariant("split");
+                    setFormat("landscape");
+                  }}
+                >
+                  Split média / texte
+                </Button>
               </div>
               <span className="text-[11px]">
                 Le paysage est désormais un vrai cadre 16:9 (logo à gauche, accroche à droite), sans bandes noires.
+                Multi-écrans affiche le navigateur et le smartphone côte à côte ; Split place le cadre smartphone d'un
+                côté et le Rich Text de l'autre (le texte n'est alors plus en surimpression).
               </span>
             </div>
-            {variant === "browser" && (
+            {(variant === "browser" || variant === "multi") && (
               <label className="grid gap-1 text-xs text-muted-foreground">
                 URL affichée dans la barre d'adresse
                 <Input
@@ -508,6 +530,19 @@ const VideoPromoPanel = () => {
                   Cadre desktop 16:9 sur fond uni — conçu pour les captures d'écrans réels 1WM en paysage.
                 </span>
               </label>
+            )}
+            {variant === "split" && (
+              <div className="grid gap-1 text-xs text-muted-foreground">
+                Position du mockup
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant={splitSide === "left" ? "default" : "outline"} onClick={() => setSplitSide("left")}>
+                    Mockup à gauche
+                  </Button>
+                  <Button size="sm" variant={splitSide === "right" ? "default" : "outline"} onClick={() => setSplitSide("right")}>
+                    Mockup à droite
+                  </Button>
+                </div>
+              </div>
             )}
             <p className="text-[11px] text-muted-foreground">
               Décoche <span className="font-medium text-foreground">Hook</span> et{" "}
