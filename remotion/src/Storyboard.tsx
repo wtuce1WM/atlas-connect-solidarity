@@ -424,6 +424,37 @@ const list = (cfg: Record<string, unknown> | null | undefined, key: string) => {
 const frNumber = (n: number, decimals: number) =>
   n.toLocaleString("fr-FR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).replace(/\u202f|\u00a0/g, "\u202f");
 
+/**
+ * Décompte animé — SOURCE UNIQUE partagée par la scène `counter` et les
+ * battements `metric` de `svg_flow`. Toute autre implémentation d'un compteur
+ * serait une seconde source de vérité pour le même effet.
+ */
+export const countUpText = ({
+  frame,
+  fps,
+  to,
+  from = 0,
+  delaySec = 0,
+  decimals = 0,
+  rollSec = 1.4,
+}: {
+  frame: number;
+  fps: number;
+  to: number;
+  from?: number;
+  delaySec?: number;
+  decimals?: number;
+  rollSec?: number;
+}) => {
+  const roll = spring({
+    frame: frame - Math.round(fps * delaySec),
+    fps,
+    durationInFrames: Math.max(1, Math.round(fps * rollSec)),
+    config: { damping: 200 },
+  });
+  return frNumber(from + (to - from) * roll, decimals);
+};
+
 /** Filet d'or commun à toutes les scènes (largeur animable). */
 const GoldRule: React.FC<{ width: number; stageWidth: number }> = ({ width, stageWidth }) => (
   <div
@@ -506,13 +537,7 @@ const CounterScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({
               return Number.isFinite(n) ? n : 0;
             })();
             // Décompte échelonné : chaque chiffre démarre légèrement après le précédent.
-            const roll = spring({
-              frame: frame - Math.round(fps * (0.25 + i * 0.22)),
-              fps,
-              durationInFrames: Math.round(fps * 1.4),
-              config: { damping: 200 },
-            });
-            const shown = frNumber(target * roll, decimals);
+            const shown = countUpText({ frame, fps, delaySec: 0.25 + i * 0.22, to: target, decimals });
             const label = typeof it.label === "string" ? it.label : "";
             const prefix = typeof it.prefix === "string" ? it.prefix : "";
             const suffix = typeof it.suffix === "string" ? it.suffix : "";
@@ -1180,21 +1205,110 @@ const IconGridScene: React.FC<{ wide: boolean; section: StoryboardSection }> = (
 };
 
 /**
- * `svg_flow` — tracé SVG animé reliant des nœuds à icônes.
+ * `svg_flow` — animation SVG déclarative : nœuds à icônes, liaisons tracées,
+ * et une TIMELINE INTERNE (battements) pour titres, hook, sous-hook et chiffres.
  *
  * config : {
  *   kicker, title, body,
  *   layout: "chain" | "hub" | "loop",   // enchaînement, étoile, circuit fermé
- *   speed: "slow" | "normal" | "fast",  // vitesse du tracé
+ *   speed: "slow" | "normal" | "fast",  // vitesse du tracé (mode auto)
  *   strokeColor?: string,               // défaut : or de la charte
- *   nodes: [{ icon: "tb:TbBed", title?, text? }]   // 2 à 8
+ *   nodes: [{ id?, icon: "tb:TbBed", title?, text? }]   // 2 à 8
+ *   timing?: "auto" | "sequence" | "manual",
+ *   beats?: [{
+ *     type: "node" | "link" | "title" | "hook" | "subhook" | "metric",
+ *     ref?: number|string,       // nœud (1..n ou id) / liaison (1..n)
+ *     at?: number, atPct?: number,   // début en secondes OU en % de l'étape
+ *     dur?: number,                  // durée d'affichage (s)
+ *     text?, label?, value?, from?, to?, prefix?, suffix?, decimals?,
+ *     in?: "fade" | "pop" | "slide-up" | "draw" | "count",
+ *     anchor?: "center" | "top" | "bottom" | "node:<ref>",
+ *   }]
  * }
  *
- * La durée de l'étape (5 à 30 s) est découpée en battements : chaque nœud est
- * révélé après le tracé de la liaison qui y mène (strokeDashoffset), puis tout
- * reste à l'écran jusqu'à la fin. Aucun CSS animé : tout est piloté au frame.
+ * Sans `beats`, le comportement historique est conservé : chaque nœud est révélé
+ * après le tracé de la liaison qui y mène, puis tout reste à l'écran.
+ * Avec `beats`, la durée de l'étape (3 à 30 s) est pilotée par la timeline :
+ * `sequence` répartit les battements à parts égales, `manual` respecte les `at`.
+ * Aucun CSS animé : tout est piloté au frame.
  */
 const FLOW_SPEEDS: Record<string, number> = { slow: 1.4, normal: 1, fast: 0.62 };
+
+/** Durées minimales de lisibilité (s) — un texte trop court est illisible au montage. */
+const BEAT_MIN_SEC: Record<string, number> = { title: 1.2, hook: 1.2, subhook: 1.2, metric: 1.5 };
+const BEAT_IN_SEC = 0.4;
+
+const numOf = (v: unknown): number | null => {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+
+type ResolvedBeat = {
+  raw: Record<string, unknown>;
+  type: string;
+  start: number;
+  dur: number;
+  end: number;
+};
+
+/** Traduit les battements déclarés en frames, en % ou à parts égales. */
+const resolveFlowBeats = (
+  raw: Record<string, unknown>[],
+  fps: number,
+  durationInFrames: number,
+  manual: boolean,
+): ResolvedBeat[] => {
+  if (!raw.length) return [];
+  const per = durationInFrames / raw.length;
+  return raw.map((b, i) => {
+    const type = typeof b.type === "string" ? b.type : "title";
+    const atSec = numOf(b.at);
+    const atPct = numOf(b.atPct);
+    const startRaw = manual
+      ? atSec != null
+        ? atSec * fps
+        : atPct != null
+          ? (atPct / 100) * durationInFrames
+          : i * per
+      : i * per;
+    const minSec = BEAT_MIN_SEC[type] ?? BEAT_IN_SEC;
+    const durSec = Math.max(minSec, numOf(b.dur) ?? Math.max(minSec, per / fps));
+    const start = Math.max(0, Math.round(startRaw));
+    const dur = Math.max(1, Math.round(durSec * fps));
+    return { raw: b, type, start, dur, end: Math.min(durationInFrames, start + dur) };
+  });
+};
+
+/** Opacité/transform d'un battement : entrée courte, maintien, sortie courte. */
+const beatMotion = (
+  frame: number,
+  fps: number,
+  beat: ResolvedBeat,
+  kind: "fade" | "pop" | "slide-up",
+) => {
+  const inF = Math.round(fps * BEAT_IN_SEC);
+  const outF = Math.round(fps * 0.3);
+  const opacity =
+    interpolate(frame, [beat.start, beat.start + inF], [0, 1], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    }) *
+    interpolate(frame, [beat.end - outF, beat.end], [1, 0], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    });
+  const p = interpolate(frame, [beat.start, beat.start + inF], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const transform =
+    kind === "pop"
+      ? `scale(${interpolate(p, [0, 1], [0.72, 1])})`
+      : kind === "slide-up"
+        ? `translateY(${interpolate(p, [0, 1], [30, 0])}px)`
+        : "none";
+  return { opacity, transform };
+};
 
 const SvgFlowScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({ wide, section }) => {
   const { fps, out, durationInFrames, frame } = useSceneFade();
@@ -1246,7 +1360,7 @@ const SvgFlowScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({
       : nodes.slice(1).map((_, i) => [i, i + 1] as [number, number]);
   if (layout === "loop" && nodes.length > 2) links.push([nodes.length - 1, 0]);
 
-  /* --- timing : intro, puis un battement par liaison, puis maintien --- */
+  /* --- timing automatique : intro, puis un battement par liaison, puis maintien --- */
   const intro = Math.round(fps * 0.5);
   const drawFrames = Math.max(6, Math.round(fps * 0.55 * speed));
   const holdFrames = Math.max(4, Math.round(fps * 0.25 * speed));
@@ -1256,7 +1370,38 @@ const SvgFlowScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({
   const beatF = Math.max(4, beat * scale);
   const drawF = Math.max(3, drawFrames * scale);
 
+  /* --- timeline interne (battements déclarés en back-office) --- */
+  const timing = str(cfg, "timing");
+  const rawBeats = list(cfg, "beats");
+  const beats = resolveFlowBeats(rawBeats, fps, durationInFrames, timing === "manual");
+
+  /** Index de nœud pour une référence de battement (1..n ou `id`). */
+  const nodeIndexOf = (ref: unknown): number | null => {
+    if (typeof ref === "number" && ref >= 1 && ref <= nodes.length) return ref - 1;
+    if (typeof ref === "string" && ref.trim()) {
+      const byId = nodes.findIndex((n) => typeof n.id === "string" && n.id === ref.trim());
+      if (byId >= 0) return byId;
+      const n = Number(ref);
+      if (Number.isFinite(n) && n >= 1 && n <= nodes.length) return n - 1;
+    }
+    return null;
+  };
+
+  const nodeBeat = (i: number) => beats.find((b) => b.type === "node" && nodeIndexOf(b.raw.ref) === i) ?? null;
+  const linkBeat = (i: number) => {
+    const idx = i + 1;
+    return (
+      beats.find((b) => {
+        if (b.type !== "link") return false;
+        const n = numOf(b.raw.ref);
+        return n != null && Math.round(n) === idx;
+      }) ?? null
+    );
+  };
+
   const nodeAppear = (i: number) => {
+    const declared = nodeBeat(i);
+    if (declared) return declared.start;
     if (i === 0) return 0;
     const linkIndex = links.findIndex(([, to]) => to === i);
     if (linkIndex < 0) return intro;
@@ -1266,6 +1411,80 @@ const SvgFlowScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({
   const boxSize = (wide ? stage.height : stage.width) * (nodes.length > 5 ? 0.11 : 0.15);
   const px = (v: number) => (v / 1000) * boardW;
   const py = (v: number) => (v / 1000) * boardH;
+
+  /** Rendu du contenu d'un battement de texte / chiffre. */
+  const beatContent = (b: ResolvedBeat) => {
+    const text = typeof b.raw.text === "string" ? b.raw.text : "";
+    if (b.type === "metric") {
+      const to = numOf(b.raw.value) ?? numOf(b.raw.to) ?? 0;
+      const from = numOf(b.raw.from) ?? 0;
+      const decimals = Math.min(2, Math.max(0, numOf(b.raw.decimals) ?? 0));
+      const prefix = typeof b.raw.prefix === "string" ? b.raw.prefix : "";
+      const suffix = typeof b.raw.suffix === "string" ? b.raw.suffix : "";
+      const label = typeof b.raw.label === "string" ? b.raw.label : text;
+      const shown = countUpText({
+        frame: frame - b.start,
+        fps,
+        to,
+        from,
+        decimals,
+        rollSec: Math.min(1.6, Math.max(0.8, b.dur / fps - 0.3)),
+      });
+      return (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: stage.width * 0.008 }}>
+          <SceneTitle
+            wide={wide}
+            level={1}
+            style={{ lineHeight: 1, fontVariantNumeric: "tabular-nums", color: palette.gold }}
+          >
+            {prefix}
+            {shown}
+            {suffix}
+          </SceneTitle>
+          {label && <SceneBody small>{label}</SceneBody>}
+        </div>
+      );
+    }
+    if (!text) return null;
+    if (b.type === "hook") {
+      return (
+        <SceneTitle wide={wide} level={1}>
+          {text}
+        </SceneTitle>
+      );
+    }
+    if (b.type === "subhook") return <SceneBody>{text}</SceneBody>;
+    return (
+      <SceneTitle wide={wide} level={2}>
+        {text}
+      </SceneTitle>
+    );
+  };
+
+  const overlayBeats = beats.filter((b) => ["title", "hook", "subhook", "metric"].includes(b.type));
+  const anchorOf = (b: ResolvedBeat) => (typeof b.raw.anchor === "string" ? b.raw.anchor : "center");
+  const inOf = (b: ResolvedBeat): "fade" | "pop" | "slide-up" => {
+    const v = typeof b.raw.in === "string" ? b.raw.in : null;
+    if (v === "pop" || v === "count") return "pop";
+    if (v === "slide-up") return "slide-up";
+    return v === "fade" ? "fade" : b.type === "metric" ? "pop" : "slide-up";
+  };
+
+  /** Battements ancrés sur un nœud : rendus dans le repère du graphe. */
+  const nodeAnchored = overlayBeats
+    .map((b) => {
+      const a = anchorOf(b);
+      if (!a.startsWith("node:")) return null;
+      const idx = nodeIndexOf(a.slice(5).trim());
+      return idx == null ? null : { b, idx };
+    })
+    .filter(Boolean) as Array<{ b: ResolvedBeat; idx: number }>;
+
+  const stageAnchored = overlayBeats.filter((b) => !anchorOf(b).startsWith("node:"));
+  const zone = (b: ResolvedBeat) => {
+    const a = anchorOf(b);
+    return a === "top" ? "flex-start" : a === "bottom" ? "flex-end" : "center";
+  };
 
   return (
     <SceneBackdrop>
@@ -1299,8 +1518,10 @@ const SvgFlowScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({
               const a = points[from];
               const b = points[to];
               const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
-              const start = intro + i * beatF;
-              const progress = interpolate(frame, [start, start + drawF], [0, 1], {
+              const declared = linkBeat(i);
+              const start = declared ? declared.start : intro + i * beatF;
+              const span = declared ? declared.dur : drawF;
+              const progress = interpolate(frame, [start, start + span], [0, 1], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
               });
@@ -1359,13 +1580,65 @@ const SvgFlowScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({
               </div>
             );
           })}
+
+          {/* Battements ancrés sur un nœud (chiffre, %, mini-titre) */}
+          {nodeAnchored.map(({ b, idx }, i) => {
+            const p = points[idx];
+            const m = beatMotion(frame, fps, b, inOf(b));
+            if (m.opacity <= 0.001) return null;
+            return (
+              <div
+                key={`na-${i}`}
+                style={{
+                  position: "absolute",
+                  left: px(p.x),
+                  top: py(p.y) + boxSize * 0.95,
+                  transform: `translate(-50%, 0) ${m.transform}`,
+                  opacity: m.opacity,
+                  width: boxSize * 3,
+                  textAlign: "center",
+                }}
+              >
+                {beatContent(b)}
+              </div>
+            );
+          })}
         </div>
 
         {bodyText && <SceneBody>{bodyText}</SceneBody>}
       </div>
+
+      {/* Battements ancrés au cadre : haut / centre / bas */}
+      {stageAnchored.map((b, i) => {
+        const m = beatMotion(frame, fps, b, inOf(b));
+        if (m.opacity <= 0.001) return null;
+        return (
+          <AbsoluteFill
+            key={`sa-${i}`}
+            style={{
+              justifyContent: zone(b),
+              alignItems: "center",
+              padding: stage.width * 0.06,
+              pointerEvents: "none",
+            }}
+          >
+            <div
+              style={{
+                opacity: m.opacity * out,
+                transform: m.transform,
+                width: stage.width * 0.8,
+                textAlign: "center",
+              }}
+            >
+              {beatContent(b)}
+            </div>
+          </AbsoluteFill>
+        );
+      })}
     </SceneBackdrop>
   );
 };
+
 
 
 /**
