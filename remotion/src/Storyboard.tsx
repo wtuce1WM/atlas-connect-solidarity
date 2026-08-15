@@ -1842,13 +1842,28 @@ export const Storyboard: React.FC<StoryboardProps> = (props) => {
               p.effects ?? null,
               (plan.section.config?.effects as Partial<FeedEffectsConfig> | undefined) ?? null,
             );
+            const voice = voiceOf(plan.section.config ?? {});
+            const voiceSrc = voice ? assetUrl(voice.url) : null;
+            const voiceFrom = voice ? Math.round(voice.delaySec * STORYBOARD_FPS) : 0;
             return (
               <Sequence key={plan.key} from={plan.from} durationInFrames={plan.frames} layout="none">
-                <SectionScene wide={wide} p={p} section={plan.section} />
+                <VoiceDuckContext.Provider value={voiceSrc ? voice!.duckBg : 1}>
+                  <SectionScene wide={wide} p={p} section={plan.section} />
+                </VoiceDuckContext.Provider>
                 {stepEffects && <FeedEffectsOverlay effects={{ ...stepEffects, motionBlur: false }} />}
+                {voiceSrc && (
+                  <Sequence
+                    from={Math.min(voiceFrom, Math.max(0, plan.frames - 1))}
+                    durationInFrames={Math.max(1, plan.frames - voiceFrom)}
+                    layout="none"
+                  >
+                    <Audio src={voiceSrc} volume={voice!.gain} />
+                  </Sequence>
+                )}
               </Sequence>
             );
           })}
+
         </div>
         </FeedMotionBlurWrapper>
       </AbsoluteFill>
