@@ -98,6 +98,7 @@ const VideoPromoPanel = () => {
   const clipSource = !blocks.hook && !blocks.outro;
 
   const [submitting, setSubmitting] = useState(false);
+  const [submittingAll, setSubmittingAll] = useState(false);
   const [jobs, setJobs] = useState<PromoJob[]>([]);
   const [jobBusinessNames, setJobBusinessNames] = useState<Record<string, string>>({});
   /** Couple Enregistrer / Rendre : le rendu part d'une configuration persistée. */
