@@ -138,6 +138,7 @@ function Tile({
   selected,
   badge,
   expectedOrientation,
+  gridCell = false,
   onSelect,
   onDelete,
   onOrientation,
@@ -146,6 +147,8 @@ function Tile({
   selected: boolean;
   badge?: number | null;
   expectedOrientation?: "landscape" | "portrait";
+  /** true = la tuile remplit une cellule de grille (4 colonnes) au lieu de son ratio natif. */
+  gridCell?: boolean;
   onSelect: () => void;
   onDelete?: () => void;
   onOrientation?: (o: "landscape" | "portrait" | "square") => void;
@@ -161,7 +164,8 @@ function Tile({
   const [duration, setDuration] = useState<number | null>(item.duration ?? null);
 
   const isVideoTile = item.kind === "video";
-  // Même gabarit que le picker de Studio Vidéo IA : vidéo au ratio natif, demi-taille.
+  // En grille (4 colonnes) la tuile remplit sa cellule ; sinon ratio natif demi-taille.
+  const freeSize = isVideoTile && !gridCell;
   const BASE = 300;
   const width = ratio >= 1 ? BASE / 2 : (BASE / 2) * ratio;
   const height = ratio >= 1 ? BASE / 2 / ratio : BASE / 2;
@@ -199,14 +203,14 @@ function Tile({
   };
 
   return (
-    <div className={`relative ${isVideoTile ? "shrink-0" : ""}`} style={isVideoTile ? { width: Math.round(width) } : undefined}>
+    <div className={`relative ${freeSize ? "shrink-0" : ""}`} style={freeSize ? { width: Math.round(width) } : undefined}>
       <button
         type="button"
         onClick={onSelect}
         className={`relative w-full rounded-md overflow-hidden border-2 bg-black/90 ${
-          isVideoTile ? "" : "aspect-[4/3]"
+          freeSize ? "" : "aspect-[4/3]"
         } ${selected ? "border-primary" : "border-transparent hover:border-primary/40"}`}
-        style={isVideoTile ? { height: Math.round(height) } : undefined}
+        style={freeSize ? { height: Math.round(height) } : undefined}
       >
         {item.kind === "video" ? (
           isInternalVideoUrl(item.url) ? (
@@ -1221,13 +1225,14 @@ export function VideoMediaPickerDialog({
               </p>
             ) : (
               (() => {
-                const renderTile = (m: PickerMedia) => (
+                const renderTile = (m: PickerMedia, gridCell = false) => (
                   <Tile
                     key={m.url}
                     item={m}
                     selected={value.includes(m.url)}
                     badge={multiple ? value.indexOf(m.url) + 1 || null : null}
                     expectedOrientation={format}
+                    gridCell={gridCell}
                     onSelect={() => toggle(m)}
                     onDelete={m.source === "library" ? () => void removeFromLibrary(m) : undefined}
                     onOrientation={(o) => {
@@ -1245,7 +1250,10 @@ export function VideoMediaPickerDialog({
                         <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                           Vidéos · {vids.length}
                         </div>
-                        <div className="flex flex-wrap items-start gap-3">{vids.map(renderTile)}</div>
+                        {/* Tableau 4x4 : 4 vidéos par ligne, 16 par page visuelle. */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                          {vids.map((m) => renderTile(m, true))}
+                        </div>
                       </div>
                     )}
                     {imgs.length > 0 && (
@@ -1254,7 +1262,7 @@ export function VideoMediaPickerDialog({
                           Images · {imgs.length}
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                          {imgs.map(renderTile)}
+                          {imgs.map((m) => renderTile(m))}
                         </div>
                       </div>
                     )}
