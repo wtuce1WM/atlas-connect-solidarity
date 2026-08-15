@@ -671,6 +671,64 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
     );
   }
 
+  // Multi-écrans : navigateur (paysage) + smartphone (portrait) côte à côte.
+  if (isMulti) {
+    const phoneH = Math.round(height * (p.format === "landscape" ? 0.74 : 0.42));
+    const phone = phoneGeometry(phoneH);
+    const frameW = Math.round(width * (p.format === "landscape" ? 0.6 : 0.9));
+    const browser = browserGeometry(frameW);
+    return (
+      <AbsoluteFill
+        style={{
+          background: p.mockupBg || palette.ink,
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: p.format === "landscape" ? "row" : "column",
+          gap: Math.round(width * 0.03),
+        }}
+      >
+        <MockupBackdrop />
+        <BrowserFrame width={frameW} url={p.browserUrl || "oneworldmorocco.com"}>
+          <Stage p={p} scale={browser.screenW / LANDSCAPE_STAGE.width} wide />
+        </BrowserFrame>
+        <PhoneFrame height={phoneH}>
+          <Stage p={p} scale={phone.screenW / PROMO_PORTRAIT.width} />
+        </PhoneFrame>
+      </AbsoluteFill>
+    );
+  }
+
+  // Split média / texte : cadre smartphone d'un côté, texte riche de l'autre.
+  if (isSplit) {
+    const phoneH = Math.round(height * (p.format === "landscape" ? 0.86 : 0.56));
+    const phone = phoneGeometry(phoneH);
+    const columns = p.format === "landscape" ? "row" : "column";
+    const mockupFirst = p.splitSide !== "right";
+    const mock = (
+      <PhoneFrame key="mock" height={phoneH}>
+        <Stage p={p} scale={phone.screenW / PROMO_PORTRAIT.width} />
+      </PhoneFrame>
+    );
+    const textCol = <SplitTextColumn key="txt" p={p} html={(p.text || "").trim() || null} />;
+    return (
+      <AbsoluteFill
+        style={{
+          background: p.mockupBg || palette.ink,
+          flexDirection: columns,
+          alignItems: "center",
+          justifyContent: "center",
+          gap: Math.round(width * 0.045),
+          padding: `${Math.round(height * 0.06)}px ${Math.round(width * 0.06)}px`,
+        }}
+      >
+        <MockupBackdrop />
+        {mockupFirst ? [mock, textCol] : [textCol, mock]}
+      </AbsoluteFill>
+    );
+  }
+
+
+
 
   // Paysage plein écran : cadre 16:9 natif, aucune bande noire.
   return (
