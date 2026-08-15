@@ -714,7 +714,7 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
         <Stage p={p} scale={phone.screenW / PROMO_PORTRAIT.width} />
       </PhoneFrame>
     );
-    const textCol = <SplitTextColumn key="txt" p={p} html={(p.text || "").trim() || null} />;
+    const textCol = <SplitTextColumn key="txt" p={base} html={(base.text || "").trim() || null} />;
     return (
       <AbsoluteFill
         style={{
