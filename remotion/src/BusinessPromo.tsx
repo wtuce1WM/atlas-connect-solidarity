@@ -61,11 +61,20 @@ export type BusinessPromoProps = {
   videoUrl?: string | null;
   images: string[];
   format: "portrait" | "landscape";
-  variant: "fullscreen" | "mockup" | "browser";
+  /**
+   * fullscreen : médias plein cadre
+   * mockup     : cadre smartphone
+   * browser    : cadre navigateur desktop
+   * multi      : navigateur + smartphone côte à côte (multi-écrans)
+   * split      : cadre smartphone d'un côté, texte riche de l'autre
+   */
+  variant: "fullscreen" | "mockup" | "browser" | "multi" | "split";
   /** fond uni des variantes mockup / navigateur */
   mockupBg?: string;
   /** URL affichée dans la barre d'adresse de la variante navigateur */
   browserUrl?: string | null;
+  /** variante split : colonne du mockup (le texte occupe l'autre colonne) */
+  splitSide?: "left" | "right";
   /** clip source : montage sans intro (hook) ni outro, réutilisable dans un storyboard */
   clipSource?: boolean;
   blocks: PromoBlocks;
@@ -92,6 +101,7 @@ export const promoDefaults: BusinessPromoProps = {
   variant: "fullscreen",
   mockupBg: palette.ink,
   browserUrl: "oneworldmorocco.com",
+  splitSide: "left",
   clipSource: false,
   blocks: { hook: true, video: true, photos: true, outro: true },
   seconds: { hook: 3, video: 5, photo: 1.5, outro: 2.5 },
@@ -284,6 +294,25 @@ const HookScene: React.FC<{
  * Montserrat via `display`, corps en Avenir/Nunito via `body`, mêmes tailles et
  * mêmes espacements que l'intro et l'outro.
  */
+/** Feuille de style partagée du Rich Text (surimpression + colonne split). */
+const richCss = `
+  .promo-rich > *:first-child { margin-top: 0; }
+  .promo-rich > *:last-child { margin-bottom: 0; }
+  .promo-rich h1, .promo-rich h2, .promo-rich h3, .promo-rich h4 {
+    font-family: ${displayFont}; font-weight: ${weight.medium}; color: ${palette.cream};
+    line-height: 1.08; margin: 0 0 16px;
+  }
+  .promo-rich h1 { font-size: ${size.h3}px; }
+  .promo-rich h2 { font-size: ${size.h4}px; }
+  .promo-rich h3, .promo-rich h4 { font-size: ${size.body}px; }
+  .promo-rich p { margin: 0 0 14px; }
+  .promo-rich strong { font-weight: ${weight.bold}; color: ${palette.cream}; }
+  .promo-rich em { font-style: italic; }
+  .promo-rich ul, .promo-rich ol { margin: 0 0 14px; padding-left: 1.3em; }
+  .promo-rich li { margin: 0 0 8px; }
+  .promo-rich a { color: ${palette.gold}; text-decoration: none; }
+`;
+
 const RichOverlay: React.FC<{ html: string; frames: number }> = ({ html, frames }) => {
   const frame = useCurrentFrame();
   const fade = interpolate(
@@ -318,24 +347,76 @@ const RichOverlay: React.FC<{ html: string; frames: number }> = ({ html, frames 
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>
-      <style>{`
-        .promo-rich > *:first-child { margin-top: 0; }
-        .promo-rich > *:last-child { margin-bottom: 0; }
-        .promo-rich h1, .promo-rich h2, .promo-rich h3, .promo-rich h4 {
-          font-family: ${displayFont}; font-weight: ${weight.medium}; color: ${palette.cream};
-          line-height: 1.08; margin: 0 0 16px;
-        }
-        .promo-rich h1 { font-size: ${size.h3}px; }
-        .promo-rich h2 { font-size: ${size.h4}px; }
-        .promo-rich h3, .promo-rich h4 { font-size: ${size.body}px; }
-        .promo-rich p { margin: 0 0 14px; }
-        .promo-rich strong { font-weight: ${weight.bold}; color: ${palette.cream}; }
-        .promo-rich em { font-style: italic; }
-        .promo-rich ul, .promo-rich ol { margin: 0 0 14px; padding-left: 1.3em; }
-        .promo-rich li { margin: 0 0 8px; }
-        .promo-rich a { color: ${palette.gold}; text-decoration: none; }
-      `}</style>
+      <style>{richCss}</style>
     </AbsoluteFill>
+  );
+};
+
+/**
+ * Colonne texte de la variante « split » : mockup d'un côté, texte riche de
+ * l'autre. Même échelle typographique que le reste du montage.
+ */
+const SplitTextColumn: React.FC<{ p: BusinessPromoProps; html: string | null }> = ({ p, html }) => {
+  const frame = useCurrentFrame();
+  const o = interpolate(frame, [6, 26], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const y = interpolate(frame, [6, 30], [30, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <div style={{ flex: 1, opacity: o, transform: `translateY(${y}px)` }}>
+      {p.logoUrl ? (
+        <PromoLogo src={p.logoUrl} size={420} />
+      ) : (
+        <h2
+          style={{
+            fontFamily: displayFont,
+            fontWeight: weight.medium,
+            fontSize: size.h3,
+            color: palette.cream,
+            margin: 0,
+            lineHeight: 1.08,
+          }}
+        >
+          {p.name}
+        </h2>
+      )}
+      <div
+        style={{ width: 96, height: 5, background: palette.terracotta, borderRadius: 999, margin: "26px 0" }}
+      />
+      <h3
+        style={{
+          fontFamily: displayFont,
+          fontWeight: weight.medium,
+          fontSize: size.h4,
+          color: palette.cream,
+          margin: "0 0 18px",
+          lineHeight: 1.12,
+          textWrap: "balance",
+        }}
+      >
+        {p.hook}
+      </h3>
+      {html && (
+        <div
+          className="promo-rich"
+          style={{ fontFamily: bodyFont, fontSize: size.lead, lineHeight: 1.42, color: alpha("cream", 0.92) }}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      )}
+      {(p.tagline || p.city) && (
+        <p
+          style={{
+            fontFamily: bodyFont,
+            fontSize: size.caption,
+            letterSpacing: 3,
+            textTransform: "uppercase",
+            color: palette.gold,
+            marginTop: 28,
+          }}
+        >
+          {p.tagline || p.city}
+        </p>
+      )}
+      <style>{richCss}</style>
+    </div>
   );
 };
 
@@ -526,13 +607,18 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number; wide?: boolean }>
 };
 
 export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
-  const p = { ...promoDefaults, ...raw } as BusinessPromoProps;
+  const base = { ...promoDefaults, ...raw } as BusinessPromoProps;
   const { width, height } = useVideoConfig();
   const frame = useCurrentFrame();
-  const isMockup = p.variant === "mockup";
-  const isBrowser = p.variant === "browser";
+  const isMockup = base.variant === "mockup";
+  const isBrowser = base.variant === "browser";
+  const isMulti = base.variant === "multi";
+  const isSplit = base.variant === "split";
+  const isFramed = isMockup || isBrowser || isMulti || isSplit;
+  // Split : le texte riche vit dans sa colonne, jamais en surimpression du mockup.
+  const p = isSplit ? ({ ...base, text: null } as BusinessPromoProps) : base;
   // Décor feed : uniquement le fond derrière un mockup.
-  const bgManifest = useFeedManifest(isMockup || isBrowser ? p.bgFeedManifest : null);
+  const bgManifest = useFeedManifest(isFramed ? p.bgFeedManifest : null);
 
   /** Fond du mockup : capture feed animée si fournie, sinon fond uni. */
   const MockupBackdrop = () =>
@@ -546,7 +632,7 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
     ) : null;
 
   // Portrait plein écran : le stage occupe tout le cadre (échelle 1:1).
-  if (p.format !== "landscape" && !isMockup && !isBrowser) {
+  if (p.format !== "landscape" && !isFramed) {
     return <Stage p={p} />;
   }
 
@@ -589,6 +675,64 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
       </AbsoluteFill>
     );
   }
+
+  // Multi-écrans : navigateur (paysage) + smartphone (portrait) côte à côte.
+  if (isMulti) {
+    const phoneH = Math.round(height * (p.format === "landscape" ? 0.74 : 0.42));
+    const phone = phoneGeometry(phoneH);
+    const frameW = Math.round(width * (p.format === "landscape" ? 0.6 : 0.9));
+    const browser = browserGeometry(frameW);
+    return (
+      <AbsoluteFill
+        style={{
+          background: p.mockupBg || palette.ink,
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: p.format === "landscape" ? "row" : "column",
+          gap: Math.round(width * 0.03),
+        }}
+      >
+        <MockupBackdrop />
+        <BrowserFrame width={frameW} url={p.browserUrl || "oneworldmorocco.com"}>
+          <Stage p={p} scale={browser.screenW / LANDSCAPE_STAGE.width} wide />
+        </BrowserFrame>
+        <PhoneFrame height={phoneH}>
+          <Stage p={p} scale={phone.screenW / PROMO_PORTRAIT.width} />
+        </PhoneFrame>
+      </AbsoluteFill>
+    );
+  }
+
+  // Split média / texte : cadre smartphone d'un côté, texte riche de l'autre.
+  if (isSplit) {
+    const phoneH = Math.round(height * (p.format === "landscape" ? 0.86 : 0.56));
+    const phone = phoneGeometry(phoneH);
+    const columns = p.format === "landscape" ? "row" : "column";
+    const mockupFirst = p.splitSide !== "right";
+    const mock = (
+      <PhoneFrame key="mock" height={phoneH}>
+        <Stage p={p} scale={phone.screenW / PROMO_PORTRAIT.width} />
+      </PhoneFrame>
+    );
+    const textCol = <SplitTextColumn key="txt" p={base} html={(base.text || "").trim() || null} />;
+    return (
+      <AbsoluteFill
+        style={{
+          background: p.mockupBg || palette.ink,
+          flexDirection: columns,
+          alignItems: "center",
+          justifyContent: "center",
+          gap: Math.round(width * 0.045),
+          padding: `${Math.round(height * 0.06)}px ${Math.round(width * 0.06)}px`,
+        }}
+      >
+        <MockupBackdrop />
+        {mockupFirst ? [mock, textCol] : [textCol, mock]}
+      </AbsoluteFill>
+    );
+  }
+
+
 
 
   // Paysage plein écran : cadre 16:9 natif, aucune bande noire.

@@ -241,7 +241,7 @@ async function renderOne() {
     // Le décor feed sert uniquement de fond derrière un mockup : inutile de
     // lancer la capture Playwright pour un rendu plein écran.
     const wantsFeedBg =
-      isPromo && !!props?.bgFeedUrl && ["mockup", "browser"].includes(String(props?.variant || ""));
+      isPromo && !!props?.bgFeedUrl && ["mockup", "browser", "multi", "split"].includes(String(props?.variant || ""));
     if (wantsFeedBg) {
       const slug = `promo-${job.id.slice(0, 8)}`;
       const captureArgs = [

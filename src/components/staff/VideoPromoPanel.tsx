@@ -38,6 +38,13 @@ type Biz = {
   logo_url: string | null;
 };
 
+/** Montages disponibles : plein écran ou cadres mockup. */
+type PromoVariant = "fullscreen" | "mockup" | "browser" | "multi" | "split";
+/** Variantes encadrées : fond feed et fond uni s'appliquent. */
+const FRAMED: PromoVariant[] = ["mockup", "browser", "multi", "split"];
+const isFramed = (v: PromoVariant) => FRAMED.includes(v);
+
+
 type PromoJob = {
   id: string;
   title: string | null;
@@ -78,9 +85,10 @@ const VideoPromoPanel = () => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [bgFeedUrl, setBgFeedUrl] = useState("");
   const [format, setFormat] = useState<"portrait" | "landscape">("portrait");
-  const [variant, setVariant] = useState<"fullscreen" | "mockup" | "browser">("fullscreen");
+  const [variant, setVariant] = useState<PromoVariant>("fullscreen");
   const [mockupBg, setMockupBg] = useState(PRESET_BG[0].value);
   const [browserUrl, setBrowserUrl] = useState("oneworldmorocco.com");
+  const [splitSide, setSplitSide] = useState<"left" | "right">("left");
   const [blocks, setBlocks] = useState({ hook: true, video: true, photos: true, outro: true });
   const [seconds, setSeconds] = useState({ hook: 3, video: 5, photo: 1.5, outro: 2.5 });
   /**
@@ -209,11 +217,12 @@ const VideoPromoPanel = () => {
       variant,
       mockupBg,
       browserUrl,
+      splitSide,
       clipSource,
       blocks,
       seconds,
     }),
-    [biz?.id, hook, tagline, text, bgFeedUrl, format, variant, mockupBg, browserUrl, clipSource, blocks, seconds],
+    [biz?.id, hook, tagline, text, bgFeedUrl, format, variant, mockupBg, browserUrl, splitSide, clipSource, blocks, seconds],
   );
 
   const applyPromoConfig = useCallback(async (c: any) => {
@@ -223,9 +232,10 @@ const VideoPromoPanel = () => {
     setText(c.text ?? "");
     setBgFeedUrl(c.bgFeedUrl ?? "");
     setFormat(c.format === "landscape" ? "landscape" : "portrait");
-    setVariant(c.variant === "mockup" || c.variant === "browser" ? c.variant : "fullscreen");
+    setVariant(isFramed(c.variant) ? (c.variant as PromoVariant) : "fullscreen");
     setMockupBg(c.mockupBg ?? PRESET_BG[0].value);
     setBrowserUrl(c.browserUrl ?? "oneworldmorocco.com");
+    setSplitSide(c.splitSide === "right" ? "right" : "left");
     setBlocks({
       hook: c.blocks?.hook ?? true,
       video: c.blocks?.video ?? true,
@@ -316,14 +326,17 @@ const VideoPromoPanel = () => {
         text: textLength > 0 ? text : null,
         logoUrl,
         // Le fond feed n'a de sens que derrière un mockup.
-        bgFeedUrl:
-          variant === "mockup" || variant === "browser" ? bgFeedUrl.trim() || null : null,
+        bgFeedUrl: isFramed(variant) ? bgFeedUrl.trim() || null : null,
         videoUrl: blocks.video ? videoUrl : null,
         images,
         format,
         variant,
         mockupBg,
-        browserUrl: variant === "browser" ? browserUrl.trim() || "oneworldmorocco.com" : null,
+        browserUrl:
+          variant === "browser" || variant === "multi"
+            ? browserUrl.trim() || "oneworldmorocco.com"
+            : null,
+        splitSide: variant === "split" ? splitSide : null,
         clipSource,
         blocks,
         seconds,
@@ -477,12 +490,34 @@ const VideoPromoPanel = () => {
                 >
                   Mockup navigateur
                 </Button>
+                <Button
+                  size="sm"
+                  variant={variant === "multi" ? "default" : "outline"}
+                  onClick={() => {
+                    setVariant("multi");
+                    setFormat("landscape");
+                  }}
+                >
+                  Multi-écrans
+                </Button>
+                <Button
+                  size="sm"
+                  variant={variant === "split" ? "default" : "outline"}
+                  onClick={() => {
+                    setVariant("split");
+                    setFormat("landscape");
+                  }}
+                >
+                  Split média / texte
+                </Button>
               </div>
               <span className="text-[11px]">
                 Le paysage est désormais un vrai cadre 16:9 (logo à gauche, accroche à droite), sans bandes noires.
+                Multi-écrans affiche le navigateur et le smartphone côte à côte ; Split place le cadre smartphone d'un
+                côté et le Rich Text de l'autre (le texte n'est alors plus en surimpression).
               </span>
             </div>
-            {variant === "browser" && (
+            {(variant === "browser" || variant === "multi") && (
               <label className="grid gap-1 text-xs text-muted-foreground">
                 URL affichée dans la barre d'adresse
                 <Input
@@ -496,13 +531,26 @@ const VideoPromoPanel = () => {
                 </span>
               </label>
             )}
+            {variant === "split" && (
+              <div className="grid gap-1 text-xs text-muted-foreground">
+                Position du mockup
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant={splitSide === "left" ? "default" : "outline"} onClick={() => setSplitSide("left")}>
+                    Mockup à gauche
+                  </Button>
+                  <Button size="sm" variant={splitSide === "right" ? "default" : "outline"} onClick={() => setSplitSide("right")}>
+                    Mockup à droite
+                  </Button>
+                </div>
+              </div>
+            )}
             <p className="text-[11px] text-muted-foreground">
               Décoche <span className="font-medium text-foreground">Hook</span> et{" "}
               <span className="font-medium text-foreground">Outro</span> dans « Blocs et durées » pour obtenir un{" "}
               <span className="font-medium text-foreground">clip source</span> (sans intro ni outro), réutilisable tel
               quel comme média dans un montage Storyboard.
             </p>
-            {(variant === "mockup" || variant === "browser") && (
+            {isFramed(variant) && (
               <div className="grid gap-1 text-xs text-muted-foreground">
                 Fond uni du mockup
                 <div className="flex items-center gap-2">
@@ -533,7 +581,7 @@ const VideoPromoPanel = () => {
                 <span className="text-muted-foreground">Aucun logo sur la fiche — intro/outro sans animation de logo.</span>
               )}
             </div>
-            {variant === "mockup" || variant === "browser" ? (
+            {isFramed(variant) ? (
               <label className="text-xs text-muted-foreground grid gap-1">
                 Fond derrière le mockup — URL /search (optionnel)
                 <Input
