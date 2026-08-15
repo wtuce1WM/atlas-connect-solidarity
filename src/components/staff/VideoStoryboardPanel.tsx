@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import VideoIconPickerDialog from "@/components/staff/VideoIconPickerDialog";
 import { VideoMediaPickerDialog } from "@/components/staff/VideoMediaPickerDialog";
 import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
+import VideoJobMeta from "@/components/staff/VideoJobMeta";
 import { Copy } from "lucide-react";
 import {
   MontageEffectsBlock,
