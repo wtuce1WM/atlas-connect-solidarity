@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import VideoIconPickerDialog from "@/components/staff/VideoIconPickerDialog";
 import { VideoMediaPickerDialog } from "@/components/staff/VideoMediaPickerDialog";
 import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
+import VideoJobMeta from "@/components/staff/VideoJobMeta";
 import { Copy } from "lucide-react";
 import {
   MontageEffectsBlock,
@@ -121,6 +122,9 @@ type StoryboardJob = {
   created_at: string;
   duration_sec: number | null;
   template_id: string | null;
+  business_id?: string | null;
+  template_props?: any;
+  scenario_json?: any;
 };
 
 
@@ -1095,6 +1099,7 @@ const VideoStoryboardPanel = () => {
   const [saving, setSaving] = useState(false);
   const [rendering, setRendering] = useState(false);
   const [jobs, setJobs] = useState<StoryboardJob[]>([]);
+  const [jobBusinessNames, setJobBusinessNames] = useState<Record<string, string>>({});
   const [dirty, setDirty] = useState(false);
   /** Scénario auto sélectionné dans le même sélecteur (null = storyboard manuel). */
   const [legacyMode, setLegacyMode] = useState<"business" | "corporate" | null>(null);
@@ -1128,13 +1133,27 @@ const VideoStoryboardPanel = () => {
   const loadJobs = useCallback(async () => {
     const { data } = await supabase
       .from("video_jobs")
-      .select("id, title, status, output_url, error_message, created_at, duration_sec, template_id")
+      .select(
+        "id, title, status, output_url, error_message, created_at, duration_sec, template_id, business_id, template_props, scenario_json",
+      )
       .or(
         "template_id.like.storyboard%,template_id.eq.business-showcase,template_id.eq.corporate-vertical",
       )
       .order("created_at", { ascending: false })
       .limit(12);
-    setJobs((data ?? []) as StoryboardJob[]);
+    const rows = (data ?? []) as StoryboardJob[];
+    setJobs(rows);
+    const ids = Array.from(new Set(rows.map((r) => r.business_id).filter(Boolean))) as string[];
+    if (ids.length > 0) {
+      const { data: bizRows } = await supabase.from("businesses").select("id, name").in("id", ids);
+      const map: Record<string, string> = {};
+      (bizRows ?? []).forEach((b: any) => {
+        map[b.id] = b.name;
+      });
+      setJobBusinessNames(map);
+    } else {
+      setJobBusinessNames({});
+    }
   }, []);
 
   useEffect(() => {
@@ -1956,34 +1975,34 @@ const VideoStoryboardPanel = () => {
           ) : (
             <div className="divide-y">
               {jobs.map((j) => (
-                <div key={j.id} className="py-2 flex items-center gap-3 flex-wrap text-sm">
-                  <Badge
-                    variant={j.status === "done" ? "default" : j.status === "error" ? "destructive" : "outline"}
-                    className="text-[10px]"
-                  >
-                    {j.status}
-                  </Badge>
-                  <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
-                  <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
-                  {j.duration_sec != null && (
-                    <span className="text-[11px] text-muted-foreground">{j.duration_sec}s</span>
-                  )}
-                  <span className="text-[11px] text-muted-foreground">
-                    {new Date(j.created_at).toLocaleString("fr-FR")}
-                  </span>
-                  {j.output_url && (
-                    <a
-                      href={j.output_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[11px] underline text-primary ml-auto"
+                <div key={j.id} className="py-3 space-y-2">
+                  <div className="flex items-center gap-3 flex-wrap text-sm">
+                    <Badge
+                      variant={j.status === "done" ? "default" : j.status === "error" ? "destructive" : "outline"}
+                      className="text-[10px]"
                     >
-                      Ouvrir la vidéo
-                    </a>
-                  )}
-                  {j.error_message && (
-                    <span className="text-[11px] text-destructive ml-auto max-w-md truncate">{j.error_message}</span>
-                  )}
+                      {j.status}
+                    </Badge>
+                    <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
+                    <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
+                    {j.output_url && (
+                      <a
+                        href={j.output_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] underline text-primary ml-auto"
+                      >
+                        Ouvrir la vidéo
+                      </a>
+                    )}
+                    {j.error_message && (
+                      <span className="text-[11px] text-destructive ml-auto max-w-md truncate">{j.error_message}</span>
+                    )}
+                  </div>
+                  <VideoJobMeta
+                    job={j}
+                    businessName={j.business_id ? jobBusinessNames[j.business_id] : undefined}
+                  />
                 </div>
               ))}
             </div>
