@@ -85,6 +85,10 @@ const VideoPromoPanel = () => {
   const [submitting, setSubmitting] = useState(false);
   const [jobs, setJobs] = useState<PromoJob[]>([]);
   const [jobBusinessNames, setJobBusinessNames] = useState<Record<string, string>>({});
+  /** Couple Enregistrer / Rendre : le rendu part d'une configuration persistée. */
+  const [presetDirty, setPresetDirty] = useState(true);
+  const [presetId, setPresetId] = useState<string | null>(null);
+  const [relaunching, setRelaunching] = useState<string | null>(null);
 
   const images = useMemo(() => (biz?.images || []).slice(0, 4), [biz]);
   /** Longueur du texte hors balises : la limite de 500 porte sur le contenu lisible. */
