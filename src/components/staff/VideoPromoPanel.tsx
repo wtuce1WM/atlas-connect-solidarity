@@ -78,9 +78,10 @@ const VideoPromoPanel = () => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [bgFeedUrl, setBgFeedUrl] = useState("");
   const [format, setFormat] = useState<"portrait" | "landscape">("portrait");
-  const [variant, setVariant] = useState<"fullscreen" | "mockup" | "browser">("fullscreen");
+  const [variant, setVariant] = useState<PromoVariant>("fullscreen");
   const [mockupBg, setMockupBg] = useState(PRESET_BG[0].value);
   const [browserUrl, setBrowserUrl] = useState("oneworldmorocco.com");
+  const [splitSide, setSplitSide] = useState<"left" | "right">("left");
   const [blocks, setBlocks] = useState({ hook: true, video: true, photos: true, outro: true });
   const [seconds, setSeconds] = useState({ hook: 3, video: 5, photo: 1.5, outro: 2.5 });
   /**
