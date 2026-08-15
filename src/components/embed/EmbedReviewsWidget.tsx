@@ -303,8 +303,12 @@ export default function EmbedReviewsWidget({
   const compactRows = shape === "square" || (!large && shape === "horizontal");
 
   const header = (
-    <div className="space-y-1">
-      <p className={`text-[11px] uppercase tracking-[0.15em] ${cMuted}`}>{L.customerReviews}</p>
+    <div className={`space-y-1 ${hideReviewText ? "text-center" : ""}`}>
+      {/* Overlay Full Description (notexts=1) : l'hôte affiche déjà son propre titre
+          « Avis clients » — on supprime le kicker redondant au-dessus du nom. */}
+      {!hideReviewText && (
+        <p className={`text-[11px] uppercase tracking-[0.15em] ${cMuted}`}>{L.customerReviews}</p>
+      )}
       <h2 className={`${large ? "text-lg" : "text-base"} font-bold leading-tight`}>{business.name}</h2>
     </div>
   );
