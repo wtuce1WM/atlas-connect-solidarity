@@ -290,59 +290,64 @@ const VideoPromoPanel = () => {
     loadJobs();
   };
 
-  const submit = async () => {
+  /** Valide la config commune aux rendus (hors montage). */
+  const validate = (): boolean => {
     if (!biz) {
       toast.error("Sélectionne un établissement (nom, slug ou URL 1WM)");
-      return;
+      return false;
     }
     if (textLength > 500) {
       toast.error("Le texte dépasse 500 caractères");
-      return;
+      return false;
     }
     if (blocks.hook && !hook.trim()) {
       toast.error("Renseigne le hook ou décoche le bloc Hook");
-      return;
+      return false;
     }
     if (!blocks.hook && !blocks.video && !blocks.photos && !blocks.outro) {
       toast.error("Active au moins un bloc");
-      return;
+      return false;
     }
+    return true;
+  };
+
+  /** Construit le payload d'un job pour un montage donné, au format de sortie choisi. */
+  const buildPayload = (v: PromoVariant, userId: string | null) => ({
+    user_id: userId,
+    business_id: biz!.id,
+    title: `Promo${clipSource ? " clip" : ""} — ${biz!.name}`,
+    prompt: hook.trim() || biz!.name,
+    status: "pending",
+    duration_sec: Math.round(estimated),
+    template_id: format === "landscape" ? "business-promo-landscape" : "business-promo",
+    template_props: {
+      kind: "promo",
+      name: biz!.name,
+      city: biz!.city,
+      hook: hook.trim(),
+      tagline: tagline.trim() || null,
+      text: textLength > 0 ? text : null,
+      logoUrl,
+      // Le fond feed n'a de sens que derrière un mockup.
+      bgFeedUrl: isFramed(v) ? bgFeedUrl.trim() || null : null,
+      videoUrl: blocks.video ? videoUrl : null,
+      images,
+      format,
+      variant: v,
+      mockupBg,
+      browserUrl: v === "browser" || v === "multi" ? browserUrl.trim() || "oneworldmorocco.com" : null,
+      splitSide: v === "split" ? splitSide : null,
+      clipSource,
+      blocks,
+      seconds,
+    },
+  });
+
+  const submit = async () => {
+    if (!validate()) return;
     setSubmitting(true);
     const { data: auth } = await supabase.auth.getUser();
-    const payload = {
-      user_id: auth.user?.id ?? null,
-      business_id: biz.id,
-      title: `Promo${clipSource ? " clip" : ""} — ${biz.name}`,
-      prompt: hook.trim() || biz.name,
-      status: "pending",
-      duration_sec: Math.round(estimated),
-      template_id: format === "landscape" ? "business-promo-landscape" : "business-promo",
-      template_props: {
-        kind: "promo",
-        name: biz.name,
-        city: biz.city,
-        hook: hook.trim(),
-        tagline: tagline.trim() || null,
-        text: textLength > 0 ? text : null,
-        logoUrl,
-        // Le fond feed n'a de sens que derrière un mockup.
-        bgFeedUrl: isFramed(variant) ? bgFeedUrl.trim() || null : null,
-        videoUrl: blocks.video ? videoUrl : null,
-        images,
-        format,
-        variant,
-        mockupBg,
-        browserUrl:
-          variant === "browser" || variant === "multi"
-            ? browserUrl.trim() || "oneworldmorocco.com"
-            : null,
-        splitSide: variant === "split" ? splitSide : null,
-        clipSource,
-        blocks,
-        seconds,
-      },
-    };
-    const { error } = await supabase.from("video_jobs").insert(payload as any);
+    const { error } = await supabase.from("video_jobs").insert(buildPayload(variant, auth.user?.id ?? null) as any);
     if (error) {
       setSubmitting(false);
       toast.error(`Création du job impossible : ${error.message}`);
@@ -354,6 +359,29 @@ const VideoPromoPanel = () => {
     else toast.success("Job créé : rendu lancé.");
     loadJobs();
   };
+
+  /** Lance les 5 montages d'un coup, tous au format de sortie sélectionné. */
+  const submitAllVariants = async () => {
+    if (!validate()) return;
+    setSubmittingAll(true);
+    const { data: auth } = await supabase.auth.getUser();
+    const uid = auth.user?.id ?? null;
+    const rows = (["fullscreen", "mockup", "browser", "multi", "split"] as PromoVariant[]).map((v) =>
+      buildPayload(v, uid),
+    );
+    const { error } = await supabase.from("video_jobs").insert(rows as any);
+    if (error) {
+      setSubmittingAll(false);
+      toast.error(`Création des jobs impossible : ${error.message}`);
+      return;
+    }
+    const { error: wfError } = await supabase.functions.invoke("trigger-render-workflow", { body: {} });
+    setSubmittingAll(false);
+    if (wfError) toast.warning("5 jobs créés, mais le déclenchement GitHub a échoué.");
+    else toast.success(`5 rendus lancés en ${format === "landscape" ? "paysage" : "portrait"}.`);
+    loadJobs();
+  };
+
 
   const numField = (
     label: string,
