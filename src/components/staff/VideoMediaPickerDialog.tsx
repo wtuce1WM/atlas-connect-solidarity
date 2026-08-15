@@ -138,6 +138,7 @@ function Tile({
   selected,
   badge,
   expectedOrientation,
+  gridCell = false,
   onSelect,
   onDelete,
   onOrientation,
@@ -146,6 +147,8 @@ function Tile({
   selected: boolean;
   badge?: number | null;
   expectedOrientation?: "landscape" | "portrait";
+  /** true = la tuile remplit une cellule de grille (4 colonnes) au lieu de son ratio natif. */
+  gridCell?: boolean;
   onSelect: () => void;
   onDelete?: () => void;
   onOrientation?: (o: "landscape" | "portrait" | "square") => void;
