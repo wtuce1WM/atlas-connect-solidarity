@@ -1262,7 +1262,7 @@ export function VideoMediaPickerDialog({
                           Images · {imgs.length}
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                          {imgs.map(renderTile)}
+                          {imgs.map((m) => renderTile(m))}
                         </div>
                       </div>
                     )}
