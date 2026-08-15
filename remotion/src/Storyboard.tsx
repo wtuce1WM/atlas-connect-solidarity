@@ -45,6 +45,7 @@ export type StoryboardStepType =
   | "map_reveal"
   | "split_screen"
   | "icon_grid"
+  | "svg_flow"
   | "logo_merge"
   | "outro";
 
@@ -1179,6 +1180,195 @@ const IconGridScene: React.FC<{ wide: boolean; section: StoryboardSection }> = (
 };
 
 /**
+ * `svg_flow` — tracé SVG animé reliant des nœuds à icônes.
+ *
+ * config : {
+ *   kicker, title, body,
+ *   layout: "chain" | "hub" | "loop",   // enchaînement, étoile, circuit fermé
+ *   speed: "slow" | "normal" | "fast",  // vitesse du tracé
+ *   strokeColor?: string,               // défaut : or de la charte
+ *   nodes: [{ icon: "tb:TbBed", title?, text? }]   // 2 à 8
+ * }
+ *
+ * La durée de l'étape (5 à 30 s) est découpée en battements : chaque nœud est
+ * révélé après le tracé de la liaison qui y mène (strokeDashoffset), puis tout
+ * reste à l'écran jusqu'à la fin. Aucun CSS animé : tout est piloté au frame.
+ */
+const FLOW_SPEEDS: Record<string, number> = { slow: 1.4, normal: 1, fast: 0.62 };
+
+const SvgFlowScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({ wide, section }) => {
+  const { fps, out, durationInFrames, frame } = useSceneFade();
+  const cfg = section.config ?? {};
+  const stage = wide ? STAGE_LANDSCAPE : STAGE_PORTRAIT;
+  const nodes = list(cfg, "nodes").slice(0, 8);
+  const kicker = str(cfg, "kicker") ?? section.label ?? null;
+  const title = str(cfg, "title");
+  const bodyText = str(cfg, "body");
+  const layoutRaw = str(cfg, "layout");
+  const layout = layoutRaw === "hub" || layoutRaw === "loop" ? layoutRaw : "chain";
+  const stroke = str(cfg, "strokeColor") ?? palette.gold;
+  const speed = FLOW_SPEEDS[str(cfg, "speed") ?? "normal"] ?? 1;
+
+  if (nodes.length < 2) return <PlaceholderScene wide={wide} section={section} />;
+
+  /* --- géométrie du graphe dans le repère de la scène (viewBox 1000 x 1000) --- */
+  const boardW = wide ? stage.width * 0.72 : stage.width * 0.86;
+  const boardH = wide ? stage.height * 0.52 : stage.height * 0.42;
+  const cx = 500;
+  const cy = 500;
+  const radius = 340;
+
+  const points = nodes.map((_, i) => {
+    if (layout === "hub") {
+      if (i === 0) return { x: cx, y: cy };
+      const a = (-Math.PI / 2) + ((i - 1) / Math.max(1, nodes.length - 1)) * Math.PI * 2;
+      return { x: cx + Math.cos(a) * radius, y: cy + Math.sin(a) * radius };
+    }
+    if (layout === "loop") {
+      const a = (-Math.PI / 2) + (i / nodes.length) * Math.PI * 2;
+      return { x: cx + Math.cos(a) * radius, y: cy + Math.sin(a) * radius };
+    }
+    // chaîne : ligne unique (paysage) ou serpentin sur 2 colonnes (portrait)
+    if (wide || nodes.length <= 3) {
+      const step = nodes.length > 1 ? 820 / (nodes.length - 1) : 0;
+      return { x: 90 + step * i, y: cy };
+    }
+    const rows = Math.ceil(nodes.length / 2);
+    const row = Math.floor(i / 2);
+    const col = row % 2 === 0 ? i % 2 : 1 - (i % 2);
+    return { x: 250 + col * 500, y: 140 + (row * 720) / Math.max(1, rows - 1 || 1) };
+  });
+
+  /** Liaisons : chaîne/loop = successives ; hub = centre → satellites. */
+  const links: Array<[number, number]> =
+    layout === "hub"
+      ? nodes.slice(1).map((_, i) => [0, i + 1] as [number, number])
+      : nodes.slice(1).map((_, i) => [i, i + 1] as [number, number]);
+  if (layout === "loop" && nodes.length > 2) links.push([nodes.length - 1, 0]);
+
+  /* --- timing : intro, puis un battement par liaison, puis maintien --- */
+  const intro = Math.round(fps * 0.5);
+  const drawFrames = Math.max(6, Math.round(fps * 0.55 * speed));
+  const holdFrames = Math.max(4, Math.round(fps * 0.25 * speed));
+  const beat = drawFrames + holdFrames;
+  const needed = intro + links.length * beat;
+  const scale = needed > durationInFrames ? (durationInFrames - intro) / Math.max(1, links.length * beat) : 1;
+  const beatF = Math.max(4, beat * scale);
+  const drawF = Math.max(3, drawFrames * scale);
+
+  const nodeAppear = (i: number) => {
+    if (i === 0) return 0;
+    const linkIndex = links.findIndex(([, to]) => to === i);
+    if (linkIndex < 0) return intro;
+    return intro + linkIndex * beatF + drawF * 0.75;
+  };
+
+  const boxSize = (wide ? stage.height : stage.width) * (nodes.length > 5 ? 0.11 : 0.15);
+  const px = (v: number) => (v / 1000) * boardW;
+  const py = (v: number) => (v / 1000) * boardH;
+
+  return (
+    <SceneBackdrop>
+      <div
+        style={{
+          opacity: out,
+          width: stage.width * 0.9,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          gap: stage.width * 0.02,
+        }}
+      >
+        {kicker && <SceneKicker>{kicker}</SceneKicker>}
+        {title && (
+          <SceneTitle wide={wide} level={2}>
+            {title}
+          </SceneTitle>
+        )}
+
+        <div style={{ position: "relative", width: boardW, height: boardH }}>
+          <svg
+            width={boardW}
+            height={boardH}
+            viewBox="0 0 1000 1000"
+            preserveAspectRatio="none"
+            style={{ position: "absolute", inset: 0 }}
+          >
+            {links.map(([from, to], i) => {
+              const a = points[from];
+              const b = points[to];
+              const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+              const start = intro + i * beatF;
+              const progress = interpolate(frame, [start, start + drawF], [0, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              });
+              return (
+                <g key={i}>
+                  <line
+                    x1={a.x}
+                    y1={a.y}
+                    x2={b.x}
+                    y2={b.y}
+                    stroke={alpha("cream", 0.12)}
+                    strokeWidth={6}
+                    strokeLinecap="round"
+                  />
+                  <line
+                    x1={a.x}
+                    y1={a.y}
+                    x2={b.x}
+                    y2={b.y}
+                    stroke={stroke}
+                    strokeWidth={8}
+                    strokeLinecap="round"
+                    strokeDasharray={len}
+                    strokeDashoffset={len * (1 - progress)}
+                  />
+                </g>
+              );
+            })}
+          </svg>
+
+          {nodes.map((node, i) => {
+            const p = points[i];
+            const delay = nodeAppear(i);
+            return (
+              <div
+                key={i}
+                style={{
+                  position: "absolute",
+                  left: px(p.x),
+                  top: py(p.y),
+                  transform: "translate(-50%, -50%)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: stage.width * 0.008,
+                  width: boxSize * 2.2,
+                }}
+              >
+                <IconMark iconKey={typeof node.icon === "string" ? node.icon : null} boxSize={boxSize} delay={delay} />
+                {typeof node.title === "string" && node.title.trim() && (
+                  <SceneTitle wide={wide} level={3} style={{ fontSize: size.lead, fontWeight: weight.semibold }}>
+                    {node.title}
+                  </SceneTitle>
+                )}
+                {typeof node.text === "string" && node.text.trim() && <SceneBody small>{node.text}</SceneBody>}
+              </div>
+            );
+          })}
+        </div>
+
+        {bodyText && <SceneBody>{bodyText}</SceneBody>}
+      </div>
+    </SceneBackdrop>
+  );
+};
+
+
+/**
  * Carte typographique neutre : filet de sécurité pour tout `step_type` dont la
 
  * grammaire visuelle n'est pas encore implémentée. Le film ne casse jamais et
@@ -1261,6 +1451,8 @@ const SectionSceneInner: React.FC<{ wide: boolean; p: StoryboardProps; section: 
       return <SplitScreenScene wide={wide} section={section} />;
     case "icon_grid":
       return <IconGridScene wide={wide} section={section} />;
+    case "svg_flow":
+      return <SvgFlowScene wide={wide} section={section} />;
     case "hook":
       return <HookScene wide={wide} p={p} section={section} />;
     case "video":
