@@ -607,13 +607,18 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number; wide?: boolean }>
 };
 
 export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
-  const p = { ...promoDefaults, ...raw } as BusinessPromoProps;
+  const base = { ...promoDefaults, ...raw } as BusinessPromoProps;
   const { width, height } = useVideoConfig();
   const frame = useCurrentFrame();
-  const isMockup = p.variant === "mockup";
-  const isBrowser = p.variant === "browser";
+  const isMockup = base.variant === "mockup";
+  const isBrowser = base.variant === "browser";
+  const isMulti = base.variant === "multi";
+  const isSplit = base.variant === "split";
+  const isFramed = isMockup || isBrowser || isMulti || isSplit;
+  // Split : le texte riche vit dans sa colonne, jamais en surimpression du mockup.
+  const p = isSplit ? ({ ...base, text: null } as BusinessPromoProps) : base;
   // Décor feed : uniquement le fond derrière un mockup.
-  const bgManifest = useFeedManifest(isMockup || isBrowser ? p.bgFeedManifest : null);
+  const bgManifest = useFeedManifest(isFramed ? p.bgFeedManifest : null);
 
   /** Fond du mockup : capture feed animée si fournie, sinon fond uni. */
   const MockupBackdrop = () =>
@@ -627,7 +632,7 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
     ) : null;
 
   // Portrait plein écran : le stage occupe tout le cadre (échelle 1:1).
-  if (p.format !== "landscape" && !isMockup && !isBrowser) {
+  if (p.format !== "landscape" && !isFramed) {
     return <Stage p={p} />;
   }
 
