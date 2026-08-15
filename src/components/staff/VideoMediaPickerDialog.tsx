@@ -1225,13 +1225,14 @@ export function VideoMediaPickerDialog({
               </p>
             ) : (
               (() => {
-                const renderTile = (m: PickerMedia) => (
+                const renderTile = (m: PickerMedia, gridCell = false) => (
                   <Tile
                     key={m.url}
                     item={m}
                     selected={value.includes(m.url)}
                     badge={multiple ? value.indexOf(m.url) + 1 || null : null}
                     expectedOrientation={format}
+                    gridCell={gridCell}
                     onSelect={() => toggle(m)}
                     onDelete={m.source === "library" ? () => void removeFromLibrary(m) : undefined}
                     onOrientation={(o) => {
@@ -1249,7 +1250,10 @@ export function VideoMediaPickerDialog({
                         <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                           Vidéos · {vids.length}
                         </div>
-                        <div className="flex flex-wrap items-start gap-3">{vids.map(renderTile)}</div>
+                        {/* Tableau 4x4 : 4 vidéos par ligne, 16 par page visuelle. */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                          {vids.map((m) => renderTile(m, true))}
+                        </div>
                       </div>
                     )}
                     {imgs.length > 0 && (
