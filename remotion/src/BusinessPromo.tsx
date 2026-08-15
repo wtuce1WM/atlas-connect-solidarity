@@ -101,6 +101,7 @@ export const promoDefaults: BusinessPromoProps = {
   variant: "fullscreen",
   mockupBg: palette.ink,
   browserUrl: "oneworldmorocco.com",
+  splitSide: "left",
   clipSource: false,
   blocks: { hook: true, video: true, photos: true, outro: true },
   seconds: { hook: 3, video: 5, photo: 1.5, outro: 2.5 },
