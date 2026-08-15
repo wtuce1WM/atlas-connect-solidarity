@@ -59,8 +59,11 @@ project_id = "plnphgdrawpsnumnejzc"
     verify_jwt = false
   [functions.scan-broken-links]
     verify_jwt = false
+  [functions.send-club-welcome]
+    verify_jwt = false
   [functions.send-transactional-email]
     verify_jwt = false
+
   [functions.serpapi-flights]
     verify_jwt = false
   [functions.serpapi-hotels]
