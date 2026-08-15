@@ -700,10 +700,23 @@ const VideoPromoPanel = () => {
                 </>
               )}
             </span>
-            <Button onClick={submit} disabled={submitting || !presetId || presetDirty}>
-              <Rocket className="h-4 w-4 mr-2" />
-              {submitting ? "Envoi…" : "Rendre"}
-            </Button>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                onClick={submitAllVariants}
+                disabled={submittingAll || submitting || !presetId || presetDirty}
+                title="Lance les 5 montages (plein écran, mockup smartphone, navigateur, multi-écrans, split) au format sélectionné"
+              >
+                <Rocket className="h-4 w-4 mr-2" />
+                {submittingAll
+                  ? "Envoi…"
+                  : `Rendre les 5 montages (${format === "landscape" ? "paysage" : "portrait"})`}
+              </Button>
+              <Button onClick={submit} disabled={submitting || submittingAll || !presetId || presetDirty}>
+                <Rocket className="h-4 w-4 mr-2" />
+                {submitting ? "Envoi…" : "Rendre"}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
