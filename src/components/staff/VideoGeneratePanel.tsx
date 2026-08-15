@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Film, PlayCircle, RefreshCw, Rocket, Sparkles, Wand2 } from "lucide-rea
 import { toast } from "sonner";
 import VideoPromoPanel from "@/components/staff/VideoPromoPanel";
 import VideoJobMeta from "@/components/staff/VideoJobMeta";
+import VideoRenderPresetBar from "@/components/staff/VideoRenderPresetBar";
 
 /**
  * Onglet « Générer » du back-office vidéo.
@@ -117,8 +118,86 @@ const VideoGeneratePanel = () => {
   const [jobs, setJobs] = useState<FeedJob[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
   const [jobBusinessNames, setJobBusinessNames] = useState<Record<string, string>>({});
+  /** Couple Enregistrer / Rendre : le rendu part d'une configuration persistée. */
+  const [presetDirty, setPresetDirty] = useState(true);
+  const [presetId, setPresetId] = useState<string | null>(null);
+  const [relaunching, setRelaunching] = useState<string | null>(null);
 
   const autoSlug = useMemo(() => slug.trim() || slugify(label || "feed"), [slug, label]);
+
+  /** Configuration sérialisable de l'écran Feed (ce qui est enregistré). */
+  const feedConfig = useMemo(
+    () => ({
+      url,
+      label,
+      slug,
+      format,
+      steps,
+      stepSeconds,
+      detailSeconds,
+      hookHold,
+      sectionPause,
+      sectionMove,
+      sections,
+      effectsOn,
+      intensity,
+      strokeColor,
+      pathFrames,
+      motionBlurSamples,
+      pathScope,
+    }),
+    [
+      url,
+      label,
+      slug,
+      format,
+      steps,
+      stepSeconds,
+      detailSeconds,
+      hookHold,
+      sectionPause,
+      sectionMove,
+      sections,
+      effectsOn,
+      intensity,
+      strokeColor,
+      pathFrames,
+      motionBlurSamples,
+      pathScope,
+    ],
+  );
+
+  const applyFeedConfig = useCallback((c: any) => {
+    if (!c || typeof c !== "object") return;
+    setUrl(c.url ?? "");
+    setLabel(c.label ?? "");
+    setSlug(c.slug ?? "");
+    setFormat(c.format === "landscape" ? "landscape" : "portrait");
+    setSteps(Number(c.steps ?? 6));
+    setStepSeconds(Number(c.stepSeconds ?? 3));
+    setDetailSeconds(Number(c.detailSeconds ?? 21));
+    setHookHold(Number(c.hookHold ?? 50));
+    setSectionPause(Number(c.sectionPause ?? 75));
+    setSectionMove(Number(c.sectionMove ?? 50));
+    setSections(Array.isArray(c.sections) ? c.sections : DEFAULT_SECTIONS);
+    setEffectsOn({
+      grain: !!c.effectsOn?.grain,
+      vignette: !!c.effectsOn?.vignette,
+      lightLeaks: !!c.effectsOn?.lightLeaks,
+      pathDraw: !!c.effectsOn?.pathDraw,
+      motionBlur: !!c.effectsOn?.motionBlur,
+    });
+    setIntensity(Number(c.intensity ?? 50));
+    setStrokeColor(c.strokeColor ?? STROKE_PRESETS[0].value);
+    setPathFrames(Number(c.pathFrames ?? 45));
+    setMotionBlurSamples(Number(c.motionBlurSamples ?? 3));
+    setPathScope((c.pathScope as PathScope) ?? "all");
+  }, []);
+
+  const handlePresetState = useCallback((dirty: boolean, id: string | null) => {
+    setPresetDirty(dirty);
+    setPresetId(id);
+  }, []);
 
   const loadJobs = async () => {
     setLoadingJobs(true);
@@ -221,6 +300,33 @@ const VideoGeneratePanel = () => {
     } else {
       toast.success("Job créé : capture puis rendu lancés.");
     }
+    loadJobs();
+  };
+
+  /** Relance un rendu à l'identique depuis un job existant (aucune ressaisie). */
+  const relaunchJob = async (job: FeedJob) => {
+    setRelaunching(job.id);
+    const { data: auth } = await supabase.auth.getUser();
+    const { error } = await supabase.from("video_jobs").insert({
+      user_id: auth.user?.id ?? null,
+      business_id: job.business_id,
+      title: job.title,
+      prompt: `Relance — ${job.title ?? job.id.slice(0, 8)}`,
+      status: "pending",
+      duration_sec: job.duration_sec,
+      template_id: job.template_id,
+      template_props: job.template_props,
+      scenario_json: job.scenario_json,
+    } as any);
+    if (error) {
+      setRelaunching(null);
+      toast.error(`Relance impossible : ${error.message}`);
+      return;
+    }
+    const { error: wfError } = await supabase.functions.invoke("trigger-render-workflow", { body: {} });
+    setRelaunching(null);
+    if (wfError) toast.warning("Job créé, déclenchement GitHub à refaire au prochain cycle.");
+    else toast.success("Rendu relancé à l'identique.");
     loadJobs();
   };
 
@@ -525,13 +631,27 @@ const VideoGeneratePanel = () => {
             </div>
           </div>
 
+          <VideoRenderPresetBar
+            kind="feed"
+            config={feedConfig}
+            defaultName={label.trim() || autoSlug}
+            onApply={applyFeedConfig}
+            onDirtyChange={handlePresetState}
+          />
+
           <div className="flex items-center justify-between gap-3 flex-wrap border-t pt-3">
             <span className="text-xs text-muted-foreground">
               Durée estimée : ~{Math.round(stepSeconds * Math.max(0, steps - 1) + detailSeconds)}s
+              {(!presetId || presetDirty) && (
+                <>
+                  <br />
+                  Enregistre la configuration pour activer « Rendre ».
+                </>
+              )}
             </span>
-            <Button onClick={submitFeed} disabled={submitting}>
+            <Button onClick={submitFeed} disabled={submitting || !presetId || presetDirty}>
               <Rocket className="h-4 w-4 mr-2" />
-              {submitting ? "Envoi…" : "Générer la vidéo"}
+              {submitting ? "Envoi…" : "Rendre"}
             </Button>
           </div>
         </CardContent>
@@ -571,8 +691,18 @@ const VideoGeneratePanel = () => {
                       </a>
                     )}
                     {j.error_message && (
-                      <span className="text-[11px] text-destructive ml-auto max-w-md truncate">{j.error_message}</span>
+                      <span className="text-[11px] text-destructive max-w-md truncate">{j.error_message}</span>
                     )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-[11px] ml-auto"
+                      onClick={() => relaunchJob(j)}
+                      disabled={relaunching === j.id}
+                    >
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                      {relaunching === j.id ? "Relance…" : "Rendre à nouveau"}
+                    </Button>
                   </div>
                   <VideoJobMeta
                     job={j}

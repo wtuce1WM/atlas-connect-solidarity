@@ -8155,6 +8155,54 @@ export type Database = {
           },
         ]
       }
+      video_render_presets: {
+        Row: {
+          business_id: string | null
+          config: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          business_id?: string | null
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string | null
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_render_presets_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_render_presets_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       video_scenario_configs: {
         Row: {
           business_id: string | null
