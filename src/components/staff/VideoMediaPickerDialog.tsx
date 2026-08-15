@@ -203,14 +203,14 @@ function Tile({
   };
 
   return (
-    <div className={`relative ${isVideoTile ? "shrink-0" : ""}`} style={isVideoTile ? { width: Math.round(width) } : undefined}>
+    <div className={`relative ${freeSize ? "shrink-0" : ""}`} style={freeSize ? { width: Math.round(width) } : undefined}>
       <button
         type="button"
         onClick={onSelect}
         className={`relative w-full rounded-md overflow-hidden border-2 bg-black/90 ${
-          isVideoTile ? "" : "aspect-[4/3]"
+          freeSize ? "" : "aspect-[4/3]"
         } ${selected ? "border-primary" : "border-transparent hover:border-primary/40"}`}
-        style={isVideoTile ? { height: Math.round(height) } : undefined}
+        style={freeSize ? { height: Math.round(height) } : undefined}
       >
         {item.kind === "video" ? (
           isInternalVideoUrl(item.url) ? (
