@@ -480,7 +480,8 @@ export default function EmbedReviewsWidget({
 
 
 
-  const signature = (
+  // Overlay Full Description : pas de signature (l'hôte est déjà oneworldmorocco.com)
+  const signature = hideReviewText ? null : (
     <div className="pt-1 text-center">
       <a
         href="https://oneworldmorocco.com"
