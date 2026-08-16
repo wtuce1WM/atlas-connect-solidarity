@@ -94,13 +94,14 @@ function todayHours(b: AiResultBusiness): { label: string | null; isOpen: boolea
 }
 
 const AiBusinessResultCards = ({
-  businesses, origin, lang = "fr", ink = "dark", cardStyle, onOpen, onOpenReviews, onOpenBooking, footer, max = 20,
+  businesses, origin, lang = "fr", ink = "dark", cardStyle, rankOrder, onOpen, onOpenReviews, onOpenBooking, footer, max = 20,
 }: Props) => {
   const t = L[(lang as keyof typeof L) in L ? (lang as keyof typeof L) : "fr"];
   const list = businesses.slice(0, max);
   if (!list.length) return null;
   const siblings = list.map((b) => b.id);
   const light = ink === "light" && !cardStyle;
+  const ranked = !!rankOrder;
   const shellClass = cardStyle
     ? "border-transparent"
     : light
@@ -110,7 +111,9 @@ const AiBusinessResultCards = ({
 
   return (
     <div className="w-full flex flex-col gap-2">
-      {list.map((b) => {
+      {list.map((b, idx) => {
+        const podium = ranked && idx < 3 ? PODIUM[idx] : null;
+
         const img = (Array.isArray(b.images) && b.images[0]) || b.logo_url || null;
         const hook =
           lang === "en" ? b.hook_en || b.hook_fr : lang === "ar" ? b.hook_ar || b.hook_fr : b.hook_fr || b.hook_en;
