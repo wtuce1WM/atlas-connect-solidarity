@@ -1934,6 +1934,10 @@ const EmbedAsk = () => {
 
               {(() => {
                 if (!(i > 0 && !streaming && activeFollowups.length > 0)) return null;
+                // Si le garde-fou anti-concurrents vient d'écarter des rivaux, on masque
+                // toutes les relances (chips) pour éviter de proposer "plus de résultats"
+                // ou des filtres sur un corpus qui a été réduit pour protéger l'hôte.
+                if (competitorGuardActive && i === messages.length - 1) return null;
                 const priorCount =
                   (mapPayload?.businesses?.length ?? 0) ||
                   citedFallback.length ||
