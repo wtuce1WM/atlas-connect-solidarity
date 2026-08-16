@@ -2834,7 +2834,7 @@ const BookOnlineSlidePanelInner = ({
                 gridItems = sortedVideoDocs.map((vid, i) => {
                   const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
                   const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
-                  const thumb = vid.thumbnail_url || (ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null) || (vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null);
+                  const thumb = resolveVideoDocThumbnail(vid) || (ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null) || (vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null);
                   const isHostedFile = !thumb && !ytMatch && !vimeoMatch;
                   return {
                     key: `vid-${i}`,
