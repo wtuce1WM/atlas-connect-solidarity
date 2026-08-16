@@ -718,11 +718,14 @@ export async function buildFilteredAnswer(
       : `**${opts.label}** — les adresses qui correspondent${inCity} :`)
     : (lang === "en" ? `Matching addresses${inCity}:` : lang === "ar" ? `عناوين مطابقة${inCity}:` : `Les adresses qui correspondent${inCity} :`);
   const rest = total - shownIds.length;
+  // Les horaires, statuts et liens de réservation sont déjà portés par les cartes
+  // résultat IA : ne reste que l'option d'afficher le lot suivant.
   const outro = lang === "en"
-    ? `📍 ${shownIds.length} of ${total} matching addresses${rest > 0 ? " — want me to show the others" : " — want the map view"}, opening hours, or booking links?`
+    ? `📍 ${shownIds.length} of ${total} matching addresses${rest > 0 ? " — want me to show the others?" : "."}`
     : lang === "ar"
-      ? `📍 ${shownIds.length} من ${total} عنوانًا مطابقًا${rest > 0 ? " — أعرض الباقي؟" : " — تريد الخريطة؟"}`
-      : `📍 ${shownIds.length} adresses sur ${total} qui correspondent${rest > 0 ? " — je te montre les autres" : " — tu veux la carte"}, les horaires, ou les liens de réservation ?`;
+      ? `📍 ${shownIds.length} من ${total} عنوانًا مطابقًا${rest > 0 ? " — أعرض الباقي؟" : "."}`
+      : `📍 ${shownIds.length} adresses sur ${total} qui correspondent${rest > 0 ? " — je te montre les suivantes ?" : "."}`;
+
 
   const built = await buildPinnedAnswer(admin, shownIds, host, lang, opts.label, {
     route: "curated_filter",
@@ -830,3 +833,19 @@ export async function matchCuratedByText(
   return best;
 }
 
+
+/**
+ * Substitution UNIQUE, côté moteur, des placeholders des libellés staff
+ * (`ai_suggestions.label_*`) : le libellé est réinjecté verbatim dans la réponse,
+ * donc `{businessName}` doit être résolu ici, pas seulement côté client.
+ */
+export function applyLabelPlaceholders(label: string | null | undefined, host: any): string | null {
+  const raw = String(label ?? "");
+  if (!raw) return label ?? null;
+  const name = String(host?.name || "").trim();
+  return raw
+    .replace(/\{\{?\s*businessName\s*\}?\}/gi, name)
+    .replace(/\{\{?\s*business_name\s*\}?\}/gi, name)
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
