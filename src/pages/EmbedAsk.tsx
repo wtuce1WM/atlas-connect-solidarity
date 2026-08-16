@@ -2138,7 +2138,7 @@ const EmbedAsk = () => {
                     {lang === "en" ? "Closest" : lang === "ar" ? "الأقرب" : "Les plus proches"}
                   </button>
                 )}
-                {localFilters.openNow && (
+                {localFilters.openNow && poolInfo.hasHours && (
                   <button
                     type="button"
                     onClick={() => sendLocalFilter(
@@ -2151,6 +2151,37 @@ const EmbedAsk = () => {
                     <Clock className="w-3.5 h-3.5" />
                     {lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant"}
                   </button>
+                )}
+                {/* Relances horaires dynamiques : remplacent les relances back-office
+                    « Qui ferme tard » / « Qui ouvre tôt ». Affichées seulement si au
+                    moins un établissement du CORPUS COMPLET publie ses horaires. */}
+                {poolInfo.hasHours && poolInfo.ids.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => sendLocalFilter(
+                        lang === "en" ? "Which ones close late" : lang === "ar" ? "من يغلق متأخرًا" : "Qui ferme tard",
+                        "hours_ranking_closes_last",
+                      )}
+                      style={AI_NAME_FONT}
+                      className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                    >
+                      <Moon className="w-3.5 h-3.5" />
+                      {lang === "en" ? "Closes late" : lang === "ar" ? "يغلق متأخرًا" : "Qui ferme tard"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => sendLocalFilter(
+                        lang === "en" ? "Which ones open early" : lang === "ar" ? "من يفتح مبكرًا" : "Qui ouvre tôt",
+                        "hours_ranking_opens_first",
+                      )}
+                      style={AI_NAME_FONT}
+                      className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                    >
+                      <Sun className="w-3.5 h-3.5" />
+                      {lang === "en" ? "Opens early" : lang === "ar" ? "يفتح مبكرًا" : "Qui ouvre tôt"}
+                    </button>
+                  </>
                 )}
                 {localFilters.bestRated && (
                   <button
