@@ -46,6 +46,11 @@ interface Props {
   /** Encre claire (fond sombre) ou foncée (fond clair). */
   ink?: "light" | "dark";
   cardStyle?: React.CSSProperties;
+  /**
+   * Ordre de classement (`rating`, `reviews`, `distance`, `opening`…) : affiche un
+   * badge de rang générique sur chaque carte, avec podium (or/argent/bronze) sur le Top 3.
+   */
+  rankOrder?: string | null;
   onOpen: (id: string, siblingIds: string[]) => void;
   onOpenReviews?: (id: string, siblingIds: string[]) => void;
   /** Ouvre l'overlay de réservation interne (sinon nouvel onglet). */
@@ -55,10 +60,18 @@ interface Props {
 }
 
 const L = {
-  fr: { reviews: "avis", allReviews: "Consulter les avis clients", open: "Ouvert", closed: "Fermé", open24: "Ouvert 24h/24", whatsapp: "WhatsApp", book: "Réservez" },
-  en: { reviews: "reviews", allReviews: "Read customer reviews", open: "Open", closed: "Closed", open24: "Open 24/7", whatsapp: "WhatsApp", book: "Book" },
-  ar: { reviews: "تقييم", allReviews: "عرض آراء العملاء", open: "مفتوح", closed: "مغلق", open24: "مفتوح 24/24", whatsapp: "واتساب", book: "احجز" },
+  fr: { reviews: "avis", allReviews: "Avis clients", open: "Ouvert", closed: "Fermé", open24: "Ouvert 24h/24", whatsapp: "WhatsApp", book: "Réservez" },
+  en: { reviews: "reviews", allReviews: "Reviews", open: "Open", closed: "Closed", open24: "Open 24/7", whatsapp: "WhatsApp", book: "Book" },
+  ar: { reviews: "تقييم", allReviews: "آراء العملاء", open: "مفتوح", closed: "مغلق", open24: "مفتوح 24/24", whatsapp: "واتساب", book: "احجز" },
 };
+
+/** Podium Top 3 : médaille + couleur de rang. Au-delà, badge de rang neutre. */
+const PODIUM = [
+  { medal: "🥇", color: "#D4AF37" },
+  { medal: "🥈", color: "#B9BDC2" },
+  { medal: "🥉", color: "#CD7F32" },
+];
+
 
 const FR_TO_EN: Record<string, string> = {
   lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
