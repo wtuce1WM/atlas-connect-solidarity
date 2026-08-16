@@ -201,7 +201,7 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     hint: "Assistant IA propulsé par One World Morocco",
     opener: (n, r) =>
       `Bonjour 👋 Je suis l'assistant de **${n}**. Mes recherches de proximité et de distance se calculent dans un rayon de **${r}** autour de **${n}** — vous pouvez changer ce rayon ci-dessous ou à la voix. Comment puis-je vous aider ?`,
-    radiusLabel: "Rayon de proximité",
+    radiusLabel: "RAYON",
     radiusChanged: (r) => `D'accord 👍 Rayon de proximité réglé sur **${r}**. Les recherches de proximité et de distance utiliseront ce périmètre.`,
     viewMap: "Voir sur la carte",
     events: "Événements",
