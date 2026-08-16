@@ -2824,7 +2824,7 @@ const BookOnlineSlidePanelInner = ({
               const GRID_PAGE_SIZE = isMobileGrid ? 8 : 9;
 
               // Build items array based on active section
-              type GridItem = { key: string; imgUrl: string | null; label?: string; onClick: () => void; playIcon?: boolean; masterStar?: boolean; videoFallbackUrl?: string };
+              type GridItem = { key: string; imgUrl: string | null; label?: string; onClick: () => void; playIcon?: boolean; masterStar?: boolean; videoFallbackUrl?: string; videoThumbnailUrl?: string | null };
               let gridItems: GridItem[] = [];
 
               if (descGridSection === "images") {
@@ -2844,6 +2844,8 @@ const BookOnlineSlidePanelInner = ({
                     key: `vid-${i}`,
                     imgUrl: null,
                     videoFallbackUrl: vid.url,
+                    videoThumbnailUrl: resolveVideoDocThumbnail(vid) || vid.thumbnail_url || null,
+
                     label: vid.name || undefined,
                     playIcon: true,
                     onClick: () => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description }),
@@ -2946,7 +2948,8 @@ const BookOnlineSlidePanelInner = ({
                                 onClick={item.onClick}
                               >
                                 {item.videoFallbackUrl ? (
-                                  <VideoDocPreview url={item.videoFallbackUrl} title={item.label} inert />
+                                  <VideoDocPreview url={item.videoFallbackUrl} title={item.label} inert thumbnailUrl={item.videoThumbnailUrl || null} />
+
                                 ) : item.imgUrl ? (
                                   <img src={item.imgUrl} alt={item.label || `${realIndex + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
 
@@ -3363,7 +3366,7 @@ const BookOnlineSlidePanelInner = ({
                               className="relative aspect-square rounded-lg overflow-hidden cursor-pointer shrink-0 w-[46%] snap-start md:w-auto md:shrink bg-black"
                               onClick={() => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description })}
                             >
-                              <VideoDocPreview url={vid.url} title={vid.name || undefined} inert />
+                              <VideoDocPreview url={vid.url} title={vid.name || undefined} inert thumbnailUrl={resolveVideoDocThumbnail(vid) || vid.thumbnail_url || null} />
 
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                   <div className="h-10 w-10 rounded-full bg-black/50 flex items-center justify-center backdrop-blur-sm">

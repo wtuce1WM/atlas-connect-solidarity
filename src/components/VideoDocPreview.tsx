@@ -9,12 +9,26 @@ interface VideoDocPreviewProps {
   /** Bloque les interactions (utile quand la tuile est cliquable). */
   inert?: boolean;
   title?: string;
+  /** Vignette persistée (thumbnail_url, éventuellement verrouillée) : prioritaire sur le player. */
+  thumbnailUrl?: string | null;
 }
 
-const VideoDocPreview = ({ url, className = "", inert = false, title }: VideoDocPreviewProps) => {
+const VideoDocPreview = ({ url, className = "", inert = false, title, thumbnailUrl }: VideoDocPreviewProps) => {
   const style = inert ? { pointerEvents: "none" as const } : undefined;
 
+  if (thumbnailUrl) {
+    return (
+      <img
+        src={thumbnailUrl}
+        alt={title || ""}
+        className={`w-full h-full object-cover ${className}`}
+        loading="lazy"
+      />
+    );
+  }
+
   const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+
   if (ytMatch) {
     return (
       <iframe
