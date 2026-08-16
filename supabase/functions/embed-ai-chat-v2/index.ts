@@ -721,7 +721,7 @@ Deno.serve(async (req) => {
 
               scopeCity,
               maxResults: CFG.maxResults,
-              isCompetitor: competitorGuard.active ? competitorGuard.isCompetitor : undefined,
+              competitorGuard,
               supabaseUrl: SUPABASE_URL,
               serviceKey: SERVICE,
             }).catch((e) => {
