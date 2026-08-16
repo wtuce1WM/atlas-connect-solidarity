@@ -105,6 +105,9 @@ import InlineReviewsSection from "@/components/InlineReviewsSection";
 import { translateEngagementLabel } from "@/lib/engagementLabels";
 
 import VideoThumbnail from "@/components/VideoThumbnail";
+import VideoDocPreview from "@/components/VideoDocPreview";
+import LazyMount from "@/components/LazyMount";
+
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 
 const spotifyEmbedUrl = (raw: string): string | null => {
@@ -1183,23 +1186,24 @@ const BookOnlineSlidePanelInner = ({
     // Garde anti-scroll parasite : certaines iframes tierces (ex. moteur de réservation
     // "Réservez" du Royal Mansour) déplacent le conteneur au chargement (prise de focus,
     // scroll anchoring lors du redimensionnement de leur contenu…).
-    // Principe : pendant les premières secondes suivant l'ouverture, tout déplacement de
-    // scroll qui n'est pas précédé d'un geste utilisateur récent est annulé.
+    // Principe : le garde n'agit que pendant les premières secondes après l'ouverture et
+    // s'auto-désactive dès le premier geste utilisateur (sinon l'inertie du scroll, qui
+    // continue après le dernier événement wheel, se faisait annuler → effet de saut).
     const el = document.getElementById("owm-desc-scroll");
-    let lastGesture = 0;
+    let hadGesture = false;
     let anchor = 0;
-    let guardUntil = Date.now() + 15000;
+    const guardUntil = Date.now() + 4000;
     let reverting = false;
-    const markGesture = () => { lastGesture = Date.now(); };
+    const markGesture = () => { hadGesture = true; };
     const onScroll = () => {
       if (!el || reverting) return;
-      const userDriven = Date.now() - lastGesture < 700;
-      if (userDriven || Date.now() > guardUntil) { anchor = el.scrollTop; return; }
+      if (hadGesture || Date.now() > guardUntil) { anchor = el.scrollTop; return; }
       if (Math.abs(el.scrollTop - anchor) < 4) return;
       reverting = true;
       el.scrollTop = anchor;
       requestAnimationFrame(() => { reverting = false; });
     };
+
     if (el) {
       el.style.overflowAnchor = "none";
       el.addEventListener("wheel", markGesture, { passive: true });
@@ -2836,19 +2840,16 @@ const BookOnlineSlidePanelInner = ({
                   (a, b) => (urlOrder.get(a.url) ?? 999) - (urlOrder.get(b.url) ?? 999)
                 );
                 gridItems = sortedVideoDocs.map((vid, i) => {
-                  const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-                  const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
-                  const thumb = resolveVideoDocThumbnail(vid) || (ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null) || (vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null);
-                  const isHostedFile = !thumb && !ytMatch && !vimeoMatch;
                   return {
                     key: `vid-${i}`,
-                    imgUrl: thumb,
-                    videoFallbackUrl: isHostedFile ? vid.url : undefined,
+                    imgUrl: null,
+                    videoFallbackUrl: vid.url,
                     label: vid.name || undefined,
                     playIcon: true,
                     onClick: () => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description }),
                   } as GridItem;
                 });
+
               } else if (descGridSection === "poi") {
                 const activeFrontTabGrid = poiCatFilter ? frontTabs.find(t => t.id === poiCatFilter) || null : null;
                 const afterCatGrid = activeFrontTabGrid
@@ -2944,10 +2945,11 @@ const BookOnlineSlidePanelInner = ({
                                 className="relative aspect-square rounded-lg overflow-hidden cursor-pointer"
                                 onClick={item.onClick}
                               >
-                                {item.imgUrl ? (
+                                {item.videoFallbackUrl ? (
+                                  <VideoDocPreview url={item.videoFallbackUrl} title={item.label} inert />
+                                ) : item.imgUrl ? (
                                   <img src={item.imgUrl} alt={item.label || `${realIndex + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
-                                ) : item.videoFallbackUrl ? (
-                                  <VideoThumbnail src={item.videoFallbackUrl} alt={item.label} className="w-full h-full object-cover" />
+
                                 ) : (
                                   <div className="w-full h-full bg-white/10 flex items-center justify-center">
                                     {descGridSection === "videos" ? <Play className="h-8 w-8 text-white/40" /> : <MapPin className="h-8 w-8 text-white/40" />}
@@ -3355,28 +3357,14 @@ const BookOnlineSlidePanelInner = ({
                           {language === "en" ? "Videos" : language === "ar" ? "فيديوهات" : "Vidéos"}
                         </h2>
                         <HScroll className="flex md:grid md:grid-cols-3 gap-1.5 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory md:snap-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden cursor-grab md:cursor-auto">
-                          {items.map((vid, i) => {
-                            const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-                            const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
-                            const thumb = resolveVideoDocThumbnail(vid)
-                              || (ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null)
-                              || (vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null);
-                            const isHostedFile = !thumb && !ytMatch && !vimeoMatch;
-                            return (
-                              <div
-                                key={`desc-vid-${i}`}
-                                className="relative aspect-square rounded-lg overflow-hidden cursor-pointer shrink-0 w-[46%] snap-start md:w-auto md:shrink"
-                                onClick={() => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description })}
-                              >
-                                {thumb ? (
-                                  <img src={thumb} alt={vid.name || `${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
-                                ) : isHostedFile ? (
-                                  <VideoThumbnail src={vid.url} alt={vid.name || undefined} className="w-full h-full object-cover" />
-                                ) : (
-                                  <div className="w-full h-full bg-white/10 flex items-center justify-center">
-                                    <Play className="h-8 w-8 text-white/40" />
-                                  </div>
-                                )}
+                          {items.map((vid, i) => (
+                            <div
+                              key={`desc-vid-${i}`}
+                              className="relative aspect-square rounded-lg overflow-hidden cursor-pointer shrink-0 w-[46%] snap-start md:w-auto md:shrink bg-black"
+                              onClick={() => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description })}
+                            >
+                              <VideoDocPreview url={vid.url} title={vid.name || undefined} inert />
+
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                   <div className="h-10 w-10 rounded-full bg-black/50 flex items-center justify-center backdrop-blur-sm">
                                     <Play className="h-5 w-5 text-white fill-white" />
@@ -3387,9 +3375,9 @@ const BookOnlineSlidePanelInner = ({
                                     <p className="text-[10px] text-white font-medium truncate font-['Montserrat',sans-serif]">{vid.name}</p>
                                   </div>
                                 )}
-                              </div>
-                            );
-                          })}
+                            </div>
+                          ))}
+
                         </HScroll>
 
                       </div>
@@ -3416,21 +3404,23 @@ const BookOnlineSlidePanelInner = ({
                         {language === "en" ? "AI Assistant" : language === "ar" ? "المساعد الذكي" : "Assistant IA"}
                       </h2>
                       <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-transparent border border-white/10">
-                        <iframe
-                          key={`ai-widget-${business.slug}`}
-                          src={`/embed/ask/${business.slug}?preset=overlay&lang=${language}&theme=none&bg=transparent&ink=light${
-                            (() => {
-                              const e = new URLSearchParams(window.location.search).get("engine");
-                              return e === "v1" || e === "v2" ? `&engine=${e}` : "";
-                            })()
-                          }`}
+                        <LazyMount minHeight={760} rootMargin="300px">
+                          <iframe
+                            key={`ai-widget-${business.slug}`}
+                            src={`/embed/ask/${business.slug}?preset=overlay&lang=${language}&theme=none&bg=transparent&ink=light${
+                              (() => {
+                                const e = new URLSearchParams(window.location.search).get("engine");
+                                return e === "v1" || e === "v2" ? `&engine=${e}` : "";
+                              })()
+                            }`}
+                            title={language === "en" ? "AI Assistant" : "Assistant IA"}
+                            allow="clipboard-write; microphone; fullscreen"
+                            className="w-full block border-0 bg-transparent"
+                            style={{ height: 760, background: "transparent" }}
+                            loading="lazy"
+                          />
+                        </LazyMount>
 
-                          title={language === "en" ? "AI Assistant" : "Assistant IA"}
-                          allow="clipboard-write; microphone; fullscreen"
-                          className="w-full block border-0 bg-transparent"
-                          style={{ height: 760, background: "transparent" }}
-                          loading="lazy"
-                        />
 
                       </div>
 
@@ -3445,15 +3435,18 @@ const BookOnlineSlidePanelInner = ({
                       </h2>
 
                       <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
-                        <iframe
-                          key={`nearby-widget-${business.slug}`}
-                          src={`/embed/nearby/${business.slug}?preset=overlay&lang=${language}`}
-                          title={language === "en" ? "Nearby" : "À proximité"}
-                          allow="geolocation; fullscreen"
-                          className="w-full block border-0"
-                          style={{ height: 640 }}
-                          loading="lazy"
-                        />
+                        <LazyMount minHeight={640} rootMargin="300px">
+                          <iframe
+                            key={`nearby-widget-${business.slug}`}
+                            src={`/embed/nearby/${business.slug}?preset=overlay&lang=${language}`}
+                            title={language === "en" ? "Nearby" : "À proximité"}
+                            allow="geolocation; fullscreen"
+                            className="w-full block border-0"
+                            style={{ height: 640 }}
+                            loading="lazy"
+                          />
+                        </LazyMount>
+
                       </div>
 
                     </div>
@@ -3602,13 +3595,16 @@ const BookOnlineSlidePanelInner = ({
                             <div key={c.url} className="w-full">
                               <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">{c.label}</h2>
                               <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
-                                <iframe
-                                  src={c.url}
-                                  title={c.label}
-                                  allow="payment; clipboard-write; fullscreen"
-                                  className="w-full block border-0"
-                                  style={{ aspectRatio: "16 / 10", minHeight: 640 }}
-                                />
+                                <LazyMount minHeight={640} rootMargin="200px">
+                                  <iframe
+                                    src={c.url}
+                                    title={c.label}
+                                    allow="payment; clipboard-write; fullscreen"
+                                    className="w-full block border-0"
+                                    style={{ aspectRatio: "16 / 10", minHeight: 640 }}
+                                  />
+                                </LazyMount>
+
                               </div>
                             </div>
                           );
@@ -3627,14 +3623,17 @@ const BookOnlineSlidePanelInner = ({
                         {language === 'en' ? '3D Virtual Tour' : 'Visite virtuelle 3D'}
                       </h3>
                       <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
-                        <iframe
-                          src={business.matterport_url}
-                          title={language === 'en' ? '3D Virtual Tour' : 'Visite virtuelle 3D'}
-                          allow="xr-spatial-tracking; fullscreen; gyroscope; accelerometer"
-                          allowFullScreen
-                          className="w-full block border-0"
-                          style={{ aspectRatio: '16 / 10', minHeight: 320 }}
-                        />
+                        <LazyMount minHeight={320} rootMargin="400px">
+                          <iframe
+                            src={business.matterport_url}
+                            title={language === 'en' ? '3D Virtual Tour' : 'Visite virtuelle 3D'}
+                            allow="xr-spatial-tracking; fullscreen; gyroscope; accelerometer"
+                            allowFullScreen
+                            className="w-full block border-0"
+                            style={{ aspectRatio: '16 / 10', minHeight: 320 }}
+                          />
+                        </LazyMount>
+
                       </div>
                     </div>
                   )}
@@ -3651,13 +3650,16 @@ const BookOnlineSlidePanelInner = ({
                               <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">{d.name}</h2>
                             )}
                             <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
-                              <iframe
-                                src={getFlipbookEmbedUrl(d.url)}
-                                title={d.name || 'Flipbook'}
-                                allow="clipboard-write; fullscreen"
-                                className="w-full block border-0"
-                                style={{ aspectRatio: '16 / 10', minHeight: 320 }}
-                              />
+                              <LazyMount minHeight={320} rootMargin="400px">
+                                <iframe
+                                  src={getFlipbookEmbedUrl(d.url)}
+                                  title={d.name || 'Flipbook'}
+                                  allow="clipboard-write; fullscreen"
+                                  className="w-full block border-0"
+                                  style={{ aspectRatio: '16 / 10', minHeight: 320 }}
+                                />
+                              </LazyMount>
+
                             </div>
                           </div>
                         ))}
@@ -3678,14 +3680,17 @@ const BookOnlineSlidePanelInner = ({
                   {!descOverlayContent && business?.slug && hasReviewsCard && (
                     <div className="mt-8 pt-6 border-t border-white/10">
                       <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-transparent">
-                        <iframe
-                          key={`rate-widget-bottom-${business.slug}`}
-                          src={`/embed/avis/${business.slug}?preset=overlay&platform=all&lang=${language}&variant=card&bg=transparent&theme=dark`}
-                          title={language === "en" ? "Leave a review" : language === "ar" ? "اترك تقييماً" : "Laisser un avis"}
-                          className="w-full block border-0 bg-transparent"
-                          style={{ height: rateIframeHeight, background: "transparent" }}
-                          loading="eager"
-                        />
+                        <LazyMount minHeight={rateIframeHeight} rootMargin="400px">
+                          <iframe
+                            key={`rate-widget-bottom-${business.slug}`}
+                            src={`/embed/avis/${business.slug}?preset=overlay&platform=all&lang=${language}&variant=card&bg=transparent&theme=dark`}
+                            title={language === "en" ? "Leave a review" : language === "ar" ? "اترك تقييماً" : "Laisser un avis"}
+                            className="w-full block border-0 bg-transparent"
+                            style={{ height: rateIframeHeight, background: "transparent" }}
+                            loading="lazy"
+                          />
+                        </LazyMount>
+
                       </div>
                     </div>
                   )}
