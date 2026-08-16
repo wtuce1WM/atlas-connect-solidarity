@@ -561,16 +561,25 @@ export function filterServicesByCategories(
 /** Services retenus par le résolveur qui appartiennent à la catégorie d'intention. */
 export function qualifiedServiceTargets(result: ResolveResult): ResolvedTarget[] {
   const intentCats = new Set<string>();
+  const intentSubs = new Set<string>();
   for (const t of result.targets) {
     if (t.strength === "expansion") continue;
     if (t.type !== "subcategory" && t.type !== "category") continue;
     for (const c of t.categories ?? []) intentCats.add(c);
+    for (const s of t.subcategories ?? []) intentSubs.add(s);
   }
   if (!intentCats.size) return [];
-  return result.targets.filter(
+  const kept = result.targets.filter(
     (t) => t.type === "service" && (t.categories ?? []).some((c) => intentCats.has(c)),
   );
+  // La sous-catégorie d'intention tranche : « restaurants français » doit retenir
+  // `Cuisine française` (sous-catégorie Restaurant), pas `Pain français` (Boulangerie),
+  // les deux étant pourtant sous la catégorie Restauration.
+  if (!intentSubs.size) return kept;
+  const exact = kept.filter((t) => (t.subcategories ?? []).some((s) => intentSubs.has(s)));
+  return exact.length ? exact : kept;
 }
+
 
 
 
