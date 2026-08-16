@@ -37,6 +37,7 @@ import {
 
 } from "../_shared/ai-engine/routes/curated.ts";
 import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
+import { buildDestinationsBlock } from "../_shared/ai-engine/routes/destinations.ts";
 import { buildEventsWeekendAnswer, buildEventsFilteredAnswer, fetchAgendaEvents, weekendWindow, eventsSnapshotMarker, priorEventsSnapshot } from "../_shared/ai-engine/routes/events.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
@@ -283,6 +284,9 @@ Deno.serve(async (req) => {
       // Article pertinent détecté (curaté ou texte libre) : proposé en fin de
       // réponse sous forme de carte cliquable, jamais en remplacement des résultats.
       let articleTeaser: string | null = null;
+      // Destinations liées à l'entrée curatée : complètent les résultats
+      // établissements (carrousel horizontal + CTA carte), jamais en remplacement.
+      let destinationsBlock: string | null = null;
 
       try {
         resolution = await resolveWithAdmin(admin, userMessage);
@@ -296,6 +300,7 @@ Deno.serve(async (req) => {
 
 
       const finish = async (streamCompleted: boolean) => {
+        if (destinationsBlock) { emit(destinationsBlock); destinationsBlock = null; }
         if (articleTeaser) { emit(articleTeaser); articleTeaser = null; }
         end();
 
@@ -597,6 +602,18 @@ Deno.serve(async (req) => {
             const posts = await fetchBlogPostsCached(admin).catch(() => []);
             const post = curated.blogPostIds.map((id) => posts.find((p) => p.id === id)).filter(Boolean)[0];
             if (post) articleTeaser = buildArticleTeaser(post, lang) || null;
+          }
+
+          // Destinations liées : bloc court + carrousel horizontal émis en fin de
+          // tour (après les cartes établissements), zéro token.
+          if (curated && keepCurated && curated.destinationIds.length && !destinationsBlock) {
+            const built = await buildDestinationsBlock(
+              admin, curated.destinationIds, host, lang, curated.label,
+            ).catch((e) => {
+              console.error("[embed-ai-chat-v2] destinations_block_failed", String(e));
+              return null;
+            });
+            if (built) destinationsBlock = built.text + built.marker;
           }
 
 

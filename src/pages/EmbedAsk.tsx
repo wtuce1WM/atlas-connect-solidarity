@@ -653,6 +653,9 @@ const EmbedAsk = () => {
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   const [openBusinessOverlay, setOpenBusinessOverlay] = useState<"reviews" | null>(null);
   const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
+  // Carte des destinations (distincte de la carte des résultats établissements) :
+  // marqueurs = destinations liées à la suggestion.
+  const [openDestMap, setOpenDestMap] = useState<{ title?: string | null; destinations: DestinationCard[] } | null>(null);
   // Feed vidéo (mode curaté `video_feed`) : liste active + vidéo ouverte.
   const [videoFeedList, setVideoFeedList] = useState<VideoFeedItem[]>([]);
   const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
@@ -1720,7 +1723,23 @@ const EmbedAsk = () => {
                       onClick: () => setOpenDestinationId(d.id),
                     };
                   })}
+                  footer={
+                    destinationsPayload.destinations.some((d) => d.latitude != null && d.longitude != null) ? (
+                      <div className="mt-1">
+                        <button
+                          type="button"
+                          onClick={() => setOpenDestMap({ title: destinationsPayload.title || null, destinations: destinationsPayload.destinations })}
+                          style={AI_NAME_FONT}
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
+                        >
+                          <MapPin className="w-3.5 h-3.5" />
+                          {lang === "en" ? "Destinations on the map" : lang === "ar" ? "الوجهات على الخريطة" : "Les destinations sur la carte"}
+                        </button>
+                      </div>
+                    ) : null
+                  }
                 />
+
               )}
 
               {eventsPayload && eventsPayload.events.length > 0 && (() => {
@@ -2228,6 +2247,34 @@ const EmbedAsk = () => {
           showLayerControls
         />
       )}
+
+      {/* Carte des destinations liées : marqueurs = destinations (pas des fiches),
+          ordre conservé (distance depuis l'établissement hôte). */}
+      <MapSlidePanel
+        open={!!openDestMap}
+        onClose={() => setOpenDestMap(null)}
+        title={openDestMap?.title || undefined}
+        businesses={(openDestMap?.destinations || [])
+          .filter((d) => d.latitude != null && d.longitude != null)
+          .map((d) => ({
+            id: d.id,
+            name: d.name,
+            latitude: Number(d.latitude),
+            longitude: Number(d.longitude),
+            images: d.image ? [d.image] : [],
+          }))}
+        isMobile={isMobile}
+        fullWidth
+        panelBg={activeWidgetBg || undefined}
+        disableUserLocation
+        hostLocation={hostLocation}
+        hostLabel={businessName}
+        mapTheme={mapThemeResolved}
+        showLayerControls
+        preserveOrder
+      />
+
+
 
 
       <EventsSlidePanel
