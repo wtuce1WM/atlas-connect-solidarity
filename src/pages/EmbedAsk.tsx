@@ -294,7 +294,7 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; competitorGuard: boolean } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
@@ -304,7 +304,8 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   const weather: WeatherPayload[] = [];
   const videoFeeds: VideoFeedPayload[] = [];
   const tides: string[] = [];
-  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides };
+  const competitorGuard = COMPETITOR_GUARD_RE.test(text);
+  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, competitorGuard };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
