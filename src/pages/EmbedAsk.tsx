@@ -2079,7 +2079,7 @@ const EmbedAsk = () => {
             >
               {SCOPE_LABELS[lang]?.newConversation ?? SCOPE_LABELS.fr.newConversation}
             </button>
-            {mapReplayTarget && (
+            {mapReplayTarget && poolInfo.hasGeo && (
               <button
                 type="button"
                 onClick={() => setOpenMap(mapReplayTarget)}
