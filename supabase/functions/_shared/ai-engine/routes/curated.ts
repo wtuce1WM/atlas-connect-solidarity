@@ -563,6 +563,8 @@ export async function buildFilteredAnswer(
     maxResults?: number;
     /** Garde-fou concurrents (surface embed). */
     isCompetitor?: (b: any) => boolean;
+    /** Garde-fou complet (compteur d'écartés). */
+    competitorGuard?: CompetitorGuard;
     supabaseUrl: string;
     serviceKey: string;
   },
