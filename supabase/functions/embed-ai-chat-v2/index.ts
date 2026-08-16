@@ -300,6 +300,7 @@ Deno.serve(async (req) => {
 
 
       const finish = async (streamCompleted: boolean) => {
+        if (destinationsBlock) { emit(destinationsBlock); destinationsBlock = null; }
         if (articleTeaser) { emit(articleTeaser); articleTeaser = null; }
         end();
 
