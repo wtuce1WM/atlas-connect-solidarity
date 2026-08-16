@@ -21,8 +21,9 @@ export interface CompetitorGuard {
 
 export async function buildCompetitorGuard(admin: any, host: any): Promise<CompetitorGuard> {
   if (!host?.id) {
-    return { isCompetitor: () => false, filterOut: (l) => l, active: false };
+    return { isCompetitor: () => false, filterOut: (l) => l, active: false, filtered: 0, markFiltered: () => {} };
   }
+  let filtered = 0;
 
   const hostMainCat = normalize(host.main_category);
   const hostCats = new Set<string>(
