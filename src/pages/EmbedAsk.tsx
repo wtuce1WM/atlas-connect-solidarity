@@ -2096,8 +2096,8 @@ const EmbedAsk = () => {
         {messages.length > 1 && !streaming && (
           <div className="flex flex-wrap gap-2 pb-2">
             {!competitorGuardActive && (
-
               <>
+
                 {mapReplayTarget && poolInfo.hasGeo && (
                   <button
                     type="button"
