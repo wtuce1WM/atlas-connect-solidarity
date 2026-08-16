@@ -642,6 +642,20 @@ const EmbedAsk = () => {
     (theme === "light" ? widgetColors.light : widgetColors.dark) || innerBgColor;
   const activeBgInk = resolveEmbedInk(null, activeWidgetBg);
 
+  // Fond des cartes (overlay POI/Map) :
+  //   - overlay Full Description (?preset=overlay) → couleur claire 1WM, identique partout
+  //   - vraie version /embed → couleur de carte propriétaire de la fiche
+  const OVERLAY_MAP_COLOR = "#ECD6B8";
+  const mapBaseColor = overlay
+    ? OVERLAY_MAP_COLOR
+    : hostMapBgColor || activeWidgetBg || null;
+  const mapThemeResolved: "light" | "default-dark" | "default-light" = mapBaseColor
+    ? "light"
+    : theme === "dark"
+    ? "default-dark"
+    : "default-light";
+
+
   useEffect(() => {
     if (!customBg) return;
     return applyEmbedBg(activeWidgetBg || "");
