@@ -12,6 +12,7 @@ import {
 import { palette, alpha, display, body, size, weight } from "./tokens";
 import { PhoneFrame, phoneGeometry } from "./PhoneFrame";
 import { BrowserFrame, browserGeometry } from "./BrowserFrame";
+import { PhoneUiChrome } from "./promo/PhoneUiChrome";
 import { PromoLogo } from "./promo/PromoLogo";
 import { FeedBackdrop, useFeedManifest } from "./promo/FeedBackdrop";
 import type { FeedManifest } from "./FeedTemplate";
@@ -651,6 +652,7 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
         <MockupBackdrop />
         <PhoneFrame height={phoneH}>
           <Stage p={p} scale={screenW / PROMO_PORTRAIT.width} />
+          <PhoneUiChrome screenW={screenW} screenH={phoneGeometry(phoneH).screenH} />
         </PhoneFrame>
       </AbsoluteFill>
     );
@@ -698,6 +700,7 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
         </BrowserFrame>
         <PhoneFrame height={phoneH}>
           <Stage p={p} scale={phone.screenW / PROMO_PORTRAIT.width} />
+          <PhoneUiChrome screenW={phone.screenW} screenH={phone.screenH} />
         </PhoneFrame>
       </AbsoluteFill>
     );
@@ -712,6 +715,7 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
     const mock = (
       <PhoneFrame key="mock" height={phoneH}>
         <Stage p={p} scale={phone.screenW / PROMO_PORTRAIT.width} />
+        <PhoneUiChrome screenW={phone.screenW} screenH={phone.screenH} />
       </PhoneFrame>
     );
     const textCol = <SplitTextColumn key="txt" p={base} html={(base.text || "").trim() || null} />;
