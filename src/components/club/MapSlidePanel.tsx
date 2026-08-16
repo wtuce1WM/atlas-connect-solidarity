@@ -211,8 +211,11 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
     return out;
   }, [pois, origin]);
 
+  // Limite du lot « Top N » : 20 au-delà de 20 fiches, sinon 10 (pools IA courts)
+  const topLimit = pois.length > 20 ? 20 : 10;
+
   const displayedPois = useMemo(() => {
-    let list = showAll ? rankedPois : rankedPois.slice(0, 20);
+    let list = showAll ? rankedPois : rankedPois.slice(0, topLimit);
     if (origin && proximityKm != null) {
       list = list.filter((p) => {
         if (p.latitude == null || p.longitude == null) return false;
@@ -220,7 +223,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
       });
     }
     return list;
-  }, [showAll, rankedPois, origin, proximityKm]);
+  }, [showAll, rankedPois, origin, proximityKm, topLimit]);
 
   const total = pois.length;
   const showToggle = total > 10;
