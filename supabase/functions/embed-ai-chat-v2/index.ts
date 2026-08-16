@@ -578,12 +578,19 @@ Deno.serve(async (req) => {
         // 3. Réservation
         if (isBookingIntent(userMessage) && (priorIds.length || host)) {
           route = "booking";
+          const ids = priorIds.slice(0, CFG.maxResults);
           const answer = priorIds.length
-            ? await buildBookingForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
+            ? await buildBookingForBusinesses(admin, ids, lang)
             : buildBookingAnswer(host, lang);
           if (answer) {
             resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
             emit(answer);
+            // Cartes résultat IA (source unique de présentation + CTA Réservez / WhatsApp).
+            if (ids.length) {
+              const rows = await fetchPriorFull(admin, ids).catch(() => []);
+              const ordered = ids.map((id) => rows.find((r: any) => r.id === id)).filter(Boolean);
+              if (ordered.length) emit(toMapMarker(ordered as any[], null));
+            }
             await finish(true);
             return;
           }
