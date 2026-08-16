@@ -32,22 +32,49 @@ interface Props {
  * and events. Portrait 176×256 cards, image + dark gradient + top-right badge,
  * title + subtitle at bottom. Horizontal wheel scroll, hidden scrollbar.
  */
+const CARD_H_MAX = 256;
+const CARD_H_MIN = 168;
+
 export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) {
   const scrollerRef = React.useRef<HTMLDivElement | null>(null);
   // Le verrou vertical ne s'active que lorsque les vignettes sont ENTIÈREMENT
   // visibles : sinon on laisserait le carrousel coupé en bas sans pouvoir le
   // faire remonter.
   const [fullyVisible, setFullyVisible] = React.useState(false);
+  // Hauteur adaptée à l'espace visible du fil : les vignettes ne sont jamais
+  // coupées en bas, même quand la zone de conversation est basse (widget embarqué).
+  const [cardH, setCardH] = React.useState(CARD_H_MAX);
+
   React.useEffect(() => {
     const el = scrollerRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(
-      (entries) => setFullyVisible(entries.some((e) => e.intersectionRatio >= 0.99)),
-      { threshold: [0, 0.5, 0.99, 1] },
-    );
-    io.observe(el);
-    return () => io.disconnect();
+    if (!el) return;
+    const viewport = el.closest(".overflow-y-auto") as HTMLElement | null;
+    const fit = () => {
+      const avail = viewport?.clientHeight ?? window.innerHeight;
+      // marge pour le titre/CTA sous le carrousel
+      setCardH(Math.max(CARD_H_MIN, Math.min(CARD_H_MAX, avail - 60)));
+    };
+    fit();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(fit) : null;
+    if (ro && viewport) ro.observe(viewport);
+    window.addEventListener("resize", fit);
+    let io: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver !== "undefined") {
+      io = new IntersectionObserver(
+        (entries) => setFullyVisible(entries.some((e) => e.intersectionRatio >= 0.99)),
+        { root: viewport ?? null, threshold: [0, 0.5, 0.99, 1] },
+      );
+      io.observe(el);
+    }
+    return () => { ro?.disconnect(); io?.disconnect(); window.removeEventListener("resize", fit); };
   }, []);
+
+  // Amène le carrousel entièrement dans la vue dès qu'on interagit avec lui.
+  const revealFully = () => {
+    if (fullyVisible) return;
+    scrollerRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
+  };
+
   if (!items.length) return null;
   return (
     <div className="w-full max-w-full">
@@ -58,8 +85,11 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
       // la molette est convertie en défilement horizontal tant qu'on n'est pas
       // arrivé au bout : la page ne bouge qu'après la dernière vignette.
       style={{ overscrollBehavior: "contain", touchAction: fullyVisible ? "pan-x" : "auto" }}
+      onPointerEnter={revealFully}
+      onTouchStart={revealFully}
       onWheel={(e) => {
-        if (e.deltaY === 0 || !fullyVisible) return;
+        if (e.deltaY === 0) return;
+        if (!fullyVisible) { revealFully(); return; }
         const el = e.currentTarget;
         const maxScroll = el.scrollWidth - el.clientWidth;
         if (maxScroll <= 0) return;
@@ -72,6 +102,7 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
         el.scrollLeft = Math.max(0, Math.min(maxScroll, el.scrollLeft + capped));
       }}
     >
+
 
 
       <div className="flex gap-3 pb-1">
