@@ -844,9 +844,12 @@ Deno.serve(async (req) => {
           const ratingMode = isRatingRankingIntent(userMessage);
           if (ratingMode) {
             route = "discover";
-            const answer = await buildRatingRanking(admin, priorIds, ratingMode, lang);
+            // « le mieux noté » et « les mieux notés » sont une seule intention :
+            // même route et même corpus complet du tour précédent.
+            const rankingIds = poolIds.length ? poolIds : priorIds;
+            const answer = await buildRatingRanking(admin, rankingIds, ratingMode, lang);
             if (answer) {
-              resultsCount = priorIds.length;
+              resultsCount = ratingMode === "best_rated" ? Math.min(3, rankingIds.length) : Math.min(5, rankingIds.length);
               emit(answer);
               await finish(true);
               return;
