@@ -1018,7 +1018,7 @@ const EmbedAsk = () => {
    * par quartier calculés côté moteur sur la totalité du pool). Source unique
    * pour « Tous les résultats » et pour les badges de quartier.
    */
-  const poolInfo = useMemo<{ ids: string[]; nb: Record<string, number> }>(() => {
+  const poolInfo = useMemo<{ ids: string[]; nb: Record<string, number>; hasGeo: boolean }>(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
       if (m.role !== "assistant") continue;
@@ -1028,11 +1028,12 @@ const EmbedAsk = () => {
         const p = JSON.parse(match[1]);
         const ids = Array.isArray(p?.ids) ? p.ids.map((x: unknown) => String(x)) : [];
         const nb = p?.nb && typeof p.nb === "object" ? (p.nb as Record<string, number>) : {};
-        return { ids, nb };
+        const hasGeo = Boolean(p?.hasGeo);
+        return { ids, nb, hasGeo };
       } catch { /* noop */ }
       break;
     }
-    return { ids: [], nb: {} };
+    return { ids: [], nb: {}, hasGeo: false };
   }, [messages]);
 
   /** Reste du corpus non encore affiché (marqueur POOL_BUSINESS_IDS). */
