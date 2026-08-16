@@ -872,6 +872,28 @@ Deno.serve(async (req) => {
               return !excluded.some((x) => hay.includes(x));
             });
 
+            // ── Filtre dur sur service qualifié ────────────────────────────────
+            // Quand la demande nomme un service typé dans la même catégorie que le
+            // type de lieu (« restaurants italiens » → Cuisine italienne, Restauration),
+            // le service devient un filtre, jamais un mot-clé : c'est ce qui écarte
+            // « Cuisine méditerranéenne » ramenée par la similarité textuelle.
+            // Pas de repli silencieux : zéro correspondance reste zéro.
+            if (requiredServices.length && kept.length) {
+              const ids = kept.map((b: any) => b.id);
+              const { data: rows } = await admin.from("businesses").select("id, services").in("id", ids);
+              const wanted = new Set(requiredServices.map((s) => normalize(s)));
+              const okIds = new Set(
+                (rows ?? [])
+                  .filter((r: any) => (r.services ?? []).some((s: string) => wanted.has(normalize(s))))
+                  .map((r: any) => r.id),
+              );
+              const before = kept.length;
+              kept = kept.filter((b: any) => okIds.has(b.id));
+              console.log("[embed-ai-chat-v2] service_hard_filter", JSON.stringify({ requiredServices, before, after: kept.length }));
+            }
+
+
+
             // Filtre de vue : élimination stricte quand une vue est demandée.
             if (views.hasViewIntent && kept.length && (views.points.length || views.panoramas.length)) {
               const ids = kept.map((b: any) => b.id);
