@@ -119,7 +119,7 @@ const AiBusinessResultCards = ({
   return (
     <div className="w-full flex flex-col gap-2">
       {ranked && list.length === 3 ? (
-        <div className="ai-podium-heading flex items-center gap-2 py-1" aria-label="Podium des trois établissements les mieux notés">
+        <div className={`flex items-center gap-2 py-1 ${animateIn ? "ai-podium-heading" : "opacity-0"}`} aria-label="Podium des trois établissements les mieux notés">
           <span className="h-px flex-1 bg-current opacity-20" />
           <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-widest" style={AI_NAME_FONT}>
             <span aria-hidden="true">🏆</span> Top 3
