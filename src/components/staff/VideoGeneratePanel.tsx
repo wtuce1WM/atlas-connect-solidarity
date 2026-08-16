@@ -12,6 +12,7 @@ import { Film, PlayCircle, RefreshCw, Rocket, Sparkles, Wand2 } from "lucide-rea
 import { toast } from "sonner";
 import VideoPromoPanel from "@/components/staff/VideoPromoPanel";
 import VideoJobMeta from "@/components/staff/VideoJobMeta";
+import VideoJobTitleEditor from "@/components/staff/VideoJobTitleEditor";
 import VideoRenderPresetBar from "@/components/staff/VideoRenderPresetBar";
 
 /**
@@ -678,7 +679,13 @@ const VideoGeneratePanel = () => {
                     >
                       {j.status}
                     </Badge>
-                    <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
+                    <VideoJobTitleEditor
+                      jobId={j.id}
+                      title={j.title}
+                      onSaved={(next) =>
+                        setJobs((prev) => prev.map((x) => (x.id === j.id ? { ...x, title: next } : x)))
+                      }
+                    />
                     <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
                     {j.output_url && (
                       <a

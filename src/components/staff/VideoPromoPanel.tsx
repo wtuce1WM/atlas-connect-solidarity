@@ -148,7 +148,7 @@ const VideoPromoPanel = () => {
       )
       .like("template_id", "business-promo%")
       .order("created_at", { ascending: false })
-      .limit(12);
+      .limit(40);
     const rows = (data ?? []) as PromoJob[];
     setJobs(rows);
     const ids = Array.from(new Set(rows.map((r) => r.business_id).filter(Boolean))) as string[];
