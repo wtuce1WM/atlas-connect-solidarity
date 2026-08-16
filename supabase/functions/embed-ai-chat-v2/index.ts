@@ -149,15 +149,26 @@ async function poolMarker(admin: any, ids: string[], city: string | null): Promi
   const uniq = [...new Set(ids.map((x) => String(x)))];
   let nb: Record<string, number> = {};
   let hasGeo = false;
+  // `hasHours` : au moins un établissement du corpus PUBLIE ses horaires
+  // (show_opening_hours = true + horaires renseignés ou 24h/24). Source unique
+  // pour afficher/masquer les relances horaires du footer.
+  let hasHours = false;
   if (uniq.length) {
-    const { data } = await admin.from("businesses").select("id, neighborhood, latitude, longitude").in("id", uniq);
+    const { data } = await admin
+      .from("businesses")
+      .select("id, neighborhood, latitude, longitude, show_opening_hours, opening_hours, is_open_24h")
+      .in("id", uniq);
     for (const row of (Array.isArray(data) ? data : []) as any[]) {
       const name = String(row?.neighborhood || "").trim();
       if (name) nb[name] = (nb[name] ?? 0) + 1;
       if (!hasGeo && row?.latitude != null && row?.longitude != null) hasGeo = true;
+      if (
+        !hasHours && row?.show_opening_hours === true &&
+        (row?.is_open_24h === true || (row?.opening_hours && typeof row.opening_hours === "object"))
+      ) hasHours = true;
     }
   }
-  return `<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: uniq, city, nb, hasGeo })}-->`;
+  return `<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: uniq, city, nb, hasGeo, hasHours })}-->`;
 }
 
 
