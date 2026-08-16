@@ -604,6 +604,18 @@ Deno.serve(async (req) => {
             if (post) articleTeaser = buildArticleTeaser(post, lang) || null;
           }
 
+          // Destinations liées : bloc court + carrousel horizontal émis en fin de
+          // tour (après les cartes établissements), zéro token.
+          if (curated && keepCurated && curated.destinationIds.length && !destinationsBlock) {
+            const built = await buildDestinationsBlock(
+              admin, curated.destinationIds, host, lang, curated.label,
+            ).catch((e) => {
+              console.error("[embed-ai-chat-v2] destinations_block_failed", String(e));
+              return null;
+            });
+            if (built) destinationsBlock = built.text + built.marker;
+          }
+
 
           // Feed vidéo curaté (mode = 'video_feed') : le tour renvoie des vidéos,
           // pas des fiches. Route déterministe partagée (parité V1 / club).
