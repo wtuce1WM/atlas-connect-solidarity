@@ -284,6 +284,9 @@ Deno.serve(async (req) => {
       // Article pertinent détecté (curaté ou texte libre) : proposé en fin de
       // réponse sous forme de carte cliquable, jamais en remplacement des résultats.
       let articleTeaser: string | null = null;
+      // Destinations liées à l'entrée curatée : complètent les résultats
+      // établissements (carrousel horizontal + CTA carte), jamais en remplacement.
+      let destinationsBlock: string | null = null;
 
       try {
         resolution = await resolveWithAdmin(admin, userMessage);
