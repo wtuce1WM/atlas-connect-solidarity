@@ -3373,9 +3373,9 @@ const BookOnlineSlidePanelInner = ({
                                     <p className="text-[10px] text-white font-medium truncate font-['Montserrat',sans-serif]">{vid.name}</p>
                                   </div>
                                 )}
-                              </div>
-                            );
-                          })}
+                            </div>
+                          ))}
+
                         </HScroll>
 
                       </div>
