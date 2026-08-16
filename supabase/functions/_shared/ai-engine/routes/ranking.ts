@@ -175,7 +175,7 @@ export async function buildRatingRanking(admin: any, ids: string[], mode: "best_
     const intro = lang === "en" ? `Among the previous results, **${top[0].name}** has the highest overall rating:`
       : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** لديه أعلى تقييم عام:`
       : `Parmi les précédents, c'est **${top[0].name}** qui a la meilleure note globale :`;
-    return `${intro}\n\n${lines.join("\n")}${toMapMarker(top)}`;
+    return `${intro}\n\n${lines.join("\n\n")}${toMapMarker(top)}`;
   }
   scored.sort((a: any, b: any) => b._count - a._count);
   const top = scored.filter((r: any) => r._count > 0).slice(0, 5);
