@@ -118,26 +118,87 @@ export const FS_I18N: Record<string, { en: string; ar: string }> = {
 };
 
 /**
- * Autorité « nom propre » : si le message contient le NOM COMPLET d'un établissement
- * actif, cette demande est nominative et prime sur toute résolution taxonomique
- * (« Le Chalet de la Plage - Chez Jeannot » ne doit pas devenir la sous-catégorie « Plages »).
- * Retourne le nom le plus long trouvé, ou null.
+ * Autorité « nom propre » : une demande nominative prime sur toute résolution
+ * taxonomique (« Le Chalet de la Plage - Chez Jeannot » ne doit pas devenir la
+ * sous-catégorie « Plages »).
+ *
+ * Le test est BIDIRECTIONNEL : l'utilisateur tape presque toujours un préfixe du
+ * nom réel (« Le Chalet de la Plage »), jamais le nom complet. On accepte donc :
+ *   - message ⊃ nom (nom complet cité),
+ *   - message ⊂ nom (préfixe / nom raccourci),
+ *   - recouvrement de tokens ≥ 60 % du nom.
+ *
+ * Garde-fou anti-taxonomie : il faut au moins un token DISTINCTIF (hors mots de
+ * catégorie / ville), sinon « un bar avec vue sur la Koutoubia » serait capté
+ * comme une demande nominative.
  */
+const NAME_STOP = new Set([
+  "le", "la", "les", "l", "de", "des", "du", "d", "un", "une", "au", "aux", "a",
+  "et", "chez", "the", "of", "and", "by", "at", "in",
+]);
+
+/** Mots présents dans la taxonomie ou la géographie : jamais distinctifs seuls. */
+const NAME_GENERIC = new Set([
+  "bar", "bars", "restaurant", "restaurants", "cafe", "cafes", "riad", "riads",
+  "hotel", "hotels", "maison", "villa", "appartement", "auberge", "hostel",
+  "plage", "plages", "piscine", "spa", "hammam", "jardin", "jardins", "souk",
+  "boutique", "galerie", "musee", "palais", "terrasse", "rooftop", "club",
+  "beach", "resort", "lodge", "camp", "kasbah", "medina", "marrakech",
+  "essaouira", "agadir", "casablanca", "rabat", "tanger", "fes", "maroc",
+  "morocco", "gueliz", "hivernage", "palmeraie", "koutoubia", "agafay",
+  "restauration", "hebergement", "activite", "activites", "sport", "sports",
+]);
+
+const nameStrip = (v: unknown) =>
+  normalize(v).replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
+
+const nameTokens = (v: string) =>
+  v.split(" ").filter((t) => t.length > 2 && !NAME_STOP.has(t));
+
 export async function matchBusinessNameInMessage(
   admin: any,
   message: string,
 ): Promise<{ id: string; name: string; city: string | null } | null> {
-  const msg = normalize(message).replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
+  const msg = nameStrip(message);
   if (msg.length < 8) return null;
+  const msgTokens = nameTokens(msg);
+  if (msgTokens.length < 2) return null;
+  const msgSet = new Set(msgTokens);
+
   const { data } = await admin.from("businesses").select("id, name, city").eq("is_active", true);
   if (!Array.isArray(data)) return null;
+
   let best: { id: string; name: string; city: string | null } | null = null;
-  let bestLen = 0;
+  let bestScore = 0;
+
   for (const b of data as any[]) {
-    const n = normalize(b?.name).replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
+    const n = nameStrip(b?.name);
     if (!n || n.length < 8 || n.split(" ").length < 2) continue;
-    if (!msg.includes(n)) continue;
-    if (n.length > bestLen) { bestLen = n.length; best = { id: String(b.id), name: String(b.name), city: b.city ?? null }; }
+    const nTok = nameTokens(n);
+    if (nTok.length < 2) continue;
+    // Une question longue n'est pas une demande nominative.
+    if (msgTokens.length > nTok.length + 3) continue;
+
+    const matched = nTok.filter(
+      (t) =>
+        msgSet.has(t) ||
+        (t.length >= 6 && msgTokens.some((m) => m.length >= 6 && levenshtein(t, m) <= 1)),
+    );
+    if (matched.length < 2) continue;
+    // Au moins un token distinctif (« chalet »), pas seulement « bar », « plage »…
+    if (!matched.some((t) => !NAME_GENERIC.has(t))) continue;
+
+    const coverage = matched.length / nTok.length;
+    const contains = msg.includes(n) || n.includes(msg);
+    if (!contains && coverage < 0.6) continue;
+
+    // Score : recouvrement d'abord, inclusion littérale ensuite, longueur en dernier.
+    const score = coverage * 1000 + (contains ? 500 : 0) + Math.min(n.length, 60);
+    if (score > bestScore) {
+      bestScore = score;
+      best = { id: String(b.id), name: String(b.name), city: b.city ?? null };
+    }
   }
   return best;
 }
+
