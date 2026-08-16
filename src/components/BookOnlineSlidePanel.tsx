@@ -3614,14 +3614,17 @@ const BookOnlineSlidePanelInner = ({
                         {language === 'en' ? '3D Virtual Tour' : 'Visite virtuelle 3D'}
                       </h3>
                       <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
-                        <iframe
-                          src={business.matterport_url}
-                          title={language === 'en' ? '3D Virtual Tour' : 'Visite virtuelle 3D'}
-                          allow="xr-spatial-tracking; fullscreen; gyroscope; accelerometer"
-                          allowFullScreen
-                          className="w-full block border-0"
-                          style={{ aspectRatio: '16 / 10', minHeight: 320 }}
-                        />
+                        <LazyMount minHeight={320} rootMargin="400px">
+                          <iframe
+                            src={business.matterport_url}
+                            title={language === 'en' ? '3D Virtual Tour' : 'Visite virtuelle 3D'}
+                            allow="xr-spatial-tracking; fullscreen; gyroscope; accelerometer"
+                            allowFullScreen
+                            className="w-full block border-0"
+                            style={{ aspectRatio: '16 / 10', minHeight: 320 }}
+                          />
+                        </LazyMount>
+
                       </div>
                     </div>
                   )}
