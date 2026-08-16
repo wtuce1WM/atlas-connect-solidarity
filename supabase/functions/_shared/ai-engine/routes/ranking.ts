@@ -2,6 +2,7 @@
 // Aucune réécriture : le rendu est déjà validé en production.
 
 import { normalize, fetchPriorFull, fmtKm, toMapMarker, haversineKmLocal } from "./shared.ts";
+import { immersivePhrase } from "./immersive.ts";
 
 export function isDistanceRankingIntent(text: string): "closest" | "farthest" | null {
   const n = normalize(text);
