@@ -172,6 +172,7 @@ const AiBusinessResultCards = ({
                 <button
                   type="button"
                   onClick={() => onOpenReviews(b.id, siblings)}
+                  style={AI_NAME_FONT}
                   className="self-start inline-flex items-center gap-1 text-[11px] font-medium text-[#C24B3F] hover:underline"
                 >
                   <MessageSquareQuote className="w-3 h-3" /> {t.allReviews} ({reviewCount})
