@@ -11,7 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Film, PlayCircle, RefreshCw, Rocket, Sparkles, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import VideoPromoPanel from "@/components/staff/VideoPromoPanel";
-import VideoJobMeta from "@/components/staff/VideoJobMeta";
+import VideoJobMeta, {
+  VARIANT_LABELS,
+  videoJobFormatKey,
+  videoJobVariantKey,
+} from "@/components/staff/VideoJobMeta";
+
 import VideoJobTitleEditor from "@/components/staff/VideoJobTitleEditor";
 import VideoRenderPresetBar from "@/components/staff/VideoRenderPresetBar";
 
