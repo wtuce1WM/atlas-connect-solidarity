@@ -114,6 +114,9 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
 
   // Priorité : coordonnées définies dans le popup de géolocalisation, sinon fallback navigator
   const userPos = disableUserLocation ? null : ((geo.isEnabled && geo.coords) ? geo.coords : browserPos);
+  // Origine des distances : position utilisateur si dispo, sinon l'établissement hôte
+  // (cas /embed où la géoloc est désactivée mais un hostLocation est fourni).
+  const origin = userPos || hostLocation || null;
 
   useEffect(() => {
     if (!open) return;
