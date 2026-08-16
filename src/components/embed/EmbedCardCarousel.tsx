@@ -123,7 +123,8 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
           </div>
         ))}
       </div>
-      {footer}
+    </div>
+    {footer}
     </div>
   );
 }
