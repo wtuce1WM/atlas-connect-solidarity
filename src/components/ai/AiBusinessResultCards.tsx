@@ -1,4 +1,6 @@
-import { MapPin, Star, Clock } from "lucide-react";
+import { MapPin, Star, Clock, CalendarCheck } from "lucide-react";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { whatsappUrl } from "@/lib/phoneUtils";
 import { AI_NAME_FONT } from "@/lib/aiTypography";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { haversineKm } from "@/lib/haversine";
@@ -29,6 +31,9 @@ export interface AiResultBusiness {
   total_review_count?: number | null;
   opening_hours?: Record<string, DayHoursData> | null;
   is_open_24h?: boolean | null;
+  whatsapp?: string | null;
+  booking_url?: string | null;
+  booking_label?: string | null;
   show_opening_hours?: boolean | null;
   [key: string]: unknown;
 }
@@ -43,14 +48,16 @@ interface Props {
   cardStyle?: React.CSSProperties;
   onOpen: (id: string, siblingIds: string[]) => void;
   onOpenReviews?: (id: string, siblingIds: string[]) => void;
+  /** Ouvre l'overlay de réservation interne (sinon nouvel onglet). */
+  onOpenBooking?: (url: string, label: string) => void;
   footer?: React.ReactNode;
   max?: number;
 }
 
 const L = {
-  fr: { reviews: "avis", allReviews: "Voir tous les avis", open: "Ouvert", closed: "Fermé", open24: "Ouvert 24h/24" },
-  en: { reviews: "reviews", allReviews: "See all reviews", open: "Open", closed: "Closed", open24: "Open 24/7" },
-  ar: { reviews: "تقييم", allReviews: "عرض كل الآراء", open: "مفتوح", closed: "مغلق", open24: "مفتوح 24/24" },
+  fr: { reviews: "avis", allReviews: "Voir tous les avis", open: "Ouvert", closed: "Fermé", open24: "Ouvert 24h/24", whatsapp: "WhatsApp", book: "Réservez" },
+  en: { reviews: "reviews", allReviews: "See all reviews", open: "Open", closed: "Closed", open24: "Open 24/7", whatsapp: "WhatsApp", book: "Book" },
+  ar: { reviews: "تقييم", allReviews: "عرض كل الآراء", open: "مفتوح", closed: "مغلق", open24: "مفتوح 24/24", whatsapp: "واتساب", book: "احجز" },
 };
 
 const FR_TO_EN: Record<string, string> = {
@@ -74,7 +81,7 @@ function todayHours(b: AiResultBusiness): { label: string | null; isOpen: boolea
 }
 
 const AiBusinessResultCards = ({
-  businesses, origin, lang = "fr", ink = "dark", cardStyle, onOpen, onOpenReviews, footer, max = 20,
+  businesses, origin, lang = "fr", ink = "dark", cardStyle, onOpen, onOpenReviews, onOpenBooking, footer, max = 20,
 }: Props) => {
   const t = L[(lang as keyof typeof L) in L ? (lang as keyof typeof L) : "fr"];
   const list = businesses.slice(0, max);
@@ -104,6 +111,18 @@ const AiBusinessResultCards = ({
             : null;
         const distStr = dist == null ? null : dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`;
         const hours = todayHours(b);
+        const waHref = b.whatsapp
+          ? whatsappUrl(
+              String(b.whatsapp),
+              lang === "en"
+                ? `Hello ${b.name}, I found you on One World Morocco.`
+                : lang === "ar"
+                ? `مرحبا ${b.name}`
+                : `Bonjour ${b.name}, je vous ai trouvé sur One World Morocco.`,
+            )
+          : null;
+        const bookingUrl = b.booking_url || null;
+        const bookingLabel = t.book;
         const statusLabel = b.is_open_24h ? t.open24 : hours.isOpen == null ? null : hours.isOpen ? t.open : t.closed;
 
         return (
