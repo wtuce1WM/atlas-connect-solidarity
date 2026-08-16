@@ -753,6 +753,7 @@ export async function buildFilteredAnswer(
     // pouvoir travailler sur les 19 adresses, pas seulement sur les 6 affichées.
     poolIds: ids.map((id) => String(id)),
     isCompetitor: opts.isCompetitor,
+    competitorGuard: opts.competitorGuard,
   });
 
   return built;
