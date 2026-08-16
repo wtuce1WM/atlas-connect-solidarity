@@ -110,6 +110,21 @@ const VideoPromoPanel = () => {
   const [presetDirty, setPresetDirty] = useState(true);
   const [presetId, setPresetId] = useState<string | null>(null);
   const [relaunching, setRelaunching] = useState<string | null>(null);
+  /** Filtres de comparaison des rendus : format de sortie et montage. */
+  const [filterFormat, setFilterFormat] = useState<string>("all");
+  const [filterVariant, setFilterVariant] = useState<string>("all");
+
+  const visibleJobs = useMemo(
+    () =>
+      jobs.filter(
+        (j) =>
+          (filterFormat === "all" || videoJobFormatKey(j) === filterFormat) &&
+          (filterVariant === "all" || (videoJobVariantKey(j) ?? "fullscreen") === filterVariant),
+      ),
+    [jobs, filterFormat, filterVariant],
+  );
+
+
 
   const images = useMemo(() => (biz?.images || []).slice(0, 4), [biz]);
   /** Longueur du texte hors balises : la limite de 500 porte sur le contenu lisible. */
