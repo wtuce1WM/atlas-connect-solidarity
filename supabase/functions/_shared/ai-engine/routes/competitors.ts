@@ -70,13 +70,19 @@ export async function buildCompetitorGuard(admin: any, host: any): Promise<Compe
     return false;
   };
 
-  const filterOut = <T extends { id: string }>(list: T[]): T[] =>
-    list.filter((b) => !isCompetitor(b));
+  const filterOut = <T extends { id: string }>(list: T[]): T[] => {
+    const before = list.length;
+    const kept = list.filter((b) => !isCompetitor(b));
+    filtered += before - kept.length;
+    return kept;
+  };
 
   return {
     isCompetitor,
     filterOut,
     active: true,
+    get filtered() { return filtered; },
+    markFiltered: (n: number) => { filtered += n; },
     // Chargement paresseux exposé via une propriété non typée : utilisé par les appelants
     // qui veulent le filtre sous-catégories (sinon seule la catégorie est comparée).
     ...({ loadSubs } as any),
