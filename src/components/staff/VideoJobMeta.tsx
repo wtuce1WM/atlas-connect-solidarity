@@ -96,7 +96,8 @@ const collectSteps = (job: VideoJobMetaRow): string[] => {
     [];
   const list = (order as any[]).map((x) => (typeof x === "string" ? x : (x?.type ?? x?.label ?? "étape")));
   if (list.length > 0) return list;
-  // Promo business : les blocs cochés SONT les étapes du montage.
+  // Promo business : les blocs cochés SONT les étapes du montage (1 bloc = 1 étape,
+  // « Photos » reste une seule étape même avec plusieurs images).
   const b = p.blocks;
   if (b && typeof b === "object") {
     const out: string[] = [];
@@ -104,7 +105,7 @@ const collectSteps = (job: VideoJobMetaRow): string[] => {
     if (b.video && p.videoUrl) out.push("vidéo");
     if (b.photos) {
       const n = Array.isArray(p.images) ? p.images.length : 0;
-      for (let i = 0; i < n; i++) out.push(`photo ${i + 1}`);
+      out.push(n > 0 ? `photos (${n})` : "photos");
     }
     if (b.outro) out.push("outro");
     return out;
