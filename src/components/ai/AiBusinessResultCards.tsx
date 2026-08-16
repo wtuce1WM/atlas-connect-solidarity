@@ -67,9 +67,9 @@ const L = {
 
 /** Podium Top 3 : médaille + couleur de rang. Au-delà, badge de rang neutre. */
 const PODIUM = [
-  { medal: "🥇", color: "#D4AF37" },
-  { medal: "🥈", color: "#B9BDC2" },
-  { medal: "🥉", color: "#CD7F32" },
+  { medal: "🥇", label: "1er", color: "#D4AF37", tint: "rgba(212,175,55,0.14)" },
+  { medal: "🥈", label: "2e", color: "#B9BDC2", tint: "rgba(185,189,194,0.16)" },
+  { medal: "🥉", label: "3e", color: "#CD7F32", tint: "rgba(205,127,50,0.14)" },
 ];
 
 
@@ -111,6 +111,15 @@ const AiBusinessResultCards = ({
 
   return (
     <div className="w-full flex flex-col gap-2">
+      {ranked && list.length === 3 ? (
+        <div className="ai-podium-heading flex items-center gap-2 py-1" aria-label="Podium des trois établissements les mieux notés">
+          <span className="h-px flex-1 bg-current opacity-20" />
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-widest" style={AI_NAME_FONT}>
+            <span aria-hidden="true">🏆</span> Top 3
+          </span>
+          <span className="h-px flex-1 bg-current opacity-20" />
+        </div>
+      ) : null}
       {list.map((b, idx) => {
         const podium = ranked && idx < 3 ? PODIUM[idx] : null;
 
@@ -144,16 +153,17 @@ const AiBusinessResultCards = ({
         return (
           <div
             key={b.id}
-            className={`relative flex gap-0 rounded-xl border overflow-hidden ${shellClass} ${bodyInk} ${
-              podium ? "animate-scale-in" : ""
+            className={`relative flex gap-0 rounded-xl border-2 overflow-hidden ${shellClass} ${bodyInk} ${
+              podium ? "ai-podium-card" : ""
             }`}
             style={
               podium
                 ? {
                     ...cardStyle,
                     borderColor: podium.color,
-                    boxShadow: `0 0 0 1px ${podium.color}55, 0 6px 18px ${podium.color}22`,
-                    animationDelay: `${idx * 140}ms`,
+                    backgroundImage: `linear-gradient(90deg, ${podium.tint}, transparent 48%)`,
+                    boxShadow: `0 0 0 1px ${podium.color}66, 0 8px 24px ${podium.color}38`,
+                    animationDelay: `${idx * 180}ms`,
                     animationFillMode: "backwards",
                   }
                 : cardStyle
@@ -170,8 +180,8 @@ const AiBusinessResultCards = ({
               ) : null}
               {ranked ? (
                 <span
-                  className={`absolute top-1 left-1 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-bold leading-none ${
-                    podium ? "animate-scale-in shadow-lg" : ""
+                  className={`absolute top-2 left-2 inline-flex items-center justify-center gap-1 rounded-full font-extrabold leading-none shadow-lg ${
+                    podium ? "ai-podium-medal min-w-12 px-2 py-1.5 text-[13px]" : "px-1.5 py-0.5 text-[11px]"
                   }`}
                   style={
                     podium
@@ -179,7 +189,7 @@ const AiBusinessResultCards = ({
                       : { background: "rgba(0,0,0,0.65)", color: "#fff" }
                   }
                 >
-                  {podium ? podium.medal : `N°${idx + 1}`}
+                  {podium ? <><span className="text-base" aria-hidden="true">{podium.medal}</span>{podium.label}</> : `N°${idx + 1}`}
                 </span>
               ) : null}
             </button>
@@ -281,6 +291,24 @@ const AiBusinessResultCards = ({
         );
       })}
       {footer}
+      <style>{`
+        @keyframes aiPodiumEnter {
+          0% { opacity: 0; transform: translateY(22px) scale(.94); }
+          65% { opacity: 1; transform: translateY(-3px) scale(1.012); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes aiPodiumMedal {
+          0% { transform: scale(0) rotate(-18deg); }
+          70% { transform: scale(1.16) rotate(3deg); }
+          100% { transform: scale(1) rotate(0); }
+        }
+        .ai-podium-heading { animation: aiPodiumEnter .45s cubic-bezier(.16,1,.3,1) both; }
+        .ai-podium-card { animation: aiPodiumEnter .62s cubic-bezier(.16,1,.3,1) both; }
+        .ai-podium-medal { animation: aiPodiumMedal .55s cubic-bezier(.16,1,.3,1) .2s both; }
+        @media (prefers-reduced-motion: reduce) {
+          .ai-podium-heading, .ai-podium-card, .ai-podium-medal { animation: none; }
+        }
+      `}</style>
     </div>
   );
 };
