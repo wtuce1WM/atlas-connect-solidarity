@@ -293,7 +293,8 @@ export async function loadCuratedTargets(
 const BIZ_FIELDS =
   "id, name, slug, city, neighborhood, address, main_category, categories, hook_fr, hook_en, hook_ar, " +
   "latitude, longitude, logo_url, images, google_rating, google_review_count, tripadvisor_rating, " +
-  "tripadvisor_review_count, computed_rating, total_review_count, engagements, closure_message, is_active, is_featured, rating";
+  "tripadvisor_review_count, computed_rating, total_review_count, engagements, closure_message, is_active, is_featured, rating, " +
+  "opening_hours, is_open_24h, show_opening_hours";
 
 export type CuratedAnswer = {
   text: string;
@@ -317,27 +318,16 @@ function mapBusinessesOf(list: any[]) {
     google_rating: b.google_rating, google_review_count: b.google_review_count,
     tripadvisor_rating: b.tripadvisor_rating, tripadvisor_review_count: b.tripadvisor_review_count,
     computed_rating: b.computed_rating ?? null, total_review_count: b.total_review_count ?? null,
+    // Champs de la carte résultat IA (hook, horaires) — présentation unifiée côté client.
+    hook_fr: b.hook_fr ?? null, hook_en: b.hook_en ?? null, hook_ar: b.hook_ar ?? null,
+    opening_hours: b.opening_hours ?? null,
+    is_open_24h: b.is_open_24h ?? null,
+    show_opening_hours: b.show_opening_hours ?? null,
     engagements: b.engagements,
   }));
 }
 
-async function defaultReviews(admin: any, ids: string[]): Promise<Map<string, any>> {
-  const revByBiz = new Map<string, any>();
-  if (!ids.length) return revByBiz;
-  try {
-    const { data } = await admin
-      .from("reviews")
-      .select("business_id, author_name, rating, text, text_fr, text_en, text_ar, source, is_default")
-      .in("business_id", ids)
-      .neq("is_hidden", true)
-      .order("is_default", { ascending: false });
-    for (const r of data || []) {
-      const bid = String((r as any).business_id);
-      if (!revByBiz.has(bid)) revByBiz.set(bid, r);
-    }
-  } catch { /* noop */ }
-  return revByBiz;
-}
+
 
 /**
  * Teaser d'article (non intrusif) : le moteur calcule SES propres résultats et
@@ -445,49 +435,24 @@ export async function buildBlogArticleAnswer(
 
   const shown = orderedBiz.slice(0, Math.min(orderedBiz.length, 10));
   const shownEntries = orderedEntries.slice(0, shown.length);
-  const revByBiz = await defaultReviews(admin, shown.map((b: any) => b.id));
 
   articlePayload.inline = true;
   // Surfaces sans hôte : la ville vient du pseudo-hôte, sinon des fiches de l'article.
   const cityForCopy = host?.city || shown.find((b: any) => b?.city)?.city || "Marrakech";
-  const reviewsLabel = lang === "en" ? "reviews" : lang === "ar" ? "مراجعة" : "avis";
-  const anonLabel = lang === "en" ? "Anonymous" : lang === "ar" ? "مجهول" : "Anonyme";
 
+  // Nom, quartier/ville, hook, note /20, avis et horaires sont rendus par la carte
+  // résultat IA côté client (payload SHOW_ON_MAP) : ne restent ici que les
+  // paragraphes ÉDITORIAUX de l'article, qu'aucune carte ne peut porter.
   const body = shown.map((biz: any, idx: number) => {
     const entry = shownEntries[idx] || {};
-    const pretitle = stripText(entry.pretitle || "");
     const rank = Number(entry.rank) || idx + 1;
-    const hook = stripText(entry.hook || "") || stripText(
-      lang === "en" ? (biz.hook_en || biz.hook_fr || "") :
-      lang === "ar" ? (biz.hook_ar || biz.hook_fr || "") :
-      (biz.hook_fr || biz.hook_en || ""),
-    );
     const paragraphs = Array.isArray(entry.paragraphs) && entry.paragraphs.length
       ? entry.paragraphs.map((p: any) => stripText(String(p || ""))).filter(Boolean).join("\n\n")
       : "";
-    const hours = stripText(entry.hours || "");
-    const area = pretitle || [biz.neighborhood, biz.city].filter(Boolean).join(" · ");
-    const detail = [hook, paragraphs].filter(Boolean).join("\n\n");
-    const hoursLine = hours ? `\n\n_${hours}_` : "";
-    const fallback = lang === "en" ? "A curated One World Morocco address."
-      : lang === "ar" ? "عنوان مختار ضمن دليل One World Morocco."
-      : "Une adresse sélectionnée dans le guide One World Morocco.";
-    const rating20 = biz.computed_rating != null ? Number(biz.computed_rating) : null;
-    const revCount = biz.total_review_count ?? null;
-    const ratingLine = rating20 != null
-      ? `\n\n⭐ **${rating20.toFixed(1)}/20**${revCount ? ` · ${revCount.toLocaleString(lang === "en" ? "en-US" : "fr-FR")} ${reviewsLabel}` : ""}`
-      : "";
-    const rev = revByBiz.get(String(biz.id));
-    const revText = rev
-      ? (lang === "en" ? (rev.text_en || rev.text || rev.text_fr)
-        : lang === "ar" ? (rev.text_ar || rev.text || rev.text_fr)
-        : (rev.text_fr || rev.text))
-      : null;
-    const revLine = revText
-      ? `\n\n> « ${stripText(String(revText))} »\n> — _${rev.author_name || anonLabel}${rev.source ? ` · ${rev.source}` : ""}_`
-      : "";
-    return `${rank}. **${biz.name}**${area ? ` — _${area}_` : ""}\n\n${detail || fallback}${ratingLine}${revLine}${hoursLine}`;
-  }).join("\n\n---\n\n");
+    if (!paragraphs) return "";
+    return `${rank}. **${biz.name}**\n\n${paragraphs}`;
+  }).filter(Boolean).join("\n\n---\n\n");
+
 
   const total = orderedBiz.length;
   const disclosure = shown.length < total
@@ -531,37 +496,8 @@ export async function buildPinnedAnswer(
   const ordered = wanted.map((id) => byId.get(id)).filter(Boolean);
   if (!ordered.length) return null;
 
-  const revByBiz = await defaultReviews(admin, ordered.map((b: any) => b.id));
-  const reviewsLabel = lang === "en" ? "reviews" : lang === "ar" ? "مراجعة" : "avis";
-  const anonLabel = lang === "en" ? "Anonymous" : lang === "ar" ? "مجهول" : "Anonyme";
-
-  const body = ordered.map((biz: any, idx: number) => {
-    const hook = stripText(
-      lang === "en" ? (biz.hook_en || biz.hook_fr || "") :
-      lang === "ar" ? (biz.hook_ar || biz.hook_fr || "") :
-      (biz.hook_fr || biz.hook_en || ""),
-    );
-    const area = [biz.neighborhood, biz.city].filter(Boolean).join(" · ");
-    const rating20 = biz.computed_rating != null ? Number(biz.computed_rating) : null;
-    const revCount = biz.total_review_count ?? null;
-    const ratingLine = rating20 != null
-      ? `\n\n⭐ **${rating20.toFixed(1)}/20**${revCount ? ` · ${revCount.toLocaleString(lang === "en" ? "en-US" : "fr-FR")} ${reviewsLabel}` : ""}`
-      : "";
-    const rev = revByBiz.get(String(biz.id));
-    const revText = rev
-      ? (lang === "en" ? (rev.text_en || rev.text || rev.text_fr)
-        : lang === "ar" ? (rev.text_ar || rev.text || rev.text_fr)
-        : (rev.text_fr || rev.text))
-      : null;
-    const revLine = revText
-      ? `\n\n> « ${stripText(String(revText))} »\n> — _${rev.author_name || anonLabel}${rev.source ? ` · ${rev.source}` : ""}_`
-      : "";
-    const fallback = lang === "en" ? "A curated One World Morocco address."
-      : lang === "ar" ? "عنوان مختار ضمن دليل One World Morocco."
-      : "Une adresse sélectionnée dans le guide One World Morocco.";
-    return `${idx + 1}. **${biz.name}**${area ? ` — _${area}_` : ""}\n\n${hook || fallback}${ratingLine}${revLine}`;
-  }).join("\n\n---\n\n");
-
+  // Nom, quartier/ville, hook, note /20, avis, horaires : rendus par la carte
+  // résultat IA côté client (payload SHOW_ON_MAP) — plus aucune duplication ici.
   const heading = overrides?.heading ?? (label
     ? (lang === "en" ? `**${label}** — hand-picked selection:` : lang === "ar" ? `**${label}** — اختيار مُنتقى:` : `**${label}** — sélection choisie à la main :`)
     : (lang === "en" ? "Hand-picked selection:" : lang === "ar" ? "اختيار مُنتقى:" : "Sélection choisie à la main :"));
@@ -572,7 +508,8 @@ export async function buildPinnedAnswer(
       : `📍 C'est la sélection curatée complète${host?.city ? ` à ${host.city}` : ""} — tu veux la carte, les horaires, ou les liens de réservation ?`);
 
   return {
-    text: `${heading}\n\n${body}\n\n${outro}`,
+    text: `${heading}\n\n${outro}`,
+
     knownBusinesses: ordered.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })),
     mapPayload: { title: label || null, businesses: mapBusinessesOf(ordered) },
     shown: ordered.length,

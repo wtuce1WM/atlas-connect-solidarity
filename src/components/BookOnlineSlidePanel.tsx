@@ -240,7 +240,7 @@ interface BookOnlineSlidePanelProps {
   /** Price value for the price badge */
   price?: string | null;
   /** Auto-opens an overlay as soon as the data is ready (embed usage) */
-  initialOverlay?: "poi";
+  initialOverlay?: "poi" | "reviews";
   /** Embed mode: hides the internal close/Club affordances of the auto-opened overlay */
   embedMode?: boolean;
   /** Widget only: custom hex base color for the Google map background */
@@ -1711,6 +1711,16 @@ const BookOnlineSlidePanelInner = ({
     setDescOverlayDirect(true);
     setShowDescriptionOverlay(true);
   }, [hasReviewsCard, reviewPlatforms, reviewTexts, totalReviewCount, language, avgOn20]);
+
+  // Ouverture directe de l'overlay « Avis clients » (toutes sources, tous les avis)
+  // demandée par les cartes résultat IA : initialOverlay="reviews".
+  const autoReviewsOpenedRef = useRef(false);
+  useEffect(() => {
+    if (initialOverlay !== "reviews" || autoReviewsOpenedRef.current) return;
+    if (!business?.id || !hasReviewsCard) return;
+    autoReviewsOpenedRef.current = true;
+    void handleOpenReviews();
+  }, [initialOverlay, business?.id, hasReviewsCard, handleOpenReviews]);
 
   // Extracted open status hook
   const openBadgeInfo = useOpenStatus({ business, language });

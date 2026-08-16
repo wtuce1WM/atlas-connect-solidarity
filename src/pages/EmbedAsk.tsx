@@ -25,6 +25,8 @@ const PoiGoogleMap = lazy(() => import("@/components/PoiGoogleMap"));
 const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
 const LocationPickerDialog = lazy(() => import("@/components/LocationPickerDialog"));
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
+import AiBusinessResultCards from "@/components/ai/AiBusinessResultCards";
+import { AI_NAME_FONT } from "@/lib/aiTypography";
 import { Maximize2, X } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import AiTidesWidget from "@/components/embed/AiTidesWidget";
@@ -45,6 +47,7 @@ import { useWidgetParams } from "@/hooks/useWidgetParams";
  */
 const EmbedBookPanelWrapper = ({
   businessId,
+  initialOverlay,
   onClose,
   onPrev,
   onNext,
@@ -52,6 +55,7 @@ const EmbedBookPanelWrapper = ({
   hasNext,
 }: {
   businessId: string;
+  initialOverlay?: "reviews";
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -141,6 +145,7 @@ const EmbedBookPanelWrapper = ({
         <Suspense fallback={null}>
           <BookOnlineSlidePanel
             businessId={businessId}
+            initialOverlay={initialOverlay}
             onClose={onClose}
             onPrev={onPrev}
             onNext={onNext}
@@ -611,6 +616,7 @@ const EmbedAsk = () => {
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  const [openBusinessOverlay, setOpenBusinessOverlay] = useState<"reviews" | null>(null);
   const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
   // Feed vidéo (mode curaté `video_feed`) : liste active + vidéo ouverte.
   const [videoFeedList, setVideoFeedList] = useState<VideoFeedItem[]>([]);
@@ -1062,55 +1068,28 @@ const EmbedAsk = () => {
     return found.map((x) => x.b);
   };
 
+  // Présentation unique des établissements cités par l'IA (cartes résultat partagées).
   const renderCarousel = (businesses: MapPanelBusiness[], onOpenMap?: () => void) => {
-    const items: EmbedCardItem[] = businesses.slice(0, 20).map((b) => {
-      const img = (b.images?.[0] || (b as any).logo_url) as string | undefined;
-      const loc = b.neighborhood || "";
-      const ratingOn20 = computeWeightedRatingOn20(collectRatingSources(b as any));
-      const reviewCount = getTotalReviewCount(b as any) || (b.google_review_count ?? null);
-      let distStr: string | null = null;
-      if (hostLocation && b.latitude != null && b.longitude != null) {
-        const R = 6371;
-        const dLat = ((b.latitude - hostLocation.lat) * Math.PI) / 180;
-        const dLon = ((b.longitude - hostLocation.lng) * Math.PI) / 180;
-        const a =
-          Math.sin(dLat / 2) ** 2 +
-          Math.cos((hostLocation.lat * Math.PI) / 180) *
-            Math.cos((b.latitude * Math.PI) / 180) *
-            Math.sin(dLon / 2) ** 2;
-        const km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        distStr = km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
-      }
-      return {
-        key: b.id,
-        image: img,
-        title: b.name,
-        subtitle: loc || null,
-        badge: distStr,
-        extra:
-          ratingOn20 != null ? (
-            <div className="mt-0.5 flex items-center gap-1 text-[12px] text-white min-w-0">
-              <span style={{ color: "#D4AF37" }}>★</span>
-              <span className="font-semibold shrink-0">{Number(ratingOn20).toFixed(1)}/20</span>
-              {reviewCount ? (
-                <span className="text-white/70 truncate">· {reviewCount} avis</span>
-              ) : null}
-            </div>
-          ) : null,
-        onClick: () => {
-          setOpenSiblings(businesses.slice(0, 20).map((x) => x.id));
-          setOpenBusinessId(b.id);
-        },
-      };
-    });
+    const list = businesses.slice(0, 20);
+    const openOne = (id: string, siblings: string[], overlay: "reviews" | null) => {
+      setOpenSiblings(siblings);
+      setOpenBusinessOverlay(overlay);
+      setOpenBusinessId(id);
+    };
     return (
-      <EmbedCardCarousel
-        items={items}
+      <AiBusinessResultCards
+        businesses={list as never}
+        origin={hostLocation ? { lat: hostLocation.lat, lng: hostLocation.lng } : null}
+        lang={lang}
+        ink={(bgInk ?? (theme === "dark" ? "light" : "dark")) === "light" ? "light" : "dark"}
+        onOpen={(id, sib) => openOne(id, sib, null)}
+        onOpenReviews={(id, sib) => openOne(id, sib, "reviews")}
         footer={
           onOpenMap ? (
             <button
               type="button"
               onClick={onOpenMap}
+              style={AI_NAME_FONT}
               className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
             >
               <MapPin className="w-3.5 h-3.5" /> {L.viewMap}
@@ -1131,6 +1110,7 @@ const EmbedAsk = () => {
         <button
           type="button"
           onClick={() => setOpenDestinationId(dest.id)}
+          style={AI_NAME_FONT}
           className="font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C24B3F] cursor-pointer"
         >
           {children}
@@ -1152,6 +1132,7 @@ const EmbedAsk = () => {
           }
           setOpenBusinessId(meta.id);
         }}
+        style={AI_NAME_FONT}
         className="font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C24B3F] cursor-pointer"
       >
         {children}
@@ -1950,7 +1931,8 @@ const EmbedAsk = () => {
           <EmbedBookPanelWrapper
             key={openBusinessId}
             businessId={openBusinessId}
-            onClose={() => setOpenBusinessId(null)}
+            initialOverlay={openBusinessOverlay ?? undefined}
+            onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); }}
             onPrev={goPrev}
             onNext={goNext}
             hasPrev={hasPrev}

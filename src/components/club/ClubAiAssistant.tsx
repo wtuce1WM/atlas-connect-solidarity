@@ -10,6 +10,8 @@ import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLanguage } from "@/contexts/LanguageContext";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
+import AiBusinessResultCards from "@/components/ai/AiBusinessResultCards";
+import { AI_NAME_FONT } from "@/lib/aiTypography";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import EventsSlidePanel from "@/components/club/EventsSlidePanel";
@@ -583,6 +585,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
   const [openBlogs, setOpenBlogs] = useState<{ list: BlogCardItem[]; index: number } | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  const [openBusinessOverlay, setOpenBusinessOverlay] = useState<"reviews" | null>(null);
   const [isBusinessPanelClosing, setIsBusinessPanelClosing] = useState(false);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const [orderedBusinessRefs, setOrderedBusinessRefs] = useState<BusinessPanelRef[]>([]);
@@ -1346,6 +1349,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                                   onClick={() => void handleOpenBusinessName(trimmed)}
                                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void handleOpenBusinessName(trimmed); } }}
                                   className="cursor-pointer hover:underline"
+                                  style={AI_NAME_FONT}
                                   title={at.openFiche}
                                 >{children}</strong>
                               );
@@ -1416,41 +1420,28 @@ const ClubAiAssistant = ({ userId }: Props) => {
                       </div>
                     )}
                     {(() => {
-                      // Thumbnails carousel of cited businesses (from map payloads, which include images).
+                      // Présentation unique des établissements cités par l'IA
+                      // (même carte résultat que /embed/ask et l'onglet IA de /search).
                       const seen = new Set<string>();
                       const items: MapPanelBusiness[] = [];
                       for (const mp of maps) {
                         for (const b of mp.businesses) {
                           if (!b?.id || seen.has(b.id)) continue;
-                          if (!Array.isArray(b.images) || !b.images.length) continue;
                           seen.add(b.id);
                           items.push(b);
                         }
                       }
                       if (items.length === 0) return null;
                       return (
-                        <div className="mt-3 -mx-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                          {items.slice(0, 24).map((b) => (
-                            <button
-                              key={b.id}
-                              type="button"
-                              onClick={() => void handleOpenBusinessName(b.name)}
-                              className="shrink-0 w-24 sm:w-28 group/thumb text-left"
-                              title={b.name}
-                            >
-                              <div className="relative aspect-square rounded-lg overflow-hidden bg-[#C04F17]/10 border border-[#C04F17]/20">
-                                <img
-                                  src={b.images![0]}
-                                  alt={b.name}
-                                  loading="lazy"
-                                  className="absolute inset-0 h-full w-full object-cover transition-transform group-hover/thumb:scale-105"
-                                />
-                              </div>
-                              <div className="mt-1 text-[10px] sm:text-[11px] text-[#0a1d6b] leading-tight line-clamp-2 font-medium">
-                                {b.name}
-                              </div>
-                            </button>
-                          ))}
+                        <div className="mt-3">
+                          <AiBusinessResultCards
+                            businesses={items as never}
+                            lang={language}
+                            ink="dark"
+                            cardStyle={{ background: "rgba(255,255,255,0.8)", border: "1px solid rgba(192,79,23,0.2)", color: "#0a1d6b" }}
+                            onOpen={(id) => { setOpenBusinessOverlay(null); setOpenBusinessId(id); }}
+                            onOpenReviews={(id) => { setOpenBusinessOverlay("reviews"); setOpenBusinessId(id); }}
+                          />
                         </div>
                       );
                     })()}
@@ -1820,6 +1811,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
               <BookOnlineSlidePanel
                 key={openBusinessId}
                 businessId={openBusinessId}
+                initialOverlay={openBusinessOverlay ?? undefined}
                 onClose={closeBusinessPanel}
                 showSearchBar
                 onPrevBusiness={goPrevBusiness}
