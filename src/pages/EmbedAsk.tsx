@@ -679,7 +679,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id, name, latitude, longitude, city, main_category, url_6_title, poi_radius_km")
+        .select("id, name, latitude, longitude, city, main_category, url_6_title, poi_radius_km, map_bg_color")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -691,6 +691,8 @@ const EmbedAsk = () => {
       setBusinessId((row?.id as string) || null);
       setBusinessCity((row?.city as string) || null);
       setBusinessMainCategory((row?.main_category as string) || null);
+      const rawMapBg = String(row?.map_bg_color || "").trim();
+      setHostMapBgColor(/^#?[0-9a-fA-F]{6}$/.test(rawMapBg) ? (rawMapBg.startsWith("#") ? rawMapBg : `#${rawMapBg}`) : null);
       const rawRadius = Number(row?.poi_radius_km);
       const hostRadius = RADIUS_OPTIONS.includes(rawRadius as any) ? rawRadius : 1;
       applyRadius(hostRadius);
@@ -1361,8 +1363,8 @@ const EmbedAsk = () => {
                         distanceOrigin={hostLocation || null}
                         onPoiClick={(id) => { setOpenSiblings(pois.map((p) => p.id)); setOpenBusinessId(id); }}
                         fitToMarkers
-                        mapTheme={theme === "dark" ? "default-dark" : "default-light"}
-                        baseColor={activeWidgetBg || null}
+                        mapTheme={mapThemeResolved}
+                        baseColor={mapBaseColor}
                         showLayerControls
                       />
                     </Suspense>
@@ -1895,8 +1897,8 @@ const EmbedAsk = () => {
               initialOverlay="poi"
               embedMode
               hideDirections
-              mapTheme={theme === "dark" ? "default-dark" : "default-light"}
-              mapBaseColor={activeWidgetBg || null}
+              mapTheme={mapThemeResolved}
+              mapBaseColor={mapBaseColor}
               poiOverrideIds={(openMap.businesses || []).map((b) => b.id)}
               poiOverrideTitle={openMap.title || null}
               onClose={() => setOpenMap(null)}
@@ -1923,7 +1925,8 @@ const EmbedAsk = () => {
           disableUserLocation
           hostLocation={hostLocation}
           hostLabel={businessName}
-          mapTheme={theme === "dark" ? "default-dark" : "default-light"}
+          mapBaseColor={mapBaseColor}
+          mapTheme={mapThemeResolved}
           showLayerControls
         />
       )}
