@@ -161,9 +161,15 @@ export async function buildRatingRanking(admin: any, ids: string[], mode: "best_
     }
     eligible.sort((a: any, b: any) => (b._rating - a._rating) || (b._count - a._count));
     const top = eligible.slice(0, 5);
-    const lines = top.map((r: any) => {
+    const medals = ["🥇", "🥈", "🥉", "4.", "5."];
+    const reviewsWord = lang === "en" ? "reviews" : lang === "ar" ? "تقييم" : "avis";
+    const lines = top.map((r: any, i: number) => {
       const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
-      return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ⭐ ${r._rating.toFixed(1)}/20 (${r._count} avis)`;
+      const place = loc ? (lang === "en" ? `in ${loc}` : lang === "ar" ? `في ${loc}` : `à ${loc}`) : "";
+      const note = lang === "fr" ? r._rating.toFixed(1).replace(".", ",") : r._rating.toFixed(1);
+      const head = `${medals[i] ?? `${i + 1}.`} **${r.name}** — ⭐ **${note}/20** · ${r._count} ${reviewsWord}${place ? `, ${place}` : ""}`;
+      const phrase = immersivePhrase(r, lang);
+      return phrase ? `${head}. ${phrase}` : `${head}.`;
     });
     const intro = lang === "en" ? `Among the previous results, **${top[0].name}** has the highest overall rating:`
       : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** لديه أعلى تقييم عام:`
