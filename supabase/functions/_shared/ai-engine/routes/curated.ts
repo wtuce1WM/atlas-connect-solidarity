@@ -118,11 +118,17 @@ export type CuratedTargets = {
   radiusKm: number | null;
   label: string | null;
   aiTexts: Array<{ title: string; hook: string; content: string }>;
+  /** Croisement de proximité curaté (A près de B) — null si l'entrée n'en porte pas. */
+  proximity: {
+    a: { subcatIds: string[]; badgeIds: string[]; subcatNames: string[] };
+    b: { subcatIds: string[]; badgeIds: string[]; subcatNames: string[] };
+  } | null;
 };
 
 const EMPTY_TARGETS: CuratedTargets = {
   blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], serviceNames: [], badgeIds: [], commodities: [],
   destinationIds: [], city: null, mode: null, routeOverride: null, radiusKm: null, label: null, aiTexts: [],
+  proximity: null,
 };
 
 
@@ -142,7 +148,7 @@ export async function loadCuratedTargets(
     try {
       const { data: sugg } = await admin
         .from("ai_suggestions")
-        .select("subcategory_ids, service_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, route_override, label_fr, label_en, label_ar")
+        .select("subcategory_ids, service_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, route_override, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
         .eq("id", suggestionId)
         .maybeSingle();
       if (sugg) {
@@ -163,6 +169,24 @@ export async function loadCuratedTargets(
         if (subIds.length) {
           const { data: subs } = await admin.from("subcategories").select("name_fr").in("id", subIds);
           out.subcategoryNames = (subs || []).map((s: any) => s.name_fr).filter(Boolean);
+        }
+
+        // Croisement de proximité curaté (parité V1) : les deux côtés doivent être mappés.
+        const paSub: string[] = Array.isArray(sugg.proximity_a_subcategory_ids) ? sugg.proximity_a_subcategory_ids.filter(Boolean) : [];
+        const paBadge: string[] = Array.isArray(sugg.proximity_a_badge_ids) ? sugg.proximity_a_badge_ids.filter(Boolean) : [];
+        const pbSub: string[] = Array.isArray(sugg.proximity_b_subcategory_ids) ? sugg.proximity_b_subcategory_ids.filter(Boolean) : [];
+        const pbBadge: string[] = Array.isArray(sugg.proximity_b_badge_ids) ? sugg.proximity_b_badge_ids.filter(Boolean) : [];
+        if ((paSub.length || paBadge.length) && (pbSub.length || pbBadge.length)) {
+          const allProxSub = [...new Set([...paSub, ...pbSub])];
+          const namesMap = new Map<string, string>();
+          if (allProxSub.length) {
+            const { data: proxSubs } = await admin.from("subcategories").select("id, name_fr").in("id", allProxSub);
+            for (const r of proxSubs || []) if (r?.id && r?.name_fr) namesMap.set(String(r.id), String(r.name_fr));
+          }
+          out.proximity = {
+            a: { subcatIds: paSub, badgeIds: paBadge, subcatNames: paSub.map((i) => namesMap.get(i)).filter(Boolean) as string[] },
+            b: { subcatIds: pbSub, badgeIds: pbBadge, subcatNames: pbSub.map((i) => namesMap.get(i)).filter(Boolean) as string[] },
+          };
         }
 
         const svcIds: string[] = Array.isArray(sugg.service_ids) ? sugg.service_ids.filter(Boolean) : [];
@@ -211,6 +235,7 @@ export async function loadCuratedTargets(
       out.subcategoryNames = [];
       out.serviceNames = [];
       out.pinnedBusinessIds = [];
+      out.proximity = null;
 
       if (fup) {
         const fRoute = String(fup.route_override || "").trim();
