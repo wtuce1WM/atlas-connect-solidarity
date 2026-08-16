@@ -366,7 +366,7 @@ Deno.serve(async (req) => {
 
         // Garde-fou concurrents : sur la surface embed, jamais un établissement de la
         // même catégorie / sous-catégorie que l'hôte (un riad ne montre pas de riads).
-        const competitorGuard = await buildCompetitorGuard(admin, host);
+        competitorGuard = await buildCompetitorGuard(admin, host);
 
         // ── FILTRES LOCAUX (badges du footer) — zéro token, zéro modèle ──────
         // Le client impose une route du catalogue partagé sur le CORPUS COMPLET
