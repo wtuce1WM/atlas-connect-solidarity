@@ -97,6 +97,12 @@ function todayHours(b: AiResultBusiness): { label: string | null; isOpen: boolea
 const AiBusinessResultCards = ({
   businesses, origin, lang = "fr", ink = "dark", cardStyle, rankOrder, onOpen, onOpenReviews, onOpenBooking, footer, max = 20,
 }: Props) => {
+  const [animateIn, setAnimateIn] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setAnimateIn(true), 800);
+    return () => clearTimeout(t);
+  }, []);
+
   const t = L[(lang as keyof typeof L) in L ? (lang as keyof typeof L) : "fr"];
   const list = businesses.slice(0, max);
   if (!list.length) return null;
