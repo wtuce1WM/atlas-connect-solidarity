@@ -2095,15 +2095,8 @@ const EmbedAsk = () => {
       <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`p-3 border-t ${border} ${bg}`}>
         {messages.length > 1 && !streaming && (
           <div className="flex flex-wrap gap-2 pb-2">
-            <button
-              type="button"
-              onClick={startNewConversation}
-              style={AI_NAME_FONT}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-            >
-              {SCOPE_LABELS[lang]?.newConversation ?? SCOPE_LABELS.fr.newConversation}
-            </button>
             {!competitorGuardActive && (
+
               <>
                 {mapReplayTarget && poolInfo.hasGeo && (
                   <button
