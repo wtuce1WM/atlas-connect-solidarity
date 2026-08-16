@@ -166,10 +166,15 @@ const AiBusinessResultCards = ({
 
               <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px]">
                 {rating20 != null ? (
-                  <span className="inline-flex items-center gap-1">
-                    <Star className="w-3 h-3 shrink-0" style={{ color: "#D4AF37" }} fill="#D4AF37" />
-                    <span className="font-semibold">{rating20.toFixed(1)}/20</span>
-                    {reviewCount ? <span className="opacity-70">· {reviewCount} {t.reviews}</span> : null}
+                  <span
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full"
+                    style={{ background: "rgba(212,175,55,0.15)" }}
+                  >
+                    <Star className="w-3.5 h-3.5 shrink-0" style={{ color: "#D4AF37" }} fill="#D4AF37" />
+                    <span className="font-bold text-[13px]" style={{ color: "#D4AF37" }}>
+                      {rating20.toFixed(1)}<span className="text-[10px] font-semibold opacity-80">/20</span>
+                    </span>
+                    {reviewCount ? <span className="opacity-75 text-[10.5px]">· {reviewCount} {t.reviews}</span> : null}
                   </span>
                 ) : null}
                 {statusLabel ? (
