@@ -322,6 +322,35 @@ Deno.serve(async (req) => {
         const scopeCity = resolveCityScope({ hostCity: host?.city, activeCity, explicitCity }) as string;
         cityDetected = scopeCity;
 
+        // ── Relance contextuelle sur un agenda déjà affiché (route events) ──
+        // Le tour précédent a renvoyé un EVENTS_SNAPSHOT : une relance courte
+        // nommant un quartier filtre CE corpus d'événements, jamais une nouvelle
+        // recherche d'établissements.
+        {
+          const priorEvents = priorEventsSnapshot(uiMessages as any[]);
+          if (priorEvents && userMessage.trim().length <= 60) {
+            const nb = await resolveNeighborhoodInMessage(
+              admin, userMessage, priorEvents.city || scopeCity,
+            ).catch(() => null);
+            if (nb) {
+              const filtered = filterPoolByNeighborhood(priorEvents.events as any[], nb);
+              console.log("[embed-ai-chat-v2] events_followup_neighborhood", JSON.stringify({
+                neighborhood: nb.name, city: nb.city, kept: filtered.length, from: priorEvents.events.length,
+              }));
+              route = "events";
+              resultsCount = filtered.length;
+              emit(buildEventsFilteredAnswer(filtered, nb.name, nb.city, lang as any));
+              if (filtered.length) {
+                emit(`\n\n${eventsSnapshotMarker(filtered, priorEvents.city || nb.city, nb.name)}`);
+              }
+              await finish(true);
+              return;
+            }
+          }
+        }
+
+
+
         // ── Relance « je te montre les autres » (zéro token, zéro recherche) ──
         // Elle ne doit RIEN faire d'autre qu'afficher le lot suivant du corpus
         // déjà trouvé au tour précédent (10 max par lot, cartes identiques).
