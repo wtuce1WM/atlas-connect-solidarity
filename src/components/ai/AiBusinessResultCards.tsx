@@ -1,4 +1,4 @@
-import { MapPin, Star, Clock, MessageSquareQuote } from "lucide-react";
+import { MapPin, Star, Clock } from "lucide-react";
 import { AI_NAME_FONT } from "@/lib/aiTypography";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { haversineKm } from "@/lib/haversine";
@@ -115,7 +115,7 @@ const AiBusinessResultCards = ({
             <button
               type="button"
               onClick={() => onOpen(b.id, siblings)}
-              className="shrink-0 w-24 h-24 sm:w-28 sm:h-28 bg-neutral-200 dark:bg-neutral-800 overflow-hidden"
+              className="shrink-0 self-stretch w-24 sm:w-28 min-h-24 sm:min-h-28 bg-neutral-200 dark:bg-neutral-800 overflow-hidden"
               aria-label={b.name}
             >
               {img ? (
@@ -168,16 +168,6 @@ const AiBusinessResultCards = ({
                 ) : null}
               </div>
 
-              {onOpenReviews && reviewCount > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => onOpenReviews(b.id, siblings)}
-                  style={AI_NAME_FONT}
-                  className="self-start inline-flex items-center gap-1 text-[11px] font-medium text-[#C24B3F] hover:underline"
-                >
-                  <MessageSquareQuote className="w-3 h-3" /> {t.allReviews} ({reviewCount})
-                </button>
-              ) : null}
             </div>
           </div>
         );
