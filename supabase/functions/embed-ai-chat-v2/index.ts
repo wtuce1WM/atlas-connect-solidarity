@@ -289,6 +289,8 @@ Deno.serve(async (req) => {
       // Destinations liées à l'entrée curatée : complètent les résultats
       // établissements (carrousel horizontal + CTA carte), jamais en remplacement.
       let destinationsBlock: string | null = null;
+      // Garde-fou concurrents : initialisé plus bas, référencé par finish().
+      let competitorGuard: CompetitorGuard | null = null;
 
       try {
         resolution = await resolveWithAdmin(admin, userMessage);
