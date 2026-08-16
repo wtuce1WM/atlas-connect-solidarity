@@ -161,7 +161,7 @@ const AiBusinessResultCards = ({
           <div
             key={b.id}
             className={`relative flex gap-0 rounded-xl border-2 overflow-hidden ${shellClass} ${bodyInk} ${
-              podium ? "ai-podium-card" : ""
+              podium ? (animateIn ? "ai-podium-card" : "opacity-0") : ""
             }`}
             style={
               podium
@@ -170,7 +170,7 @@ const AiBusinessResultCards = ({
                     borderColor: podium.color,
                     backgroundImage: `linear-gradient(90deg, ${podium.tint}, transparent 48%)`,
                     boxShadow: `0 0 0 1px ${podium.color}66, 0 8px 24px ${podium.color}38`,
-                    animationDelay: `${idx * 180}ms`,
+                    animationDelay: `${animateIn ? idx * 180 : 0}ms`,
                     animationFillMode: "backwards",
                   }
                 : cardStyle
