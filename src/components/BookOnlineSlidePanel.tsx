@@ -92,6 +92,7 @@ import AvailabilitySearchOverlay from "@/components/overlays/AvailabilitySearchO
 import { useCtaConfig, resolveCtaLabel } from "@/hooks/useCtaConfig";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import { useMediaItems, useVideoInfo } from "@/hooks/useMediaItems";
+import { useVimeoOEmbedThumbnails } from "@/hooks/useVimeoOEmbedThumbnails";
 import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import MediaViewerInfo from "@/components/slidepanel/MediaViewerInfo";
