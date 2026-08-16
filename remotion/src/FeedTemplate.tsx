@@ -1,10 +1,21 @@
 import React from "react";
-import { AbsoluteFill, Img, staticFile, interpolate, useCurrentFrame, Easing } from "remotion";
+import {
+  AbsoluteFill,
+  Img,
+  staticFile,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig,
+  Easing,
+} from "remotion";
 import {
   FeedEffectsOverlay,
   FeedMotionBlurWrapper,
   type FeedEffectsConfig,
 } from "./effects/FeedEffects";
+import { PhoneFrame, phoneGeometry } from "./PhoneFrame";
+import { BrowserFrame, browserGeometry } from "./BrowserFrame";
+import { palette, alpha, display, body } from "./tokens";
 
 /**
  * Template de montage vidéo « feed in-app » entièrement piloté par un manifest.
@@ -33,7 +44,28 @@ export type FeedStep = {
 
 export type FeedSection = { label: string; top: number };
 
+/**
+ * Montage du stage feed — mêmes 5 options que Promo business (source de vérité
+ * unique : `VARIANT_LABELS` côté back-office). Renseigné par le worker depuis
+ * `template_props` du job, donc jamais recalibré ici.
+ */
+export type FeedMockup = {
+  variant: "fullscreen" | "mockup" | "browser" | "multi" | "split";
+  /** fond uni des variantes encadrées */
+  bg?: string | null;
+  /** URL affichée dans la barre d'adresse du cadre navigateur */
+  browserUrl?: string | null;
+  /** split : colonne du mockup (le texte occupe l'autre) */
+  splitSide?: "left" | "right";
+  /** split : titre et sous-titre de la colonne texte (repli sur le manifest) */
+  title?: string | null;
+  subtitle?: string | null;
+};
+
 export type FeedManifest = {
+  /** Montage (mockup) demandé en back-office. Absent = plein écran. */
+  mockup?: FeedMockup | null;
+
   slug: string;
   base: string;
   label?: string;
@@ -499,14 +531,206 @@ const ScopedFeedEffects: React.FC<{ m: FeedManifest; effects: FeedEffectsConfig 
   );
 };
 
+/** Stage natif mis à l'échelle dans un conteneur donné (aucun recalibrage). */
+const ScaledStage: React.FC<{ m: FeedManifest; scale: number }> = ({ m, scale }) => {
+  const { width: W, height: H } = m.viewport;
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: W,
+        height: H,
+        overflow: "hidden",
+        transform: `scale(${scale})`,
+        transformOrigin: "top left",
+      }}
+    >
+      <Stage m={m} />
+    </div>
+  );
+};
+
+/** Écran d'un cadre navigateur (16:9) : décor vidéo flouté + stage vertical centré. */
+const BrowserScreen: React.FC<{ m: FeedManifest; screenW: number; screenH: number }> = ({
+  m,
+  screenW,
+  screenH,
+}) => {
+  const { width: W, height: H } = m.viewport;
+  const s = screenH / H;
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#000", overflow: "hidden" }}>
+      <AbsoluteFill style={{ filter: "blur(28px) saturate(1.15)", transform: "scale(1.12)" }}>
+        <WideVideo m={m} />
+      </AbsoluteFill>
+      <AbsoluteFill style={{ background: alpha("black", 0.35) }} />
+      <div
+        style={{
+          position: "absolute",
+          left: (screenW - W * s) / 2,
+          top: 0,
+          width: W,
+          height: H,
+          overflow: "hidden",
+          transform: `scale(${s})`,
+          transformOrigin: "top left",
+        }}
+      >
+        <Stage m={m} />
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+/** Colonne texte de la variante split (titre + source du feed). */
+const FeedTextColumn: React.FC<{ m: FeedManifest; mk: FeedMockup; width: number }> = ({
+  m,
+  mk,
+  width,
+}) => {
+  const title = (mk.title || m.label || m.slug || "").trim();
+  const subtitle = (mk.subtitle || m.sourceUrl || "").trim();
+  return (
+    <div style={{ width, display: "flex", flexDirection: "column", gap: Math.round(width * 0.05) }}>
+      {title && (
+        <div
+          style={{
+            fontFamily: display,
+            fontWeight: 700,
+            fontSize: Math.round(width * 0.11),
+            lineHeight: 1.1,
+            color: palette.bone,
+          }}
+        >
+          {title}
+        </div>
+      )}
+      {subtitle && (
+        <div
+          style={{
+            fontFamily: body,
+            fontSize: Math.round(width * 0.045),
+            lineHeight: 1.4,
+            color: alpha("bone", 0.72),
+            wordBreak: "break-word",
+          }}
+        >
+          {subtitle}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/** Montages encadrés : mêmes cadres que Promo business, stage feed à l'intérieur. */
+const FramedFeed: React.FC<{ m: FeedManifest; mk: FeedMockup; format: "portrait" | "landscape" }> = ({
+  m,
+  mk,
+  format,
+}) => {
+  const { width, height } = useVideoConfig();
+  const { width: W, height: H } = m.viewport;
+  const bg = mk.bg || palette.ink;
+  const url = mk.browserUrl || "oneworldmorocco.com";
+
+  if (mk.variant === "mockup") {
+    const phoneH = Math.round(height * (format === "landscape" ? 0.88 : 0.78));
+    const phone = phoneGeometry(phoneH);
+    return (
+      <AbsoluteFill style={{ background: bg, justifyContent: "center", alignItems: "center" }}>
+        <PhoneFrame height={phoneH}>
+          <ScaledStage m={m} scale={phone.screenW / W} />
+        </PhoneFrame>
+      </AbsoluteFill>
+    );
+  }
+
+  if (mk.variant === "browser") {
+    const frameW = Math.round(width * (format === "landscape" ? 0.82 : 0.94));
+    const b = browserGeometry(frameW);
+    return (
+      <AbsoluteFill style={{ background: bg, justifyContent: "center", alignItems: "center" }}>
+        <BrowserFrame width={frameW} url={url}>
+          <BrowserScreen m={m} screenW={b.screenW} screenH={b.screenH} />
+        </BrowserFrame>
+      </AbsoluteFill>
+    );
+  }
+
+  if (mk.variant === "multi") {
+    const phoneH = Math.round(height * (format === "landscape" ? 0.74 : 0.42));
+    const phone = phoneGeometry(phoneH);
+    const frameW = Math.round(width * (format === "landscape" ? 0.6 : 0.9));
+    const b = browserGeometry(frameW);
+    return (
+      <AbsoluteFill
+        style={{
+          background: bg,
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: format === "landscape" ? "row" : "column",
+          gap: Math.round(width * 0.03),
+        }}
+      >
+        <BrowserFrame width={frameW} url={url}>
+          <BrowserScreen m={m} screenW={b.screenW} screenH={b.screenH} />
+        </BrowserFrame>
+        <PhoneFrame height={phoneH}>
+          <ScaledStage m={m} scale={phone.screenW / W} />
+        </PhoneFrame>
+      </AbsoluteFill>
+    );
+  }
+
+  // split média / texte
+  const phoneH = Math.round(height * (format === "landscape" ? 0.86 : 0.56));
+  const phone = phoneGeometry(phoneH);
+  const textW = Math.round(format === "landscape" ? width * 0.34 : width * 0.8);
+  const mock = (
+    <PhoneFrame key="mock" height={phoneH}>
+      <ScaledStage m={m} scale={phone.screenW / W} />
+    </PhoneFrame>
+  );
+  const textCol = <FeedTextColumn key="txt" m={m} mk={mk} width={textW} />;
+  return (
+    <AbsoluteFill
+      style={{
+        background: bg,
+        flexDirection: format === "landscape" ? "row" : "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: Math.round(width * 0.045),
+        padding: `${Math.round(height * 0.06)}px ${Math.round(width * 0.06)}px`,
+      }}
+    >
+      {mk.splitSide !== "right" ? [mock, textCol] : [textCol, mock]}
+    </AbsoluteFill>
+  );
+};
+
 export const FeedTemplate: React.FC<FeedTemplateProps> = ({ manifest, format }) => {
   if (!manifest) return <AbsoluteFill style={{ backgroundColor: "#000" }} />;
   const m = manifest;
   const { width: W, height: H } = m.viewport;
 
   const effects = m.effects ?? null;
+  const mk = m.mockup ?? null;
+
+  if (mk && mk.variant && mk.variant !== "fullscreen") {
+    return (
+      <AbsoluteFill style={{ backgroundColor: "#000", overflow: "hidden" }}>
+        <FeedMotionBlurWrapper effects={effects}>
+          <FramedFeed m={m} mk={mk} format={format === "landscape" ? "landscape" : "portrait"} />
+        </FeedMotionBlurWrapper>
+        <ScopedFeedEffects m={m} effects={effects} />
+      </AbsoluteFill>
+    );
+  }
 
   if (format !== "landscape") {
+
     const os = m.outputScale && m.outputScale > 0 ? m.outputScale : 1;
     return (
       <AbsoluteFill style={{ backgroundColor: "#000", overflow: "hidden" }}>
