@@ -452,6 +452,81 @@ const VideoGeneratePanel = () => {
             </label>
           </div>
 
+          <div className="rounded-lg border p-3 grid gap-3">
+            <div className="grid gap-1 text-xs text-muted-foreground">
+              Montage
+              <div className="flex items-center gap-2 flex-wrap">
+                {(
+                  [
+                    ["fullscreen", "Plein écran"],
+                    ["mockup", "Mockup smartphone"],
+                    ["browser", "Mockup navigateur"],
+                    ["multi", "Multi-écrans"],
+                    ["split", "Split média / texte"],
+                  ] as const
+                ).map(([v, lbl]) => (
+                  <Button
+                    key={v}
+                    size="sm"
+                    variant={variant === v ? "default" : "outline"}
+                    onClick={() => {
+                      setVariant(v);
+                      if (v === "browser" || v === "multi" || v === "split") setFormat("landscape");
+                    }}
+                  >
+                    {lbl}
+                  </Button>
+                ))}
+              </div>
+              <span className="text-[11px]">
+                Mêmes montages que « Promo business » : la capture du feed s'affiche dans le cadre choisi (plein écran,
+                smartphone, navigateur, multi-écrans, ou split média / texte).
+              </span>
+            </div>
+            {(variant === "browser" || variant === "multi") && (
+              <label className="grid gap-1 text-xs text-muted-foreground">
+                URL affichée dans la barre d'adresse
+                <Input
+                  value={browserUrl}
+                  onChange={(e) => setBrowserUrl(e.target.value)}
+                  placeholder="oneworldmorocco.com"
+                  className="h-9 text-xs"
+                />
+              </label>
+            )}
+            {variant === "split" && (
+              <div className="grid gap-1 text-xs text-muted-foreground">
+                Position du mockup
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant={splitSide === "left" ? "default" : "outline"} onClick={() => setSplitSide("left")}>
+                    Mockup à gauche
+                  </Button>
+                  <Button size="sm" variant={splitSide === "right" ? "default" : "outline"} onClick={() => setSplitSide("right")}>
+                    Mockup à droite
+                  </Button>
+                </div>
+              </div>
+            )}
+            {isFramed(variant) && (
+              <div className="grid gap-1 text-xs text-muted-foreground">
+                Fond uni du mockup
+                <div className="flex items-center gap-2">
+                  {PRESET_BG.map((c) => (
+                    <button
+                      key={c.value}
+                      title={c.label}
+                      onClick={() => setMockupBg(c.value)}
+                      className={`h-7 w-7 rounded-full border-2 ${mockupBg === c.value ? "border-primary" : "border-transparent"}`}
+                      style={{ background: c.value }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+
+
           <div className="rounded-lg border p-3 grid gap-3 md:grid-cols-4">
             <div className="grid gap-1 text-xs text-muted-foreground md:col-span-2">
               Format de sortie
