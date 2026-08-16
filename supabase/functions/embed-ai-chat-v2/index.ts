@@ -43,7 +43,7 @@ import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_sh
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
 import {
   isNearbyOverviewIntent, isProximityIntent, buildNearbyOverview, buildDisclosureFromCounts,
-  parseInlineRadiusKm,
+  parseInlineRadiusKm, buildTwoEntityProximityCurated,
 } from "../_shared/ai-engine/routes/nearby.ts";
 import {
   isRatingRankingIntent, isDistanceListIntent, isDistanceRankingIntent, isCountIntent, parseOrdinalIntent,
@@ -689,6 +689,55 @@ Deno.serve(async (req) => {
           }
 
 
+
+          // Croisement de proximité curaté (parité V1) : la suggestion porte
+          // proximity_a_* ET proximity_b_* → on garde les A ayant une référence B
+          // dans le rayon, puis on rend les cartes via le corpus clos.
+          if (curated && keepCurated && curated.proximity) {
+            const strictRadius = parseInlineRadiusKm(userMessage) != null;
+            const hostRadiusProx = RADIUS_OPTIONS.includes(Number(host?.poi_radius_km)) ? Number(host?.poi_radius_km) : 1;
+            const built = await buildTwoEntityProximityCurated(
+              admin,
+              { ...(host || {}), city: scopeCity || host?.city || "Marrakech" },
+              {
+                aTerms: [curated.label || "A"],
+                bTerm: curated.label || "B",
+                radiusKm: parseInlineRadiusKm(userMessage) ?? curated.radiusKm ?? hostRadiusProx,
+              },
+              lang as any,
+              strictRadius,
+              curated.proximity,
+            ).catch((e) => {
+              console.error("[embed-ai-chat-v2] two_entity_failed", String(e));
+              return null;
+            });
+            console.log("[embed-ai-chat-v2] two_entity_proximity", JSON.stringify({
+              applied: !!built, count: built?.results?.length ?? 0, radius: built?.radiusUsed ?? null,
+            }));
+            if (built?.results?.length) {
+              const ids = built.results.map((b: any) => String(b.id));
+              const cards = await buildPinnedAnswer(
+                admin, ids, host, lang, curated.label,
+                { route: "two_entity_proximity", competitorGuard, poolIds: ids },
+              ).catch((e) => {
+                console.error("[embed-ai-chat-v2] two_entity_cards_failed", String(e));
+                return null;
+              });
+              if (cards) {
+                route = cards.route;
+                resultsCount = cards.shown;
+                emit(cards.text);
+                if (cards.mapPayload?.businesses?.length) {
+                  emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(cards.mapPayload)}-->`);
+                }
+                emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(cards.knownBusinesses)}-->`);
+                emit("\n\n" + await poolMarker(admin, ids, scopeCity));
+                await finish(true);
+                return;
+              }
+            }
+            fallbackReason = "no_results";
+          }
 
           // Corpus clos SEULEMENT si l'entrée n'a aucun filtre taxonomique : sinon
           // les épinglés sont mis en avant en tête des résultats filtrés.
