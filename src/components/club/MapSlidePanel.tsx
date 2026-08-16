@@ -330,7 +330,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                     onClick={() => setShowAll(false)}
                     className={`px-3 py-1 rounded-full transition-colors ${!showAll ? "bg-[#C04F17] text-white" : "text-white/80 hover:text-white"}`}
                   >
-                    {mt.top20}
+                    {mt.top20.replace("20", String(topLimit))}
                   </button>
                   <button
                     type="button"
@@ -341,7 +341,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                   </button>
                 </div>
               )}
-              {userPos && (() => {
+              {origin && (() => {
                 const opts: { km: number; label: string }[] = [
                   { km: 0.5, label: mt.d500 },
                   { km: 1, label: mt.d1 },
