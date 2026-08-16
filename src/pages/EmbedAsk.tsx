@@ -1062,15 +1062,17 @@ const EmbedAsk = () => {
   // Build conversation-wide dictionaries of businesses cited across all assistant messages.
   // - richByName: full rich data (images, coords, ratings) coming from a SHOW_ON_MAP payload.
   // - knownByName: minimal {id, slug, name} coming from a KNOWN_BUSINESSES marker.
-  const { richByName, knownByName, destByName, allDestinations } = useMemo(() => {
+  const { richByName, knownByName, destByName, allDestinations, eventsByName } = useMemo(() => {
     const rich = new Map<string, MapPanelBusiness>();
     const known = new Map<string, KnownBusiness>();
     const dests = new Map<string, DestinationCard>();
     const destList: DestinationCard[] = [];
+    // Titres d'événements → même liste que les vignettes du scroll horizontal.
+    const evs = new Map<string, { list: EventPanelItem[]; index: number }>();
     for (const m of messages) {
       if ((m as any).role !== "assistant") continue;
       const raw = messageText(m as any);
-      const { maps, known: k, destinations: ds } = extractPayloads(raw);
+      const { maps, known: k, destinations: ds, events: es } = extractPayloads(raw);
       for (const p of maps) {
         for (const b of p.businesses || []) {
           if (b?.name) rich.set(String(b.name).toLowerCase().trim(), b);
@@ -1078,6 +1080,11 @@ const EmbedAsk = () => {
       }
       for (const b of k) {
         if (b?.name) known.set(String(b.name).toLowerCase().trim(), b);
+      }
+      for (const ep of es) {
+        (ep.events || []).forEach((ev, idx) => {
+          if (ev?.name) evs.set(String(ev.name).toLowerCase().trim(), { list: ep.events, index: idx });
+        });
       }
       for (const dp of ds) {
         for (const d of dp.destinations || []) {
@@ -1088,8 +1095,9 @@ const EmbedAsk = () => {
         }
       }
     }
-    return { richByName: rich, knownByName: known, destByName: dests, allDestinations: destList };
+    return { richByName: rich, knownByName: known, destByName: dests, allDestinations: destList, eventsByName: evs };
   }, [messages]);
+
 
   // Find businesses cited in a text (by name match), preserving order & deduped.
   const findCitedBusinesses = (text: string): MapPanelBusiness[] => {
@@ -1149,6 +1157,19 @@ const EmbedAsk = () => {
   const StrongCited = ({ children }: { children?: React.ReactNode }) => {
     const text = String(Array.isArray(children) ? children.join("") : children ?? "").trim();
     const key = text.toLowerCase();
+    const evHit = eventsByName.get(key);
+    if (evHit) {
+      return (
+        <button
+          type="button"
+          onClick={() => setOpenEvents({ list: evHit.list, index: evHit.index })}
+          style={AI_NAME_FONT}
+          className="font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C24B3F] cursor-pointer"
+        >
+          {children}
+        </button>
+      );
+    }
     const dest = destByName.get(key);
     if (dest) {
       return (
