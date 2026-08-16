@@ -168,6 +168,36 @@ const AiBusinessResultCards = ({
                 ) : null}
               </div>
 
+              {(waHref || bookingUrl) ? (
+                <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                  {waHref ? (
+                    <a
+                      href={waHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
+                      style={{ backgroundColor: "#25D366" }}
+                    >
+                      <WhatsAppIcon className="w-3 h-3" /> {t.whatsapp}
+                    </a>
+                  ) : null}
+                  {bookingUrl ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onOpenBooking
+                          ? onOpenBooking(bookingUrl, bookingLabel)
+                          : window.open(bookingUrl, "_blank", "noopener,noreferrer")
+                      }
+                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
+                      style={{ backgroundColor: "#C24B3F" }}
+                    >
+                      <CalendarCheck className="w-3 h-3" /> {bookingLabel}
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+
             </div>
           </div>
         );
