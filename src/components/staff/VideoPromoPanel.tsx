@@ -4,7 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import VideoJobMeta from "@/components/staff/VideoJobMeta";
+import VideoJobMeta, {
+  VARIANT_LABELS,
+  videoJobFormatKey,
+  videoJobVariantKey,
+} from "@/components/staff/VideoJobMeta";
+import VideoJobTitleEditor from "@/components/staff/VideoJobTitleEditor";
 import VideoRenderPresetBar from "@/components/staff/VideoRenderPresetBar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Rocket, RefreshCw, Sparkles } from "lucide-react";
@@ -105,6 +110,21 @@ const VideoPromoPanel = () => {
   const [presetDirty, setPresetDirty] = useState(true);
   const [presetId, setPresetId] = useState<string | null>(null);
   const [relaunching, setRelaunching] = useState<string | null>(null);
+  /** Filtres de comparaison des rendus : format de sortie et montage. */
+  const [filterFormat, setFilterFormat] = useState<string>("all");
+  const [filterVariant, setFilterVariant] = useState<string>("all");
+
+  const visibleJobs = useMemo(
+    () =>
+      jobs.filter(
+        (j) =>
+          (filterFormat === "all" || videoJobFormatKey(j) === filterFormat) &&
+          (filterVariant === "all" || (videoJobVariantKey(j) ?? "fullscreen") === filterVariant),
+      ),
+    [jobs, filterFormat, filterVariant],
+  );
+
+
 
   const images = useMemo(() => (biz?.images || []).slice(0, 4), [biz]);
   /** Longueur du texte hors balises : la limite de 500 porte sur le contenu lisible. */
@@ -128,7 +148,7 @@ const VideoPromoPanel = () => {
       )
       .like("template_id", "business-promo%")
       .order("created_at", { ascending: false })
-      .limit(12);
+      .limit(40);
     const rows = (data ?? []) as PromoJob[];
     setJobs(rows);
     const ids = Array.from(new Set(rows.map((r) => r.business_id).filter(Boolean))) as string[];
@@ -724,16 +744,43 @@ const VideoPromoPanel = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
           <CardTitle className="text-black text-base">Derniers jobs Promo</CardTitle>
-          <Button size="sm" variant="outline" onClick={loadJobs}>
-            <RefreshCw className="h-4 w-4 mr-1" /> Rafraîchir
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <select
+              value={filterFormat}
+              onChange={(e) => setFilterFormat(e.target.value)}
+              className="h-8 rounded-md border bg-background px-2 text-xs form-legible"
+              title="Filtrer par format de sortie"
+            >
+              <option value="all">Tous les formats</option>
+              <option value="landscape">Paysage 1920×1080</option>
+              <option value="portrait">Portrait 1080×1920</option>
+            </select>
+            <select
+              value={filterVariant}
+              onChange={(e) => setFilterVariant(e.target.value)}
+              className="h-8 rounded-md border bg-background px-2 text-xs form-legible"
+              title="Filtrer par montage"
+            >
+              <option value="all">Tous les montages</option>
+              {Object.entries(VARIANT_LABELS).map(([k, label]) => (
+                <option key={k} value={k}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            <Button size="sm" variant="outline" onClick={loadJobs}>
+              <RefreshCw className="h-4 w-4 mr-1" /> Rafraîchir
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          {jobs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun job Promo pour le moment.</p>
+          {visibleJobs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {jobs.length === 0 ? "Aucun job Promo pour le moment." : "Aucun job ne correspond à ces filtres."}
+            </p>
           ) : (
             <div className="divide-y">
-              {jobs.map((j) => (
+              {visibleJobs.map((j) => (
                 <div key={j.id} className="py-3 space-y-2">
                   <div className="flex items-center gap-3 flex-wrap text-sm">
                     <Badge
@@ -742,7 +789,14 @@ const VideoPromoPanel = () => {
                     >
                       {j.status}
                     </Badge>
-                    <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
+                    <VideoJobTitleEditor
+                      jobId={j.id}
+                      title={j.title}
+                      onSaved={(next) =>
+                        setJobs((prev) => prev.map((x) => (x.id === j.id ? { ...x, title: next } : x)))
+                      }
+                    />
+
                     <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
                     {j.output_url && (
                       <a href={j.output_url} target="_blank" rel="noreferrer" className="text-[11px] underline text-primary ml-auto">

@@ -64,15 +64,22 @@ const EFFECT_LABELS: Record<string, string> = {
   motionBlur: "motion blur",
 };
 
-const detectFormat = (job: VideoJobMetaRow) => {
+/** Clé de format normalisée (sert aussi aux filtres des listes de jobs). */
+export const videoJobFormatKey = (job: VideoJobMetaRow): "landscape" | "portrait" => {
   const p = job.template_props ?? {};
   const w = Number(p.width);
   const h = Number(p.height);
-  if (w > 0 && h > 0) return w >= h ? "Paysage 1920×1080" : "Portrait 1080×1920";
+  if (w > 0 && h > 0) return w >= h ? "landscape" : "portrait";
   const raw = `${job.template_id ?? ""} ${p.format ?? ""} ${p.orientation ?? ""}`.toLowerCase();
-  if (raw.includes("landscape") || raw.includes("paysage")) return "Paysage 1920×1080";
-  return "Portrait 1080×1920";
+  return raw.includes("landscape") || raw.includes("paysage") ? "landscape" : "portrait";
 };
+
+export const FORMAT_LABELS: Record<string, string> = {
+  landscape: "Paysage 1920×1080",
+  portrait: "Portrait 1080×1920",
+};
+
+const detectFormat = (job: VideoJobMetaRow) => FORMAT_LABELS[videoJobFormatKey(job)];
 
 const collectSteps = (job: VideoJobMetaRow): string[] => {
   const p = job.template_props ?? {};
@@ -83,9 +90,26 @@ const collectSteps = (job: VideoJobMetaRow): string[] => {
     (Array.isArray(s?.studio_options?.scene_order) && s.studio_options.scene_order) ||
     (Array.isArray(p.sections) && p.sections) ||
     (Array.isArray(p.sequence) && p.sequence) ||
+    (Array.isArray(p.steps) && p.steps) ||
     (Array.isArray(s.steps) && s.steps.map((x: any) => x?.type ?? x?.kind ?? "étape")) ||
+    (Array.isArray(s.scenes) && s.scenes.map((x: any) => x?.type ?? x?.kind ?? "étape")) ||
     [];
-  return (order as any[]).map((x) => (typeof x === "string" ? x : (x?.type ?? x?.label ?? "étape")));
+  const list = (order as any[]).map((x) => (typeof x === "string" ? x : (x?.type ?? x?.label ?? "étape")));
+  if (list.length > 0) return list;
+  // Promo business : les blocs cochés SONT les étapes du montage.
+  const b = p.blocks;
+  if (b && typeof b === "object") {
+    const out: string[] = [];
+    if (b.hook) out.push("hook");
+    if (b.video && p.videoUrl) out.push("vidéo");
+    if (b.photos) {
+      const n = Array.isArray(p.images) ? p.images.length : 0;
+      for (let i = 0; i < n; i++) out.push(`photo ${i + 1}`);
+    }
+    if (b.outro) out.push("outro");
+    return out;
+  }
+  return [];
 };
 
 const collectEffects = (job: VideoJobMetaRow): string[] => {
@@ -95,7 +119,7 @@ const collectEffects = (job: VideoJobMetaRow): string[] => {
     .map(([k]) => EFFECT_LABELS[k] ?? k);
 };
 
-const VARIANT_LABELS: Record<string, string> = {
+export const VARIANT_LABELS: Record<string, string> = {
   fullscreen: "Plein écran",
   mockup: "Mockup smartphone",
   browser: "Mockup navigateur",
@@ -103,17 +127,27 @@ const VARIANT_LABELS: Record<string, string> = {
   split: "Split média / texte",
 };
 
-/** Promo business : montage (plein écran / mockup) + fond d'écran vidéo (capture feed). */
+/** Clé de montage d'un job Promo (null si le job n'est pas un Promo). */
+export const videoJobVariantKey = (job: VideoJobMetaRow): string | null => {
+  const p = job.template_props ?? {};
+  if (p.kind !== "promo") return null;
+  return String(p.variant ?? "fullscreen");
+};
+
+/** Promo business : montage + fond d'écran vidéo (uniquement derrière un mockup). */
 const promoInfo = (job: VideoJobMetaRow) => {
   const p = job.template_props ?? {};
   if (p.kind !== "promo") return null;
+  const variant = videoJobVariantKey(job)!;
+  const framed = variant !== "fullscreen";
   return {
-    montage: VARIANT_LABELS[String(p.variant ?? "fullscreen")] ?? String(p.variant ?? "—"),
-    bgFeed: p.bgFeedUrl ? "oui" : "non",
-    bgFeedUrl: p.bgFeedUrl ? String(p.bgFeedUrl) : null,
-    clip: p.clipSource ? "oui (sans intro/outro)" : "non",
+    variant,
+    montage: VARIANT_LABELS[variant] ?? variant,
+    bgFeed: framed ? (p.bgFeedUrl ? "oui" : "non") : "sans objet (plein écran)",
+    bgFeedUrl: framed && p.bgFeedUrl ? String(p.bgFeedUrl) : null,
   };
 };
+
 
 const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessName?: string }) => {
   const steps = collectSteps(job);
@@ -123,6 +157,16 @@ const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessNam
 
   return (
     <div className="rounded-lg border bg-muted/30 p-3 grid gap-2 md:grid-cols-3 text-[11px] text-muted-foreground w-full">
+      <div className="md:col-span-3 flex flex-wrap items-center gap-2">
+        <Badge className="text-[10px] bg-primary/15 text-primary border border-primary/40 hover:bg-primary/15">
+          Format : {detectFormat(job)}
+        </Badge>
+        {promo && (
+          <Badge className="text-[10px] bg-gold/25 text-black border border-gold hover:bg-gold/25">
+            Montage : {promo.montage}
+          </Badge>
+        )}
+      </div>
       <div className="md:col-span-3 break-all">
         <span className="font-semibold text-black">Fichier</span> {fileName}
       </div>
@@ -148,23 +192,21 @@ const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessNam
         {effects.length > 0 ? effects.join(", ") : "aucun activé"}
       </div>
       {promo && (
-        <div className="md:col-span-3 grid gap-1 md:grid-cols-3 border-t pt-2">
+        <div className="md:col-span-3 grid gap-1 md:grid-cols-2 border-t pt-2">
           <div>
             <span className="font-semibold text-black">Montage</span> {promo.montage}
           </div>
           <div>
             <span className="font-semibold text-black">Fond d'écran vidéo</span> {promo.bgFeed}
           </div>
-          <div>
-            <span className="font-semibold text-black">Clip source</span> {promo.clip}
-          </div>
           {promo.bgFeedUrl && (
-            <div className="md:col-span-3 break-all">
+            <div className="md:col-span-2 break-all">
               <span className="font-semibold text-black">URL du fond</span> {promo.bgFeedUrl}
             </div>
           )}
         </div>
       )}
+
 
       {steps.length > 0 && (
         <div className="md:col-span-3 flex flex-wrap gap-1">
