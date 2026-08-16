@@ -1064,15 +1064,17 @@ Deno.serve(async (req) => {
             if (competitorGuard.active && all.length) {
               await (competitorGuard as any).loadSubs?.(all.map((b: any) => String(b.id)));
             }
-            const beforeGuard = all.length;
-            let kept = all.filter((b: any) => {
-              if (competitorGuard.isCompetitor(b)) return false;
-              if (!excluded.length) return true;
-              const hay = normalize(`${b.main_category || ""} ${(b.categories || []).join(" ")}`);
-              return !excluded.some((x) => hay.includes(x));
-            });
+            let kept = all;
             if (competitorGuard.active) {
+              const beforeGuard = kept.length;
+              kept = competitorGuard.filterOut(kept);
               console.log("[embed-ai-chat-v2] competitor_guard", JSON.stringify({ beforeGuard, after: kept.length, host: host?.name || null }));
+            }
+            if (excluded.length) {
+              kept = kept.filter((b: any) => {
+                const hay = normalize(`${b.main_category || ""} ${(b.categories || []).join(" ")}`);
+                return !excluded.some((x) => hay.includes(x));
+              });
             }
 
 
