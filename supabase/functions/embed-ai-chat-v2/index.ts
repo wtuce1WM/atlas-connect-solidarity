@@ -498,7 +498,7 @@ Deno.serve(async (req) => {
                 ? `📍 ${seen} من ${poolIds.length}${restAfter > 0 ? ` — أعرض الباقي (${restAfter})؟` : "."}`
                 : `📍 ${seen} adresses affichées sur ${poolIds.length}${restAfter > 0 ? ` — je te montre les ${restAfter} dernières ?` : "."}`;
             const built = await buildPinnedAnswer(admin, batch, host, lang, null, {
-              route: "pool_more", heading, outro, total: poolIds.length, poolIds,
+              route: "pool_more", heading, outro, total: poolIds.length, poolIds, competitorGuard,
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] pool_more_failed", String(e));
               return null;
