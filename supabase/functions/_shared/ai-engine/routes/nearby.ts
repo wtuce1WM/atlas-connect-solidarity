@@ -343,17 +343,42 @@ export async function buildPoiNearby(
     .replace(/\s+/g, " ")
     .trim();
 
-  // Source: businesses flagged is_poi=true (curated POIs from the catalog)
-  const { data: pois } = await admin
-    .from("businesses")
-    .select("id, slug, name, hook_fr, hook_en, hook_ar, description, description_en, description_ar, latitude, longitude, city, neighborhood, address, main_category, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, engagements")
-    .eq("is_poi", true)
-    .is("closure_message", null)
-    .neq("id", host.id)
-    .gte("latitude", host.latitude - dLat)
-    .lte("latitude", host.latitude + dLat)
-    .gte("longitude", host.longitude - dLng)
-    .lte("longitude", host.longitude + dLng);
+  // Source de vérité : les POI RELIÉS à l'établissement en back-office
+  // (`business_poi_businesses`), exactement comme l'overlay POI du slidepanel.
+  // Repli géographique (is_poi dans le rayon) uniquement si aucun lien n'existe.
+  const POI_COLS = "id, slug, name, hook_fr, hook_en, hook_ar, description, description_en, description_ar, latitude, longitude, city, neighborhood, address, main_category, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, engagements";
+
+  const { data: poiLinks } = await admin
+    .from("business_poi_businesses")
+    .select("poi_business_id")
+    .eq("business_id", host.id);
+  const linkedIds: string[] = (poiLinks || [])
+    .map((l: any) => l.poi_business_id)
+    .filter((id: string) => id && id !== host.id);
+
+  let pois: any[] | null = null;
+  let linkedSource = false;
+  if (linkedIds.length) {
+    const { data: linked } = await admin
+      .from("businesses")
+      .select(POI_COLS)
+      .in("id", linkedIds)
+      .is("closure_message", null);
+    if (linked?.length) { pois = linked; linkedSource = true; }
+  }
+  if (!pois) {
+    const { data: boxed } = await admin
+      .from("businesses")
+      .select(POI_COLS)
+      .eq("is_poi", true)
+      .is("closure_message", null)
+      .neq("id", host.id)
+      .gte("latitude", host.latitude - dLat)
+      .lte("latitude", host.latitude + dLat)
+      .gte("longitude", host.longitude - dLng)
+      .lte("longitude", host.longitude + dLng);
+    pois = boxed || [];
+  }
 
   const nearby = (pois || [])
     .filter((p: any) => p.latitude != null && p.longitude != null)
@@ -361,8 +386,10 @@ export async function buildPoiNearby(
       ...p,
       distance_km: haversineKmLocal(host.latitude, host.longitude, p.latitude, p.longitude),
     }))
-    .filter((p: any) => p.distance_km <= RADIUS_KM)
+    // Les POI reliés à la main font loi : pas de coupe au rayon.
+    .filter((p: any) => linkedSource || p.distance_km <= RADIUS_KM)
     .sort((a: any, b: any) => a.distance_km - b.distance_km);
+
 
   const radiusLabel = RADIUS_KM < 1 ? `${Math.round(RADIUS_KM * 1000)} m` : `${RADIUS_KM % 1 === 0 ? RADIUS_KM.toFixed(0) : RADIUS_KM} km`;
 
@@ -374,11 +401,19 @@ export async function buildPoiNearby(
         : `Je ne trouve aucun point d'intérêt dans un rayon de **${radiusLabel}** autour de ${host.name}. Tu veux que j'élargisse le rayon ?`;
   }
 
-  const header = lang === "en"
-    ? `Here are the **${nearby.length} points of interest** within **${radiusLabel}** of ${host.name}${host.city ? ` (${host.city})` : ""}, sorted by distance:`
-    : lang === "ar"
-      ? `إليك **${nearby.length} نقاط اهتمام** ضمن **${radiusLabel}** من ${host.name}${host.city ? ` (${host.city})` : ""}، مرتبة حسب المسافة:`
-      : `Voici les **${nearby.length} points d'intérêt** dans un rayon de **${radiusLabel}** autour de ${host.name}${host.city ? ` (${host.city})` : ""}, classés par distance :`;
+  const shownCount = Math.min(nearby.length, 20);
+  const header = linkedSource
+    ? (lang === "en"
+      ? `Here are the **${shownCount} points of interest** linked to ${host.name}${host.city ? ` (${host.city})` : ""}, sorted by distance:`
+      : lang === "ar"
+        ? `إليك **${shownCount} نقاط اهتمام** مرتبطة بـ ${host.name}${host.city ? ` (${host.city})` : ""}، مرتبة حسب المسافة:`
+        : `Voici les **${shownCount} points d'intérêt** associés à ${host.name}${host.city ? ` (${host.city})` : ""}, classés par distance :`)
+    : (lang === "en"
+      ? `Here are the **${nearby.length} points of interest** within **${radiusLabel}** of ${host.name}${host.city ? ` (${host.city})` : ""}, sorted by distance:`
+      : lang === "ar"
+        ? `إليك **${nearby.length} نقاط اهتمام** ضمن **${radiusLabel}** من ${host.name}${host.city ? ` (${host.city})` : ""}، مرتبة حسب المسافة:`
+        : `Voici les **${nearby.length} points d'intérêt** dans un rayon de **${radiusLabel}** autour de ${host.name}${host.city ? ` (${host.city})` : ""}, classés par distance :`);
+
 
   const bullets = nearby.slice(0, 20).map((p: any) => {
     const rawDesc = (lang === "en" && p.hook_en) ? p.hook_en
@@ -390,11 +425,14 @@ export async function buildPoiNearby(
     return `- 📍 **${p.name}** _(${distLabel})_${short}`;
   }).join("\n");
 
-  const radiusLine = lang === "en"
-    ? `\n\n> Radius: **${radiusLabel}** around ${host.name}. Want to **narrow** or **expand** it?`
-    : lang === "ar"
-      ? `\n\n> النطاق: **${radiusLabel}** حول ${host.name}. هل تريد **تضييقه** أو **توسيعه**؟`
-      : `\n\n> Rayon : **${radiusLabel}** autour de ${host.name}. Tu veux le **resserrer** ou l'**étendre** ?`;
+  const radiusLine = linkedSource
+    ? ""
+    : (lang === "en"
+      ? `\n\n> Radius: **${radiusLabel}** around ${host.name}. Want to **narrow** or **expand** it?`
+      : lang === "ar"
+        ? `\n\n> النطاق: **${radiusLabel}** حول ${host.name}. هل تريد **تضييقه** أو **توسيعه**؟`
+        : `\n\n> Rayon : **${radiusLabel}** autour de ${host.name}. Tu veux le **resserrer** ou l'**étendre** ?`);
+
 
   // Emit a SHOW_ON_MAP-compatible payload so the frontend renders the horizontal thumbnails carousel + "View on map".
   const mapBusinesses = nearby.slice(0, 20).map((p: any) => ({

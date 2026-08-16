@@ -558,12 +558,16 @@ Deno.serve(async (req) => {
           const norm = (s: string) => normalize(s).replace(/[?!.\s]+$/g, "").trim();
           const isInitialClick = !!(curated?.label && norm(userMessage) === norm(curated.label));
           const keepCurated = !!curated && (!!followupId || isInitialClick || suggestionFromText || !priorIds.length);
+          
 
 
           // ── ROUTE IMPOSÉE EN BACK-OFFICE (`route_override`) ────────────────
           // Autorité absolue : aucune détection d'intention sur le libellé.
           // `search_businesses` / `llm` laissent volontairement passer le flux normal.
-          const forcedKey = curated?.routeOverride ?? null;
+          // Repli sur le `mode` historique (ex. relance `poi_nearby` de v1) quand
+          // aucun `route_override` n'a été saisi : même mécanisme, une seule source.
+          const forcedKey = curated?.routeOverride
+            ?? (isForcedRouteKey(curated?.mode) ? (curated!.mode as string) : null);
           if (curated && keepCurated && isForcedRouteKey(forcedKey)) {
             const hostRadius = RADIUS_OPTIONS.includes(Number(host?.poi_radius_km)) ? Number(host?.poi_radius_km) : 1;
             const forced = await runForcedRoute({

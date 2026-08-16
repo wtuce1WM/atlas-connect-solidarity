@@ -197,7 +197,9 @@ export async function loadCuratedTargets(
     try {
       const { data: fup } = await admin
         .from("ai_followups")
-        .select("mode, route_override, city, radius_km, label_fr, label_en, label_ar, badge_ids, subcategory_ids, service_ids, commodity_filters, business_ids, destination_ids")
+        // `ai_followups` n'a PAS de colonne `service_ids` : la demander faisait
+        // échouer toute la requête (data null) et perdait `mode` / `route_override`.
+        .select("mode, route_override, city, radius_km, label_fr, label_en, label_ar, badge_ids, subcategory_ids, commodity_filters, business_ids, destination_ids")
         .eq("id", followupId)
         .maybeSingle();
 
@@ -231,20 +233,9 @@ export async function loadCuratedTargets(
           out.subcategoryNames = (subs || []).map((s: any) => s.name_fr).filter(Boolean);
         }
 
-        const fSvcIds: string[] = Array.isArray(fup.service_ids) ? fup.service_ids.filter(Boolean) : [];
-        if (fSvcIds.length) {
-          const { data: svcs } = await admin.from("services").select("name_fr").in("id", fSvcIds);
-          const seen = new Set<string>();
-          out.serviceNames = (svcs || [])
-            .map((s: any) => String(s?.name_fr || "").trim())
-            .filter((n: string) => {
-              if (!n) return false;
-              const k = n.toLowerCase();
-              if (seen.has(k)) return false;
-              seen.add(k);
-              return true;
-            });
-        }
+        // Pas de services propres à une relance (colonne inexistante).
+        out.serviceNames = [];
+
       }
     } catch (e) {
       console.error("[curated] followup_lookup_error", String(e));
