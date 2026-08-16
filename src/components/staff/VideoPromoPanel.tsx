@@ -4,7 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import VideoJobMeta from "@/components/staff/VideoJobMeta";
+import VideoJobMeta, {
+  VARIANT_LABELS,
+  videoJobFormatKey,
+  videoJobVariantKey,
+} from "@/components/staff/VideoJobMeta";
+import VideoJobTitleEditor from "@/components/staff/VideoJobTitleEditor";
 import VideoRenderPresetBar from "@/components/staff/VideoRenderPresetBar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Rocket, RefreshCw, Sparkles } from "lucide-react";
