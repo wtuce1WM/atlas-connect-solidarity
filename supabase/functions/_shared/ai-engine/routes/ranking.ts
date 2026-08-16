@@ -161,8 +161,9 @@ export async function buildRatingRanking(admin: any, ids: string[], mode: "best_
       return `Je n'ai pas assez d'avis publics sur ces adresses pour les classer par note. Un autre angle ?`;
     }
     eligible.sort((a: any, b: any) => (b._rating - a._rating) || (b._count - a._count));
-    const top = eligible.slice(0, 5);
-    const medals = ["🥇", "🥈", "🥉", "4.", "5."];
+    // Palmarès volontairement limité au Top 3 (podium animé côté cartes).
+    const top = eligible.slice(0, 3);
+    const medals = ["🥇", "🥈", "🥉"];
     const reviewsWord = lang === "en" ? "reviews" : lang === "ar" ? "تقييم" : "avis";
     const lines = top.map((r: any, i: number) => {
       const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");

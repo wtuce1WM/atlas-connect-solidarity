@@ -144,10 +144,18 @@ const AiBusinessResultCards = ({
         return (
           <div
             key={b.id}
-            className={`relative flex gap-0 rounded-xl border overflow-hidden ${shellClass} ${bodyInk}`}
+            className={`relative flex gap-0 rounded-xl border overflow-hidden ${shellClass} ${bodyInk} ${
+              podium ? "animate-scale-in" : ""
+            }`}
             style={
               podium
-                ? { ...cardStyle, borderColor: podium.color, boxShadow: `0 0 0 1px ${podium.color}55` }
+                ? {
+                    ...cardStyle,
+                    borderColor: podium.color,
+                    boxShadow: `0 0 0 1px ${podium.color}55, 0 6px 18px ${podium.color}22`,
+                    animationDelay: `${idx * 140}ms`,
+                    animationFillMode: "backwards",
+                  }
                 : cardStyle
             }
           >
@@ -162,7 +170,9 @@ const AiBusinessResultCards = ({
               ) : null}
               {ranked ? (
                 <span
-                  className="absolute top-1 left-1 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-bold leading-none"
+                  className={`absolute top-1 left-1 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-bold leading-none ${
+                    podium ? "animate-scale-in shadow-lg" : ""
+                  }`}
                   style={
                     podium
                       ? { background: podium.color, color: "#1b1b1b" }
