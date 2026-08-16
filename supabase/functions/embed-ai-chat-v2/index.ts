@@ -54,6 +54,7 @@ import {
 import { isOpensFirstIntent, isClosesLastIntent, buildHoursRanking, parseOpenFilterIntent, buildOpenFilter } from "../_shared/ai-engine/routes/opening.ts";
 import { isDescribeIntent, parseDescribeFacet, buildDescribePriors } from "../_shared/ai-engine/routes/describe.ts";
 import { isForcedRouteKey, runForcedRoute, forcedMapMarker } from "../_shared/ai-engine/routes/forced.ts";
+import { buildCompetitorGuard } from "../_shared/ai-engine/routes/competitors.ts";
 import { resolveCityScope, detectExplicitCity } from "../_shared/ai-engine/city-scope.ts";
 import {
   resolveNeighborhoodInMessage, filterPoolByNeighborhood, neighborhoodEmptyMessage,
@@ -356,6 +357,10 @@ Deno.serve(async (req) => {
         const explicitCity = await detectExplicitCity(admin, userMessage);
         const scopeCity = resolveCityScope({ hostCity: host?.city, activeCity, explicitCity }) as string;
         cityDetected = scopeCity;
+
+        // Garde-fou concurrents : sur la surface embed, jamais un établissement de la
+        // même catégorie / sous-catégorie que l'hôte (un riad ne montre pas de riads).
+        const competitorGuard = await buildCompetitorGuard(admin, host);
 
         // ── FILTRES LOCAUX (badges du footer) — zéro token, zéro modèle ──────
         // Le client impose une route du catalogue partagé sur le CORPUS COMPLET
@@ -711,6 +716,7 @@ Deno.serve(async (req) => {
 
               scopeCity,
               maxResults: CFG.maxResults,
+              isCompetitor: competitorGuard.active ? competitorGuard.isCompetitor : undefined,
               supabaseUrl: SUPABASE_URL,
               serviceKey: SERVICE,
             }).catch((e) => {
@@ -1054,12 +1060,20 @@ Deno.serve(async (req) => {
             });
             const json = await r.json().catch(() => null);
             const all: any[] = Array.isArray(json?.businesses) ? json.businesses : [];
+            if (competitorGuard.active && all.length) {
+              await (competitorGuard as any).loadSubs?.(all.map((b: any) => String(b.id)));
+            }
+            const beforeGuard = all.length;
             let kept = all.filter((b: any) => {
-              if (host && b.id === host.id) return false;
+              if (competitorGuard.isCompetitor(b)) return false;
               if (!excluded.length) return true;
               const hay = normalize(`${b.main_category || ""} ${(b.categories || []).join(" ")}`);
               return !excluded.some((x) => hay.includes(x));
             });
+            if (competitorGuard.active) {
+              console.log("[embed-ai-chat-v2] competitor_guard", JSON.stringify({ beforeGuard, after: kept.length, host: host?.name || null }));
+            }
+
 
             // ── Filtre dur sur service qualifié ────────────────────────────────
             // Quand la demande nomme un service typé dans la même catégorie que le

@@ -479,7 +479,11 @@ export async function buildBlogArticleAnswer(
  */
 export async function buildPinnedAnswer(
   admin: any, ids: string[], host: any, lang: Lang, label?: string | null,
-  overrides?: { route?: string; heading?: string; outro?: string; total?: number; poolIds?: string[] },
+  overrides?: {
+    route?: string; heading?: string; outro?: string; total?: number; poolIds?: string[];
+    /** Garde-fou concurrents (surface embed) : écarte les rivaux directs de l'hôte. */
+    isCompetitor?: (b: any) => boolean;
+  },
 ): Promise<CuratedAnswer | null> {
 
   const wanted = ids.filter(Boolean).slice(0, 20);
@@ -488,7 +492,14 @@ export async function buildPinnedAnswer(
     .from("businesses").select(BIZ_FIELDS)
     .in("id", wanted).eq("is_active", true).is("closure_message", null);
   const byId = new Map<string, any>((data || []).map((b: any) => [b.id, b]));
-  const ordered = wanted.map((id) => byId.get(id)).filter(Boolean);
+  let ordered = wanted.map((id) => byId.get(id)).filter(Boolean);
+  if (overrides?.isCompetitor) {
+    const before = ordered.length;
+    ordered = ordered.filter((b: any) => !overrides.isCompetitor!(b));
+    if (before !== ordered.length) {
+      console.log("[curated] competitor_guard", JSON.stringify({ before, after: ordered.length }));
+    }
+  }
   if (!ordered.length) return null;
 
   // Nom, quartier/ville, hook, note /20, avis, horaires : rendus par la carte
@@ -544,6 +555,8 @@ export async function buildFilteredAnswer(
      */
     scopeCity?: string | null;
     maxResults?: number;
+    /** Garde-fou concurrents (surface embed). */
+    isCompetitor?: (b: any) => boolean;
     supabaseUrl: string;
     serviceKey: string;
   },
@@ -731,6 +744,7 @@ export async function buildFilteredAnswer(
     // Corpus complet trouvé : les relances (proximité, distances…) doivent
     // pouvoir travailler sur les 19 adresses, pas seulement sur les 6 affichées.
     poolIds: ids.map((id) => String(id)),
+    isCompetitor: opts.isCompetitor,
   });
 
   return built;
