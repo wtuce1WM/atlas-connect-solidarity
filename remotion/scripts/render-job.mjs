@@ -218,7 +218,21 @@ async function renderOne() {
         manifest.effects = p.effects;
         manifestDirty = true;
       }
+      // Montage (5 options identiques à Promo business) : le template lit le
+      // manifest, donc aucun prop supplémentaire à faire circuler.
+      if (p.variant && p.variant !== "fullscreen") {
+        manifest.mockup = {
+          variant: String(p.variant),
+          bg: p.mockupBg ?? null,
+          browserUrl: p.browserUrl ?? null,
+          splitSide: p.splitSide === "right" ? "right" : "left",
+          title: p.label ?? null,
+          subtitle: p.url ?? null,
+        };
+        manifestDirty = true;
+      }
       if (manifestDirty) fs.writeFileSync(manifestFile, JSON.stringify(manifest, null, 1));
+
       props = {
         manifestPath: `feed/${slug}/manifest.json`,
         format: p.format === "landscape" ? "landscape" : "portrait",
