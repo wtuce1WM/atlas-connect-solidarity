@@ -375,9 +375,10 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--VIDEO_FEED:[\s\S]*$/g, "")
     .replace(/<!--POOL_BUSINESS_IDS:[\s\S]*?-->/g, "")
     .replace(/<!--POOL_BUSINESS_IDS:[\s\S]*$/g, "")
+    .replace(/<!--COMPETITOR_GUARD_ACTIVE-->/g, "")
     .trim();
   clean = linkifyPhones(clean);
-  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides };
+  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, competitorGuard };
 }
 
 // Convert bare phone / WhatsApp numbers found in AI markdown into clickable links.
