@@ -3950,7 +3950,8 @@ const BookOnlineSlidePanelInner = ({
           if (p.main_category && names.has(p.main_category)) return true;
           return Array.isArray(p.categories) && p.categories.some((c: string) => names.has(c));
         };
-        // Corpus fermé imposé (réponse IA) : pas de vivier ville, pas de rayon, ordre conservé
+        // Corpus fermé imposé (réponse IA) : ordre conservé, mais les contrôles
+        // Top/Tous et Proximité restent disponibles sur ce corpus complet.
         const overridePool: any[] | null = poiOverrideRows.length ? (poiOverrideRows as any[]) : null;
         // Vivier ville restreint au rayon actif → base des compteurs catégories
         const cityInRadius = overridePool ?? (poiCityBusinesses as any[]).filter(inRadius);
@@ -4024,16 +4025,17 @@ const BookOnlineSlidePanelInner = ({
           return list;
         })();
 
-        const afterProx = overridePool ? afterSubcat : afterSubcat.filter(inRadius);
+        const afterProx = afterSubcat.filter(inRadius);
         const total = afterProx.length;
-        const displayedPoi = overridePool
+        const effectiveTopLimit = overridePool && total <= TOP_LIMIT ? 10 : TOP_LIMIT;
+        const displayedPoi = (poiShowAll || total <= effectiveTopLimit)
           ? afterProx
-          : (poiShowAll || total <= TOP_LIMIT) ? afterProx : afterProx.slice(0, TOP_LIMIT);
+          : afterProx.slice(0, effectiveTopLimit);
         // Pas de bascule Top 20 / Tous si le résultat courant tient sous la limite
-        const showAllToggle = poiMapMode === "poi" && !overridePool && total > TOP_LIMIT;
+        const showAllToggle = poiMapMode === "poi" && total > effectiveTopLimit;
         const showCatPill = poiMapMode === "poi" && !overridePool && catPillTabs.length >= 2;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
-        const showProxPill = poiMapMode === "poi" && !overridePool;
+        const showProxPill = poiMapMode === "poi" && !!proxOrigin;
         const proxOpts: { km: number; label: string }[] = [
           { km: 0.5, label: "- 500 m" },
           { km: 1, label: "- 1 km" },
@@ -4135,7 +4137,7 @@ const BookOnlineSlidePanelInner = ({
                       onClick={() => { resetWidgetMapView(); setPoiShowAll(false); }}
                       className={`px-3 py-1 rounded-full transition-colors ${!poiShowAll ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                     >
-                      {language === "en" ? "Top 20" : language === "ar" ? "أفضل 20" : "Top 20"}
+                      {language === "en" ? `Top ${effectiveTopLimit}` : language === "ar" ? `أفضل ${effectiveTopLimit}` : `Top ${effectiveTopLimit}`}
                     </button>
                     <button
                       type="button"
