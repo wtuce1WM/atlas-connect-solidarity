@@ -833,3 +833,19 @@ export async function matchCuratedByText(
   return best;
 }
 
+
+/**
+ * Substitution UNIQUE, côté moteur, des placeholders des libellés staff
+ * (`ai_suggestions.label_*`) : le libellé est réinjecté verbatim dans la réponse,
+ * donc `{businessName}` doit être résolu ici, pas seulement côté client.
+ */
+export function applyLabelPlaceholders(label: string | null | undefined, host: any): string | null {
+  const raw = String(label ?? "");
+  if (!raw) return label ?? null;
+  const name = String(host?.name || "").trim();
+  return raw
+    .replace(/\{\{?\s*businessName\s*\}?\}/gi, name)
+    .replace(/\{\{?\s*business_name\s*\}?\}/gi, name)
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
