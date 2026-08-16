@@ -1107,7 +1107,12 @@ Deno.serve(async (req) => {
 
           const baseQuery = [...coreTerms, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
             || userMessage.slice(0, 200);
-          await runSearch(baseQuery, searchCity, excluded);
+          // Services qualifiés forts → filtre dur (l'expansion par mot reste du ranking).
+          const requiredServices = resolution
+            ? [...new Set(qualifiedServiceTargets(resolution).filter((t) => t.strength !== "expansion").map((t) => t.value))]
+            : [];
+          await runSearch(baseQuery, searchCity, excluded, requiredServices);
+
         }
 
         // Filet de secours : le classifieur n'a pas tranché (ou sa requête structurée
