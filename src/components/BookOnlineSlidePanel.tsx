@@ -2745,6 +2745,7 @@ const BookOnlineSlidePanelInner = ({
               ).catch(() => {});
             }}
             hideContact={bookingOverlayHideContact}
+            closeVariant={embedMode ? "dark" : "auto"}
           />
         );
       })()}
