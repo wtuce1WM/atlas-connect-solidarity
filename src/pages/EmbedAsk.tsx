@@ -610,6 +610,7 @@ const EmbedAsk = () => {
         suggestionId: (body as any)?.suggestionId ?? null,
         followupId: (body as any)?.followupId ?? null,
         scope: (body as any)?.scope ?? null,
+        forcedRoute: (body as any)?.forcedRoute ?? null,
         radiusKm: radiusRef.current,
       },
     }),
