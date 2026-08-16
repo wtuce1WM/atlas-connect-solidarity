@@ -755,9 +755,7 @@ export async function buildFilteredAnswer(
 
   const inCity = effCity ? (lang === "en" ? ` in ${effCity}` : lang === "ar" ? ` في ${effCity}` : ` à ${effCity}`) : "";
   const heading = opts.label
-    ? (lang === "en" ? `**${opts.label}** — matching addresses${inCity}:`
-      : lang === "ar" ? `**${opts.label}** — عناوين مطابقة${inCity}:`
-      : `**${opts.label}** — les adresses qui correspondent${inCity} :`)
+    ? `### **${opts.label}**`
     : (lang === "en" ? `Matching addresses${inCity}:` : lang === "ar" ? `عناوين مطابقة${inCity}:` : `Les adresses qui correspondent${inCity} :`);
   const rest = total - shownIds.length;
   // Les horaires, statuts et liens de réservation sont déjà portés par les cartes
