@@ -623,8 +623,9 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
               if (ytMatch) return <iframe src={`https://www.youtube.com/embed/${ytMatch[1]}`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />;
               const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
               if (vimeoMatch) return <iframe src={`https://player.vimeo.com/video/${vimeoMatch[1]}`} className="w-full h-full" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
-              return <video src={url} controls className="w-full h-full object-contain" playsInline />;
+              return <video src={url} poster={doc.thumbnail_url || undefined} controls className="w-full h-full object-contain" playsInline />;
             })()}
+
             <button type="button" onClick={() => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: "" } : d))}
               className="absolute top-0.5 right-0.5 p-0.5 bg-destructive text-destructive-foreground rounded-full opacity-80 hover:opacity-100 transition-opacity">
               <X className="h-2.5 w-2.5" />
