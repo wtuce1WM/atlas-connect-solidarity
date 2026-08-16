@@ -59,7 +59,21 @@ const STROKE_PRESETS = [
   { label: "WhatsApp", value: "#25D366" },
 ];
 
+/** Montages : mêmes 5 options que Promo business (source de vérité unique). */
+export type PromoVariant = "fullscreen" | "mockup" | "browser" | "multi" | "split";
+const FRAMED: PromoVariant[] = ["mockup", "browser", "multi", "split"];
+const isFramed = (v: PromoVariant) => FRAMED.includes(v);
+
+const PRESET_BG = [
+  { label: "Encre", value: "#1A130D" },
+  { label: "Terracotta", value: "#C04F17" },
+  { label: "Nuit", value: "#0E0B08" },
+  { label: "Sable", value: "#ECD6B8" },
+  { label: "Ardoise", value: "#3B3B3B" },
+];
+
 type FeedJob = {
+
   id: string;
   title: string | null;
   status: string;
@@ -99,6 +113,13 @@ const VideoGeneratePanel = () => {
   const [sections, setSections] = useState<string[]>(DEFAULT_SECTIONS);
   const [extraSection, setExtraSection] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // --- Montage (mêmes 5 options que Promo business)
+  const [variant, setVariant] = useState<PromoVariant>("fullscreen");
+  const [mockupBg, setMockupBg] = useState(PRESET_BG[0].value);
+  const [browserUrl, setBrowserUrl] = useState("oneworldmorocco.com");
+  const [splitSide, setSplitSide] = useState<"left" | "right">("left");
+
 
   // --- Effets optionnels (tous off par défaut)
   const [effectsOn, setEffectsOn] = useState<Record<EffectKey, boolean>>({
