@@ -28,7 +28,7 @@ const LocationPickerDialog = lazy(() => import("@/components/LocationPickerDialo
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 import AiBusinessResultCards from "@/components/ai/AiBusinessResultCards";
 import { AI_NAME_FONT } from "@/lib/aiTypography";
-import { Maximize2, X } from "lucide-react";
+import { Maximize2, X, Navigation, Clock, Star, Building2 } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import AiTidesWidget from "@/components/embed/AiTidesWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -939,6 +939,22 @@ const EmbedAsk = () => {
     );
   };
 
+  /**
+   * Filtre local déterministe (badges du footer) : le serveur applique une route
+   * du catalogue partagé sur le corpus déjà affiché — zéro appel modèle.
+   */
+  const sendLocalFilter = (text: string, forcedRoute: string) => {
+    if (streaming || !businessName) return;
+    setError(null);
+    messageIndexRef.current += 1;
+    sendMessage(
+      { text },
+      { body: { suggestionId: null, followupId: null, scope: null, forcedRoute } },
+    );
+  };
+
+
+
 
   const findLastMapPayload = (): MapPayload | null => {
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -1014,6 +1030,37 @@ const EmbedAsk = () => {
     }
     return poolIds.filter((id) => !shown.has(id)).length;
   }, [messages]);
+
+  /**
+   * Filtres locaux calculables sur le corpus courant (dernier payload carte) :
+   * proches / ouverts maintenant / mieux notés / quartier. Un badge n'apparaît
+   * que si la donnée nécessaire existe réellement dans le corpus.
+   */
+  const localFilters = useMemo(() => {
+    const rows = (mapReplayTarget?.businesses ?? []) as any[];
+    if (rows.length < 2) {
+      return { closest: false, openNow: false, bestRated: false, neighborhoods: [] as Array<{ name: string; count: number }> };
+    }
+    const geo = rows.filter((b) => b?.latitude != null && b?.longitude != null).length;
+    const withHours = rows.filter((b) => b?.is_open_24h || (b?.show_opening_hours && b?.opening_hours)).length;
+    const withRating = rows.filter((b) => (b?.computed_rating ?? b?.google_rating ?? b?.tripadvisor_rating) != null).length;
+    const counts = new Map<string, number>();
+    for (const b of rows) {
+      const nb = String(b?.neighborhood || "").trim();
+      if (!nb) continue;
+      counts.set(nb, (counts.get(nb) ?? 0) + 1);
+    }
+    const neighborhoods = [...counts.entries()]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+    return {
+      closest: geo >= 2,
+      openNow: withHours >= 2,
+      bestRated: withRating >= 2,
+      neighborhoods: counts.size >= 2 ? neighborhoods : [],
+    };
+  }, [mapReplayTarget]);
 
 
   const isMapReplayLabel = (label: string): boolean => {
@@ -2019,7 +2066,62 @@ const EmbedAsk = () => {
                 {lang === "en" ? `All results · ${poolRemaining}` : lang === "ar" ? `كل النتائج · ${poolRemaining}` : `Tous les résultats · ${poolRemaining}`}
               </button>
             )}
+            {localFilters.closest && (
+              <button
+                type="button"
+                onClick={() => sendLocalFilter(
+                  lang === "en" ? "The closest ones" : lang === "ar" ? "الأقرب" : "Les plus proches",
+                  "distance_ranking_closest",
+                )}
+                style={AI_NAME_FONT}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+              >
+                <Navigation className="w-3.5 h-3.5" />
+                {lang === "en" ? "Closest" : lang === "ar" ? "الأقرب" : "Les plus proches"}
+              </button>
+            )}
+            {localFilters.openNow && (
+              <button
+                type="button"
+                onClick={() => sendLocalFilter(
+                  lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant",
+                  "open_now",
+                )}
+                style={AI_NAME_FONT}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+              >
+                <Clock className="w-3.5 h-3.5" />
+                {lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant"}
+              </button>
+            )}
+            {localFilters.bestRated && (
+              <button
+                type="button"
+                onClick={() => sendLocalFilter(
+                  lang === "en" ? "The best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés",
+                  "rating_best",
+                )}
+                style={AI_NAME_FONT}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+              >
+                <Star className="w-3.5 h-3.5" />
+                {lang === "en" ? "Best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés"}
+              </button>
+            )}
+            {localFilters.neighborhoods.map((nb) => (
+              <button
+                key={nb.name}
+                type="button"
+                onClick={() => sendLocalFilter(nb.name, "neighborhood_filter")}
+                style={AI_NAME_FONT}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                {nb.name} · {nb.count}
+              </button>
+            ))}
           </div>
+
         )}
         <div className="flex items-center gap-2 pb-2">
           <label
