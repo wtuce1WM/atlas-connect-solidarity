@@ -939,6 +939,22 @@ const EmbedAsk = () => {
     );
   };
 
+  /**
+   * Filtre local déterministe (badges du footer) : le serveur applique une route
+   * du catalogue partagé sur le corpus déjà affiché — zéro appel modèle.
+   */
+  const sendLocalFilter = (text: string, forcedRoute: string) => {
+    if (streaming || !businessName) return;
+    setError(null);
+    messageIndexRef.current += 1;
+    sendMessage(
+      { text },
+      { body: { suggestionId: null, followupId: null, scope: null, forcedRoute } },
+    );
+  };
+
+
+
 
   const findLastMapPayload = (): MapPayload | null => {
     for (let i = messages.length - 1; i >= 0; i--) {
