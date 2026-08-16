@@ -1186,23 +1186,24 @@ const BookOnlineSlidePanelInner = ({
     // Garde anti-scroll parasite : certaines iframes tierces (ex. moteur de réservation
     // "Réservez" du Royal Mansour) déplacent le conteneur au chargement (prise de focus,
     // scroll anchoring lors du redimensionnement de leur contenu…).
-    // Principe : pendant les premières secondes suivant l'ouverture, tout déplacement de
-    // scroll qui n'est pas précédé d'un geste utilisateur récent est annulé.
+    // Principe : le garde n'agit que pendant les premières secondes après l'ouverture et
+    // s'auto-désactive dès le premier geste utilisateur (sinon l'inertie du scroll, qui
+    // continue après le dernier événement wheel, se faisait annuler → effet de saut).
     const el = document.getElementById("owm-desc-scroll");
-    let lastGesture = 0;
+    let hadGesture = false;
     let anchor = 0;
-    let guardUntil = Date.now() + 15000;
+    const guardUntil = Date.now() + 4000;
     let reverting = false;
-    const markGesture = () => { lastGesture = Date.now(); };
+    const markGesture = () => { hadGesture = true; };
     const onScroll = () => {
       if (!el || reverting) return;
-      const userDriven = Date.now() - lastGesture < 700;
-      if (userDriven || Date.now() > guardUntil) { anchor = el.scrollTop; return; }
+      if (hadGesture || Date.now() > guardUntil) { anchor = el.scrollTop; return; }
       if (Math.abs(el.scrollTop - anchor) < 4) return;
       reverting = true;
       el.scrollTop = anchor;
       requestAnimationFrame(() => { reverting = false; });
     };
+
     if (el) {
       el.style.overflowAnchor = "none";
       el.addEventListener("wheel", markGesture, { passive: true });
