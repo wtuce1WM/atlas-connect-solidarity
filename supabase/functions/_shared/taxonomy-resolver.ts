@@ -32,6 +32,16 @@ export interface ResolvedTarget {
   source: string;
   /** Portion de la requête qui a déclenché la correspondance. */
   matched: string;
+  /**
+   * Catégories racines auxquelles la cible appartient réellement en base
+   * (services.subcategory_id → subcategories.category_id → categories.name_fr).
+   * C'est ce qui distingue « Cuisine italienne » (Restauration) de « Parmesan »
+   * (Commerce) sans ajouter la moindre colonne.
+   */
+  categories?: string[];
+  /** Sous-catégories réelles de la cible (services.subcategory_id → subcategories.name_fr). */
+  subcategories?: string[];
+
 }
 
 export interface TaxonomyVocabulary {
@@ -45,9 +55,24 @@ export interface TaxonomyVocabulary {
    * filtrer sur le seul libellé exact raterait la majorité des 32 établissements concernés.
    */
   wordToServices: Map<string, Set<string>>;
+  /** Libellé de service normalisé → catégories racines qui le portent. */
+  serviceCategories: Map<string, Set<string>>;
+  /** Libellé de service normalisé → sous-catégories qui le portent. */
+  serviceSubcategories: Map<string, Set<string>>;
+  /** Nom de sous-catégorie normalisé → catégories racines. */
+  subcategoryCategories: Map<string, Set<string>>;
+  /**
+   * Index stemmé : terme dont chaque mot est passé par `stemKey` → cibles.
+   * Sans lui, « restaurants français » ne rencontrait jamais la sous-catégorie
+   * `Restaurant` (frontière de mot bloquée par le pluriel), le moteur perdait le type
+   * de lieu et partait en repli sémantique bruyant.
+   */
+  stemEntries: Map<string, ResolvedTarget[]>;
+
   loadedAt: number;
   counts: Record<string, number>;
 }
+
 
 
 const VOCAB_TTL_MS = 5 * 60 * 1000;
@@ -94,16 +119,36 @@ const STOP_WORDS = new Set([
 ]);
 
 
-/** Pluriel simple rabattu au singulier, pour que « vélos » et « vélo » partagent une clé. */
+/**
+ * Clé de rapprochement : pluriel ET genre rabattus sur une forme unique.
+ * Appliquée symétriquement à l'index et à la requête, donc seule la cohérence compte.
+ * « français » / « française » / « françaises » → une seule clé, sinon « restaurants
+ * français » n'atteignait jamais le service « Cuisine française ».
+ */
 export function stemKey(word: string): string {
-  return word.length > 4 && word.endsWith("s") ? word.slice(0, -1) : word;
+  let w = word;
+  if (w.length > 4 && w.endsWith("s")) w = w.slice(0, -1);
+  // Adjectifs de nationalité : ienne→ien, aise→ais, aine→ain, puis -e final.
+  if (w.length > 5 && w.endsWith("ienne")) return w.slice(0, -2);
+  if (w.length > 4 && w.endsWith("e")) w = w.slice(0, -1);
+  return w;
 }
+
 
 /** Mots significatifs d'un libellé. */
 export function contentWords(text: string): string[] {
   return normalizeTerm(text)
     .split(" ")
     .filter((w) => w.length >= 4 && !STOP_WORDS.has(w));
+}
+
+/** Terme entier rabattu mot à mot par `stemKey` (pluriel + genre neutralisés). */
+export function stemPhrase(text: string): string {
+  return normalizeTerm(text)
+    .split(" ")
+    .filter(Boolean)
+    .map(stemKey)
+    .join(" ");
 }
 
 
@@ -141,15 +186,15 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
   if (!force && cachedVocab && Date.now() - cachedVocab.loadedAt < VOCAB_TTL_MS) return cachedVocab;
 
   const [subcats, services, synonyms, categories, cities, neighborhoods] = await Promise.all([
-    selectAll(admin, "subcategories", "name_fr, name_en, name_ar, keywords"),
-    selectAll(admin, "services", "name_fr, name_en, name_ar, keywords", (q) => q.eq("is_active", true)),
+    selectAll(admin, "subcategories", "id, category_id, name_fr, name_en, name_ar, keywords"),
+    selectAll(admin, "services", "subcategory_id, name_fr, name_en, name_ar, keywords", (q) => q.eq("is_active", true)),
     selectAll(
       admin,
       "search_synonyms",
       "key_word, key_word_en, key_word_ar, synonyms, synonyms_en, synonyms_ar, subcategory_names, service_names, badge_id, engagement_filters, commodity_filters",
       (q) => q.eq("is_active", true),
     ),
-    selectAll(admin, "categories", "name_fr, name_en, name_ar"),
+    selectAll(admin, "categories", "id, name_fr, name_en, name_ar"),
     selectAll(admin, "cities", "name_fr, name_en, name_ar"),
     selectAll(admin, "neighborhoods", "name, name_en, name_ar"),
   ]);
@@ -157,7 +202,28 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
   const entries = new Map<string, ResolvedTarget[]>();
   const synonymEntries = new Map<string, ResolvedTarget[]>();
   const wordToServices = new Map<string, Set<string>>();
+  const serviceCategories = new Map<string, Set<string>>();
+  const serviceSubcategories = new Map<string, Set<string>>();
+  const subcategoryCategories = new Map<string, Set<string>>();
+  const subcatNameById = new Map<string, string>();
+  for (const sc of subcats) if (sc.id && sc.name_fr) subcatNameById.set(String(sc.id), String(sc.name_fr));
 
+
+  // Chaîne de typage native : service → sous-catégorie → catégorie.
+  const categoryNameById = new Map<string, string>();
+  for (const c of categories) if (c.id && c.name_fr) categoryNameById.set(String(c.id), String(c.name_fr));
+  const subcatCategoryById = new Map<string, string>();
+  for (const sc of subcats) {
+    if (!sc.id) continue;
+    const catName = sc.category_id ? categoryNameById.get(String(sc.category_id)) : undefined;
+    if (!catName) continue;
+    subcatCategoryById.set(String(sc.id), catName);
+    const key = normalizeTerm(sc.name_fr);
+    if (!key) continue;
+    const set = subcategoryCategories.get(key) ?? new Set<string>();
+    set.add(catName);
+    subcategoryCategories.set(key, set);
+  }
 
   // 1-2. Sous-catégories : noms puis keywords.
   for (const sc of subcats) {
@@ -188,7 +254,26 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
       set.add(value);
       wordToServices.set(key, set);
     }
+    // Typage du libellé par la catégorie racine. Un même libellé peut exister sous
+    // plusieurs sous-catégories (« Safran » : Épicerie, Coopérative agricole, Culture) :
+    // on accumule toutes ses catégories.
+    const catName = sv.subcategory_id ? subcatCategoryById.get(String(sv.subcategory_id)) : undefined;
+    const subName = sv.subcategory_id ? subcatNameById.get(String(sv.subcategory_id)) : undefined;
+    if (catName) {
+      const key = normalizeTerm(value);
+      const set = serviceCategories.get(key) ?? new Set<string>();
+      set.add(catName);
+      serviceCategories.set(key, set);
+    }
+    if (subName) {
+      const key = normalizeTerm(value);
+      const set = serviceSubcategories.get(key) ?? new Set<string>();
+      set.add(subName);
+      serviceSubcategories.set(key, set);
+    }
+
   }
+
 
 
   // 6. Catégories.
@@ -241,11 +326,29 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
     for (const key of keys) for (const t of targets) push(synonymEntries, key, t as any);
   }
 
+  // Index stemmé, dérivé des entrées littérales. Une clé stemmée identique à la clé
+  // normalisée n'apporte rien (elle est déjà couverte) : on ne garde que les formes
+  // réellement rabattues, ce qui limite le volume et évite les doublons.
+  const stemEntries = new Map<string, ResolvedTarget[]>();
+  for (const [term, targets] of entries) {
+    const key = stemPhrase(term);
+    if (!key || key === term || key.length < 3) continue;
+    const list = stemEntries.get(key) ?? [];
+    for (const t of targets) {
+      if (list.some((x) => x.type === t.type && x.value === t.value)) continue;
+      list.push({ ...t, matched: key });
+    }
+    stemEntries.set(key, list);
+  }
+
   cachedVocab = {
     entries,
     synonymEntries,
     wordToServices,
-
+    serviceCategories,
+    serviceSubcategories,
+    subcategoryCategories,
+    stemEntries,
     loadedAt: Date.now(),
     counts: {
       subcategories: subcats.length,
@@ -254,8 +357,12 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
       categories: categories.length,
       literalTerms: entries.size,
       synonymTerms: synonymEntries.size,
+      typedServices: serviceCategories.size,
+      stemTerms: stemEntries.size,
     },
   };
+
+
   return cachedVocab;
 }
 
@@ -289,17 +396,22 @@ export function resolveTaxonomy(query: string, vocab: TaxonomyVocabulary): Resol
   const out: ResolvedTarget[] = [];
   if (!normalized) return { query, normalized, targets: [], unresolved: true };
 
-  const collect = (map: Map<string, ResolvedTarget[]>, forced?: MatchStrength) => {
+  const stemmed = stemPhrase(normalized);
+
+  const collect = (map: Map<string, ResolvedTarget[]>, forced?: MatchStrength, hay = normalized) => {
     for (const [term, targets] of map) {
-      if (!containsOnWordBoundary(normalized, term)) continue;
+      if (!containsOnWordBoundary(hay, term)) continue;
       const strength: MatchStrength =
-        forced ?? (term === normalized ? "exact" : term.includes(" ") ? "phrase" : "word");
+        forced ?? (term === hay ? "exact" : term.includes(" ") ? "phrase" : "word");
       for (const t of targets) out.push({ ...t, strength: t.strength === "synonym" ? "synonym" : strength, matched: term });
     }
   };
 
   collect(vocab.entries);
   collect(vocab.synonymEntries, "synonym");
+  // Passe stemmée : « restaurants français » atteint enfin `Restaurant`.
+  collect(vocab.stemEntries, undefined, stemmed);
+
 
   // Expansion par mot : tout mot significatif de la requête qui apparaît dans un libellé
   // de service remonte ce service. C'est ce qui rattrape « quad marrakech » (Quad,
@@ -326,7 +438,7 @@ export function resolveTaxonomy(query: string, vocab: TaxonomyVocabulary): Resol
   }
 
 
-  const targets = [...best.values()].sort((a, b) => {
+  const sorted = [...best.values()].sort((a, b) => {
     const s = STRENGTH_PRIORITY[a.strength] - STRENGTH_PRIORITY[b.strength];
     if (s !== 0) return s;
     const p = TYPE_PRIORITY[a.type] - TYPE_PRIORITY[b.type];
@@ -334,8 +446,62 @@ export function resolveTaxonomy(query: string, vocab: TaxonomyVocabulary): Resol
     return b.matched.length - a.matched.length;
   });
 
+  // Typage natif : chaque cible porte ses catégories racines et sous-catégories réelles.
+  const typed = sorted.map((t) => {
+    const key = normalizeTerm(t.value);
+    const cats =
+      t.type === "service"
+        ? vocab.serviceCategories.get(key)
+        : t.type === "subcategory"
+          ? vocab.subcategoryCategories.get(key)
+          : t.type === "category"
+            ? new Set([t.value])
+            : undefined;
+    const subs =
+      t.type === "service"
+        ? vocab.serviceSubcategories.get(key)
+        : t.type === "subcategory"
+          ? new Set([t.value])
+          : undefined;
+    let next = t;
+    if (cats?.size) next = { ...next, categories: [...cats] };
+    if (subs?.size) next = { ...next, subcategories: [...subs] };
+    return next;
+  });
+
+
+  const targets = qualifyByCategory(typed);
   return { query, normalized, targets, unresolved: targets.length === 0 };
 }
+
+/**
+ * Garde-fou de catégorie — la correction du bug mesuré « supermarchés dans les
+ * restaurants italiens ». Le synonyme `italien` mappe six services, dont trois
+ * fromages (`Parmesan`, `Gorgonzola`, `Grana Padano`) portés par 15 fiches, toutes
+ * `main_category = Commerce`, aucune restaurant. Dès que la requête nomme un type de
+ * lieu (« restaurants » → sous-catégorie Restaurant → catégorie Restauration), un
+ * service d'une autre catégorie racine ne peut plus être retenu.
+ *
+ * Aucune donnée ajoutée : la distinction ingrédient / pratique du lieu est déjà portée
+ * par services.subcategory_id → subcategories.category_id.
+ */
+export function qualifyByCategory(targets: ResolvedTarget[]): ResolvedTarget[] {
+  const intentCats = new Set<string>();
+  for (const t of targets) {
+    if (t.strength === "expansion") continue;
+    if (t.type !== "subcategory" && t.type !== "category") continue;
+    for (const c of t.categories ?? []) intentCats.add(c);
+  }
+  if (!intentCats.size) return targets;
+
+  return targets.filter((t) => {
+    if (t.type !== "service") return true;
+    // Service non typé en base : on ne l'écarte pas, on ne sait pas.
+    if (!t.categories?.length) return true;
+    return t.categories.some((c) => intentCats.has(c));
+  });
+}
+
 
 /** Raccourci : charge le vocabulaire puis résout. */
 export async function resolveWithAdmin(admin: any, query: string): Promise<ResolveResult> {
@@ -359,6 +525,54 @@ export function strongTargetsOfType(result: ResolveResult, type: TargetType): st
     .filter((t) => t.type === type && t.strength !== "expansion")
     .map((t) => t.value);
 }
+
+/** Catégories racines d'un libellé de service, telles que déclarées en base. */
+export function serviceCategoriesOf(vocab: TaxonomyVocabulary, label: string): string[] {
+  return [...(vocab.serviceCategories.get(normalizeTerm(label)) ?? [])];
+}
+
+/** Catégories racines d'une sous-catégorie. */
+export function subcategoryCategoriesOf(vocab: TaxonomyVocabulary, name: string): string[] {
+  return [...(vocab.subcategoryCategories.get(normalizeTerm(name)) ?? [])];
+}
+
+/**
+ * Applique le garde-fou de catégorie à une liste brute de libellés de services
+ * (ex. `search_synonyms.service_names` dans business-search). Un libellé non typé
+ * en base est conservé : on ne sait pas, on n'écarte pas.
+ */
+export function filterServicesByCategories(
+  vocab: TaxonomyVocabulary,
+  labels: string[],
+  intentCategories: string[],
+): { kept: string[]; dropped: string[] } {
+  const cats = new Set(intentCategories.filter(Boolean));
+  if (!cats.size) return { kept: labels, dropped: [] };
+  const kept: string[] = [];
+  const dropped: string[] = [];
+  for (const label of labels) {
+    const own = serviceCategoriesOf(vocab, label);
+    if (!own.length || own.some((c) => cats.has(c))) kept.push(label);
+    else dropped.push(label);
+  }
+  return { kept, dropped };
+}
+
+/** Services retenus par le résolveur qui appartiennent à la catégorie d'intention. */
+export function qualifiedServiceTargets(result: ResolveResult): ResolvedTarget[] {
+  const intentCats = new Set<string>();
+  for (const t of result.targets) {
+    if (t.strength === "expansion") continue;
+    if (t.type !== "subcategory" && t.type !== "category") continue;
+    for (const c of t.categories ?? []) intentCats.add(c);
+  }
+  if (!intentCats.size) return [];
+  return result.targets.filter(
+    (t) => t.type === "service" && (t.categories ?? []).some((c) => intentCats.has(c)),
+  );
+}
+
+
 
 
 /** Payload compact pour les métriques de résolution (search_logs / ai_conversation_turns). */
