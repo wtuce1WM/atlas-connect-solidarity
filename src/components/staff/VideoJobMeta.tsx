@@ -157,6 +157,16 @@ const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessNam
 
   return (
     <div className="rounded-lg border bg-muted/30 p-3 grid gap-2 md:grid-cols-3 text-[11px] text-muted-foreground w-full">
+      <div className="md:col-span-3 flex flex-wrap items-center gap-2">
+        <Badge className="text-[10px] bg-primary/15 text-primary border border-primary/40 hover:bg-primary/15">
+          Format : {detectFormat(job)}
+        </Badge>
+        {promo && (
+          <Badge className="text-[10px] bg-gold/25 text-black border border-gold hover:bg-gold/25">
+            Montage : {promo.montage}
+          </Badge>
+        )}
+      </div>
       <div className="md:col-span-3 break-all">
         <span className="font-semibold text-black">Fichier</span> {fileName}
       </div>
@@ -182,23 +192,21 @@ const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessNam
         {effects.length > 0 ? effects.join(", ") : "aucun activé"}
       </div>
       {promo && (
-        <div className="md:col-span-3 grid gap-1 md:grid-cols-3 border-t pt-2">
+        <div className="md:col-span-3 grid gap-1 md:grid-cols-2 border-t pt-2">
           <div>
             <span className="font-semibold text-black">Montage</span> {promo.montage}
           </div>
           <div>
             <span className="font-semibold text-black">Fond d'écran vidéo</span> {promo.bgFeed}
           </div>
-          <div>
-            <span className="font-semibold text-black">Clip source</span> {promo.clip}
-          </div>
           {promo.bgFeedUrl && (
-            <div className="md:col-span-3 break-all">
+            <div className="md:col-span-2 break-all">
               <span className="font-semibold text-black">URL du fond</span> {promo.bgFeedUrl}
             </div>
           )}
         </div>
       )}
+
 
       {steps.length > 0 && (
         <div className="md:col-span-3 flex flex-wrap gap-1">
