@@ -846,7 +846,7 @@ Deno.serve(async (req) => {
 
         // Recherche déterministe partagée : appelée avec les champs structurés du
         // classifieur, ou en secours avec le message brut quand il n'est pas confiant.
-        const runSearch = async (baseQuery: string, city: string, excluded: string[]) => {
+        const runSearch = async (baseQuery: string, city: string, excluded: string[], requiredServices: string[] = []) => {
           const views = detectViewIntent(userMessage);
           cityDetected = city;
           try {
