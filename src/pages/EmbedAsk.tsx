@@ -1157,6 +1157,19 @@ const EmbedAsk = () => {
   const StrongCited = ({ children }: { children?: React.ReactNode }) => {
     const text = String(Array.isArray(children) ? children.join("") : children ?? "").trim();
     const key = text.toLowerCase();
+    const evHit = eventsByName.get(key);
+    if (evHit) {
+      return (
+        <button
+          type="button"
+          onClick={() => setOpenEvents({ list: evHit.list, index: evHit.index })}
+          style={AI_NAME_FONT}
+          className="font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C24B3F] cursor-pointer"
+        >
+          {children}
+        </button>
+      );
+    }
     const dest = destByName.get(key);
     if (dest) {
       return (
