@@ -68,7 +68,7 @@ export function fmtKm(km: number): string {
   return km < 1 ? `${Math.round(km * 1000)} m` : Number.isInteger(km) ? `${km} km` : `${km.toFixed(1)} km`;
 }
 
-export function toMapMarker(businesses: any[], title: string | null = null): string {
+export function toMapMarker(businesses: any[], title: string | null = null, order: string | null = null): string {
   const mapBusinesses = businesses.slice(0, 20).map((p: any) => ({
     id: p.id, slug: p.slug, name: p.name,
     city: p.city, neighborhood: p.neighborhood, address: p.address,
@@ -89,7 +89,7 @@ export function toMapMarker(businesses: any[], title: string | null = null): str
     ...ctaFieldsOf(p),
     engagements: p.engagements,
   }));
-  return `\n\n<!--SHOW_ON_MAP:${JSON.stringify({ title, businesses: mapBusinesses })}-->`;
+  return `\n\n<!--SHOW_ON_MAP:${JSON.stringify({ title, order, businesses: mapBusinesses })}-->`;
 }
 
 
