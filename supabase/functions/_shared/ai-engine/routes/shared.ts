@@ -52,7 +52,7 @@ export const DAY_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday",
 export async function fetchPriorFull(admin: any, ids: string[]): Promise<any[]> {
   if (!ids.length) return [];
   const { data } = await admin.from("businesses").select(
-    "id, name, slug, city, neighborhood, address, main_category, latitude, longitude, logo_url, images, computed_rating, rating, total_review_count, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, engagements, opening_hours, is_open_24h, vacation_dates, show_opening_hours, hook_fr, hook_en, hook_ar"
+    "id, name, slug, city, neighborhood, address, main_category, latitude, longitude, logo_url, images, computed_rating, rating, total_review_count, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, engagements, opening_hours, is_open_24h, vacation_dates, show_opening_hours, hook_fr, hook_en, hook_ar, " + CTA_SELECT_FIELDS
   ).in("id", ids.slice(0, 30));
   return Array.isArray(data) ? data : [];
 }
@@ -86,6 +86,7 @@ export function toMapMarker(businesses: any[], title: string | null = null): str
     opening_hours: p.opening_hours ?? null,
     is_open_24h: p.is_open_24h ?? null,
     show_opening_hours: p.show_opening_hours ?? null,
+    ...ctaFieldsOf(p),
     engagements: p.engagements,
   }));
   return `\n\n<!--SHOW_ON_MAP:${JSON.stringify({ title, businesses: mapBusinesses })}-->`;
