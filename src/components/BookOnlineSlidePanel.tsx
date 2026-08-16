@@ -3312,7 +3312,7 @@ const BookOnlineSlidePanelInner = ({
                                   ) : (
                                     <video
                                       src={d.url}
-                                      poster={d.thumbnail_url || undefined}
+                                      poster={resolveVideoDocThumbnail(d) || d.thumbnail_url || undefined}
                                       controls
                                       muted
                                       playsInline
