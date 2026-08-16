@@ -2117,7 +2117,7 @@ const EmbedAsk = () => {
                     className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    {lang === "en" ? `All results · ${poolRemaining}` : lang === "ar" ? `كل النتائج · ${poolRemaining}` : `Tous les résultats · ${poolRemaining}`}
+                    {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`}
                   </button>
                 )}
                 {localFilters.closest && (

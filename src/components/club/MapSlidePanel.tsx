@@ -114,6 +114,9 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
 
   // Priorité : coordonnées définies dans le popup de géolocalisation, sinon fallback navigator
   const userPos = disableUserLocation ? null : ((geo.isEnabled && geo.coords) ? geo.coords : browserPos);
+  // Origine des distances : position utilisateur si dispo, sinon l'établissement hôte
+  // (cas /embed où la géoloc est désactivée mais un hostLocation est fourni).
+  const origin = userPos || hostLocation || null;
 
   useEffect(() => {
     if (!open) return;
@@ -199,28 +202,31 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
 
   const proximityCountsByKm = useMemo(() => {
     const out: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
-    if (!userPos) return out;
+    if (!origin) return out;
     for (const p of pois) {
       if (p.latitude == null || p.longitude == null) continue;
-      const d = haversineKm(userPos.lat, userPos.lng, p.latitude, p.longitude);
+      const d = haversineKm(origin.lat, origin.lng, p.latitude, p.longitude);
       for (const km of [0.5, 1, 5, 10]) if (d <= km) out[km]++;
     }
     return out;
-  }, [pois, userPos]);
+  }, [pois, origin]);
+
+  // Limite du lot « Top N » : 20 au-delà de 20 fiches, sinon 10 (pools IA courts)
+  const topLimit = pois.length > 20 ? 20 : 10;
 
   const displayedPois = useMemo(() => {
-    let list = showAll ? rankedPois : rankedPois.slice(0, 20);
-    if (userPos && proximityKm != null) {
+    let list = showAll ? rankedPois : rankedPois.slice(0, topLimit);
+    if (origin && proximityKm != null) {
       list = list.filter((p) => {
         if (p.latitude == null || p.longitude == null) return false;
-        return haversineKm(userPos.lat, userPos.lng, p.latitude, p.longitude) <= proximityKm;
+        return haversineKm(origin.lat, origin.lng, p.latitude, p.longitude) <= proximityKm;
       });
     }
     return list;
-  }, [showAll, rankedPois, userPos, proximityKm]);
+  }, [showAll, rankedPois, origin, proximityKm, topLimit]);
 
   const total = pois.length;
-  const showToggle = total > 20;
+  const showToggle = total > 10;
   const proximityActive = proximityKm != null;
   const proximityCount = proximityKm != null ? (proximityCountsByKm[proximityKm] ?? 0) : 0;
 
@@ -324,7 +330,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                     onClick={() => setShowAll(false)}
                     className={`px-3 py-1 rounded-full transition-colors ${!showAll ? "bg-[#C04F17] text-white" : "text-white/80 hover:text-white"}`}
                   >
-                    {mt.top20}
+                    {mt.top20.replace("20", String(topLimit))}
                   </button>
                   <button
                     type="button"
@@ -335,7 +341,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                   </button>
                 </div>
               )}
-              {userPos && (() => {
+              {origin && (() => {
                 const opts: { km: number; label: string }[] = [
                   { km: 0.5, label: mt.d500 },
                   { km: 1, label: mt.d1 },
