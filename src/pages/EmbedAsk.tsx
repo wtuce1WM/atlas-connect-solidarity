@@ -622,6 +622,8 @@ const EmbedAsk = () => {
 
   // Couleurs de fond des widgets définies par l'affilié (mode clair / mode sombre).
   const [widgetColors, setWidgetColors] = useState<{ light: string | null; dark: string | null }>({ light: null, dark: null });
+  // Couleur de fond de la carte propriétaire (/affiliates/presence → Map).
+  const [hostMapBgColor, setHostMapBgColor] = useState<string | null>(null);
 
   // Couleurs de l'affilié : lues via les réglages widgets (défaut global +
   // surcharge établissement), jamais depuis la fiche.
