@@ -1997,6 +1997,28 @@ const EmbedAsk = () => {
             >
               {SCOPE_LABELS[lang]?.newConversation ?? SCOPE_LABELS.fr.newConversation}
             </button>
+            {mapReplayTarget && (
+              <button
+                type="button"
+                onClick={() => setOpenMap(mapReplayTarget)}
+                style={AI_NAME_FONT}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+              >
+                <MapPin className="w-3.5 h-3.5" />
+                {lang === "en" ? "On a map" : lang === "ar" ? "على الخريطة" : "Sur une carte"}
+              </button>
+            )}
+            {poolRemaining > 0 && (
+              <button
+                type="button"
+                onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
+                style={AI_NAME_FONT}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                {lang === "en" ? `All results · ${poolRemaining}` : lang === "ar" ? `كل النتائج · ${poolRemaining}` : `Tous les résultats · ${poolRemaining}`}
+              </button>
+            )}
           </div>
         )}
         <div className="flex items-center gap-2 pb-2">
