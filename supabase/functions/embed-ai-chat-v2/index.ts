@@ -302,6 +302,9 @@ Deno.serve(async (req) => {
 
 
       const finish = async (streamCompleted: boolean) => {
+        if (competitorGuard.active && competitorGuard.filtered > 0) {
+          emit("\n\n<!--COMPETITOR_GUARD_ACTIVE-->");
+        }
         if (destinationsBlock) { emit(destinationsBlock); destinationsBlock = null; }
         if (articleTeaser) { emit(articleTeaser); articleTeaser = null; }
         end();
