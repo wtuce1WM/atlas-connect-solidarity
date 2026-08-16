@@ -326,20 +326,24 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
     for (const key of keys) for (const t of targets) push(synonymEntries, key, t as any);
   }
 
-  // Index stemmé, dérivé des entrées littérales. Une clé stemmée identique à la clé
-  // normalisée n'apporte rien (elle est déjà couverte) : on ne garde que les formes
-  // réellement rabattues, ce qui limite le volume et évite les doublons.
+  // Index stemmé, dérivé des entrées littérales ET des synonymes. La clé stemmée est
+  // conservée même identique à la clé normalisée : c'est la REQUÊTE qui est stemmée
+  // (« restaurants » → « restaurant », « italiens » → « italien »), donc la forme
+  // singulier/masculin doit être présente dans cet index pour être atteignable.
   const stemEntries = new Map<string, ResolvedTarget[]>();
-  for (const [term, targets] of entries) {
-    const key = stemPhrase(term);
-    if (!key || key === term || key.length < 3) continue;
-    const list = stemEntries.get(key) ?? [];
-    for (const t of targets) {
-      if (list.some((x) => x.type === t.type && x.value === t.value)) continue;
-      list.push({ ...t, matched: key });
+  for (const src of [entries, synonymEntries]) {
+    for (const [term, targets] of src) {
+      const key = stemPhrase(term);
+      if (!key || key.length < 3) continue;
+      const list = stemEntries.get(key) ?? [];
+      for (const t of targets) {
+        if (list.some((x) => x.type === t.type && x.value === t.value)) continue;
+        list.push({ ...t, matched: key });
+      }
+      stemEntries.set(key, list);
     }
-    stemEntries.set(key, list);
   }
+
 
   cachedVocab = {
     entries,
