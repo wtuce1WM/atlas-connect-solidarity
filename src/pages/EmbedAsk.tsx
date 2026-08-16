@@ -1698,7 +1698,7 @@ const EmbedAsk = () => {
               )}
 
               {mapPayload && mapPayload.businesses.length > 0 &&
-                renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload))}
+                renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload), mapPayload.order)}
 
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
 
