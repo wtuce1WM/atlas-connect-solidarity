@@ -3589,13 +3589,16 @@ const BookOnlineSlidePanelInner = ({
                             <div key={c.url} className="w-full">
                               <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">{c.label}</h2>
                               <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
-                                <iframe
-                                  src={c.url}
-                                  title={c.label}
-                                  allow="payment; clipboard-write; fullscreen"
-                                  className="w-full block border-0"
-                                  style={{ aspectRatio: "16 / 10", minHeight: 640 }}
-                                />
+                                <LazyMount minHeight={640} rootMargin="200px">
+                                  <iframe
+                                    src={c.url}
+                                    title={c.label}
+                                    allow="payment; clipboard-write; fullscreen"
+                                    className="w-full block border-0"
+                                    style={{ aspectRatio: "16 / 10", minHeight: 640 }}
+                                  />
+                                </LazyMount>
+
                               </div>
                             </div>
                           );
