@@ -1581,6 +1581,9 @@ const EmbedAsk = () => {
                   <ReactMarkdown
                     components={{
                       strong: StrongCited as any,
+                      h3: (({ children }: any) => (
+                        <h3 className="text-base md:text-lg font-bold mt-1 mb-2 font-[Montserrat]">{children}</h3>
+                      )) as any,
                       a: ((props: any) => <MarkdownLink href={props.href} openBooking={openBookingOverlay}>{props.children}</MarkdownLink>) as any,
                       ...(articleCard?.inline
                         ? {
