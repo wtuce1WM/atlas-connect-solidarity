@@ -279,3 +279,21 @@ export async function buildProximityFromPool(
     : `\n\nTu peux modifier ce rayon ci-dessous ou à la voix.`;
   return { text: `${intro}\n\n${lines.join("\n")}${tail}${toMapMarker(kept)}`, kept, total: withDist.length };
 }
+
+/**
+ * Relance « je te montre les autres / les suivantes » : la seule action attendue
+ * est d'AFFICHER le lot suivant du corpus déjà trouvé (aucune nouvelle recherche,
+ * aucun token). Volontairement strict pour ne pas capter une vraie demande.
+ */
+export function isShowMoreIntent(text: string): boolean {
+  const n = normalize(text);
+  if (!n) return false;
+  if (n.length > 80) return false;
+  if (/\b(montre|montrer|affiche|afficher|voir|donne|donner|envoie|oui|ok|vas?[- ]?y|continue|suite)\b/.test(n)
+    && /\b(les autres|l autre|autres|les suivant(?:s|es)?|la suite|le reste|reste|plus)\b/.test(n)) return true;
+  if (/^(les autres|les suivant(?:s|es)?|la suite|le reste|et les autres|et apres|suite)\s*\??$/.test(n)) return true;
+  if (/\b(show|see|give)\b.*\b(the )?(others?|rest|more|next)\b/i.test(text)) return true;
+  if (/^(more|the others?|next|the rest)\s*\??$/i.test(text.trim())) return true;
+  if (/(البقية|الباقي|الآخرين|المزيد)/.test(text)) return true;
+  return false;
+}
