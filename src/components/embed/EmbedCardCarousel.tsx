@@ -117,7 +117,7 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
             className="shrink-0 w-44 text-left group cursor-pointer"
 
           >
-            <div className="relative w-44 h-64 rounded-xl overflow-hidden bg-neutral-800">
+            <div className="relative w-44 rounded-xl overflow-hidden bg-neutral-800" style={{ height: cardH }}>
               {it.image ? (
                 <img
                   src={it.image}
