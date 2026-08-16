@@ -452,49 +452,24 @@ export async function buildBlogArticleAnswer(
 
   const shown = orderedBiz.slice(0, Math.min(orderedBiz.length, 10));
   const shownEntries = orderedEntries.slice(0, shown.length);
-  const revByBiz = await defaultReviews(admin, shown.map((b: any) => b.id));
 
   articlePayload.inline = true;
   // Surfaces sans hôte : la ville vient du pseudo-hôte, sinon des fiches de l'article.
   const cityForCopy = host?.city || shown.find((b: any) => b?.city)?.city || "Marrakech";
-  const reviewsLabel = lang === "en" ? "reviews" : lang === "ar" ? "مراجعة" : "avis";
-  const anonLabel = lang === "en" ? "Anonymous" : lang === "ar" ? "مجهول" : "Anonyme";
 
+  // Nom, quartier/ville, hook, note /20, avis et horaires sont rendus par la carte
+  // résultat IA côté client (payload SHOW_ON_MAP) : ne restent ici que les
+  // paragraphes ÉDITORIAUX de l'article, qu'aucune carte ne peut porter.
   const body = shown.map((biz: any, idx: number) => {
     const entry = shownEntries[idx] || {};
-    const pretitle = stripText(entry.pretitle || "");
     const rank = Number(entry.rank) || idx + 1;
-    const hook = stripText(entry.hook || "") || stripText(
-      lang === "en" ? (biz.hook_en || biz.hook_fr || "") :
-      lang === "ar" ? (biz.hook_ar || biz.hook_fr || "") :
-      (biz.hook_fr || biz.hook_en || ""),
-    );
     const paragraphs = Array.isArray(entry.paragraphs) && entry.paragraphs.length
       ? entry.paragraphs.map((p: any) => stripText(String(p || ""))).filter(Boolean).join("\n\n")
       : "";
-    const hours = stripText(entry.hours || "");
-    const area = pretitle || [biz.neighborhood, biz.city].filter(Boolean).join(" · ");
-    const detail = [hook, paragraphs].filter(Boolean).join("\n\n");
-    const hoursLine = hours ? `\n\n_${hours}_` : "";
-    const fallback = lang === "en" ? "A curated One World Morocco address."
-      : lang === "ar" ? "عنوان مختار ضمن دليل One World Morocco."
-      : "Une adresse sélectionnée dans le guide One World Morocco.";
-    const rating20 = biz.computed_rating != null ? Number(biz.computed_rating) : null;
-    const revCount = biz.total_review_count ?? null;
-    const ratingLine = rating20 != null
-      ? `\n\n⭐ **${rating20.toFixed(1)}/20**${revCount ? ` · ${revCount.toLocaleString(lang === "en" ? "en-US" : "fr-FR")} ${reviewsLabel}` : ""}`
-      : "";
-    const rev = revByBiz.get(String(biz.id));
-    const revText = rev
-      ? (lang === "en" ? (rev.text_en || rev.text || rev.text_fr)
-        : lang === "ar" ? (rev.text_ar || rev.text || rev.text_fr)
-        : (rev.text_fr || rev.text))
-      : null;
-    const revLine = revText
-      ? `\n\n> « ${stripText(String(revText))} »\n> — _${rev.author_name || anonLabel}${rev.source ? ` · ${rev.source}` : ""}_`
-      : "";
-    return `${rank}. **${biz.name}**${area ? ` — _${area}_` : ""}\n\n${detail || fallback}${ratingLine}${revLine}${hoursLine}`;
-  }).join("\n\n---\n\n");
+    if (!paragraphs) return "";
+    return `${rank}. **${biz.name}**\n\n${paragraphs}`;
+  }).filter(Boolean).join("\n\n---\n\n");
+
 
   const total = orderedBiz.length;
   const disclosure = shown.length < total
