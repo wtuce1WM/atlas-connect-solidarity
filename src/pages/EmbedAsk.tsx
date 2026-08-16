@@ -1021,7 +1021,7 @@ const EmbedAsk = () => {
    * par quartier calculés côté moteur sur la totalité du pool). Source unique
    * pour « Tous les résultats » et pour les badges de quartier.
    */
-  const poolInfo = useMemo<{ ids: string[]; nb: Record<string, number>; hasGeo: boolean }>(() => {
+  const poolInfo = useMemo<{ ids: string[]; nb: Record<string, number>; hasGeo: boolean; hasHours: boolean }>(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
       if (m.role !== "assistant") continue;
@@ -1032,11 +1032,12 @@ const EmbedAsk = () => {
         const ids = Array.isArray(p?.ids) ? p.ids.map((x: unknown) => String(x)) : [];
         const nb = p?.nb && typeof p.nb === "object" ? (p.nb as Record<string, number>) : {};
         const hasGeo = Boolean(p?.hasGeo);
-        return { ids, nb, hasGeo };
+        const hasHours = Boolean(p?.hasHours);
+        return { ids, nb, hasGeo, hasHours };
       } catch { /* noop */ }
       break;
     }
-    return { ids: [], nb: {}, hasGeo: false };
+    return { ids: [], nb: {}, hasGeo: false, hasHours: false };
   }, [messages]);
 
   /** La dernière réponse assistant a-t-elle écarté des concurrents de l'hôte ? */
