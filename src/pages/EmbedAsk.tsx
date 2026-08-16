@@ -1925,7 +1925,6 @@ const EmbedAsk = () => {
           disableUserLocation
           hostLocation={hostLocation}
           hostLabel={businessName}
-          mapBaseColor={mapBaseColor}
           mapTheme={mapThemeResolved}
           showLayerControls
         />
