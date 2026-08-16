@@ -1252,7 +1252,7 @@ const EmbedAsk = () => {
   };
 
   // Présentation unique des établissements cités par l'IA (cartes résultat partagées).
-  const renderCarousel = (businesses: MapPanelBusiness[], onOpenMap?: () => void) => {
+  const renderCarousel = (businesses: MapPanelBusiness[], onOpenMap?: () => void, rankOrder?: string | null) => {
     const list = businesses.slice(0, 20);
     const openOne = (id: string, siblings: string[], overlay: "reviews" | null) => {
       setOpenSiblings(siblings);
@@ -1264,6 +1264,7 @@ const EmbedAsk = () => {
         businesses={list as never}
         origin={hostLocation ? { lat: hostLocation.lat, lng: hostLocation.lng } : null}
         lang={lang}
+        rankOrder={rankOrder ?? null}
         ink={(bgInk ?? (theme === "dark" ? "light" : "dark")) === "light" ? "light" : "dark"}
         onOpen={(id, sib) => openOne(id, sib, null)}
         onOpenReviews={(id, sib) => openOne(id, sib, "reviews")}
