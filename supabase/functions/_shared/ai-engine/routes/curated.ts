@@ -328,23 +328,6 @@ function mapBusinessesOf(list: any[]) {
 }
 
 
-async function defaultReviews(admin: any, ids: string[]): Promise<Map<string, any>> {
-  const revByBiz = new Map<string, any>();
-  if (!ids.length) return revByBiz;
-  try {
-    const { data } = await admin
-      .from("reviews")
-      .select("business_id, author_name, rating, text, text_fr, text_en, text_ar, source, is_default")
-      .in("business_id", ids)
-      .neq("is_hidden", true)
-      .order("is_default", { ascending: false });
-    for (const r of data || []) {
-      const bid = String((r as any).business_id);
-      if (!revByBiz.has(bid)) revByBiz.set(bid, r);
-    }
-  } catch { /* noop */ }
-  return revByBiz;
-}
 
 /**
  * Teaser d'article (non intrusif) : le moteur calcule SES propres résultats et
