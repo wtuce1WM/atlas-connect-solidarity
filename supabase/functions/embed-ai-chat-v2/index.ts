@@ -337,35 +337,50 @@ Deno.serve(async (req) => {
         // route ne produit rien, on le dit et on s'arrête.
         if (clientForcedRoute && priorIds.length) {
           if (clientForcedRoute === "neighborhood_filter") {
+            // Le badge envoie le libellé de quartier lu DANS le corpus courant :
+            // on filtre donc sur ce libellé (égalité normalisée), et on n'utilise
+            // le résolveur d'alias que comme complément. Jamais de repli sur une
+            // recherche générique : la route répond ou dit qu'elle est vide.
             const nb = await resolveNeighborhoodInMessage(admin, userMessage, scopeCity).catch(() => null);
-            if (nb) {
-              const pool = await fetchPriorFull(admin, priorIds).catch(() => []);
-              const kept = filterPoolByNeighborhood(pool as any[], nb);
-              route = "discover";
-              resultsCount = kept.length;
-              if (!kept.length) {
-                emit(neighborhoodEmptyMessage(nb, lang as any));
-                await finish(true);
-                return;
+            const pool = await fetchPriorFull(admin, priorIds).catch(() => []);
+            const wanted = normalize(userMessage);
+            const kept = nb
+              ? filterPoolByNeighborhood(pool as any[], nb)
+              : (pool as any[]).filter((b) => normalize(String(b?.neighborhood || "")) === wanted);
+            const label = nb?.name || userMessage.trim();
+            route = "discover";
+            resultsCount = kept.length;
+            console.log("[embed-ai-chat-v2] local_neighborhood_filter", JSON.stringify({
+              label, resolved: !!nb, kept: kept.length, from: (pool as any[]).length,
+            }));
+            if (!kept.length) {
+              emit(nb
+                ? neighborhoodEmptyMessage(nb, lang as any)
+                : (lang === "en"
+                  ? `No address from this selection is located in ${label}.`
+                  : lang === "ar"
+                    ? `لا يوجد أي عنوان من هذه القائمة في ${label}.`
+                    : `Aucune adresse de cette sélection ne se trouve à ${label}.`));
+              await finish(true);
+              return;
+            }
+            const heading = lang === "en"
+              ? `In **${label}** — ${kept.length} address${kept.length > 1 ? "es" : ""} from this selection:`
+              : lang === "ar"
+                ? `في **${label}** — ${kept.length} من هذه القائمة:`
+                : `À **${label}** — ${kept.length} adresse${kept.length > 1 ? "s" : ""} de cette sélection :`;
+            const built = await buildPinnedAnswer(
+              admin, kept.map((b: any) => String(b.id)), host, lang, null,
+              { route: "neighborhood_filter", heading, outro: "" },
+            ).catch(() => null);
+            if (built) {
+              emit(built.text);
+              if (built.mapPayload?.businesses?.length) {
+                emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
               }
-              const heading = lang === "en"
-                ? `In **${nb.name}** — ${kept.length} address${kept.length > 1 ? "es" : ""} from this selection:`
-                : lang === "ar"
-                  ? `في **${nb.name}** — ${kept.length} من هذه القائمة:`
-                  : `À **${nb.name}** — ${kept.length} adresse${kept.length > 1 ? "s" : ""} de cette sélection :`;
-              const built = await buildPinnedAnswer(
-                admin, kept.map((b: any) => String(b.id)), host, lang, null,
-                { route: "neighborhood_filter", heading, outro: "" },
-              ).catch(() => null);
-              if (built) {
-                emit(built.text);
-                if (built.mapPayload?.businesses?.length) {
-                  emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
-                }
-                emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
-                await finish(true);
-                return;
-              }
+              emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
+              await finish(true);
+              return;
             }
           } else if (isForcedRouteKey(clientForcedRoute)) {
             const hostRadius = RADIUS_OPTIONS.includes(Number(host?.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
