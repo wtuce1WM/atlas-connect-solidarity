@@ -192,8 +192,18 @@ const AiBusinessResultCards = ({
                 ) : null}
               </div>
 
-              {(waHref || bookingUrl) ? (
+              {(waHref || bookingUrl || (onOpenReviews && reviewCount > 0)) ? (
                 <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                  {onOpenReviews && reviewCount > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => onOpenReviews(b.id, siblings)}
+                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border"
+                      style={{ borderColor: "#D4AF37", color: "#D4AF37" }}
+                    >
+                      <Star className="w-3 h-3" fill="#D4AF37" /> {t.allReviews}
+                    </button>
+                  ) : null}
                   {waHref ? (
                     <a
                       href={waHref}
