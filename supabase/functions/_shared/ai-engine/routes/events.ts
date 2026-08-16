@@ -186,15 +186,19 @@ export async function fetchAgendaEvents(
       if (eid && bid && !linked.has(eid)) linked.set(eid, bid);
     }
   }
-  const bizNameById = new Map<string, string>();
+  const bizById = new Map<string, any>();
   const bizIds = Array.from(new Set(Array.from(linked.values())));
   if (bizIds.length) {
-    const { data: bizRows } = await admin.from("businesses").select("id,name").in("id", bizIds);
-    for (const b of bizRows || []) if ((b as any).id) bizNameById.set((b as any).id, (b as any).name || "");
+    const { data: bizRows } = await admin
+      .from("businesses")
+      .select("id,name,slug,latitude,longitude,city,neighborhood,address,logo_url,images")
+      .in("id", bizIds);
+    for (const b of bizRows || []) if ((b as any).id) bizById.set((b as any).id, b);
   }
 
-  return results.map((e: any) => {
+  const mapped = results.map((e: any) => {
     const bizId = linked.get(e.id) || null;
+    const biz = bizId ? bizById.get(bizId) : null;
     const firstImage = Array.isArray(e.images) ? e.images.filter(Boolean)[0] : null;
     const firstVideo = Array.isArray(e.videos) ? e.videos.filter(Boolean)[0] : null;
     return {
@@ -202,16 +206,70 @@ export async function fetchAgendaEvents(
       start_date: e.start_date, end_date: e.end_date,
       recurrence: e.recurrence, days_of_week: e.days_of_week,
       start_time: e.start_time, end_time: e.end_time,
-      city: e.cities?.name_fr || null,
-      neighborhood: e.neighborhoods?.name || null,
+      city: e.cities?.name_fr || biz?.city || null,
+      neighborhood: e.neighborhoods?.name || biz?.neighborhood || null,
+      address: biz?.address || null,
       url: e.url || null,
       sort_order: e.sort_order ?? null,
       default_business_id: bizId,
-      business_name: bizId ? (bizNameById.get(bizId) || null) : null,
+      business_name: bizId ? (biz?.name || null) : null,
+      business_slug: biz?.slug ?? null,
+      latitude: biz?.latitude ?? null,
+      longitude: biz?.longitude ?? null,
       image: firstImage || (firstVideo ? thumbByUrl.get(firstVideo) || null : null),
       video: firstVideo || null,
     };
   });
+
+  return mapped;
+}
+
+/** Réponse d'une relance filtrée (quartier, etc.) sur un agenda déjà affiché. */
+export function buildEventsFilteredAnswer(
+  events: any[],
+  label: string,
+  city: string,
+  lang: "fr" | "en" | "ar",
+): string {
+  if (!events.length) {
+    if (lang === "en") return `No event from this agenda is located in **${label}** (${city}). Want me to widen to all of ${city}?`;
+    if (lang === "ar") return `لا توجد فعالية من هذه الأجندة في **${label}** (${city}). هل أوسّع إلى كل ${city}؟`;
+    return `Aucun événement de cet agenda n'a lieu à **${label}** (${city}). Tu veux que j'élargisse à tout ${city} ?`;
+  }
+  const head = lang === "en"
+    ? `Here is what the agenda keeps in **${label}** — ${events.length} event${events.length > 1 ? "s" : ""}.`
+    : lang === "ar"
+      ? `هذا ما تبقّى من الأجندة في **${label}** — ${events.length} فعالية.`
+      : `Voilà ce que l'agenda retient à **${label}** — ${events.length} événement${events.length > 1 ? "s" : ""}.`;
+  const body = events.map((e: any) => {
+    const where = [e.neighborhood, e.city].filter(Boolean).join(", ");
+    const hook = String(e.hook || "").trim();
+    return `**${e.name}**${where ? `. ${where}` : ""}${hook ? `. ${hook}` : ""}`;
+  }).join("\n\n");
+  return `${head}\n\n${body}`;
+}
+
+/** Dernier agenda affiché dans l'historique (marqueur EVENTS_SNAPSHOT). */
+export function priorEventsSnapshot(
+  uiMessages: any[],
+): { title: string | null; city: string | null; events: any[] } | null {
+  for (let i = uiMessages.length - 1; i >= 0; i--) {
+    const m = uiMessages[i];
+    if (m?.role !== "assistant") continue;
+    const text = (Array.isArray(m.parts) ? m.parts : [])
+      .filter((p: any) => p?.type === "text")
+      .map((p: any) => String(p.text || ""))
+      .join("");
+    const matches = [...text.matchAll(/<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g)];
+    if (!matches.length) continue;
+    try {
+      const parsed = JSON.parse(matches[matches.length - 1][1].replace(/--&gt;/g, "-->"));
+      if (Array.isArray(parsed?.events) && parsed.events.length) {
+        return { title: parsed.title ?? null, city: parsed.city ?? null, events: parsed.events };
+      }
+    } catch { /* marqueur illisible : ignoré */ }
+  }
+  return null;
 }
 
 /** Marqueur consommé par les fronts (/embed, /club, /search). */
