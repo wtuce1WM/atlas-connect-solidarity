@@ -18,11 +18,28 @@ export function buildEventsWeekendAnswer(
       return d.toLocaleDateString(locale, { day: "numeric", month: "long" });
     } catch { return ""; }
   };
+  const DOW_LABELS: Record<string, { fr: string; en: string; ar: string }> = {
+    monday: { fr: "lundi", en: "Monday", ar: "الاثنين" },
+    tuesday: { fr: "mardi", en: "Tuesday", ar: "الثلاثاء" },
+    wednesday: { fr: "mercredi", en: "Wednesday", ar: "الأربعاء" },
+    thursday: { fr: "jeudi", en: "Thursday", ar: "الخميس" },
+    friday: { fr: "vendredi", en: "Friday", ar: "الجمعة" },
+    saturday: { fr: "samedi", en: "Saturday", ar: "السبت" },
+    sunday: { fr: "dimanche", en: "Sunday", ar: "الأحد" },
+  };
+  const NUM_DOW = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  const dowLabel = (v: any): string => {
+    const raw = typeof v === "number" ? NUM_DOW[v] : String(v || "").toLowerCase().trim();
+    const hit = DOW_LABELS[raw];
+    if (!hit) return String(v ?? "");
+    return hit[lang] || hit.fr;
+  };
   const fmtWhen = (e: any) => {
     if (e.recurrence) {
-      const days = Array.isArray(e.days_of_week) ? e.days_of_week.join(", ") : "";
+      const days = Array.isArray(e.days_of_week) ? e.days_of_week.map(dowLabel).filter(Boolean).join(", ") : "";
       return days || (lang === "en" ? "recurring" : lang === "ar" ? "متكرر" : "récurrent");
     }
+
     const a = fmtDate(e.start_date);
     const b = fmtDate(e.end_date);
     if (a && b && a !== b) return lang === "en" ? `${a} → ${b}` : lang === "ar" ? `${a} ← ${b}` : `du ${a} au ${b}`;
