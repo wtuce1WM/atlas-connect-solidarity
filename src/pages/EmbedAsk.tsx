@@ -1668,19 +1668,71 @@ const EmbedAsk = () => {
                     onClick: () => setOpenEvents({ list: eventsPayload.events, index: idx }),
                   };
                 });
+                // Carte de l'agenda : chaque événement est géolocalisé via
+                // l'établissement lié (latitude/longitude du business).
+                const eventPois = eventsPayload.events
+                  .map((ev, idx) => ({ ev, idx }))
+                  .filter(({ ev }) => (ev as any).latitude != null && (ev as any).longitude != null)
+                  .map(({ ev, idx }) => ({
+                    id: `${ev.id}-${idx}`,
+                    name: ev.name,
+                    latitude: Number((ev as any).latitude),
+                    longitude: Number((ev as any).longitude),
+                    images: ev.image ? [ev.image] : ([] as string[]),
+                    city: ev.city ?? null,
+                    neighborhood: ev.neighborhood ?? null,
+                    avgOn20: null as number | null,
+                    totalReviews: 0,
+                  }));
+                const eventHostPoi = hostLocation && businessId
+                  ? [{
+                      id: businessId,
+                      name: businessName || "",
+                      latitude: hostLocation.lat,
+                      longitude: hostLocation.lng,
+                      images: [] as string[],
+                      city: businessCity,
+                      neighborhood: null as string | null,
+                      avgOn20: null as number | null,
+                      totalReviews: 0,
+                      markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
+                    }]
+                  : [];
                 return (
-                  <EmbedCardCarousel
-                    items={items}
-                    footer={
-                      <button
-                        type="button"
-                        onClick={() => setOpenEvents({ list: eventsPayload.events, index: 0 })}
-                        className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
-                      >
-                        <CalendarIcon className="w-3.5 h-3.5" /> {L.events} · {eventsPayload.events.length}
-                      </button>
-                    }
-                  />
+                  <>
+                    <EmbedCardCarousel
+                      items={items}
+                      footer={
+                        <button
+                          type="button"
+                          onClick={() => setOpenEvents({ list: eventsPayload.events, index: 0 })}
+                          className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
+                        >
+                          <CalendarIcon className="w-3.5 h-3.5" /> {L.events} · {eventsPayload.events.length}
+                        </button>
+                      }
+                    />
+                    {eventPois.length > 0 && (
+                      <div className="w-full max-w-[85%] relative rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800" style={{ height: 300 }}>
+                        <Suspense fallback={<div className="w-full h-full bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center text-xs opacity-60">Chargement de la carte…</div>}>
+                          <PoiGoogleMap
+                            pois={[...eventHostPoi, ...eventPois] as any}
+                            selectedPoiId={null}
+                            center={hostLocation || undefined}
+                            distanceOrigin={hostLocation || null}
+                            onPoiClick={(id) => {
+                              const idx = eventsPayload.events.findIndex((ev, i) => `${ev.id}-${i}` === id);
+                              if (idx >= 0) setOpenEvents({ list: eventsPayload.events, index: idx });
+                            }}
+                            fitToMarkers
+                            mapTheme={mapThemeResolved}
+                            baseColor={mapBaseColor}
+                            showLayerControls
+                          />
+                        </Suspense>
+                      </div>
+                    )}
+                  </>
                 );
               })()}
 
