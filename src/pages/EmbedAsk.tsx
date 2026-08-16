@@ -1081,7 +1081,7 @@ const EmbedAsk = () => {
         businesses={list as never}
         origin={hostLocation ? { lat: hostLocation.lat, lng: hostLocation.lng } : null}
         lang={lang}
-        ink={ink === "light" ? "dark" : "light"}
+        ink={(bgInk ?? (theme === "dark" ? "light" : "dark")) === "light" ? "light" : "dark"}
         onOpen={(id, sib) => openOne(id, sib, null)}
         onOpenReviews={(id, sib) => openOne(id, sib, "reviews")}
         footer={
