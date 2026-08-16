@@ -430,7 +430,7 @@ function categoryMeta(b: MapPanelBusiness): { Icon: typeof Bed; label: string } 
 
 const EmbedAsk = () => {
   const { slug = "" } = useParams();
-  const { params, businessId: widgetBusinessId, settings: widgetSettings } = useWidgetParams("ask", { slug });
+  const { params, businessId: widgetBusinessId, settings: widgetSettings, overlay } = useWidgetParams("ask", { slug });
   const lang = (["fr", "en", "ar"].includes(params.get("lang") || "") ? params.get("lang") : "fr") as "fr" | "en" | "ar";
   useWidgetTracking("ask", widgetBusinessId, lang);
   // Fond du widget :
