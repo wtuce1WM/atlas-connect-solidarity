@@ -144,6 +144,19 @@ const VideoGeneratePanel = () => {
   const [presetDirty, setPresetDirty] = useState(true);
   const [presetId, setPresetId] = useState<string | null>(null);
   const [relaunching, setRelaunching] = useState<string | null>(null);
+  /** Filtres de comparaison des rendus : format de sortie et montage. */
+  const [filterFormat, setFilterFormat] = useState<string>("all");
+  const [filterVariant, setFilterVariant] = useState<string>("all");
+
+  const visibleJobs = useMemo(
+    () =>
+      jobs.filter(
+        (j) =>
+          (filterFormat === "all" || videoJobFormatKey(j) === filterFormat) &&
+          (filterVariant === "all" || (videoJobVariantKey(j) ?? "fullscreen") === filterVariant),
+      ),
+    [jobs, filterFormat, filterVariant],
+  );
 
   const autoSlug = useMemo(() => slug.trim() || slugify(label || "feed"), [slug, label]);
 
@@ -161,6 +174,10 @@ const VideoGeneratePanel = () => {
       sectionPause,
       sectionMove,
       sections,
+      variant,
+      mockupBg,
+      browserUrl,
+      splitSide,
       effectsOn,
       intensity,
       strokeColor,
@@ -180,6 +197,10 @@ const VideoGeneratePanel = () => {
       sectionPause,
       sectionMove,
       sections,
+      variant,
+      mockupBg,
+      browserUrl,
+      splitSide,
       effectsOn,
       intensity,
       strokeColor,
@@ -188,6 +209,7 @@ const VideoGeneratePanel = () => {
       pathScope,
     ],
   );
+
 
   const applyFeedConfig = useCallback((c: any) => {
     if (!c || typeof c !== "object") return;
