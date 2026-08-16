@@ -119,7 +119,7 @@ export async function buildDistanceRanking(admin: any, host: any, ids: string[],
     : (lang === "en" ? `Among the previous results, **${top[0].name}** is the farthest from **${host.name}**:`
       : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** هو الأبعد عن **${host.name}**:`
       : `Parmi les précédents, c'est **${top[0].name}** le plus loin de **${host.name}** :`);
-  return `${intro}\n\n${lines.join("\n")}${toMapMarker(top)}`;
+  return `${intro}\n\n${lines.join("\n")}${toMapMarker(top, null, "distance")}`;
 }
 
 export async function buildDistanceList(admin: any, host: any, ids: string[], lang: "fr" | "en" | "ar"): Promise<string | null> {
@@ -141,7 +141,7 @@ export async function buildDistanceList(admin: any, host: any, ids: string[], la
     : lang === "ar"
       ? `المسافات من **${host.name}** للنتائج السابقة:`
       : `Distances depuis **${host.name}** pour les résultats précédents :`;
-  return `${intro}\n\n${lines.join("\n")}${toMapMarker(withDist)}`;
+  return `${intro}\n\n${lines.join("\n")}${toMapMarker(withDist, null, "distance")}`;
 }
 
 export async function buildRatingRanking(admin: any, ids: string[], mode: "best_rated" | "most_reviewed", lang: "fr" | "en" | "ar"): Promise<string | null> {
@@ -175,7 +175,7 @@ export async function buildRatingRanking(admin: any, ids: string[], mode: "best_
     const intro = lang === "en" ? `Among the previous results, **${top[0].name}** has the highest overall rating:`
       : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** لديه أعلى تقييم عام:`
       : `Parmi les précédents, c'est **${top[0].name}** qui a la meilleure note globale :`;
-    return `${intro}\n\n${lines.join("\n\n")}${toMapMarker(top)}`;
+    return `${intro}\n\n${lines.join("\n\n")}${toMapMarker(top, null, "rating")}`;
   }
   scored.sort((a: any, b: any) => b._count - a._count);
   const top = scored.filter((r: any) => r._count > 0).slice(0, 5);
@@ -191,7 +191,7 @@ export async function buildRatingRanking(admin: any, ids: string[], mode: "best_
   const intro = lang === "en" ? `Among the previous results, **${top[0].name}** has the most reviews:`
     : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** لديه أكبر عدد من المراجعات:`
     : `Parmi les précédents, c'est **${top[0].name}** qui a le plus d'avis :`;
-  return `${intro}\n\n${lines.join("\n")}${toMapMarker(top)}`;
+  return `${intro}\n\n${lines.join("\n")}${toMapMarker(top, null, "reviews")}`;
 }
 
 export function buildOrdinalPick(prior: Array<{ id: string; slug?: string; name: string }>, indices: number[], lang: "fr" | "en" | "ar"): string {

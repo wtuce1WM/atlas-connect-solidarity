@@ -46,6 +46,11 @@ interface Props {
   /** Encre claire (fond sombre) ou foncée (fond clair). */
   ink?: "light" | "dark";
   cardStyle?: React.CSSProperties;
+  /**
+   * Ordre de classement (`rating`, `reviews`, `distance`, `opening`…) : affiche un
+   * badge de rang générique sur chaque carte, avec podium (or/argent/bronze) sur le Top 3.
+   */
+  rankOrder?: string | null;
   onOpen: (id: string, siblingIds: string[]) => void;
   onOpenReviews?: (id: string, siblingIds: string[]) => void;
   /** Ouvre l'overlay de réservation interne (sinon nouvel onglet). */
@@ -55,10 +60,18 @@ interface Props {
 }
 
 const L = {
-  fr: { reviews: "avis", allReviews: "Consulter les avis clients", open: "Ouvert", closed: "Fermé", open24: "Ouvert 24h/24", whatsapp: "WhatsApp", book: "Réservez" },
-  en: { reviews: "reviews", allReviews: "Read customer reviews", open: "Open", closed: "Closed", open24: "Open 24/7", whatsapp: "WhatsApp", book: "Book" },
-  ar: { reviews: "تقييم", allReviews: "عرض آراء العملاء", open: "مفتوح", closed: "مغلق", open24: "مفتوح 24/24", whatsapp: "واتساب", book: "احجز" },
+  fr: { reviews: "avis", allReviews: "Avis clients", open: "Ouvert", closed: "Fermé", open24: "Ouvert 24h/24", whatsapp: "WhatsApp", book: "Réservez" },
+  en: { reviews: "reviews", allReviews: "Reviews", open: "Open", closed: "Closed", open24: "Open 24/7", whatsapp: "WhatsApp", book: "Book" },
+  ar: { reviews: "تقييم", allReviews: "آراء العملاء", open: "مفتوح", closed: "مغلق", open24: "مفتوح 24/24", whatsapp: "واتساب", book: "احجز" },
 };
+
+/** Podium Top 3 : médaille + couleur de rang. Au-delà, badge de rang neutre. */
+const PODIUM = [
+  { medal: "🥇", color: "#D4AF37" },
+  { medal: "🥈", color: "#B9BDC2" },
+  { medal: "🥉", color: "#CD7F32" },
+];
+
 
 const FR_TO_EN: Record<string, string> = {
   lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
@@ -81,13 +94,14 @@ function todayHours(b: AiResultBusiness): { label: string | null; isOpen: boolea
 }
 
 const AiBusinessResultCards = ({
-  businesses, origin, lang = "fr", ink = "dark", cardStyle, onOpen, onOpenReviews, onOpenBooking, footer, max = 20,
+  businesses, origin, lang = "fr", ink = "dark", cardStyle, rankOrder, onOpen, onOpenReviews, onOpenBooking, footer, max = 20,
 }: Props) => {
   const t = L[(lang as keyof typeof L) in L ? (lang as keyof typeof L) : "fr"];
   const list = businesses.slice(0, max);
   if (!list.length) return null;
   const siblings = list.map((b) => b.id);
   const light = ink === "light" && !cardStyle;
+  const ranked = !!rankOrder;
   const shellClass = cardStyle
     ? "border-transparent"
     : light
@@ -97,7 +111,9 @@ const AiBusinessResultCards = ({
 
   return (
     <div className="w-full flex flex-col gap-2">
-      {list.map((b) => {
+      {list.map((b, idx) => {
+        const podium = ranked && idx < 3 ? PODIUM[idx] : null;
+
         const img = (Array.isArray(b.images) && b.images[0]) || b.logo_url || null;
         const hook =
           lang === "en" ? b.hook_en || b.hook_fr : lang === "ar" ? b.hook_ar || b.hook_fr : b.hook_fr || b.hook_en;
@@ -128,19 +144,36 @@ const AiBusinessResultCards = ({
         return (
           <div
             key={b.id}
-            className={`flex gap-0 rounded-xl border overflow-hidden ${shellClass} ${bodyInk}`}
-            style={cardStyle}
+            className={`relative flex gap-0 rounded-xl border overflow-hidden ${shellClass} ${bodyInk}`}
+            style={
+              podium
+                ? { ...cardStyle, borderColor: podium.color, boxShadow: `0 0 0 1px ${podium.color}55` }
+                : cardStyle
+            }
           >
             <button
               type="button"
               onClick={() => onOpen(b.id, siblings)}
-              className="shrink-0 self-stretch w-24 sm:w-28 min-h-24 sm:min-h-28 bg-neutral-200 dark:bg-neutral-800 overflow-hidden"
+              className="relative shrink-0 self-stretch w-24 sm:w-28 min-h-24 sm:min-h-28 bg-neutral-200 dark:bg-neutral-800 overflow-hidden"
               aria-label={b.name}
             >
               {img ? (
                 <img src={img} alt={b.name} loading="lazy" className="w-full h-full object-cover" />
               ) : null}
+              {ranked ? (
+                <span
+                  className="absolute top-1 left-1 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-bold leading-none"
+                  style={
+                    podium
+                      ? { background: podium.color, color: "#1b1b1b" }
+                      : { background: "rgba(0,0,0,0.65)", color: "#fff" }
+                  }
+                >
+                  {podium ? podium.medal : `N°${idx + 1}`}
+                </span>
+              ) : null}
             </button>
+
 
             <div className="min-w-0 flex-1 p-2.5 flex flex-col gap-1">
               <button
@@ -194,16 +227,6 @@ const AiBusinessResultCards = ({
 
               {(waHref || bookingUrl || (onOpenReviews && reviewCount > 0)) ? (
                 <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                  {onOpenReviews && reviewCount > 0 ? (
-                    <button
-                      type="button"
-                      onClick={() => onOpenReviews(b.id, siblings)}
-                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border"
-                      style={{ borderColor: "#D4AF37", color: "#D4AF37" }}
-                    >
-                      <Star className="w-3 h-3" fill="#D4AF37" /> {t.allReviews}
-                    </button>
-                  ) : null}
                   {waHref ? (
                     <a
                       href={waHref}
@@ -229,6 +252,17 @@ const AiBusinessResultCards = ({
                       <CalendarCheck className="w-3 h-3" /> {bookingLabel}
                     </button>
                   ) : null}
+                  {onOpenReviews && reviewCount > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => onOpenReviews(b.id, siblings)}
+                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border"
+                      style={{ borderColor: "#D4AF37", color: "#D4AF37" }}
+                    >
+                      <Star className="w-3 h-3" fill="#D4AF37" /> {t.allReviews}
+                    </button>
+                  ) : null}
+
                 </div>
               ) : null}
 
