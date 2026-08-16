@@ -2947,10 +2947,11 @@ const BookOnlineSlidePanelInner = ({
                                 className="relative aspect-square rounded-lg overflow-hidden cursor-pointer"
                                 onClick={item.onClick}
                               >
-                                {item.imgUrl ? (
+                                {item.videoFallbackUrl ? (
+                                  <VideoDocPreview url={item.videoFallbackUrl} title={item.label} inert />
+                                ) : item.imgUrl ? (
                                   <img src={item.imgUrl} alt={item.label || `${realIndex + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
-                                ) : item.videoFallbackUrl ? (
-                                  <VideoThumbnail src={item.videoFallbackUrl} alt={item.label} className="w-full h-full object-cover" />
+
                                 ) : (
                                   <div className="w-full h-full bg-white/10 flex items-center justify-center">
                                     {descGridSection === "videos" ? <Play className="h-8 w-8 text-white/40" /> : <MapPin className="h-8 w-8 text-white/40" />}
