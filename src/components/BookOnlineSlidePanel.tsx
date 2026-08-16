@@ -2680,7 +2680,7 @@ const BookOnlineSlidePanelInner = ({
           videos={externalVideoDocs.map((d: any) => ({
             url: d.url,
             name: d.name ?? null,
-            thumbnail_url: d.thumbnail_url ?? null,
+            thumbnail_url: resolveVideoDocThumbnail(d) ?? d.thumbnail_url ?? null,
             description: d.description ?? null,
           }))}
           businessName={business?.name}
