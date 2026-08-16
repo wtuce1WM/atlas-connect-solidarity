@@ -488,6 +488,7 @@ Deno.serve(async (req) => {
           if (curated && keepCurated && String(curated.mode || "").trim() === "events") {
             const { from, to } = weekendWindow();
             const city = scopeCity || host?.city || "Marrakech";
+            console.log("[embed-ai-chat-v2] events_route_start", JSON.stringify({ city: scopeCity || host?.city || null, from, to }));
             const events = await fetchAgendaEvents(admin, {
               city, from, to, limit: 10,
               badgeIds: curated.badgeIds?.length ? curated.badgeIds : null,
@@ -495,6 +496,7 @@ Deno.serve(async (req) => {
               console.error("[embed-ai-chat-v2] events_route_failed", String(e));
               return [] as any[];
             });
+            console.log("[embed-ai-chat-v2] events_route_done", events.length);
             route = "events";
             resultsCount = events.length;
             emit(buildEventsWeekendAnswer(events, host, city, from, to, lang as any));
