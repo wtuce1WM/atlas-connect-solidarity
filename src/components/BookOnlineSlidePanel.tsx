@@ -3638,13 +3638,16 @@ const BookOnlineSlidePanelInner = ({
                               <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">{d.name}</h2>
                             )}
                             <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
-                              <iframe
-                                src={getFlipbookEmbedUrl(d.url)}
-                                title={d.name || 'Flipbook'}
-                                allow="clipboard-write; fullscreen"
-                                className="w-full block border-0"
-                                style={{ aspectRatio: '16 / 10', minHeight: 320 }}
-                              />
+                              <LazyMount minHeight={320} rootMargin="400px">
+                                <iframe
+                                  src={getFlipbookEmbedUrl(d.url)}
+                                  title={d.name || 'Flipbook'}
+                                  allow="clipboard-write; fullscreen"
+                                  className="w-full block border-0"
+                                  style={{ aspectRatio: '16 / 10', minHeight: 320 }}
+                                />
+                              </LazyMount>
+
                             </div>
                           </div>
                         ))}
