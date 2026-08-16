@@ -3355,28 +3355,14 @@ const BookOnlineSlidePanelInner = ({
                           {language === "en" ? "Videos" : language === "ar" ? "فيديوهات" : "Vidéos"}
                         </h2>
                         <HScroll className="flex md:grid md:grid-cols-3 gap-1.5 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory md:snap-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden cursor-grab md:cursor-auto">
-                          {items.map((vid, i) => {
-                            const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-                            const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
-                            const thumb = resolveVideoDocThumbnail(vid)
-                              || (ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null)
-                              || (vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null);
-                            const isHostedFile = !thumb && !ytMatch && !vimeoMatch;
-                            return (
-                              <div
-                                key={`desc-vid-${i}`}
-                                className="relative aspect-square rounded-lg overflow-hidden cursor-pointer shrink-0 w-[46%] snap-start md:w-auto md:shrink"
-                                onClick={() => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description })}
-                              >
-                                {thumb ? (
-                                  <img src={thumb} alt={vid.name || `${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
-                                ) : isHostedFile ? (
-                                  <VideoThumbnail src={vid.url} alt={vid.name || undefined} className="w-full h-full object-cover" />
-                                ) : (
-                                  <div className="w-full h-full bg-white/10 flex items-center justify-center">
-                                    <Play className="h-8 w-8 text-white/40" />
-                                  </div>
-                                )}
+                          {items.map((vid, i) => (
+                            <div
+                              key={`desc-vid-${i}`}
+                              className="relative aspect-square rounded-lg overflow-hidden cursor-pointer shrink-0 w-[46%] snap-start md:w-auto md:shrink bg-black"
+                              onClick={() => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description })}
+                            >
+                              <VideoDocPreview url={vid.url} title={vid.name || undefined} inert />
+
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                   <div className="h-10 w-10 rounded-full bg-black/50 flex items-center justify-center backdrop-blur-sm">
                                     <Play className="h-5 w-5 text-white fill-white" />
