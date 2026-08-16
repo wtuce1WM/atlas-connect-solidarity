@@ -2248,6 +2248,34 @@ const EmbedAsk = () => {
         />
       )}
 
+      {/* Carte des destinations liées : marqueurs = destinations (pas des fiches),
+          ordre conservé (distance depuis l'établissement hôte). */}
+      <MapSlidePanel
+        open={!!openDestMap}
+        onClose={() => setOpenDestMap(null)}
+        title={openDestMap?.title || undefined}
+        businesses={(openDestMap?.destinations || [])
+          .filter((d) => d.latitude != null && d.longitude != null)
+          .map((d) => ({
+            id: d.id,
+            name: d.name,
+            latitude: Number(d.latitude),
+            longitude: Number(d.longitude),
+            images: d.image ? [d.image] : [],
+          }))}
+        isMobile={isMobile}
+        fullWidth
+        panelBg={activeWidgetBg || undefined}
+        disableUserLocation
+        hostLocation={hostLocation}
+        hostLabel={businessName}
+        mapTheme={mapThemeResolved}
+        showLayerControls
+        preserveOrder
+      />
+
+
+
 
       <EventsSlidePanel
         open={!!openEvents}
