@@ -148,15 +148,16 @@ function priorPoolIds(messages: UIMessage[]): string[] {
 async function poolMarker(admin: any, ids: string[], city: string | null): Promise<string> {
   const uniq = [...new Set(ids.map((x) => String(x)))];
   let nb: Record<string, number> = {};
+  let hasGeo = false;
   if (uniq.length) {
-    const { data } = await admin.from("businesses").select("id, neighborhood").in("id", uniq);
+    const { data } = await admin.from("businesses").select("id, neighborhood, latitude, longitude").in("id", uniq);
     for (const row of (Array.isArray(data) ? data : []) as any[]) {
       const name = String(row?.neighborhood || "").trim();
-      if (!name) continue;
-      nb[name] = (nb[name] ?? 0) + 1;
+      if (name) nb[name] = (nb[name] ?? 0) + 1;
+      if (!hasGeo && row?.latitude != null && row?.longitude != null) hasGeo = true;
     }
   }
-  return `<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: uniq, city, nb })}-->`;
+  return `<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: uniq, city, nb, hasGeo })}-->`;
 }
 
 
