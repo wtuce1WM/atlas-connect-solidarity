@@ -408,7 +408,7 @@ Deno.serve(async (req) => {
           } else if (isForcedRouteKey(clientForcedRoute)) {
             const hostRadius = RADIUS_OPTIONS.includes(Number(host?.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
             const forced = await runForcedRoute({
-              admin, key: clientForcedRoute, lang, host, priorIds, userMessage,
+              admin, key: clientForcedRoute, lang, host, priorIds: poolIds, userMessage,
               scopeCity, radiusKm: requestedRadiusKm ?? hostRadius,
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] client_forced_route_failed", clientForcedRoute, String(e));
