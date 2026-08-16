@@ -170,7 +170,9 @@ const AiBusinessResultCards = ({
               ) : null}
               {ranked ? (
                 <span
-                  className="absolute top-1 left-1 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-bold leading-none"
+                  className={`absolute top-1 left-1 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-bold leading-none ${
+                    podium ? "animate-scale-in shadow-lg" : ""
+                  }`}
                   style={
                     podium
                       ? { background: podium.color, color: "#1b1b1b" }
