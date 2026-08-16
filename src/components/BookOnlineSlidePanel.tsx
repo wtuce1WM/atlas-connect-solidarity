@@ -92,6 +92,7 @@ import AvailabilitySearchOverlay from "@/components/overlays/AvailabilitySearchO
 import { useCtaConfig, resolveCtaLabel } from "@/hooks/useCtaConfig";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import { useMediaItems, useVideoInfo } from "@/hooks/useMediaItems";
+import { useVimeoOEmbedThumbnails } from "@/hooks/useVimeoOEmbedThumbnails";
 import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import MediaViewerInfo from "@/components/slidepanel/MediaViewerInfo";
@@ -826,6 +827,21 @@ const BookOnlineSlidePanelInner = ({
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
   const [showExternalVideosOverlay, setShowExternalVideosOverlay] = useState(false);
   const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
+  const [youtubeThumbnailMap, setYoutubeThumbnailMap] = useState<Record<string, string>>({});
+  const vimeoOEmbedMap = useVimeoOEmbedThumbnails((videoDocs || []).map((d: any) => d.url));
+
+  const resolveVideoDocThumbnail = useCallback((vid: any) => {
+    const ytMatch = (vid.url || "").match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+    if (ytMatch) {
+      return youtubeThumbnailMap[ytMatch[1]] || vid.thumbnail_url || `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`;
+    }
+    const vimeoMatch = (vid.url || "").match(/vimeo\.com\/(\d+)/);
+    if (vimeoMatch) {
+      return vid.thumbnail_url || vimeoOEmbedMap[vid.url] || `https://vumbnail.com/${vimeoMatch[1]}.jpg`;
+    }
+    return vid.thumbnail_url || null;
+  }, [youtubeThumbnailMap, vimeoOEmbedMap]);
+
   const [kpGroupTitle, setKpGroupTitle] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<{ id: string; icon: string; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null }[]>([]);
   const [highlightsSection, setHighlightsSection] = useState<{ title: string | null; intro: string | null; columns: number }>({ title: null, intro: null, columns: 2 });
@@ -878,10 +894,21 @@ const BookOnlineSlidePanelInner = ({
       if (cancelled) return;
 
       const merged = new Map<string, any>();
-      (directVideos || []).forEach((v: any) => merged.set(v.video_id, v));
+      const thumbMap = new Map<string, string>();
+      const bestYouTubeThumb = (v: any) =>
+        v.custom_thumbnail_url || v.thumbnail || v.thumbnail_url || `https://img.youtube.com/vi/${v.video_id}/hqdefault.jpg`;
+
+      (directVideos || []).forEach((v: any) => {
+        merged.set(v.video_id, v);
+        thumbMap.set(v.video_id, bestYouTubeThumb(v));
+      });
       (poiLinks || []).forEach((row: any) => {
         const v = row.business_youtube_videos;
-        if (v && !merged.has(v.video_id)) merged.set(v.video_id, v);
+        if (!v) return;
+        if (!merged.has(v.video_id)) {
+          merged.set(v.video_id, v);
+          thumbMap.set(v.video_id, bestYouTubeThumb(v));
+        }
       });
       (docVideos || []).forEach((d: any) => {
         const url: string = d.url || "";
@@ -889,10 +916,12 @@ const BookOnlineSlidePanelInner = ({
         if (!m) return;
         const videoId = m[1];
         if (merged.has(videoId)) return;
+        const thumb = d.thumbnail_url || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        thumbMap.set(videoId, thumb);
         merged.set(videoId, {
           video_id: videoId,
           title: d.name || "",
-          thumbnail: d.thumbnail_url || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+          thumbnail: thumb,
           published_at: "",
           is_short: /\/shorts\//.test(url),
           duration_seconds: 0,
@@ -930,12 +959,14 @@ const BookOnlineSlidePanelInner = ({
 
       setAllYoutubeVideos(items);
       setYoutubeVideoCount(items.length);
+      setYoutubeThumbnailMap(Object.fromEntries(thumbMap));
     };
 
     loadYoutubeVideos().catch(() => {
       if (!cancelled) {
         setAllYoutubeVideos([]);
         setYoutubeVideoCount(0);
+        setYoutubeThumbnailMap({});
       }
     });
 
@@ -2649,7 +2680,7 @@ const BookOnlineSlidePanelInner = ({
           videos={externalVideoDocs.map((d: any) => ({
             url: d.url,
             name: d.name ?? null,
-            thumbnail_url: d.thumbnail_url ?? null,
+            thumbnail_url: resolveVideoDocThumbnail(d) ?? d.thumbnail_url ?? null,
             description: d.description ?? null,
           }))}
           businessName={business?.name}
@@ -2803,7 +2834,7 @@ const BookOnlineSlidePanelInner = ({
                 gridItems = sortedVideoDocs.map((vid, i) => {
                   const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
                   const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
-                  const thumb = vid.thumbnail_url || (ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null) || (vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null);
+                  const thumb = resolveVideoDocThumbnail(vid) || (ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null) || (vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null);
                   const isHostedFile = !thumb && !ytMatch && !vimeoMatch;
                   return {
                     key: `vid-${i}`,
@@ -3281,7 +3312,7 @@ const BookOnlineSlidePanelInner = ({
                                   ) : (
                                     <video
                                       src={d.url}
-                                      poster={d.thumbnail_url || undefined}
+                                      poster={resolveVideoDocThumbnail(d) || d.thumbnail_url || undefined}
                                       controls
                                       muted
                                       playsInline
@@ -3323,7 +3354,7 @@ const BookOnlineSlidePanelInner = ({
                           {items.map((vid, i) => {
                             const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
                             const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
-                            const thumb = vid.thumbnail_url
+                            const thumb = resolveVideoDocThumbnail(vid)
                               || (ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null)
                               || (vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null);
                             const isHostedFile = !thumb && !ytMatch && !vimeoMatch;
