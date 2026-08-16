@@ -306,20 +306,6 @@ const BookOnlineSlidePanelInner = ({
     allVideoUrls, categoryIcon, showGoogleMap, kpRelated, kpSubcategoryItems, kpSubcategoryLabel, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
   } = useBookOnlineData(businessId, !!embedMode);
 
-  const vimeoOEmbedMap = useVimeoOEmbedThumbnails((videoDocs || []).map((d: any) => d.url));
-
-  const resolveVideoDocThumbnail = useCallback((vid: any) => {
-    const ytMatch = (vid.url || "").match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
-    if (ytMatch) {
-      return youtubeThumbnailMap[ytMatch[1]] || vid.thumbnail_url || `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`;
-    }
-    const vimeoMatch = (vid.url || "").match(/vimeo\.com\/(\d+)/);
-    if (vimeoMatch) {
-      return vid.thumbnail_url || vimeoOEmbedMap[vid.url] || `https://vumbnail.com/${vimeoMatch[1]}.jpg`;
-    }
-    return vid.thumbnail_url || null;
-  }, [youtubeThumbnailMap, vimeoOEmbedMap]);
-
   // Codes de widgets (par intention) — servent de widget de réservation prioritaire
   // sur l'iframe de l'URL quand le CTA de l'URL correspond à une intention du widget.
   const [widgetCodes, setWidgetCodes] = useState<{ id: string; code: string; name: string | null; intents: string[] }[]>([]);
