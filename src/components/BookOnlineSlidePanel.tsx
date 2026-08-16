@@ -827,6 +827,7 @@ const BookOnlineSlidePanelInner = ({
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
   const [showExternalVideosOverlay, setShowExternalVideosOverlay] = useState(false);
   const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
+  const [youtubeThumbnailMap, setYoutubeThumbnailMap] = useState<Record<string, string>>({});
   const [kpGroupTitle, setKpGroupTitle] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<{ id: string; icon: string; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null }[]>([]);
   const [highlightsSection, setHighlightsSection] = useState<{ title: string | null; intro: string | null; columns: number }>({ title: null, intro: null, columns: 2 });
