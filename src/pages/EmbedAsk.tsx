@@ -984,7 +984,9 @@ const EmbedAsk = () => {
       if (m.role !== "assistant") continue;
       const { maps, events } = extractPayloads(messageText(m));
       const latest = maps[maps.length - 1];
-      if (latest && latest.businesses.length > 0) return latest;
+      if (latest && latest.businesses.some((b) => b?.latitude != null && b?.longitude != null)) {
+        return latest;
+      }
       const ev = events[events.length - 1];
       if (ev && ev.events.length) {
         const seen = new Set<string>();
