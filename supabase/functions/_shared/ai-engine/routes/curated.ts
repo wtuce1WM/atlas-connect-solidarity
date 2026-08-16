@@ -513,37 +513,8 @@ export async function buildPinnedAnswer(
   const ordered = wanted.map((id) => byId.get(id)).filter(Boolean);
   if (!ordered.length) return null;
 
-  const revByBiz = await defaultReviews(admin, ordered.map((b: any) => b.id));
-  const reviewsLabel = lang === "en" ? "reviews" : lang === "ar" ? "مراجعة" : "avis";
-  const anonLabel = lang === "en" ? "Anonymous" : lang === "ar" ? "مجهول" : "Anonyme";
-
-  const body = ordered.map((biz: any, idx: number) => {
-    const hook = stripText(
-      lang === "en" ? (biz.hook_en || biz.hook_fr || "") :
-      lang === "ar" ? (biz.hook_ar || biz.hook_fr || "") :
-      (biz.hook_fr || biz.hook_en || ""),
-    );
-    const area = [biz.neighborhood, biz.city].filter(Boolean).join(" · ");
-    const rating20 = biz.computed_rating != null ? Number(biz.computed_rating) : null;
-    const revCount = biz.total_review_count ?? null;
-    const ratingLine = rating20 != null
-      ? `\n\n⭐ **${rating20.toFixed(1)}/20**${revCount ? ` · ${revCount.toLocaleString(lang === "en" ? "en-US" : "fr-FR")} ${reviewsLabel}` : ""}`
-      : "";
-    const rev = revByBiz.get(String(biz.id));
-    const revText = rev
-      ? (lang === "en" ? (rev.text_en || rev.text || rev.text_fr)
-        : lang === "ar" ? (rev.text_ar || rev.text || rev.text_fr)
-        : (rev.text_fr || rev.text))
-      : null;
-    const revLine = revText
-      ? `\n\n> « ${stripText(String(revText))} »\n> — _${rev.author_name || anonLabel}${rev.source ? ` · ${rev.source}` : ""}_`
-      : "";
-    const fallback = lang === "en" ? "A curated One World Morocco address."
-      : lang === "ar" ? "عنوان مختار ضمن دليل One World Morocco."
-      : "Une adresse sélectionnée dans le guide One World Morocco.";
-    return `${idx + 1}. **${biz.name}**${area ? ` — _${area}_` : ""}\n\n${hook || fallback}${ratingLine}${revLine}`;
-  }).join("\n\n---\n\n");
-
+  // Nom, quartier/ville, hook, note /20, avis, horaires : rendus par la carte
+  // résultat IA côté client (payload SHOW_ON_MAP) — plus aucune duplication ici.
   const heading = overrides?.heading ?? (label
     ? (lang === "en" ? `**${label}** — hand-picked selection:` : lang === "ar" ? `**${label}** — اختيار مُنتقى:` : `**${label}** — sélection choisie à la main :`)
     : (lang === "en" ? "Hand-picked selection:" : lang === "ar" ? "اختيار مُنتقى:" : "Sélection choisie à la main :"));
@@ -554,7 +525,8 @@ export async function buildPinnedAnswer(
       : `📍 C'est la sélection curatée complète${host?.city ? ` à ${host.city}` : ""} — tu veux la carte, les horaires, ou les liens de réservation ?`);
 
   return {
-    text: `${heading}\n\n${body}\n\n${outro}`,
+    text: `${heading}\n\n${outro}`,
+
     knownBusinesses: ordered.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })),
     mapPayload: { title: label || null, businesses: mapBusinessesOf(ordered) },
     shown: ordered.length,
