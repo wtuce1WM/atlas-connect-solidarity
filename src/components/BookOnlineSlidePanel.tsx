@@ -306,6 +306,8 @@ const BookOnlineSlidePanelInner = ({
     allVideoUrls, categoryIcon, showGoogleMap, kpRelated, kpSubcategoryItems, kpSubcategoryLabel, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
   } = useBookOnlineData(businessId, !!embedMode);
 
+  const vimeoOEmbedMap = useVimeoOEmbedThumbnails((videoDocs || []).map((d: any) => d.url));
+
   // Codes de widgets (par intention) — servent de widget de réservation prioritaire
   // sur l'iframe de l'URL quand le CTA de l'URL correspond à une intention du widget.
   const [widgetCodes, setWidgetCodes] = useState<{ id: string; code: string; name: string | null; intents: string[] }[]>([]);
