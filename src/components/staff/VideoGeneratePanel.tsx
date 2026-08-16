@@ -262,7 +262,7 @@ const VideoGeneratePanel = () => {
       )
       .like("template_id", "feed-template%")
       .order("created_at", { ascending: false })
-      .limit(12);
+      .limit(40);
     const rows = (data ?? []) as FeedJob[];
     setJobs(rows);
     const ids = Array.from(new Set(rows.map((r) => r.business_id).filter(Boolean))) as string[];
