@@ -33,28 +33,46 @@ interface Props {
  * title + subtitle at bottom. Horizontal wheel scroll, hidden scrollbar.
  */
 export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) {
+  const scrollerRef = React.useRef<HTMLDivElement | null>(null);
+  // Le verrou vertical ne s'active que lorsque les vignettes sont ENTIÈREMENT
+  // visibles : sinon on laisserait le carrousel coupé en bas sans pouvoir le
+  // faire remonter.
+  const [fullyVisible, setFullyVisible] = React.useState(false);
+  React.useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      (entries) => setFullyVisible(entries.some((e) => e.intersectionRatio >= 0.99)),
+      { threshold: [0, 0.5, 0.99, 1] },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   if (!items.length) return null;
   return (
     <div className="w-full max-w-full">
     <div
-      className="w-full max-w-full overflow-x-auto scrollbar-hide -mx-1 px-1"
+      ref={scrollerRef}
+      className="w-full max-w-full overflow-x-auto overflow-y-visible scrollbar-hide -mx-1 px-1"
       // Le geste vertical est neutralisé sur le carrousel (touch-action: pan-x) et
       // la molette est convertie en défilement horizontal tant qu'on n'est pas
       // arrivé au bout : la page ne bouge qu'après la dernière vignette.
-      style={{ overscrollBehavior: "contain", touchAction: "pan-x" }}
+      style={{ overscrollBehavior: "contain", touchAction: fullyVisible ? "pan-x" : "auto" }}
       onWheel={(e) => {
-        if (e.deltaY === 0) return;
+        if (e.deltaY === 0 || !fullyVisible) return;
         const el = e.currentTarget;
         const maxScroll = el.scrollWidth - el.clientWidth;
         if (maxScroll <= 0) return;
         const atRight = el.scrollLeft >= maxScroll - 1;
         if (e.deltaY > 0 && atRight) return; // fin du scroll horizontal → la page reprend
+        if (e.deltaY < 0 && el.scrollLeft <= 0) return; // début → la page remonte
         e.preventDefault();
         e.stopPropagation();
         const capped = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 50);
         el.scrollLeft = Math.max(0, Math.min(maxScroll, el.scrollLeft + capped));
       }}
     >
+
 
       <div className="flex gap-3 pb-1">
         {items.slice(0, limit).map((it) => (
