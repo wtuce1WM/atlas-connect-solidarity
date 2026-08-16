@@ -1043,35 +1043,43 @@ const EmbedAsk = () => {
 
 
   /**
-   * Filtres locaux calculables sur le corpus courant (dernier payload carte) :
-   * proches / ouverts maintenant / mieux notés / quartier. Un badge n'apparaît
-   * que si la donnée nécessaire existe réellement dans le corpus.
+   * Filtres locaux : proches / ouverts maintenant / mieux notés se calculent sur
+   * le corpus affiché (données présentes dans le payload carte), tandis que les
+   * comptes par quartier viennent du CORPUS COMPLET du tour (`nb` du marqueur
+   * pool, ex. 18 rooftops) — jamais des 6 fiches affichées.
    */
   const localFilters = useMemo(() => {
     const rows = (mapReplayTarget?.businesses ?? []) as any[];
+    const poolNb = Object.entries(poolInfo.nb)
+      .map(([name, count]) => ({ name, count: Number(count) }))
+      .filter((n) => n.name && n.count > 0)
+      .sort((a, b) => b.count - a.count);
     if (rows.length < 2) {
       return { closest: false, openNow: false, bestRated: false, neighborhoods: [] as Array<{ name: string; count: number }> };
     }
     const geo = rows.filter((b) => b?.latitude != null && b?.longitude != null).length;
     const withHours = rows.filter((b) => b?.is_open_24h || (b?.show_opening_hours && b?.opening_hours)).length;
     const withRating = rows.filter((b) => (b?.computed_rating ?? b?.google_rating ?? b?.tripadvisor_rating) != null).length;
-    const counts = new Map<string, number>();
-    for (const b of rows) {
-      const nb = String(b?.neighborhood || "").trim();
-      if (!nb) continue;
-      counts.set(nb, (counts.get(nb) ?? 0) + 1);
+    // Repli sur le corpus affiché uniquement si le moteur n'a pas fourni `nb`
+    // (anciens messages d'une conversation ouverte avant ce déploiement).
+    let neighborhoods = poolNb;
+    if (!neighborhoods.length) {
+      const counts = new Map<string, number>();
+      for (const b of rows) {
+        const nb = String(b?.neighborhood || "").trim();
+        if (!nb) continue;
+        counts.set(nb, (counts.get(nb) ?? 0) + 1);
+      }
+      neighborhoods = [...counts.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
     }
-    const neighborhoods = [...counts.entries()]
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3);
     return {
       closest: geo >= 2,
       openNow: withHours >= 2,
       bestRated: withRating >= 2,
-      neighborhoods: counts.size >= 2 ? neighborhoods : [],
+      neighborhoods: neighborhoods.length >= 2 ? neighborhoods.slice(0, 3) : [],
     };
-  }, [mapReplayTarget]);
+  }, [mapReplayTarget, poolInfo]);
+
 
 
   const isMapReplayLabel = (label: string): boolean => {
