@@ -31,7 +31,7 @@ import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 import { isTidesIntent, resolveTidesCity, tidesIntro } from "../_shared/ai-engine/routes/tides.ts";
 import {
   loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle, matchCuratedByText,
-  buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer,
+  buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer, applyLabelPlaceholders,
 
 } from "../_shared/ai-engine/routes/curated.ts";
 import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
@@ -44,7 +44,7 @@ import {
 import {
   isRatingRankingIntent, isDistanceListIntent, isDistanceRankingIntent, isCountIntent, parseOrdinalIntent,
   extractPriorOrderedBusinesses, buildRatingRanking, buildDistanceList, buildDistanceRanking, buildOrdinalPick,
-  buildCountAnswer, buildProximityFromPool,
+  buildCountAnswer, buildProximityFromPool, isShowMoreIntent,
 } from "../_shared/ai-engine/routes/ranking.ts";
 
 import { isOpensFirstIntent, isClosesLastIntent, buildHoursRanking, parseOpenFilterIntent, buildOpenFilter } from "../_shared/ai-engine/routes/opening.ts";
