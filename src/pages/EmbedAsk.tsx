@@ -653,6 +653,9 @@ const EmbedAsk = () => {
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   const [openBusinessOverlay, setOpenBusinessOverlay] = useState<"reviews" | null>(null);
   const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
+  // Carte des destinations (distincte de la carte des résultats établissements) :
+  // marqueurs = destinations liées à la suggestion.
+  const [openDestMap, setOpenDestMap] = useState<{ title?: string | null; destinations: DestinationCard[] } | null>(null);
   // Feed vidéo (mode curaté `video_feed`) : liste active + vidéo ouverte.
   const [videoFeedList, setVideoFeedList] = useState<VideoFeedItem[]>([]);
   const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
