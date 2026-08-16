@@ -319,6 +319,58 @@ Deno.serve(async (req) => {
         const scopeCity = resolveCityScope({ hostCity: host?.city, activeCity, explicitCity }) as string;
         cityDetected = scopeCity;
 
+        // ── Relance « je te montre les autres » (zéro token, zéro recherche) ──
+        // Elle ne doit RIEN faire d'autre qu'afficher le lot suivant du corpus
+        // déjà trouvé au tour précédent (10 max par lot, cartes identiques).
+        if (poolIds.length && isShowMoreIntent(userMessage)) {
+          const already = new Set(priorIds);
+          const remaining = poolIds.filter((id) => !already.has(id));
+          if (remaining.length) {
+            const batch = remaining.slice(0, 10);
+            const shownBefore = poolIds.length - remaining.length;
+            const restAfter = remaining.length - batch.length;
+            const heading = lang === "en"
+              ? `Next ones — ${batch.length} more address${batch.length > 1 ? "es" : ""}:`
+              : lang === "ar"
+                ? `التالية — ${batch.length} عنوانًا إضافيًا:`
+                : `La suite — ${batch.length} adresse${batch.length > 1 ? "s" : ""} de plus :`;
+            const seen = shownBefore + batch.length;
+            const outro = lang === "en"
+              ? `📍 ${seen} of ${poolIds.length} shown${restAfter > 0 ? ` — want the last ${restAfter}?` : "."}`
+              : lang === "ar"
+                ? `📍 ${seen} من ${poolIds.length}${restAfter > 0 ? ` — أعرض الباقي (${restAfter})؟` : "."}`
+                : `📍 ${seen} adresses affichées sur ${poolIds.length}${restAfter > 0 ? ` — je te montre les ${restAfter} dernières ?` : "."}`;
+            const built = await buildPinnedAnswer(admin, batch, host, lang, null, {
+              route: "pool_more", heading, outro, total: poolIds.length, poolIds,
+            }).catch((e) => {
+              console.error("[embed-ai-chat-v2] pool_more_failed", String(e));
+              return null;
+            });
+            if (built) {
+              route = "discover";
+              resultsCount = built.shown;
+              emit(built.text);
+              if (built.mapPayload?.businesses?.length) {
+                emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
+              }
+              emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
+              emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: poolIds, city: scopeCity })}-->`);
+              await finish(true);
+              return;
+            }
+          } else {
+            route = "discover";
+            emit(lang === "en"
+              ? `📍 You've already seen all ${poolIds.length} addresses from that search.`
+              : lang === "ar"
+                ? `📍 لقد رأيت جميع العناوين (${poolIds.length}) من هذا البحث.`
+                : `📍 Tu as déjà vu les ${poolIds.length} adresses de cette recherche.`);
+            await finish(true);
+            return;
+          }
+        }
+
+
         // Article de blog pertinent (clic suggestion, texte libre ou vocal) : détecté
         // AVANT toute route déterministe (celles-ci sortent en `return`). Il n'est
         // jamais un résultat : émis en fin de tour comme simple option cliquable.
