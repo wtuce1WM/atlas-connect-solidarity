@@ -54,7 +54,7 @@ import {
 import { isOpensFirstIntent, isClosesLastIntent, buildHoursRanking, parseOpenFilterIntent, buildOpenFilter } from "../_shared/ai-engine/routes/opening.ts";
 import { isDescribeIntent, parseDescribeFacet, buildDescribePriors } from "../_shared/ai-engine/routes/describe.ts";
 import { isForcedRouteKey, runForcedRoute, forcedMapMarker } from "../_shared/ai-engine/routes/forced.ts";
-import { buildCompetitorGuard } from "../_shared/ai-engine/routes/competitors.ts";
+import { buildCompetitorGuard, type CompetitorGuard } from "../_shared/ai-engine/routes/competitors.ts";
 import { resolveCityScope, detectExplicitCity } from "../_shared/ai-engine/city-scope.ts";
 import {
   resolveNeighborhoodInMessage, filterPoolByNeighborhood, neighborhoodEmptyMessage,
@@ -289,6 +289,8 @@ Deno.serve(async (req) => {
       // Destinations liées à l'entrée curatée : complètent les résultats
       // établissements (carrousel horizontal + CTA carte), jamais en remplacement.
       let destinationsBlock: string | null = null;
+      // Garde-fou concurrents : initialisé plus bas, référencé par finish().
+      let competitorGuard: CompetitorGuard | null = null;
 
       try {
         resolution = await resolveWithAdmin(admin, userMessage);
@@ -302,6 +304,9 @@ Deno.serve(async (req) => {
 
 
       const finish = async (streamCompleted: boolean) => {
+        if (competitorGuard?.active && competitorGuard.filtered > 0) {
+          emit("\n\n<!--COMPETITOR_GUARD_ACTIVE-->");
+        }
         if (destinationsBlock) { emit(destinationsBlock); destinationsBlock = null; }
         if (articleTeaser) { emit(articleTeaser); articleTeaser = null; }
         end();
@@ -361,7 +366,7 @@ Deno.serve(async (req) => {
 
         // Garde-fou concurrents : sur la surface embed, jamais un établissement de la
         // même catégorie / sous-catégorie que l'hôte (un riad ne montre pas de riads).
-        const competitorGuard = await buildCompetitorGuard(admin, host);
+        competitorGuard = await buildCompetitorGuard(admin, host);
 
         // ── FILTRES LOCAUX (badges du footer) — zéro token, zéro modèle ──────
         // Le client impose une route du catalogue partagé sur le CORPUS COMPLET
@@ -405,7 +410,7 @@ Deno.serve(async (req) => {
                 : `À **${label}** — ${kept.length} adresse${kept.length > 1 ? "s" : ""} de cette sélection :`;
             const built = await buildPinnedAnswer(
               admin, kept.map((b: any) => String(b.id)), host, lang, null,
-              { route: "neighborhood_filter", heading, outro: "" },
+              { route: "neighborhood_filter", heading, outro: "", competitorGuard },
             ).catch(() => null);
             if (built) {
               emit(built.text);
@@ -495,7 +500,7 @@ Deno.serve(async (req) => {
                 ? `📍 ${seen} من ${poolIds.length}${restAfter > 0 ? ` — أعرض الباقي (${restAfter})؟` : "."}`
                 : `📍 ${seen} adresses affichées sur ${poolIds.length}${restAfter > 0 ? ` — je te montre les ${restAfter} dernières ?` : "."}`;
             const built = await buildPinnedAnswer(admin, batch, host, lang, null, {
-              route: "pool_more", heading, outro, total: poolIds.length, poolIds,
+              route: "pool_more", heading, outro, total: poolIds.length, poolIds, competitorGuard,
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] pool_more_failed", String(e));
               return null;
@@ -680,6 +685,7 @@ Deno.serve(async (req) => {
           if (curated && keepCurated && curated.pinnedBusinessIds.length && !curatedHasTaxo) {
             const built = await buildPinnedAnswer(
               admin, curated.pinnedBusinessIds, host, lang, curated.label,
+              { competitorGuard },
             ).catch((e) => {
               console.error("[embed-ai-chat-v2] pinned_route_failed", String(e));
               return null;
@@ -717,7 +723,7 @@ Deno.serve(async (req) => {
 
               scopeCity,
               maxResults: CFG.maxResults,
-              isCompetitor: competitorGuard.active ? competitorGuard.isCompetitor : undefined,
+              competitorGuard,
               supabaseUrl: SUPABASE_URL,
               serviceKey: SERVICE,
             }).catch((e) => {
@@ -1064,15 +1070,17 @@ Deno.serve(async (req) => {
             if (competitorGuard.active && all.length) {
               await (competitorGuard as any).loadSubs?.(all.map((b: any) => String(b.id)));
             }
-            const beforeGuard = all.length;
-            let kept = all.filter((b: any) => {
-              if (competitorGuard.isCompetitor(b)) return false;
-              if (!excluded.length) return true;
-              const hay = normalize(`${b.main_category || ""} ${(b.categories || []).join(" ")}`);
-              return !excluded.some((x) => hay.includes(x));
-            });
+            let kept = all;
             if (competitorGuard.active) {
+              const beforeGuard = kept.length;
+              kept = competitorGuard.filterOut(kept);
               console.log("[embed-ai-chat-v2] competitor_guard", JSON.stringify({ beforeGuard, after: kept.length, host: host?.name || null }));
+            }
+            if (excluded.length) {
+              kept = kept.filter((b: any) => {
+                const hay = normalize(`${b.main_category || ""} ${(b.categories || []).join(" ")}`);
+                return !excluded.some((x) => hay.includes(x));
+              });
             }
 
 

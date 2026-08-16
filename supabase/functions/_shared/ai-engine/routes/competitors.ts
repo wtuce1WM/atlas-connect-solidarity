@@ -13,12 +13,17 @@ export interface CompetitorGuard {
   filterOut: <T extends { id: string }>(list: T[]) => T[];
   /** Vrai si un garde-fou est réellement actif (hôte connu). */
   active: boolean;
+  /** Nombre d'établissements écartés par le garde-fou dans ce tour. */
+  filtered: number;
+  /** Incrémente le compteur d'écartés (appelé par les routes curatées). */
+  markFiltered: (n: number) => void;
 }
 
 export async function buildCompetitorGuard(admin: any, host: any): Promise<CompetitorGuard> {
   if (!host?.id) {
-    return { isCompetitor: () => false, filterOut: (l) => l, active: false };
+    return { isCompetitor: () => false, filterOut: (l) => l, active: false, filtered: 0, markFiltered: () => {} };
   }
+  let filtered = 0;
 
   const hostMainCat = normalize(host.main_category);
   const hostCats = new Set<string>(
@@ -65,13 +70,19 @@ export async function buildCompetitorGuard(admin: any, host: any): Promise<Compe
     return false;
   };
 
-  const filterOut = <T extends { id: string }>(list: T[]): T[] =>
-    list.filter((b) => !isCompetitor(b));
+  const filterOut = <T extends { id: string }>(list: T[]): T[] => {
+    const before = list.length;
+    const kept = list.filter((b) => !isCompetitor(b));
+    filtered += before - kept.length;
+    return kept;
+  };
 
   return {
     isCompetitor,
     filterOut,
     active: true,
+    get filtered() { return filtered; },
+    markFiltered: (n: number) => { filtered += n; },
     // Chargement paresseux exposé via une propriété non typée : utilisé par les appelants
     // qui veulent le filtre sous-catégories (sinon seule la catégorie est comparée).
     ...({ loadSubs } as any),

@@ -260,6 +260,7 @@ const PINNED_RE = /<!--PINNED_BUSINESS_CARDS:([\s\S]*?)-->/g;
 const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
 const VIDEOFEED_RE = /<!--VIDEO_FEED:([\s\S]*?)-->/g;
 const TIDES_RE = /<!--TIDES_FORECAST:([\s\S]*?)-->/g;
+const COMPETITOR_GUARD_RE = /<!--COMPETITOR_GUARD_ACTIVE-->/;
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[]; order?: string | null };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
@@ -293,7 +294,7 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; competitorGuard: boolean } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
@@ -303,7 +304,8 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   const weather: WeatherPayload[] = [];
   const videoFeeds: VideoFeedPayload[] = [];
   const tides: string[] = [];
-  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides };
+  const competitorGuard = COMPETITOR_GUARD_RE.test(text);
+  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, competitorGuard };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -373,9 +375,10 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--VIDEO_FEED:[\s\S]*$/g, "")
     .replace(/<!--POOL_BUSINESS_IDS:[\s\S]*?-->/g, "")
     .replace(/<!--POOL_BUSINESS_IDS:[\s\S]*$/g, "")
+    .replace(/<!--COMPETITOR_GUARD_ACTIVE-->/g, "")
     .trim();
   clean = linkifyPhones(clean);
-  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides };
+  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, competitorGuard };
 }
 
 // Convert bare phone / WhatsApp numbers found in AI markdown into clickable links.
@@ -1034,6 +1037,19 @@ const EmbedAsk = () => {
       break;
     }
     return { ids: [], nb: {}, hasGeo: false };
+  }, [messages]);
+
+  /** La dernière réponse assistant a-t-elle écarté des concurrents de l'hôte ? */
+  const competitorGuardActive = useMemo<boolean>(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== "assistant") continue;
+      const { competitorGuard } = extractPayloads(messageText(m));
+      if (competitorGuard) return true;
+      // On ne regarde que le dernier message assistant.
+      break;
+    }
+    return false;
   }, [messages]);
 
   /** Reste du corpus non encore affiché (marqueur POOL_BUSINESS_IDS). */
@@ -1918,6 +1934,10 @@ const EmbedAsk = () => {
 
               {(() => {
                 if (!(i > 0 && !streaming && activeFollowups.length > 0)) return null;
+                // Si le garde-fou anti-concurrents vient d'écarter des rivaux, on masque
+                // toutes les relances (chips) pour éviter de proposer "plus de résultats"
+                // ou des filtres sur un corpus qui a été réduit pour protéger l'hôte.
+                if (competitorGuardActive && i === messages.length - 1) return null;
                 const priorCount =
                   (mapPayload?.businesses?.length ?? 0) ||
                   citedFallback.length ||
@@ -2079,82 +2099,86 @@ const EmbedAsk = () => {
             >
               {SCOPE_LABELS[lang]?.newConversation ?? SCOPE_LABELS.fr.newConversation}
             </button>
-            {mapReplayTarget && poolInfo.hasGeo && (
-              <button
-                type="button"
-                onClick={() => setOpenMap(mapReplayTarget)}
-                style={AI_NAME_FONT}
-                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-              >
-                <MapPin className="w-3.5 h-3.5" />
-                {lang === "en" ? "On a map" : lang === "ar" ? "على الخريطة" : "Sur une carte"}
-              </button>
-            )}
-            {poolRemaining > 0 && (
-              <button
-                type="button"
-                onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
-                style={AI_NAME_FONT}
-                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                {lang === "en" ? `All results · ${poolRemaining}` : lang === "ar" ? `كل النتائج · ${poolRemaining}` : `Tous les résultats · ${poolRemaining}`}
-              </button>
-            )}
-            {localFilters.closest && (
-              <button
-                type="button"
-                onClick={() => sendLocalFilter(
-                  lang === "en" ? "The closest ones" : lang === "ar" ? "الأقرب" : "Les plus proches",
-                  "distance_ranking_closest",
+            {!competitorGuardActive && (
+              <>
+                {mapReplayTarget && poolInfo.hasGeo && (
+                  <button
+                    type="button"
+                    onClick={() => setOpenMap(mapReplayTarget)}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <MapPin className="w-3.5 h-3.5" />
+                    {lang === "en" ? "On a map" : lang === "ar" ? "على الخريطة" : "Sur une carte"}
+                  </button>
                 )}
-                style={AI_NAME_FONT}
-                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-              >
-                <Navigation className="w-3.5 h-3.5" />
-                {lang === "en" ? "Closest" : lang === "ar" ? "الأقرب" : "Les plus proches"}
-              </button>
-            )}
-            {localFilters.openNow && (
-              <button
-                type="button"
-                onClick={() => sendLocalFilter(
-                  lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant",
-                  "open_now",
+                {poolRemaining > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    {lang === "en" ? `All results · ${poolRemaining}` : lang === "ar" ? `كل النتائج · ${poolRemaining}` : `Tous les résultats · ${poolRemaining}`}
+                  </button>
                 )}
-                style={AI_NAME_FONT}
-                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-              >
-                <Clock className="w-3.5 h-3.5" />
-                {lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant"}
-              </button>
-            )}
-            {localFilters.bestRated && (
-              <button
-                type="button"
-                onClick={() => sendLocalFilter(
-                  lang === "en" ? "The best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés",
-                  "rating_best",
+                {localFilters.closest && (
+                  <button
+                    type="button"
+                    onClick={() => sendLocalFilter(
+                      lang === "en" ? "The closest ones" : lang === "ar" ? "الأقرب" : "Les plus proches",
+                      "distance_ranking_closest",
+                    )}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <Navigation className="w-3.5 h-3.5" />
+                    {lang === "en" ? "Closest" : lang === "ar" ? "الأقرب" : "Les plus proches"}
+                  </button>
                 )}
-                style={AI_NAME_FONT}
-                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-              >
-                <Star className="w-3.5 h-3.5" />
-                {lang === "en" ? "Best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés"}
-              </button>
+                {localFilters.openNow && (
+                  <button
+                    type="button"
+                    onClick={() => sendLocalFilter(
+                      lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant",
+                      "open_now",
+                    )}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <Clock className="w-3.5 h-3.5" />
+                    {lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant"}
+                  </button>
+                )}
+                {localFilters.bestRated && (
+                  <button
+                    type="button"
+                    onClick={() => sendLocalFilter(
+                      lang === "en" ? "The best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés",
+                      "rating_best",
+                    )}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <Star className="w-3.5 h-3.5" />
+                    {lang === "en" ? "Best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés"}
+                  </button>
+                )}
+                {localFilters.neighborhoods.map((nb) => (
+                  <button
+                    key={nb.name}
+                    type="button"
+                    onClick={() => sendLocalFilter(nb.name, "neighborhood_filter")}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <Building2 className="w-3.5 h-3.5" />
+                    {nb.name} · {nb.count}
+                  </button>
+                ))}
+              </>
             )}
-            {localFilters.neighborhoods.map((nb) => (
-              <button
-                key={nb.name}
-                type="button"
-                onClick={() => sendLocalFilter(nb.name, "neighborhood_filter")}
-                style={AI_NAME_FONT}
-                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-              >
-                <Building2 className="w-3.5 h-3.5" />
-                {nb.name} · {nb.count}
-              </button>
-            ))}
           </div>
 
         )}
