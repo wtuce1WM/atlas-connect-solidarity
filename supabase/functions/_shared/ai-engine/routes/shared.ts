@@ -210,3 +210,46 @@ export async function matchBusinessNameInMessage(
   return best;
 }
 
+
+/**
+ * CTA de réservation unique d'un établissement (même règle que la barre fixe du
+ * slidepanel : premier lien dont le CTA/mode est un CTA de réservation).
+ * Retourne aussi le WhatsApp, pour que la carte résultat IA porte les mêmes CTA.
+ */
+export function bookingCtaOf(b: any, lang: "fr" | "en" | "ar" = "fr"): { url: string; label: string } | null {
+  const isReserve = (cta: any, mode: any) => {
+    const n = String(`${cta || ""} ${mode || ""}`).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return /reserv/.test(n) || /\bbook(?:ing)?\b/.test(n) || /billet/.test(n) || /\btickets?\b/.test(n);
+  };
+  const fallback = lang === "en" ? "Book" : lang === "ar" ? "احجز" : "Réservez";
+  const pairs: Array<[any, any, any]> = [
+    [b?.reserve_now_url, b?.reserve_now_cta, b?.presentation_mode],
+    [b?.online_shop_url, b?.online_shop_cta, b?.online_shop_presentation_mode],
+    [b?.url_4, b?.url_4_cta, b?.url_4_presentation_mode],
+    [b?.url_5, b?.url_5_cta, b?.url_5_presentation_mode],
+  ];
+  for (const [url, cta, mode] of pairs) {
+    if (!url || typeof url !== "string") continue;
+    if (!isReserve(cta, mode)) continue;
+    const label = String(cta || "").trim();
+    const isWa = label.toLowerCase().replace(/[\s_-]/g, "") === "whatsapp";
+    if (isWa) continue; // le CTA WhatsApp est déjà rendu séparément
+    return { url: url.startsWith("http") ? url : `https://${url}`, label: fallback };
+  }
+  return null;
+}
+
+/** Champs CTA à ajouter au payload de carte résultat IA. */
+export function ctaFieldsOf(b: any) {
+  const booking = bookingCtaOf(b);
+  return {
+    whatsapp: b?.whatsapp ?? null,
+    booking_url: booking?.url ?? null,
+    booking_label: booking?.label ?? null,
+  };
+}
+
+export const CTA_SELECT_FIELDS =
+  "phone, whatsapp, reserve_now_url, reserve_now_cta, presentation_mode, " +
+  "online_shop_url, online_shop_cta, online_shop_presentation_mode, " +
+  "url_4, url_4_cta, url_4_presentation_mode, url_5, url_5_cta, url_5_presentation_mode";
