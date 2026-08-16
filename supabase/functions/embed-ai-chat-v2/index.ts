@@ -330,6 +330,71 @@ Deno.serve(async (req) => {
         const scopeCity = resolveCityScope({ hostCity: host?.city, activeCity, explicitCity }) as string;
         cityDetected = scopeCity;
 
+        // ── FILTRES LOCAUX (badges du footer) — zéro token, zéro modèle ──────
+        // Le client impose une route du catalogue partagé sur le corpus déjà
+        // affiché (`runForcedRoute`, même mécanisme que `route_override`), plus
+        // la clé locale `neighborhood_filter`. Aucun repli silencieux : si la
+        // route ne produit rien, on le dit et on s'arrête.
+        if (clientForcedRoute && priorIds.length) {
+          if (clientForcedRoute === "neighborhood_filter") {
+            const nb = await resolveNeighborhoodInMessage(admin, userMessage, scopeCity).catch(() => null);
+            if (nb) {
+              const pool = await fetchPriorFull(admin, priorIds).catch(() => []);
+              const kept = filterPoolByNeighborhood(pool as any[], nb);
+              route = "discover";
+              resultsCount = kept.length;
+              if (!kept.length) {
+                emit(neighborhoodEmptyMessage(nb, lang as any));
+                await finish(true);
+                return;
+              }
+              const heading = lang === "en"
+                ? `In **${nb.name}** — ${kept.length} address${kept.length > 1 ? "es" : ""} from this selection:`
+                : lang === "ar"
+                  ? `في **${nb.name}** — ${kept.length} من هذه القائمة:`
+                  : `À **${nb.name}** — ${kept.length} adresse${kept.length > 1 ? "s" : ""} de cette sélection :`;
+              const built = await buildPinnedAnswer(
+                admin, kept.map((b: any) => String(b.id)), host, lang, null,
+                { route: "neighborhood_filter", heading, outro: "" },
+              ).catch(() => null);
+              if (built) {
+                emit(built.text);
+                if (built.mapPayload?.businesses?.length) {
+                  emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
+                }
+                emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
+                await finish(true);
+                return;
+              }
+            }
+          } else if (isForcedRouteKey(clientForcedRoute)) {
+            const hostRadius = RADIUS_OPTIONS.includes(Number(host?.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
+            const forced = await runForcedRoute({
+              admin, key: clientForcedRoute, lang, host, priorIds, userMessage,
+              scopeCity, radiusKm: requestedRadiusKm ?? hostRadius,
+            }).catch((e) => {
+              console.error("[embed-ai-chat-v2] client_forced_route_failed", clientForcedRoute, String(e));
+              return null;
+            });
+            console.log("[embed-ai-chat-v2] client_forced_route", JSON.stringify({
+              key: clientForcedRoute, applied: !!forced,
+            }));
+            if (forced) {
+              route = forced.route;
+              resultsCount = forced.resultsCount;
+              emit(forced.text);
+              if (forced.mapBusinesses?.length) emit(`\n\n${forcedMapMarker(forced.mapBusinesses)}`);
+              if (forced.knownBusinesses?.length) {
+                emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(forced.knownBusinesses)}-->`);
+              }
+              await finish(true);
+              return;
+            }
+          }
+        }
+
+
+
         // ── Relance contextuelle sur un agenda déjà affiché (route events) ──
         // Le tour précédent a renvoyé un EVENTS_SNAPSHOT : une relance courte
         // nommant un quartier filtre CE corpus d'événements, jamais une nouvelle
