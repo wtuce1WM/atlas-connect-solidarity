@@ -1,10 +1,21 @@
 import React from "react";
-import { AbsoluteFill, Img, staticFile, interpolate, useCurrentFrame, Easing } from "remotion";
+import {
+  AbsoluteFill,
+  Img,
+  staticFile,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig,
+  Easing,
+} from "remotion";
 import {
   FeedEffectsOverlay,
   FeedMotionBlurWrapper,
   type FeedEffectsConfig,
 } from "./effects/FeedEffects";
+import { PhoneFrame, phoneGeometry } from "./PhoneFrame";
+import { BrowserFrame, browserGeometry } from "./BrowserFrame";
+import { palette, alpha, display, body } from "./tokens";
 
 /**
  * Template de montage vidéo « feed in-app » entièrement piloté par un manifest.
