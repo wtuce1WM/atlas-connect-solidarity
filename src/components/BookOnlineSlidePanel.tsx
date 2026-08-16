@@ -945,12 +945,14 @@ const BookOnlineSlidePanelInner = ({
 
       setAllYoutubeVideos(items);
       setYoutubeVideoCount(items.length);
+      setYoutubeThumbnailMap(Object.fromEntries(thumbMap));
     };
 
     loadYoutubeVideos().catch(() => {
       if (!cancelled) {
         setAllYoutubeVideos([]);
         setYoutubeVideoCount(0);
+        setYoutubeThumbnailMap({});
       }
     });
 
