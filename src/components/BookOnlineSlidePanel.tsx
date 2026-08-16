@@ -2839,19 +2839,16 @@ const BookOnlineSlidePanelInner = ({
                   (a, b) => (urlOrder.get(a.url) ?? 999) - (urlOrder.get(b.url) ?? 999)
                 );
                 gridItems = sortedVideoDocs.map((vid, i) => {
-                  const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-                  const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
-                  const thumb = resolveVideoDocThumbnail(vid) || (ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null) || (vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null);
-                  const isHostedFile = !thumb && !ytMatch && !vimeoMatch;
                   return {
                     key: `vid-${i}`,
-                    imgUrl: thumb,
-                    videoFallbackUrl: isHostedFile ? vid.url : undefined,
+                    imgUrl: null,
+                    videoFallbackUrl: vid.url,
                     label: vid.name || undefined,
                     playIcon: true,
                     onClick: () => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description }),
                   } as GridItem;
                 });
+
               } else if (descGridSection === "poi") {
                 const activeFrontTabGrid = poiCatFilter ? frontTabs.find(t => t.id === poiCatFilter) || null : null;
                 const afterCatGrid = activeFrontTabGrid
