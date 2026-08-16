@@ -108,54 +108,22 @@ export async function buildBookingForBusinesses(admin: any, ids: string[], lang:
     return out;
   };
 
-  const intro = lang === "en"
-    ? `Here's which of these places let you book online right now, and how to reach the others directly:`
-    : lang === "ar"
-      ? `إليك أي من هذه الأماكن يتيح الحجز عبر الإنترنت الآن، وكيفية التواصل مع الآخرين مباشرة:`
-      : `Voici lesquels de ces établissements permettent de réserver en ligne dès maintenant, et comment joindre les autres directement :`;
+  // Les cartes résultat IA portent déjà nom, quartier, hook, note, horaires ET les
+  // CTA (Réservez / WhatsApp) : on ne réécrit plus la liste ici (zéro duplication).
+  const withOnline = ordered.filter((b: any) => collectLinks(b).length).length;
+  const totalCount = ordered.length;
 
-  const yesOnline = lang === "en" ? "✅ Yes, you can book online" : lang === "ar" ? "✅ نعم، يمكنك الحجز عبر الإنترنت" : "✅ Oui, vous pouvez réserver en ligne";
-  const noOnline = lang === "en" ? "❌ No online booking — contact directly" : lang === "ar" ? "❌ لا حجز عبر الإنترنت — تواصل مباشرة" : "❌ Pas de réservation en ligne — contactez directement";
-  const phoneLbl = lang === "en" ? "Phone" : lang === "ar" ? "هاتف" : "Tél";
-  const waLbl = "WhatsApp";
-
-  const blocks: string[] = [];
-  for (const b of ordered) {
-    const links = collectLinks(b);
-    const loc = [b.neighborhood, b.city].filter(Boolean).join(", ");
-    const header = `**${b.name}**${loc ? ` — ${loc}` : ""}`;
-    const hook = pickHook(b);
-    const status = links.length ? yesOnline : noOnline;
-
-    const parts: string[] = [];
-    parts.push(header);
-    if (hook) parts.push(hook);
-    parts.push(status);
-
-    if (links.length) {
-      const linksLine = links.map((c) => `[${c.label}](${c.url})`).join(" · ");
-      parts.push(linksLine);
-    }
-
-    const contacts: string[] = [];
-    if (b.phone) {
-      const digits = String(b.phone).replace(/[^\d+]/g, "");
-      contacts.push(`📞 [${phoneLbl} ${b.phone}](tel:${digits})`);
-    }
-    if (b.whatsapp) {
-      const wa = String(b.whatsapp).replace(/\D/g, "");
-      contacts.push(`💬 [${waLbl} ${b.whatsapp}](https://wa.me/${wa})`);
-    }
-    if (contacts.length) parts.push(contacts.join(" · "));
-
-    blocks.push(parts.join("\n\n"));
+  if (lang === "en") {
+    return withOnline === 0
+      ? `None of these places can be booked online — the WhatsApp button on each card is the fastest way to reach them. Want me to suggest others that do take online bookings?`
+      : `${withOnline} of the ${totalCount} places can be booked online right away — use the **Book** button on each card below (WhatsApp for the others). Want me to focus on the bookable ones?`;
   }
-
-  const outro = lang === "en"
-    ? `\n\nWant me to focus on the ones you can book right now?`
-    : lang === "ar"
-      ? `\n\nهل تريد أن أركز على الأماكن التي يمكنك حجزها الآن؟`
-      : `\n\nJe me concentre sur ceux que tu peux réserver directement en ligne ?`;
-
-  return `${intro}\n\n${blocks.join("\n\n---\n\n")}${outro}`;
+  if (lang === "ar") {
+    return withOnline === 0
+      ? `لا يمكن حجز أي من هذه الأماكن عبر الإنترنت — زر واتساب على كل بطاقة هو أسرع طريقة للتواصل. هل أقترح أماكن أخرى تتيح الحجز؟`
+      : `${withOnline} من ${totalCount} يمكن حجزها الآن عبر الإنترنت — استخدم زر **احجز** على كل بطاقة (وواتساب للبقية). هل أركّز على القابلة للحجز؟`;
+  }
+  return withOnline === 0
+    ? `Aucun de ces établissements ne se réserve en ligne — le bouton WhatsApp sur chaque carte est le plus rapide pour les joindre. Je te propose des adresses réservables en ligne ?`
+    : `${withOnline} des ${totalCount} adresses se réservent en ligne dès maintenant — le bouton **Réservez** est sur chaque carte ci-dessous (WhatsApp pour les autres). Je me concentre sur celles qui sont réservables ?`;
 }
