@@ -408,7 +408,7 @@ Deno.serve(async (req) => {
                 : `À **${label}** — ${kept.length} adresse${kept.length > 1 ? "s" : ""} de cette sélection :`;
             const built = await buildPinnedAnswer(
               admin, kept.map((b: any) => String(b.id)), host, lang, null,
-              { route: "neighborhood_filter", heading, outro: "" },
+              { route: "neighborhood_filter", heading, outro: "", competitorGuard },
             ).catch(() => null);
             if (built) {
               emit(built.text);
