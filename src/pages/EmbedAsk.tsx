@@ -1039,6 +1039,19 @@ const EmbedAsk = () => {
     return { ids: [], nb: {}, hasGeo: false };
   }, [messages]);
 
+  /** La dernière réponse assistant a-t-elle écarté des concurrents de l'hôte ? */
+  const competitorGuardActive = useMemo<boolean>(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== "assistant") continue;
+      const { competitorGuard } = extractPayloads(messageText(m));
+      if (competitorGuard) return true;
+      // On ne regarde que le dernier message assistant.
+      break;
+    }
+    return false;
+  }, [messages]);
+
   /** Reste du corpus non encore affiché (marqueur POOL_BUSINESS_IDS). */
   const poolRemaining = useMemo<number>(() => {
     if (!poolInfo.ids.length) return 0;
