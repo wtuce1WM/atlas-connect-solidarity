@@ -828,6 +828,20 @@ const BookOnlineSlidePanelInner = ({
   const [showExternalVideosOverlay, setShowExternalVideosOverlay] = useState(false);
   const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [youtubeThumbnailMap, setYoutubeThumbnailMap] = useState<Record<string, string>>({});
+  const vimeoOEmbedMap = useVimeoOEmbedThumbnails((videoDocs || []).map((d: any) => d.url));
+
+  const resolveVideoDocThumbnail = useCallback((vid: any) => {
+    const ytMatch = (vid.url || "").match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+    if (ytMatch) {
+      return youtubeThumbnailMap[ytMatch[1]] || vid.thumbnail_url || `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`;
+    }
+    const vimeoMatch = (vid.url || "").match(/vimeo\.com\/(\d+)/);
+    if (vimeoMatch) {
+      return vid.thumbnail_url || vimeoOEmbedMap[vid.url] || `https://vumbnail.com/${vimeoMatch[1]}.jpg`;
+    }
+    return vid.thumbnail_url || null;
+  }, [youtubeThumbnailMap, vimeoOEmbedMap]);
+
   const [kpGroupTitle, setKpGroupTitle] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<{ id: string; icon: string; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null }[]>([]);
   const [highlightsSection, setHighlightsSection] = useState<{ title: string | null; intro: string | null; columns: number }>({ title: null, intro: null, columns: 2 });
