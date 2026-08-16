@@ -404,6 +404,10 @@ const BookOnlineSlidePanelInner = ({
   const { images, videos, mediaItems, totalMedia, matterportIndex, matterportItem, lightboxItems } = useMediaItems(business, orderedVideoUrls, videoDocs);
 
   const ctaConfig = useCtaConfig(business, language);
+  /** URL 1 : libellé exact du CTA défini en backoffice (`website_cta`), sinon « Site web ». */
+  const websiteCtaLabel = (business as any)?.website_cta
+    ? resolveCtaLabel((business as any).website_cta, null, "plus_informations", language)
+    : (language === "en" ? "Website" : language === "ar" ? "موقع الويب" : "Site web");
 
   // --- Cosmetic URL rewriting ---
   const savedUrlRef = useRef(window.location.pathname + window.location.search);
