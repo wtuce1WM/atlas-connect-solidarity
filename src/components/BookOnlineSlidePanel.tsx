@@ -880,10 +880,21 @@ const BookOnlineSlidePanelInner = ({
       if (cancelled) return;
 
       const merged = new Map<string, any>();
-      (directVideos || []).forEach((v: any) => merged.set(v.video_id, v));
+      const thumbMap = new Map<string, string>();
+      const bestYouTubeThumb = (v: any) =>
+        v.custom_thumbnail_url || v.thumbnail || v.thumbnail_url || `https://img.youtube.com/vi/${v.video_id}/hqdefault.jpg`;
+
+      (directVideos || []).forEach((v: any) => {
+        merged.set(v.video_id, v);
+        thumbMap.set(v.video_id, bestYouTubeThumb(v));
+      });
       (poiLinks || []).forEach((row: any) => {
         const v = row.business_youtube_videos;
-        if (v && !merged.has(v.video_id)) merged.set(v.video_id, v);
+        if (!v) return;
+        if (!merged.has(v.video_id)) {
+          merged.set(v.video_id, v);
+          thumbMap.set(v.video_id, bestYouTubeThumb(v));
+        }
       });
       (docVideos || []).forEach((d: any) => {
         const url: string = d.url || "";
@@ -891,10 +902,12 @@ const BookOnlineSlidePanelInner = ({
         if (!m) return;
         const videoId = m[1];
         if (merged.has(videoId)) return;
+        const thumb = d.thumbnail_url || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        thumbMap.set(videoId, thumb);
         merged.set(videoId, {
           video_id: videoId,
           title: d.name || "",
-          thumbnail: d.thumbnail_url || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+          thumbnail: thumb,
           published_at: "",
           is_short: /\/shorts\//.test(url),
           duration_seconds: 0,
