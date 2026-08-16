@@ -1031,6 +1031,37 @@ const EmbedAsk = () => {
     return poolIds.filter((id) => !shown.has(id)).length;
   }, [messages]);
 
+  /**
+   * Filtres locaux calculables sur le corpus courant (dernier payload carte) :
+   * proches / ouverts maintenant / mieux notés / quartier. Un badge n'apparaît
+   * que si la donnée nécessaire existe réellement dans le corpus.
+   */
+  const localFilters = useMemo(() => {
+    const rows = (mapReplayTarget?.businesses ?? []) as any[];
+    if (rows.length < 2) {
+      return { closest: false, openNow: false, bestRated: false, neighborhoods: [] as Array<{ name: string; count: number }> };
+    }
+    const geo = rows.filter((b) => b?.latitude != null && b?.longitude != null).length;
+    const withHours = rows.filter((b) => b?.is_open_24h || (b?.show_opening_hours && b?.opening_hours)).length;
+    const withRating = rows.filter((b) => (b?.computed_rating ?? b?.google_rating ?? b?.tripadvisor_rating) != null).length;
+    const counts = new Map<string, number>();
+    for (const b of rows) {
+      const nb = String(b?.neighborhood || "").trim();
+      if (!nb) continue;
+      counts.set(nb, (counts.get(nb) ?? 0) + 1);
+    }
+    const neighborhoods = [...counts.entries()]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+    return {
+      closest: geo >= 2,
+      openNow: withHours >= 2,
+      bestRated: withRating >= 2,
+      neighborhoods: counts.size >= 2 ? neighborhoods : [],
+    };
+  }, [mapReplayTarget]);
+
 
   const isMapReplayLabel = (label: string): boolean => {
     const normalized = label.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
