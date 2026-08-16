@@ -84,7 +84,9 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
       // Le geste vertical est neutralisé sur le carrousel (touch-action: pan-x) et
       // la molette est convertie en défilement horizontal tant qu'on n'est pas
       // arrivé au bout : la page ne bouge qu'après la dernière vignette.
-      style={{ overscrollBehavior: "contain", touchAction: fullyVisible ? "pan-x" : "auto" }}
+      // Le geste tactile reste libre sur les 2 axes : sinon, une fois revenu au
+      // début du scroll horizontal, on ne peut plus remonter dans l'historique.
+      style={{ overscrollBehavior: "contain", touchAction: "auto" }}
       onPointerEnter={revealFully}
       onTouchStart={revealFully}
       onWheel={(e) => {
