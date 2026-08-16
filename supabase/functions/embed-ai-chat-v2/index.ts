@@ -496,7 +496,7 @@ Deno.serve(async (req) => {
                 emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
               }
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
-              emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: poolIds, city: scopeCity })}-->`);
+              emit("\n\n" + await poolMarker(admin, poolIds, scopeCity));
               await finish(true);
               return;
             }
@@ -665,7 +665,7 @@ Deno.serve(async (req) => {
               }
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               if (built.poolIds?.length) {
-                emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: built.poolIds, city: scopeCity })}-->`);
+                emit("\n\n" + await poolMarker(admin, built.poolIds, scopeCity));
               }
 
               await finish(true);
@@ -704,7 +704,7 @@ Deno.serve(async (req) => {
               }
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               if (built.poolIds?.length) {
-                emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: built.poolIds, city: scopeCity })}-->`);
+                emit("\n\n" + await poolMarker(admin, built.poolIds, scopeCity));
               }
 
               await finish(true);
@@ -906,7 +906,7 @@ Deno.serve(async (req) => {
               resultsCount = built.kept.length;
               emit(built.text);
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.kept.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })))}-->`);
-              emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: poolIds, city: scopeCity })}-->`);
+              emit("\n\n" + await poolMarker(admin, poolIds, scopeCity));
               await finish(true);
               return;
             }
@@ -1456,7 +1456,7 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
           // Mémoire du corpus complet (les 30 trouvées) pour que la relance suivante
           // filtre dedans, et pas seulement dans les adresses affichées.
           if (searchPoolIds.length) {
-            emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: searchPoolIds, city: cityDetected || scopeCity || null })}-->`);
+            emit("\n\n" + await poolMarker(admin, searchPoolIds, cityDetected || scopeCity || null));
           }
         } else if (priorFull.length) {
           // Relance contextuelle : cartes des seules fiches réellement citées, prises
@@ -1470,7 +1470,7 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
             emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(citedFull.map((b) => ({ id: b.id, name: b.name })))}-->`);
           }
           if (followUpPoolIds.length) {
-            emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: followUpPoolIds, city: scopeCity || null })}-->`);
+            emit("\n\n" + await poolMarker(admin, followUpPoolIds, scopeCity || null));
           }
         }
 
