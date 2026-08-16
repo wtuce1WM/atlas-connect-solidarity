@@ -1692,9 +1692,15 @@ const EmbedAsk = () => {
                   style={cardStyle}
                 >
                   {articleCard.image ? (
-                    <img src={articleCard.image} alt={articleCard.title} className="w-24 h-24 object-cover flex-shrink-0" loading="lazy" />
+                    <img
+                      src={articleCard.image}
+                      alt=""
+                      className="w-24 h-24 min-w-24 object-cover flex-shrink-0 bg-neutral-800"
+                      loading="lazy"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = "hidden"; }}
+                    />
                   ) : (
-                    <div className="w-24 h-24 bg-neutral-800 flex-shrink-0" />
+                    <div className="w-24 h-24 min-w-24 bg-neutral-800 flex-shrink-0" />
                   )}
                   <div className="flex-1 py-2 pr-3 flex flex-col justify-center gap-1">
                     <span className="text-[10px] uppercase tracking-wide text-[#D4AF37] font-semibold">
