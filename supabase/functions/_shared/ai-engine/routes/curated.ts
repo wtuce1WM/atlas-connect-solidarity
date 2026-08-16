@@ -11,6 +11,7 @@
 // taxonomique ne doivent pouvoir la remplacer ou la « compléter ».
 import { stripText } from "./nearby.ts";
 import { CTA_SELECT_FIELDS, ctaFieldsOf } from "./shared.ts";
+import { buildImmersiveLines } from "./immersive.ts";
 
 export type Lang = "fr" | "en" | "ar";
 
@@ -295,6 +296,7 @@ const BIZ_FIELDS =
   "id, name, slug, city, neighborhood, address, main_category, categories, hook_fr, hook_en, hook_ar, " +
   "latitude, longitude, logo_url, images, google_rating, google_review_count, tripadvisor_rating, " +
   "tripadvisor_review_count, computed_rating, total_review_count, engagements, closure_message, is_active, is_featured, rating, " +
+  "description_fr, description_en, description_ar, services, " +
   "opening_hours, is_open_24h, show_opening_hours, " + CTA_SELECT_FIELDS;
 
 export type CuratedAnswer = {
@@ -509,8 +511,11 @@ export async function buildPinnedAnswer(
       ? `📍 هذه هي القائمة المختارة كاملة${host?.city ? ` في ${host.city}` : ""} — تريد الخريطة أو أوقات العمل أو روابط الحجز؟`
       : `📍 C'est la sélection curatée complète${host?.city ? ` à ${host.city}` : ""} — tu veux la carte, les horaires, ou les liens de réservation ?`);
 
+  // Texte immersif (zéro token) inséré AVANT les cartes résultat.
+  const immersive = buildImmersiveLines(ordered, lang);
+
   return {
-    text: `${heading}\n\n${outro}`,
+    text: [heading, immersive, outro].filter((p) => p && String(p).trim()).join("\n\n"),
 
     knownBusinesses: ordered.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })),
     mapPayload: { title: label || null, businesses: mapBusinessesOf(ordered) },
