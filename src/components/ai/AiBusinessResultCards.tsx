@@ -55,9 +55,9 @@ interface Props {
 }
 
 const L = {
-  fr: { reviews: "avis", allReviews: "Voir tous les avis", open: "Ouvert", closed: "Fermé", open24: "Ouvert 24h/24", whatsapp: "WhatsApp", book: "Réservez" },
-  en: { reviews: "reviews", allReviews: "See all reviews", open: "Open", closed: "Closed", open24: "Open 24/7", whatsapp: "WhatsApp", book: "Book" },
-  ar: { reviews: "تقييم", allReviews: "عرض كل الآراء", open: "مفتوح", closed: "مغلق", open24: "مفتوح 24/24", whatsapp: "واتساب", book: "احجز" },
+  fr: { reviews: "avis", allReviews: "Consulter les avis clients", open: "Ouvert", closed: "Fermé", open24: "Ouvert 24h/24", whatsapp: "WhatsApp", book: "Réservez" },
+  en: { reviews: "reviews", allReviews: "Read customer reviews", open: "Open", closed: "Closed", open24: "Open 24/7", whatsapp: "WhatsApp", book: "Book" },
+  ar: { reviews: "تقييم", allReviews: "عرض آراء العملاء", open: "مفتوح", closed: "مغلق", open24: "مفتوح 24/24", whatsapp: "واتساب", book: "احجز" },
 };
 
 const FR_TO_EN: Record<string, string> = {
@@ -166,10 +166,15 @@ const AiBusinessResultCards = ({
 
               <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px]">
                 {rating20 != null ? (
-                  <span className="inline-flex items-center gap-1">
-                    <Star className="w-3 h-3 shrink-0" style={{ color: "#D4AF37" }} fill="#D4AF37" />
-                    <span className="font-semibold">{rating20.toFixed(1)}/20</span>
-                    {reviewCount ? <span className="opacity-70">· {reviewCount} {t.reviews}</span> : null}
+                  <span
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full"
+                    style={{ background: "rgba(212,175,55,0.15)" }}
+                  >
+                    <Star className="w-3.5 h-3.5 shrink-0" style={{ color: "#D4AF37" }} fill="#D4AF37" />
+                    <span className="font-bold text-[13px]" style={{ color: "#D4AF37" }}>
+                      {rating20.toFixed(1)}<span className="text-[10px] font-semibold opacity-80">/20</span>
+                    </span>
+                    {reviewCount ? <span className="opacity-75 text-[10.5px]">· {reviewCount} {t.reviews}</span> : null}
                   </span>
                 ) : null}
                 {statusLabel ? (
@@ -187,8 +192,18 @@ const AiBusinessResultCards = ({
                 ) : null}
               </div>
 
-              {(waHref || bookingUrl) ? (
+              {(waHref || bookingUrl || (onOpenReviews && reviewCount > 0)) ? (
                 <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                  {onOpenReviews && reviewCount > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => onOpenReviews(b.id, siblings)}
+                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border"
+                      style={{ borderColor: "#D4AF37", color: "#D4AF37" }}
+                    >
+                      <Star className="w-3 h-3" fill="#D4AF37" /> {t.allReviews}
+                    </button>
+                  ) : null}
                   {waHref ? (
                     <a
                       href={waHref}

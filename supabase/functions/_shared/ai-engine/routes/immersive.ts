@@ -38,6 +38,10 @@ function trimPhrase(s: string): string {
   return `${(sp > 80 ? cut.slice(0, sp) : cut).trim()}…`;
 }
 
+export function immersivePhrase(b: any, lang: Lang): string {
+  return phraseOf(b, lang);
+}
+
 function phraseOf(b: any, lang: Lang): string {
   const hook = pickLocalized(b, "hook", lang);
   if (hook) return trimPhrase(hook);
