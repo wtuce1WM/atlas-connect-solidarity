@@ -1273,18 +1273,10 @@ const EmbedAsk = () => {
         onOpen={(id, sib) => openOne(id, sib, null)}
         onOpenReviews={(id, sib) => openOne(id, sib, "reviews")}
         onOpenBooking={openBookingOverlay}
-        footer={
-          onOpenMap ? (
-            <button
-              type="button"
-              onClick={onOpenMap}
-              style={AI_NAME_FONT}
-              className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
-            >
-              <MapPin className="w-3.5 h-3.5" /> {L.viewMap}
-            </button>
-          ) : null
-        }
+        // Pas de CTA carte ici : redondant avec la relance déterministe
+        // « Sur une carte » affichée sous le CTA micro.
+        footer={null}
+
       />
     );
   };

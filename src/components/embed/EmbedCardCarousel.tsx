@@ -35,26 +35,27 @@ interface Props {
 export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) {
   if (!items.length) return null;
   return (
+    <div className="w-full max-w-full">
     <div
       className="w-full max-w-full overflow-x-auto scrollbar-hide -mx-1 px-1"
-      style={{ overscrollBehaviorX: "contain" }}
+      // Le geste vertical est neutralisé sur le carrousel (touch-action: pan-x) et
+      // la molette est convertie en défilement horizontal tant qu'on n'est pas
+      // arrivé au bout : la page ne bouge qu'après la dernière vignette.
+      style={{ overscrollBehavior: "contain", touchAction: "pan-x" }}
       onWheel={(e) => {
         if (e.deltaY === 0) return;
         const el = e.currentTarget;
         const maxScroll = el.scrollWidth - el.clientWidth;
         if (maxScroll <= 0) return;
-        const goingLeft = e.deltaY < 0;
-        const goingRight = e.deltaY > 0;
-        const atLeft = el.scrollLeft <= 0;
         const atRight = el.scrollLeft >= maxScroll - 1;
-        if ((goingLeft && !atLeft) || (goingRight && !atRight)) {
-          e.preventDefault();
-          e.stopPropagation();
-          const capped = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 50);
-          el.scrollLeft = Math.max(0, Math.min(maxScroll, el.scrollLeft + capped));
-        }
+        if (e.deltaY > 0 && atRight) return; // fin du scroll horizontal → la page reprend
+        e.preventDefault();
+        e.stopPropagation();
+        const capped = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 50);
+        el.scrollLeft = Math.max(0, Math.min(maxScroll, el.scrollLeft + capped));
       }}
     >
+
       <div className="flex gap-3 pb-1">
         {items.slice(0, limit).map((it) => (
           <div
@@ -122,7 +123,8 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
           </div>
         ))}
       </div>
-      {footer}
+    </div>
+    {footer}
     </div>
   );
 }
