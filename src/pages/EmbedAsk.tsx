@@ -1007,9 +1007,12 @@ const EmbedAsk = () => {
     return null;
   }, [messages]);
 
-  /** Reste du corpus non encore affiché (marqueur POOL_BUSINESS_IDS). */
-  const poolRemaining = useMemo<number>(() => {
-    let poolIds: string[] = [];
+  /**
+   * Dernier marqueur POOL_BUSINESS_IDS : corpus COMPLET du tour (ids + comptes
+   * par quartier calculés côté moteur sur la totalité du pool). Source unique
+   * pour « Tous les résultats » et pour les badges de quartier.
+   */
+  const poolInfo = useMemo<{ ids: string[]; nb: Record<string, number> }>(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
       if (m.role !== "assistant") continue;
@@ -1017,19 +1020,27 @@ const EmbedAsk = () => {
       if (!match) continue;
       try {
         const p = JSON.parse(match[1]);
-        if (Array.isArray(p?.ids)) poolIds = p.ids.map((x: unknown) => String(x));
+        const ids = Array.isArray(p?.ids) ? p.ids.map((x: unknown) => String(x)) : [];
+        const nb = p?.nb && typeof p.nb === "object" ? (p.nb as Record<string, number>) : {};
+        return { ids, nb };
       } catch { /* noop */ }
       break;
     }
-    if (!poolIds.length) return 0;
+    return { ids: [], nb: {} };
+  }, [messages]);
+
+  /** Reste du corpus non encore affiché (marqueur POOL_BUSINESS_IDS). */
+  const poolRemaining = useMemo<number>(() => {
+    if (!poolInfo.ids.length) return 0;
     const shown = new Set<string>();
     for (const m of messages) {
       if (m.role !== "assistant") continue;
       const { known } = extractPayloads(messageText(m));
       for (const b of known) shown.add(b.id);
     }
-    return poolIds.filter((id) => !shown.has(id)).length;
-  }, [messages]);
+    return poolInfo.ids.filter((id) => !shown.has(id)).length;
+  }, [messages, poolInfo]);
+
 
   /**
    * Filtres locaux calculables sur le corpus courant (dernier payload carte) :
