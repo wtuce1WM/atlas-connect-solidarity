@@ -482,6 +482,28 @@ Deno.serve(async (req) => {
             }
           }
 
+          // Agenda curaté (mode = 'events') : le tour renvoie des événements
+          // #Agenda de la ville active, pas des fiches. Parité V1.
+          if (curated && keepCurated && String(curated.mode || "").trim() === "events") {
+            const { from, to } = weekendWindow();
+            const city = scopeCity || host?.city || "Marrakech";
+            const events = await fetchAgendaEvents(admin, {
+              city, from, to, limit: 10,
+              badgeIds: curated.badgeIds?.length ? curated.badgeIds : null,
+            }).catch((e) => {
+              console.error("[embed-ai-chat-v2] events_route_failed", String(e));
+              return [] as any[];
+            });
+            route = "events";
+            resultsCount = events.length;
+            emit(buildEventsWeekendAnswer(events, host, city, from, to, lang as any));
+            if (events.length) emit(`\n\n${eventsSnapshotMarker(events, city, curated.label || null)}`);
+            await finish(true);
+            return;
+          }
+
+
+
           // Corpus clos SEULEMENT si l'entrée n'a aucun filtre taxonomique : sinon
           // les épinglés sont mis en avant en tête des résultats filtrés.
           const curatedHasTaxo = !!curated && (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length || curated.serviceNames.length) > 0;
