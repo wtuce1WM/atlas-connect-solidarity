@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { MapPin, Star, Clock, CalendarCheck } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
@@ -96,6 +97,12 @@ function todayHours(b: AiResultBusiness): { label: string | null; isOpen: boolea
 const AiBusinessResultCards = ({
   businesses, origin, lang = "fr", ink = "dark", cardStyle, rankOrder, onOpen, onOpenReviews, onOpenBooking, footer, max = 20,
 }: Props) => {
+  const [animateIn, setAnimateIn] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setAnimateIn(true), 800);
+    return () => clearTimeout(t);
+  }, []);
+
   const t = L[(lang as keyof typeof L) in L ? (lang as keyof typeof L) : "fr"];
   const list = businesses.slice(0, max);
   if (!list.length) return null;
@@ -112,7 +119,7 @@ const AiBusinessResultCards = ({
   return (
     <div className="w-full flex flex-col gap-2">
       {ranked && list.length === 3 ? (
-        <div className="ai-podium-heading flex items-center gap-2 py-1" aria-label="Podium des trois établissements les mieux notés">
+        <div className={`flex items-center gap-2 py-1 ${animateIn ? "ai-podium-heading" : "opacity-0"}`} aria-label="Podium des trois établissements les mieux notés">
           <span className="h-px flex-1 bg-current opacity-20" />
           <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-widest" style={AI_NAME_FONT}>
             <span aria-hidden="true">🏆</span> Top 3
@@ -154,7 +161,7 @@ const AiBusinessResultCards = ({
           <div
             key={b.id}
             className={`relative flex gap-0 rounded-xl border-2 overflow-hidden ${shellClass} ${bodyInk} ${
-              podium ? "ai-podium-card" : ""
+              podium ? (animateIn ? "ai-podium-card" : "opacity-0") : ""
             }`}
             style={
               podium
@@ -163,7 +170,7 @@ const AiBusinessResultCards = ({
                     borderColor: podium.color,
                     backgroundImage: `linear-gradient(90deg, ${podium.tint}, transparent 48%)`,
                     boxShadow: `0 0 0 1px ${podium.color}66, 0 8px 24px ${podium.color}38`,
-                    animationDelay: `${idx * 180}ms`,
+                    animationDelay: `${animateIn ? idx * 180 : 0}ms`,
                     animationFillMode: "backwards",
                   }
                 : cardStyle
@@ -181,7 +188,7 @@ const AiBusinessResultCards = ({
               {ranked ? (
                 <span
                   className={`absolute top-2 left-2 inline-flex items-center justify-center gap-1 rounded-full font-extrabold leading-none shadow-lg ${
-                    podium ? "ai-podium-medal min-w-12 px-2 py-1.5 text-[13px]" : "px-1.5 py-0.5 text-[11px]"
+                    podium ? `${animateIn ? "ai-podium-medal" : "opacity-0"} min-w-12 px-2 py-1.5 text-[13px]` : "px-1.5 py-0.5 text-[11px]"
                   }`}
                   style={
                     podium
