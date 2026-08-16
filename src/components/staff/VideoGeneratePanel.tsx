@@ -229,6 +229,11 @@ const VideoGeneratePanel = () => {
     setSectionPause(Number(c.sectionPause ?? 75));
     setSectionMove(Number(c.sectionMove ?? 50));
     setSections(Array.isArray(c.sections) ? c.sections : DEFAULT_SECTIONS);
+    setVariant(isFramed(c.variant) ? (c.variant as PromoVariant) : "fullscreen");
+    setMockupBg(c.mockupBg ?? PRESET_BG[0].value);
+    setBrowserUrl(c.browserUrl ?? "oneworldmorocco.com");
+    setSplitSide(c.splitSide === "right" ? "right" : "left");
+
     setEffectsOn({
       grain: !!c.effectsOn?.grain,
       vignette: !!c.effectsOn?.vignette,
