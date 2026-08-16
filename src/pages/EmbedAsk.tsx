@@ -156,6 +156,8 @@ const EmbedBookPanelWrapper = ({
   );
 };
 
+const AiBusinessResultCards = lazy(() => import("@/components/ai/AiBusinessResultCards"));
+
 const SCOPE_LABELS: Record<string, { newConversation: string }> = {
   fr: { newConversation: "Nouvelle conversation" },
   en: { newConversation: "New conversation" },
