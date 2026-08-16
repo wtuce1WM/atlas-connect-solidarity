@@ -951,6 +951,71 @@ const EmbedAsk = () => {
     return null;
   };
 
+  /**
+   * Relances automatiques déterministes (badges du footer) :
+   * - « Sur une carte » : rejoue le dernier corpus cartographiable (fiches, sinon
+   *   établissements liés aux événements) dans l'overlay POI habituel.
+   * - « Tous les résultats » : demande le lot suivant du corpus POOL_BUSINESS_IDS.
+   * Aucun appel modèle pour la carte, zéro token pour le pool (route pool_more).
+   */
+  const mapReplayTarget = useMemo<MapPayload | null>(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== "assistant") continue;
+      const { maps, events } = extractPayloads(messageText(m));
+      const latest = maps[maps.length - 1];
+      if (latest && latest.businesses.length > 0) return latest;
+      const ev = events[events.length - 1];
+      if (ev && ev.events.length) {
+        const seen = new Set<string>();
+        const businesses: MapPanelBusiness[] = [];
+        for (const e of ev.events as any[]) {
+          const bid = e.default_business_id ? String(e.default_business_id) : null;
+          if (!bid || seen.has(bid)) continue;
+          if (e.latitude == null || e.longitude == null) continue;
+          seen.add(bid);
+          businesses.push({
+            id: bid,
+            name: e.business_name || e.name,
+            slug: e.business_slug ?? null,
+            latitude: Number(e.latitude),
+            longitude: Number(e.longitude),
+            city: e.city ?? null,
+            neighborhood: e.neighborhood ?? null,
+            images: [],
+          } as never);
+        }
+        if (businesses.length) return { title: ev.title ?? null, businesses };
+      }
+    }
+    return null;
+  }, [messages]);
+
+  /** Reste du corpus non encore affiché (marqueur POOL_BUSINESS_IDS). */
+  const poolRemaining = useMemo<number>(() => {
+    let poolIds: string[] = [];
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== "assistant") continue;
+      const match = messageText(m).match(/<!--POOL_BUSINESS_IDS:([\s\S]*?)-->/);
+      if (!match) continue;
+      try {
+        const p = JSON.parse(match[1]);
+        if (Array.isArray(p?.ids)) poolIds = p.ids.map((x: unknown) => String(x));
+      } catch { /* noop */ }
+      break;
+    }
+    if (!poolIds.length) return 0;
+    const shown = new Set<string>();
+    for (const m of messages) {
+      if (m.role !== "assistant") continue;
+      const { known } = extractPayloads(messageText(m));
+      for (const b of known) shown.add(b.id);
+    }
+    return poolIds.filter((id) => !shown.has(id)).length;
+  }, [messages]);
+
+
   const isMapReplayLabel = (label: string): boolean => {
     const normalized = label.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     return /\b(carte|map|خريطة)\b/.test(normalized) && /(resultat|results?|voir|montre|show|view|affiche|اعرض|أرني)/.test(normalized);
