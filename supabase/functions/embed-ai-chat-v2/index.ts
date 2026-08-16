@@ -194,6 +194,14 @@ Deno.serve(async (req) => {
   const requestedRadiusKm: number | null = RADIUS_OPTIONS.includes(Number(body.radiusKm))
     ? Number(body.radiusKm)
     : null;
+  /**
+   * Filtre local imposé par un badge du footer (zéro token) : même catalogue de
+   * routes que `route_override` du back-office, plus la clé locale
+   * `neighborhood_filter` (filtre le corpus du tour précédent sur un quartier).
+   */
+  const clientForcedRoute: string | null = typeof body.forcedRoute === "string" && body.forcedRoute
+    ? body.forcedRoute.trim()
+    : null;
 
   // Seule la surface embed exige un établissement hôte : /search et /club
   // travaillent sur une ville active, sans fiche d'ancrage.
