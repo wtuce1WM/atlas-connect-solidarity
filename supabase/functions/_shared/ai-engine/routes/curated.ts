@@ -484,6 +484,8 @@ export async function buildPinnedAnswer(
     route?: string; heading?: string; outro?: string; total?: number; poolIds?: string[];
     /** Garde-fou concurrents (surface embed) : écarte les rivaux directs de l'hôte. */
     isCompetitor?: (b: any) => boolean;
+    /** Garde-fou complet (compteur d'écartés). */
+    competitorGuard?: CompetitorGuard;
   },
 ): Promise<CuratedAnswer | null> {
 
@@ -494,10 +496,13 @@ export async function buildPinnedAnswer(
     .in("id", wanted).eq("is_active", true).is("closure_message", null);
   const byId = new Map<string, any>((data || []).map((b: any) => [b.id, b]));
   let ordered = wanted.map((id) => byId.get(id)).filter(Boolean);
-  if (overrides?.isCompetitor) {
+  const competitorFn = overrides?.competitorGuard?.isCompetitor ?? overrides?.isCompetitor;
+  if (competitorFn) {
     const before = ordered.length;
-    ordered = ordered.filter((b: any) => !overrides.isCompetitor!(b));
-    if (before !== ordered.length) {
+    ordered = ordered.filter((b: any) => !competitorFn(b));
+    const dropped = before - ordered.length;
+    if (dropped > 0) {
+      overrides?.competitorGuard?.markFiltered(dropped);
       console.log("[curated] competitor_guard", JSON.stringify({ before, after: ordered.length }));
     }
   }
