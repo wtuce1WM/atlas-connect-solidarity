@@ -1007,9 +1007,12 @@ const EmbedAsk = () => {
     return null;
   }, [messages]);
 
-  /** Reste du corpus non encore affiché (marqueur POOL_BUSINESS_IDS). */
-  const poolRemaining = useMemo<number>(() => {
-    let poolIds: string[] = [];
+  /**
+   * Dernier marqueur POOL_BUSINESS_IDS : corpus COMPLET du tour (ids + comptes
+   * par quartier calculés côté moteur sur la totalité du pool). Source unique
+   * pour « Tous les résultats » et pour les badges de quartier.
+   */
+  const poolInfo = useMemo<{ ids: string[]; nb: Record<string, number> }>(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
       if (m.role !== "assistant") continue;
@@ -1017,50 +1020,66 @@ const EmbedAsk = () => {
       if (!match) continue;
       try {
         const p = JSON.parse(match[1]);
-        if (Array.isArray(p?.ids)) poolIds = p.ids.map((x: unknown) => String(x));
+        const ids = Array.isArray(p?.ids) ? p.ids.map((x: unknown) => String(x)) : [];
+        const nb = p?.nb && typeof p.nb === "object" ? (p.nb as Record<string, number>) : {};
+        return { ids, nb };
       } catch { /* noop */ }
       break;
     }
-    if (!poolIds.length) return 0;
+    return { ids: [], nb: {} };
+  }, [messages]);
+
+  /** Reste du corpus non encore affiché (marqueur POOL_BUSINESS_IDS). */
+  const poolRemaining = useMemo<number>(() => {
+    if (!poolInfo.ids.length) return 0;
     const shown = new Set<string>();
     for (const m of messages) {
       if (m.role !== "assistant") continue;
       const { known } = extractPayloads(messageText(m));
       for (const b of known) shown.add(b.id);
     }
-    return poolIds.filter((id) => !shown.has(id)).length;
-  }, [messages]);
+    return poolInfo.ids.filter((id) => !shown.has(id)).length;
+  }, [messages, poolInfo]);
+
 
   /**
-   * Filtres locaux calculables sur le corpus courant (dernier payload carte) :
-   * proches / ouverts maintenant / mieux notés / quartier. Un badge n'apparaît
-   * que si la donnée nécessaire existe réellement dans le corpus.
+   * Filtres locaux : proches / ouverts maintenant / mieux notés se calculent sur
+   * le corpus affiché (données présentes dans le payload carte), tandis que les
+   * comptes par quartier viennent du CORPUS COMPLET du tour (`nb` du marqueur
+   * pool, ex. 18 rooftops) — jamais des 6 fiches affichées.
    */
   const localFilters = useMemo(() => {
     const rows = (mapReplayTarget?.businesses ?? []) as any[];
+    const poolNb = Object.entries(poolInfo.nb)
+      .map(([name, count]) => ({ name, count: Number(count) }))
+      .filter((n) => n.name && n.count > 0)
+      .sort((a, b) => b.count - a.count);
     if (rows.length < 2) {
       return { closest: false, openNow: false, bestRated: false, neighborhoods: [] as Array<{ name: string; count: number }> };
     }
     const geo = rows.filter((b) => b?.latitude != null && b?.longitude != null).length;
     const withHours = rows.filter((b) => b?.is_open_24h || (b?.show_opening_hours && b?.opening_hours)).length;
     const withRating = rows.filter((b) => (b?.computed_rating ?? b?.google_rating ?? b?.tripadvisor_rating) != null).length;
-    const counts = new Map<string, number>();
-    for (const b of rows) {
-      const nb = String(b?.neighborhood || "").trim();
-      if (!nb) continue;
-      counts.set(nb, (counts.get(nb) ?? 0) + 1);
+    // Repli sur le corpus affiché uniquement si le moteur n'a pas fourni `nb`
+    // (anciens messages d'une conversation ouverte avant ce déploiement).
+    let neighborhoods = poolNb;
+    if (!neighborhoods.length) {
+      const counts = new Map<string, number>();
+      for (const b of rows) {
+        const nb = String(b?.neighborhood || "").trim();
+        if (!nb) continue;
+        counts.set(nb, (counts.get(nb) ?? 0) + 1);
+      }
+      neighborhoods = [...counts.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
     }
-    const neighborhoods = [...counts.entries()]
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3);
     return {
       closest: geo >= 2,
       openNow: withHours >= 2,
       bestRated: withRating >= 2,
-      neighborhoods: counts.size >= 2 ? neighborhoods : [],
+      neighborhoods: neighborhoods.length >= 2 ? neighborhoods.slice(0, 3) : [],
     };
-  }, [mapReplayTarget]);
+  }, [mapReplayTarget, poolInfo]);
+
 
 
   const isMapReplayLabel = (label: string): boolean => {

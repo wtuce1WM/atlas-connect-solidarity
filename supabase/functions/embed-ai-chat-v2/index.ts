@@ -137,6 +137,28 @@ function priorPoolIds(messages: UIMessage[]): string[] {
   return [];
 }
 
+/**
+ * Marqueur `POOL_BUSINESS_IDS` — source de vérité UNIQUE du corpus complet du
+ * tour. Il embarque aussi `nb` (comptes par quartier calculés sur la TOTALITÉ
+ * du pool, pas sur les fiches affichées) : les badges de quartier du footer
+ * doivent annoncer 18 et non 6.
+ */
+async function poolMarker(admin: any, ids: string[], city: string | null): Promise<string> {
+  const uniq = [...new Set(ids.map((x) => String(x)))];
+  let nb: Record<string, number> = {};
+  if (uniq.length) {
+    const { data } = await admin.from("businesses").select("id, neighborhood").in("id", uniq);
+    for (const row of (Array.isArray(data) ? data : []) as any[]) {
+      const name = String(row?.neighborhood || "").trim();
+      if (!name) continue;
+      nb[name] = (nb[name] ?? 0) + 1;
+    }
+  }
+  return `<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: uniq, city, nb })}-->`;
+}
+
+
+
 function hostContext(host: any, lang: Lang): string {
   const hook = lang === "en" ? host.hook_en : lang === "ar" ? host.hook_ar : host.hook_fr;
   const desc = lang === "en" ? host.description_en : lang === "ar" ? host.description_ar : host.description;
@@ -331,18 +353,19 @@ Deno.serve(async (req) => {
         cityDetected = scopeCity;
 
         // ── FILTRES LOCAUX (badges du footer) — zéro token, zéro modèle ──────
-        // Le client impose une route du catalogue partagé sur le corpus déjà
-        // affiché (`runForcedRoute`, même mécanisme que `route_override`), plus
-        // la clé locale `neighborhood_filter`. Aucun repli silencieux : si la
-        // route ne produit rien, on le dit et on s'arrête.
-        if (clientForcedRoute && priorIds.length) {
+        // Le client impose une route du catalogue partagé sur le CORPUS COMPLET
+        // du tour (`poolIds`, 18 adresses), pas seulement sur les fiches
+        // affichées (`priorIds`, 6). Aucun repli silencieux : si la route ne
+        // produit rien, on le dit et on s'arrête.
+        if (clientForcedRoute && poolIds.length) {
           if (clientForcedRoute === "neighborhood_filter") {
             // Le badge envoie le libellé de quartier lu DANS le corpus courant :
             // on filtre donc sur ce libellé (égalité normalisée), et on n'utilise
             // le résolveur d'alias que comme complément. Jamais de repli sur une
             // recherche générique : la route répond ou dit qu'elle est vide.
             const nb = await resolveNeighborhoodInMessage(admin, userMessage, scopeCity).catch(() => null);
-            const pool = await fetchPriorFull(admin, priorIds).catch(() => []);
+            const pool = await fetchPriorFull(admin, poolIds).catch(() => []);
+
             const wanted = normalize(userMessage);
             const kept = nb
               ? filterPoolByNeighborhood(pool as any[], nb)
@@ -385,7 +408,7 @@ Deno.serve(async (req) => {
           } else if (isForcedRouteKey(clientForcedRoute)) {
             const hostRadius = RADIUS_OPTIONS.includes(Number(host?.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
             const forced = await runForcedRoute({
-              admin, key: clientForcedRoute, lang, host, priorIds, userMessage,
+              admin, key: clientForcedRoute, lang, host, priorIds: poolIds, userMessage,
               scopeCity, radiusKm: requestedRadiusKm ?? hostRadius,
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] client_forced_route_failed", clientForcedRoute, String(e));
@@ -474,7 +497,7 @@ Deno.serve(async (req) => {
                 emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
               }
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
-              emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: poolIds, city: scopeCity })}-->`);
+              emit("\n\n" + await poolMarker(admin, poolIds, scopeCity));
               await finish(true);
               return;
             }
@@ -643,7 +666,7 @@ Deno.serve(async (req) => {
               }
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               if (built.poolIds?.length) {
-                emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: built.poolIds, city: scopeCity })}-->`);
+                emit("\n\n" + await poolMarker(admin, built.poolIds, scopeCity));
               }
 
               await finish(true);
@@ -682,7 +705,7 @@ Deno.serve(async (req) => {
               }
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               if (built.poolIds?.length) {
-                emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: built.poolIds, city: scopeCity })}-->`);
+                emit("\n\n" + await poolMarker(admin, built.poolIds, scopeCity));
               }
 
               await finish(true);
@@ -884,7 +907,7 @@ Deno.serve(async (req) => {
               resultsCount = built.kept.length;
               emit(built.text);
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.kept.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })))}-->`);
-              emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: poolIds, city: scopeCity })}-->`);
+              emit("\n\n" + await poolMarker(admin, poolIds, scopeCity));
               await finish(true);
               return;
             }
@@ -1434,7 +1457,7 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
           // Mémoire du corpus complet (les 30 trouvées) pour que la relance suivante
           // filtre dedans, et pas seulement dans les adresses affichées.
           if (searchPoolIds.length) {
-            emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: searchPoolIds, city: cityDetected || scopeCity || null })}-->`);
+            emit("\n\n" + await poolMarker(admin, searchPoolIds, cityDetected || scopeCity || null));
           }
         } else if (priorFull.length) {
           // Relance contextuelle : cartes des seules fiches réellement citées, prises
@@ -1448,7 +1471,7 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
             emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(citedFull.map((b) => ({ id: b.id, name: b.name })))}-->`);
           }
           if (followUpPoolIds.length) {
-            emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: followUpPoolIds, city: scopeCity || null })}-->`);
+            emit("\n\n" + await poolMarker(admin, followUpPoolIds, scopeCity || null));
           }
         }
 
