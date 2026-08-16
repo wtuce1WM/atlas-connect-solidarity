@@ -293,7 +293,8 @@ export async function loadCuratedTargets(
 const BIZ_FIELDS =
   "id, name, slug, city, neighborhood, address, main_category, categories, hook_fr, hook_en, hook_ar, " +
   "latitude, longitude, logo_url, images, google_rating, google_review_count, tripadvisor_rating, " +
-  "tripadvisor_review_count, computed_rating, total_review_count, engagements, closure_message, is_active, is_featured, rating";
+  "tripadvisor_review_count, computed_rating, total_review_count, engagements, closure_message, is_active, is_featured, rating, " +
+  "opening_hours, is_open_24h, show_opening_hours";
 
 export type CuratedAnswer = {
   text: string;
