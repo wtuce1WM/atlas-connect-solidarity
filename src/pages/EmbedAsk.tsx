@@ -2066,7 +2066,62 @@ const EmbedAsk = () => {
                 {lang === "en" ? `All results · ${poolRemaining}` : lang === "ar" ? `كل النتائج · ${poolRemaining}` : `Tous les résultats · ${poolRemaining}`}
               </button>
             )}
+            {localFilters.closest && (
+              <button
+                type="button"
+                onClick={() => sendLocalFilter(
+                  lang === "en" ? "The closest ones" : lang === "ar" ? "الأقرب" : "Les plus proches",
+                  "distance_ranking_closest",
+                )}
+                style={AI_NAME_FONT}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+              >
+                <Navigation className="w-3.5 h-3.5" />
+                {lang === "en" ? "Closest" : lang === "ar" ? "الأقرب" : "Les plus proches"}
+              </button>
+            )}
+            {localFilters.openNow && (
+              <button
+                type="button"
+                onClick={() => sendLocalFilter(
+                  lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant",
+                  "open_now",
+                )}
+                style={AI_NAME_FONT}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+              >
+                <Clock className="w-3.5 h-3.5" />
+                {lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant"}
+              </button>
+            )}
+            {localFilters.bestRated && (
+              <button
+                type="button"
+                onClick={() => sendLocalFilter(
+                  lang === "en" ? "The best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés",
+                  "rating_best",
+                )}
+                style={AI_NAME_FONT}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+              >
+                <Star className="w-3.5 h-3.5" />
+                {lang === "en" ? "Best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés"}
+              </button>
+            )}
+            {localFilters.neighborhoods.map((nb) => (
+              <button
+                key={nb.name}
+                type="button"
+                onClick={() => sendLocalFilter(nb.name, "neighborhood_filter")}
+                style={AI_NAME_FONT}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                {nb.name} · {nb.count}
+              </button>
+            ))}
           </div>
+
         )}
         <div className="flex items-center gap-2 pb-2">
           <label
