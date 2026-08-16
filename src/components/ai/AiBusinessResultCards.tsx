@@ -188,7 +188,7 @@ const AiBusinessResultCards = ({
               {ranked ? (
                 <span
                   className={`absolute top-2 left-2 inline-flex items-center justify-center gap-1 rounded-full font-extrabold leading-none shadow-lg ${
-                    podium ? "ai-podium-medal min-w-12 px-2 py-1.5 text-[13px]" : "px-1.5 py-0.5 text-[11px]"
+                    podium ? `${animateIn ? "ai-podium-medal" : "opacity-0"} min-w-12 px-2 py-1.5 text-[13px]` : "px-1.5 py-0.5 text-[11px]"
                   }`}
                   style={
                     podium
