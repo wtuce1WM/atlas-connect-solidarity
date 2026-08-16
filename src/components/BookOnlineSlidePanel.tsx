@@ -105,6 +105,9 @@ import InlineReviewsSection from "@/components/InlineReviewsSection";
 import { translateEngagementLabel } from "@/lib/engagementLabels";
 
 import VideoThumbnail from "@/components/VideoThumbnail";
+import VideoDocPreview from "@/components/VideoDocPreview";
+import LazyMount from "@/components/LazyMount";
+
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 
 const spotifyEmbedUrl = (raw: string): string | null => {
