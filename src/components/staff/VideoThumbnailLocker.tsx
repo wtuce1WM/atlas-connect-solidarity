@@ -87,14 +87,27 @@ const VideoThumbnailLocker = () => {
     setLoading(false);
   };
 
-  const persistThumbnail = async (publicUrl: string) => {
+  const blobToBase64 = (blob: Blob): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const res = String(reader.result || "");
+        resolve(res.slice(res.indexOf(",") + 1));
+      };
+      reader.onerror = () => reject(new Error("Lecture du fichier impossible"));
+      reader.readAsDataURL(blob);
+    });
+
+  // Upload + persistance via edge function staff (service role) : plus de dépendance au RLS storage côté client.
+  const persistThumbnail = async (blob: Blob, ext: string, contentType: string) => {
     if (!video) return;
-    const { error: updErr } = await (supabase as any)
-      .from(video.source)
-      .update({ thumbnail_url: publicUrl, thumbnail_locked: true })
-      .eq("id", video.id);
-    if (updErr) throw updErr;
-    setVideo({ ...video, thumbnail_url: publicUrl, thumbnail_locked: true });
+    const imageBase64 = await blobToBase64(blob);
+    const { data, error } = await supabase.functions.invoke("set-video-thumbnail", {
+      body: { videoId: video.id, source: video.source, imageBase64, contentType, ext },
+    });
+    if (error) throw new Error((data as any)?.error || error.message);
+    if ((data as any)?.error) throw new Error((data as any).error);
+    setVideo({ ...video, thumbnail_url: (data as any).thumbnail_url, thumbnail_locked: true });
   };
 
   const handleUpload = async (file: File) => {
@@ -102,13 +115,7 @@ const VideoThumbnailLocker = () => {
     setUploading(true);
     try {
       const ext = file.name.split(".").pop() || "jpg";
-      const path = `thumbs/manual-${video.source}-${video.id}-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("business-images")
-        .upload(path, file, { cacheControl: "31536000", upsert: true, contentType: file.type || "image/jpeg" });
-      if (upErr) throw upErr;
-      const { data: urlData } = supabase.storage.from("business-images").getPublicUrl(path);
-      await persistThumbnail(urlData.publicUrl);
+      await persistThumbnail(file, ext, file.type || "image/jpeg");
       toast.success("Vignette affectée et verrouillée");
     } catch (e: any) {
       toast.error(e?.message || "Erreur lors de l'upload");
@@ -135,13 +142,7 @@ const VideoThumbnailLocker = () => {
       const blob: Blob = await new Promise((resolve, reject) => {
         canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Capture échouée"))), "image/jpeg", 0.92);
       });
-      const path = `thumbs/frame-${video.source}-${video.id}-${Date.now()}.jpg`;
-      const { error: upErr } = await supabase.storage
-        .from("business-images")
-        .upload(path, blob, { cacheControl: "31536000", upsert: true, contentType: "image/jpeg" });
-      if (upErr) throw upErr;
-      const { data: urlData } = supabase.storage.from("business-images").getPublicUrl(path);
-      await persistThumbnail(urlData.publicUrl);
+      await persistThumbnail(blob, "jpg", "image/jpeg");
       toast.success(`Image capturée à ${v.currentTime.toFixed(1)}s et verrouillée`);
     } catch (e: any) {
       toast.error(e?.message || "Erreur lors de la capture (CORS ?)");
@@ -153,12 +154,11 @@ const VideoThumbnailLocker = () => {
   const toggleLock = async () => {
     if (!video) return;
     const newLocked = !video.thumbnail_locked;
-    const { error } = await (supabase as any)
-      .from(video.source)
-      .update({ thumbnail_locked: newLocked })
-      .eq("id", video.id);
-    if (error) {
-      toast.error(error.message);
+    const { data, error } = await supabase.functions.invoke("set-video-thumbnail", {
+      body: { videoId: video.id, source: video.source, action: "lock", locked: newLocked },
+    });
+    if (error || (data as any)?.error) {
+      toast.error((data as any)?.error || error?.message || "Erreur");
       return;
     }
     setVideo({ ...video, thumbnail_locked: newLocked });
