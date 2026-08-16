@@ -137,6 +137,28 @@ function priorPoolIds(messages: UIMessage[]): string[] {
   return [];
 }
 
+/**
+ * Marqueur `POOL_BUSINESS_IDS` — source de vérité UNIQUE du corpus complet du
+ * tour. Il embarque aussi `nb` (comptes par quartier calculés sur la TOTALITÉ
+ * du pool, pas sur les fiches affichées) : les badges de quartier du footer
+ * doivent annoncer 18 et non 6.
+ */
+async function poolMarker(admin: any, ids: string[], city: string | null): Promise<string> {
+  const uniq = [...new Set(ids.map((x) => String(x)))];
+  let nb: Record<string, number> = {};
+  if (uniq.length) {
+    const { data } = await admin.from("businesses").select("id, neighborhood").in("id", uniq);
+    for (const row of (Array.isArray(data) ? data : []) as any[]) {
+      const name = String(row?.neighborhood || "").trim();
+      if (!name) continue;
+      nb[name] = (nb[name] ?? 0) + 1;
+    }
+  }
+  return `<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: uniq, city, nb })}-->`;
+}
+
+
+
 function hostContext(host: any, lang: Lang): string {
   const hook = lang === "en" ? host.hook_en : lang === "ar" ? host.hook_ar : host.hook_fr;
   const desc = lang === "en" ? host.description_en : lang === "ar" ? host.description_ar : host.description;
