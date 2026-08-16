@@ -144,19 +144,36 @@ const AiBusinessResultCards = ({
         return (
           <div
             key={b.id}
-            className={`flex gap-0 rounded-xl border overflow-hidden ${shellClass} ${bodyInk}`}
-            style={cardStyle}
+            className={`relative flex gap-0 rounded-xl border overflow-hidden ${shellClass} ${bodyInk}`}
+            style={
+              podium
+                ? { ...cardStyle, borderColor: podium.color, boxShadow: `0 0 0 1px ${podium.color}55` }
+                : cardStyle
+            }
           >
             <button
               type="button"
               onClick={() => onOpen(b.id, siblings)}
-              className="shrink-0 self-stretch w-24 sm:w-28 min-h-24 sm:min-h-28 bg-neutral-200 dark:bg-neutral-800 overflow-hidden"
+              className="relative shrink-0 self-stretch w-24 sm:w-28 min-h-24 sm:min-h-28 bg-neutral-200 dark:bg-neutral-800 overflow-hidden"
               aria-label={b.name}
             >
               {img ? (
                 <img src={img} alt={b.name} loading="lazy" className="w-full h-full object-cover" />
               ) : null}
+              {ranked ? (
+                <span
+                  className="absolute top-1 left-1 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-bold leading-none"
+                  style={
+                    podium
+                      ? { background: podium.color, color: "#1b1b1b" }
+                      : { background: "rgba(0,0,0,0.65)", color: "#fff" }
+                  }
+                >
+                  {podium ? podium.medal : `N°${idx + 1}`}
+                </span>
+              ) : null}
             </button>
+
 
             <div className="min-w-0 flex-1 p-2.5 flex flex-col gap-1">
               <button
