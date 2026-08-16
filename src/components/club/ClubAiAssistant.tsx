@@ -11,6 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useLanguage } from "@/contexts/LanguageContext";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
 import AiBusinessResultCards from "@/components/ai/AiBusinessResultCards";
+import { AI_NAME_FONT } from "@/lib/aiTypography";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import EventsSlidePanel from "@/components/club/EventsSlidePanel";
@@ -1348,6 +1349,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                                   onClick={() => void handleOpenBusinessName(trimmed)}
                                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void handleOpenBusinessName(trimmed); } }}
                                   className="cursor-pointer hover:underline"
+                                  style={AI_NAME_FONT}
                                   title={at.openFiche}
                                 >{children}</strong>
                               );
