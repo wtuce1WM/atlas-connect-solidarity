@@ -55,9 +55,9 @@ interface Props {
 }
 
 const L = {
-  fr: { reviews: "avis", allReviews: "Voir tous les avis", open: "Ouvert", closed: "Fermé", open24: "Ouvert 24h/24", whatsapp: "WhatsApp", book: "Réservez" },
-  en: { reviews: "reviews", allReviews: "See all reviews", open: "Open", closed: "Closed", open24: "Open 24/7", whatsapp: "WhatsApp", book: "Book" },
-  ar: { reviews: "تقييم", allReviews: "عرض كل الآراء", open: "مفتوح", closed: "مغلق", open24: "مفتوح 24/24", whatsapp: "واتساب", book: "احجز" },
+  fr: { reviews: "avis", allReviews: "Consulter les avis clients", open: "Ouvert", closed: "Fermé", open24: "Ouvert 24h/24", whatsapp: "WhatsApp", book: "Réservez" },
+  en: { reviews: "reviews", allReviews: "Read customer reviews", open: "Open", closed: "Closed", open24: "Open 24/7", whatsapp: "WhatsApp", book: "Book" },
+  ar: { reviews: "تقييم", allReviews: "عرض آراء العملاء", open: "مفتوح", closed: "مغلق", open24: "مفتوح 24/24", whatsapp: "واتساب", book: "احجز" },
 };
 
 const FR_TO_EN: Record<string, string> = {
