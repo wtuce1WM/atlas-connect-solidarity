@@ -91,6 +91,8 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
       onTouchStart={revealFully}
       onWheel={(e) => {
         if (e.deltaY === 0) return;
+        // Vers le haut : on laisse toujours la page/le fil remonter.
+        if (e.deltaY < 0) return;
         if (!fullyVisible) { revealFully(); return; }
         const el = e.currentTarget;
         const maxScroll = el.scrollWidth - el.clientWidth;
