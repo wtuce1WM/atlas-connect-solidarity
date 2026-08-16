@@ -18,6 +18,7 @@ import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import BookingOverlay from "@/components/BookingOverlay";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 const DestinationSlidePanel = lazy(() => import("@/components/DestinationSlidePanel"));
@@ -433,6 +434,39 @@ function categoryMeta(b: MapPanelBusiness): { Icon: typeof Bed; label: string } 
   return { Icon: MapPin, label: [b.neighborhood, b.city].filter(Boolean).join(", ") || b.main_category || "Établissement" };
 }
 
+const isBookingLabel = (text: string): boolean => {
+  const t = text.toLowerCase();
+  return /réserver|réservez|book|booking|reserve|reserver|reservez|احجز|حجز|billet|ticket/.test(t);
+};
+
+const MarkdownLink = ({
+  href,
+  children,
+  openBooking,
+}: {
+  href?: string;
+  children?: React.ReactNode;
+  openBooking: (url: string, label: string) => void;
+}) => {
+  const label = String(Array.isArray(children) ? children.join("") : children ?? "").trim();
+  if (href && /^https?:\/\//.test(href) && isBookingLabel(label)) {
+    return (
+      <button
+        type="button"
+        onClick={() => openBooking(href, label)}
+        className="inline-flex items-center gap-1 font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C04F17] cursor-pointer"
+      >
+        {children}
+      </button>
+    );
+  }
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C04F17]">
+      {children}
+    </a>
+  );
+};
+
 const EmbedAsk = () => {
   const { slug = "" } = useParams();
   const { params, businessId: widgetBusinessId, settings: widgetSettings, overlay } = useWidgetParams("ask", { slug });
@@ -623,6 +657,10 @@ const EmbedAsk = () => {
   const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
   const [feedVideoTime, setFeedVideoTime] = useState(0);
   const [openSiblings, setOpenSiblings] = useState<string[]>([]);
+  // Overlay de réservation déclenché par les liens "Réservez" du markdown IA.
+  const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
+  const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string>("");
+  const [showBookingOverlay, setShowBookingOverlay] = useState(false);
 
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
 
@@ -1068,6 +1106,12 @@ const EmbedAsk = () => {
     return found.map((x) => x.b);
   };
 
+  const openBookingOverlay = (url: string, label: string) => {
+    setBookingOverlayUrl(url);
+    setBookingOverlayTitle(label);
+    setShowBookingOverlay(true);
+  };
+
   // Présentation unique des établissements cités par l'IA (cartes résultat partagées).
   const renderCarousel = (businesses: MapPanelBusiness[], onOpenMap?: () => void) => {
     const list = businesses.slice(0, 20);
@@ -1367,6 +1411,7 @@ const EmbedAsk = () => {
                   <ReactMarkdown
                     components={{
                       strong: StrongCited as any,
+                      a: ((props: any) => <MarkdownLink href={props.href} openBooking={openBookingOverlay}>{props.children}</MarkdownLink>) as any,
                       ...(articleCard?.inline
                         ? {
                             blockquote: (({ children }: any) => (
@@ -1941,6 +1986,16 @@ const EmbedAsk = () => {
           />
         );
       })()}
+
+      {showBookingOverlay && bookingOverlayUrl && (
+        <BookingOverlay
+          bookingUrl={bookingOverlayUrl}
+          title={bookingOverlayTitle}
+          onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); }}
+          closeVariant="dark"
+          hideContact
+        />
+      )}
 
       {/* Slidepanel vidéo du feed curaté : swipe vertical natif de BookOnlineSlidePanel */}
       {activeFeedVideoId && (() => {

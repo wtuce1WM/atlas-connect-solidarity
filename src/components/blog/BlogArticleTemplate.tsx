@@ -10,7 +10,7 @@ import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useArticleBookmark } from "@/hooks/useArticleBookmark";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, MapPin, Star, Clock, Bookmark, ArrowDown } from "lucide-react";
+import { Loader2, ArrowLeft, MapPin, Star, Clock, Bookmark, ArrowDown, X } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
@@ -572,18 +572,28 @@ const BlogArticleTemplate = ({
 
 
         <div className="absolute inset-0 bg-gradient-to-t from-[#3B3B3B] via-[#3B3B3B]/50 to-[#3B3B3B]/30" />
+        {embedBackSlug && (
+          <button
+            onClick={() => navigate(`/embed/ask/${embedBackSlug}`)}
+            className="absolute top-4 left-4 z-20 h-10 w-10 flex items-center justify-center rounded-full bg-black text-white shadow-2xl hover:opacity-90 transition-opacity"
+            aria-label={language === "en" ? "Close article" : language === "ar" ? "إغلاق المقال" : "Fermer l'article"}
+            title={language === "en" ? "Close" : language === "ar" ? "إغلاق" : "Fermer"}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
         <div className="absolute inset-0 flex flex-col justify-end pb-4 sm:pb-12">
           <div className="container mx-auto px-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
-              <button
-                onClick={() => navigate(embedBackSlug ? `/embed/ask/${embedBackSlug}` : withLangPrefix("/blog", language))}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border border-white/20 bg-black/50 text-white hover:text-gold hover:border-gold hover:bg-black/70 backdrop-blur-md transition-all duration-300 shadow-sm"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                {embedBackSlug
-                  ? (language === "en" ? "Back to assistant" : language === "ar" ? "العودة إلى المساعد" : "Retour à l'assistant")
-                  : (language === "en" ? "Back to blog" : language === "ar" ? "العودة إلى المدونة" : "Retour au blog")}
-              </button>
+              {!embedBackSlug && (
+                <button
+                  onClick={() => navigate(withLangPrefix("/blog", language))}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border border-white/20 bg-black/50 text-white hover:text-gold hover:border-gold hover:bg-black/70 backdrop-blur-md transition-all duration-300 shadow-sm"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  {language === "en" ? "Back to blog" : language === "ar" ? "العودة إلى المدونة" : "Retour au blog"}
+                </button>
+              )}
               <button
                 onClick={handleSaveArticle}
                 disabled={bmLoading}
