@@ -10,6 +10,7 @@
 // Règle : quand une cible curatée existe, ni le classifieur ni le résolveur
 // taxonomique ne doivent pouvoir la remplacer ou la « compléter ».
 import { stripText } from "./nearby.ts";
+import { CTA_SELECT_FIELDS, ctaFieldsOf } from "./shared.ts";
 
 export type Lang = "fr" | "en" | "ar";
 
