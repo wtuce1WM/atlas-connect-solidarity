@@ -31,7 +31,8 @@ export function isRatingRankingIntent(text: string): "best_rated" | "most_review
   if (/\b(le plus d['\s]?avis|le plus commente|les plus commentes|le plus populaire|les plus populaires)\b/.test(n)) return "most_reviewed";
   if (/\b(most reviews?|most reviewed|most popular)\b/i.test(text)) return "most_reviewed";
   if (/(الأكثر تقييما|الأكثر شعبية|الأكثر مراجعة)/.test(text)) return "most_reviewed";
-  if (/\b(le mieux note|la mieux notee|le meilleur note|meilleure note|top note|le mieux classe)\b/.test(n)) return "best_rated";
+  // Singulier ET pluriel : « le mieux noté », « les mieux notés », « les mieux classés »…
+  if (/\b(les? mieux notes?|les? mieux notees?|la mieux notee|les? meilleurs? notes?|meilleures? notes?|top notes?|les? mieux classes?)\b/.test(n)) return "best_rated";
   if (/\b(highest[- ]?rated|best[- ]?rated|top[- ]?rated)\b/i.test(text)) return "best_rated";
   if (/(الأعلى تقييما|الأفضل تقييما)/.test(text)) return "best_rated";
   return null;
