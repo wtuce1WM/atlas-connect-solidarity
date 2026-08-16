@@ -174,9 +174,9 @@ export async function buildRatingRanking(admin: any, ids: string[], mode: "best_
       const phrase = immersivePhrase(r, lang);
       return phrase ? `${head}. ${phrase}` : `${head}.`;
     });
-    const intro = lang === "en" ? `Among the previous results, **${top[0].name}** has the highest overall rating:`
-      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** لديه أعلى تقييم عام:`
-      : `Parmi les précédents, c'est **${top[0].name}** qui a la meilleure note globale :`;
+    const intro = lang === "en" ? `Among the previous results, ${top[0].name} has the highest overall rating:`
+      : lang === "ar" ? `من بين النتائج السابقة، ${top[0].name} لديه أعلى تقييم عام:`
+      : `Parmi les précédents, c'est ${top[0].name} qui a la meilleure note globale :`;
     return `${intro}\n\n${lines.join("\n\n")}${toMapMarker(top, null, "rating")}`;
   }
   scored.sort((a: any, b: any) => b._count - a._count);
