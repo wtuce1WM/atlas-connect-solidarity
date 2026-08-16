@@ -44,7 +44,28 @@ export type FeedStep = {
 
 export type FeedSection = { label: string; top: number };
 
+/**
+ * Montage du stage feed — mêmes 5 options que Promo business (source de vérité
+ * unique : `VARIANT_LABELS` côté back-office). Renseigné par le worker depuis
+ * `template_props` du job, donc jamais recalibré ici.
+ */
+export type FeedMockup = {
+  variant: "fullscreen" | "mockup" | "browser" | "multi" | "split";
+  /** fond uni des variantes encadrées */
+  bg?: string | null;
+  /** URL affichée dans la barre d'adresse du cadre navigateur */
+  browserUrl?: string | null;
+  /** split : colonne du mockup (le texte occupe l'autre) */
+  splitSide?: "left" | "right";
+  /** split : titre et sous-titre de la colonne texte (repli sur le manifest) */
+  title?: string | null;
+  subtitle?: string | null;
+};
+
 export type FeedManifest = {
+  /** Montage (mockup) demandé en back-office. Absent = plein écran. */
+  mockup?: FeedMockup | null;
+
   slug: string;
   base: string;
   label?: string;
