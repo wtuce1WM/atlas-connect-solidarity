@@ -1128,6 +1128,7 @@ const EmbedAsk = () => {
         ink={(bgInk ?? (theme === "dark" ? "light" : "dark")) === "light" ? "light" : "dark"}
         onOpen={(id, sib) => openOne(id, sib, null)}
         onOpenReviews={(id, sib) => openOne(id, sib, "reviews")}
+        onOpenBooking={openBookingOverlay}
         footer={
           onOpenMap ? (
             <button

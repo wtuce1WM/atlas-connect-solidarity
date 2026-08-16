@@ -10,6 +10,7 @@
 // Règle : quand une cible curatée existe, ni le classifieur ni le résolveur
 // taxonomique ne doivent pouvoir la remplacer ou la « compléter ».
 import { stripText } from "./nearby.ts";
+import { CTA_SELECT_FIELDS, ctaFieldsOf } from "./shared.ts";
 
 export type Lang = "fr" | "en" | "ar";
 
@@ -294,7 +295,7 @@ const BIZ_FIELDS =
   "id, name, slug, city, neighborhood, address, main_category, categories, hook_fr, hook_en, hook_ar, " +
   "latitude, longitude, logo_url, images, google_rating, google_review_count, tripadvisor_rating, " +
   "tripadvisor_review_count, computed_rating, total_review_count, engagements, closure_message, is_active, is_featured, rating, " +
-  "opening_hours, is_open_24h, show_opening_hours";
+  "opening_hours, is_open_24h, show_opening_hours, " + CTA_SELECT_FIELDS;
 
 export type CuratedAnswer = {
   text: string;
@@ -323,6 +324,7 @@ function mapBusinessesOf(list: any[]) {
     opening_hours: b.opening_hours ?? null,
     is_open_24h: b.is_open_24h ?? null,
     show_opening_hours: b.show_opening_hours ?? null,
+    ...ctaFieldsOf(b),
     engagements: b.engagements,
   }));
 }
