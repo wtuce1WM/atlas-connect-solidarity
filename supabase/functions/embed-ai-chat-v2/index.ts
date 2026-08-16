@@ -353,18 +353,19 @@ Deno.serve(async (req) => {
         cityDetected = scopeCity;
 
         // ── FILTRES LOCAUX (badges du footer) — zéro token, zéro modèle ──────
-        // Le client impose une route du catalogue partagé sur le corpus déjà
-        // affiché (`runForcedRoute`, même mécanisme que `route_override`), plus
-        // la clé locale `neighborhood_filter`. Aucun repli silencieux : si la
-        // route ne produit rien, on le dit et on s'arrête.
-        if (clientForcedRoute && priorIds.length) {
+        // Le client impose une route du catalogue partagé sur le CORPUS COMPLET
+        // du tour (`poolIds`, 18 adresses), pas seulement sur les fiches
+        // affichées (`priorIds`, 6). Aucun repli silencieux : si la route ne
+        // produit rien, on le dit et on s'arrête.
+        if (clientForcedRoute && poolIds.length) {
           if (clientForcedRoute === "neighborhood_filter") {
             // Le badge envoie le libellé de quartier lu DANS le corpus courant :
             // on filtre donc sur ce libellé (égalité normalisée), et on n'utilise
             // le résolveur d'alias que comme complément. Jamais de repli sur une
             // recherche générique : la route répond ou dit qu'elle est vide.
             const nb = await resolveNeighborhoodInMessage(admin, userMessage, scopeCity).catch(() => null);
-            const pool = await fetchPriorFull(admin, priorIds).catch(() => []);
+            const pool = await fetchPriorFull(admin, poolIds).catch(() => []);
+
             const wanted = normalize(userMessage);
             const kept = nb
               ? filterPoolByNeighborhood(pool as any[], nb)
