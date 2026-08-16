@@ -13,6 +13,10 @@ export interface CompetitorGuard {
   filterOut: <T extends { id: string }>(list: T[]) => T[];
   /** Vrai si un garde-fou est réellement actif (hôte connu). */
   active: boolean;
+  /** Nombre d'établissements écartés par le garde-fou dans ce tour. */
+  filtered: number;
+  /** Incrémente le compteur d'écartés (appelé par les routes curatées). */
+  markFiltered: (n: number) => void;
 }
 
 export async function buildCompetitorGuard(admin: any, host: any): Promise<CompetitorGuard> {
