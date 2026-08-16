@@ -116,7 +116,11 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
   };
 
 
-  if (!avgOn20 && activePlatforms.length === 0 && ordered.length === 0 && leaveReviewPlatforms.length === 0) return null;
+  const hasRatingData = (avgOn20 !== null && avgOn20 > 0) || activePlatforms.length > 0;
+  // En mode fiche (slug), les boutons « Laisser un avis » ne sont pas affichés :
+  // sans note ni avis texte, la section entière est masquée.
+  if (slug ? (!hasRatingData && ordered.length === 0) : (!avgOn20 && activePlatforms.length === 0 && ordered.length === 0 && leaveReviewPlatforms.length === 0)) return null;
+
 
   const visible = expanded ? ordered.slice(0, 10) : ordered.slice(0, 1);
   const hiddenCount = Math.max(0, Math.min(ordered.length, 10) - 1);
@@ -156,8 +160,8 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
         {t.title}
       </h2>
 
-      {/* Widget « Avis clients » (iframe) — remplace la note /20 en grand + badges */}
-      {slug ? (
+      {/* Widget « Avis clients » (iframe) — uniquement s'il existe une note /20 ou au moins une plateforme notée */}
+      {slug && (( avgOn20 !== null && avgOn20 > 0) || activePlatforms.length > 0) ? (
         <div className="w-full mx-auto max-w-[820px] mb-4 overflow-hidden bg-transparent">
           <iframe
             key={`reviews-widget-${slug}`}
@@ -169,6 +173,7 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
           />
         </div>
       ) : (
+
         avgOn20 !== null && avgOn20 > 0 && (
           <div className="flex items-center justify-center gap-3 mb-4 flex-nowrap" style={{ filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.6))" }}>
             <Star className="h-8 w-8 text-gold fill-gold shrink-0" />
