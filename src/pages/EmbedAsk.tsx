@@ -1131,6 +1131,7 @@ const EmbedAsk = () => {
           }
           setOpenBusinessId(meta.id);
         }}
+        style={AI_NAME_FONT}
         className="font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C24B3F] cursor-pointer"
       >
         {children}
