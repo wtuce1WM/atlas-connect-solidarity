@@ -3432,15 +3432,18 @@ const BookOnlineSlidePanelInner = ({
                       </h2>
 
                       <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
-                        <iframe
-                          key={`nearby-widget-${business.slug}`}
-                          src={`/embed/nearby/${business.slug}?preset=overlay&lang=${language}`}
-                          title={language === "en" ? "Nearby" : "À proximité"}
-                          allow="geolocation; fullscreen"
-                          className="w-full block border-0"
-                          style={{ height: 640 }}
-                          loading="lazy"
-                        />
+                        <LazyMount minHeight={640} rootMargin="300px">
+                          <iframe
+                            key={`nearby-widget-${business.slug}`}
+                            src={`/embed/nearby/${business.slug}?preset=overlay&lang=${language}`}
+                            title={language === "en" ? "Nearby" : "À proximité"}
+                            allow="geolocation; fullscreen"
+                            className="w-full block border-0"
+                            style={{ height: 640 }}
+                            loading="lazy"
+                          />
+                        </LazyMount>
+
                       </div>
 
                     </div>
