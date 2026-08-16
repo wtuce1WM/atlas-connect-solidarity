@@ -351,10 +351,14 @@ Deno.serve(async (req) => {
             console.error("[embed-ai-chat-v2] curated_lookup_failed", String(e));
             return null;
           });
+          // Placeholders du libellé staff résolus UNE seule fois, ici : le libellé
+          // est réinjecté verbatim dans les titres/headings de la réponse.
+          if (curated?.label) curated.label = applyLabelPlaceholders(curated.label, host);
           // Le clic initial (message == libellé) ou une relance explicite gardent la cible.
           const norm = (s: string) => normalize(s).replace(/[?!.\s]+$/g, "").trim();
           const isInitialClick = !!(curated?.label && norm(userMessage) === norm(curated.label));
           const keepCurated = !!curated && (!!followupId || isInitialClick || suggestionFromText || !priorIds.length);
+
 
           // ── ROUTE IMPOSÉE EN BACK-OFFICE (`route_override`) ────────────────
           // Autorité absolue : aucune détection d'intention sur le libellé.
