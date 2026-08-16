@@ -2142,10 +2142,10 @@ const BookOnlineSlidePanelInner = ({
 
   const bottomBarEl = (() => {
     const socialItems: { name: string; url: string; icon: React.ReactNode; onClick?: () => void }[] = [
-      business?.website && { name: "Site web", url: business.website, icon: <Globe className="h-4 w-4" />, onClick: () => {
+      business?.website && { name: websiteCtaLabel, url: business.website, icon: <Globe className="h-4 w-4" />, onClick: () => {
         const url = business.website!.startsWith("http") ? business.website! : `https://${business.website}`;
         if (business?.website_force_external) window.open(url, "_blank", "noopener");
-        else openDocOrBooking(url, "Site web", true);
+        else openDocOrBooking(url, websiteCtaLabel, true);
       } },
       ctaConfig.bookingCta && { name: ctaConfig.bookingCtaLabel, url: ctaConfig.bookingCta.fullUrl, icon: <CalendarCheck className="h-4 w-4" />, onClick: () => {
         if (ctaConfig.bookingCta!.forceExternal) window.open(ctaConfig.bookingCta!.fullUrl, "_blank", "noopener");
