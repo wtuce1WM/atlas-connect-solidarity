@@ -187,9 +187,14 @@ const VideoRenderPresetBar = ({
         <Button size="sm" onClick={saveExisting} disabled={busy}>
           <Save className="h-4 w-4 mr-1" /> Enregistrer
         </Button>
-        <Button size="sm" variant="outline" onClick={saveAsNew} disabled={busy}>
-          <FilePlus2 className="h-4 w-4 mr-1" /> Enregistrer comme nouvelle
-        </Button>
+        {/* Duplication : n'a de sens qu'avec une configuration sélectionnée
+            (sans sélection, « Enregistrer » crée déjà la configuration). */}
+        {currentId && (
+          <Button size="sm" variant="outline" onClick={saveAsNew} disabled={busy} title="Crée une copie sous un nouveau nom, sans écraser la configuration chargée">
+            <FilePlus2 className="h-4 w-4 mr-1" /> Dupliquer sous un nouveau nom
+          </Button>
+        )}
+
         {currentId && (
           <Button size="sm" variant="ghost" onClick={remove} disabled={busy} className="text-destructive">
             <Trash2 className="h-4 w-4 mr-1" /> Supprimer

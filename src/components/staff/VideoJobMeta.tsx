@@ -128,12 +128,13 @@ export const VARIANT_LABELS: Record<string, string> = {
   split: "Split média / texte",
 };
 
-/** Clé de montage d'un job Promo (null si le job n'est pas un Promo). */
+/** Clé de montage d'un job (Promo ou Feed) — null si le job n'en porte pas. */
 export const videoJobVariantKey = (job: VideoJobMetaRow): string | null => {
   const p = job.template_props ?? {};
-  if (p.kind !== "promo") return null;
-  return String(p.variant ?? "fullscreen");
+  if (p.variant) return String(p.variant);
+  return p.kind === "promo" ? "fullscreen" : null;
 };
+
 
 /** Promo business : montage + fond d'écran vidéo (uniquement derrière un mockup). */
 const promoInfo = (job: VideoJobMetaRow) => {
@@ -155,6 +156,8 @@ const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessNam
   const effects = collectEffects(job);
   const fileName = videoJobFileName(job.output_url, job.title || businessName);
   const promo = promoInfo(job);
+  const variantKey = videoJobVariantKey(job);
+  const variantLabel = variantKey ? (VARIANT_LABELS[variantKey] ?? variantKey) : null;
 
   return (
     <div className="rounded-lg border bg-muted/30 p-3 grid gap-2 md:grid-cols-3 text-[11px] text-muted-foreground w-full">
@@ -162,12 +165,13 @@ const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessNam
         <Badge className="text-[10px] bg-primary/15 text-primary border border-primary/40 hover:bg-primary/15">
           Format : {detectFormat(job)}
         </Badge>
-        {promo && (
+        {variantLabel && (
           <Badge className="text-[10px] bg-gold/25 text-black border border-gold hover:bg-gold/25">
-            Montage : {promo.montage}
+            Montage : {variantLabel}
           </Badge>
         )}
       </div>
+
       <div className="md:col-span-3 break-all">
         <span className="font-semibold text-black">Fichier</span> {fileName}
       </div>

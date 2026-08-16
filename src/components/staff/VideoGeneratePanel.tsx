@@ -11,7 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Film, PlayCircle, RefreshCw, Rocket, Sparkles, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import VideoPromoPanel from "@/components/staff/VideoPromoPanel";
-import VideoJobMeta from "@/components/staff/VideoJobMeta";
+import VideoJobMeta, {
+  VARIANT_LABELS,
+  videoJobFormatKey,
+  videoJobVariantKey,
+} from "@/components/staff/VideoJobMeta";
+
 import VideoJobTitleEditor from "@/components/staff/VideoJobTitleEditor";
 import VideoRenderPresetBar from "@/components/staff/VideoRenderPresetBar";
 
@@ -59,7 +64,21 @@ const STROKE_PRESETS = [
   { label: "WhatsApp", value: "#25D366" },
 ];
 
+/** Montages : mêmes 5 options que Promo business (source de vérité unique). */
+export type PromoVariant = "fullscreen" | "mockup" | "browser" | "multi" | "split";
+const FRAMED: PromoVariant[] = ["mockup", "browser", "multi", "split"];
+const isFramed = (v: PromoVariant) => FRAMED.includes(v);
+
+const PRESET_BG = [
+  { label: "Encre", value: "#1A130D" },
+  { label: "Terracotta", value: "#C04F17" },
+  { label: "Nuit", value: "#0E0B08" },
+  { label: "Sable", value: "#ECD6B8" },
+  { label: "Ardoise", value: "#3B3B3B" },
+];
+
 type FeedJob = {
+
   id: string;
   title: string | null;
   status: string;
@@ -100,6 +119,13 @@ const VideoGeneratePanel = () => {
   const [extraSection, setExtraSection] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // --- Montage (mêmes 5 options que Promo business)
+  const [variant, setVariant] = useState<PromoVariant>("fullscreen");
+  const [mockupBg, setMockupBg] = useState(PRESET_BG[0].value);
+  const [browserUrl, setBrowserUrl] = useState("oneworldmorocco.com");
+  const [splitSide, setSplitSide] = useState<"left" | "right">("left");
+
+
   // --- Effets optionnels (tous off par défaut)
   const [effectsOn, setEffectsOn] = useState<Record<EffectKey, boolean>>({
     grain: false,
@@ -123,6 +149,19 @@ const VideoGeneratePanel = () => {
   const [presetDirty, setPresetDirty] = useState(true);
   const [presetId, setPresetId] = useState<string | null>(null);
   const [relaunching, setRelaunching] = useState<string | null>(null);
+  /** Filtres de comparaison des rendus : format de sortie et montage. */
+  const [filterFormat, setFilterFormat] = useState<string>("all");
+  const [filterVariant, setFilterVariant] = useState<string>("all");
+
+  const visibleJobs = useMemo(
+    () =>
+      jobs.filter(
+        (j) =>
+          (filterFormat === "all" || videoJobFormatKey(j) === filterFormat) &&
+          (filterVariant === "all" || (videoJobVariantKey(j) ?? "fullscreen") === filterVariant),
+      ),
+    [jobs, filterFormat, filterVariant],
+  );
 
   const autoSlug = useMemo(() => slug.trim() || slugify(label || "feed"), [slug, label]);
 
@@ -140,6 +179,10 @@ const VideoGeneratePanel = () => {
       sectionPause,
       sectionMove,
       sections,
+      variant,
+      mockupBg,
+      browserUrl,
+      splitSide,
       effectsOn,
       intensity,
       strokeColor,
@@ -159,6 +202,10 @@ const VideoGeneratePanel = () => {
       sectionPause,
       sectionMove,
       sections,
+      variant,
+      mockupBg,
+      browserUrl,
+      splitSide,
       effectsOn,
       intensity,
       strokeColor,
@@ -167,6 +214,7 @@ const VideoGeneratePanel = () => {
       pathScope,
     ],
   );
+
 
   const applyFeedConfig = useCallback((c: any) => {
     if (!c || typeof c !== "object") return;
@@ -181,6 +229,11 @@ const VideoGeneratePanel = () => {
     setSectionPause(Number(c.sectionPause ?? 75));
     setSectionMove(Number(c.sectionMove ?? 50));
     setSections(Array.isArray(c.sections) ? c.sections : DEFAULT_SECTIONS);
+    setVariant(isFramed(c.variant) ? (c.variant as PromoVariant) : "fullscreen");
+    setMockupBg(c.mockupBg ?? PRESET_BG[0].value);
+    setBrowserUrl(c.browserUrl ?? "oneworldmorocco.com");
+    setSplitSide(c.splitSide === "right" ? "right" : "left");
+
     setEffectsOn({
       grain: !!c.effectsOn?.grain,
       vignette: !!c.effectsOn?.vignette,
@@ -209,7 +262,7 @@ const VideoGeneratePanel = () => {
       )
       .like("template_id", "feed-template%")
       .order("created_at", { ascending: false })
-      .limit(12);
+      .limit(40);
     const rows = (data ?? []) as FeedJob[];
     setJobs(rows);
     const ids = Array.from(new Set(rows.map((r) => r.business_id).filter(Boolean))) as string[];
@@ -267,6 +320,12 @@ const VideoGeneratePanel = () => {
         stepSeconds,
         detailSeconds,
         sections,
+        // Montage (mêmes options que Promo business) — stocké tel quel dans le job.
+        variant,
+        mockupBg: isFramed(variant) ? mockupBg : null,
+        browserUrl: variant === "browser" || variant === "multi" ? browserUrl.trim() || "oneworldmorocco.com" : null,
+        splitSide: variant === "split" ? splitSide : null,
+
         timing: {
           hookHold,
           sectionPause,
@@ -392,6 +451,81 @@ const VideoGeneratePanel = () => {
               />
             </label>
           </div>
+
+          <div className="rounded-lg border p-3 grid gap-3">
+            <div className="grid gap-1 text-xs text-muted-foreground">
+              Montage
+              <div className="flex items-center gap-2 flex-wrap">
+                {(
+                  [
+                    ["fullscreen", "Plein écran"],
+                    ["mockup", "Mockup smartphone"],
+                    ["browser", "Mockup navigateur"],
+                    ["multi", "Multi-écrans"],
+                    ["split", "Split média / texte"],
+                  ] as const
+                ).map(([v, lbl]) => (
+                  <Button
+                    key={v}
+                    size="sm"
+                    variant={variant === v ? "default" : "outline"}
+                    onClick={() => {
+                      setVariant(v);
+                      if (v === "browser" || v === "multi" || v === "split") setFormat("landscape");
+                    }}
+                  >
+                    {lbl}
+                  </Button>
+                ))}
+              </div>
+              <span className="text-[11px]">
+                Mêmes montages que « Promo business » : la capture du feed s'affiche dans le cadre choisi (plein écran,
+                smartphone, navigateur, multi-écrans, ou split média / texte).
+              </span>
+            </div>
+            {(variant === "browser" || variant === "multi") && (
+              <label className="grid gap-1 text-xs text-muted-foreground">
+                URL affichée dans la barre d'adresse
+                <Input
+                  value={browserUrl}
+                  onChange={(e) => setBrowserUrl(e.target.value)}
+                  placeholder="oneworldmorocco.com"
+                  className="h-9 text-xs"
+                />
+              </label>
+            )}
+            {variant === "split" && (
+              <div className="grid gap-1 text-xs text-muted-foreground">
+                Position du mockup
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant={splitSide === "left" ? "default" : "outline"} onClick={() => setSplitSide("left")}>
+                    Mockup à gauche
+                  </Button>
+                  <Button size="sm" variant={splitSide === "right" ? "default" : "outline"} onClick={() => setSplitSide("right")}>
+                    Mockup à droite
+                  </Button>
+                </div>
+              </div>
+            )}
+            {isFramed(variant) && (
+              <div className="grid gap-1 text-xs text-muted-foreground">
+                Fond uni du mockup
+                <div className="flex items-center gap-2">
+                  {PRESET_BG.map((c) => (
+                    <button
+                      key={c.value}
+                      title={c.label}
+                      onClick={() => setMockupBg(c.value)}
+                      className={`h-7 w-7 rounded-full border-2 ${mockupBg === c.value ? "border-primary" : "border-transparent"}`}
+                      style={{ background: c.value }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+
 
           <div className="rounded-lg border p-3 grid gap-3 md:grid-cols-4">
             <div className="grid gap-1 text-xs text-muted-foreground md:col-span-2">
@@ -661,16 +795,44 @@ const VideoGeneratePanel = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
           <CardTitle className="text-black text-base">Derniers jobs Feed</CardTitle>
-          <Button size="sm" variant="outline" onClick={loadJobs} disabled={loadingJobs}>
-            <RefreshCw className="h-4 w-4 mr-1" /> Rafraîchir
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <select
+              value={filterFormat}
+              onChange={(e) => setFilterFormat(e.target.value)}
+              className="h-8 rounded-md border bg-background px-2 text-xs form-legible"
+              title="Filtrer par format de sortie"
+            >
+              <option value="all">Tous les formats</option>
+              <option value="landscape">Paysage 1920×1080</option>
+              <option value="portrait">Portrait 1080×1920</option>
+            </select>
+            <select
+              value={filterVariant}
+              onChange={(e) => setFilterVariant(e.target.value)}
+              className="h-8 rounded-md border bg-background px-2 text-xs form-legible"
+              title="Filtrer par montage"
+            >
+              <option value="all">Tous les montages</option>
+              {Object.entries(VARIANT_LABELS).map(([k, lbl]) => (
+                <option key={k} value={k}>
+                  {lbl}
+                </option>
+              ))}
+            </select>
+            <Button size="sm" variant="outline" onClick={loadJobs} disabled={loadingJobs}>
+              <RefreshCw className="h-4 w-4 mr-1" /> Rafraîchir
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          {jobs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun job Feed pour le moment.</p>
+          {visibleJobs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {jobs.length === 0 ? "Aucun job Feed pour le moment." : "Aucun job ne correspond à ces filtres."}
+            </p>
           ) : (
             <div className="divide-y">
-              {jobs.map((j) => (
+              {visibleJobs.map((j) => (
+
                 <div key={j.id} className="py-3 space-y-2">
                   <div className="flex items-center gap-3 flex-wrap text-sm">
                     <Badge
