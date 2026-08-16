@@ -3133,7 +3133,7 @@ const BookOnlineSlidePanelInner = ({
                                 )}
                                 {popupMeta.description && (
                                   <div
-                                    className="text-base leading-relaxed text-white/95 font-medium prose prose-invert prose-sm max-w-none [&_*]:!text-white/95 [&_a]:!text-white [&_a]:underline [&_p]:my-1.5 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-0.5 [&_li_p]:my-0 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-1 [&_h3]:text-base [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic"
+                                    className="text-base leading-relaxed text-white/95 font-medium prose prose-invert prose-sm max-w-none [&_*]:!text-white/95 [&_li]:!text-white/95 [&_li::marker]:!text-white/95 [&_ul>li::marker]:!text-white/95 [&_ol>li::marker]:!text-white/95 [&_strong]:!text-white [&_a]:!text-white [&_a]:underline [&_p]:my-1.5 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-0.5 [&_li]:!text-white/95 [&_li::marker]:!text-white/95 [&_li_p]:my-0 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-1 [&_h3]:text-base [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic"
                                     dangerouslySetInnerHTML={{ __html: popupMeta.description }}
                                   />
                                 )}
@@ -3160,7 +3160,7 @@ const BookOnlineSlidePanelInner = ({
                               </h3>
                               {hasMessage && (
                                 <div
-                                  className="prose prose-invert prose-base max-w-none text-base leading-relaxed text-white font-medium prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#C04F17] prose-a:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_li::marker]:!text-white [&_img]:rounded-md [&_img]:max-w-full [&_p]:!text-white [&_span]:!text-white [&_strong]:!text-white [&_a]:!text-[#C04F17]"
+                                  className="prose prose-invert prose-base max-w-none text-base leading-relaxed text-white font-medium prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#C04F17] prose-a:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_li]:!text-white [&_li::marker]:!text-white [&_ul>li::marker]:!text-white [&_ol>li::marker]:!text-white [&_img]:rounded-md [&_img]:max-w-full [&_p]:!text-white [&_span]:!text-white [&_strong]:!text-white [&_a]:!text-[#C04F17]"
                                   dangerouslySetInnerHTML={{ __html: promo.promotion_message }}
                                 />
                               )}
@@ -4699,7 +4699,7 @@ const BookOnlineSlidePanelInner = ({
                   )}
                   {popupMeta.description && (
                     <div
-                      className="text-base md:text-lg leading-relaxed text-white font-medium prose prose-invert max-w-none [&_*]:!text-white [&_a]:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_li_p]:my-0 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-1 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic"
+                      className="text-base md:text-lg leading-relaxed text-white font-medium prose prose-invert max-w-none [&_*]:!text-white [&_li]:!text-white [&_li::marker]:!text-white [&_ul>li::marker]:!text-white [&_ol>li::marker]:!text-white [&_a]:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_li_p]:my-0 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-1 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic"
                       dangerouslySetInnerHTML={{ __html: popupMeta.description }}
                     />
                   )}
@@ -4722,7 +4722,7 @@ const BookOnlineSlidePanelInner = ({
                   </h3>
                   {currentPromo.promotion_message && (
                     <div
-                      className="prose prose-invert prose-base max-w-none text-base md:text-lg leading-relaxed text-white font-medium prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#C04F17] prose-a:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_li::marker]:!text-white [&_img]:rounded-md [&_img]:max-w-full [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_p]:!text-white [&_span]:!text-white [&_strong]:!text-white [&_a]:!text-[#C04F17]"
+                      className="prose prose-invert prose-base max-w-none text-base md:text-lg leading-relaxed text-white font-medium prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#C04F17] prose-a:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_li]:!text-white [&_li::marker]:!text-white [&_ul>li::marker]:!text-white [&_ol>li::marker]:!text-white [&_img]:rounded-md [&_img]:max-w-full [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_p]:!text-white [&_span]:!text-white [&_strong]:!text-white [&_a]:!text-[#C04F17]"
                       dangerouslySetInnerHTML={{ __html: currentPromo.promotion_message }}
                     />
                   )}
@@ -4820,7 +4820,7 @@ const BookOnlineSlidePanelInner = ({
                     </div>
                     {hasMessage && (
                       <div
-                        className="prose prose-invert prose-base max-w-none text-base md:text-lg leading-relaxed text-white font-medium prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#C04F17] prose-a:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_li::marker]:!text-white [&_img]:rounded-md [&_img]:max-w-full [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_p]:!text-white [&_span]:!text-white [&_strong]:!text-white [&_a]:!text-[#C04F17]"
+                        className="prose prose-invert prose-base max-w-none text-base md:text-lg leading-relaxed text-white font-medium prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#C04F17] prose-a:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_li]:!text-white [&_li::marker]:!text-white [&_ul>li::marker]:!text-white [&_ol>li::marker]:!text-white [&_img]:rounded-md [&_img]:max-w-full [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_p]:!text-white [&_span]:!text-white [&_strong]:!text-white [&_a]:!text-[#C04F17]"
                         dangerouslySetInnerHTML={{ __html: currentPromo.promotion_message }}
                       />
                     )}
