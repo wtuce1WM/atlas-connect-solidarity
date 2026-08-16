@@ -260,7 +260,7 @@ const PINNED_RE = /<!--PINNED_BUSINESS_CARDS:([\s\S]*?)-->/g;
 const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
 const VIDEOFEED_RE = /<!--VIDEO_FEED:([\s\S]*?)-->/g;
 const TIDES_RE = /<!--TIDES_FORECAST:([\s\S]*?)-->/g;
-const COMPETITOR_GUARD_RE = /<!--COMPETITOR_GUARD_ACTIVE-->/g;
+const COMPETITOR_GUARD_RE = /<!--COMPETITOR_GUARD_ACTIVE-->/;
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[]; order?: string | null };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
