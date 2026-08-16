@@ -22,8 +22,10 @@ import {
   resolutionMetric,
   strongTargetsOfType,
   targetsOfType,
+  qualifiedServiceTargets,
   type ResolveResult,
 } from "../_shared/taxonomy-resolver.ts";
+
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
 import { pickLang, normalize, toMapMarker, fetchPriorFull, matchBusinessNameInMessage } from "../_shared/ai-engine/routes/shared.ts";
 import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
@@ -844,7 +846,7 @@ Deno.serve(async (req) => {
 
         // Recherche déterministe partagée : appelée avec les champs structurés du
         // classifieur, ou en secours avec le message brut quand il n'est pas confiant.
-        const runSearch = async (baseQuery: string, city: string, excluded: string[]) => {
+        const runSearch = async (baseQuery: string, city: string, excluded: string[], requiredServices: string[] = []) => {
           const views = detectViewIntent(userMessage);
           cityDetected = city;
           try {
@@ -869,6 +871,28 @@ Deno.serve(async (req) => {
               const hay = normalize(`${b.main_category || ""} ${(b.categories || []).join(" ")}`);
               return !excluded.some((x) => hay.includes(x));
             });
+
+            // ── Filtre dur sur service qualifié ────────────────────────────────
+            // Quand la demande nomme un service typé dans la même catégorie que le
+            // type de lieu (« restaurants italiens » → Cuisine italienne, Restauration),
+            // le service devient un filtre, jamais un mot-clé : c'est ce qui écarte
+            // « Cuisine méditerranéenne » ramenée par la similarité textuelle.
+            // Pas de repli silencieux : zéro correspondance reste zéro.
+            if (requiredServices.length && kept.length) {
+              const ids = kept.map((b: any) => b.id);
+              const { data: rows } = await admin.from("businesses").select("id, services").in("id", ids);
+              const wanted = new Set(requiredServices.map((s) => normalize(s)));
+              const okIds = new Set(
+                (rows ?? [])
+                  .filter((r: any) => (r.services ?? []).some((s: string) => wanted.has(normalize(s))))
+                  .map((r: any) => r.id),
+              );
+              const before = kept.length;
+              kept = kept.filter((b: any) => okIds.has(b.id));
+              console.log("[embed-ai-chat-v2] service_hard_filter", JSON.stringify({ requiredServices, before, after: kept.length }));
+            }
+
+
 
             // Filtre de vue : élimination stricte quand une vue est demandée.
             if (views.hasViewIntent && kept.length && (views.points.length || views.panoramas.length)) {
@@ -968,6 +992,32 @@ Deno.serve(async (req) => {
               .map((t) => t.value)
               .slice(0, 2)
           : [];
+        // ── Spécialisation : service de la MÊME catégorie que le type de lieu demandé ──
+        // « restaurants français » résolvait « Restaurant » seul : le moteur perdait le
+        // discriminant et narrait un corpus générique. On réinjecte le service qualifié
+        // (Cuisine française, catégorie Restauration) quand le mot qui l'a déclenché
+        // n'est pas déjà porté par la cible forte. Le garde-fou de catégorie du résolveur
+        // a déjà écarté les services d'une autre catégorie (Parmesan, Safran).
+        const strongHay = normalize(strongTerms.join(" "));
+        const specializingTerms = resolution && strongTerms.length
+          ? [
+              ...new Set(
+                qualifiedServiceTargets(resolution)
+                  .filter(
+                    (t) =>
+                      !isExcluded(t.value) &&
+                      !isNeighborhoodWord(t.value) &&
+                      !strongHay.includes(normalize(t.matched)) &&
+                      !strongTerms.some((s) => normalize(s) === normalize(t.value)),
+                  )
+                  .map((t) => t.value),
+              ),
+            ].slice(0, 1)
+          : [];
+        if (specializingTerms.length) {
+          console.log("[embed-ai-chat-v2] specializing_service", JSON.stringify({ strongTerms, specializingTerms }));
+        }
+
         const resolvedCityRaw = resolution
           ? (strongTargetsOfType(resolution, "city")[0] ?? targetsOfType(resolution, "city")[0] ?? null)
           : null;
@@ -1048,15 +1098,21 @@ Deno.serve(async (req) => {
           // vue, pas par mot-clé : n'injecter aucun indice « rooftop » ici.
           const hintParts = views.points.length && !excludesLodging ? [] : panoramaHints;
           const coreTerms = strongTerms.length
-            ? strongTerms
+            ? [...strongTerms, ...specializingTerms]
             : classifierCategoryValid
               ? [validatedCategory as string]
               : expansionTerms.length
                 ? expansionTerms
                 : [priorCategory].filter(Boolean) as string[];
+
           const baseQuery = [...coreTerms, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
             || userMessage.slice(0, 200);
-          await runSearch(baseQuery, searchCity, excluded);
+          // Services qualifiés forts → filtre dur (l'expansion par mot reste du ranking).
+          const requiredServices = resolution
+            ? [...new Set(qualifiedServiceTargets(resolution).filter((t) => t.strength !== "expansion").map((t) => t.value))]
+            : [];
+          await runSearch(baseQuery, searchCity, excluded, requiredServices);
+
         }
 
         // Filet de secours : le classifieur n'a pas tranché (ou sa requête structurée

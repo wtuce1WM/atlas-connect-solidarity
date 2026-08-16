@@ -1,6 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { resolveWithAdmin, resolutionMetric } from "../_shared/taxonomy-resolver.ts";
+import {
+  resolveWithAdmin,
+  resolutionMetric,
+  loadTaxonomyVocabulary,
+  subcategoryCategoriesOf,
+  filterServicesByCategories,
+} from "../_shared/taxonomy-resolver.ts";
+
 
 // Global accent-stripping helper — used everywhere for consistent normalization
 const stripAccentsGlobal = (s: string): string => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -2095,6 +2102,46 @@ serve(async (req) => {
         }
       }
     }
+
+    // ── GARDE-FOU DE CATÉGORIE sur les services issus des synonymes ──────────────
+    // Bug mesuré : le synonyme `italien` mappe Parmesan / Gorgonzola / Grana Padano,
+    // portés par 15 fiches toutes en `main_category = Commerce` (Carrefour, Marjane,
+    // épiceries) — zéro restaurant. Dès que la requête nomme un type de lieu
+    // (« restaurants » → Restaurant → Restauration), un service d'une autre catégorie
+    // racine ne peut plus servir de filtre. Typage déjà porté par
+    // services.subcategory_id → subcategories.category_id : aucune donnée ajoutée.
+    if (synonymLinkedServices.length > 0 || matchedSynonymFilters.length > 0) {
+      try {
+        const vocab = await loadTaxonomyVocabulary(supabase);
+        const intentCats = new Set<string>();
+        if (detectedSubcategory) for (const c of subcategoryCategoriesOf(vocab, detectedSubcategory)) intentCats.add(c);
+        for (const sub of synonymLinkedSubcategories) for (const c of subcategoryCategoriesOf(vocab, sub)) intentCats.add(c);
+        if (category) intentCats.add(String(category));
+        const cats = [...intentCats];
+        if (cats.length) {
+          if (synonymLinkedServices.length) {
+            const { kept, dropped } = filterServicesByCategories(vocab, synonymLinkedServices, cats);
+            if (dropped.length) {
+              console.log(`🛡️ Category guard [${cats.join(", ")}]: dropped synonym services [${dropped.join(", ")}]`);
+              synonymLinkedServices = kept;
+            }
+          }
+          if (matchedSynonymFilters.length) {
+            const before = matchedSynonymFilters.length;
+            matchedSynonymFilters = matchedSynonymFilters.filter((f) => {
+              if (!f.required_service) return true;
+              return filterServicesByCategories(vocab, [f.required_service], cats).kept.length > 0;
+            });
+            if (matchedSynonymFilters.length !== before) {
+              console.log(`🛡️ Category guard [${cats.join(", ")}]: paired filters ${before} → ${matchedSynonymFilters.length}`);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("[category-guard] skipped:", String(e));
+      }
+    }
+
 
     // ── SERVICE SHORTCUT: when synonym has paired filters OR legacy service_names, skip FTS chain ──
     // Paired filters (new): each row = subcategory + optional service (like bundles)
