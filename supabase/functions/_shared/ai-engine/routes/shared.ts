@@ -79,10 +79,18 @@ export function toMapMarker(businesses: any[], title: string | null = null): str
     images: Array.isArray(p.images) ? p.images : [],
     google_rating: p.google_rating, google_review_count: p.google_review_count,
     tripadvisor_rating: p.tripadvisor_rating, tripadvisor_review_count: p.tripadvisor_review_count,
+    // Champs de la carte résultat IA (présentation unifiée côté client).
+    computed_rating: p.computed_rating ?? null,
+    total_review_count: p.total_review_count ?? null,
+    hook_fr: p.hook_fr ?? null, hook_en: p.hook_en ?? null, hook_ar: p.hook_ar ?? null,
+    opening_hours: p.opening_hours ?? null,
+    is_open_24h: p.is_open_24h ?? null,
+    show_opening_hours: p.show_opening_hours ?? null,
     engagements: p.engagements,
   }));
   return `\n\n<!--SHOW_ON_MAP:${JSON.stringify({ title, businesses: mapBusinesses })}-->`;
 }
+
 
 export function haversineKmLocal(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
