@@ -25,6 +25,12 @@ type Props = {
   /** Classes du panneau (fond + bordure + encre) */
   panelClass: string;
   labelClass: string;
+  /**
+   * Fond opaque forcé du tiroir, de la poignée et de la ligne « peek ».
+   * Utilisé par l'overlay Full Description du slidepanel, où tout le reste est
+   * transparent : sans fond, les filtres seraient illisibles.
+   */
+  surfaceStyle?: React.CSSProperties;
   /** Ratio de hauteur max du tiroir déplié (0-1) */
   maxRatio?: number;
   /** Referme le tiroir après un clic sur un filtre */
