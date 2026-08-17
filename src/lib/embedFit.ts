@@ -108,10 +108,13 @@ export const applyEmbedBg = (color: string | null | undefined) => {
   // l'iframe diffère de celui du document hôte. En overlay interne (hôte dark)
   // on garde `dark` posé par le bootstrap ; sinon rien quand c'est transparent.
   const isOverlay = /(^|[?&])preset=overlay(&|$)/.test(window.location.search);
-  if (bg === "transparent") {
-    if (isOverlay) document.documentElement.style.setProperty("color-scheme", "dark");
-    else document.documentElement.style.removeProperty("color-scheme");
-  } else document.documentElement.style.colorScheme = "light";
+  if (bg === "transparent" && isOverlay) {
+    document.documentElement.style.setProperty("color-scheme", "dark");
+  } else {
+    // Embed réel : toujours `light`, sinon le canvas de l'iframe transparente
+    // est peint en sombre par Chromium et le widget n'est plus transparent.
+    document.documentElement.style.setProperty("color-scheme", "light");
+  }
 
 
   return () => {
