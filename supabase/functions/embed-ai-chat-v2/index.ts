@@ -1349,7 +1349,11 @@ Deno.serve(async (req) => {
               if (inRadius.length) kept = inRadius;
             }
 
-            totalFound = kept.length;
+            // Décompte honnête : si AUCUN filtre local n'a réduit la page (rayon, quartier,
+            // service, vue, concurrents), le total réel est celui de business-search, pas
+            // la taille de la page (100 max). Sinon c'est le corpus filtré qui fait foi.
+            const apiTotal = Number(json?.totalCount ?? 0) || 0;
+            totalFound = kept.length === all.length && apiTotal > kept.length ? apiTotal : kept.length;
 
             searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, 30);
             results = kept.slice(0, CFG.maxResults);
