@@ -779,7 +779,14 @@ Deno.serve(async (req) => {
               const ids = built.results.map((b: any) => String(b.id));
               const cards = await buildPinnedAnswer(
                 admin, ids, host, lang, curated.label,
-                { route: "two_entity_proximity", competitorGuard, poolIds: ids },
+                {
+                  route: "two_entity_proximity", competitorGuard, poolIds: ids,
+                  immersive: {
+                    admin,
+                    query: curated.label || userMessage,
+                    apiKey: LOVABLE_API_KEY,
+                  },
+                },
               ).catch((e) => {
                 console.error("[embed-ai-chat-v2] two_entity_cards_failed", String(e));
                 return null;
