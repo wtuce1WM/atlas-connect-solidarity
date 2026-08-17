@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { MapPin, Star, Clock, CalendarCheck } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
+import glovoLogo from "@/assets/glovo-logo.png";
 import { AI_NAME_FONT } from "@/lib/aiTypography";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { haversineKm } from "@/lib/haversine";
@@ -154,6 +155,7 @@ const AiBusinessResultCards = ({
             )
           : null;
         const bookingUrl = b.booking_url || null;
+        const glovoUrl = typeof b.glovo_url === "string" && b.glovo_url.trim() ? b.glovo_url.trim() : null;
         const bookingLabel = (b.booking_label || "").trim() || t.book;
         const statusLabel = b.is_open_24h ? t.open24 : hours.isOpen == null ? null : hours.isOpen ? t.open : t.closed;
 
@@ -252,7 +254,7 @@ const AiBusinessResultCards = ({
                 ) : null}
               </div>
 
-              {(waHref || bookingUrl) ? (
+              {(waHref || bookingUrl || glovoUrl) ? (
                 <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                   {waHref ? (
                     <a
@@ -278,6 +280,18 @@ const AiBusinessResultCards = ({
                     >
                       <CalendarCheck className="w-3 h-3" /> {bookingLabel}
                     </button>
+                  ) : null}
+                  {glovoUrl ? (
+                    <a
+                      href={glovoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Glovo"
+                      aria-label="Glovo"
+                      className="inline-flex items-center shrink-0"
+                    >
+                      <img src={glovoLogo} alt="Glovo" loading="lazy" className="h-5 w-5 object-contain" />
+                    </a>
                   ) : null}
                 </div>
               ) : null}
