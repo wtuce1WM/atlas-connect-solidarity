@@ -17,6 +17,8 @@ import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import EmbedFilterDrawer, { type EmbedFilterGroup } from "@/components/embed/EmbedFilterDrawer";
+
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import BookingOverlay from "@/components/BookingOverlay";
 
@@ -1450,7 +1452,161 @@ const EmbedAsk = () => {
     );
   };
 
+  // ————— Badges/filtres dynamiques regroupés (tiroir dépliable) —————
+  const pillClass = `${cardBg} ${border} ${cardInk}`;
+  const filterGroups: EmbedFilterGroup[] = [
+    {
+      id: "see",
+      label: lang === "en" ? "See" : lang === "ar" ? "عرض" : "Voir",
+      items: [
+        ...(mapReplayTarget && poolInfo.hasGeo
+          ? [{
+              id: "map",
+              label: lang === "en" ? "On a map" : lang === "ar" ? "على الخريطة" : "Sur une carte",
+              icon: <MapPin className="w-3.5 h-3.5" />,
+              onClick: () => setOpenMap(mapReplayTarget),
+              style: mapBadgeStyle,
+              priority: true,
+            }]
+          : []),
+        ...(poolRemaining > 0
+          ? [{
+              id: "more",
+              label: lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`,
+              icon: <Sparkles className="w-3.5 h-3.5" />,
+              onClick: () => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres"),
+              style: moreBadgeStyle,
+              priority: true,
+            }]
+          : []),
+      ],
+    },
+    {
+      id: "hours",
+      label: lang === "en" ? "Opening hours" : lang === "ar" ? "المواعيد" : "Horaires",
+      items: [
+        ...(localFilters.openNow && poolInfo.hasHours
+          ? [{
+              id: "open_now",
+              label: lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant",
+              icon: <Clock className="w-3.5 h-3.5" />,
+              onClick: () => sendLocalFilter(lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant", "open_now"),
+              className: pillClass,
+              priority: true,
+            }]
+          : []),
+        ...(poolInfo.hasHours && poolInfo.ids.length > 1
+          ? [
+              {
+                id: "closes_late",
+                label: lang === "en" ? "Closes late" : lang === "ar" ? "يغلق متأخرًا" : "Qui ferme tard",
+                icon: <Moon className="w-3.5 h-3.5" />,
+                onClick: () => sendLocalFilter(lang === "en" ? "Which ones close late" : lang === "ar" ? "من يغلق متأخرًا" : "Qui ferme tard", "hours_ranking_closes_last"),
+                className: pillClass,
+              },
+              {
+                id: "opens_early",
+                label: lang === "en" ? "Opens early" : lang === "ar" ? "يفتح مبكرًا" : "Qui ouvre tôt",
+                icon: <Sun className="w-3.5 h-3.5" />,
+                onClick: () => sendLocalFilter(lang === "en" ? "Which ones open early" : lang === "ar" ? "من يفتح مبكرًا" : "Qui ouvre tôt", "hours_ranking_opens_first"),
+                className: pillClass,
+              },
+            ]
+          : []),
+      ],
+    },
+    {
+      id: "rank",
+      label: lang === "en" ? "Distance & ratings" : lang === "ar" ? "المسافة والتقييم" : "Distance & avis",
+      items: [
+        ...(localFilters.closest
+          ? [{
+              id: "closest",
+              label: lang === "en" ? "Closest" : lang === "ar" ? "الأقرب" : "Les plus proches",
+              icon: <Navigation className="w-3.5 h-3.5" />,
+              onClick: () => sendLocalFilter(lang === "en" ? "The closest ones" : lang === "ar" ? "الأقرب" : "Les plus proches", "distance_ranking_closest"),
+              className: pillClass,
+            }]
+          : []),
+        ...(localFilters.bestRated
+          ? [{
+              id: "best_rated",
+              label: lang === "en" ? "Best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés",
+              icon: <Star className="w-3.5 h-3.5" />,
+              onClick: () => sendLocalFilter(lang === "en" ? "The best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés", "rating_best"),
+              className: pillClass,
+            }]
+          : []),
+      ],
+    },
+    {
+      id: "host",
+      label: lang === "en" ? "Around the host" : lang === "ar" ? "حول المكان" : "Autour de l'hôte",
+      items: [
+        ...(!usedHostBadges.includes("weather") && businessCity
+          ? [{
+              id: "weather",
+              label: lang === "en" ? "Weather" : lang === "ar" ? "الطقس" : "Météo",
+              icon: <CloudSun className="w-3.5 h-3.5" />,
+              onClick: () => sendHostBadge("weather", lang === "en" ? "What's the weather forecast?" : lang === "ar" ? "ما هي توقعات الطقس؟" : "Quelle est la météo prévue ?", "weather"),
+              className: pillClass,
+            }]
+          : []),
+        ...(!usedHostBadges.includes("poi_nearby") && hostPoiCount > 0
+          ? [{
+              id: "poi_nearby",
+              label: lang === "en" ? `Points of interest · ${hostPoiCount}` : lang === "ar" ? `أماكن مميزة · ${hostPoiCount}` : `Points d'intérêt · ${hostPoiCount}`,
+              icon: <MapPinned className="w-3.5 h-3.5" />,
+              onClick: () => sendHostBadge("poi_nearby", lang === "en" ? `Points of interest near ${businessName}` : lang === "ar" ? `أماكن مميزة قرب ${businessName}` : `Points d'intérêt à proximité de ${businessName}`, "poi_nearby"),
+              className: pillClass,
+            }]
+          : []),
+        ...(!usedHostBadges.includes("nearby_overview") && hostLocation
+          ? [{
+              id: "nearby_overview",
+              label: lang === "en" ? "Other activities nearby" : lang === "ar" ? "أنشطة أخرى قريبة" : "Autres activités à proximité",
+              icon: <Compass className="w-3.5 h-3.5" />,
+              onClick: () => sendHostBadge("nearby_overview", lang === "en" ? "Other activities nearby" : lang === "ar" ? "أنشطة أخرى قريبة" : "Autres activités à proximité", "nearby_overview"),
+              className: pillClass,
+            }]
+          : []),
+        ...(!usedHostBadges.includes("things_to_do")
+          ? [{
+              id: "things_to_do",
+              label: lang === "en" ? "Things to do" : lang === "ar" ? "ماذا نفعل" : "Que faire sur place",
+              icon: <Footprints className="w-3.5 h-3.5" />,
+              onClick: () => sendHostBadge("things_to_do", lang === "en" ? "What is there to do around here?" : lang === "ar" ? "ما الذي يمكن فعله هنا؟" : "Que faire sur place ?", "search_businesses"),
+              className: pillClass,
+            }]
+          : []),
+      ],
+    },
+    {
+      id: "destinations",
+      label: lang === "en" ? "Destinations" : lang === "ar" ? "الوجهات" : "Destinations",
+      items: destScopeChips.map((c) => ({
+        id: `dest-${c.id}`,
+        label: `${c.name} · ${c.count}`,
+        icon: <Compass className="w-3.5 h-3.5" />,
+        onClick: () => sendDestinationScope(c),
+        className: pillClass,
+      })),
+    },
+    {
+      id: "neighborhoods",
+      label: lang === "en" ? "Neighbourhoods" : lang === "ar" ? "الأحياء" : "Quartiers",
+      items: localFilters.neighborhoods.map((nb) => ({
+        id: `nb-${nb.name}`,
+        label: `${nb.name} · ${nb.count}`,
+        icon: <Building2 className="w-3.5 h-3.5" />,
+        onClick: () => sendLocalFilter(nb.name, "neighborhood_filter"),
+        className: pillClass,
+      })),
+    },
+  ];
+
   return (
+
     <div
       dir={dir}
       className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""} transition-[right] duration-300 ease-out ${openBusinessId ? "lg:right-1/2" : ""}`}
@@ -2161,213 +2317,30 @@ const EmbedAsk = () => {
         onFinish={() => voice.finishRecording()}
       />
 
-      <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`p-3 border-t ${border} ${bg}`}>
-        {messages.length > 1 && !streaming && (
-          <div className="flex flex-wrap gap-2 pb-2">
-            {!competitorGuardActive && (
-              <>
-
-                {mapReplayTarget && poolInfo.hasGeo && (
-                  <button
-                    type="button"
-                    onClick={() => setOpenMap(mapReplayTarget)}
-                    style={{ ...AI_NAME_FONT, ...mapBadgeStyle }}
-                    className="text-xs px-3 py-1.5 rounded-full border transition-opacity inline-flex items-center gap-1.5 font-bold hover:opacity-90"
-                  >
-                    <MapPin className="w-3.5 h-3.5" />
-                    {lang === "en" ? "On a map" : lang === "ar" ? "على الخريطة" : "Sur une carte"}
-                  </button>
-                )}
-                {poolRemaining > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
-                    style={{ ...AI_NAME_FONT, ...moreBadgeStyle }}
-                    className="text-xs px-3 py-1.5 rounded-full border transition-opacity inline-flex items-center gap-1.5 font-bold hover:opacity-90"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`}
-                  </button>
-                )}
-                {localFilters.closest && (
-                  <button
-                    type="button"
-                    onClick={() => sendLocalFilter(
-                      lang === "en" ? "The closest ones" : lang === "ar" ? "الأقرب" : "Les plus proches",
-                      "distance_ranking_closest",
-                    )}
-                    style={AI_NAME_FONT}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-                  >
-                    <Navigation className="w-3.5 h-3.5" />
-                    {lang === "en" ? "Closest" : lang === "ar" ? "الأقرب" : "Les plus proches"}
-                  </button>
-                )}
-                {localFilters.openNow && poolInfo.hasHours && (
-                  <button
-                    type="button"
-                    onClick={() => sendLocalFilter(
-                      lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant",
-                      "open_now",
-                    )}
-                    style={AI_NAME_FONT}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-                  >
-                    <Clock className="w-3.5 h-3.5" />
-                    {lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant"}
-                  </button>
-                )}
-                {/* Relances horaires dynamiques : remplacent les relances back-office
-                    « Qui ferme tard » / « Qui ouvre tôt ». Affichées seulement si au
-                    moins un établissement du CORPUS COMPLET publie ses horaires. */}
-                {poolInfo.hasHours && poolInfo.ids.length > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => sendLocalFilter(
-                        lang === "en" ? "Which ones close late" : lang === "ar" ? "من يغلق متأخرًا" : "Qui ferme tard",
-                        "hours_ranking_closes_last",
-                      )}
-                      style={AI_NAME_FONT}
-                      className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-                    >
-                      <Moon className="w-3.5 h-3.5" />
-                      {lang === "en" ? "Closes late" : lang === "ar" ? "يغلق متأخرًا" : "Qui ferme tard"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => sendLocalFilter(
-                        lang === "en" ? "Which ones open early" : lang === "ar" ? "من يفتح مبكرًا" : "Qui ouvre tôt",
-                        "hours_ranking_opens_first",
-                      )}
-                      style={AI_NAME_FONT}
-                      className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-                    >
-                      <Sun className="w-3.5 h-3.5" />
-                      {lang === "en" ? "Opens early" : lang === "ar" ? "يفتح مبكرًا" : "Qui ouvre tôt"}
-                    </button>
-                  </>
-                )}
-                {localFilters.bestRated && (
-                  <button
-                    type="button"
-                    onClick={() => sendLocalFilter(
-                      lang === "en" ? "The best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés",
-                      "rating_best",
-                    )}
-                    style={AI_NAME_FONT}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-                  >
-                    <Star className="w-3.5 h-3.5" />
-                    {lang === "en" ? "Best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés"}
-                  </button>
-                )}
-                {destScopeChips.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => sendDestinationScope(c)}
-                    style={AI_NAME_FONT}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-                  >
-                    <Compass className="w-3.5 h-3.5" />
-                    {c.name} · {c.count}
-                  </button>
-                ))}
-                {/* Relances hôte dynamiques : remplacent les 4 relances back-office
-                    (météo, POI liés, aperçu à proximité, que faire sur place).
-                    Positionnées avant les badges de quartiers. */}
-                {!usedHostBadges.includes("weather") && businessCity && (
-                  <button
-                    type="button"
-                    onClick={() => sendHostBadge(
-                      "weather",
-                      lang === "en" ? "What's the weather forecast?" : lang === "ar" ? "ما هي توقعات الطقس؟" : "Quelle est la météo prévue ?",
-                      "weather",
-                    )}
-                    style={AI_NAME_FONT}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-                  >
-                    <CloudSun className="w-3.5 h-3.5" />
-                    {lang === "en" ? "Weather" : lang === "ar" ? "الطقس" : "Météo"}
-                  </button>
-                )}
-                {!usedHostBadges.includes("poi_nearby") && hostPoiCount > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => sendHostBadge(
-                      "poi_nearby",
-                      lang === "en" ? `Points of interest near ${businessName}` : lang === "ar" ? `أماكن مميزة قرب ${businessName}` : `Points d'intérêt à proximité de ${businessName}`,
-                      "poi_nearby",
-                    )}
-                    style={AI_NAME_FONT}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-                  >
-                    <MapPinned className="w-3.5 h-3.5" />
-                    {lang === "en" ? `Points of interest · ${hostPoiCount}` : lang === "ar" ? `أماكن مميزة · ${hostPoiCount}` : `Points d'intérêt · ${hostPoiCount}`}
-                  </button>
-                )}
-                {!usedHostBadges.includes("nearby_overview") && hostLocation && (
-                  <button
-                    type="button"
-                    onClick={() => sendHostBadge(
-                      "nearby_overview",
-                      lang === "en" ? "Other activities nearby" : lang === "ar" ? "أنشطة أخرى قريبة" : "Autres activités à proximité",
-                      "nearby_overview",
-                    )}
-                    style={AI_NAME_FONT}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-                  >
-                    <Compass className="w-3.5 h-3.5" />
-                    {lang === "en" ? "Other activities nearby" : lang === "ar" ? "أنشطة أخرى قريبة" : "Autres activités à proximité"}
-                  </button>
-                )}
-                {!usedHostBadges.includes("things_to_do") && (
-                  <button
-                    type="button"
-                    onClick={() => sendHostBadge(
-                      "things_to_do",
-                      lang === "en" ? "What is there to do around here?" : lang === "ar" ? "ما الذي يمكن فعله هنا؟" : "Que faire sur place ?",
-                      "search_businesses",
-                    )}
-                    style={AI_NAME_FONT}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-                  >
-                    <Footprints className="w-3.5 h-3.5" />
-                    {lang === "en" ? "Things to do" : lang === "ar" ? "ماذا نفعل" : "Que faire sur place"}
-                  </button>
-                )}
-                {localFilters.neighborhoods.map((nb) => (
-                  <button
-                    key={nb.name}
-                    type="button"
-                    onClick={() => sendLocalFilter(nb.name, "neighborhood_filter")}
-                    style={AI_NAME_FONT}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-                  >
-                    <Building2 className="w-3.5 h-3.5" />
-                    {nb.name} · {nb.count}
-                  </button>
-                ))}
-              </>
-            )}
-          </div>
-
+      <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`relative p-3 border-t ${border} ${bg}`}>
+        {messages.length > 1 && !streaming && !competitorGuardActive && (
+          <EmbedFilterDrawer
+            groups={filterGroups}
+            panelClass={`${cardBg} ${border} ${cardInk}`}
+            labelClass={theme === "light" ? "text-neutral-500" : "text-white/60"}
+            fontStyle={AI_NAME_FONT}
+            handleLabel={lang === "en" ? "Filters" : lang === "ar" ? "تصفية" : "Filtres"}
+          />
         )}
+        {/* Barre fixe : nouvelle conversation + rayon (hauteur constante) */}
         <div className="flex items-center gap-2 pb-2">
-          {messages.length > 1 && !streaming && (
-            <button
-              type="button"
-              onClick={startNewConversation}
-              style={{ ...AI_NAME_FONT, ...newConvStyle }}
-              className="text-xs px-3 py-1 rounded-full border transition-opacity font-bold hover:opacity-90"
-            >
-              {SCOPE_LABELS[lang]?.newConversation ?? SCOPE_LABELS.fr.newConversation}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={startNewConversation}
+            disabled={streaming}
+            style={{ ...AI_NAME_FONT, ...newConvStyle }}
+            className="text-xs px-3 py-1 rounded-full border transition-opacity font-bold hover:opacity-90 disabled:opacity-40 shrink-0"
+          >
+            {SCOPE_LABELS[lang]?.newConversation ?? SCOPE_LABELS.fr.newConversation}
+          </button>
           <label
             htmlFor="owm-embed-radius"
-            className={`text-[11px] ${theme === "light" ? "text-neutral-500" : "text-white/70"}`}
+            className={`text-[11px] shrink-0 ${theme === "light" ? "text-neutral-500" : "text-white/70"}`}
           >
             {L.radiusLabel}
           </label>
@@ -2382,6 +2355,7 @@ const EmbedAsk = () => {
             ))}
           </select>
         </div>
+
         <div className="flex items-end gap-2">
           <div className={`flex-1 flex items-end rounded-2xl border ${border} ${inputBg} px-3 py-2`}>
             <textarea
