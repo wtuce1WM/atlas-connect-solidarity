@@ -123,6 +123,16 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
 
   return (
     <>
+      {/* Voile sombre — remonte jusqu'en haut du viewport */}
+      <div
+        onClick={() => setOpen(false)}
+        className={`absolute bottom-0 inset-x-0 z-20 transition-opacity duration-200 ${
+          open ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        style={{ height: "200vh", background: "rgba(0,0,0,0.45)" }}
+        aria-hidden={!open}
+      />
+
       {/* Panneau déplié — overlay au-dessus du composer */}
       <div
         className={`absolute bottom-full inset-x-0 z-30 overflow-hidden transition-transform duration-200 ease-out ${
@@ -166,7 +176,8 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
       </div>
 
       {/* Ligne peek + poignée (repliée) */}
-      <div className="flex items-center gap-2 pb-2">
+      <div ref={rootRef} className="relative z-30 flex items-center gap-2 pb-2">
+
         <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide">
           {peek.map(pill)}
         </div>
