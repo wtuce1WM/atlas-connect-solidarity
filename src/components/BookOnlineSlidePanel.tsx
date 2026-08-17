@@ -4132,7 +4132,7 @@ const BookOnlineSlidePanelInner = ({
                 </div>
               </div>
             )}
-            {(showAllToggle || showSubcatPill || showProxPill) && (
+            {(showAllToggle || showSubcatPill || showProxPill || showCatPill) && (
               <div className="absolute top-[calc(3.3rem+0.75rem+2.75rem)] left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
 
 

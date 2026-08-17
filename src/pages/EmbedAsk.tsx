@@ -2418,14 +2418,6 @@ const EmbedAsk = () => {
               onClose={() => setOpenMap(null)}
             />
           </Suspense>
-          <button
-            type="button"
-            onClick={() => setOpenMap(null)}
-            aria-label="Fermer"
-            className="fixed top-3 left-3 z-[300] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg"
-          >
-            <X className="h-4 w-4" />
-          </button>
         </div>
       ) : (
         <MapSlidePanel
