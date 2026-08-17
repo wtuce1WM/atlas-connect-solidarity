@@ -1712,7 +1712,9 @@ const VideoStoryboardPanel = () => {
         photos,
         videoUrl,
         // Grade global : rien n'est transmis si aucun effet n'est activé.
-        ...(hasAnyMontageEffect(board.effects) ? { effects: board.effects } : {}),
+        ...(hasAnyMontageEffect(board.effects) || hasAnySimpleEffect(board.effects)
+          ? { effects: board.effects }
+          : {}),
         sections: sections
           .filter((s) => s.enabled)
           .map((s) => ({
@@ -2048,6 +2050,14 @@ const VideoStoryboardPanel = () => {
               </div>
 
               <MontageEffectsBlock
+                value={board.effects ?? null}
+                onChange={(v) => {
+                  setBoard((prev) => (prev ? { ...prev, effects: v } : prev));
+                  setDirty(true);
+                }}
+              />
+
+              <SimpleEffectsBlock
                 value={board.effects ?? null}
                 onChange={(v) => {
                   setBoard((prev) => (prev ? { ...prev, effects: v } : prev));
