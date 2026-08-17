@@ -1153,7 +1153,9 @@ const EmbedAsk = () => {
       return { closest: false, openNow: false, bestRated: false, neighborhoods: [] as Array<{ name: string; count: number }> };
     }
     const geo = rows.filter((b) => b?.latitude != null && b?.longitude != null).length;
-    const withHours = rows.filter((b) => b?.is_open_24h || (b?.show_opening_hours && b?.opening_hours)).length;
+    // Règle 1WM : horaires non publiés => considéré ouvert 24h/24 (donc évaluable).
+    const withHours = rows.filter((b) => b?.is_open_24h || !b?.show_opening_hours || !!b?.opening_hours).length;
+
     const withRating = rows.filter((b) => (b?.computed_rating ?? b?.google_rating ?? b?.tripadvisor_rating) != null).length;
     // Repli sur le corpus affiché uniquement si le moteur n'a pas fourni `nb`
     // (anciens messages d'une conversation ouverte avant ce déploiement).

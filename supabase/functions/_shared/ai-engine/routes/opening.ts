@@ -328,7 +328,10 @@ export async function buildOpenFilter(admin: any, ids: string[], intent: OpenFil
   const kept: any[] = [];
   for (const b of rows) {
     if (b.is_open_24h) { kept.push(b); continue; }
-    if (b.show_opening_hours !== true) continue;
+    // Règle 1WM : horaires non publiés (« Afficher les horaires sur la fiche
+    // publique » décoché) => traité comme ouvert 24h/24.
+    if (b.show_opening_hours !== true) { kept.push(b); continue; }
+
     if (Array.isArray(b.vacation_dates)) {
       const onVac = b.vacation_dates.some((v: any) => v?.start_date && v?.end_date && targetStr >= v.start_date && targetStr <= v.end_date);
       if (onVac) continue;
@@ -369,9 +372,9 @@ export async function buildOpenFilter(admin: any, ids: string[], intent: OpenFil
     : lang === "ar" ? `تم التصفية إلى **${ordered.length}** نتيجة ${label}:`
     : `Filtré : **${ordered.length}** résultat${ordered.length > 1 ? "s" : ""} ${label} :`;
   const outro = skipped > 0
-    ? (lang === "en" ? `\n\n_(${skipped} excluded: hours not published or closed.)_`
-      : lang === "ar" ? `\n\n_(${skipped} مستبعدة: الساعات غير منشورة أو مغلقة.)_`
-      : `\n\n_(${skipped} exclu${skipped > 1 ? "s" : ""} : horaires non publiés ou fermé.)_`)
+    ? (lang === "en" ? `\n\n_(${skipped} excluded: closed at this time.)_`
+      : lang === "ar" ? `\n\n_(${skipped} مستبعدة: مغلقة في هذا الوقت.)_`
+      : `\n\n_(${skipped} exclu${skipped > 1 ? "s" : ""} : fermé à cet horaire.)_`)
     : "";
   return `${intro}\n\n${lines.join("\n")}${outro}${toMapMarker(ordered)}`;
 }
