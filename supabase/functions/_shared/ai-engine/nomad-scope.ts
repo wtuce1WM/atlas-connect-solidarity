@@ -16,7 +16,9 @@
 // appelé (embed-ai-chat-v2), les helpers sont inertes → aucun impact sur /search,
 // /club ou les autres fonctions.
 
-import { normalize } from "./routes/shared.ts";
+// normalize local (évite un cycle d'import avec routes/shared.ts)
+const normalize = (s: any) =>
+  String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
 let NOMAD_SUBCATS: Set<string> | null = null;
 
