@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Copy, Film, Image as ImageIcon, Loader2, Play, Pause, Trash2, Upload, X } from "lucide-react";
+import { Copy, Film, Image as ImageIcon, Loader2, Maximize2, Play, Pause, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
 /**
@@ -44,6 +44,8 @@ export type PickerMedia = {
   ownerName?: string | null;
   /** Le média est aussi publié sur la fiche courante. */
   onFiche?: boolean;
+  /** Badges actifs du média (documents de fiche uniquement). */
+  badges?: string[];
 };
 
 type TypeFilter = "all" | "image" | "video";
@@ -155,6 +157,7 @@ function Tile({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
+  const [full, setFull] = useState(false);
   const [orientation, setOrientation] = useState<"landscape" | "portrait" | "square" | null>(
     item.orientation ?? null,
   );
@@ -287,6 +290,22 @@ function Tile({
           </span>
         )}
 
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            setFull(true);
+          }}
+          role="button"
+          aria-label="Voir en plein écran"
+          title="Voir en plein écran"
+          className={`absolute rounded-full bg-white/85 text-black w-7 h-7 flex items-center justify-center hover:bg-white transition ${
+            item.kind === "video" && isInternalVideoUrl(item.url) ? "bottom-1 right-9" : "bottom-1 right-1"
+          }`}
+        >
+          <Maximize2 className="h-3.5 w-3.5" />
+        </span>
+
+
         {item.kind === "video" && fmtDur(duration) && (
           <span className="absolute top-1 right-8 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold tabular-nums">
             {fmtDur(duration)}
@@ -299,6 +318,61 @@ function Tile({
           </span>
         )}
       </button>
+
+      {full && (
+        <div
+          className="fixed inset-0 z-[120] bg-black/90 flex items-center justify-center p-4"
+          onClick={(e) => {
+            e.stopPropagation();
+            setFull(false);
+          }}
+        >
+          <Button
+            type="button"
+            size="icon"
+            variant="secondary"
+            className="absolute top-4 right-4 h-9 w-9 rounded-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              setFull(false);
+            }}
+            aria-label="Fermer"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          {item.kind === "video" && isInternalVideoUrl(item.url) ? (
+            <video
+              src={item.url}
+              controls
+              autoPlay
+              playsInline
+              className="max-h-full max-w-full"
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <img
+              src={item.kind === "video" ? item.thumbnail || "" : item.url}
+              alt={item.title || ""}
+              className="max-h-full max-w-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+        </div>
+      )}
+
+      {!!item.badges?.length && (
+        <div className="mt-1 flex flex-wrap gap-1">
+          {item.badges.map((b) => (
+            <span
+              key={b}
+              className="text-[9px] px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground font-semibold uppercase"
+            >
+              {b}
+            </span>
+          ))}
+        </div>
+      )}
+
 
       {item.title && (
         <p className="mt-1 text-[10px] text-muted-foreground truncate" title={item.title}>
@@ -577,6 +651,45 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         // un média badgé qui appartient aussi à la fiche courante reste visible dans « Fiche »
         .map((m) => ({ ...m, onFiche: ficheUrls.has(m.url.trim().toLowerCase()) }));
 
+      // Badges actifs des vidéos de fiche (tous badges, pas seulement « Generic »).
+      const docIds = [
+        ...new Set(
+          deduped
+            .filter((m) => m.mediaId && (m.source === "fiche" || m.source === "generic" || m.source === "other"))
+            .map((m) => String(m.mediaId)),
+        ),
+      ];
+      if (docIds.length) {
+        const links: any[] = [];
+        for (let i = 0; i < docIds.length; i += 200) {
+          const { data } = await supabase
+            .from("business_document_badges")
+            .select("document_id, badge_id")
+            .in("document_id", docIds.slice(i, i + 200));
+          if (data) links.push(...data);
+        }
+        const badgeIds = [...new Set(links.map((l) => String(l.badge_id)))];
+        const badgeNames = new Map<string, string>();
+        for (let i = 0; i < badgeIds.length; i += 200) {
+          const { data } = await supabase
+            .from("badges")
+            .select("id, name_fr")
+            .in("id", badgeIds.slice(i, i + 200));
+          for (const b of data ?? []) badgeNames.set(String(b.id), String((b as any).name_fr ?? ""));
+        }
+        const byDoc = new Map<string, string[]>();
+        for (const l of links) {
+          const name = badgeNames.get(String(l.badge_id));
+          if (!name) continue;
+          const key = String(l.document_id);
+          byDoc.set(key, [...(byDoc.get(key) ?? []), name]);
+        }
+        for (const m of deduped) {
+          if (m.mediaId && byDoc.has(String(m.mediaId))) m.badges = byDoc.get(String(m.mediaId));
+        }
+      }
+
+
       // Détection réelle des orientations (images + vidéos internes) pour le filtre 16:9.
       // Important : en parallèle total (des centaines de requêtes simultanées) le
       // navigateur sature et la plupart des détections expiraient → orientation null,
@@ -771,6 +884,8 @@ export function VideoMediaPickerDialog({
   // scène n'accepte que des vidéos) : c'est le cas d'usage courant.
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("fiche");
   const [search, setSearch] = useState("");
+  const [formatFilter, setFormatFilter] = useState<"all" | "landscape" | "portrait" | "square">("all");
+  const [badgeFilter, setBadgeFilter] = useState<string>("all");
   const [uploadScope, setUploadScope] = useState<"global" | "business">(businessId ? "business" : "global");
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -852,7 +967,8 @@ export function VideoMediaPickerDialog({
     if (sourceFilter === "landscape") setWideAsked(true);
   }, [sourceFilter]);
 
-  const filtered = useMemo(() => {
+  /** Résultats de la source + recherche, avant filtres format / badge. */
+  const sourceScoped = useMemo(() => {
     const q = search.trim().toLowerCase();
     const base = sourceFilter === "landscape" ? wideVideos : typeBase;
     return base.filter((m) => {
@@ -868,11 +984,44 @@ export function VideoMediaPickerDialog({
     });
   }, [typeBase, wideVideos, sourceFilter, search]);
 
+  /** Badges actifs présents dans la source sélectionnée, avec compteurs. */
+  const badgeOptions = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const m of sourceScoped) for (const b of m.badges ?? []) map.set(b, (map.get(b) ?? 0) + 1);
+    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0], "fr"));
+  }, [sourceScoped]);
+
+  useEffect(() => {
+    if (badgeFilter !== "all" && !badgeOptions.some(([b]) => b === badgeFilter)) setBadgeFilter("all");
+  }, [badgeOptions, badgeFilter]);
+
+  const formatCounts = useMemo(() => {
+    let landscape = 0;
+    let portrait = 0;
+    let square = 0;
+    for (const m of sourceScoped) {
+      if (m.orientation === "landscape") landscape++;
+      else if (m.orientation === "portrait") portrait++;
+      else if (m.orientation === "square") square++;
+    }
+    return { all: sourceScoped.length, landscape, portrait, square };
+  }, [sourceScoped]);
+
+  const filtered = useMemo(
+    () =>
+      sourceScoped.filter((m) => {
+        if (formatFilter !== "all" && m.orientation !== formatFilter) return false;
+        if (badgeFilter !== "all" && !(m.badges ?? []).includes(badgeFilter)) return false;
+        return true;
+      }),
+    [sourceScoped, formatFilter, badgeFilter],
+  );
+
   const PAGE_SIZE = 32;
   const [page, setPage] = useState(0);
   useEffect(() => {
     setPage(0);
-  }, [sourceFilter, typeFilter, search, otherSlug, open]);
+  }, [sourceFilter, typeFilter, search, otherSlug, open, formatFilter, badgeFilter]);
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = useMemo(
     () => filtered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE),
@@ -1074,6 +1223,32 @@ export function VideoMediaPickerDialog({
                 <option value="render_feed">Rendus · Scénario Feed ({counts.renderFeed})</option>
                 <option value="render_promo">Rendus · Promo business ({counts.renderPromo})</option>
               </select>
+              <select
+                value={formatFilter}
+                onChange={(e) => setFormatFilter(e.target.value as typeof formatFilter)}
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+                title="Filtrer par format"
+              >
+                <option value="all">Tous les formats ({formatCounts.all})</option>
+                <option value="landscape">Paysage 16:9 ({formatCounts.landscape})</option>
+                <option value="portrait">Portrait 9:16 ({formatCounts.portrait})</option>
+                <option value="square">Carré 1:1 ({formatCounts.square})</option>
+              </select>
+              {badgeOptions.length > 0 && (
+                <select
+                  value={badgeFilter}
+                  onChange={(e) => setBadgeFilter(e.target.value)}
+                  className="h-8 rounded-md border bg-background px-2 text-xs"
+                  title="Filtrer par badge"
+                >
+                  <option value="all">Tous les badges ({badgeOptions.length})</option>
+                  {badgeOptions.map(([b, n]) => (
+                    <option key={b} value={b}>
+                      {b} ({n})
+                    </option>
+                  ))}
+                </select>
+              )}
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
