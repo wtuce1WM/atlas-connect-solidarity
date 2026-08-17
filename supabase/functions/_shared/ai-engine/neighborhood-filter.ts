@@ -11,6 +11,7 @@
 //  - comportement STRICT : si le quartier est nommé mais que le corpus (pool) ne contient
 //    aucune adresse dedans, on ne montre RIEN et on propose l'élargissement à la ville.
 import { normalize } from "./routes/shared.ts";
+import { isNomadBusiness } from "./nomad-scope.ts";
 
 export type NeighborhoodMatch = {
   /** Nom canonique en base (langue FR). */
@@ -109,6 +110,8 @@ export function filterPoolByNeighborhood<T extends { neighborhood?: string | nul
   const wanted = new Set(nb.aliases);
   const cityNorm = normalize(nb.city);
   return (pool || []).filter((b) => {
+    // « Hors les murs » (Maps désactivée) : aucune géographie → exempté du filtre.
+    if (isNomadBusiness(b)) return true;
     if (b?.city && normalize(String(b.city)) !== cityNorm) return false;
     const own = normalize(String(b?.neighborhood || ""));
     if (own && wanted.has(own)) return true;

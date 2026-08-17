@@ -28,6 +28,7 @@ import {
 
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
 import { pickLang, normalize, toMapMarker, fetchPriorFull, matchBusinessNameInMessage } from "../_shared/ai-engine/routes/shared.ts";
+import { warmNomadScope, isNomadBusiness, scrubNomadRow } from "../_shared/ai-engine/nomad-scope.ts";
 import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 import { isTidesIntent, resolveTidesCity, tidesIntro } from "../_shared/ai-engine/routes/tides.ts";
@@ -162,9 +163,11 @@ async function poolMarker(admin: any, ids: string[], city: string | null): Promi
   if (uniq.length) {
     const { data } = await admin
       .from("businesses")
-      .select("id, neighborhood, latitude, longitude, show_opening_hours, opening_hours, is_open_24h")
+      .select("id, neighborhood, categories, latitude, longitude, show_opening_hours, opening_hours, is_open_24h")
       .in("id", uniq);
-    for (const row of (Array.isArray(data) ? data : []) as any[]) {
+    for (const raw of (Array.isArray(data) ? data : []) as any[]) {
+      // « Hors les murs » : ni quartier, ni géo (pas de badges quartier / carte).
+      const row = scrubNomadRow(raw);
       const name = String(row?.neighborhood || "").trim();
       if (name) nb[name] = (nb[name] ?? 0) + 1;
       if (!hasGeo && row?.latitude != null && row?.longitude != null) hasGeo = true;
@@ -212,6 +215,10 @@ Deno.serve(async (req) => {
     });
   }
   const admin = createClient(SUPABASE_URL, SERVICE);
+  // Sous-catégories « Maps désactivée » → établissements « hors les murs ».
+  await warmNomadScope(admin);
+
+
 
   const body = await req.json().catch(() => ({} as any));
   const uiMessages: UIMessage[] = Array.isArray(body.messages) ? body.messages.slice(-8) : [];
@@ -441,7 +448,9 @@ Deno.serve(async (req) => {
             const wanted = normalize(userMessage);
             const kept = nb
               ? filterPoolByNeighborhood(pool as any[], nb, { strict: true })
-              : (pool as any[]).filter((b) => normalize(String(b?.neighborhood || "")) === wanted);
+              : (pool as any[]).filter(
+                  (b) => isNomadBusiness(b) || normalize(String(b?.neighborhood || "")) === wanted,
+                );
             const label = nb?.name || userMessage.trim();
             route = "discover";
             resultsCount = kept.length;
