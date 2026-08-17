@@ -5,8 +5,13 @@ import { palette, alpha, display, body, size, weight } from "./tokens";
 import { PromoLogo } from "./promo/PromoLogo";
 import { resolveStoryboardIcon } from "./icons/registry";
 import {
+  EffectsContext,
   FeedEffectsOverlay,
   FeedMotionBlurWrapper,
+  SectionTransitionWrapper,
+  SimpleFadesOverlay,
+  audioFadeVolume,
+  kenBurnsTransform,
   mergeEffects,
   type FeedEffectsConfig,
 } from "./effects/FeedEffects";
@@ -227,7 +232,7 @@ const SceneMediaBackdrop: React.FC<{ section: StoryboardSection }> = ({ section 
         const frames = i === media.length - 1 ? Math.max(1, durationInFrames - from) : per;
         return (
           <Sequence key={`${src}-${i}`} from={from} durationInFrames={frames} layout="none">
-            <MediaShot src={src} frames={frames} />
+            <MediaShot src={src} frames={frames} seed={i} />
           </Sequence>
         );
       })}
@@ -994,7 +999,7 @@ const PhotosScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storyb
           const frames = i === shots.length - 1 ? Math.max(1, durationInFrames - from) : per;
           return (
             <Sequence key={`${src}-${i}`} from={from} durationInFrames={frames} layout="none">
-              <MediaShot src={src} frames={frames} />
+              <MediaShot src={src} frames={frames} seed={i} />
             </Sequence>
           );
         })}
