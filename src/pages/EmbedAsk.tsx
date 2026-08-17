@@ -2149,35 +2149,8 @@ const EmbedAsk = () => {
         {error && <div className="text-xs text-red-500">{error}</div>}
       </div>
 
-      <div className={`px-3 pt-3 pb-1 flex justify-center ${bg}`}>
-        <div className="relative flex items-center justify-center">
-          <span className="absolute w-12 h-12 rounded-full border border-foreground/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
-          <span className="absolute w-12 h-12 rounded-full border border-foreground/20 animate-[ripple_2.4s_ease-out_0.6s_infinite] pointer-events-none" />
-          <span className="absolute w-12 h-12 rounded-full border border-foreground/10 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
-          <button
-            type="button"
-            onClick={voice.toggleRecording}
-            disabled={streaming || voice.status === "processing" || !businessName}
-            className={`relative z-10 flex items-center justify-center w-12 h-12 rounded-full transition-all border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${
-              voice.status === "recording"
-                ? "bg-red-500 animate-pulse"
-                : voice.status === "processing"
-                  ? "bg-[#194CFF]"
-                  : "bg-[#194CFF] hover:bg-[#194CFF]/90"
-            } disabled:opacity-50`}
-            aria-label={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
-            title={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
-          >
-            {voice.status === "processing" ? (
-              <Loader2 className="h-5 w-5 text-white animate-spin" />
-            ) : voice.status === "recording" ? (
-              <MicOff className="h-5 w-5 text-white" />
-            ) : (
-              <Mic className="h-5 w-5 text-white" />
-            )}
-          </button>
-        </div>
-      </div>
+
+
 
       <VoiceSearchOverlay
         isOpen={voice.status === "recording" || voice.status === "processing"}
