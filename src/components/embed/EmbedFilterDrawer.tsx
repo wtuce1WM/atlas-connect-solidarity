@@ -63,15 +63,14 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
     const compute = () => {
       const h = window.innerHeight || 640;
       const ratio = h < 600 ? Math.min(maxRatio, 0.6) : maxRatio;
-      // Espace réellement disponible AU-DESSUS de la barre peek (header inclus)
-      const top = rootRef.current?.getBoundingClientRect().top ?? h;
-      const available = Math.max(180, top - 12);
-      setMaxH(Math.min(Math.round(h * ratio), Math.round(available)));
+      // Feuille ancrée au bas du viewport : borne = ratio du viewport
+      setMaxH(Math.max(180, Math.round(h * ratio)));
     };
     compute();
     window.addEventListener("resize", compute);
     return () => window.removeEventListener("resize", compute);
   }, [maxRatio, open, count]);
+
 
   // Reset quand la liste disparaît (nouvelle conversation, competitor guard…)
   useEffect(() => {
