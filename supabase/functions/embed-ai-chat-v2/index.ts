@@ -106,10 +106,21 @@ function textOf(m: UIMessage): string {
   return String((m as any)?.content ?? "");
 }
 
-/** Ids d'établissements déjà présentés dans le fil (marqueurs des tours précédents). */
-function priorBusinessIds(messages: UIMessage[]): string[] {
+/**
+ * Ids d'établissements présentés dans le fil.
+ * `lastOnly = true` → uniquement le DERNIER tour porteur de marqueur : c'est la
+ * seule définition correcte de « les derniers résultats » pour les filtres
+ * locaux (plus proches, mieux notés, ouverts…). Sans ça, un tour de
+ * spécialisation (« que les golfs ») était noyé sous les résultats des tours
+ * antérieurs (rooftops de « vue sur l'Atlas »), qui remontaient en tête au
+ * classement par distance.
+ * `lastOnly = false` → cumul du fil, utilisé seulement pour la déduplication
+ * de la relance « montre-moi les suivantes ».
+ */
+function priorBusinessIds(messages: UIMessage[], lastOnly = false): string[] {
   const ids: string[] = [];
-  for (const m of messages) {
+  const ordered = lastOnly ? [...messages].reverse() : messages;
+  for (const m of ordered) {
     if ((m as any)?.role !== "assistant") continue;
     const c = textOf(m);
     const known = c.match(/<!--KNOWN_BUSINESSES:(\[[\s\S]*?\])-->/);
@@ -124,17 +135,22 @@ function priorBusinessIds(messages: UIMessage[]): string[] {
         if (id && !ids.includes(id)) ids.push(id);
       }
     } catch { /* marqueur illisible : ignoré */ }
+    if (lastOnly && ids.length) return ids;
   }
   return ids;
 }
 
+
 /**
- * Corpus COMPLET du tour précédent (marqueur `POOL_BUSINESS_IDS`) : les relances
+ * Corpus COMPLET du dernier tour (marqueur `POOL_BUSINESS_IDS`) : les relances
  * de type proximité doivent chercher dans la totalité des résultats trouvés
  * (ex. 19 adresses à Marrakech) et pas seulement dans les 6 affichées.
+ * Contrainte : le pool retenu doit appartenir au dernier tour porteur de
+ * résultats (`sinceIndex`). Un pool plus ancien ne doit jamais réintroduire des
+ * établissements écartés par une spécialisation ultérieure.
  */
-function priorPoolIds(messages: UIMessage[]): string[] {
-  for (let i = messages.length - 1; i >= 0; i--) {
+function priorPoolIds(messages: UIMessage[], sinceIndex = 0): string[] {
+  for (let i = messages.length - 1; i >= sinceIndex; i--) {
     const m = messages[i] as any;
     if (m?.role !== "assistant") continue;
     const match = textOf(m).match(/<!--POOL_BUSINESS_IDS:([\s\S]*?)-->/);
@@ -147,6 +163,18 @@ function priorPoolIds(messages: UIMessage[]): string[] {
   }
   return [];
 }
+
+/** Index du dernier message assistant porteur de résultats (KNOWN / SHOW_ON_MAP). */
+function lastResultsIndex(messages: UIMessage[]): number {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i] as any;
+    if (m?.role !== "assistant") continue;
+    const c = textOf(m);
+    if (/<!--KNOWN_BUSINESSES:/.test(c) || /<!--SHOW_ON_MAP:/.test(c)) return i;
+  }
+  return 0;
+}
+
 
 /**
  * Marqueur `POOL_BUSINESS_IDS` — source de vérité UNIQUE du corpus complet du
@@ -279,9 +307,14 @@ Deno.serve(async (req) => {
   }
 
   const userMessage = textOf([...uiMessages].reverse().find((m: any) => m?.role === "user") as UIMessage) || "";
-  const priorIds = priorBusinessIds(uiMessages);
-  /** Corpus complet du tour précédent (19 trouvées) — surensemble de `priorIds`. */
-  const poolIds = [...new Set([...priorPoolIds(uiMessages), ...priorIds])];
+  /** Résultats du DERNIER tour uniquement : base de tous les filtres locaux. */
+  const priorIds = priorBusinessIds(uiMessages, true);
+  /** Cumul du fil : sert seulement à ne pas re-montrer une fiche déjà vue. */
+  const seenIds = priorBusinessIds(uiMessages);
+  /** Corpus complet du dernier tour (19 trouvées) — surensemble de `priorIds`. */
+  const poolIds = [...new Set([...priorPoolIds(uiMessages, lastResultsIndex(uiMessages)), ...priorIds])];
+  console.log("[embed-ai-chat-v2] prior_context", JSON.stringify({ priorIds: priorIds.length, pool: poolIds.length, seen: seenIds.length }));
+
 
   const chatId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(sessionId || ""))
     ? sessionId
@@ -560,7 +593,7 @@ Deno.serve(async (req) => {
         // Elle ne doit RIEN faire d'autre qu'afficher le lot suivant du corpus
         // déjà trouvé au tour précédent (10 max par lot, cartes identiques).
         if (poolIds.length && isShowMoreIntent(userMessage)) {
-          const already = new Set(priorIds);
+          const already = new Set(seenIds);
           const remaining = poolIds.filter((id) => !already.has(id));
           if (remaining.length) {
             const batch = remaining.slice(0, 10);
