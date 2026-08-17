@@ -2034,6 +2034,7 @@ const VideoStoryboardPanel = () => {
                 </div>
                 <StoryboardGlobalMediaGrid
                   items={globalMediaItems}
+                  format={board.format}
                   onChange={(next) => {
                     setGlobalMediaItems(next);
                     setDirty(true);
