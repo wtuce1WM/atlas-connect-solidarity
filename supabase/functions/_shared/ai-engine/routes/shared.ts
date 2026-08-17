@@ -289,6 +289,8 @@ export function ctaFieldsOf(b: any) {
     whatsapp: b?.whatsapp ?? null,
     booking_url: booking?.url ?? null,
     booking_label: booking?.label ?? null,
+    // Livraison Glovo : logo cliquable sur la carte résultat IA quand l'URL existe en base.
+    glovo_url: b?.glovo_url ?? null,
   };
 }
 
@@ -297,4 +299,4 @@ export const CTA_SELECT_FIELDS =
   "online_shop_url, online_shop_cta, online_shop_presentation_mode, " +
   "url_4, url_4_cta, url_4_presentation_mode, url_5, url_5_cta, url_5_presentation_mode, " +
   "reserve_now_force_external, online_shop_force_external, url_4_force_external, url_5_force_external, " +
-  "website, website_cta, website_force_external";
+  "website, website_cta, website_force_external, glovo_url";
