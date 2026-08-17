@@ -47,11 +47,18 @@ export type FeedEffectsConfig = {
   fadeColor?: "black" | "white";
   /** Durée d'un fondu en frames (défaut 15 ≈ 0,5 s à 30 fps). */
   fadeFrames?: number;
+  /** Style de la transition entre étapes (quand `fadeCross` est actif). */
+  crossStyle?: "dip" | "slide" | "wipe";
+  /** Direction du slide/wipe. */
+  crossDir?: "left" | "right" | "up" | "down";
+  /** Flash blanc court (2-3 frames) sur chaque coupe. */
+  flashCut?: boolean;
   /** Ken Burns sur les images de fond : amplitude du travelling. */
   kenBurns?: "off" | "soft" | "strong";
   /** Fondu audio en entrée/sortie des voix-off. */
   audioFade?: boolean;
 };
+
 
 
 /**
