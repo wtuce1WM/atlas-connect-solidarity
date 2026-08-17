@@ -252,7 +252,7 @@ const AiBusinessResultCards = ({
                 ) : null}
               </div>
 
-              {(waHref || bookingUrl) ? (
+              {(waHref || bookingUrl || glovoUrl) ? (
                 <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                   {waHref ? (
                     <a
@@ -278,6 +278,18 @@ const AiBusinessResultCards = ({
                     >
                       <CalendarCheck className="w-3 h-3" /> {bookingLabel}
                     </button>
+                  ) : null}
+                  {glovoUrl ? (
+                    <a
+                      href={glovoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Glovo"
+                      aria-label="Glovo"
+                      className="inline-flex items-center shrink-0"
+                    >
+                      <img src={glovoLogo} alt="Glovo" loading="lazy" className="h-5 w-5 object-contain" />
+                    </a>
                   ) : null}
                 </div>
               ) : null}
