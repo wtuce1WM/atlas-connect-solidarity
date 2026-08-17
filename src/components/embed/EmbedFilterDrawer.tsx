@@ -53,6 +53,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
   const [drag, setDrag] = useState(0);
   const startY = useRef<number | null>(null);
   const [maxH, setMaxH] = useState(360);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   const all = groups.flatMap((g) => g.items);
   const peek = all.filter((i) => i.priority).slice(0, 3);
@@ -62,17 +63,21 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
     const compute = () => {
       const h = window.innerHeight || 640;
       const ratio = h < 600 ? Math.min(maxRatio, 0.6) : maxRatio;
-      setMaxH(Math.round(h * ratio));
+      // Espace réellement disponible AU-DESSUS de la barre peek (header inclus)
+      const top = rootRef.current?.getBoundingClientRect().top ?? h;
+      const available = Math.max(180, top - 12);
+      setMaxH(Math.min(Math.round(h * ratio), Math.round(available)));
     };
     compute();
     window.addEventListener("resize", compute);
     return () => window.removeEventListener("resize", compute);
-  }, [maxRatio]);
+  }, [maxRatio, open, count]);
 
   // Reset quand la liste disparaît (nouvelle conversation, competitor guard…)
   useEffect(() => {
     if (count === 0) setOpen(false);
   }, [count]);
+
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     startY.current = e.clientY;
