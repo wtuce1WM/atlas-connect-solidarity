@@ -1361,6 +1361,35 @@ const EmbedAsk = () => {
     return { richByName: rich, knownByName: known, destByName: dests, allDestinations: destList, eventsByName: evs };
   }, [messages]);
 
+  // Les conversations sont conservées 7 jours : leurs anciens marqueurs SHOW_ON_MAP
+  // peuvent précéder l'ajout de `glovo_url`. Réhydrate donc ce seul champ côté client
+  // afin qu'un simple refresh affiche aussi le badge sur les cartes déjà enregistrées.
+  const [glovoUrlsById, setGlovoUrlsById] = useState<Record<string, string>>({});
+  const resultBusinessIds = useMemo(
+    () => Array.from(new Set(Array.from(richByName.values()).map((b) => b.id).filter(Boolean))),
+    [richByName],
+  );
+  useEffect(() => {
+    if (!resultBusinessIds.length) {
+      setGlovoUrlsById({});
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id,glovo_url")
+        .in("id", resultBusinessIds);
+      if (cancelled) return;
+      const urls: Record<string, string> = {};
+      for (const row of data || []) {
+        if (row.glovo_url?.trim()) urls[row.id] = row.glovo_url.trim();
+      }
+      setGlovoUrlsById(urls);
+    })();
+    return () => { cancelled = true; };
+  }, [resultBusinessIds]);
+
 
   // Find businesses cited in a text (by name match), preserving order & deduped.
   const findCitedBusinesses = (text: string): MapPanelBusiness[] => {
@@ -1385,7 +1414,10 @@ const EmbedAsk = () => {
 
   // Présentation unique des établissements cités par l'IA (cartes résultat partagées).
   const renderCarousel = (businesses: MapPanelBusiness[], onOpenMap?: () => void, rankOrder?: string | null) => {
-    const list = businesses.slice(0, 20);
+    const list = businesses.slice(0, 20).map((business) => ({
+      ...business,
+      glovo_url: (business as MapPanelBusiness & { glovo_url?: string | null }).glovo_url || glovoUrlsById[business.id] || null,
+    }));
     const openOne = (id: string, siblings: string[], overlay: "reviews" | null) => {
       setOpenSiblings(siblings);
       setOpenBusinessOverlay(overlay);
