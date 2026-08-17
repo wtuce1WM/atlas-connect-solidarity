@@ -761,9 +761,43 @@ export async function buildFilteredAnswer(
       console.error("[curated] pinned_city_filter_failed", String(e));
     }
   }
-  const ids = [...new Set([...pinned, ...found])];
+  let ids = [...new Set([...pinned, ...found])];
 
   if (!ids.length) return null;
+
+  /**
+   * Garde-fou concurrents appliqué AU POOL COMPLET, avant la tranche affichée.
+   * Sinon un filtre service très « hôtelier » (ex. « Vue montagne ») remplissait
+   * les 6 premières places de rivaux directs, tout était écarté ensuite et la
+   * route curatée retombait à zéro résultat.
+   */
+  const guardFn = opts.competitorGuard?.isCompetitor ?? opts.isCompetitor;
+  if (guardFn && ids.length) {
+    try {
+      const loadSubs = (opts.competitorGuard as any)?.loadSubs;
+      if (typeof loadSubs === "function") await loadSubs(ids.slice(0, 200));
+      const { data: catRows } = await admin
+        .from("businesses")
+        .select("id, main_category, categories")
+        .in("id", ids.slice(0, 200));
+      const byId = new Map<string, any>((catRows || []).map((b: any) => [String(b.id), b]));
+      const before = ids.length;
+      const kept = ids.filter((id) => {
+        const row = byId.get(String(id));
+        return row ? !guardFn(row) : true;
+      });
+      const dropped = before - kept.length;
+      if (dropped > 0) {
+        opts.competitorGuard?.markFiltered(dropped);
+        console.log("[curated] competitor_guard_pool", JSON.stringify({ before, after: kept.length }));
+      }
+      ids = kept;
+    } catch (e) {
+      console.error("[curated] competitor_pool_filter_failed", String(e));
+    }
+  }
+  if (!ids.length) return null;
+
   const total = ids.length;
   const shownIds = ids.slice(0, Math.max(max, pinned.length));
 

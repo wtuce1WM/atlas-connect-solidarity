@@ -34,7 +34,15 @@ export default function EmbedWeather() {
   const bgParamColor = parseBg(params.get("bg"));
   const cardColor = parseBg(params.get("card"));
   const bgColor = cardColor || bgParamColor;
-  const ink = resolveEmbedInk(params.get("ink"), bgColor);
+  // Encre : forcée par ?ink, sinon déduite de la couleur de fond. Fond transparent
+  // + hôte en dark mode → encre claire (texte blanc dans le bloc prévisions/footer),
+  // sinon le texte #171717 devenait illisible sur le fond sombre du site hôte.
+  const prefersDark =
+    typeof window !== "undefined" &&
+    !bgColor &&
+    !params.get("ink") &&
+    window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+  const ink = prefersDark ? "light" : resolveEmbedInk(params.get("ink"), bgColor);
   // ?layout=footer : bandeau fin full-width réservé au desktop (>= 768px de large).
   // En dessous, on retombe sur la carte verticale, seule lisible sur mobile.
   const footerLayout = (params.get("layout") || "").toLowerCase() === "footer";
