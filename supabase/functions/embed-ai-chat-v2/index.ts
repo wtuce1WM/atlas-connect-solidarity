@@ -1553,6 +1553,19 @@ Deno.serve(async (req) => {
             ? [...new Set(qualifiedServiceTargets(resolution).filter((t) => t.strength !== "expansion").map((t) => t.value))]
             : [];
           await runSearch(baseQuery, searchCity, excluded, requiredServices);
+          // Quartier nommé + corpus vide après filtre : le terme résolu était trop
+          // étroit (« shopping » → « Boutique »). On rejoue avec le message brut, dont
+          // business-search est l'autorité (il détecte lui-même le quartier), puis on
+          // réapplique le même filtre. Aucun élargissement géographique.
+          if (searchNeighborhood && !results.length) {
+            const before = totalFound;
+            await runSearch(userMessage.slice(0, 200), searchCity, excluded);
+            console.log("[embed-ai-chat-v2] neighborhood_raw_retry", JSON.stringify({
+              neighborhood: searchNeighborhood.name, before, after: results.length,
+            }));
+          }
+
+
 
         }
 
