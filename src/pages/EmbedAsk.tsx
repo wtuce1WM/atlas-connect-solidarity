@@ -2322,7 +2322,14 @@ const EmbedAsk = () => {
           <EmbedFilterDrawer
             groups={filterGroups}
             panelClass={`${cardBg} ${border} ${cardInk}`}
-            labelClass={theme === "light" ? "text-neutral-500" : "text-white/60"}
+            /* Overlay Full Description : tout est transparent autour → fond clair 1WM
+               imposé derrière les badges, la poignée et le tiroir. */
+            surfaceStyle={
+              overlay
+                ? { background: OVERLAY_MAP_COLOR, color: "#1A1A1A", borderColor: "rgba(0,0,0,0.12)" }
+                : undefined
+            }
+            labelClass={overlay || theme === "light" ? "text-neutral-500" : "text-white/60"}
             fontStyle={AI_NAME_FONT}
             handleLabel={lang === "en" ? "Filters" : lang === "ar" ? "تصفية" : "Filtres"}
           />
