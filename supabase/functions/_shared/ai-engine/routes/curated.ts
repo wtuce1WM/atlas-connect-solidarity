@@ -551,8 +551,14 @@ export async function buildPinnedAnswer(
       ? `📍 هذه هي القائمة المختارة كاملة${host?.city ? ` في ${host.city}` : ""} — تريد الخريطة أو أوقات العمل أو روابط الحجز؟`
       : `📍 C'est la sélection curatée complète${host?.city ? ` à ${host.city}` : ""} — tu veux la carte, les horaires, ou les liens de réservation ?`);
 
-  // Texte immersif (zéro token) inséré AVANT les cartes résultat.
-  const immersive = buildImmersiveLines(ordered, lang);
+  // Texte immersif inséré AVANT les cartes résultat : version enrichie (corpus
+  // éditorial étendu + réécriture par lot) si un contexte est fourni, sinon zéro token.
+  const immersive = overrides?.immersive
+    ? await buildImmersiveBlock(ordered, lang, overrides.immersive).catch((e) => {
+      console.error("[curated] immersive_rich_failed", String(e));
+      return buildImmersiveLines(ordered, lang);
+    })
+    : buildImmersiveLines(ordered, lang);
 
   return {
     text: [heading, immersive, outro].filter((p) => p && String(p).trim()).join("\n\n"),
