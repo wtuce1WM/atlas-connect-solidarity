@@ -1336,7 +1336,7 @@ Deno.serve(async (req) => {
             // Les adresses sans coordonnées (nomades / Maps désactivée) sont conservées.
             if (
               host?.latitude != null && host?.longitude != null &&
-              !destScope && !explicitCity && !resolvedCityRaw && kept.length
+              !nameHit && !destScope && !explicitCity && !resolvedCityRaw && kept.length
             ) {
               const hostRadius = RADIUS_OPTIONS.includes(Number(host.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
               const radiusKm = parseInlineRadiusKm(userMessage) ?? requestedRadiusKm ?? hostRadius;
