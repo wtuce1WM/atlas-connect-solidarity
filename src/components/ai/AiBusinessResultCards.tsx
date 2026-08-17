@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { MapPin, Star, Clock, CalendarCheck } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
+import glovoLogo from "@/assets/glovo-logo.png";
 import { AI_NAME_FONT } from "@/lib/aiTypography";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { haversineKm } from "@/lib/haversine";
