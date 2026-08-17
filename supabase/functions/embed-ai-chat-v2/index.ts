@@ -475,7 +475,11 @@ Deno.serve(async (req) => {
                 : `À **${label}** — ${kept.length} adresse${kept.length > 1 ? "s" : ""} de cette sélection :`;
             const built = await buildPinnedAnswer(
               admin, kept.map((b: any) => String(b.id)), host, lang, null,
-              { route: "neighborhood_filter", heading, outro: "", competitorGuard },
+              {
+                route: "neighborhood_filter", heading, outro: "", competitorGuard,
+                // Relance mécanique (quartier) : corpus éditorial étendu, zéro token.
+                immersive: { admin, query: userMessage, rewrite: false },
+              },
             ).catch(() => null);
             if (built) {
               emit(built.text);
