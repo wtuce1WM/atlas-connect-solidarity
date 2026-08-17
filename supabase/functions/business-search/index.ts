@@ -5729,7 +5729,7 @@ serve(async (req) => {
       // Observation seule : le résolveur ne modifie aucun résultat, il mesure la couverture.
       let _resolution: Record<string, unknown> = {};
       try {
-        const _res = await resolveWithAdmin(supabase, effectiveQuery);
+        const _res = await resolveWithAdmin(supabase, effectiveQuery, language);
         _resolution = resolutionMetric(_res);
       } catch (e) {
         console.warn("[taxonomy-resolver] observation failed:", String(e));
