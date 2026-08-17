@@ -1263,6 +1263,8 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               <strong>Recherche vocale</strong> : l'attribut <span className="font-mono">allow="microphone"</span>{" "}
               est indispensable pour que le bouton micro ouvre l'overlay vocal. Sans lui, le navigateur bloque
               le micro dans l'iframe. Page hôte en <span className="font-mono">https</span> requise.
+            </li>
+
 
             <li>
               <strong>Contenu automatique</strong> : les établissements affichés proviennent de la base 1WM
