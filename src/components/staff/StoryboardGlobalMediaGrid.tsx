@@ -180,40 +180,33 @@ function Tile({
         <div className="space-y-1">
           <div className="grid grid-cols-2 gap-1">
             <Input
-              type="number"
-              step="0.1"
-              min="0"
-              max={maxTime}
-              value={start ? String(start) : ""}
+              type="text"
+              inputMode="decimal"
+              value={startText}
               placeholder="Start (s)"
               title="Point de départ en secondes (ex : 2.3)"
               className="h-8 text-xs"
               onChange={(e) => {
-                const raw = e.target.value.trim();
-                const n = parseFloat(raw);
-                onPatch({
-                  start: raw === "" || !Number.isFinite(n) || n <= 0 ? undefined : Math.min(maxTime, Math.round(n * 10) / 10),
-                });
+                setStartText(e.target.value);
+                onPatch({ start: parseTime(e.target.value, maxTime) });
               }}
+              onBlur={() => setStartText(item.start != null ? String(item.start) : "")}
             />
             <Input
-              type="number"
-              step="0.1"
-              min="0"
-              max={maxTime}
-              value={end ? String(end) : ""}
+              type="text"
+              inputMode="decimal"
+              value={endText}
               placeholder="End (s)"
               title="Point de fin en secondes (ex : 8.5)"
               className="h-8 text-xs"
               onChange={(e) => {
-                const raw = e.target.value.trim();
-                const n = parseFloat(raw);
-                onPatch({
-                  end: raw === "" || !Number.isFinite(n) || n <= 0 ? undefined : Math.min(maxTime, Math.round(n * 10) / 10),
-                });
+                setEndText(e.target.value);
+                onPatch({ end: parseTime(e.target.value, maxTime) });
               }}
+              onBlur={() => setEndText(item.end != null ? String(item.end) : "")}
             />
           </div>
+
           <div className="flex gap-1">
             <button
               type="button"
