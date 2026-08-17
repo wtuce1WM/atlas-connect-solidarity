@@ -39,7 +39,7 @@ import {
 } from "../_shared/ai-engine/routes/curated.ts";
 import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
 import { buildDestinationsBlock } from "../_shared/ai-engine/routes/destinations.ts";
-import { buildImmersiveLines } from "../_shared/ai-engine/routes/immersive.ts";
+import { buildImmersiveLines, buildImmersiveBlock } from "../_shared/ai-engine/routes/immersive.ts";
 import { buildEventsWeekendAnswer, buildEventsFilteredAnswer, fetchAgendaEvents, weekendWindow, eventsSnapshotMarker, priorEventsSnapshot } from "../_shared/ai-engine/routes/events.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
