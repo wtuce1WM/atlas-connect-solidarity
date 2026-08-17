@@ -379,6 +379,19 @@ Deno.serve(async (req) => {
         const scopeCity = resolveCityScope({ hostCity: host?.city, activeCity, explicitCity }) as string;
         cityDetected = scopeCity;
 
+        // Périmètre DESTINATION : « dans l'Atlas », « Vallée de l'Ourika », « Imlil »…
+        // ne sont pas des villes. Quand une destination curée est nommée, elle
+        // REMPLACE le périmètre ville (`_shared/ai-engine/destination-scope.ts`).
+        const destScope: DestinationScope | null = await detectExplicitDestination(admin, userMessage)
+          .catch(() => null);
+        if (destScope) {
+          console.log("[embed-ai-chat-v2] destination_scope", JSON.stringify({
+            id: destScope.id, name: destScope.name, matched: destScope.matched,
+          }));
+        }
+
+
+
         // Garde-fou concurrents : sur la surface embed, jamais un établissement de la
         // même catégorie / sous-catégorie que l'hôte (un riad ne montre pas de riads).
         competitorGuard = await buildCompetitorGuard(admin, host);
