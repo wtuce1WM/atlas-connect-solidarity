@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1849,
+  "numberOfItems": 1852,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -216,7 +216,7 @@
         "description": "Le nom « 1112 » revêt une profonde signification historique, puisant son origine dans la date islamique finement gravée sur son plafond en bois. Cette date correspond à l’an 1700 du calendrier grégorien, rendant hommage à la richesse de l’histoire et du patrimoine du riad. L’établissement lui-même reflète la beauté architecturale et la profondeur culturelle du Maroc, capturant l’essence de son époque. Le riad a fait l’objet d’une restauration méticuleuse menée par une famille marocaine réputée p",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "N° 12, Place de la Kissaria, Médina",
+          "streetAddress": "N° 12, Place de la Kissaria",
           "addressLocality": "Medina",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -229,8 +229,8 @@
         "telephone": "+212 524 441115",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.7,
-          "reviewCount": 1071,
+          "ratingValue": 4.6,
+          "reviewCount": 1454,
           "bestRating": 5
         }
       }
@@ -4671,7 +4671,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 70,
+          "reviewCount": 90,
           "bestRating": 5
         }
       }
@@ -8906,10 +8906,10 @@
         "name": "Dar El Bacha - Musée des Confluences",
         "url": "https://oneworldmorocco.com/dar-el-bacha-musee-des-confluences",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/137a1959-c7ea-4071-a479-edc6e0cf9c9d-img-0-1771767622195.webp",
-        "description": "Situé au cœur de la médina, Dar El Bacha – Musée des Confluences est l’un des lieux culturels les plus emblématiques de Marrakech. Ce somptueux palais, construit au début du XXe siècle, était autrefois la résidence du puissant pacha Thami El Glaoui, avant d’être transformé en musée en 2017. Dès l’entrée, le visiteur est plongé dans un univers architectural exceptionnel. Le palais s’organise autour d’un jardin central entouré de salons richement décorés, où se mêlent zelliges colorés, stucs cisel",
+        "description": "Un palais majestueux au cœur de la médina, où l’architecture marocaine, l’histoire et les arts se rencontrent. Situé au cœur de la médina, Dar El Bacha – Musée des Confluences est l’un des lieux culturels les plus emblématiques de Marrakech. Ce somptueux palais, construit au début du XXe siècle, était autrefois la résidence du puissant pacha Thami El Glaoui, avant d’être transformé en musée en 2017. Dès l’entrée, le visiteur est plongé dans un univers architectural exceptionnel. Le palais s’orga",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Dar El Bacha, Rue Fatima Zahra",
+          "streetAddress": "Rue Fatima Zahra",
           "addressLocality": "Medina",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -8922,7 +8922,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 2665,
+          "reviewCount": 3004,
           "bestRating": 5
         }
       }
@@ -10194,13 +10194,7 @@
           "latitude": 31.5222756,
           "longitude": -8.0573194
         },
-        "telephone": "+212 5 24 48 79 03",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.2,
-          "reviewCount": 72,
-          "bestRating": 5
-        }
+        "telephone": "+212 5 24 48 79 03"
       }
     },
     {
@@ -12919,7 +12913,7 @@
         "description": "Restaurant italien authentique à Marrakech spécialisé dans la pizza napolitaine artisanale. Pizzas élaborées à partir d'ingrédients frais et de saison, cuites à la perfection dans un four à bois traditionnel par un véritable maître pizzaiolo. Pâte fabriquée avec de l'eau filtrée, sans ingrédients surgelés. Service continu à partir de 12h. Notre passion pour l'authenticité Au cœur de notre philosophie se trouve un profond respect de la tradition. Dans notre restaurant, chaque pizza est cuite au f",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "30 Boulevard Moulay Rachid",
+          "streetAddress": "30 Bd Moulay Rachid",
           "addressLocality": "Gueliz",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -12933,7 +12927,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 1033,
+          "reviewCount": 1078,
           "bestRating": 5
         }
       }
@@ -14392,7 +14386,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.3,
-          "reviewCount": 3493,
+          "reviewCount": 3556,
           "bestRating": 5
         }
       }
@@ -14854,7 +14848,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 260,
+          "reviewCount": 291,
           "bestRating": 5
         }
       }
@@ -14998,7 +14992,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 245,
+          "reviewCount": 279,
           "bestRating": 5
         }
       }
@@ -16072,7 +16066,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 3.4,
-          "reviewCount": 163,
+          "reviewCount": 196,
           "bestRating": 5
         }
       }
@@ -19264,7 +19258,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 52,
+          "reviewCount": 57,
           "bestRating": 5
         }
       }
@@ -20394,7 +20388,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 65,
+          "reviewCount": 66,
           "bestRating": 5
         }
       }
@@ -21835,7 +21829,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 5864,
+          "reviewCount": 6025,
           "bestRating": 5
         }
       }
@@ -22776,7 +22770,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 259,
+          "reviewCount": 261,
           "bestRating": 5
         }
       }
@@ -23624,18 +23618,18 @@
     {
       "@type": "ListItem",
       "position": 807,
-      "url": "https://oneworldmorocco.com/monde-des-arts-de-la-parure-map",
+      "url": "https://oneworldmorocco.com/musee-des-arts-de-la-parure-map",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/monde-des-arts-de-la-parure-map#business",
+        "@id": "https://oneworldmorocco.com/musee-des-arts-de-la-parure-map#business",
         "name": "Monde des Arts de la Parure (MAP)",
-        "url": "https://oneworldmorocco.com/monde-des-arts-de-la-parure-map",
+        "url": "https://oneworldmorocco.com/musee-des-arts-de-la-parure-map",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1beba427-08aa-4aee-89b2-de3a6b7eef79-1774765569367-gq0zw.jpg",
-        "description": "Un lieu unique au cœur de la Kasbah de Marrakech pour révéler une collection constituée de parures, ornements, bijoux et autres vêtements d’apparat, mettant en valeur la richesse, la diversité et la singularité des centaines de territoires de plus de 50 pays. Venez découvrir tout ce que le MAP vous offre parmi un large éventail d’expériences que chaque membre de la famille peut apprécier. Le MAP à mis en place les mesures nécessaires afin que vous puissiez profiter de votre visite en toute confi",
+        "description": "Au cœur de la Kasbah de Marrakech , le Monde des Arts de la Parure (MAP) propose une immersion exceptionnelle dans l'univers du bijou, de l'ornement et des vêtements d'apparat. Bien plus qu'un simple musée, le MAP raconte les cultures du monde à travers ce que les femmes et les hommes ont choisi de porter, de transmettre et de préserver. Sa collection réunit près de 3 000 pièces , sélectionnées parmi quelque 7 000 objets collectés pendant plusieurs décennies par Marlène et Paolo Gallone : bijoux",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "39, 40 Ksibat Nhass",
-          "addressLocality": "Medina",
+          "addressLocality": "Kasbah",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
@@ -23648,7 +23642,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 1475,
+          "reviewCount": 1508,
           "bestRating": 5
         }
       }
@@ -23877,8 +23871,8 @@
         "telephone": "+212 (0)5 25 81 40 40",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.9,
-          "reviewCount": 194,
+          "ratingValue": 5,
+          "reviewCount": 203,
           "bestRating": 5
         }
       }
@@ -25199,7 +25193,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 824,
+          "reviewCount": 825,
           "bestRating": 5
         }
       }
@@ -25641,7 +25635,7 @@
         "name": "Musée du Parfum de Marrakech",
         "url": "https://oneworldmorocco.com/musee-du-parfum-de-marrakech",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/977033c1-c691-4796-bb42-d71bb101b8d8-1775237143769-s5z56.webp",
-        "description": "Situé dans un Riad du XIXème au cœur de la médina de Marrakech restauré en 2006 par le parfumeur Abderrazzak Benchaâbane, le musée du parfum propose de faire découvrir au visiteur l’univers de l’art des parfums. De la distillation à mise en flacon en passant par la composition à l’orgue à parfum, les diverses salles du musée décrivent les différentes étapes de transformation des matières premières rentrant dans la composition des parfums, des cosmétique et des produits du soin du corps et du bie",
+        "description": "Installé dans un magnifique riad du XIXe siècle au cœur de la médina de Marrakech , le Musée du Parfum propose une immersion originale dans l’art, l’histoire et les traditions olfactives du Maroc. Le lieu a été imaginé par le parfumeur et ethnobotaniste marocain Abderrazzak Benchaâbane . De la distillation des eaux florales à l’extraction des huiles végétales et essentielles, la visite révèle les matières premières, les gestes et les savoir-faire qui composent l’univers de la parfumerie marocain",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "2, Derb Chérif, Rue Diour Saboun",
@@ -25658,7 +25652,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.3,
-          "reviewCount": 632,
+          "reviewCount": 667,
           "bestRating": 5
         }
       }
@@ -25704,13 +25698,7 @@
         "url": "https://oneworldmorocco.com/my-butcher",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/9c447871-8c06-454c-98e6-1a87c27e7ed3-img-0-1771640723234.jpg",
         "description": "My Butcher sélectionne les meilleures viandes rouges (bœuf, agneau) et propose charcuterie artisanale, pièces d'exception maturées, packs barbecue et découpes sur mesure. Installés en Chaouia, région de tradition pastorale, ils travaillent en partenariat avec les meilleurs éleveurs du terroir marocain. Commande en ligne 24h/24, 7j/7 avec livraison réfrigérée le lendemain. Livraison gratuite dès 350 DHS. Votre meilleur choix pour la boucherie en ligne au Maroc My Butcher est la première boucherie",
-        "telephone": "+212 6 66 22 67 65",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.5,
-          "reviewCount": 39,
-          "bestRating": 5
-        }
+        "telephone": "+212 6 66 22 67 65"
       }
     },
     {
@@ -25868,7 +25856,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4,
-          "reviewCount": 5661,
+          "reviewCount": 5668,
           "bestRating": 5
         }
       }
@@ -26062,7 +26050,7 @@
         "description": "En matière de collections, la famille Bouskri œuvre depuis des décennies, parcourant le monde des ventes aux enchères et achetant directement auprès de collectionneurs, pour constituer une riche collection d'objets marocains. Désormais exposée aux Terrasses des Arts, cette collection soigneusement agencée se déploie sur trois salles qui mettent également en valeur l'artisanat marocain : carreaux de terre cuite découpés à la main au sol, plâtres sculptés à la main ornant les entrées et les murs, ",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "5 Derb L'Hôtel, Bab Doukkala",
+          "streetAddress": "5 Derb L'Hôtel",
           "addressLocality": "Bab Doukkala",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -26300,7 +26288,7 @@
         "description": "Transformez votre routine en voyage dans un sanctuaire privé pour les adeptes du bien-être, exclusif aux clients de l’hôtel. Découvrez une expérience d’entraînement de haut niveau, 24 heures sur 24 et 7 jours sur 7, dans le centre de remise en forme de l’hôtel, qui dispose d’équipements Technogym innovants, notamment des poids libres, des tapis de course, des elliptiques et des vélos cyclistes. Pour les clients qui préfèrent le fitness en groupe, rejoignez-nous dans le centre de fitness ou en pl",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "3 , Rue des Temples, quartier hivernage, L’Hivernage",
+          "streetAddress": "3 , Rue des Temples",
           "addressLocality": "Hivernage",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -26310,13 +26298,7 @@
           "latitude": 31.6223435,
           "longitude": -8.0007004
         },
-        "telephone": "+212 (0) 524 424 237",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.2,
-          "reviewCount": 910,
-          "bestRating": 5
-        }
+        "telephone": "+212 (0) 524 424 237"
       }
     },
     {
@@ -27174,7 +27156,6 @@
         "name": "Oberoi Fitness Center",
         "url": "https://oneworldmorocco.com/oberoi-fitness-center",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/900eda43-80ab-43da-9a7b-ce200feae39b-1772255494689-2c39d.webp",
-        "description": "Centre de remise en forme . Climatisé et équipé d'une gamme d'appareils de cardio-training et de musculation. Horaires : de 7h00 à 21h00",
         "geo": {
           "@type": "GeoCoordinates",
           "latitude": 31.61163,
@@ -27808,7 +27789,7 @@
         "description": "Original Marrakech est une marque familiale fondée par un couple de Bretons expatriés à Marrakech, spécialisée dans la création de paniers, corbeilles, chapeaux et pochettes 100% fait main, personnalisés à la broderie. a boutique physique \"Maison du Panier\" est située sous la célèbre Terrasse des Épices, au cœur de la médina (Souk Kisaria Cherifia). L'atelier de broderie propose aux visiteurs de personnaliser leur propre création sur place en 2 heures. La marque expédie ses produits dans le mond",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "N°15, RDC Boutique, 15 souk Cherifia, Rte Sidi Abdelaziz",
+          "streetAddress": "15 souk Cherifia",
           "addressLocality": "Medina",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -27822,7 +27803,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 487,
+          "reviewCount": 598,
           "bestRating": 5
         }
       }
@@ -28187,7 +28168,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 362,
+          "reviewCount": 375,
           "bestRating": 5
         }
       }
@@ -29162,7 +29143,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 4,
+          "reviewCount": 5,
           "bestRating": 5
         }
       }
@@ -30239,7 +30220,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 1656,
+          "reviewCount": 1722,
           "bestRating": 5
         }
       }
@@ -33333,12 +33314,12 @@
     {
       "@type": "ListItem",
       "position": 1137,
-      "url": "https://oneworldmorocco.com/riad-be-marrakech",
+      "url": "https://oneworldmorocco.com/be-marrakech",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/riad-be-marrakech#business",
+        "@id": "https://oneworldmorocco.com/be-marrakech#business",
         "name": "Riad BE Marrakech",
-        "url": "https://oneworldmorocco.com/riad-be-marrakech",
+        "url": "https://oneworldmorocco.com/be-marrakech",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e82366fa-18c6-409d-9e80-5ef6ff04e446-1779619544468-d1014b.jpg",
         "description": "Bienvenue dans la médina historique, cœur battant de Marrakech ! Un lieu riche en histoire, traditions, culture, art et artisanat, où passé et présent se côtoient harmonieusement. Notre riad se situe au cœur de ce paysage coloré. Nous y créons un lieu authentique et unique, imprégné d'histoire locale, de traditions, d'art et de gastronomie. Nous mettons en lumière la culture marocaine et vous ouvrons les portes de ce monde fascinant. Nous vous offrons un havre de paix loin de chez vous. Nos deux",
         "address": {
@@ -33356,7 +33337,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 286,
+          "reviewCount": 293,
           "bestRating": 5
         }
       }
@@ -33621,6 +33602,7 @@
         "name": "Sandwich Chez Hicham",
         "url": "https://oneworldmorocco.com/sandwich-chez-hicham",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/0849f730-c5dd-4ab2-841b-581d9d6a2975-1777805583889-wxyqk.jpg",
+        "description": "À Marrakech, regardez votre sandwich se préparer sous vos yeux… puis goûtez l'une des adresse street food les plus populaires de la médina. Au cœur de la médina de Marrakech, Sandwich Chez Hicham est devenu une adresse incontournable pour goûter à une véritable street food marrakchie , simple, généreuse et particulièrement accessible. L'adresse affiche actuellement 4,8/5 pour environ 340 avis sur Google. La spécialité maison ? De généreux sandwichs préparés devant vous , dans un pain marocain ro",
         "geo": {
           "@type": "GeoCoordinates",
           "latitude": 31.6269725,
@@ -33629,7 +33611,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 322,
+          "reviewCount": 340,
           "bestRating": 5
         }
       }
@@ -34372,7 +34354,7 @@
         "description": "Le restaurant Shams, situé sur la terrasse jardin du Musée Le Monde des Arts de la Parure (Le MAP) à Marrakech, offre une expérience culinaire unique mettant en avant une cuisine levantine et méditerranéenne. L'ambiance est chaleureuse et conviviale, avec une décoration moderne et élégante qui s'harmonise avec le cadre verdoyant des jardins et des monuments mythiques environnants. Vue panoramique sur les alentours. Au menu : trio de houmous, taboulé libanais, baba ghannouj, bagels burgers, cockt",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "39-40 Rue Touareg, Ksibat Nhas, Medina",
+          "streetAddress": "39-40 Rue Touareg, Ksibat Nhas",
           "addressLocality": "Medina",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -34386,7 +34368,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 129,
+          "reviewCount": 156,
           "bestRating": 5
         }
       }
@@ -34649,7 +34631,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 9,
+          "reviewCount": 8,
           "bestRating": 5
         }
       }
@@ -39656,8 +39638,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 5,
-          "reviewCount": 211,
+          "ratingValue": 4.9,
+          "reviewCount": 226,
           "bestRating": 5
         }
       }
@@ -40907,7 +40889,7 @@
         "name": "Musée Farid Belkahia",
         "url": "https://oneworldmorocco.com/musee-farid-belkahia",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/526bac50-22a9-4060-9c33-95414f1e8204-1780926099312-8rls3q.jpg",
-        "description": "Installée dans la maison-atelier de Farid Belkahia, la Fondation préserve son héritage artistique et spirituel. Elle est pensée comme un espace de mémoire vivante, ouverte sur le monde et le dialogue des cultures. De l’atelier à l’exposition, la Fondation cultive la mémoire et le geste. Elle accueille chercheurs, artistes et publics pour faire vivre une œuvre toujours en mouvement. La Fondation veille sur l’œuvre et les archives de Farid Belkahia, pour transmettre un patrimoine ouvert à tous. El",
+        "description": "Au cœur de la Palmeraie de Marrakech, le Musée Farid Belkahia est installé dans la maison-atelier où l’artiste a travaillé pendant près de trente ans. La Fondation Farid Belkahia, créée en 2015, y préserve et transmet l’œuvre de l’un des grands pionniers de la modernité artistique marocaine. Visiter ce lieu, c’est donc découvrir simultanément l’artiste, ses œuvres et l’espace intime dans lequel sa recherche artistique s’est développée . Né à Marrakech en 1934, Farid Belkahia a profondément renou",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Dar Tounsi",
@@ -43465,7 +43447,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 37,
+          "reviewCount": 40,
           "bestRating": 5
         }
       }
@@ -44361,9 +44343,11 @@
         "name": "Gravity Park Marrakech",
         "url": "https://oneworldmorocco.com/gravity-park-marrakech",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b7f4bfa1-f44b-461a-8d59-6b2f2c5b4c82-1780294339179-smr3b8.jpg",
+        "description": "Le nouveau terrain de jeu de Marrakech : sensations, glisse, réalité virtuelle et défis à partager en famille ou entre amis. À Marrakech, Gravity Park réunit dans un même lieu une impressionnante collection d’expériences immersives et sportives. Bien plus qu’un simple parc de loisirs, c’est un véritable espace de divertissement nouvelle génération , pensé pour les familles, les groupes, les amis et les événements. Le parc propose notamment le Jump Park , un espace indoor de 1 000 m² avec trampol",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Bd de Casablanca",
+          "addressLocality": "Route d'Amizmiz",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
@@ -44375,7 +44359,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 746,
+          "reviewCount": 875,
           "bestRating": 5
         }
       }
@@ -45295,7 +45279,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 7,
+          "reviewCount": 10,
           "bestRating": 5
         }
       }
@@ -46527,6 +46511,7 @@
         "name": "Snack Jad",
         "url": "https://oneworldmorocco.com/snack-jad",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/8032edb1-7b40-4643-8bc4-b2f07ca8df4f-1780643108414-s8x0il.webp",
+        "description": "À quelques pas de la Place Jemaa el Fna , Snack Jad est une petite adresse de restauration rapide qui mise sur une cuisine simple, généreuse et accessible. Son spécialité phare est clairement le shawarma , particulièrement apprécié par les clients, aux côtés du poulet grillé, des kebabs, tacos, sandwichs et viandes hachées. L'adresse séduit surtout par son excellent rapport qualité-prix : les avis mentionnent régulièrement des portions savoureuses, des prix très abordables et un accueil chaleure",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "33 Rue Tachenbacht",
@@ -46542,7 +46527,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 256,
+          "reviewCount": 258,
           "bestRating": 5
         }
       }
@@ -46863,7 +46848,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 58,
+          "reviewCount": 60,
           "bestRating": 5
         }
       }
@@ -47345,6 +47330,38 @@
     {
       "@type": "ListItem",
       "position": 1647,
+      "url": "https://oneworldmorocco.com/la-terrasse-des-epices",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/la-terrasse-des-epices#business",
+        "name": "La Terrasse des Épices",
+        "url": "https://oneworldmorocco.com/la-terrasse-des-epices",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/4b64b926-24ff-4a04-a6c1-22fd9e024476-img-0-1771824047077.jpg",
+        "description": "Depuis 2007 , La Terrasse des Épices s’est imposée comme l’une des adresses les plus en vogue de la ville ocre. Installé au cœur de la Médina , ce restaurant de plein air réunit dans un même lieu tout ce qui fait le charme de Marrakech : un accueil chaleureux et élégant, une cuisine généreuse, un panorama exceptionnel et une atmosphère qui évolue au fil de la journée. La cuisine propose une fusion marocaine et méditerranéenne , en mettant à l’honneur les grandes spécialités de Marrakech et les p",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "15, Souk Cherifia",
+          "addressLocality": "Medina",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6312246,
+          "longitude": -7.9888194
+        },
+        "telephone": "+212 5 24 37 59 04",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.4,
+          "reviewCount": 4790,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1648,
       "url": "https://oneworldmorocco.com/morocco-nomads-by-travelbase",
       "item": {
         "@type": "LocalBusiness",
@@ -47363,7 +47380,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1648,
+      "position": 1649,
       "url": "https://oneworldmorocco.com/koulchi-pop",
       "item": {
         "@type": "LocalBusiness",
@@ -47386,7 +47403,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1649,
+      "position": 1650,
       "url": "https://oneworldmorocco.com/pickalbatros-hotel-du-golf",
       "item": {
         "@type": "LocalBusiness",
@@ -47411,7 +47428,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1650,
+      "position": 1651,
       "url": "https://oneworldmorocco.com/riad-brummell-medina",
       "item": {
         "@type": "LocalBusiness",
@@ -47443,7 +47460,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1651,
+      "position": 1652,
       "url": "https://oneworldmorocco.com/mellow-beach-house",
       "item": {
         "@type": "LocalBusiness",
@@ -47474,7 +47491,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1652,
+      "position": 1653,
       "url": "https://oneworldmorocco.com/medina-plaster-art",
       "item": {
         "@type": "LocalBusiness",
@@ -47505,7 +47522,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1653,
+      "position": 1654,
       "url": "https://oneworldmorocco.com/brunch-co",
       "item": {
         "@type": "LocalBusiness",
@@ -47535,7 +47552,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1654,
+      "position": 1655,
       "url": "https://oneworldmorocco.com/ancienne-sucrerie-d-ida-ougourd",
       "item": {
         "@type": "LocalBusiness",
@@ -47558,7 +47575,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1655,
+      "position": 1656,
       "url": "https://oneworldmorocco.com/chez-ali-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -47590,7 +47607,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1656,
+      "position": 1657,
       "url": "https://oneworldmorocco.com/arbaa-ida-ougourd",
       "item": {
         "@type": "LocalBusiness",
@@ -47614,7 +47631,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1657,
+      "position": 1658,
       "url": "https://oneworldmorocco.com/ain-lahjar",
       "item": {
         "@type": "LocalBusiness",
@@ -47638,7 +47655,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1658,
+      "position": 1659,
       "url": "https://oneworldmorocco.com/la-villa-sauvage",
       "item": {
         "@type": "LocalBusiness",
@@ -47669,7 +47686,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1659,
+      "position": 1660,
       "url": "https://oneworldmorocco.com/dar-volubilis",
       "item": {
         "@type": "LocalBusiness",
@@ -47692,7 +47709,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1660,
+      "position": 1661,
       "url": "https://oneworldmorocco.com/villa-nour-essaouira",
       "item": {
         "@type": "LocalBusiness",
@@ -47723,7 +47740,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1661,
+      "position": 1662,
       "url": "https://oneworldmorocco.com/tissa",
       "item": {
         "@type": "LocalBusiness",
@@ -47747,7 +47764,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1662,
+      "position": 1663,
       "url": "https://oneworldmorocco.com/kaouki-lodge",
       "item": {
         "@type": "LocalBusiness",
@@ -47778,7 +47795,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1663,
+      "position": 1664,
       "url": "https://oneworldmorocco.com/villa-des-hauts-mogador",
       "item": {
         "@type": "LocalBusiness",
@@ -47808,7 +47825,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1664,
+      "position": 1665,
       "url": "https://oneworldmorocco.com/entrecote-baguette-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -47838,7 +47855,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1665,
+      "position": 1666,
       "url": "https://oneworldmorocco.com/villa-tayoukhte-surf-house",
       "item": {
         "@type": "LocalBusiness",
@@ -47862,7 +47879,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1666,
+      "position": 1667,
       "url": "https://oneworldmorocco.com/alma-co",
       "item": {
         "@type": "LocalBusiness",
@@ -47893,7 +47910,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1667,
+      "position": 1668,
       "url": "https://oneworldmorocco.com/dar-lawama",
       "item": {
         "@type": "LocalBusiness",
@@ -47923,7 +47940,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1668,
+      "position": 1669,
       "url": "https://oneworldmorocco.com/donkey-village",
       "item": {
         "@type": "LocalBusiness",
@@ -47954,7 +47971,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1669,
+      "position": 1670,
       "url": "https://oneworldmorocco.com/the-sou9-shop",
       "item": {
         "@type": "LocalBusiness",
@@ -47984,7 +48001,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1670,
+      "position": 1671,
       "url": "https://oneworldmorocco.com/mama-souiri-hotel",
       "item": {
         "@type": "LocalBusiness",
@@ -48014,7 +48031,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1671,
+      "position": 1672,
       "url": "https://oneworldmorocco.com/la-cabane-de-pecheur-chez-hafid",
       "item": {
         "@type": "LocalBusiness",
@@ -48044,7 +48061,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1672,
+      "position": 1673,
       "url": "https://oneworldmorocco.com/bistro-azro",
       "item": {
         "@type": "LocalBusiness",
@@ -48068,7 +48085,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1673,
+      "position": 1674,
       "url": "https://oneworldmorocco.com/villa-chill-swell",
       "item": {
         "@type": "LocalBusiness",
@@ -48099,7 +48116,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1674,
+      "position": 1675,
       "url": "https://oneworldmorocco.com/ocean-vibes-surf-club",
       "item": {
         "@type": "LocalBusiness",
@@ -48123,7 +48140,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1675,
+      "position": 1676,
       "url": "https://oneworldmorocco.com/different-essaouira",
       "item": {
         "@type": "LocalBusiness",
@@ -48148,7 +48165,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1676,
+      "position": 1677,
       "url": "https://oneworldmorocco.com/complexe-artisanat-essaouira",
       "item": {
         "@type": "LocalBusiness",
@@ -48179,7 +48196,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1677,
+      "position": 1678,
       "url": "https://oneworldmorocco.com/marrakech-typic-store",
       "item": {
         "@type": "LocalBusiness",
@@ -48210,7 +48227,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1678,
+      "position": 1679,
       "url": "https://oneworldmorocco.com/l-atelier-la-famille-essaouira",
       "item": {
         "@type": "LocalBusiness",
@@ -48227,7 +48244,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1679,
+      "position": 1680,
       "url": "https://oneworldmorocco.com/ali-baba-infinity",
       "item": {
         "@type": "LocalBusiness",
@@ -48251,7 +48268,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1680,
+      "position": 1681,
       "url": "https://oneworldmorocco.com/marche-centrale-ibn-toumert",
       "item": {
         "@type": "LocalBusiness",
@@ -48274,7 +48291,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1681,
+      "position": 1682,
       "url": "https://oneworldmorocco.com/mama-lova-hotel-riad-restaurant-spa",
       "item": {
         "@type": "LocalBusiness",
@@ -48306,7 +48323,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1682,
+      "position": 1683,
       "url": "https://oneworldmorocco.com/ranch-berbere",
       "item": {
         "@type": "LocalBusiness",
@@ -48330,7 +48347,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1683,
+      "position": 1684,
       "url": "https://oneworldmorocco.com/riad-al-madina",
       "item": {
         "@type": "LocalBusiness",
@@ -48361,7 +48378,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1684,
+      "position": 1685,
       "url": "https://oneworldmorocco.com/les-jardins-de-silona",
       "item": {
         "@type": "LocalBusiness",
@@ -48391,7 +48408,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1685,
+      "position": 1686,
       "url": "https://oneworldmorocco.com/maison-sidi-et-lalla",
       "item": {
         "@type": "LocalBusiness",
@@ -48415,7 +48432,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1686,
+      "position": 1687,
       "url": "https://oneworldmorocco.com/folks-clans-studio-store",
       "item": {
         "@type": "LocalBusiness",
@@ -48446,7 +48463,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1687,
+      "position": 1688,
       "url": "https://oneworldmorocco.com/rkia-ait-blal-haute-couture",
       "item": {
         "@type": "LocalBusiness",
@@ -48477,7 +48494,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1688,
+      "position": 1689,
       "url": "https://oneworldmorocco.com/boucherie-grill-nacer",
       "item": {
         "@type": "LocalBusiness",
@@ -48500,7 +48517,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1689,
+      "position": 1690,
       "url": "https://oneworldmorocco.com/giugiu",
       "item": {
         "@type": "LocalBusiness",
@@ -48523,7 +48540,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1690,
+      "position": 1691,
       "url": "https://oneworldmorocco.com/riad-dar-massai",
       "item": {
         "@type": "LocalBusiness",
@@ -48552,7 +48569,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1691,
+      "position": 1692,
       "url": "https://oneworldmorocco.com/sozi-cookies",
       "item": {
         "@type": "LocalBusiness",
@@ -48576,7 +48593,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1692,
+      "position": 1693,
       "url": "https://oneworldmorocco.com/le-petit-hotel-du-flouk",
       "item": {
         "@type": "LocalBusiness",
@@ -48606,7 +48623,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1693,
+      "position": 1694,
       "url": "https://oneworldmorocco.com/plaza-gueliz",
       "item": {
         "@type": "LocalBusiness",
@@ -48629,7 +48646,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1694,
+      "position": 1695,
       "url": "https://oneworldmorocco.com/riad-fabiola-et-spa",
       "item": {
         "@type": "LocalBusiness",
@@ -48660,7 +48677,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1695,
+      "position": 1696,
       "url": "https://oneworldmorocco.com/riad-dar-housnia",
       "item": {
         "@type": "LocalBusiness",
@@ -48684,14 +48701,14 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 56,
+          "reviewCount": 57,
           "bestRating": 5
         }
       }
     },
     {
       "@type": "ListItem",
-      "position": 1696,
+      "position": 1697,
       "url": "https://oneworldmorocco.com/la-siredrah",
       "item": {
         "@type": "LocalBusiness",
@@ -48716,7 +48733,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1697,
+      "position": 1698,
       "url": "https://oneworldmorocco.com/four-seasons-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -48748,7 +48765,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1698,
+      "position": 1699,
       "url": "https://oneworldmorocco.com/shtatto",
       "item": {
         "@type": "LocalBusiness",
@@ -48779,7 +48796,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1699,
+      "position": 1700,
       "url": "https://oneworldmorocco.com/riad-citrus",
       "item": {
         "@type": "LocalBusiness",
@@ -48810,7 +48827,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1700,
+      "position": 1701,
       "url": "https://oneworldmorocco.com/les-roses-by-la-siredrah",
       "item": {
         "@type": "LocalBusiness",
@@ -48841,7 +48858,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1701,
+      "position": 1702,
       "url": "https://oneworldmorocco.com/park-hyatt-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -48859,14 +48876,14 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 332,
+          "reviewCount": 348,
           "bestRating": 5
         }
       }
     },
     {
       "@type": "ListItem",
-      "position": 1702,
+      "position": 1703,
       "url": "https://oneworldmorocco.com/surftwins-essaouira",
       "item": {
         "@type": "LocalBusiness",
@@ -48883,14 +48900,14 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 570,
+          "reviewCount": 572,
           "bestRating": 5
         }
       }
     },
     {
       "@type": "ListItem",
-      "position": 1703,
+      "position": 1704,
       "url": "https://oneworldmorocco.com/villa-riad-lys",
       "item": {
         "@type": "LocalBusiness",
@@ -48920,7 +48937,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1704,
+      "position": 1705,
       "url": "https://oneworldmorocco.com/misk-villas",
       "item": {
         "@type": "LocalBusiness",
@@ -48945,7 +48962,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1705,
+      "position": 1706,
       "url": "https://oneworldmorocco.com/kasbah-agounsane-spa",
       "item": {
         "@type": "LocalBusiness",
@@ -48976,7 +48993,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1706,
+      "position": 1707,
       "url": "https://oneworldmorocco.com/soleil-restaurant",
       "item": {
         "@type": "LocalBusiness",
@@ -49006,7 +49023,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1707,
+      "position": 1708,
       "url": "https://oneworldmorocco.com/al-jannah-villa-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -49029,7 +49046,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1708,
+      "position": 1709,
       "url": "https://oneworldmorocco.com/restaurant-la-paix",
       "item": {
         "@type": "LocalBusiness",
@@ -49052,7 +49069,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1709,
+      "position": 1710,
       "url": "https://oneworldmorocco.com/rive-du-lac",
       "item": {
         "@type": "LocalBusiness",
@@ -49076,7 +49093,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1710,
+      "position": 1711,
       "url": "https://oneworldmorocco.com/villa-des-3-golfs",
       "item": {
         "@type": "LocalBusiness",
@@ -49100,7 +49117,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1711,
+      "position": 1712,
       "url": "https://oneworldmorocco.com/riad-dar-shala",
       "item": {
         "@type": "LocalBusiness",
@@ -49131,7 +49148,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1712,
+      "position": 1713,
       "url": "https://oneworldmorocco.com/riad-la-porte-rouge",
       "item": {
         "@type": "LocalBusiness",
@@ -49162,7 +49179,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1713,
+      "position": 1714,
       "url": "https://oneworldmorocco.com/plage-d-imsouane",
       "item": {
         "@type": "LocalBusiness",
@@ -49185,7 +49202,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1714,
+      "position": 1715,
       "url": "https://oneworldmorocco.com/le-slimana",
       "item": {
         "@type": "LocalBusiness",
@@ -49216,7 +49233,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1715,
+      "position": 1716,
       "url": "https://oneworldmorocco.com/hotel-villa-soleil",
       "item": {
         "@type": "LocalBusiness",
@@ -49239,7 +49256,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1716,
+      "position": 1717,
       "url": "https://oneworldmorocco.com/ocean-by-la-siredrah",
       "item": {
         "@type": "LocalBusiness",
@@ -49262,7 +49279,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1717,
+      "position": 1718,
       "url": "https://oneworldmorocco.com/riad-assouel",
       "item": {
         "@type": "LocalBusiness",
@@ -49293,7 +49310,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1718,
+      "position": 1719,
       "url": "https://oneworldmorocco.com/hotel-dar-boujdaa",
       "item": {
         "@type": "LocalBusiness",
@@ -49316,7 +49333,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1719,
+      "position": 1720,
       "url": "https://oneworldmorocco.com/izofun",
       "item": {
         "@type": "LocalBusiness",
@@ -49347,7 +49364,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1720,
+      "position": 1721,
       "url": "https://oneworldmorocco.com/picknick-cafe",
       "item": {
         "@type": "LocalBusiness",
@@ -49377,7 +49394,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1721,
+      "position": 1722,
       "url": "https://oneworldmorocco.com/marche-au-poisson-medina-essaouira",
       "item": {
         "@type": "LocalBusiness",
@@ -49402,7 +49419,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1722,
+      "position": 1723,
       "url": "https://oneworldmorocco.com/jardin-d-hiver",
       "item": {
         "@type": "LocalBusiness",
@@ -49434,7 +49451,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1723,
+      "position": 1724,
       "url": "https://oneworldmorocco.com/eden-lodges-spa",
       "item": {
         "@type": "LocalBusiness",
@@ -49465,7 +49482,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1724,
+      "position": 1725,
       "url": "https://oneworldmorocco.com/maison-k",
       "item": {
         "@type": "LocalBusiness",
@@ -49489,7 +49506,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1725,
+      "position": 1726,
       "url": "https://oneworldmorocco.com/tfaya",
       "item": {
         "@type": "LocalBusiness",
@@ -49513,7 +49530,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1726,
+      "position": 1727,
       "url": "https://oneworldmorocco.com/villa-marco",
       "item": {
         "@type": "LocalBusiness",
@@ -49543,7 +49560,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1727,
+      "position": 1728,
       "url": "https://oneworldmorocco.com/la-ferme-el-dar",
       "item": {
         "@type": "LocalBusiness",
@@ -49574,7 +49591,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1728,
+      "position": 1729,
       "url": "https://oneworldmorocco.com/erg-chebbi",
       "item": {
         "@type": "LocalBusiness",
@@ -49597,7 +49614,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1729,
+      "position": 1730,
       "url": "https://oneworldmorocco.com/plateau-du-kik",
       "item": {
         "@type": "LocalBusiness",
@@ -49621,7 +49638,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1730,
+      "position": 1731,
       "url": "https://oneworldmorocco.com/billystays",
       "item": {
         "@type": "LocalBusiness",
@@ -49652,7 +49669,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1731,
+      "position": 1732,
       "url": "https://oneworldmorocco.com/les-jardins-de-kesali",
       "item": {
         "@type": "LocalBusiness",
@@ -49683,7 +49700,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1732,
+      "position": 1733,
       "url": "https://oneworldmorocco.com/plage-de-taghazout",
       "item": {
         "@type": "LocalBusiness",
@@ -49707,7 +49724,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1733,
+      "position": 1734,
       "url": "https://oneworldmorocco.com/anzar",
       "item": {
         "@type": "LocalBusiness",
@@ -49730,7 +49747,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1734,
+      "position": 1735,
       "url": "https://oneworldmorocco.com/villa-minzah",
       "item": {
         "@type": "LocalBusiness",
@@ -49748,7 +49765,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1735,
+      "position": 1736,
       "url": "https://oneworldmorocco.com/bab-akoul-atlas",
       "item": {
         "@type": "LocalBusiness",
@@ -49779,7 +49796,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1736,
+      "position": 1737,
       "url": "https://oneworldmorocco.com/the-sun-set-rooftop",
       "item": {
         "@type": "LocalBusiness",
@@ -49810,12 +49827,12 @@
     },
     {
       "@type": "ListItem",
-      "position": 1737,
+      "position": 1738,
       "url": "https://oneworldmorocco.com/mamma-napolitana",
       "item": {
         "@type": "LocalBusiness",
         "@id": "https://oneworldmorocco.com/mamma-napolitana#business",
-        "name": "Mamma Napolitana",
+        "name": "SB Forno Mamma Napolitana",
         "url": "https://oneworldmorocco.com/mamma-napolitana",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/10311a19-755a-49b2-a2ed-e2d30e5a69f4-1781771644848-lzt8f9.jpg",
         "description": "Excellente pizza napolitaine, service impeccable et prix justes pour la qualité ; une pizzeria remarquable à Gueliz, à l’ambiance chaleureuse et proposant des options végétariennes. Mamma Napolitana incarne l'excellence grâce à une qualité culinaire exceptionnelle, ancrée dans la tradition napolitaine. Les avis client louent unanimement la pâte, la cuisson au feu de bois et la fraîcheur des ingrédients. Un service attentionné et constant confirme sa réputation parmi les meilleures adresses de Ma",
@@ -49828,20 +49845,14 @@
         },
         "geo": {
           "@type": "GeoCoordinates",
-          "latitude": 31.6434855,
-          "longitude": -8.0188004
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.9,
-          "reviewCount": 440,
-          "bestRating": 5
+          "latitude": 31.6377311,
+          "longitude": -8.0164223
         }
       }
     },
     {
       "@type": "ListItem",
-      "position": 1738,
+      "position": 1739,
       "url": "https://oneworldmorocco.com/gym-spa-pickalbatros-palmeraie",
       "item": {
         "@type": "LocalBusiness",
@@ -49865,7 +49876,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1739,
+      "position": 1740,
       "url": "https://oneworldmorocco.com/aqua-fun-resort-hotel",
       "item": {
         "@type": "LocalBusiness",
@@ -49897,7 +49908,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1740,
+      "position": 1741,
       "url": "https://oneworldmorocco.com/beach-mama-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -49927,7 +49938,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1741,
+      "position": 1742,
       "url": "https://oneworldmorocco.com/the-farmhouse-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -49959,7 +49970,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1742,
+      "position": 1743,
       "url": "https://oneworldmorocco.com/le-tanjia",
       "item": {
         "@type": "LocalBusiness",
@@ -49990,7 +50001,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1743,
+      "position": 1744,
       "url": "https://oneworldmorocco.com/dar-rhizlane",
       "item": {
         "@type": "LocalBusiness",
@@ -50021,7 +50032,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1744,
+      "position": 1745,
       "url": "https://oneworldmorocco.com/ferme-sidi-safou",
       "item": {
         "@type": "LocalBusiness",
@@ -50032,7 +50043,7 @@
         "description": "Une véritable havre de paix à Marrakech Oasis paisible et authentique située en pleine campagne à 15 km du centre ville, avec 20 min de route dont 1,5 km de piste et à 15 min de l’aéroport Marrakech Menara . Elle présente une décoration somptueuse, raffinée, créée par des artisans marocains. Faisant face aux magnifiques sommets enneigés du Mont Atlas, cette ferme authentique vous accueille dans son monde magique et luxueux. Vous pouvez vous ressourcer, vous évader et profiter des plaisirs de la ",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Village Omina Hiba, Saada",
+          "streetAddress": "Omina Hiba, Saada",
           "addressLocality": "Route d'Amizmiz",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -50045,14 +50056,14 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 126,
+          "reviewCount": 125,
           "bestRating": 5
         }
       }
     },
     {
       "@type": "ListItem",
-      "position": 1745,
+      "position": 1746,
       "url": "https://oneworldmorocco.com/villas-selman",
       "item": {
         "@type": "LocalBusiness",
@@ -50084,7 +50095,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1746,
+      "position": 1747,
       "url": "https://oneworldmorocco.com/kasbah-du-toubkal",
       "item": {
         "@type": "LocalBusiness",
@@ -50108,7 +50119,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1747,
+      "position": 1748,
       "url": "https://oneworldmorocco.com/musta-s-apartments",
       "item": {
         "@type": "LocalBusiness",
@@ -50138,7 +50149,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1748,
+      "position": 1749,
       "url": "https://oneworldmorocco.com/restaurant-assyl",
       "item": {
         "@type": "LocalBusiness",
@@ -50163,14 +50174,14 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 82,
+          "reviewCount": 96,
           "bestRating": 5
         }
       }
     },
     {
       "@type": "ListItem",
-      "position": 1749,
+      "position": 1750,
       "url": "https://oneworldmorocco.com/mb-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -50201,7 +50212,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1750,
+      "position": 1751,
       "url": "https://oneworldmorocco.com/cooperative-artisanale-art-tissage-tam",
       "item": {
         "@type": "LocalBusiness",
@@ -50231,7 +50242,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1751,
+      "position": 1752,
       "url": "https://oneworldmorocco.com/bab-akoul-palmeraie",
       "item": {
         "@type": "LocalBusiness",
@@ -50262,7 +50273,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1752,
+      "position": 1753,
       "url": "https://oneworldmorocco.com/bakkal-farm-lodge-restaurant",
       "item": {
         "@type": "LocalBusiness",
@@ -50293,7 +50304,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1753,
+      "position": 1754,
       "url": "https://oneworldmorocco.com/smile-park",
       "item": {
         "@type": "LocalBusiness",
@@ -50323,7 +50334,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1754,
+      "position": 1755,
       "url": "https://oneworldmorocco.com/palais-royal",
       "item": {
         "@type": "LocalBusiness",
@@ -50346,7 +50357,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1755,
+      "position": 1756,
       "url": "https://oneworldmorocco.com/djebel-toubkal",
       "item": {
         "@type": "LocalBusiness",
@@ -50369,7 +50380,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1756,
+      "position": 1757,
       "url": "https://oneworldmorocco.com/bnin-essaouira",
       "item": {
         "@type": "LocalBusiness",
@@ -50392,7 +50403,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1757,
+      "position": 1758,
       "url": "https://oneworldmorocco.com/riad-miloud",
       "item": {
         "@type": "LocalBusiness",
@@ -50423,7 +50434,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1758,
+      "position": 1759,
       "url": "https://oneworldmorocco.com/villas-du-domaine-du-douar",
       "item": {
         "@type": "LocalBusiness",
@@ -50455,7 +50466,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1759,
+      "position": 1760,
       "url": "https://oneworldmorocco.com/palais-dar-sultan",
       "item": {
         "@type": "LocalBusiness",
@@ -50478,7 +50489,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1760,
+      "position": 1761,
       "url": "https://oneworldmorocco.com/bab-aghmat",
       "item": {
         "@type": "LocalBusiness",
@@ -50501,7 +50512,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1761,
+      "position": 1762,
       "url": "https://oneworldmorocco.com/nature-by-mokhtar",
       "item": {
         "@type": "LocalBusiness",
@@ -50525,7 +50536,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1762,
+      "position": 1763,
       "url": "https://oneworldmorocco.com/jardin-ocre-1",
       "item": {
         "@type": "LocalBusiness",
@@ -50557,7 +50568,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1763,
+      "position": 1764,
       "url": "https://oneworldmorocco.com/hotel-miramar",
       "item": {
         "@type": "LocalBusiness",
@@ -50588,7 +50599,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1764,
+      "position": 1765,
       "url": "https://oneworldmorocco.com/les-jardins-de-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -50611,7 +50622,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1765,
+      "position": 1766,
       "url": "https://oneworldmorocco.com/touhina-playa-beach-club",
       "item": {
         "@type": "LocalBusiness",
@@ -50642,7 +50653,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1766,
+      "position": 1767,
       "url": "https://oneworldmorocco.com/le-parc-des-oliviers-ecolodge",
       "item": {
         "@type": "LocalBusiness",
@@ -50673,7 +50684,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1767,
+      "position": 1768,
       "url": "https://oneworldmorocco.com/cantobar-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -50704,7 +50715,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1768,
+      "position": 1769,
       "url": "https://oneworldmorocco.com/riad-jnane-el-karma",
       "item": {
         "@type": "LocalBusiness",
@@ -50728,7 +50739,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1769,
+      "position": 1770,
       "url": "https://oneworldmorocco.com/le-jardin-du-safran",
       "item": {
         "@type": "LocalBusiness",
@@ -50752,7 +50763,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1770,
+      "position": 1771,
       "url": "https://oneworldmorocco.com/fondation-montresso",
       "item": {
         "@type": "LocalBusiness",
@@ -50783,7 +50794,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1771,
+      "position": 1772,
       "url": "https://oneworldmorocco.com/ourika-oufla",
       "item": {
         "@type": "LocalBusiness",
@@ -50814,7 +50825,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1772,
+      "position": 1773,
       "url": "https://oneworldmorocco.com/les-jardins-de-taja",
       "item": {
         "@type": "LocalBusiness",
@@ -50845,7 +50856,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1773,
+      "position": 1774,
       "url": "https://oneworldmorocco.com/dar-arraha-ouirgane",
       "item": {
         "@type": "LocalBusiness",
@@ -50875,7 +50886,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1774,
+      "position": 1775,
       "url": "https://oneworldmorocco.com/flash-ride",
       "item": {
         "@type": "LocalBusiness",
@@ -50892,7 +50903,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1775,
+      "position": 1776,
       "url": "https://oneworldmorocco.com/ourika-park-ferme-pedagogique",
       "item": {
         "@type": "LocalBusiness",
@@ -50915,7 +50926,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1776,
+      "position": 1777,
       "url": "https://oneworldmorocco.com/quad-lac-et-desert",
       "item": {
         "@type": "LocalBusiness",
@@ -50946,7 +50957,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1777,
+      "position": 1778,
       "url": "https://oneworldmorocco.com/dar-lemon-dar-palm",
       "item": {
         "@type": "LocalBusiness",
@@ -50977,7 +50988,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1778,
+      "position": 1779,
       "url": "https://oneworldmorocco.com/le-labo-africain",
       "item": {
         "@type": "LocalBusiness",
@@ -51008,7 +51019,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1779,
+      "position": 1780,
       "url": "https://oneworldmorocco.com/dar-imiri",
       "item": {
         "@type": "LocalBusiness",
@@ -51038,7 +51049,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1780,
+      "position": 1781,
       "url": "https://oneworldmorocco.com/palais-namaskar",
       "item": {
         "@type": "LocalBusiness",
@@ -51069,7 +51080,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1781,
+      "position": 1782,
       "url": "https://oneworldmorocco.com/la-secret-beach",
       "item": {
         "@type": "LocalBusiness",
@@ -51086,14 +51097,14 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 747,
+          "reviewCount": 782,
           "bestRating": 5
         }
       }
     },
     {
       "@type": "ListItem",
-      "position": 1782,
+      "position": 1783,
       "url": "https://oneworldmorocco.com/berber-family-lodge",
       "item": {
         "@type": "LocalBusiness",
@@ -51123,7 +51134,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1783,
+      "position": 1784,
       "url": "https://oneworldmorocco.com/back-to-the-80-s",
       "item": {
         "@type": "LocalBusiness",
@@ -51153,7 +51164,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1784,
+      "position": 1785,
       "url": "https://oneworldmorocco.com/atelier-44-marrakech-gueliz",
       "item": {
         "@type": "LocalBusiness",
@@ -51184,7 +51195,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1785,
+      "position": 1786,
       "url": "https://oneworldmorocco.com/seafood-corner",
       "item": {
         "@type": "LocalBusiness",
@@ -51215,7 +51226,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1786,
+      "position": 1787,
       "url": "https://oneworldmorocco.com/le-mango",
       "item": {
         "@type": "LocalBusiness",
@@ -51239,7 +51250,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1787,
+      "position": 1788,
       "url": "https://oneworldmorocco.com/restaurant-keltoum",
       "item": {
         "@type": "LocalBusiness",
@@ -51270,7 +51281,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1788,
+      "position": 1789,
       "url": "https://oneworldmorocco.com/2cv-marrakech-tour",
       "item": {
         "@type": "LocalBusiness",
@@ -51294,7 +51305,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1789,
+      "position": 1790,
       "url": "https://oneworldmorocco.com/hostel-riad-maqam",
       "item": {
         "@type": "LocalBusiness",
@@ -51317,7 +51328,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1790,
+      "position": 1791,
       "url": "https://oneworldmorocco.com/nectarome-m-avenue",
       "item": {
         "@type": "LocalBusiness",
@@ -51347,7 +51358,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1791,
+      "position": 1792,
       "url": "https://oneworldmorocco.com/chill-art-hostel",
       "item": {
         "@type": "LocalBusiness",
@@ -51378,7 +51389,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1792,
+      "position": 1793,
       "url": "https://oneworldmorocco.com/urban-padel-pharma",
       "item": {
         "@type": "LocalBusiness",
@@ -51409,7 +51420,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1793,
+      "position": 1794,
       "url": "https://oneworldmorocco.com/atlantic-hostel",
       "item": {
         "@type": "LocalBusiness",
@@ -51440,7 +51451,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1794,
+      "position": 1795,
       "url": "https://oneworldmorocco.com/morocco-sotheby-s-international-realty",
       "item": {
         "@type": "LocalBusiness",
@@ -51472,7 +51483,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1795,
+      "position": 1796,
       "url": "https://oneworldmorocco.com/palmiya-fun-and-water-land",
       "item": {
         "@type": "LocalBusiness",
@@ -51503,7 +51514,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1796,
+      "position": 1797,
       "url": "https://oneworldmorocco.com/alibaba-quad-essaouira",
       "item": {
         "@type": "LocalBusiness",
@@ -51527,7 +51538,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1797,
+      "position": 1798,
       "url": "https://oneworldmorocco.com/demeures-d-orient-riad-spa",
       "item": {
         "@type": "LocalBusiness",
@@ -51558,7 +51569,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1798,
+      "position": 1799,
       "url": "https://oneworldmorocco.com/atelier-44-m-avenue",
       "item": {
         "@type": "LocalBusiness",
@@ -51589,7 +51600,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1799,
+      "position": 1800,
       "url": "https://oneworldmorocco.com/thai-foot-massage",
       "item": {
         "@type": "LocalBusiness",
@@ -51620,7 +51631,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1800,
+      "position": 1801,
       "url": "https://oneworldmorocco.com/salut-maroc-luxury-boutique-hotel-restaurant",
       "item": {
         "@type": "LocalBusiness",
@@ -51652,7 +51663,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1801,
+      "position": 1802,
       "url": "https://oneworldmorocco.com/la-danse-des-saveurs",
       "item": {
         "@type": "LocalBusiness",
@@ -51664,7 +51675,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1802,
+      "position": 1803,
       "url": "https://oneworldmorocco.com/urban-padel-royal",
       "item": {
         "@type": "LocalBusiness",
@@ -51695,7 +51706,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1803,
+      "position": 1804,
       "url": "https://oneworldmorocco.com/la-famille-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -51726,7 +51737,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1804,
+      "position": 1805,
       "url": "https://oneworldmorocco.com/marrakech-green-wheels",
       "item": {
         "@type": "LocalBusiness",
@@ -51757,7 +51768,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1805,
+      "position": 1806,
       "url": "https://oneworldmorocco.com/club-abraj-atlas-d-equitation",
       "item": {
         "@type": "LocalBusiness",
@@ -51780,7 +51791,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1806,
+      "position": 1807,
       "url": "https://oneworldmorocco.com/riad-bab-essaouira-essaouira",
       "item": {
         "@type": "LocalBusiness",
@@ -51812,7 +51823,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1807,
+      "position": 1808,
       "url": "https://oneworldmorocco.com/dar-loulema",
       "item": {
         "@type": "LocalBusiness",
@@ -51843,7 +51854,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1808,
+      "position": 1809,
       "url": "https://oneworldmorocco.com/riad-lunetoile-essaouira",
       "item": {
         "@type": "LocalBusiness",
@@ -51875,7 +51886,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1809,
+      "position": 1810,
       "url": "https://oneworldmorocco.com/residence-louzani-hotel-appartement",
       "item": {
         "@type": "LocalBusiness",
@@ -51899,7 +51910,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1810,
+      "position": 1811,
       "url": "https://oneworldmorocco.com/nectarome-almazar",
       "item": {
         "@type": "LocalBusiness",
@@ -51930,7 +51941,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1811,
+      "position": 1812,
       "url": "https://oneworldmorocco.com/n-a-r-complexe-sportif",
       "item": {
         "@type": "LocalBusiness",
@@ -51954,7 +51965,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1812,
+      "position": 1813,
       "url": "https://oneworldmorocco.com/casa-b-mogador",
       "item": {
         "@type": "LocalBusiness",
@@ -51986,7 +51997,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1813,
+      "position": 1814,
       "url": "https://oneworldmorocco.com/moga-hostel",
       "item": {
         "@type": "LocalBusiness",
@@ -52017,7 +52028,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1814,
+      "position": 1815,
       "url": "https://oneworldmorocco.com/marrakesh-timbuktu",
       "item": {
         "@type": "LocalBusiness",
@@ -52048,7 +52059,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1815,
+      "position": 1816,
       "url": "https://oneworldmorocco.com/maison-honore",
       "item": {
         "@type": "LocalBusiness",
@@ -52056,7 +52067,7 @@
         "name": "Maison Honoré",
         "url": "https://oneworldmorocco.com/maison-honore",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/9be57e82-6f9b-4176-9495-3f992fc9899c-1781780105448-jcgpk.jpg",
-        "description": "\"Maison Honore vous reçoit pour partager bien plus qu’un repas dans un cadre somptueux pour une expérience gastronomique riche en saveurs.\" Bienvenue chez Maison Honoré, un restaurant Desserts d'exception à Marrakech. Installé à JXQH+JWR, Maison Honoré vous invite à un véritable voyage culinaire au plaisir Desserts. Entre recettes traditionnelles, ingrédients authentiques et savoir-faire passionné, chaque produit raconte une histoire unique. Que vous soyez amateur de gastronomie ou curieux de ",
+        "description": "À Guéliz, près du Lycée Victor Hugo, Maison Honoré est une adresse gourmande qui réunit boulangerie, pâtisserie, café et restaurant dans un même lieu. Une adresse idéale pour commencer la journée autour d’un petit-déjeuner, faire une pause café ou s’attabler pour un déjeuner gourmand. La carte mêle douceurs, viennoiseries, pâtisseries et propositions salées : salades, tartines, pâtes, plats et formules déjeuner. On y trouve également des boissons chaudes, smoothies, mocktails et autres rafraîchi",
         "geo": {
           "@type": "GeoCoordinates",
           "latitude": 31.6390415,
@@ -52065,14 +52076,14 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 271,
+          "reviewCount": 285,
           "bestRating": 5
         }
       }
     },
     {
       "@type": "ListItem",
-      "position": 1816,
+      "position": 1817,
       "url": "https://oneworldmorocco.com/le-jardin-de-l-hivernage",
       "item": {
         "@type": "LocalBusiness",
@@ -52104,7 +52115,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1817,
+      "position": 1818,
       "url": "https://oneworldmorocco.com/koubba-almoravide",
       "item": {
         "@type": "LocalBusiness",
@@ -52135,7 +52146,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1818,
+      "position": 1819,
       "url": "https://oneworldmorocco.com/riad-sakkan",
       "item": {
         "@type": "LocalBusiness",
@@ -52166,7 +52177,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1819,
+      "position": 1820,
       "url": "https://oneworldmorocco.com/izza-marrakech-museum-in-the-medina",
       "item": {
         "@type": "LocalBusiness",
@@ -52198,7 +52209,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1820,
+      "position": 1821,
       "url": "https://oneworldmorocco.com/maison-250",
       "item": {
         "@type": "LocalBusiness",
@@ -52229,7 +52240,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1821,
+      "position": 1822,
       "url": "https://oneworldmorocco.com/leopard-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -52260,7 +52271,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1822,
+      "position": 1823,
       "url": "https://oneworldmorocco.com/oakberry-acai-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -52291,7 +52302,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1823,
+      "position": 1824,
       "url": "https://oneworldmorocco.com/les-bains-d-azahara-1",
       "item": {
         "@type": "LocalBusiness",
@@ -52321,7 +52332,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1824,
+      "position": 1825,
       "url": "https://oneworldmorocco.com/essaouira-yoga-experiences",
       "item": {
         "@type": "LocalBusiness",
@@ -52351,7 +52362,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1825,
+      "position": 1826,
       "url": "https://oneworldmorocco.com/nectarome",
       "item": {
         "@type": "LocalBusiness",
@@ -52376,7 +52387,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1826,
+      "position": 1827,
       "url": "https://oneworldmorocco.com/la-terrasse-du-jardin",
       "item": {
         "@type": "LocalBusiness",
@@ -52407,7 +52418,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1827,
+      "position": 1828,
       "url": "https://oneworldmorocco.com/driba-coffee-club",
       "item": {
         "@type": "LocalBusiness",
@@ -52437,7 +52448,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1828,
+      "position": 1829,
       "url": "https://oneworldmorocco.com/les-bains-kenaria",
       "item": {
         "@type": "LocalBusiness",
@@ -52461,7 +52472,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1829,
+      "position": 1830,
       "url": "https://oneworldmorocco.com/fer-7-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -52491,7 +52502,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1830,
+      "position": 1831,
       "url": "https://oneworldmorocco.com/mpv-location-de-villas-luxe-a-marrakech-location-riad-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -52522,7 +52533,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1831,
+      "position": 1832,
       "url": "https://oneworldmorocco.com/boutique-24-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -52553,7 +52564,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1832,
+      "position": 1833,
       "url": "https://oneworldmorocco.com/salut-maroc-rooftop-restaurant-bar",
       "item": {
         "@type": "LocalBusiness",
@@ -52585,7 +52596,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1833,
+      "position": 1834,
       "url": "https://oneworldmorocco.com/kensington-morocco-luxury-properties",
       "item": {
         "@type": "LocalBusiness",
@@ -52617,7 +52628,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1834,
+      "position": 1835,
       "url": "https://oneworldmorocco.com/naneakite",
       "item": {
         "@type": "LocalBusiness",
@@ -52649,7 +52660,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1835,
+      "position": 1836,
       "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arab",
       "item": {
         "@type": "LocalBusiness",
@@ -52681,7 +52692,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1836,
+      "position": 1837,
       "url": "https://oneworldmorocco.com/rooftop-dardar",
       "item": {
         "@type": "LocalBusiness",
@@ -52713,7 +52724,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1837,
+      "position": 1838,
       "url": "https://oneworldmorocco.com/chaabi-payment",
       "item": {
         "@type": "LocalBusiness",
@@ -52726,7 +52737,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1838,
+      "position": 1839,
       "url": "https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain-1",
       "item": {
         "@type": "LocalBusiness",
@@ -52758,7 +52769,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1839,
+      "position": 1840,
       "url": "https://oneworldmorocco.com/un-the-au-bout-du-monde-mirleft",
       "item": {
         "@type": "LocalBusiness",
@@ -52770,7 +52781,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1840,
+      "position": 1841,
       "url": "https://oneworldmorocco.com/les-sens-de-marrakech-eshop",
       "item": {
         "@type": "LocalBusiness",
@@ -52794,7 +52805,39 @@
     },
     {
       "@type": "ListItem",
-      "position": 1841,
+      "position": 1842,
+      "url": "https://oneworldmorocco.com/musee-des-arts-de-la-parure-map",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/musee-des-arts-de-la-parure-map#business",
+        "name": "Monde des Arts de la Parure (MAP)",
+        "url": "https://oneworldmorocco.com/musee-des-arts-de-la-parure-map",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1beba427-08aa-4aee-89b2-de3a6b7eef79-1774765569367-gq0zw.jpg",
+        "description": "Au cœur de la Kasbah de Marrakech , le Monde des Arts de la Parure (MAP) propose une immersion exceptionnelle dans l'univers du bijou, de l'ornement et des vêtements d'apparat. Bien plus qu'un simple musée, le MAP raconte les cultures du monde à travers ce que les femmes et les hommes ont choisi de porter, de transmettre et de préserver. Sa collection réunit près de 3 000 pièces , sélectionnées parmi quelque 7 000 objets collectés pendant plusieurs décennies par Marlène et Paolo Gallone : bijoux",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "39, 40 Ksibat Nhass",
+          "addressLocality": "Kasbah",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6186532,
+          "longitude": -7.9879852
+        },
+        "telephone": "+212808658561",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.9,
+          "reviewCount": 1508,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1843,
       "url": "https://oneworldmorocco.com/makassar-marrakech-restaurant",
       "item": {
         "@type": "LocalBusiness",
@@ -52820,7 +52863,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1842,
+      "position": 1844,
       "url": "https://oneworldmorocco.com/nona-s-table",
       "item": {
         "@type": "LocalBusiness",
@@ -52832,7 +52875,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1843,
+      "position": 1845,
       "url": "https://oneworldmorocco.com/bab-doukkala-1",
       "item": {
         "@type": "LocalBusiness",
@@ -52863,7 +52906,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1844,
+      "position": 1846,
       "url": "https://oneworldmorocco.com/pikala",
       "item": {
         "@type": "LocalBusiness",
@@ -52889,7 +52932,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1845,
+      "position": 1847,
       "url": "https://oneworldmorocco.com/villa-jmajorelle",
       "item": {
         "@type": "LocalBusiness",
@@ -52900,7 +52943,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1846,
+      "position": 1848,
       "url": "https://oneworldmorocco.com/elevate-cycle",
       "item": {
         "@type": "LocalBusiness",
@@ -52931,7 +52974,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1847,
+      "position": 1849,
       "url": "https://oneworldmorocco.com/la-grande-table-marocaine-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -52963,7 +53006,38 @@
     },
     {
       "@type": "ListItem",
-      "position": 1848,
+      "position": 1850,
+      "url": "https://oneworldmorocco.com/be-marrakech",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/be-marrakech#business",
+        "name": "Riad BE Marrakech",
+        "url": "https://oneworldmorocco.com/be-marrakech",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e82366fa-18c6-409d-9e80-5ef6ff04e446-1779619544468-d1014b.jpg",
+        "description": "Bienvenue dans la médina historique, cœur battant de Marrakech ! Un lieu riche en histoire, traditions, culture, art et artisanat, où passé et présent se côtoient harmonieusement. Notre riad se situe au cœur de ce paysage coloré. Nous y créons un lieu authentique et unique, imprégné d'histoire locale, de traditions, d'art et de gastronomie. Nous mettons en lumière la culture marocaine et vous ouvrons les portes de ce monde fascinant. Nous vous offrons un havre de paix loin de chez vous. Nos deux",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "23 Derb Sidi Lahcen O Ali",
+          "addressLocality": "Bab Doukkala",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6329048,
+          "longitude": -7.9958762
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.6,
+          "reviewCount": 293,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1851,
       "url": "https://oneworldmorocco.com/m-avenue-1",
       "item": {
         "@type": "LocalBusiness",
@@ -52995,7 +53069,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1849,
+      "position": 1852,
       "url": "https://oneworldmorocco.com/pc-gamer-maroc",
       "item": {
         "@type": "LocalBusiness",
