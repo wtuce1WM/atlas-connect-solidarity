@@ -1840,9 +1840,13 @@ export const Storyboard: React.FC<StoryboardProps> = (props) => {
     return { key: `${section.step_type}-${i}`, section, from, frames };
   });
 
+  const totalFrames = Math.max(1, cursor);
+  const boundaries = plans.slice(1).map((pl) => pl.from);
+
   return (
     <AbsoluteFill style={{ background: palette.night }}>
       <AbsoluteFill>
+        <EffectsContext.Provider value={p.effects ?? null}>
         <FeedMotionBlurWrapper effects={p.effects ?? null}>
         <div
           style={{
@@ -1859,7 +1863,7 @@ export const Storyboard: React.FC<StoryboardProps> = (props) => {
             flexShrink: 0,
           }}
         >
-          {plans.map((plan) => {
+          {plans.map((plan, index) => {
             // Héritage : `config.effects` de l'étape surcharge seulement les
             // accents du montage (voir STEP_EFFECT_KEYS).
             const stepEffects = mergeEffects(
@@ -1869,28 +1873,34 @@ export const Storyboard: React.FC<StoryboardProps> = (props) => {
             const voice = voiceOf(plan.section.config ?? {});
             const voiceSrc = voice ? assetUrl(voice.url) : null;
             const voiceFrom = voice ? Math.round(voice.delaySec * STORYBOARD_FPS) : 0;
+            const voiceFrames = Math.max(1, plan.frames - voiceFrom);
             return (
               <Sequence key={plan.key} from={plan.from} durationInFrames={plan.frames} layout="none">
-                <VoiceDuckContext.Provider value={voiceSrc ? voice!.duckBg : 1}>
-                  <SectionScene wide={wide} p={p} section={plan.section} />
-                </VoiceDuckContext.Provider>
+                <SectionTransitionWrapper effects={p.effects ?? null} index={index}>
+                  <VoiceDuckContext.Provider value={voiceSrc ? voice!.duckBg : 1}>
+                    <SectionScene wide={wide} p={p} section={plan.section} />
+                  </VoiceDuckContext.Provider>
+                </SectionTransitionWrapper>
                 {stepEffects && <FeedEffectsOverlay effects={{ ...stepEffects, motionBlur: false }} />}
                 {voiceSrc && (
                   <Sequence
                     from={Math.min(voiceFrom, Math.max(0, plan.frames - 1))}
-                    durationInFrames={Math.max(1, plan.frames - voiceFrom)}
+                    durationInFrames={voiceFrames}
                     layout="none"
                   >
-                    <Audio src={voiceSrc} volume={voice!.gain} />
+                    <Audio src={voiceSrc} volume={audioFadeVolume(p.effects ?? null, voice!.gain, voiceFrames)} />
                   </Sequence>
                 )}
               </Sequence>
             );
           })}
 
+          <SimpleFadesOverlay effects={p.effects ?? null} boundaries={boundaries} totalFrames={totalFrames} />
         </div>
         </FeedMotionBlurWrapper>
+        </EffectsContext.Provider>
       </AbsoluteFill>
     </AbsoluteFill>
   );
+
 };
