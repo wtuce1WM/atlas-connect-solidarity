@@ -395,7 +395,7 @@ Deno.serve(async (req) => {
 
             const wanted = normalize(userMessage);
             const kept = nb
-              ? filterPoolByNeighborhood(pool as any[], nb)
+              ? filterPoolByNeighborhood(pool as any[], nb, { strict: true })
               : (pool as any[]).filter((b) => normalize(String(b?.neighborhood || "")) === wanted);
             const label = nb?.name || userMessage.trim();
             route = "discover";
