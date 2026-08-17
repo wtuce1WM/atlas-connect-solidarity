@@ -642,6 +642,11 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         // Les vidéos externes (YouTube / TikTok / Instagram) ne sont pas des fichiers
         // téléchargeables : le moteur de rendu ne peut pas les monter → jamais affichées.
         .filter((m) => (m.kind === "video" ? isInternalVideoUrl(m.url) : true))
+        // Les vidéos marquées « no_logo » (titre, URL ou libellé) ne sont jamais montables ici.
+        .filter((m) => {
+          const hay = `${m.title ?? ""} ${m.url} ${(m.badges ?? []).join(" ")}`.toLowerCase().replace(/[\s-]+/g, "_");
+          return !hay.includes("no_logo");
+        })
         .filter((m) => {
           const k = m.url.trim().toLowerCase();
           if (seen.has(k)) return false;
