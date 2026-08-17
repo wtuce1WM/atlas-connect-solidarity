@@ -9,6 +9,7 @@
 //
 // Règle : quand une cible curatée existe, ni le classifieur ni le résolveur
 // taxonomique ne doivent pouvoir la remplacer ou la « compléter ».
+import { scrubNomadRows } from "../nomad-scope.ts";
 import { stripText } from "./nearby.ts";
 import { CTA_SELECT_FIELDS, ctaFieldsOf } from "./shared.ts";
 import { buildImmersiveLines } from "./immersive.ts";
@@ -329,7 +330,8 @@ export type CuratedAnswer = {
 
 
 function mapBusinessesOf(list: any[]) {
-  return list.map((b: any) => ({
+  // « Hors les murs » (Maps désactivée) : ni coordonnées, ni quartier.
+  return scrubNomadRows(list).map((b: any) => ({
     id: b.id, slug: b.slug, name: b.name, city: b.city, neighborhood: b.neighborhood,
     address: b.address ?? null, main_category: b.main_category,
     categories: Array.isArray(b.categories) ? b.categories : [],

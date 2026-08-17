@@ -2,6 +2,7 @@
 // Aucune réécriture : le rendu est déjà validé en production.
 
 import { normalize, haversineKmLocal, toMapMarker, fmtKm, FS_EMOJI, FS_I18N } from "./shared.ts";
+import { scrubNomadRows } from "../nomad-scope.ts";
 
 export function isNearbyOverviewIntent(text: string, hostName?: string): boolean {
   const q = String(text ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
@@ -435,7 +436,7 @@ export async function buildPoiNearby(
 
 
   // Emit a SHOW_ON_MAP-compatible payload so the frontend renders the horizontal thumbnails carousel + "View on map".
-  const mapBusinesses = nearby.slice(0, 20).map((p: any) => ({
+  const mapBusinesses = scrubNomadRows(nearby.slice(0, 20)).map((p: any) => ({
     id: p.id,
     slug: p.slug,
     name: p.name,
