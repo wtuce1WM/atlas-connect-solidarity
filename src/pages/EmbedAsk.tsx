@@ -1886,8 +1886,8 @@ const EmbedAsk = () => {
                 <EmbedWeatherWidget
                   data={weatherPayload}
                   lang={lang}
-                  surface={(bgInk ?? (theme === "dark" ? "light" : "dark")) === "light" ? "rgba(23,23,23,0.72)" : ""}
-                  ink={bgInk ?? (theme === "dark" ? "light" : "dark")}
+                  surface={theme === "dark" ? "rgba(23,23,23,0.72)" : ""}
+                  ink={theme === "dark" ? "light" : "dark"}
                 />
               )}
 
