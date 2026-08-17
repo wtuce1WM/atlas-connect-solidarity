@@ -642,6 +642,11 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         // Les vidéos externes (YouTube / TikTok / Instagram) ne sont pas des fichiers
         // téléchargeables : le moteur de rendu ne peut pas les monter → jamais affichées.
         .filter((m) => (m.kind === "video" ? isInternalVideoUrl(m.url) : true))
+        // Les vidéos marquées « no_logo » (titre, URL ou libellé) ne sont jamais montables ici.
+        .filter((m) => {
+          const hay = `${m.title ?? ""} ${m.url} ${(m.badges ?? []).join(" ")}`.toLowerCase().replace(/[\s-]+/g, "_");
+          return !hay.includes("no_logo");
+        })
         .filter((m) => {
           const k = m.url.trim().toLowerCase();
           if (seen.has(k)) return false;
@@ -688,6 +693,13 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
           if (m.mediaId && byDoc.has(String(m.mediaId))) m.badges = byDoc.get(String(m.mediaId));
         }
       }
+
+      // Exclusion « no_logo » après hydratation des badges (un badge no_logo est aussi exclu).
+      const cleaned = deduped.filter(
+        (m) => !(m.badges ?? []).some((b) => b.toLowerCase().replace(/[\s-]+/g, "_").includes("no_logo")),
+      );
+      deduped.length = 0;
+      deduped.push(...cleaned);
 
 
       // Détection réelle des orientations (images + vidéos internes) pour le filtre 16:9.
