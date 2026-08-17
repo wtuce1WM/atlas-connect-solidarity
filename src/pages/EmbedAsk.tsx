@@ -998,6 +998,7 @@ const EmbedAsk = () => {
   const sendDestinationScope = (chip: { id: string; name: string }) => {
     if (streaming || !businessName) return;
     setError(null);
+    lastLocalFilterRef.current = null;
     messageIndexRef.current += 1;
     setActiveSuggestionId(null);
     sendMessage(
