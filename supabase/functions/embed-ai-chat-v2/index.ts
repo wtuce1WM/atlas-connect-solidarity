@@ -1484,7 +1484,11 @@ Deno.serve(async (req) => {
             if (results.length) {
               destinationBlock = [
                 destinationIntro(destScope, lang, totalFound),
-                buildImmersiveLines(results, lang as any),
+                await buildImmersiveBlock(results, lang as any, {
+                  admin,
+                  query: userMessage,
+                  apiKey: LOVABLE_API_KEY,
+                }).catch(() => buildImmersiveLines(results, lang as any)),
               ].filter((p) => p && String(p).trim()).join("\n\n");
             }
             console.log("[embed-ai-chat-v2] destination_search", JSON.stringify({
