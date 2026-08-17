@@ -37,7 +37,10 @@ let cache: { at: number; dests: any[]; cityNames: Set<string> } | null = null;
 async function loadVocabulary(admin: any) {
   if (cache && Date.now() - cache.at < 5 * 60_000) return cache;
   const [{ data: dests }, { data: cities }] = await Promise.all([
-    admin.from("destinations").select("id, name_fr, name_en, name_ar, latitude, longitude"),
+    admin
+      .from("destinations")
+      .select("id, name_fr, name_en, name_ar, keywords, latitude, longitude")
+      .eq("is_searchable", true),
     admin.from("cities").select("name_fr, name_en, name_ar"),
   ]);
   const cityNames = new Set<string>();
@@ -53,7 +56,9 @@ async function loadVocabulary(admin: any) {
 
 /**
  * Détecte une destination explicitement nommée dans le message.
- * Libellé le plus long d'abord (« Médina de Marrakech » avant « Marrakech »),
+ * Vocabulaire = noms FR/EN/AR + `keywords` (alias pilotés en back-office :
+ * c'est là qu'on rattache « atlas » à « Montagnes de l'Atlas »).
+ * Libellé le plus long d'abord (« Médina de Marrakech » avant « Médina »),
  * correspondance sur mots entiers, villes exclues.
  */
 export async function detectExplicitDestination(
@@ -66,7 +71,11 @@ export async function detectExplicitDestination(
     const { dests, cityNames } = await loadVocabulary(admin);
     const entries: Array<{ row: any; label: string; nn: string }> = [];
     for (const row of dests) {
-      for (const label of [row?.name_fr, row?.name_en, row?.name_ar]) {
+      const labels = [
+        row?.name_fr, row?.name_en, row?.name_ar,
+        ...(Array.isArray(row?.keywords) ? row.keywords : []),
+      ];
+      for (const label of labels) {
         const nn = norm(label);
         if (nn.length < 4 || cityNames.has(nn)) continue;
         entries.push({ row, label: String(label), nn });
@@ -88,6 +97,7 @@ export async function detectExplicitDestination(
     console.warn("[ai-engine/destination-scope] detect failed", String(err));
   }
   return null;
+
 }
 
 const CARD_FIELDS =
