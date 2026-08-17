@@ -1092,6 +1092,7 @@ export function VideoMediaPickerDialog({
                   {allFicheVideosSelected ? "Tout désélectionner" : `Tout sélectionner (${ficheVideoUrls.length})`}
                 </Button>
               )}
+              {sourceFilter === "other" && (
               <div className="relative">
                 <Input
                   value={slugQuery}
