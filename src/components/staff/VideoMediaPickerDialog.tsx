@@ -1223,6 +1223,32 @@ export function VideoMediaPickerDialog({
                 <option value="render_feed">Rendus · Scénario Feed ({counts.renderFeed})</option>
                 <option value="render_promo">Rendus · Promo business ({counts.renderPromo})</option>
               </select>
+              <select
+                value={formatFilter}
+                onChange={(e) => setFormatFilter(e.target.value as typeof formatFilter)}
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+                title="Filtrer par format"
+              >
+                <option value="all">Tous les formats ({formatCounts.all})</option>
+                <option value="landscape">Paysage 16:9 ({formatCounts.landscape})</option>
+                <option value="portrait">Portrait 9:16 ({formatCounts.portrait})</option>
+                <option value="square">Carré 1:1 ({formatCounts.square})</option>
+              </select>
+              {badgeOptions.length > 0 && (
+                <select
+                  value={badgeFilter}
+                  onChange={(e) => setBadgeFilter(e.target.value)}
+                  className="h-8 rounded-md border bg-background px-2 text-xs"
+                  title="Filtrer par badge"
+                >
+                  <option value="all">Tous les badges ({badgeOptions.length})</option>
+                  {badgeOptions.map(([b, n]) => (
+                    <option key={b} value={b}>
+                      {b} ({n})
+                    </option>
+                  ))}
+                </select>
+              )}
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
