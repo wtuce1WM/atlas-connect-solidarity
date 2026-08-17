@@ -570,6 +570,8 @@ Deno.serve(async (req) => {
                 : `📍 ${seen} adresses affichées sur ${poolIds.length}${restAfter > 0 ? ` — je te montre les ${restAfter} dernières ?` : "."}`;
             const built = await buildPinnedAnswer(admin, batch, host, lang, null, {
               route: "pool_more", heading, outro, total: poolIds.length, poolIds, competitorGuard,
+              // Lot suivant : même corpus éditorial étendu, sans nouvel appel modèle.
+              immersive: { admin, query: userMessage, rewrite: false },
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] pool_more_failed", String(e));
               return null;
