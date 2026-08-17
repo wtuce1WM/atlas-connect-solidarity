@@ -1210,6 +1210,7 @@ const EmbedAsk = () => {
     setOpenBusinessId(null);
     setActiveSuggestionId(null);
     setUsedFollowupIds([]);
+    setUsedHostBadges([]);
     pendingSendRef.current = pending || null;
 
     setChatKey((k) => k + 1); // resets useChat id → clears message list
