@@ -372,8 +372,8 @@ export async function buildOpenFilter(admin: any, ids: string[], intent: OpenFil
     : lang === "ar" ? `تم التصفية إلى **${ordered.length}** نتيجة ${label}:`
     : `Filtré : **${ordered.length}** résultat${ordered.length > 1 ? "s" : ""} ${label} :`;
   const outro = skipped > 0
-    ? (lang === "en" ? `\n\n_(${skipped} excluded: hours not published or closed.)_`
-      : lang === "ar" ? `\n\n_(${skipped} مستبعدة: الساعات غير منشورة أو مغلقة.)_`
+    ? (lang === "en" ? `\n\n_(${skipped} excluded: closed at this time.)_`
+      : lang === "ar" ? `\n\n_(${skipped} مستبعدة: مغلقة في هذا الوقت.)_`
       : `\n\n_(${skipped} exclu${skipped > 1 ? "s" : ""} : fermé à cet horaire.)_`)
     : "";
   return `${intro}\n\n${lines.join("\n")}${outro}${toMapMarker(ordered)}`;
