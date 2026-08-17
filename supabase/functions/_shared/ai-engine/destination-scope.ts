@@ -22,7 +22,12 @@ export interface DestinationScope {
   longitude: number | null;
   /** Libellé effectivement reconnu dans le message. */
   matched: string;
+  /** Éditorial back-office (accroche), localisé. */
+  hook?: string | null;
+  /** Éditorial back-office (description), localisé. */
+  description?: string | null;
 }
+
 
 const norm = (s: unknown) =>
   String(s ?? "")
