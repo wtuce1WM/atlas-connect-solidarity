@@ -2187,8 +2187,8 @@ const EmbedAsk = () => {
                   <button
                     type="button"
                     onClick={() => setOpenMap(mapReplayTarget)}
-                    style={AI_NAME_FONT}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                    style={{ ...AI_NAME_FONT, ...mapBadgeStyle }}
+                    className="text-xs px-3 py-1.5 rounded-full border transition-opacity inline-flex items-center gap-1.5 font-bold hover:opacity-90"
                   >
                     <MapPin className="w-3.5 h-3.5" />
                     {lang === "en" ? "On a map" : lang === "ar" ? "على الخريطة" : "Sur une carte"}
@@ -2198,8 +2198,8 @@ const EmbedAsk = () => {
                   <button
                     type="button"
                     onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
-                    style={AI_NAME_FONT}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                    style={{ ...AI_NAME_FONT, ...moreBadgeStyle }}
+                    className="text-xs px-3 py-1.5 rounded-full border transition-opacity inline-flex items-center gap-1.5 font-bold hover:opacity-90"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`}
@@ -2290,20 +2290,9 @@ const EmbedAsk = () => {
                     {c.name} · {c.count}
                   </button>
                 ))}
-                {localFilters.neighborhoods.map((nb) => (
-                  <button
-                    key={nb.name}
-                    type="button"
-                    onClick={() => sendLocalFilter(nb.name, "neighborhood_filter")}
-                    style={AI_NAME_FONT}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
-                  >
-                    <Building2 className="w-3.5 h-3.5" />
-                    {nb.name} · {nb.count}
-                  </button>
-                ))}
                 {/* Relances hôte dynamiques : remplacent les 4 relances back-office
-                    (météo, POI liés, aperçu à proximité, que faire sur place). */}
+                    (météo, POI liés, aperçu à proximité, que faire sur place).
+                    Positionnées avant les badges de quartiers. */}
                 {!usedHostBadges.includes("weather") && businessCity && (
                   <button
                     type="button"
@@ -2346,7 +2335,7 @@ const EmbedAsk = () => {
                     className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
                   >
                     <Compass className="w-3.5 h-3.5" />
-                    {lang === "en" ? "Nearby" : lang === "ar" ? "قريب" : "À proximité"}
+                    {lang === "en" ? "Other activities nearby" : lang === "ar" ? "أنشطة أخرى قريبة" : "Autres activités à proximité"}
                   </button>
                 )}
                 {!usedHostBadges.includes("things_to_do") && (
@@ -2364,6 +2353,18 @@ const EmbedAsk = () => {
                     {lang === "en" ? "Things to do" : lang === "ar" ? "ماذا نفعل" : "Que faire sur place"}
                   </button>
                 )}
+                {localFilters.neighborhoods.map((nb) => (
+                  <button
+                    key={nb.name}
+                    type="button"
+                    onClick={() => sendLocalFilter(nb.name, "neighborhood_filter")}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <Building2 className="w-3.5 h-3.5" />
+                    {nb.name} · {nb.count}
+                  </button>
+                ))}
               </>
             )}
           </div>
