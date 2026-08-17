@@ -1544,9 +1544,19 @@ Deno.serve(async (req) => {
         // Une catégorie inventée par le classifieur (« activite ») ne suffit pas :
         // c'est elle qui déclenchait une recherche ville entière hors sujet.
         // ── Autorité « nom propre » : une demande nominative prime sur la taxonomie ──
-        const nameHit = await matchBusinessNameInMessage(admin, userMessage).catch(() => null);
-        if (nameHit) {
-          console.log("[embed-ai-chat-v2] name_authority", nameHit.name);
+        const nameCandidate = await matchBusinessNameInMessage(admin, userMessage, [
+          ...strongTerms, ...specializingTerms, ...expansionTerms,
+        ].filter(Boolean) as string[]).catch(() => null);
+        // Le résolveur est l'autorité du vocabulaire : quand le message résout une
+        // vraie cible taxonomique (« artisanat marocain » → service Artisanat), un
+        // rapprochement flou de nom (« Galerie d'artisanat marocain », Essaouira) ne
+        // doit pas prendre la main ni déplacer le périmètre géographique.
+        const nameHit = nameCandidate && strongTerms.length && !nameCandidate.literal ? null : nameCandidate;
+        if (nameCandidate) {
+          console.log("[embed-ai-chat-v2] name_authority", JSON.stringify({
+            name: nameCandidate.name, literal: nameCandidate.literal,
+            strongTerms, kept: !!nameHit,
+          }));
         }
 
         const contextualFollowUp =
@@ -1567,7 +1577,7 @@ Deno.serve(async (req) => {
 
         if (nameHit) {
           // Recherche nominative : business-search isole le nom exact (ville de la fiche).
-          await runSearch(nameHit.name, nameHit.city || searchCity, []);
+          await runSearch(nameHit.name, (nameHit.literal ? nameHit.city : null) || searchCity, []);
         }
 
         // ── Périmètre destination (déterministe, zéro token) ────────────────
