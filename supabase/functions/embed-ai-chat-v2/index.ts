@@ -142,12 +142,15 @@ function priorBusinessIds(messages: UIMessage[], lastOnly = false): string[] {
 
 
 /**
- * Corpus COMPLET du tour précédent (marqueur `POOL_BUSINESS_IDS`) : les relances
+ * Corpus COMPLET du dernier tour (marqueur `POOL_BUSINESS_IDS`) : les relances
  * de type proximité doivent chercher dans la totalité des résultats trouvés
  * (ex. 19 adresses à Marrakech) et pas seulement dans les 6 affichées.
+ * Contrainte : le pool retenu doit appartenir au dernier tour porteur de
+ * résultats (`sinceIndex`). Un pool plus ancien ne doit jamais réintroduire des
+ * établissements écartés par une spécialisation ultérieure.
  */
-function priorPoolIds(messages: UIMessage[]): string[] {
-  for (let i = messages.length - 1; i >= 0; i--) {
+function priorPoolIds(messages: UIMessage[], sinceIndex = 0): string[] {
+  for (let i = messages.length - 1; i >= sinceIndex; i--) {
     const m = messages[i] as any;
     if (m?.role !== "assistant") continue;
     const match = textOf(m).match(/<!--POOL_BUSINESS_IDS:([\s\S]*?)-->/);
@@ -160,6 +163,18 @@ function priorPoolIds(messages: UIMessage[]): string[] {
   }
   return [];
 }
+
+/** Index du dernier message assistant porteur de résultats (KNOWN / SHOW_ON_MAP). */
+function lastResultsIndex(messages: UIMessage[]): number {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i] as any;
+    if (m?.role !== "assistant") continue;
+    const c = textOf(m);
+    if (/<!--KNOWN_BUSINESSES:/.test(c) || /<!--SHOW_ON_MAP:/.test(c)) return i;
+  }
+  return 0;
+}
+
 
 /**
  * Marqueur `POOL_BUSINESS_IDS` — source de vérité UNIQUE du corpus complet du
