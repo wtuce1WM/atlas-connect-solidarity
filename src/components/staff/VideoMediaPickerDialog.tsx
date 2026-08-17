@@ -289,6 +289,22 @@ function Tile({
           </span>
         )}
 
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            setFull(true);
+          }}
+          role="button"
+          aria-label="Voir en plein écran"
+          title="Voir en plein écran"
+          className={`absolute rounded-full bg-white/85 text-black w-7 h-7 flex items-center justify-center hover:bg-white transition ${
+            item.kind === "video" && isInternalVideoUrl(item.url) ? "bottom-1 right-9" : "bottom-1 right-1"
+          }`}
+        >
+          <Maximize2 className="h-3.5 w-3.5" />
+        </span>
+
+
         {item.kind === "video" && fmtDur(duration) && (
           <span className="absolute top-1 right-8 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold tabular-nums">
             {fmtDur(duration)}
