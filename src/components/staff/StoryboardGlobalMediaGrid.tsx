@@ -28,6 +28,7 @@ function Tile({
   item,
   index,
   total,
+  format,
   onPatch,
   onRemove,
   onDragStart,
@@ -38,6 +39,7 @@ function Tile({
   item: GlobalMediaItem;
   index: number;
   total: number;
+  format?: "portrait" | "landscape";
   onPatch: (values: Partial<GlobalMediaItem>) => void;
   onRemove: () => void;
   onDragStart: () => void;
@@ -70,6 +72,10 @@ function Tile({
     else if (el?.webkitEnterFullscreen) el.webkitEnterFullscreen();
   };
 
+  const fluid = format === "landscape";
+  const tileWidth = fluid ? "100%" : width;
+  const tileHeight = TILE_H;
+
   return (
     <div
       onDragOver={(e) => e.preventDefault()}
@@ -77,13 +83,13 @@ function Tile({
         e.preventDefault();
         onDropOn();
       }}
-      className={`space-y-1 shrink-0 ${dragging ? "opacity-60" : ""}`}
-      style={{ width }}
+      className={`space-y-1 min-w-0 ${dragging ? "opacity-60" : ""}`}
+      style={{ width: tileWidth }}
     >
       <div
         ref={wrapRef}
         className="relative rounded-md overflow-hidden border-2 border-border bg-black"
-        style={{ width, height: TILE_H }}
+        style={{ width: tileWidth, height: tileHeight }}
         title={item.url}
       >
         {isVideo ? (
@@ -237,9 +243,11 @@ function Tile({
  */
 const StoryboardGlobalMediaGrid = ({
   items,
+  format,
   onChange,
 }: {
   items: GlobalMediaItem[];
+  format?: "portrait" | "landscape";
   onChange: (items: GlobalMediaItem[]) => void;
 }) => {
   const [dragUrl, setDragUrl] = useState<string | null>(null);
@@ -275,13 +283,14 @@ const StoryboardGlobalMediaGrid = ({
       <p className="text-[11px] text-muted-foreground">
         {counts.videos} vidéo{counts.videos > 1 ? "s" : ""} · {counts.images} image{counts.images > 1 ? "s" : ""}
       </p>
-      <div className="flex flex-wrap items-start gap-3">
+      <div className={`items-start gap-3 ${format === "landscape" ? "grid grid-cols-2" : "flex flex-wrap"}`}>
         {items.map((m, i) => (
           <Tile
             key={m.url}
             item={m}
             index={i}
             total={items.length}
+            format={format}
             dragging={dragUrl === m.url}
             onDragStart={() => setDragUrl(m.url)}
             onDragEnd={() => setDragUrl(null)}

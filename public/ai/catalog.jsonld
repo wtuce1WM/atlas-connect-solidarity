@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1852,
+  "numberOfItems": 1853,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -1320,7 +1320,7 @@
         "description": "Inspirés des bâtiments aux teintes roses de la médina, le palais de l'Amanjena, ses jardins et ses majestueux espaces se situent tout près de la légendaire ville rouge. Les cours ombragées ornées de fontaines du resort de Marrakech mènent au bassin central, bordé de spacieux Pavillons et Villas, dont certains disposent d'une piscine privative. Les vues s'étendent des oliveraies et des palmeraies de l'oasis jusqu'aux montagnes du Haut Atlas, que l'on aperçoit à l'horizon. Comment s'y rendre Dans ",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Route de Ouarzazate km12",
+          "streetAddress": "Km12",
           "addressLocality": "Route de Ouarzazate",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -1333,8 +1333,8 @@
         "telephone": "+212 5 24 399 000",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.7,
-          "reviewCount": 504,
+          "ratingValue": 4.6,
+          "reviewCount": 555,
           "bestRating": 5
         }
       }
@@ -2313,7 +2313,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 570,
+          "reviewCount": 584,
           "bestRating": 5
         }
       }
@@ -2635,7 +2635,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 400,
+          "reviewCount": 406,
           "bestRating": 5
         }
       }
@@ -3966,7 +3966,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 70,
+          "reviewCount": 75,
           "bestRating": 5
         }
       }
@@ -7191,7 +7191,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 225,
+          "reviewCount": 249,
           "bestRating": 5
         }
       }
@@ -7755,7 +7755,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 9059,
+          "reviewCount": 9856,
           "bestRating": 5
         }
       }
@@ -9649,7 +9649,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.1,
-          "reviewCount": 3131,
+          "reviewCount": 3203,
           "bestRating": 5
         }
       }
@@ -13307,12 +13307,12 @@
     {
       "@type": "ListItem",
       "position": 461,
-      "url": "https://oneworldmorocco.com/hanout-boutique-2",
+      "url": "https://oneworldmorocco.com/hanout-boutique-1",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/hanout-boutique-2#business",
+        "@id": "https://oneworldmorocco.com/hanout-boutique-1#business",
         "name": "Hanout Boutique",
-        "url": "https://oneworldmorocco.com/hanout-boutique-2",
+        "url": "https://oneworldmorocco.com/hanout-boutique-1",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/46fdf5db-1e1a-4963-a1a4-a3d2127b46da-1780046174856-rmr9mc.webp",
         "address": {
           "@type": "PostalAddress",
@@ -13329,7 +13329,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 47,
+          "reviewCount": 49,
           "bestRating": 5
         }
       }
@@ -14637,8 +14637,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.7,
-          "reviewCount": 91,
+          "ratingValue": 4.5,
+          "reviewCount": 114,
           "bestRating": 5
         }
       }
@@ -20419,7 +20419,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 228,
+          "reviewCount": 272,
           "bestRating": 5
         }
       }
@@ -20699,7 +20699,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 325,
+          "reviewCount": 326,
           "bestRating": 5
         }
       }
@@ -20964,7 +20964,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 259,
+          "reviewCount": 263,
           "bestRating": 5
         }
       }
@@ -22405,7 +22405,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 778,
+          "reviewCount": 790,
           "bestRating": 5
         }
       }
@@ -28974,7 +28974,7 @@
         "description": "Le palais de la Bahia est un ancien palais du XIXᵉ siècle situé dans la médina de Marrakech (Maroc). Son nom, Bahia (arabe : « la belle, la brillante »), reflète la splendeur que ses constructeurs ont voulu lui donner, et il est aujourd’hui considéré comme l’un des chefs-d’œuvre de l’architecture marocaine ainsi qu’un monument majeur du patrimoine culturel du pays. La construction du palais débute en 1866 sous l’impulsion de Si Moussa , grand vizir du sultan Hassan Iᵉʳ , qui fait ériger la parti",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Bahia Palace, Rue Riad Zitoun el Jdid",
+          "streetAddress": "Rue Riad Zitoun el Jdid",
           "addressLocality": "Medina",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -28986,8 +28986,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.8,
-          "reviewCount": 4,
+          "ratingValue": 5,
+          "reviewCount": 2,
           "bestRating": 5
         }
       }
@@ -32227,7 +32227,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 602,
+          "reviewCount": 649,
           "bestRating": 5
         }
       }
@@ -34727,7 +34727,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 698,
+          "reviewCount": 714,
           "bestRating": 5
         }
       }
@@ -46587,8 +46587,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.1,
-          "reviewCount": 40,
+          "ratingValue": 4.3,
+          "reviewCount": 48,
           "bestRating": 5
         }
       }
@@ -46920,7 +46920,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 1716,
+          "reviewCount": 1784,
           "bestRating": 5
         }
       }
@@ -52907,6 +52907,36 @@
     {
       "@type": "ListItem",
       "position": 1846,
+      "url": "https://oneworldmorocco.com/hanout-boutique-1",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/hanout-boutique-1#business",
+        "name": "Hanout Boutique",
+        "url": "https://oneworldmorocco.com/hanout-boutique-1",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/46fdf5db-1e1a-4963-a1a4-a3d2127b46da-1780046174856-rmr9mc.webp",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "15 Rue Riad Zitoun el Jdid",
+          "addressLocality": "Medina",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6221051,
+          "longitude": -7.9844608
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.8,
+          "reviewCount": 49,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1847,
       "url": "https://oneworldmorocco.com/pikala",
       "item": {
         "@type": "LocalBusiness",
@@ -52932,7 +52962,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1847,
+      "position": 1848,
       "url": "https://oneworldmorocco.com/villa-jmajorelle",
       "item": {
         "@type": "LocalBusiness",
@@ -52943,7 +52973,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1848,
+      "position": 1849,
       "url": "https://oneworldmorocco.com/elevate-cycle",
       "item": {
         "@type": "LocalBusiness",
@@ -52974,7 +53004,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1849,
+      "position": 1850,
       "url": "https://oneworldmorocco.com/la-grande-table-marocaine-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -53006,7 +53036,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1850,
+      "position": 1851,
       "url": "https://oneworldmorocco.com/be-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -53037,7 +53067,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1851,
+      "position": 1852,
       "url": "https://oneworldmorocco.com/m-avenue-1",
       "item": {
         "@type": "LocalBusiness",
@@ -53069,7 +53099,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1852,
+      "position": 1853,
       "url": "https://oneworldmorocco.com/pc-gamer-maroc",
       "item": {
         "@type": "LocalBusiness",

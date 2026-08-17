@@ -2,9 +2,9 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-17T05:12:36.860Z",
+    "generated_at": "2026-08-17T14:24:34.679Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
-    "count": 1852
+    "count": 1853
   },
   "businesses": [
     {
@@ -3386,13 +3386,13 @@
       "country": "MA",
       "latitude": 31.6083474,
       "longitude": -7.9339448,
-      "address": "Route de Ouarzazate km12",
+      "address": "Km12",
       "phone": "+212 5 24 399 000",
       "whatsapp": null,
       "website": "https://www.aman.com/fr-fr/resorts/amanjena",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e7019579-408a-4b3c-90d7-41c6dbff9063-1775817991995-u20yqr.jpg",
-      "google_rating": 4.7,
-      "google_review_count": 504,
+      "google_rating": 4.6,
+      "google_review_count": 555,
       "price_range": "+1000€",
       "min_price_mad": 1626,
       "languages": [],
@@ -3403,7 +3403,7 @@
       "social": {
         "instagram": "https://www.instagram.com/amanjena/",
         "facebook": "https://www.facebook.com/AmanjenaMarrakech",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d308203-Reviews-Amanjena-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -6016,14 +6016,15 @@
       "slug": "atlas-golf-marrakech",
       "url": "https://oneworldmorocco.com/atlas-golf-marrakech",
       "name": "Atlas Golf Marrakech",
-      "hook": null,
+      "hook": "Un parcours de golf 9 trous avec un restaurant, spa, activités pour les enfants. Idéal pour la famille.",
       "description": "Atlas Golf Marrakech, un concept unique au cœur de Marrakech, un parcours de golf d'exception et un univers enrichissant de divertissement, de culture, de sport et de bien-être. Le parcours 9 trous, dessiné par Alain Prat, s'intègre majestueusement aux couleurs et aux styles du sud marocain. Le chef Manu Bitard, passionné et inventif, a imaginé deux espaces magnifiques : la Terrasse et le restaurant Touggana. Le Spa, où bien-être rime avec pierres précieuses et rituels de beauté ancestraux, rend",
       "main_category": "Sport & Loisirs",
       "categories": [
         "Golf"
       ],
       "services": [
-        "Vue montagne"
+        "Vue montagne",
+        "9 trous"
       ],
       "city": "Marrakech",
       "neighborhood": "Route d'Amizmiz",
@@ -6037,7 +6038,7 @@
       "website": "https://www.atlasgolfmarrakech.com/en/home/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/850c4008-d4e6-44a1-9a24-24e6f65db6b7-1777449363475-1h2l6b.jpg",
       "google_rating": 4.4,
-      "google_review_count": 570,
+      "google_review_count": 584,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -6100,7 +6101,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.atlasgolfmarrakech.com/en/home/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/atlasgolfmarrakech/",
@@ -7115,9 +7116,15 @@
       "description": "Sérénité Une parenthèse suspendue à 1500 mètres, où le silence des cimes répond à la douceur des jardins. Gastronomie Du tagine berbère aux classiques internationaux, chaque assiette raconte une rencontre — entre notre terroir et le monde. Expérience Au-delà de l’hôtel, l’Atlas vous appelle. Sentiers secrets, vallées préservées, rencontres au cœur des villages berbères. Le Haut Atlas, à 55km de Marrakech À 1 500 mètres d’altitude, Aurocher vous accueille dans un écrin authentique où le charme be",
       "main_category": "Hôtellerie",
       "categories": [
-        "Écolodge"
+        "Écolodge",
+        "Hôtel"
       ],
-      "services": [],
+      "services": [
+        "Vue montagne",
+        "Restauration sur place",
+        "Piscine",
+        "Parking privé"
+      ],
       "city": "Oukaïmeden",
       "neighborhood": null,
       "region": "Marrakech-Safi",
@@ -7130,13 +7137,13 @@
       "website": "https://aurocher.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/c469b2fa-689a-4e3c-bc71-14dc2a0617cc-1779769165405-j71aoc.jpg",
       "google_rating": 4.6,
-      "google_review_count": 400,
+      "google_review_count": 406,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://aurocher.com/",
+      "booking_url": "https://aurocher.com/reservation/?octobooksearch=siteKey%3Dc8073d0c63276e9aeacd388decef2d1f%26lang%3Dfr",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/aurocheroukaimeden/",
@@ -11165,10 +11172,19 @@
       "description": "Bab Zouina est un centre de retraite de yoga paisible et unique, construit dans un style marocain traditionnel, situé au pied des montagnes de l’Atlas. La santé du corps et de l’esprit est notre priorité. Nous organisons diverses retraites et ateliers uniques, favorisant l’apprentissage, l’échange et la connexion à la nature et à soi-même. Nos enseignants sont soigneusement sélectionnés et les cours sont conçus de manière à privilégier la qualité plutôt que la quantité. Vivez une retraite en tou",
       "main_category": "Hôtellerie",
       "categories": [
-        "Hôtel"
+        "Hôtel",
+        "Yoga",
+        "Écolodge"
       ],
       "services": [
-        "Yoga"
+        "Yoga",
+        "Restauration sur place",
+        "Retraite Yoga",
+        "Cours de yoga",
+        "Pilates",
+        "Excursions en VTT",
+        "Tennis",
+        "Piscine"
       ],
       "city": "Marrakech",
       "neighborhood": "Route de l’Ourika",
@@ -11182,13 +11198,13 @@
       "website": "https://bab-zouina.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/a1cfd60f-0dfd-4391-a180-f8024a1cd6e4-1776961660111-xdlswz2.jpg",
       "google_rating": 4.7,
-      "google_review_count": 70,
+      "google_review_count": 75,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://bab-zouina.com/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/BabZouina/",
@@ -22552,7 +22568,14 @@
       "categories": [
         "Hôtel"
       ],
-      "services": [],
+      "services": [
+        "Vue montagne",
+        "Transfert Aéroport",
+        "Piscine",
+        "Restauration sur place",
+        "Jardin",
+        "Boutique"
+      ],
       "city": "Marrakech",
       "neighborhood": "Route de l’Ourika",
       "region": "Marrakech-Safi",
@@ -22565,13 +22588,13 @@
       "website": "https://casaabracadabra.com/fr/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/f08c63c9-128a-436e-b260-f5c37ebfbc2e-1779779029049-7qmupf.webp",
       "google_rating": 4.8,
-      "google_review_count": 225,
+      "google_review_count": 249,
       "price_range": "100 à 200€",
       "min_price_mad": 146,
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://casaabracadabra.com/fr/",
+      "booking_url": "https://direct-book.com/properties/CasaAbracadabra1DIRECT",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/casaabracadabra/",
@@ -24110,7 +24133,8 @@
         "Balade à dos de chameau",
         "Buggy",
         "Sur mesure",
-        "Excursions sur mesure"
+        "Excursions sur mesure",
+        "Guides touristiques certifiés"
       ],
       "city": "Marrakech",
       "neighborhood": "Menara",
@@ -24124,18 +24148,18 @@
       "website": "https://www.clickexcursions.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/6d3b46fb-bb6d-4570-b1a6-b85c79b4a47e-1771997364063-hag0gr.jpg",
       "google_rating": 4.9,
-      "google_review_count": 9059,
+      "google_review_count": 9856,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
       "opening_hours": null,
       "is_open_24h": true,
-      "booking_url": "https://www.clickexcursions.com/",
+      "booking_url": "https://www.clickexcursions.com/circuits-marrakech",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/clickexcursions/",
         "facebook": "https://www.facebook.com/clickexcursions/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d3400210-Reviews-Click_Exursions-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": "https://www.youtube.com/channel/UCqf8aFc4Egiz3xXbGI3D2dg",
         "linkedin": null
       }
@@ -28548,7 +28572,7 @@
       "website": "https://www.decathlon.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/84e2b4bc-d325-45ea-a199-7e5f11dbeeb2-1771097501576-4ktm9.avif",
       "google_rating": 4.1,
-      "google_review_count": 3131,
+      "google_review_count": 3203,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -38809,8 +38833,8 @@
     },
     {
       "id": "46fdf5db-1e1a-4963-a1a4-a3d2127b46da",
-      "slug": "hanout-boutique-2",
-      "url": "https://oneworldmorocco.com/hanout-boutique-2",
+      "slug": "hanout-boutique-1",
+      "url": "https://oneworldmorocco.com/hanout-boutique-1",
       "name": "Hanout Boutique",
       "hook": "Alliant héritage artisanal et modernité, chaque pièce reflète l'élégance intemporelle et contemporaine du Maroc.",
       "description": "",
@@ -38819,7 +38843,8 @@
         "Mode"
       ],
       "services": [
-        "Femme"
+        "Femme",
+        "Vêtements"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -38833,7 +38858,7 @@
       "website": "https://www.hanoutboutique.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/46fdf5db-1e1a-4963-a1a4-a3d2127b46da-1780046174856-rmr9mc.webp",
       "google_rating": 4.8,
-      "google_review_count": 47,
+      "google_review_count": 49,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -38896,7 +38921,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.hanoutboutique.com/",
+      "booking_url": "https://www.hanoutboutique.com/collections/dresses-skirts",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/hanoutboutique/",
@@ -40914,7 +40939,7 @@
       "languages": [],
       "opening_hours": null,
       "is_open_24h": true,
-      "booking_url": "https://www.surfcamp-essaouira.com/",
+      "booking_url": "https://www.surfcamp-essaouira.com/fr/contact.php",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/holysurfessaouira/",
@@ -42577,7 +42602,7 @@
       "slug": "kasbah-d-eau",
       "url": "https://oneworldmorocco.com/kasbah-d-eau",
       "name": "Kasbah d’Eau",
-      "hook": "KSidi Kaouki Beach Hotel | Kasbah d’Eau near Essaouira - Kasbah d'Eau",
+      "hook": "Sidi Kaouki Beach Hotel | Kasbah d’Eau near Essaouira - Kasbah d'Eau",
       "description": "Venez découvrir Kasbah d’Eau, un hôtel de charme situé en front de mer près d’Essaouira. Séjournez dans l’une des 17 chambres et suites climatisées de l’hôtel offrant une vue imprenable sur la montagne, la plage et l’océan. Vous pourrez profiter de notre grande piscine chauffée, de notre spa et de notre salle de sport, ainsi que des nombreuses activités proposées sur la plage. La Kasbah d’Eau est perchée directement au-dessus de l’une des plus belles plages du Maroc, avec une magnifique vue sur ",
       "main_category": "Hôtellerie",
       "categories": [
@@ -42601,14 +42626,14 @@
       "whatsapp": "+212 (0) 6 54 38 41 19",
       "website": "https://www.kasbahdeau.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/32a52e2d-c71f-4c81-9f20-ea0c4dbec7ba-1776959328019-gkbfnl.jpg",
-      "google_rating": 4.7,
-      "google_review_count": 91,
+      "google_rating": 4.5,
+      "google_review_count": 114,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://www.kasbahdeau.com/",
+      "booking_url": "https://bookingengine.mylighthouse.com/kasbah-deau-essaouira?language=en-GB",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/kasbahdeau/",
@@ -50905,9 +50930,9 @@
       "description": "Ralentissez et reprenez votre souffle. Ce périple de 1 200 kilomètres à travers le Maroc vous promet de vous dévoiler toute la richesse du pays. Au fil de cinq étapes, vous vibrerez au rythme de la culture berbère et rencontrerez ses représentants les plus respectés. Des paysages arides du désert aux oasis luxuriantes, de l'architecture traditionnelle aux lieux raffinés, des villages restaurés aux merveilles du patrimoine préservées (tels que des silos à grains millénaires, des peintures rupestr",
       "main_category": "Tourisme",
       "categories": [
+        "Excursions",
         "Aventure",
-        "Sports mécaniques",
-        "Excursions"
+        "Sports mécaniques"
       ],
       "services": [
         "Road Trip 4x4",
@@ -58891,7 +58916,7 @@
       "website": "https://www.lousrides.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/008190f8-394e-4a4f-a6b2-49434823b337-1773123611854-rsc26o.webp",
       "google_rating": 4.9,
-      "google_review_count": 228,
+      "google_review_count": 272,
       "price_range": null,
       "min_price_mad": null,
       "languages": [
@@ -58957,12 +58982,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.lousrides.com/",
+      "booking_url": "https://www.supersaas.co.uk/schedule/Lousrides",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/lousrides",
         "facebook": "https://www.facebook.com/p/Lous-Rides-100090257061065/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g298349-d25432320-Reviews-Lou_s_Rides-Essaouira_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -59654,7 +59679,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1621498d-403b-4ff2-baf3-db45d1e5f41e-1775833242332-12sxln.jpg",
       "google_rating": 4.9,
-      "google_review_count": 325,
+      "google_review_count": 326,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -60373,13 +60398,13 @@
       "website": "https://les-terrasses-essaouira.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/4322cc34-c0c6-4303-9be4-cb72d3986617-1773068679465-hgg5j5.jpg",
       "google_rating": 4.2,
-      "google_review_count": 259,
+      "google_review_count": 263,
       "price_range": "50 à 100€",
       "min_price_mad": 80,
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://les-terrasses-essaouira.com/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/les_terrasses_dessaouira/?hl=fr",
@@ -61250,7 +61275,7 @@
       "min_price_mad": null,
       "languages": [],
       "opening_hours": null,
-      "is_open_24h": true,
+      "is_open_24h": false,
       "booking_url": null,
       "menu_url": null,
       "social": {
@@ -64462,13 +64487,13 @@
       "website": "https://www.mandarinoriental.com/fr/marrakech/la-medina",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/590225e3-0887-4d79-a8f6-571ac148cca5-1776589387481-rthkkc.jpg",
       "google_rating": 4.6,
-      "google_review_count": 778,
+      "google_review_count": 790,
       "price_range": "+1000€",
       "min_price_mad": 1231,
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://www.mandarinoriental.com/fr/marrakech/la-medina",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://instagram.com/mo_marrakech",
@@ -68512,12 +68537,14 @@
       "description": "Marrakech est une ville de contrastes — riche d’histoire, pleine de secrets et vibrante de culture. Mais pour en saisir pleinement l’essence, il faut s’éloigner des sentiers battus et explorer ses chemins les moins connus. Marrakech Insiders propose l’une des activités les plus insolites à Marrakech : une balade privée en side-car vintage. Loin de la foule touristique, vous découvrez des toits secrets, des jardins cachés, des pistes désertiques et des instants inattendus — le vent sur le visage ",
       "main_category": "Tourisme",
       "categories": [
-        "Excursions"
+        "Excursions",
+        "Guides"
       ],
       "services": [
         "Visite culturelle",
         "Visites guidées de la ville",
-        "Excursions en Sidecar"
+        "Excursions en Sidecar",
+        "Guide touristique"
       ],
       "city": "Marrakech",
       "neighborhood": "Bab Doukkala",
@@ -83446,13 +83473,13 @@
       "country": "MA",
       "latitude": 31.6217067,
       "longitude": -7.9819688,
-      "address": "Bahia Palace, Rue Riad Zitoun el Jdid",
+      "address": "Rue Riad Zitoun el Jdid",
       "phone": null,
       "whatsapp": null,
       "website": "https://palaisbahia.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/dfe03c76-523f-4918-b039-c5f00792aa4f-1771139347674-j26hvh.jpg",
-      "google_rating": 4.8,
-      "google_review_count": 4,
+      "google_rating": 5,
+      "google_review_count": 2,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -92138,7 +92165,8 @@
         "Baby Sitter",
         "Restauration sur place",
         "Conciergerie",
-        "Transfert Aéroport"
+        "Transfert Aéroport",
+        "Maison d'hôtes"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -92152,7 +92180,7 @@
       "website": "https://www.riadalmamoune.com/fr/index.html",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/28de23f0-45ab-4f11-87b2-82b8e5fcf843-1771766462017-prljn.jpg",
       "google_rating": 4.9,
-      "google_review_count": 602,
+      "google_review_count": 649,
       "price_range": "- 50€",
       "min_price_mad": 45,
       "languages": [],
@@ -92163,7 +92191,7 @@
       "social": {
         "instagram": "https://www.instagram.com/riadalmamoune",
         "facebook": "https://www.facebook.com/profile.php?id=100063464264060",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d629246-Reviews-Riad_Al_Mamoune-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -95338,7 +95366,7 @@
       "address": "Km 12",
       "phone": "+212524487890",
       "whatsapp": "+212663842436",
-      "website": null,
+      "website": "https://royalpalmtennismarrakech.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/30a55301-d7a4-4c30-b21d-6dda43fdd282-1772099234107-ndlgl8.jpg",
       "google_rating": 5,
       "google_review_count": 9,
@@ -95404,7 +95432,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://royalpalmtennismarrakech.com/",
+      "booking_url": "https://royalpalmtennismarrakech.com/tarifs/",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/royalpalmtennispadel",
@@ -96550,7 +96578,15 @@
       "categories": [
         "Café"
       ],
-      "services": [],
+      "services": [
+        "Omelette",
+        "Pancakes",
+        "Smoothies",
+        "Jus de fruits",
+        "Glaces",
+        "Café culturel",
+        "Viennoiseries"
+      ],
       "city": "Marrakech",
       "neighborhood": "Gueliz",
       "region": "Marrakech-Safi",
@@ -96560,7 +96596,7 @@
       "address": "Angle Rues Sourya, Rue Khalid Ben El Oualid",
       "phone": null,
       "whatsapp": "+212666463095",
-      "website": "https://www.amalnonprofit.org/",
+      "website": "https://www.amalnonprofit.org/solutions/the-cafe",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/45eacb34-83a1-449e-9cda-4f13aea4885c-1777795445950-m74l37.jpg",
       "google_rating": null,
       "google_review_count": null,
@@ -96626,7 +96662,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.amalnonprofit.org/solutions/the-cafe",
+      "booking_url": "https://www.amalnonprofit.org/make-a-restaurant-reservation",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/signcafemarrakech/",
@@ -97872,7 +97908,7 @@
       "website": "https://royal-golf-marrakech.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d6e2faaf-b146-42b0-bb4b-9ed20558fe5e-1771574704656-d49i7.jpg",
       "google_rating": 4.5,
-      "google_review_count": 698,
+      "google_review_count": 714,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -130420,7 +130456,7 @@
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://maison-ach.com/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/maison.ach",
@@ -134693,8 +134729,8 @@
       "whatsapp": null,
       "website": "https://sook-paris.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/8538b17a-2508-4a29-b235-efca3e0c783a-1779855501434-01nfz0l.webp",
-      "google_rating": 4.1,
-      "google_review_count": 40,
+      "google_rating": 4.3,
+      "google_review_count": 48,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -134757,7 +134793,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://sook-paris.com/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/sookparis/",
@@ -135883,7 +135919,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/c78dbf30-251a-4a55-b1d4-b5036647782f-1780211388220-1iwsx6.webp",
       "google_rating": 4.8,
-      "google_review_count": 1716,
+      "google_review_count": 1784,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -152236,6 +152272,106 @@
         "instagram": null,
         "facebook": null,
         "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g298349-d20308914-Reviews-Bab_Doukkala-Essaouira_Marrakech_Safi.html?m=66827",
+        "youtube": null,
+        "linkedin": null
+      }
+    },
+    {
+      "id": "46fdf5db-1e1a-4963-a1a4-a3d2127b46da",
+      "slug": "hanout-boutique-1",
+      "url": "https://oneworldmorocco.com/hanout-boutique-1",
+      "name": "Hanout Boutique",
+      "hook": "Alliant héritage artisanal et modernité, chaque pièce reflète l'élégance intemporelle et contemporaine du Maroc.",
+      "description": "",
+      "main_category": "Commerce",
+      "categories": [
+        "Mode"
+      ],
+      "services": [
+        "Femme",
+        "Vêtements"
+      ],
+      "city": "Marrakech",
+      "neighborhood": "Medina",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.6221051,
+      "longitude": -7.9844608,
+      "address": "15 Rue Riad Zitoun el Jdid",
+      "phone": null,
+      "whatsapp": "+212648129738",
+      "website": "https://www.hanoutboutique.com/",
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/46fdf5db-1e1a-4963-a1a4-a3d2127b46da-1780046174856-rmr9mc.webp",
+      "google_rating": 4.8,
+      "google_review_count": 49,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": {
+        "friday": {
+          "open": "10:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "monday": {
+          "open": "10:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "sunday": {
+          "open": "10:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "tuesday": {
+          "open": "10:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "saturday": {
+          "open": "10:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "thursday": {
+          "open": "10:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "wednesday": {
+          "open": "10:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        }
+      },
+      "is_open_24h": false,
+      "booking_url": "https://www.hanoutboutique.com/collections/dresses-skirts",
+      "menu_url": null,
+      "social": {
+        "instagram": "https://www.instagram.com/hanoutboutique/",
+        "facebook": null,
+        "tripadvisor": null,
         "youtube": null,
         "linkedin": null
       }
