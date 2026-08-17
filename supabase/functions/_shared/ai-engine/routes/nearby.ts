@@ -464,10 +464,11 @@ export function buildDisclosureFromCounts(shown: number, found: number, city: st
   if (shown <= 0) return `📍 Aucun résultat trouvé à ${city} pour cette recherche — dis-moi si tu veux que je reformule ou que j'élargisse autour de ${city}.`;
   const hasMore = found > shown;
   const tail = hasMore
-    ? `dis-moi si tu veux que je te **montre les autres** ou que j'affine par quartier, ambiance ou envie.`
+    ? `je te montre les suivantes ?`
     : `dis-moi si tu veux que j'affine par quartier, ambiance ou envie.`;
-  return `📍 Je te présente ${shown} adresse${shown > 1 ? "s" : ""} sur ${found} trouvée${found > 1 ? "s" : ""} à ${city} — ${tail}`;
+  return `📍 ${shown} adresse${shown > 1 ? "s" : ""} sur ${found} qui correspond${found > 1 ? "ent" : ""} — ${tail}`;
 }
+
 
 export function stripText(value: unknown): string {
   return String(value || "")

@@ -341,9 +341,13 @@ Deno.serve(async (req) => {
 
 
       const finish = async (streamCompleted: boolean) => {
-        if (competitorGuard?.active && competitorGuard.filtered > 0) {
+        // Le marqueur ne sort QUE si le garde-fou a réellement vidé la réponse
+        // (aucun résultat présentable). Un simple écrémage incident — une recherche
+        // shopping qui croise un riad — ne doit plus supprimer les relances/badges.
+        if (competitorGuard?.active && competitorGuard.filtered > 0 && !(resultsCount ?? 0)) {
           emit("\n\n<!--COMPETITOR_GUARD_ACTIVE-->");
         }
+
         if (destinationsBlock) { emit(destinationsBlock); destinationsBlock = null; }
         if (articleTeaser) { emit(articleTeaser); articleTeaser = null; }
         end();
@@ -1311,7 +1315,39 @@ Deno.serve(async (req) => {
               });
             }
 
+            // ── Continuité de proximité ────────────────────────────────────────
+            // Après un panorama « que faire à proximité ? », une question libre
+            // (« Shopping ») reste dans le rayon actif autour de l'hôte : sinon la
+            // réponse repart sur la ville entière et contredit le tour précédent.
+            // Les adresses sans coordonnées (nomades / Maps désactivée) sont conservées.
+            if (
+              host?.latitude != null && host?.longitude != null &&
+              priorRoute === "nearby" && !explicitCity && !resolvedCityRaw && kept.length
+            ) {
+              const hostRadius = RADIUS_OPTIONS.includes(Number(host.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
+              const radiusKm = parseInlineRadiusKm(userMessage) ?? requestedRadiusKm ?? hostRadius;
+              const km = (lat: number, lng: number) => {
+                const R = 6371;
+                const dLat = ((lat - host.latitude) * Math.PI) / 180;
+                const dLng = ((lng - host.longitude) * Math.PI) / 180;
+                const a = Math.sin(dLat / 2) ** 2 +
+                  Math.cos((host.latitude * Math.PI) / 180) * Math.cos((lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+                return 2 * R * Math.asin(Math.min(1, Math.sqrt(a)));
+              };
+              const before = kept.length;
+              const inRadius = kept.filter((b: any) =>
+                b?.latitude == null || b?.longitude == null
+                  ? true
+                  : km(Number(b.latitude), Number(b.longitude)) <= radiusKm,
+              );
+              console.log("[embed-ai-chat-v2] proximity_context_radius", JSON.stringify({ radiusKm, before, after: inRadius.length }));
+              // Pas de repli silencieux sur la ville entière si le rayon rend zéro :
+              // on garde le résultat resserré uniquement s'il reste quelque chose.
+              if (inRadius.length) kept = inRadius;
+            }
+
             totalFound = kept.length;
+
             searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, 30);
             results = kept.slice(0, CFG.maxResults);
           } catch (e) {
@@ -1777,7 +1813,7 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
           const disclosure = answerListsResults && city && totalFound > results.length
             ? `\n\n${buildDisclosureFromCounts(results.length, totalFound, city)}`
             : "";
-          if (disclosure && !/sur\s+\d+\s+trouv/i.test(finalText)) emit(disclosure);
+          if (disclosure && !/sur\s+\d+\s+(trouv|qui correspond)/i.test(finalText)) emit(disclosure);
           emit(`\n\n${toMapMarker(results, null)}`);
           emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(results.map((b) => ({ id: b.id, name: b.name })))}-->`);
           // Mémoire du corpus complet (les 30 trouvées) pour que la relance suivante
