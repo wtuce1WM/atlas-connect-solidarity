@@ -863,6 +863,11 @@ Deno.serve(async (req) => {
               competitorGuard,
               supabaseUrl: SUPABASE_URL,
               serviceKey: SERVICE,
+              immersive: {
+                admin,
+                query: curated.label || userMessage,
+                apiKey: LOVABLE_API_KEY,
+              },
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] curated_filter_failed", String(e));
               return null;
