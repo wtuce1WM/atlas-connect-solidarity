@@ -1524,25 +1524,45 @@ export function VideoMediaPickerDialog({
       </div>
 
       {value.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           {selectedItems.map((m, i) => (
-            <div key={m.url} className="relative w-20">
-              <div className="aspect-[4/3] rounded overflow-hidden border bg-black/90">
+            <div key={m.url} className="relative w-64 max-w-full">
+              <div id={`sel-media-${i}`} className="rounded-md overflow-hidden border-2 border-border bg-black h-64">
                 {m.kind === "video" ? (
-                  <video src={m.url} muted playsInline preload="metadata" className="w-full h-full object-contain" />
+                  <video
+                    src={m.url}
+                    controls
+                    muted
+                    playsInline
+                    preload="metadata"
+                    className="w-full h-full object-contain bg-black"
+                  />
                 ) : (
-                  <img src={m.url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={m.url} alt="" className="w-full h-full object-contain" loading="lazy" />
                 )}
               </div>
               {multiple && (
-                <span className="absolute top-0.5 left-0.5 rounded bg-black/70 px-1 text-[9px] font-bold text-white">
+                <span className="absolute top-1 left-1 rounded-full bg-primary text-primary-foreground w-5 h-5 flex items-center justify-center text-[10px] font-bold">
                   {i + 1}
                 </span>
               )}
               <button
                 type="button"
+                onClick={() => {
+                  const el = document.getElementById(`sel-media-${i}`)?.firstElementChild as any;
+                  if (el?.requestFullscreen) el.requestFullscreen();
+                  else if (el?.webkitEnterFullscreen) el.webkitEnterFullscreen();
+                }}
+                title="Plein écran"
+                aria-label="Plein écran"
+                className="absolute top-1 right-7 bg-black/60 text-white rounded-full h-6 w-6 flex items-center justify-center border border-white/40 hover:bg-black/80"
+              >
+                <Maximize2 className="h-3 w-3" />
+              </button>
+              <button
+                type="button"
                 onClick={() => onChange(value.filter((u) => u !== m.url))}
-                className="absolute -top-1.5 -right-1.5 rounded-full bg-background border h-5 w-5 flex items-center justify-center"
+                className="absolute top-1 right-0.5 rounded-full bg-black/60 text-white border border-white/40 h-6 w-6 flex items-center justify-center hover:bg-black/80"
                 aria-label="Retirer"
               >
                 <X className="h-3 w-3" />
@@ -1551,6 +1571,7 @@ export function VideoMediaPickerDialog({
           ))}
         </div>
       )}
+
     </div>
   );
 }

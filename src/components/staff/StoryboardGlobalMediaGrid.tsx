@@ -22,7 +22,7 @@ const fmt = (s: number) => {
 };
 
 /** Hauteur commune des vignettes : le format réel est respecté via la largeur. */
-const TILE_H = 320;
+const TILE_H = 460;
 
 function Tile({
   item,

@@ -1221,6 +1221,22 @@ const StoryboardGuide = () => {
             <li>Saisir une URL photo/vidéo inaccessible : le moteur passera au repli suivant, ou à une image noire.</li>
             <li>Activer le son sur plusieurs sections vidéo superposées : les pistes audio se superposent.</li>
           </ul>
+          <div className="mt-3 pt-3 border-t border-destructive/20">
+            <p className="text-xs font-semibold text-destructive">Scénario Home Landscape avec 1 seule section Vidéo de 20 s</p>
+            <p className="text-xs text-muted-foreground mt-1">Ce qui marche / ne marche pas avec 1 seule section vidéo de 20 s :</p>
+            <p className="text-xs font-semibold text-foreground mt-1">Actif</p>
+            <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4 mt-0.5">
+              <li>Fondu d'entrée + fondu de sortie (noir/blanc, vitesse réglable)</li>
+              <li>Fondu audio in/out sur la voix-off</li>
+              <li>Grade global : grain, vignette, light leaks, tracé SVG, motion blur (coûteux)</li>
+            </ul>
+            <p className="text-xs font-semibold text-foreground mt-1.5">Sans effet dans ce cas</p>
+            <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4 mt-0.5">
+              <li>Fondu inter-étapes / slide / wipe / flash de coupe : il n'y a aucune frontière entre sections (rien à transitionner)</li>
+              <li>Ken Burns : appliqué uniquement aux images de fond, pas aux vidéos (OffthreadVideo n'est pas transformé)</li>
+            </ul>
+            <p className="text-xs text-muted-foreground mt-1.5">Si tu veux du mouvement sur un clip vidéo, il faut soit découper en 2 étapes de 10 s (pour avoir une transition), soit j'étends Ken Burns aux vidéos — dis-moi.</p>
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -2010,11 +2026,8 @@ const VideoStoryboardPanel = () => {
                       applyGlobalMedia(next, globalIncludeBg);
                     }}
                   />
-                  <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                    <Switch checked={globalIncludeBg} onCheckedChange={setGlobalIncludeBg} />
-                    Inclure les fonds de scène (accroche, texte, compteur, outro…)
-                  </label>
                   <Button
+
                     size="sm"
                     variant="outline"
                     className="h-8 text-xs"
@@ -2045,6 +2058,18 @@ const VideoStoryboardPanel = () => {
                     applyGlobalMedia(next, globalIncludeBg);
                   }}
                 />
+                <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                  <Switch
+                    checked={globalIncludeBg}
+                    onCheckedChange={(v) => {
+                      setGlobalIncludeBg(v);
+                      setDirty(true);
+                      applyGlobalMedia(globalMediaItems, v);
+                    }}
+                  />
+                  Inclure les fonds de scène (accroche, texte, compteur, outro…)
+                </label>
+
                 <span className="text-[11px] text-muted-foreground">
                   Les vidéos alimentent les étapes vidéo, la sélection complète alimente les carrousels et
                   (si activé) les fonds média. Chaque étape reste modifiable individuellement ensuite.
