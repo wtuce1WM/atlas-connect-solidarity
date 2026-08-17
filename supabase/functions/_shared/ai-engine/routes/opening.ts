@@ -328,7 +328,10 @@ export async function buildOpenFilter(admin: any, ids: string[], intent: OpenFil
   const kept: any[] = [];
   for (const b of rows) {
     if (b.is_open_24h) { kept.push(b); continue; }
-    if (b.show_opening_hours !== true) continue;
+    // Règle 1WM : horaires non publiés (« Afficher les horaires sur la fiche
+    // publique » décoché) => traité comme ouvert 24h/24.
+    if (b.show_opening_hours !== true) { kept.push(b); continue; }
+
     if (Array.isArray(b.vacation_dates)) {
       const onVac = b.vacation_dates.some((v: any) => v?.start_date && v?.end_date && targetStr >= v.start_date && targetStr <= v.end_date);
       if (onVac) continue;
