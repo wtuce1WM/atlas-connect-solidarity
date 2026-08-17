@@ -10,6 +10,9 @@
 // ordonnées par force de correspondance. C'est l'appelant qui choisit filtre dur ou
 // facteur de ranking (un service reste un facteur, jamais un filtre éliminatoire).
 
+/** Langue du libellé indexé (undefined = neutre, toujours actif). */
+export type TermLang = "fr" | "en" | "ar";
+
 export type TargetType =
   | "category"
   | "subcategory"
@@ -41,6 +44,14 @@ export interface ResolvedTarget {
   categories?: string[];
   /** Sous-catégories réelles de la cible (services.subcategory_id → subcategories.name_fr). */
   subcategories?: string[];
+  /**
+   * Langue du libellé indexé qui a produit cette cible. `undefined` = neutre
+   * (nom FR canonique, keywords, synonymes non typés) : toujours actif.
+   * Une entrée `en` / `ar` n'est retenue que si la requête est dans cette langue —
+   * sinon « Que faire sur place ? » (FR) tombait sur `Fair` (EN de « Foire »),
+   * « pool » sur « poule », « bar » sur des libellés EN, etc.
+   */
+  lang?: TermLang;
 
 }
 
@@ -157,8 +168,8 @@ function push(map: Map<string, ResolvedTarget[]>, term: string, target: Omit<Res
   // Un terme d'un seul caractère ou vide n'est jamais discriminant.
   if (key.length < 3) return;
   const list = map.get(key) ?? [];
-  // Pas de doublon type+value pour un même terme.
-  if (list.some((t) => t.type === target.type && t.value === target.value)) return;
+  // Pas de doublon type+value+langue pour un même terme.
+  if (list.some((t) => t.type === target.type && t.value === target.value && t.lang === target.lang)) return;
   list.push({ ...target, matched: key });
   map.set(key, list);
 }
@@ -229,8 +240,8 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
   for (const sc of subcats) {
     const value = sc.name_fr;
     if (!value) continue;
-    for (const name of [sc.name_fr, sc.name_en, sc.name_ar]) {
-      if (name) push(entries, name, { type: "subcategory", value, source: "subcategories.name" });
+    for (const [name, lang] of [[sc.name_fr, undefined], [sc.name_en, "en"], [sc.name_ar, "ar"]] as Array<[string | null, TermLang | undefined]>) {
+      if (name) push(entries, name, { type: "subcategory", value, source: "subcategories.name", lang });
     }
     for (const k of sc.keywords ?? []) {
       if (k) push(entries, k, { type: "subcategory", value, source: "subcategories.keywords" });
@@ -241,8 +252,8 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
   for (const sv of services) {
     const value = sv.name_fr;
     if (!value) continue;
-    for (const name of [sv.name_fr, sv.name_en, sv.name_ar]) {
-      if (name) push(entries, name, { type: "service", value, source: "services.name" });
+    for (const [name, lang] of [[sv.name_fr, undefined], [sv.name_en, "en"], [sv.name_ar, "ar"]] as Array<[string | null, TermLang | undefined]>) {
+      if (name) push(entries, name, { type: "service", value, source: "services.name", lang });
     }
     for (const k of sv.keywords ?? []) {
       if (k) push(entries, k, { type: "service", value, source: "services.keywords" });
@@ -280,8 +291,8 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
   for (const c of categories) {
     const value = c.name_fr;
     if (!value) continue;
-    for (const name of [c.name_fr, c.name_en, c.name_ar]) {
-      if (name) push(entries, name, { type: "category", value, source: "categories.name" });
+    for (const [name, lang] of [[c.name_fr, undefined], [c.name_en, "en"], [c.name_ar, "ar"]] as Array<[string | null, TermLang | undefined]>) {
+      if (name) push(entries, name, { type: "category", value, source: "categories.name", lang });
     }
   }
 
@@ -289,23 +300,25 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
   for (const c of cities) {
     const value = c.name_fr;
     if (!value) continue;
-    for (const name of [c.name_fr, c.name_en, c.name_ar]) {
-      if (name) push(entries, name, { type: "city", value, source: "cities.name" });
+    for (const [name, lang] of [[c.name_fr, undefined], [c.name_en, "en"], [c.name_ar, "ar"]] as Array<[string | null, TermLang | undefined]>) {
+      if (name) push(entries, name, { type: "city", value, source: "cities.name", lang });
     }
   }
   for (const n of neighborhoods) {
     const value = n.name;
     if (!value) continue;
-    for (const name of [n.name, n.name_en, n.name_ar]) {
-      if (name) push(entries, name, { type: "neighborhood", value, source: "neighborhoods.name" });
+    for (const [name, lang] of [[n.name, undefined], [n.name_en, "en"], [n.name_ar, "ar"]] as Array<[string | null, TermLang | undefined]>) {
+      if (name) push(entries, name, { type: "neighborhood", value, source: "neighborhoods.name", lang });
     }
   }
 
   // 5. Synonymes : chaque clé/variante pointe vers les mappings curés.
   for (const row of synonyms) {
-    const keys = [row.key_word, row.key_word_en, row.key_word_ar, ...(row.synonyms ?? []), ...(row.synonyms_en ?? []), ...(row.synonyms_ar ?? [])]
-      .filter(Boolean)
-      .map((k: string) => String(k));
+    const keys: Array<[string, TermLang | undefined]> = [
+      ...[row.key_word, ...(row.synonyms ?? [])].filter(Boolean).map((k: string) => [String(k), undefined] as [string, undefined]),
+      ...[row.key_word_en, ...(row.synonyms_en ?? [])].filter(Boolean).map((k: string) => [String(k), "en"] as [string, TermLang]),
+      ...[row.key_word_ar, ...(row.synonyms_ar ?? [])].filter(Boolean).map((k: string) => [String(k), "ar"] as [string, TermLang]),
+    ];
     const targets: Omit<ResolvedTarget, "matched">[] = [];
     for (const n of row.subcategory_names ?? []) {
       if (n) targets.push({ type: "subcategory", value: String(n), strength: "synonym", source: "search_synonyms.subcategory_names" });
@@ -323,7 +336,7 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
       if (n) targets.push({ type: "commodity", value: String(n), strength: "synonym", source: "search_synonyms.commodity_filters" });
     }
     if (!targets.length) continue; // ligne sans mapping : rien à résoudre (37 lignes sur 66 aujourd'hui)
-    for (const key of keys) for (const t of targets) push(synonymEntries, key, t as any);
+    for (const [key, lang] of keys) for (const t of targets) push(synonymEntries, key, { ...t, lang } as any);
   }
 
   // Index stemmé, dérivé des entrées littérales ET des synonymes. La clé stemmée est
@@ -337,7 +350,7 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
       if (!key || key.length < 3) continue;
       const list = stemEntries.get(key) ?? [];
       for (const t of targets) {
-        if (list.some((x) => x.type === t.type && x.value === t.value)) continue;
+        if (list.some((x) => x.type === t.type && x.value === t.value && x.lang === t.lang)) continue;
         list.push({ ...t, matched: key });
       }
       stemEntries.set(key, list);
@@ -395,7 +408,16 @@ export interface ResolveResult {
  * Résout un texte libre contre le vocabulaire réel.
  * Aucun appel réseau : le vocabulaire est fourni par loadTaxonomyVocabulary.
  */
-export function resolveTaxonomy(query: string, vocab: TaxonomyVocabulary): ResolveResult {
+export interface ResolveOptions {
+  /** Langue de la requête. Les libellés d'une autre langue sont ignorés. */
+  lang?: TermLang | string | null;
+}
+
+export function resolveTaxonomy(query: string, vocab: TaxonomyVocabulary, opts: ResolveOptions = {}): ResolveResult {
+  const rawLang = String(opts.lang ?? "fr").toLowerCase().slice(0, 2);
+  const queryLang: TermLang = rawLang === "en" || rawLang === "ar" ? (rawLang as TermLang) : "fr";
+  /** Une cible indexée en EN/AR n'est active que si la requête est dans cette langue. */
+  const langAllows = (t: ResolvedTarget) => !t.lang || t.lang === queryLang;
   const normalized = normalizeTerm(query);
   const out: ResolvedTarget[] = [];
   if (!normalized) return { query, normalized, targets: [], unresolved: true };
@@ -407,7 +429,10 @@ export function resolveTaxonomy(query: string, vocab: TaxonomyVocabulary): Resol
       if (!containsOnWordBoundary(hay, term)) continue;
       const strength: MatchStrength =
         forced ?? (term === hay ? "exact" : term.includes(" ") ? "phrase" : "word");
-      for (const t of targets) out.push({ ...t, strength: t.strength === "synonym" ? "synonym" : strength, matched: term });
+      for (const t of targets) {
+        if (!langAllows(t)) continue;
+        out.push({ ...t, strength: t.strength === "synonym" ? "synonym" : strength, matched: term });
+      }
     }
   };
 
@@ -508,9 +533,9 @@ export function qualifyByCategory(targets: ResolvedTarget[]): ResolvedTarget[] {
 
 
 /** Raccourci : charge le vocabulaire puis résout. */
-export async function resolveWithAdmin(admin: any, query: string): Promise<ResolveResult> {
+export async function resolveWithAdmin(admin: any, query: string, lang?: string | null): Promise<ResolveResult> {
   const vocab = await loadTaxonomyVocabulary(admin);
-  return resolveTaxonomy(query, vocab);
+  return resolveTaxonomy(query, vocab, { lang });
 }
 
 /** Filtre par type, dans l'ordre de pertinence déjà calculé. */
