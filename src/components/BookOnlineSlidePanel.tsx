@@ -575,7 +575,7 @@ const BookOnlineSlidePanelInner = ({
     const raw = Number((business as any)?.poi_radius_km);
     const allowed = [0.5, 1, 5, 10, 20, 50, 100];
     setPoiProximityKm(allowed.includes(raw) ? raw : 10);
-  }, [business, poiOverrideKey]);
+  }, [business, (poiOverrideIds || []).join(",")]);
 
 
   /* ─── Widget "Adresses à proximité" : pills Regroupements KP + Lieu d'intérêt par défaut ─── */
