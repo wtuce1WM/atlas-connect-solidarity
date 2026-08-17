@@ -35,7 +35,24 @@ export type FeedEffectsConfig = {
   motionBlurSamples?: number;
   /** Portée du tracé SVG dans un montage Feed : toute la vidéo, l'accroche ou la fiche. */
   pathScope?: "all" | "hook" | "detail";
+
+  /* ---------------------------------------------------------- effets simples */
+  /** Fondu d'entrée depuis la couleur de fondu. */
+  fadeIn?: boolean;
+  /** Fondu (dip to black/white) entre chaque étape du montage. */
+  fadeCross?: boolean;
+  /** Fondu de sortie vers la couleur de fondu. */
+  fadeOut?: boolean;
+  /** Couleur des fondus : noir ou blanc. */
+  fadeColor?: "black" | "white";
+  /** Durée d'un fondu en frames (défaut 15 ≈ 0,5 s à 30 fps). */
+  fadeFrames?: number;
+  /** Ken Burns sur les images de fond : amplitude du travelling. */
+  kenBurns?: "off" | "soft" | "strong";
+  /** Fondu audio en entrée/sortie des voix-off. */
+  audioFade?: boolean;
 };
+
 
 /**
  * Clés autorisées en surcharge par étape : uniquement des accents. Le grade du
