@@ -22,7 +22,12 @@ export interface DestinationScope {
   longitude: number | null;
   /** Libellé effectivement reconnu dans le message. */
   matched: string;
+  /** Éditorial back-office (accroche), localisé. */
+  hook?: string | null;
+  /** Éditorial back-office (description), localisé. */
+  description?: string | null;
 }
+
 
 const norm = (s: unknown) =>
   String(s ?? "")
@@ -39,7 +44,7 @@ async function loadVocabulary(admin: any) {
   const [{ data: dests }, { data: cities }] = await Promise.all([
     admin
       .from("destinations")
-      .select("id, name_fr, name_en, name_ar, keywords, latitude, longitude")
+      .select("id, name_fr, name_en, name_ar, keywords, latitude, longitude, hook_fr, hook_en, hook_ar, description_fr, description_en, description_ar")
       .eq("is_searchable", true),
     admin.from("cities").select("name_fr, name_en, name_ar"),
   ]);
@@ -90,6 +95,8 @@ export async function detectExplicitDestination(
           latitude: Number.isFinite(Number(e.row.latitude)) ? Number(e.row.latitude) : null,
           longitude: Number.isFinite(Number(e.row.longitude)) ? Number(e.row.longitude) : null,
           matched: e.label,
+          hook: pickEditorial(e.row, "hook", "fr"),
+          description: pickEditorial(e.row, "description", "fr"),
         };
       }
     }
@@ -112,7 +119,7 @@ export async function fetchDestinationById(
   if (!id) return null;
   const { data } = await admin
     .from("destinations")
-    .select("id, name_fr, name_en, name_ar, latitude, longitude")
+    .select("id, name_fr, name_en, name_ar, latitude, longitude, hook_fr, hook_en, hook_ar, description_fr, description_en, description_ar")
     .eq("id", id)
     .maybeSingle();
   if (!data) return null;
@@ -124,7 +131,62 @@ export async function fetchDestinationById(
     latitude: Number.isFinite(Number(data.latitude)) ? Number(data.latitude) : null,
     longitude: Number.isFinite(Number(data.longitude)) ? Number(data.longitude) : null,
     matched: String(name || ""),
+    hook: pickEditorial(data, "hook", lang),
+    description: pickEditorial(data, "description", lang),
   };
+}
+
+/**
+ * Éditorial destination localisé (back-office `destinations`), nettoyé du HTML.
+ * Priorité : hook, puis description. Repli sur le FR si la langue est vide.
+ */
+function pickEditorial(row: any, base: "hook" | "description", lang: string): string | null {
+  const order = lang === "en" ? ["en", "fr", "ar"] : lang === "ar" ? ["ar", "fr", "en"] : ["fr", "en", "ar"];
+  for (const l of [...order, ""]) {
+    const raw = row?.[l ? `${base}_${l}` : base];
+    const clean = String(raw ?? "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/[*_#`>]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (clean) return clean;
+  }
+  return null;
+}
+
+/** Tronque sur une fin de phrase (jamais au milieu d'un mot). */
+function trimSentence(s: string, max: number): string {
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max);
+  const dot = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "));
+  if (dot > 80) return cut.slice(0, dot + 1).trim();
+  const sp = cut.lastIndexOf(" ");
+  return `${(sp > 80 ? cut.slice(0, sp) : cut).trim()}…`;
+}
+
+/**
+ * En-tête éditorial d'une réponse sur périmètre destination (zéro token) :
+ * H3 gras avec le nom de la destination + accroche/description du back-office.
+ * Aucune génération : ce que l'éditeur a écrit est ce que le voyageur lit.
+ */
+export function destinationIntro(
+  scope: DestinationScope,
+  lang: string,
+  count: number,
+): string {
+  const label = lang === "en"
+    ? `${count} address${count > 1 ? "es" : ""} selected`
+    : lang === "ar"
+      ? `${count} عنوان مُنتقى`
+      : `${count} adresse${count > 1 ? "s" : ""} sélectionnée${count > 1 ? "s" : ""}`;
+  const heading = `### **${scope.name}** — ${label}`;
+  const editorial = scope.hook
+    ? trimSentence(scope.hook, 240)
+    : scope.description
+      ? trimSentence(scope.description, 240)
+      : "";
+  return [heading, editorial].filter(Boolean).join("\n\n");
 }
 
 export interface ScopeChip {
