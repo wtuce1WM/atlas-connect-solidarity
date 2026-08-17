@@ -52,7 +52,7 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
     const fit = () => {
       const avail = viewport?.clientHeight ?? window.innerHeight;
       // marge pour le titre/CTA sous le carrousel
-      setCardH(Math.max(CARD_H_MIN, Math.min(CARD_H_MAX, avail - 60)));
+      setCardH(Math.max(CARD_H_MIN, Math.min(CARD_H_MAX, avail - 96)));
     };
     fit();
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(fit) : null;
@@ -77,7 +77,7 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
 
   if (!items.length) return null;
   return (
-    <div className="w-full max-w-full">
+    <div className="w-full max-w-full mt-3">
     <div
       ref={scrollerRef}
       className="w-full max-w-full overflow-x-auto overflow-y-visible scrollbar-hide -mx-1 px-1"
