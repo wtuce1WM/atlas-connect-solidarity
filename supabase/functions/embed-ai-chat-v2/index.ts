@@ -58,6 +58,7 @@ import { buildCompetitorGuard, type CompetitorGuard } from "../_shared/ai-engine
 import { resolveCityScope, detectExplicitCity } from "../_shared/ai-engine/city-scope.ts";
 import {
   detectExplicitDestination, fetchDestinationBusinesses, filterDestinationPool,
+  fetchDestinationById, destinationChipsForBusinesses, destinationChipsMarker,
   type DestinationScope,
 } from "../_shared/ai-engine/destination-scope.ts";
 import {
@@ -242,6 +243,14 @@ Deno.serve(async (req) => {
   const clientForcedRoute: string | null = typeof body.forcedRoute === "string" && body.forcedRoute
     ? body.forcedRoute.trim()
     : null;
+  /**
+   * Périmètre destination imposé par un CHIP déterministe (marqueur
+   * `DESTINATION_CHIPS`) : l'identifiant vient de la base, jamais du texte libre.
+   */
+  const clientDestinationId: string | null =
+    typeof body.destinationId === "string" && body.destinationId.trim()
+      ? body.destinationId.trim()
+      : null;
 
   // Seule la surface embed exige un établissement hôte : /search et /club
   // travaillent sur une ville active, sans fiche d'ancrage.
@@ -382,8 +391,9 @@ Deno.serve(async (req) => {
         // Périmètre DESTINATION : « dans l'Atlas », « Vallée de l'Ourika », « Imlil »…
         // ne sont pas des villes. Quand une destination curée est nommée, elle
         // REMPLACE le périmètre ville (`_shared/ai-engine/destination-scope.ts`).
-        const destScope: DestinationScope | null = await detectExplicitDestination(admin, userMessage)
-          .catch(() => null);
+        const destScope: DestinationScope | null = clientDestinationId
+          ? await fetchDestinationById(admin, clientDestinationId, lang).catch(() => null)
+          : await detectExplicitDestination(admin, userMessage).catch(() => null);
         if (destScope) {
           console.log("[embed-ai-chat-v2] destination_scope", JSON.stringify({
             id: destScope.id, name: destScope.name, matched: destScope.matched,
@@ -1618,6 +1628,13 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
           if (searchPoolIds.length) {
             emit("\n\n" + await poolMarker(admin, searchPoolIds, cityDetected || scopeCity || null));
           }
+          // Chips de périmètre déterministes (destinations réellement présentes
+          // dans le corpus) : remplacent les propositions en texte libre du modèle.
+          const chips = await destinationChipsForBusinesses(
+            admin, searchPoolIds.length ? searchPoolIds : results.map((b: any) => String(b.id)),
+            lang, destScope?.id || null,
+          );
+          if (chips.length) emit(`\n\n${destinationChipsMarker(chips)}`);
         } else if (priorFull.length) {
           // Relance contextuelle : cartes des seules fiches réellement citées, prises
           // dans le corpus complet du tour précédent ; le pool reste mémorisé.
