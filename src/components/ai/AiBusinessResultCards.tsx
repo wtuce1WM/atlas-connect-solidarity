@@ -205,56 +205,75 @@ const AiBusinessResultCards = ({
 
 
             <div className="min-w-0 flex-1 p-2.5 flex flex-col gap-1">
-              <button
-                type="button"
-                onClick={() => onOpen(b.id, siblings)}
-                className="text-left font-bold text-[14px] leading-tight text-[#C24B3F] underline decoration-dotted underline-offset-2 hover:decoration-solid break-words"
-                style={AI_NAME_FONT}
-              >
-                {b.name}
-              </button>
+              <div className="flex items-start gap-2">
+                <div className="min-w-0 flex-1 flex flex-col gap-1">
+                  <button
+                    type="button"
+                    onClick={() => onOpen(b.id, siblings)}
+                    className="text-left font-bold text-[14px] leading-tight text-[#C24B3F] underline decoration-dotted underline-offset-2 hover:decoration-solid break-words"
+                    style={AI_NAME_FONT}
+                  >
+                    {b.name}
+                  </button>
 
-              {hook ? <div className="text-[11.5px] leading-snug opacity-80 line-clamp-2">{hook}</div> : null}
+                  {hook ? <div className="text-[11.5px] leading-snug opacity-80 line-clamp-2">{hook}</div> : null}
 
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] opacity-75">
-                {loc ? (
-                  <span className="inline-flex items-center gap-1 min-w-0">
-                    <MapPin className="w-3 h-3 shrink-0" />
-                    <span className="truncate">{loc}</span>
-                  </span>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] opacity-75">
+                    {loc ? (
+                      <span className="inline-flex items-center gap-1 min-w-0">
+                        <MapPin className="w-3 h-3 shrink-0" />
+                        <span className="truncate">{loc}</span>
+                      </span>
+                    ) : null}
+                    {distStr ? <span className="shrink-0">· {distStr}</span> : null}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px]">
+                    {rating20 != null ? (
+                      <span
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full"
+                        style={{ background: "rgba(212,175,55,0.15)" }}
+                      >
+                        <Star className="w-3.5 h-3.5 shrink-0" style={{ color: "#D4AF37" }} fill="#D4AF37" />
+                        <span className="font-bold text-[13px]" style={{ color: "#D4AF37" }}>
+                          {rating20.toFixed(1)}<span className="text-[10px] font-semibold opacity-80">/20</span>
+                        </span>
+                        {reviewCount ? <span className="opacity-75 text-[10.5px]">· {reviewCount} {t.reviews}</span> : null}
+                      </span>
+                    ) : null}
+                    {statusLabel ? (
+                      <span
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold"
+                        style={
+                          hours.isOpen
+                            ? { background: "rgba(37,211,102,0.15)", color: "#1E9E52" }
+                            : { background: "rgba(194,75,63,0.15)", color: "#C24B3F" }
+                        }
+                      >
+                        <Clock className="w-2.5 h-2.5" /> {statusLabel}
+                        {hours.label ? <span className="font-normal opacity-80">· {hours.label}</span> : null}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+
+                {glovoUrl ? (
+                  <a
+                    href={glovoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Glovo"
+                    aria-label="Glovo"
+                    className="shrink-0 self-center inline-flex flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5"
+                    style={{ backgroundColor: "#FFC244", boxShadow: "0 0 0 1px rgba(0,0,0,0.18)" }}
+                  >
+                    <img src={glovoLogo} alt="Glovo" loading="eager" className="h-6 w-auto max-w-20 object-contain" />
+                    <span className="text-[9px] font-bold text-[#007A5E]" style={AI_NAME_FONT}>Livraison</span>
+                  </a>
                 ) : null}
-                {distStr ? <span className="shrink-0">· {distStr}</span> : null}
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px]">
-                {rating20 != null ? (
-                  <span
-                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full"
-                    style={{ background: "rgba(212,175,55,0.15)" }}
-                  >
-                    <Star className="w-3.5 h-3.5 shrink-0" style={{ color: "#D4AF37" }} fill="#D4AF37" />
-                    <span className="font-bold text-[13px]" style={{ color: "#D4AF37" }}>
-                      {rating20.toFixed(1)}<span className="text-[10px] font-semibold opacity-80">/20</span>
-                    </span>
-                    {reviewCount ? <span className="opacity-75 text-[10.5px]">· {reviewCount} {t.reviews}</span> : null}
-                  </span>
-                ) : null}
-                {statusLabel ? (
-                  <span
-                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold"
-                    style={
-                      hours.isOpen
-                        ? { background: "rgba(37,211,102,0.15)", color: "#1E9E52" }
-                        : { background: "rgba(194,75,63,0.15)", color: "#C24B3F" }
-                    }
-                  >
-                    <Clock className="w-2.5 h-2.5" /> {statusLabel}
-                    {hours.label ? <span className="font-normal opacity-80">· {hours.label}</span> : null}
-                  </span>
-                ) : null}
-              </div>
-
-              {(waHref || bookingUrl || glovoUrl) ? (
+              {(waHref || bookingUrl) ? (
                 <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                   {waHref ? (
                     <a
@@ -281,20 +300,6 @@ const AiBusinessResultCards = ({
                       <CalendarCheck className="w-3 h-3" /> {bookingLabel}
                     </button>
                   ) : null}
-                  {glovoUrl ? (
-                    <a
-                      href={glovoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="Glovo"
-                      aria-label="Glovo"
-                      className="inline-flex h-7 min-w-20 items-center justify-center shrink-0 rounded-full px-3"
-                      style={{ backgroundColor: "#FFC244", boxShadow: "0 0 0 1px rgba(0,0,0,0.18)" }}
-                    >
-                      <img src={glovoLogo} alt="Glovo" loading="eager" className="h-5 w-auto max-w-16 object-contain" />
-                    </a>
-                  ) : null}
-
                 </div>
               ) : null}
 
