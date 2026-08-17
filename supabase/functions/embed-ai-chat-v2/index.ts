@@ -1843,7 +1843,7 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
           const cited = results.filter((b) => b?.name && normFinal.includes(normalize(String(b.name)))).length;
           const answerListsResults = cited >= 2 && cited >= Math.ceil(results.length / 2);
           const city = cityDetected || scopeCity || "";
-          const disclosure = answerListsResults && city && totalFound > results.length
+          const disclosure = answerListsResults && totalFound > results.length
             ? `\n\n${buildDisclosureFromCounts(results.length, totalFound, city)}`
             : "";
           if (disclosure && !/sur\s+\d+\s+(trouv|qui correspond)/i.test(finalText)) emit(disclosure);
