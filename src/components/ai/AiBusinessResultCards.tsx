@@ -288,10 +288,10 @@ const AiBusinessResultCards = ({
                       rel="noopener noreferrer"
                       title="Glovo"
                       aria-label="Glovo"
-                      className="inline-flex items-center shrink-0 rounded-full px-2 py-1"
-                      style={{ backgroundColor: "#FFFFFF", boxShadow: "0 0 0 1px rgba(0,0,0,0.12)" }}
+                      className="inline-flex h-7 min-w-20 items-center justify-center shrink-0 rounded-full px-3"
+                      style={{ backgroundColor: "#FFC244", boxShadow: "0 0 0 1px rgba(0,0,0,0.18)" }}
                     >
-                      <img src={glovoLogo} alt="Glovo" loading="lazy" className="h-4 w-auto object-contain" />
+                      <img src={glovoLogo} alt="Glovo" loading="eager" className="h-5 w-auto max-w-16 object-contain" />
                     </a>
                   ) : null}
 

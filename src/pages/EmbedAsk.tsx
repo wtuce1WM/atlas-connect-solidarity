@@ -1881,9 +1881,14 @@ const EmbedAsk = () => {
               )}
 
               {weatherPayload && (
-                /* Encre du bloc prévisions alignée sur le fond réel de l'hôte :
-                   overlay Full Description = fond sombre transparent → encre claire. */
-                <EmbedWeatherWidget data={weatherPayload} lang={lang} ink={bgInk ?? "light"} />
+                /* Dans le chat sombre, le bloc prévisions doit rester lisible même si
+                   la page du widget est transparente : fond sombre explicite + encre blanche. */
+                <EmbedWeatherWidget
+                  data={weatherPayload}
+                  lang={lang}
+                  surface={theme === "dark" ? "rgba(23,23,23,0.72)" : ""}
+                  ink={theme === "dark" ? "light" : "dark"}
+                />
               )}
 
               {tidesCity && (
