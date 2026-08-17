@@ -185,9 +185,10 @@ const VoiceDuckContext = React.createContext(1);
 
 
 /** Un plan de la playlist : image en Ken Burns ou vidéo muette, en fondu. */
-const MediaShot: React.FC<{ src: string; frames: number }> = ({ src, frames }) => {
+const MediaShot: React.FC<{ src: string; frames: number; seed?: number }> = ({ src, frames, seed = 0 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const effects = React.useContext(EffectsContext);
   const fadeFrames = Math.min(Math.round(fps * 0.4), Math.max(1, Math.round(frames / 3)));
   const fade = Math.min(
     interpolate(frame, [0, fadeFrames], [0, 1], { extrapolateRight: "clamp" }),
@@ -204,9 +205,12 @@ const MediaShot: React.FC<{ src: string; frames: number }> = ({ src, frames }) =
     opacity: fade,
   };
   if (isVideoAsset(src)) return <OffthreadVideo src={resolved} muted style={cover} />;
+  // Ken Burns paramétrable ; sans réglage, on garde le léger zoom historique.
+  const kb = kenBurnsTransform(effects, frame, frames, seed);
   const scale = interpolate(frame, [0, frames], [1.02, 1.1], { extrapolateRight: "clamp" });
-  return <Img src={resolved} style={{ ...cover, transform: `scale(${scale})` }} />;
+  return <Img src={resolved} style={{ ...cover, transform: kb ?? `scale(${scale})` }} />;
 };
+
 
 /** Couche de fond média (playlist mixte images/vidéos), derrière la scène. */
 const SceneMediaBackdrop: React.FC<{ section: StoryboardSection }> = ({ section }) => {
