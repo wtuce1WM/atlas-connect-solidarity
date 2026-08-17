@@ -44,6 +44,8 @@ export type PickerMedia = {
   ownerName?: string | null;
   /** Le média est aussi publié sur la fiche courante. */
   onFiche?: boolean;
+  /** Badges actifs du média (documents de fiche uniquement). */
+  badges?: string[];
 };
 
 type TypeFilter = "all" | "image" | "video";
