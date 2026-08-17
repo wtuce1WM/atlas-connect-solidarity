@@ -17,7 +17,7 @@
 // B est optionnel et dégrade silencieusement vers A (erreur, clé absente,
 // réponse incomplète, moins de 3 résultats).
 
-import { GATEWAY_BASE_URL } from "../ai-gateway.ts";
+import { GATEWAY_BASE_URL } from "../../ai-gateway.ts";
 
 export type Lang = "fr" | "en" | "ar";
 
