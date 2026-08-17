@@ -1720,6 +1720,11 @@ const EmbedAsk = () => {
           const videoFeedPayload = videoFeeds[videoFeeds.length - 1] || null;
           const tidesCity = tides[tides.length - 1] || null;
           const isLast = i === messages.length - 1;
+          const hideAssistantText =
+            isLast &&
+            lastLocalFilterRef.current?.forcedRoute === "rating_best" &&
+            !!mapPayload &&
+            mapPayload.businesses.length > 0;
           const citedFallback =
             !mapPayload || mapPayload.businesses.length === 0
               ? findCitedBusinesses(clean)
