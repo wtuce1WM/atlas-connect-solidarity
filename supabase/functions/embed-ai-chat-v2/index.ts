@@ -814,7 +814,14 @@ Deno.serve(async (req) => {
           if (curated && keepCurated && curated.pinnedBusinessIds.length && !curatedHasTaxo) {
             const built = await buildPinnedAnswer(
               admin, curated.pinnedBusinessIds, host, lang, curated.label,
-              { competitorGuard },
+              {
+                competitorGuard,
+                immersive: {
+                  admin,
+                  query: curated.label || userMessage,
+                  apiKey: LOVABLE_API_KEY,
+                },
+              },
             ).catch((e) => {
               console.error("[embed-ai-chat-v2] pinned_route_failed", String(e));
               return null;
