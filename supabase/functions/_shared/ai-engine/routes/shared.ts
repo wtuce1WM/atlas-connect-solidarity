@@ -172,17 +172,27 @@ const nameTokens = (v: string) =>
 export async function matchBusinessNameInMessage(
   admin: any,
   message: string,
-): Promise<{ id: string; name: string; city: string | null } | null> {
+  /**
+   * Termes taxonomiques réellement résolus dans le message (« Artisanat marocain »).
+   * Leurs mots ne sont jamais distinctifs : sinon « artisanat marocain » devient une
+   * demande nominative sur « Galerie d'artisanat marocain » (Essaouira) et déplace
+   * tout le périmètre hors de la ville du master.
+   */
+  taxonomyTerms: string[] = [],
+): Promise<{ id: string; name: string; city: string | null; literal: boolean } | null> {
   const msg = nameStrip(message);
   if (msg.length < 8) return null;
   const msgTokens = nameTokens(msg);
   if (msgTokens.length < 2) return null;
   const msgSet = new Set(msgTokens);
+  const taxoTokens = new Set(
+    taxonomyTerms.flatMap((t) => nameTokens(nameStrip(t))),
+  );
 
   const { data } = await admin.from("businesses").select("id, name, city").eq("is_active", true);
   if (!Array.isArray(data)) return null;
 
-  let best: { id: string; name: string; city: string | null } | null = null;
+  let best: { id: string; name: string; city: string | null; literal: boolean } | null = null;
   let bestScore = 0;
 
   for (const b of data as any[]) {
@@ -200,7 +210,8 @@ export async function matchBusinessNameInMessage(
     );
     if (matched.length < 2) continue;
     // Au moins un token distinctif (« chalet »), pas seulement « bar », « plage »…
-    if (!matched.some((t) => !NAME_GENERIC.has(t))) continue;
+    // ni un mot de taxonomie résolu (« artisanat », « marocain »).
+    if (msg !== n && !matched.some((t) => !NAME_GENERIC.has(t) && !taxoTokens.has(t))) continue;
 
     const coverage = matched.length / nTok.length;
     const contains = msg.includes(n) || n.includes(msg);
@@ -210,11 +221,23 @@ export async function matchBusinessNameInMessage(
     const score = coverage * 1000 + (contains ? 500 : 0) + Math.min(n.length, 60);
     if (score > bestScore) {
       bestScore = score;
-      best = { id: String(b.id), name: String(b.name), city: b.city ?? null };
+      best = {
+        id: String(b.id),
+        name: String(b.name),
+        city: b.city ?? null,
+        // `literal` = le message cite le nom (nom entier inclus dans le message, ou
+        // message = début du nom : « Le Chalet de la Plage » → « … - Chez Jeannot »).
+        // Un simple recouvrement au milieu du nom (« artisanat marocain » dans
+        // « Galerie d'artisanat marocain ») n'est PAS nominatif. Seul le cas littéral
+        // peut déplacer le périmètre géographique hors de la ville du master.
+        literal: msg.includes(n) || n.startsWith(msg),
+      };
     }
   }
   return best;
 }
+
+
 
 
 /**
