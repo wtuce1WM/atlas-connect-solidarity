@@ -65,6 +65,8 @@ import {
 } from "../_shared/ai-engine/destination-scope.ts";
 import {
   resolveNeighborhoodInMessage, filterPoolByNeighborhood, neighborhoodEmptyMessage,
+  type NeighborhoodMatch,
+
 } from "../_shared/ai-engine/neighborhood-filter.ts";
 
 
