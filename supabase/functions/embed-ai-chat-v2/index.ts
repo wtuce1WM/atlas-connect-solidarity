@@ -32,6 +32,7 @@ import { warmNomadScope, isNomadBusiness, scrubNomadRow } from "../_shared/ai-en
 import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 import { isTidesIntent, resolveTidesCity, tidesIntro } from "../_shared/ai-engine/routes/tides.ts";
+import { isGlovoIntent, loadGlovoBusinessIds, glovoHeading, glovoEmpty } from "../_shared/ai-engine/routes/glovo.ts";
 import {
   loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle, matchCuratedByText,
   buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer, applyLabelPlaceholders,
