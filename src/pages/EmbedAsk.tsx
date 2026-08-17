@@ -775,6 +775,20 @@ const EmbedAsk = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
+  // POI liés à l'hôte (même source que la route poi_nearby : business_poi_businesses).
+  useEffect(() => {
+    if (!businessId) { setHostPoiCount(0); return; }
+    let cancelled = false;
+    (async () => {
+      const { count } = await (supabase as any)
+        .from("business_poi_businesses")
+        .select("poi_business_id", { count: "exact", head: true })
+        .eq("business_id", businessId);
+      if (!cancelled) setHostPoiCount(Number(count || 0));
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
   // Seed the opener as an assistant UIMessage once we know the business
   useEffect(() => {
     if (!businessName) return;
