@@ -1,5 +1,7 @@
 // Extrait verbatim de supabase/functions/embed-ai-chat/index.ts (moteur A/B/C, étape 3).
 // Aucune réécriture : le rendu est déjà validé en production.
+import { scrubNomadRows } from "../nomad-scope.ts";
+
 
 export function pickLang(v: unknown): "fr" | "en" | "ar" {
   return v === "en" || v === "ar" ? v : "fr";
