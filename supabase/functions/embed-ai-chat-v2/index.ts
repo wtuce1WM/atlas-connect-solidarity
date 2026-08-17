@@ -1215,21 +1215,35 @@ Deno.serve(async (req) => {
 
           cityDetected = city;
           try {
-            const r = await fetch(`${SUPABASE_URL}/functions/v1/business-search`, {
-              method: "POST",
-              headers: { Authorization: `Bearer ${SERVICE}`, apikey: SERVICE, "Content-Type": "application/json" },
-              body: JSON.stringify({
-                query: baseQuery,
-                spoken: baseQuery,
-                language: lang,
-                pageSize: 30,
-                offset: 0,
-                compact: "card",
-                city,
-              }),
-            });
-            const json = await r.json().catch(() => null);
+            // Corpus large : les filtres qui suivent (rayon de proximité, quartier,
+            // service, vue) retirent l'essentiel. À 30, « Shopping » dans 1 km ne gardait
+            // que 6 adresses sur 19 alors que la ville en compte 327. `business-search`
+            // plafonne pageSize à 100 : on pagine jusqu'à 300 pour que le filtre local
+            // travaille sur le vrai corpus de la ville.
+            const fetchPage = async (offset: number) => {
+              const r = await fetch(`${SUPABASE_URL}/functions/v1/business-search`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${SERVICE}`, apikey: SERVICE, "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  query: baseQuery, spoken: baseQuery, language: lang,
+                  pageSize: 100, offset, compact: "card", city,
+                }),
+              });
+              return await r.json().catch(() => null);
+            };
+            const json = await fetchPage(0);
             const all: any[] = Array.isArray(json?.businesses) ? json.businesses : [];
+            const apiTotalRaw = Number(json?.totalCount ?? 0) || 0;
+            if (all.length >= 100 && apiTotalRaw > all.length) {
+              for (const offset of [100, 200]) {
+                if (all.length >= apiTotalRaw || all.length >= 300) break;
+                const page = await fetchPage(offset);
+                const rows: any[] = Array.isArray(page?.businesses) ? page.businesses : [];
+                if (!rows.length) break;
+                all.push(...rows);
+              }
+              console.log("[embed-ai-chat-v2] search_paginated", JSON.stringify({ total: apiTotalRaw, fetched: all.length }));
+            }
             if (competitorGuard.active && all.length) {
               await (competitorGuard as any).loadSubs?.(all.map((b: any) => String(b.id)));
             }
@@ -1346,7 +1360,11 @@ Deno.serve(async (req) => {
               if (inRadius.length) kept = inRadius;
             }
 
-            totalFound = kept.length;
+            // Décompte honnête : si AUCUN filtre local n'a réduit la page (rayon, quartier,
+            // service, vue, concurrents), le total réel est celui de business-search, pas
+            // la taille de la page (100 max). Sinon c'est le corpus filtré qui fait foi.
+            const apiTotal = Number(json?.totalCount ?? 0) || 0;
+            totalFound = kept.length === all.length && apiTotal > kept.length ? apiTotal : kept.length;
 
             searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, 30);
             results = kept.slice(0, CFG.maxResults);
@@ -1401,9 +1419,37 @@ Deno.serve(async (req) => {
         // On ne garde que les cibles aussi proches que la meilleure : mélanger « Piscine »
         // et « Beach club » dans la même requête ramène des adresses hors sujet.
         const bestRank = strongTargets.length ? lexicalRank(strongTargets[0]) : 9;
-        const strongTerms = [
+        let strongTerms = [
           ...new Set(strongTargets.filter((t) => lexicalRank(t) === bestRank).map((t) => t.value)),
         ].slice(0, 2);
+        // ── Le mot tapé nomme une CATÉGORIE : elle prime sur ses sous-catégories ──
+        // « Shopping » est le nom anglais de la catégorie « Commerce » : le classement
+        // par type sortait « Boutique » (sous-catégorie) et amputait le corpus (54 fiches
+        // au lieu de 327). Quand la demande nomme réellement une catégorie et que les
+        // cibles fortes retenues n'en sont que des sous-ensembles, on interroge la
+        // catégorie. Aucun effet quand le mot ne correspond à aucune catégorie réelle
+        // (« restaurants français » garde Restaurant + Cuisine française).
+        if (resolution) {
+          const namedCategory = resolution.targets.find(
+            (t) => t.type === "category" && t.strength !== "expansion" && !isExcluded(t.value),
+          );
+          if (namedCategory && strongTerms.length) {
+            const subsetOnly = strongTargets
+              .filter((t) => lexicalRank(t) === bestRank)
+              .every(
+                (t) =>
+                  t.type === "category"
+                    ? normalize(t.value) === normalize(namedCategory.value)
+                    : (t.categories ?? []).some((c) => normalize(c) === normalize(namedCategory.value)),
+              );
+            if (subsetOnly && !strongTerms.some((v) => normalize(v) === normalize(namedCategory.value))) {
+              console.log("[embed-ai-chat-v2] category_widening", JSON.stringify({
+                from: strongTerms, to: namedCategory.value, matched: namedCategory.matched,
+              }));
+              strongTerms = [namedCategory.value];
+            }
+          }
+        }
         // Les cibles fortes retenues sont-elles uniquement des services (« Alcool ») et
         // non un type de lieu (catégorie / sous-catégorie) ? Utile pour distinguer
         // « où consommer » de « où acheter » (cf. weakResolution plus bas).
@@ -1749,7 +1795,9 @@ Deno.serve(async (req) => {
 Tu ne t'appuies QUE sur le contexte fourni. N'invente jamais un établissement, un prix, un horaire ou un avis.
 Quand le contexte contient des résultats, tu les présentes TOUJOURS, même s'ils ne correspondent pas exactement à la demande : dans ce cas, une phrase d'introduction honnête ("pas de correspondance exacte, voici une sélection proche") puis les adresses. Ne réponds jamais que tu n'as rien trouvé alors que des résultats sont fournis.
 Si le contexte ne contient aucun résultat, dis-le en une phrase et propose une reformulation.
-Termine TOUJOURS par une seule question de relance courte, ancrée uniquement dans le contexte fourni (une précision, une alternative ou une étape suivante concrète : réserver, horaires, proximité). Deux options maximum dans la question, jamais d'invention.
+${results.length
+  ? "NE TERMINE PAS par une question ni par une proposition d'affinage : la ligne de décompte et les filtres sont ajoutés automatiquement après ta réponse. Ta dernière phrase doit être une phrase affirmative sur les adresses présentées."
+  : "Termine par une seule question de relance courte, ancrée uniquement dans le contexte fourni (une précision, une alternative ou une étape suivante concrète : réserver, horaires, proximité). Deux options maximum dans la question, jamais d'invention."}
 
 ${contextualFollowUp ? "Cette réponse est une relance contextuelle : appuie-toi à fond sur le CONTEXTE ÉDITORIAL (services, offres, textes de photos, description) pour détailler concrètement ce que l'on peut faire dans chaque établissement déjà présenté (activités, piscine, repas, expériences), sans rien inventer.\n" : ""}
 Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}, ${contextualFollowUp ? "220" : "120"} mots maximum (relance incluse), sans liste brute si tu peux faire des phrases.`;
@@ -1810,7 +1858,7 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
           const cited = results.filter((b) => b?.name && normFinal.includes(normalize(String(b.name)))).length;
           const answerListsResults = cited >= 2 && cited >= Math.ceil(results.length / 2);
           const city = cityDetected || scopeCity || "";
-          const disclosure = answerListsResults && city && totalFound > results.length
+          const disclosure = answerListsResults && totalFound > results.length
             ? `\n\n${buildDisclosureFromCounts(results.length, totalFound, city)}`
             : "";
           if (disclosure && !/sur\s+\d+\s+(trouv|qui correspond)/i.test(finalText)) emit(disclosure);
