@@ -278,7 +278,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const embedUrl = embedCard === "transparent" ? embedUrlTransparent : embedUrlWidget;
   const embedSnippet = useMemo(
     () =>
-      `<iframe src="${embedUrl}" style="${fitIframeStyle(fitOf("embed"), { maxWidth: 420, height: embedHeight, radius: 16, extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15)" })}" title="Assistant IA — ${businessName}" loading="lazy" allow="clipboard-write"></iframe>`,
+      `<iframe src="${embedUrl}" style="${fitIframeStyle(fitOf("embed"), { maxWidth: 420, height: embedHeight, radius: 16, extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15)" })}" title="Assistant IA — ${businessName}" loading="lazy" allow="clipboard-write; microphone"></iframe>`,
     [embedUrl, embedHeight, businessName, fits]
   );
 
@@ -323,7 +323,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 <button id="owm-embed-tab" aria-label="Ouvrir l&#39;assistant IA">${trimmedAssistantName || 'Assistant 1WM'}</button>
 <div id="owm-embed-scrim" aria-hidden="true"></div>
 <div id="owm-embed-panel" role="dialog" aria-hidden="true">
-  <iframe id="owm-embed-iframe" src="${panelUrl}" title="Assistant IA — ${businessName}" allow="clipboard-write; geolocation" loading="lazy"></iframe>
+  <iframe id="owm-embed-iframe" src="${panelUrl}" title="Assistant IA — ${businessName}" allow="clipboard-write; geolocation; microphone" loading="lazy"></iframe>
 </div>
 
 <script>
@@ -950,6 +950,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
                   style={{ width: "100%", maxWidth: fitFlags(fitOf("embed")).fullWidth ? undefined : 420, height: embedHeight, border: 0 }}
                   title="Aperçu — couleur du widget"
                   loading="lazy"
+                  allow="microphone"
                 />
               </div>
             </div>
@@ -970,6 +971,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
                   style={{ width: "100%", maxWidth: fitFlags(fitOf("embed")).fullWidth ? undefined : 420, height: embedHeight, border: 0 }}
                   title="Aperçu — fond transparent"
                   loading="lazy"
+                  allow="microphone"
                 />
               </div>
             </div>
@@ -1086,6 +1088,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
                 style={{ width: "100%", height: embedHeight, border: 0 }}
                 title="Aperçu — panneau flottant"
                 loading="lazy"
+                allow="microphone"
               />
             </div>
           </div>
@@ -1256,6 +1259,13 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               (ou si le visiteur refuse la localisation), le widget fonctionne mais sans filtre de distance.
               La page hôte doit être en <span className="font-mono">https</span>.
             </li>
+            <li>
+              <strong>Recherche vocale</strong> : l'attribut <span className="font-mono">allow="microphone"</span>{" "}
+              est indispensable pour que le bouton micro ouvre l'overlay vocal. Sans lui, le navigateur bloque
+              le micro dans l'iframe. Page hôte en <span className="font-mono">https</span> requise.
+            </li>
+
+
             <li>
               <strong>Contenu automatique</strong> : les établissements affichés proviennent de la base 1WM
               (mêmes règles que la fiche). Rien à saisir de votre côté, la liste se met à jour toute seule.
