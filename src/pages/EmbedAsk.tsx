@@ -1169,12 +1169,21 @@ const EmbedAsk = () => {
       }
       neighborhoods = [...counts.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
     }
+    // Priorité aux quartiers visibles dans les cartes affichées, puis les
+    // autres quartiers du pool par volume (jusqu'à 6 badges) : un quartier
+    // présent dans les résultats ne doit jamais être absent des badges.
+    const shown = new Set(rows.map((b) => String(b?.neighborhood || "").trim()).filter(Boolean));
+    const ordered = [
+      ...neighborhoods.filter((n) => shown.has(n.name)),
+      ...neighborhoods.filter((n) => !shown.has(n.name)),
+    ];
     return {
       closest: geo >= 2,
       openNow: withHours >= 2,
       bestRated: withRating >= 2,
-      neighborhoods: neighborhoods.length >= 2 ? neighborhoods.slice(0, 3) : [],
+      neighborhoods: neighborhoods.length >= 2 ? ordered.slice(0, 6) : [],
     };
+
   }, [mapReplayTarget, poolInfo]);
 
 
