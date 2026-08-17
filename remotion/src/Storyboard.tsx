@@ -5,8 +5,13 @@ import { palette, alpha, display, body, size, weight } from "./tokens";
 import { PromoLogo } from "./promo/PromoLogo";
 import { resolveStoryboardIcon } from "./icons/registry";
 import {
+  EffectsContext,
   FeedEffectsOverlay,
   FeedMotionBlurWrapper,
+  SectionTransitionWrapper,
+  SimpleFadesOverlay,
+  audioFadeVolume,
+  kenBurnsTransform,
   mergeEffects,
   type FeedEffectsConfig,
 } from "./effects/FeedEffects";
@@ -185,9 +190,10 @@ const VoiceDuckContext = React.createContext(1);
 
 
 /** Un plan de la playlist : image en Ken Burns ou vidéo muette, en fondu. */
-const MediaShot: React.FC<{ src: string; frames: number }> = ({ src, frames }) => {
+const MediaShot: React.FC<{ src: string; frames: number; seed?: number }> = ({ src, frames, seed = 0 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const effects = React.useContext(EffectsContext);
   const fadeFrames = Math.min(Math.round(fps * 0.4), Math.max(1, Math.round(frames / 3)));
   const fade = Math.min(
     interpolate(frame, [0, fadeFrames], [0, 1], { extrapolateRight: "clamp" }),
@@ -204,9 +210,12 @@ const MediaShot: React.FC<{ src: string; frames: number }> = ({ src, frames }) =
     opacity: fade,
   };
   if (isVideoAsset(src)) return <OffthreadVideo src={resolved} muted style={cover} />;
+  // Ken Burns paramétrable ; sans réglage, on garde le léger zoom historique.
+  const kb = kenBurnsTransform(effects, frame, frames, seed);
   const scale = interpolate(frame, [0, frames], [1.02, 1.1], { extrapolateRight: "clamp" });
-  return <Img src={resolved} style={{ ...cover, transform: `scale(${scale})` }} />;
+  return <Img src={resolved} style={{ ...cover, transform: kb ?? `scale(${scale})` }} />;
 };
+
 
 /** Couche de fond média (playlist mixte images/vidéos), derrière la scène. */
 const SceneMediaBackdrop: React.FC<{ section: StoryboardSection }> = ({ section }) => {
@@ -223,7 +232,7 @@ const SceneMediaBackdrop: React.FC<{ section: StoryboardSection }> = ({ section 
         const frames = i === media.length - 1 ? Math.max(1, durationInFrames - from) : per;
         return (
           <Sequence key={`${src}-${i}`} from={from} durationInFrames={frames} layout="none">
-            <MediaShot src={src} frames={frames} />
+            <MediaShot src={src} frames={frames} seed={i} />
           </Sequence>
         );
       })}
@@ -990,7 +999,7 @@ const PhotosScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storyb
           const frames = i === shots.length - 1 ? Math.max(1, durationInFrames - from) : per;
           return (
             <Sequence key={`${src}-${i}`} from={from} durationInFrames={frames} layout="none">
-              <MediaShot src={src} frames={frames} />
+              <MediaShot src={src} frames={frames} seed={i} />
             </Sequence>
           );
         })}
@@ -1831,9 +1840,13 @@ export const Storyboard: React.FC<StoryboardProps> = (props) => {
     return { key: `${section.step_type}-${i}`, section, from, frames };
   });
 
+  const totalFrames = Math.max(1, cursor);
+  const boundaries = plans.slice(1).map((pl) => pl.from);
+
   return (
     <AbsoluteFill style={{ background: palette.night }}>
       <AbsoluteFill>
+        <EffectsContext.Provider value={p.effects ?? null}>
         <FeedMotionBlurWrapper effects={p.effects ?? null}>
         <div
           style={{
@@ -1850,7 +1863,7 @@ export const Storyboard: React.FC<StoryboardProps> = (props) => {
             flexShrink: 0,
           }}
         >
-          {plans.map((plan) => {
+          {plans.map((plan, index) => {
             // Héritage : `config.effects` de l'étape surcharge seulement les
             // accents du montage (voir STEP_EFFECT_KEYS).
             const stepEffects = mergeEffects(
@@ -1860,28 +1873,34 @@ export const Storyboard: React.FC<StoryboardProps> = (props) => {
             const voice = voiceOf(plan.section.config ?? {});
             const voiceSrc = voice ? assetUrl(voice.url) : null;
             const voiceFrom = voice ? Math.round(voice.delaySec * STORYBOARD_FPS) : 0;
+            const voiceFrames = Math.max(1, plan.frames - voiceFrom);
             return (
               <Sequence key={plan.key} from={plan.from} durationInFrames={plan.frames} layout="none">
-                <VoiceDuckContext.Provider value={voiceSrc ? voice!.duckBg : 1}>
-                  <SectionScene wide={wide} p={p} section={plan.section} />
-                </VoiceDuckContext.Provider>
+                <SectionTransitionWrapper effects={p.effects ?? null} index={index}>
+                  <VoiceDuckContext.Provider value={voiceSrc ? voice!.duckBg : 1}>
+                    <SectionScene wide={wide} p={p} section={plan.section} />
+                  </VoiceDuckContext.Provider>
+                </SectionTransitionWrapper>
                 {stepEffects && <FeedEffectsOverlay effects={{ ...stepEffects, motionBlur: false }} />}
                 {voiceSrc && (
                   <Sequence
                     from={Math.min(voiceFrom, Math.max(0, plan.frames - 1))}
-                    durationInFrames={Math.max(1, plan.frames - voiceFrom)}
+                    durationInFrames={voiceFrames}
                     layout="none"
                   >
-                    <Audio src={voiceSrc} volume={voice!.gain} />
+                    <Audio src={voiceSrc} volume={audioFadeVolume(p.effects ?? null, voice!.gain, voiceFrames)} />
                   </Sequence>
                 )}
               </Sequence>
             );
           })}
 
+          <SimpleFadesOverlay effects={p.effects ?? null} boundaries={boundaries} totalFrames={totalFrames} />
         </div>
         </FeedMotionBlurWrapper>
+        </EffectsContext.Provider>
       </AbsoluteFill>
     </AbsoluteFill>
   );
+
 };
