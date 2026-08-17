@@ -1527,7 +1527,7 @@ export function VideoMediaPickerDialog({
         <div className="flex flex-wrap gap-3">
           {selectedItems.map((m, i) => (
             <div key={m.url} className="relative w-64 max-w-full">
-              <div className="rounded-md overflow-hidden border-2 border-border bg-black h-64">
+              <div id={`sel-media-${i}`} className="rounded-md overflow-hidden border-2 border-border bg-black h-64">
                 {m.kind === "video" ? (
                   <video
                     src={m.url}
