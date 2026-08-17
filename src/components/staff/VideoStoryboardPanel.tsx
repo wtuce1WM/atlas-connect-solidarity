@@ -2058,6 +2058,18 @@ const VideoStoryboardPanel = () => {
                     applyGlobalMedia(next, globalIncludeBg);
                   }}
                 />
+                <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                  <Switch
+                    checked={globalIncludeBg}
+                    onCheckedChange={(v) => {
+                      setGlobalIncludeBg(v);
+                      setDirty(true);
+                      applyGlobalMedia(globalMediaItems, v);
+                    }}
+                  />
+                  Inclure les fonds de scène (accroche, texte, compteur, outro…)
+                </label>
+
                 <span className="text-[11px] text-muted-foreground">
                   Les vidéos alimentent les étapes vidéo, la sélection complète alimente les carrousels et
                   (si activé) les fonds média. Chaque étape reste modifiable individuellement ensuite.
