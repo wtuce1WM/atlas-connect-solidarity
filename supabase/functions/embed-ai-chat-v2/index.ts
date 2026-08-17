@@ -57,6 +57,10 @@ import { isForcedRouteKey, runForcedRoute, forcedMapMarker } from "../_shared/ai
 import { buildCompetitorGuard, type CompetitorGuard } from "../_shared/ai-engine/routes/competitors.ts";
 import { resolveCityScope, detectExplicitCity } from "../_shared/ai-engine/city-scope.ts";
 import {
+  detectExplicitDestination, fetchDestinationBusinesses, filterDestinationPool,
+  type DestinationScope,
+} from "../_shared/ai-engine/destination-scope.ts";
+import {
   resolveNeighborhoodInMessage, filterPoolByNeighborhood, neighborhoodEmptyMessage,
 } from "../_shared/ai-engine/neighborhood-filter.ts";
 
@@ -374,6 +378,19 @@ Deno.serve(async (req) => {
         const explicitCity = await detectExplicitCity(admin, userMessage);
         const scopeCity = resolveCityScope({ hostCity: host?.city, activeCity, explicitCity }) as string;
         cityDetected = scopeCity;
+
+        // Périmètre DESTINATION : « dans l'Atlas », « Vallée de l'Ourika », « Imlil »…
+        // ne sont pas des villes. Quand une destination curée est nommée, elle
+        // REMPLACE le périmètre ville (`_shared/ai-engine/destination-scope.ts`).
+        const destScope: DestinationScope | null = await detectExplicitDestination(admin, userMessage)
+          .catch(() => null);
+        if (destScope) {
+          console.log("[embed-ai-chat-v2] destination_scope", JSON.stringify({
+            id: destScope.id, name: destScope.name, matched: destScope.matched,
+          }));
+        }
+
+
 
         // Garde-fou concurrents : sur la surface embed, jamais un établissement de la
         // même catégorie / sous-catégorie que l'hôte (un riad ne montre pas de riads).
@@ -1343,6 +1360,7 @@ Deno.serve(async (req) => {
 
         const contextualFollowUp =
           !nameHit &&
+          !destScope &&
           priorIds.length > 0 &&
           !strongTerms.length &&
           !expansionTerms.length &&
@@ -1361,7 +1379,39 @@ Deno.serve(async (req) => {
           await runSearch(nameHit.name, nameHit.city || searchCity, []);
         }
 
-        if (!nameHit && !contextualFollowUp && out && confident && (out.intent === "search" || out.intent === "compare")) {
+        // ── Périmètre destination (déterministe, zéro token) ────────────────
+        // Une destination nommée remplace la ville : le corpus vient de
+        // `business_destinations`, puis les termes résolus l'affinent.
+        if (!nameHit && !results.length && destScope) {
+          try {
+            const pool = await fetchDestinationBusinesses(admin, destScope.id);
+            const terms = [...strongTerms, ...specializingTerms, ...expansionTerms].filter(Boolean);
+            let kept = filterDestinationPool(pool, terms as string[]);
+            if (competitorGuard.active && kept.length) {
+              await (competitorGuard as any).loadSubs?.(kept.map((b: any) => String(b.id)));
+              kept = competitorGuard.filterOut(kept);
+            }
+            if (excludedTerms.length) {
+              kept = kept.filter((b: any) => {
+                const hay = normalize(`${b.main_category || ""} ${(b.categories || []).join(" ")}`);
+                return !excludedTerms.some((x) => hay.includes(x));
+              });
+            }
+            route = "discover";
+            cityDetected = destScope.name;
+            totalFound = kept.length;
+            searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, 30);
+            results = kept.slice(0, CFG.maxResults);
+            resultsCount = results.length;
+            console.log("[embed-ai-chat-v2] destination_search", JSON.stringify({
+              destination: destScope.name, pool: pool.length, terms, kept: kept.length,
+            }));
+          } catch (e) {
+            console.error("[embed-ai-chat-v2] destination_search_failed", String(e));
+          }
+        }
+
+        if (!nameHit && !destScope && !contextualFollowUp && out && confident && (out.intent === "search" || out.intent === "compare")) {
           const views = detectViewIntent(userMessage);
           const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
           const excluded = excludedTerms;
@@ -1389,7 +1439,8 @@ Deno.serve(async (req) => {
 
         // Filet de secours : le classifieur n'a pas tranché (ou sa requête structurée
         // n'a rien donné) → termes résolus, sinon message brut comme la v1.
-        if (!results.length && route !== "business_qa") {
+        // Jamais sur un périmètre destination : replier sur la ville trahirait la promesse géo.
+        if (!results.length && !destScope && route !== "business_qa") {
           const rawExcluded = ((out?.exclude || []) as string[]).map(normalize).filter(Boolean);
           const rescueQuery = strongTerms.length
             ? strongTerms.join(" ")
@@ -1403,6 +1454,7 @@ Deno.serve(async (req) => {
           );
           if (results.length) fallbackReason = fallbackReason || "confidence_low";
         }
+
         resolutionAuthority = authoritySource;
 
         if (!results.length) fallbackReason = fallbackReason || "no_results";
