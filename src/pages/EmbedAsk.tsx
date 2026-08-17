@@ -1285,6 +1285,19 @@ const EmbedAsk = () => {
   // Intérieur des cartes : blanc uniquement si la carte n'a pas un fond clair affilié.
   const cardInk = cardStyle ? "" : whiteInk;
 
+  // Badges spéciaux : couleurs de marque explicites, inversées en dark mode.
+  const mapBadgeStyle: React.CSSProperties =
+    theme === "light"
+      ? { background: "#C04F17", color: "#FFFFFF", borderColor: "#C04F17" }
+      : { background: "#E08A5E", color: "#000000", borderColor: "#E08A5E" };
+  const moreBadgeStyle: React.CSSProperties =
+    theme === "light"
+      ? { background: "#D4AF37", color: "#000000", borderColor: "#D4AF37" }
+      : { background: "#D4AF37", color: "#FFFFFF", borderColor: "#D4AF37" };
+  const newConvStyle: React.CSSProperties =
+    theme === "light"
+      ? { background: "#000000", color: "#FFFFFF", borderColor: "#000000" }
+      : { background: "#FFFFFF", color: "#000000", borderColor: "#FFFFFF" };
 
   // Build conversation-wide dictionaries of businesses cited across all assistant messages.
   // - richByName: full rich data (images, coords, ratings) coming from a SHOW_ON_MAP payload.
