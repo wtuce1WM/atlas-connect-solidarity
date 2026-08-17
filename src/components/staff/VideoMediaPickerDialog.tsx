@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Copy, Film, Image as ImageIcon, Loader2, Play, Pause, Trash2, Upload, X } from "lucide-react";
+import { Copy, Film, Image as ImageIcon, Loader2, Maximize2, Play, Pause, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
 /**
@@ -157,6 +157,7 @@ function Tile({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
+  const [full, setFull] = useState(false);
   const [orientation, setOrientation] = useState<"landscape" | "portrait" | "square" | null>(
     item.orientation ?? null,
   );
