@@ -37,12 +37,14 @@ export default function EmbedWeather() {
   // Encre : forcée par ?ink, sinon déduite de la couleur de fond. Fond transparent
   // + hôte en dark mode → encre claire (texte blanc dans le bloc prévisions/footer),
   // sinon le texte #171717 devenait illisible sur le fond sombre du site hôte.
-  const prefersDark =
-    typeof window !== "undefined" &&
-    !bgColor &&
-    !params.get("ink") &&
-    window.matchMedia?.("(prefers-color-scheme: dark)").matches;
-  const ink = prefersDark ? "light" : resolveEmbedInk(params.get("ink"), bgColor);
+  // Fond transparent + aucune encre forcée → impossible de connaître le thème du
+  // site hôte (prefers-color-scheme reflète l'OS, pas la page hôte). On rend donc
+  // le bloc prévisions autonome : léger voile sombre + texte blanc, lisible sur
+  // hôte clair comme sur hôte sombre. Les textes noirs sur fond sombre disparaissent.
+  const autoPanel = !bgColor && !params.get("ink");
+  const ink = autoPanel ? "light" : resolveEmbedInk(params.get("ink"), bgColor);
+  const panelSurface = autoPanel ? "rgba(23,23,23,0.55)" : bgColor;
+
   // ?layout=footer : bandeau fin full-width réservé au desktop (>= 768px de large).
   // En dessous, on retombe sur la carte verticale, seule lisible sur mobile.
   const footerLayout = (params.get("layout") || "").toLowerCase() === "footer";
@@ -158,7 +160,7 @@ export default function EmbedWeather() {
           style={{ ...(fitStyle || {}), ...(zoom !== 1 ? ({ zoom } as CSSProperties) : {}) }}
         >
           {/* `embedded` = pas de largeur bridée : la taille est pilotée par l'iframe hôte */}
-          <EmbedWeatherWidget data={data} lang={lang} embedded surface={bgColor} ink={ink} />
+          <EmbedWeatherWidget data={data} lang={lang} embedded surface={panelSurface} ink={ink} />
         </div>
       )}
 
