@@ -1204,6 +1204,8 @@ Deno.serve(async (req) => {
         // classifieur, ou en secours avec le message brut quand il n'est pas confiant.
         const runSearch = async (baseQuery: string, city: string, excluded: string[], requiredServices: string[] = []) => {
           const views = detectViewIntent(userMessage);
+          console.log("[embed-ai-chat-v2] run_search", JSON.stringify({ baseQuery, city, excluded, requiredServices }));
+
           cityDetected = city;
           try {
             const r = await fetch(`${SUPABASE_URL}/functions/v1/business-search`, {
