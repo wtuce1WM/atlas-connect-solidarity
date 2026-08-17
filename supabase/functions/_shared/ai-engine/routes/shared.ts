@@ -246,6 +246,16 @@ export function bookingCtaOf(b: any, lang: "fr" | "en" | "ar" = "fr"): { url: st
     if (isWa) continue; // le CTA WhatsApp est déjà rendu séparément
     return { url: url.startsWith("http") ? url : `https://${url}`, label: label || fallback };
   }
+  // Aucun CTA de réservation : on retombe sur l'URL 1 (site web) avec son propre CTA.
+  const site = b?.website;
+  if (site && typeof site === "string" && b?.website_force_external !== true) {
+    const label = String(b?.website_cta || "").trim();
+    const isWa = label.toLowerCase().replace(/[\s_-]/g, "") === "whatsapp";
+    if (!isWa) {
+      const siteFallback = lang === "en" ? "Website" : lang === "ar" ? "الموقع" : "Site web";
+      return { url: site.startsWith("http") ? site : `https://${site}`, label: label || siteFallback };
+    }
+  }
   return null;
 }
 
@@ -263,4 +273,5 @@ export const CTA_SELECT_FIELDS =
   "phone, whatsapp, reserve_now_url, reserve_now_cta, presentation_mode, " +
   "online_shop_url, online_shop_cta, online_shop_presentation_mode, " +
   "url_4, url_4_cta, url_4_presentation_mode, url_5, url_5_cta, url_5_presentation_mode, " +
-  "reserve_now_force_external, online_shop_force_external, url_4_force_external, url_5_force_external";
+  "reserve_now_force_external, online_shop_force_external, url_4_force_external, url_5_force_external, " +
+  "website, website_cta, website_force_external";
