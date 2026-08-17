@@ -626,6 +626,7 @@ const EmbedAsk = () => {
         followupId: (body as any)?.followupId ?? null,
         scope: (body as any)?.scope ?? null,
         forcedRoute: (body as any)?.forcedRoute ?? null,
+        destinationId: (body as any)?.destinationId ?? null,
         radiusKm: radiusRef.current,
       },
     }),
@@ -1099,6 +1100,20 @@ const EmbedAsk = () => {
    * comptes par quartier viennent du CORPUS COMPLET du tour (`nb` du marqueur
    * pool, ex. 18 rooftops) — jamais des 6 fiches affichées.
    */
+  /**
+   * Chips de périmètre destination du dernier tour (marqueur DESTINATION_CHIPS) :
+   * remplacent les propositions géographiques en texte libre du modèle.
+   */
+  const destScopeChips = useMemo<ScopeChip[]>(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== "assistant") continue;
+      const { destChips } = extractPayloads(messageText(m));
+      return destChips;
+    }
+    return [];
+  }, [messages]);
+
   const localFilters = useMemo(() => {
     const rows = (mapReplayTarget?.businesses ?? []) as any[];
     const poolNb = Object.entries(poolInfo.nb)
@@ -2220,6 +2235,18 @@ const EmbedAsk = () => {
                     {lang === "en" ? "Best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés"}
                   </button>
                 )}
+                {destScopeChips.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => sendDestinationScope(c)}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <Compass className="w-3.5 h-3.5" />
+                    {c.name} · {c.count}
+                  </button>
+                ))}
                 {localFilters.neighborhoods.map((nb) => (
                   <button
                     key={nb.name}
