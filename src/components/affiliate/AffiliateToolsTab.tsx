@@ -983,7 +983,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           </h4>
           <p className="text-sm text-white/70">
             Cette version ajoute un onglet vertical fixe sur le bord droit de votre site. Au clic, un
-            volet s'ouvre par-dessus la page : 50 % de la largeur sur ordinateur, 100 % sur mobile.
+            volet s'ouvre par-dessus la page : 70 % de la largeur sur ordinateur, 100 % sur mobile, et le fond du site est assombri pendant l'ouverture.
             Contrairement au code iframe simple, il ne doit <strong>pas</strong> être collé dans un
             bloc « HTML / Embed » de la page (ces blocs sont eux-mêmes des iframes : le volet resterait
             prisonnier de la zone dessinée). Il doit être injecté dans le HTML global du site.
