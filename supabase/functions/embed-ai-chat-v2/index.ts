@@ -1555,23 +1555,32 @@ Deno.serve(async (req) => {
                 : [priorCategory].filter(Boolean) as string[];
 
           /**
-           * Résolution faible = ni terme taxonomique fort, ni catégorie validée par le
-           * classifieur (ex. intention d'usage « acheter de l'alcool »). Reconstruire la
-           * requête à partir de simples termes d'expansion appauvrit la recherche : on
-           * laisse alors `business-search` être l'autorité sur le message brut, comme /search.
+           * Deux cas où la requête reconstruite est moins bonne que le message brut, et où
+           * `business-search` (autorité de /search) doit décider seul :
+           *  1. aucun terme fort ni catégorie validée par le classifieur ;
+           *  2. intention d'ACHAT (« acheter de l'alcool », « où trouver des babouches »)
+           *     alors que la résolution ne sort qu'un SERVICE (« Alcool ») : un service
+           *     décrit ce qu'un lieu propose sur place, donc il ramène des lieux de
+           *     consommation (bars) au lieu de points de vente (caves, supermarchés).
            */
-          const weakResolution = !strongTerms.length && !classifierCategoryValid;
+          const purchaseIntent = /\b(acheter|achat|acheter|ou\s+(?:trouver|acheter)|vend|vente|se\s+procurer|emporter)\b/
+            .test(normalize(userMessage));
+          const weakResolution =
+            (!strongTerms.length && !classifierCategoryValid) ||
+            (purchaseIntent && strongAreServicesOnly);
           const baseQuery = weakResolution
             ? userMessage.slice(0, 200)
             : ([...coreTerms, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
               || userMessage.slice(0, 200));
           if (weakResolution) {
             console.log("[embed-ai-chat-v2] weak_resolution_raw_query", JSON.stringify({
-              message: userMessage.slice(0, 120), expansionTerms,
+              message: userMessage.slice(0, 120), strongTerms, expansionTerms, purchaseIntent,
             }));
           }
           // Services qualifiés forts → filtre dur (l'expansion par mot reste du ranking).
-          const requiredServices = resolution
+          // Neutralisé en résolution faible : le filtre dur « Alcool » écarterait justement
+          // les points de vente qu'on cherche.
+          const requiredServices = resolution && !weakResolution
             ? [...new Set(qualifiedServiceTargets(resolution).filter((t) => t.strength !== "expansion").map((t) => t.value))]
             : [];
           await runSearch(baseQuery, searchCity, excluded, requiredServices);
