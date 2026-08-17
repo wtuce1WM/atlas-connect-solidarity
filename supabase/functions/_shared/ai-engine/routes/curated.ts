@@ -605,6 +605,8 @@ export async function buildFilteredAnswer(
     competitorGuard?: CompetitorGuard;
     supabaseUrl: string;
     serviceKey: string;
+    /** Contexte du bloc immersif enrichi (voir `buildPinnedAnswer`). */
+    immersive?: ImmersiveCtx;
   },
 ): Promise<CuratedAnswer | null> {
   const badgeIds = (opts.badgeIds || []).filter(Boolean);
