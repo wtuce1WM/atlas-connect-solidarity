@@ -302,18 +302,26 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     font-weight: 600; font-size: 13px; letter-spacing: 0.05em; white-space: nowrap;
     cursor: pointer; z-index: 999998; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
+  #owm-embed-scrim {
+    position: fixed; inset: 0; background: rgba(0,0,0,.55);
+    opacity: 0; pointer-events: none; z-index: 999997;
+    transition: opacity .35s ease;
+  }
+  #owm-embed-scrim.open { opacity: 1; pointer-events: auto; }
   #owm-embed-panel {
-    position: fixed; top: 0; right: -100%; width: 50vw; height: 100vh;
+    position: fixed; top: 0; right: -70vw; width: 70vw; height: 100vh;
     background: ${panelSurface}; color-scheme: ${embedTheme};
     z-index: 999999; transition: right .35s ease;
     box-shadow: -8px 0 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
   }
   #owm-embed-panel.open { right: 0; }
   #owm-embed-iframe { flex: 1; width: 100%; border: none; background: ${panelSurface}; }
-  @media (max-width: 768px) { #owm-embed-panel { width: 100vw; } }
+  @media (max-width: 768px) { #owm-embed-panel { width: 100vw; right: -100vw; } }
+
 </style>
 
 <button id="owm-embed-tab" aria-label="Ouvrir l&#39;assistant IA">${trimmedAssistantName || 'Assistant 1WM'}</button>
+<div id="owm-embed-scrim" aria-hidden="true"></div>
 <div id="owm-embed-panel" role="dialog" aria-hidden="true">
   <iframe id="owm-embed-iframe" src="${panelUrl}" title="Assistant IA — ${businessName}" allow="clipboard-write; geolocation" loading="lazy"></iframe>
 </div>
@@ -322,10 +330,27 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   (function () {
     var tab = document.getElementById('owm-embed-tab');
     var panel = document.getElementById('owm-embed-panel');
+    var scrim = document.getElementById('owm-embed-scrim');
     var frame = document.getElementById('owm-embed-iframe');
-    function open() { panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false'); }
-    function shut() { panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); }
+    // Le voile et le volet démarrent leur transition sur la même frame :
+    // l'assombrissement suit exactement l'ouverture, jamais avant.
+    function open() {
+      requestAnimationFrame(function () {
+        panel.classList.add('open');
+        scrim.classList.add('open');
+      });
+      panel.setAttribute('aria-hidden', 'false');
+      scrim.setAttribute('aria-hidden', 'false');
+    }
+    function shut() {
+      panel.classList.remove('open');
+      scrim.classList.remove('open');
+      panel.setAttribute('aria-hidden', 'true');
+      scrim.setAttribute('aria-hidden', 'true');
+    }
     tab.addEventListener('click', open);
+    scrim.addEventListener('click', shut);
+
     // La croix de fermeture est dans le widget (à gauche de l'avatar) : il nous
     // prévient par postMessage.
     window.addEventListener('message', function (e) {
@@ -958,7 +983,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           </h4>
           <p className="text-sm text-white/70">
             Cette version ajoute un onglet vertical fixe sur le bord droit de votre site. Au clic, un
-            volet s'ouvre par-dessus la page : 50 % de la largeur sur ordinateur, 100 % sur mobile.
+            volet s'ouvre par-dessus la page : 70 % de la largeur sur ordinateur, 100 % sur mobile, et le fond du site est assombri pendant l'ouverture.
             Contrairement au code iframe simple, il ne doit <strong>pas</strong> être collé dans un
             bloc « HTML / Embed » de la page (ces blocs sont eux-mêmes des iframes : le volet resterait
             prisonnier de la zone dessinée). Il doit être injecté dans le HTML global du site.
