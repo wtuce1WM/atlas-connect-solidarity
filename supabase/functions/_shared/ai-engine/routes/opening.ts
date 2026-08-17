@@ -327,18 +327,21 @@ export async function buildOpenFilter(admin: any, ids: string[], intent: OpenFil
 
   const kept: any[] = [];
   for (const b of rows) {
+    // Règle 1WM : Vacances / Fermetures exceptionnelles priment sur tout,
+    // y compris « Ouvert 24h/24 » et horaires non publiés.
+    if (Array.isArray(b.vacation_dates)) {
+      const onVac = b.vacation_dates.some((v: any) => v?.start_date && v?.end_date && targetStr >= v.start_date && targetStr <= v.end_date);
+      if (onVac) continue;
+    }
     if (b.is_open_24h) { kept.push(b); continue; }
     // Règle 1WM : horaires non publiés (« Afficher les horaires sur la fiche
     // publique » décoché) => traité comme ouvert 24h/24.
     if (b.show_opening_hours !== true) { kept.push(b); continue; }
 
-    if (Array.isArray(b.vacation_dates)) {
-      const onVac = b.vacation_dates.some((v: any) => v?.start_date && v?.end_date && targetStr >= v.start_date && targetStr <= v.end_date);
-      if (onVac) continue;
-    }
     const d = b.opening_hours?.[dayKey];
     if (!d || d.closed) continue;
     if (overlaps(d.open, d.close) || (!d.continuous && overlaps(d.open2, d.close2))) kept.push(b);
+
   }
 
   const ordered = orderByIds(kept, ids);
