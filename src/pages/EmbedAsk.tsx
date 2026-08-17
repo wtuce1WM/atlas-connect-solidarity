@@ -1006,6 +1006,17 @@ const EmbedAsk = () => {
     );
   };
 
+  /**
+   * Relances hôte dynamiques (météo / POI / à proximité / que faire sur place) :
+   * remplacent les 4 dernières relances gérées manuellement en back-office.
+   * Chaque badge ne se propose qu'une fois par conversation.
+   */
+  const sendHostBadge = (key: string, text: string, forcedRoute: string) => {
+    if (streaming || !businessName) return;
+    setUsedHostBadges((prev) => (prev.includes(key) ? prev : [...prev, key]));
+    sendLocalFilter(text, forcedRoute);
+  };
+
 
 
 
