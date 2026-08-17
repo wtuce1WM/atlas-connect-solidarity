@@ -1340,8 +1340,9 @@ const VideoStoryboardPanel = () => {
         .filter((m: any) => m && typeof m.url === "string" && m.url.trim())
         .map((m: any) => ({
           url: m.url as string,
-          start: Number.isFinite(m.start) && m.start > 0 ? Number(m.start) : undefined,
+          start: Number.isFinite(m.start) && m.start >= 0 ? Number(m.start) : undefined,
           end: Number.isFinite(m.end) && m.end > 0 ? Number(m.end) : undefined,
+
         })),
     );
     setSections(
@@ -2071,9 +2072,11 @@ const VideoStoryboardPanel = () => {
                 </label>
 
                 <span className="text-[11px] text-muted-foreground">
-                  Les vidéos alimentent les étapes vidéo, la sélection complète alimente les carrousels et
-                  (si activé) les fonds média. Chaque étape reste modifiable individuellement ensuite.
+                  Les vidéos alimentent les étapes « Vidéo », la sélection complète alimente les étapes
+                  « Photos plein écran » et (si activé) les fonds média. Chaque étape reste modifiable
+                  individuellement ensuite. Les bornes Start / End sont enregistrées avec le montage.
                 </span>
+
               </div>
 
               <MontageEffectsBlock
