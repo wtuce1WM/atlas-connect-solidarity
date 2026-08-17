@@ -100,6 +100,90 @@ export async function detectExplicitDestination(
 
 }
 
+/**
+ * Périmètre destination imposé par un CHIP déterministe (`destinationId` du
+ * client) : aucune NLP, aucune ambiguïté — l'identifiant vient de la base.
+ */
+export async function fetchDestinationById(
+  admin: any,
+  id: string,
+  lang: string = "fr",
+): Promise<DestinationScope | null> {
+  if (!id) return null;
+  const { data } = await admin
+    .from("destinations")
+    .select("id, name_fr, name_en, name_ar, latitude, longitude")
+    .eq("id", id)
+    .maybeSingle();
+  if (!data) return null;
+  const name =
+    (lang === "en" ? data.name_en : lang === "ar" ? data.name_ar : data.name_fr) || data.name_fr;
+  return {
+    id: String(data.id),
+    name: String(name || ""),
+    latitude: Number.isFinite(Number(data.latitude)) ? Number(data.latitude) : null,
+    longitude: Number.isFinite(Number(data.longitude)) ? Number(data.longitude) : null,
+    matched: String(name || ""),
+  };
+}
+
+export interface ScopeChip {
+  id: string;
+  name: string;
+  count: number;
+}
+
+/**
+ * Chips de périmètre déterministes : destinations réellement représentées dans
+ * le corpus du tour (table `business_destinations`). Elles remplacent les
+ * propositions en texte libre du modèle (« à Marrakech ou dans l'Atlas ? ») :
+ * le client renvoie un `destination_id`, jamais une chaîne à re-interpréter.
+ */
+export async function destinationChipsForBusinesses(
+  admin: any,
+  businessIds: string[],
+  lang: string = "fr",
+  excludeId?: string | null,
+): Promise<ScopeChip[]> {
+  const ids = [...new Set((businessIds || []).map(String).filter(Boolean))];
+  if (ids.length < 2) return [];
+  try {
+    const { data: links } = await admin
+      .from("business_destinations")
+      .select("destination_id, business_id")
+      .in("business_id", ids.slice(0, 200));
+    const counts = new Map<string, number>();
+    for (const l of ((links as any[]) || [])) {
+      const d = String(l.destination_id);
+      if (excludeId && d === excludeId) continue;
+      counts.set(d, (counts.get(d) || 0) + 1);
+    }
+    if (!counts.size) return [];
+    const { data: dests } = await admin
+      .from("destinations")
+      .select("id, name_fr, name_en, name_ar")
+      .in("id", [...counts.keys()])
+      .eq("is_searchable", true);
+    const chips: ScopeChip[] = ((dests as any[]) || []).map((d) => ({
+      id: String(d.id),
+      name: String(
+        (lang === "en" ? d.name_en : lang === "ar" ? d.name_ar : d.name_fr) || d.name_fr || "",
+      ),
+      count: counts.get(String(d.id)) || 0,
+    })).filter((c) => c.name);
+    chips.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    return chips.slice(0, 6);
+  } catch (err) {
+    console.warn("[ai-engine/destination-scope] chips failed", String(err));
+    return [];
+  }
+}
+
+export function destinationChipsMarker(chips: ScopeChip[]) {
+  const safe = JSON.stringify({ chips }).replace(/-->/g, "--&gt;");
+  return `<!--DESTINATION_CHIPS:${safe}-->`;
+}
+
 const CARD_FIELDS =
   "id, name, slug, city, neighborhood, address, main_category, categories, services, keywords, " +
   "latitude, longitude, logo_url, images, computed_rating, rating, total_review_count, " +
