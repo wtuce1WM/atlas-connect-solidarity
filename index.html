@@ -205,7 +205,9 @@
           if (isOverlay) {
             document.documentElement.style.setProperty("color-scheme", "dark");
           } else {
-            document.documentElement.style.removeProperty("color-scheme");
+            // Embed réel chez l'hôte : color-scheme LIGHT obligatoire, sinon
+            // Chromium peint le canvas de l'iframe transparente en sombre.
+            document.documentElement.style.setProperty("color-scheme", "light");
           }
 
 
