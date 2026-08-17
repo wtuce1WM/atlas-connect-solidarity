@@ -1330,10 +1330,10 @@ Deno.serve(async (req) => {
         // relançait une recherche ville entière au lieu d'affiner la sélection. Si le mot
         // désigne un quartier réel de la ville du périmètre, il est retiré du vocabulaire
         // de recherche et traité comme filtre déterministe sur le corpus précédent.
-        const nbMatch = (priorIds.length || poolIds.length)
-          ? await resolveNeighborhoodInMessage(admin, userMessage, scopeCity)
-          : null;
-        const nbAliases = new Set(nbMatch?.aliases || []);
+        const nbAll = await resolveNeighborhoodInMessage(admin, userMessage, scopeCity).catch(() => null);
+        const nbMatch = (priorIds.length || poolIds.length) ? nbAll : null;
+        const nbAliases = new Set(nbAll?.aliases || []);
+
         const isNeighborhoodWord = (value: string) => nbAliases.has(normalize(value));
         // Cibles fortes (exact / phrase / synonyme curé) issues du message utilisateur,
         // ordonnées par proximité lexicale avec le terme réellement tapé : « piscine »
