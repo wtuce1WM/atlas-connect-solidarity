@@ -287,12 +287,15 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
 
 
 
-  // 6. Catégories.
+  // 6. Catégories. Les 11 libellés racines sont indexés SANS filtre de langue :
+  // « Shopping » (nom anglais de Commerce) est employé tel quel en français, et le
+  // vocabulaire des catégories est trop petit pour générer des collisions (contrairement
+  // aux 1 269 services, où l'indexation EN reste conditionnée à la langue de la requête).
   for (const c of categories) {
     const value = c.name_fr;
     if (!value) continue;
-    for (const [name, lang] of [[c.name_fr, undefined], [c.name_en, "en"], [c.name_ar, "ar"]] as Array<[string | null, TermLang | undefined]>) {
-      if (name) push(entries, name, { type: "category", value, source: "categories.name", lang });
+    for (const name of [c.name_fr, c.name_en, c.name_ar]) {
+      if (name) push(entries, name, { type: "category", value, source: "categories.name" });
     }
   }
 
