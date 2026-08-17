@@ -2382,27 +2382,48 @@ const EmbedAsk = () => {
             ))}
           </select>
         </div>
-        <div className={`flex items-end gap-2 rounded-2xl border ${border} ${inputBg} px-3 py-2`}>
-
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-            rows={1}
-            placeholder={L.placeholder}
-            disabled={streaming || !businessName}
-            className={`flex-1 resize-none bg-transparent outline-none text-sm max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white"}`}
-          />
+        <div className="flex items-end gap-2">
+          <div className={`flex-1 flex items-end rounded-2xl border ${border} ${inputBg} px-3 py-2`}>
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+              rows={1}
+              placeholder={L.placeholder}
+              disabled={streaming || !businessName}
+              className={`flex-1 resize-none bg-transparent outline-none text-sm max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white"}`}
+            />
+          </div>
           <button
             type="submit"
             disabled={streaming || !input.trim() || !businessName}
             aria-label="Send"
-            className="w-8 h-8 rounded-full bg-[#C24B3F] text-white flex items-center justify-center disabled:opacity-40 shrink-0"
+            className="w-9 h-9 rounded-full bg-[#C24B3F] text-white flex items-center justify-center disabled:opacity-40 shrink-0"
           >
             <Send className="w-4 h-4" />
           </button>
+          <button
+            type="button"
+            onClick={voice.toggleRecording}
+            aria-label={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
+            title={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
+            className={`w-9 h-9 rounded-full text-white flex items-center justify-center shrink-0 transition-colors ${
+              voice.status === "recording"
+                ? "bg-red-500 animate-pulse"
+                : "bg-[#194CFF] hover:bg-[#194CFF]/90"
+            }`}
+          >
+            {voice.status === "processing" ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : voice.status === "recording" ? (
+              <MicOff className="w-4 h-4" />
+            ) : (
+              <Mic className="w-4 h-4" />
+            )}
+          </button>
         </div>
+
       </form>
 
       {openMap && businessId ? (
