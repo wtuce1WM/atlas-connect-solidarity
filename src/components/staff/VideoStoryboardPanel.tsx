@@ -1235,9 +1235,11 @@ const VideoStoryboardPanel = () => {
   const [dirty, setDirty] = useState(false);
   /** Scénario auto sélectionné dans le même sélecteur (null = storyboard manuel). */
   const [legacyMode, setLegacyMode] = useState<"business" | "corporate" | null>(null);
-  /** Médias globaux du montage (propagés à toutes les étapes). */
-  const [globalMedia, setGlobalMedia] = useState<string[]>([]);
+  /** Médias globaux du montage (ordre + bornes Start/End), propagés à toutes les étapes. */
+  const [globalMediaItems, setGlobalMediaItems] = useState<GlobalMediaItem[]>([]);
+  const globalMedia = useMemo(() => globalMediaItems.map((m) => m.url), [globalMediaItems]);
   const [globalIncludeBg, setGlobalIncludeBg] = useState(true);
+
 
 
   // Autocomplete établissement (même mécanique que Promo business).
