@@ -132,9 +132,9 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
         aria-hidden={!open}
       />
 
-      {/* Panneau déplié — overlay au-dessus du composer */}
+      {/* Feuille dépliée — ancrée au bas du viewport, recouvre le composer */}
       <div
-        className={`absolute bottom-full inset-x-0 z-30 overflow-hidden transition-transform duration-200 ease-out ${
+        className={`absolute bottom-0 inset-x-0 z-40 overflow-hidden transition-transform duration-200 ease-out ${
           open ? "" : "pointer-events-none"
         }`}
         style={{
@@ -146,9 +146,10 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
         aria-hidden={!open}
       >
         <div
-          className={`mx-2 mb-1 rounded-2xl border shadow-[0_-8px_32px_rgba(0,0,0,0.25)] ${panelClass}`}
+          className={`rounded-t-2xl border-t border-x shadow-[0_-8px_32px_rgba(0,0,0,0.25)] ${panelClass}`}
           style={{ maxHeight: maxH, overflowY: "auto" }}
         >
+
           <div
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
