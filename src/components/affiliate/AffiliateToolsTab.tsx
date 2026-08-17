@@ -321,6 +321,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 </style>
 
 <button id="owm-embed-tab" aria-label="Ouvrir l&#39;assistant IA">${trimmedAssistantName || 'Assistant 1WM'}</button>
+<div id="owm-embed-scrim" aria-hidden="true"></div>
 <div id="owm-embed-panel" role="dialog" aria-hidden="true">
   <iframe id="owm-embed-iframe" src="${panelUrl}" title="Assistant IA — ${businessName}" allow="clipboard-write; geolocation" loading="lazy"></iframe>
 </div>
@@ -329,10 +330,27 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   (function () {
     var tab = document.getElementById('owm-embed-tab');
     var panel = document.getElementById('owm-embed-panel');
+    var scrim = document.getElementById('owm-embed-scrim');
     var frame = document.getElementById('owm-embed-iframe');
-    function open() { panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false'); }
-    function shut() { panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); }
+    // Le voile et le volet démarrent leur transition sur la même frame :
+    // l'assombrissement suit exactement l'ouverture, jamais avant.
+    function open() {
+      requestAnimationFrame(function () {
+        panel.classList.add('open');
+        scrim.classList.add('open');
+      });
+      panel.setAttribute('aria-hidden', 'false');
+      scrim.setAttribute('aria-hidden', 'false');
+    }
+    function shut() {
+      panel.classList.remove('open');
+      scrim.classList.remove('open');
+      panel.setAttribute('aria-hidden', 'true');
+      scrim.setAttribute('aria-hidden', 'true');
+    }
     tab.addEventListener('click', open);
+    scrim.addEventListener('click', shut);
+
     // La croix de fermeture est dans le widget (à gauche de l'avatar) : il nous
     // prévient par postMessage.
     window.addEventListener('message', function (e) {
