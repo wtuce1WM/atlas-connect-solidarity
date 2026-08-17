@@ -319,6 +319,61 @@ function Tile({
         )}
       </button>
 
+      {full && (
+        <div
+          className="fixed inset-0 z-[120] bg-black/90 flex items-center justify-center p-4"
+          onClick={(e) => {
+            e.stopPropagation();
+            setFull(false);
+          }}
+        >
+          <Button
+            type="button"
+            size="icon"
+            variant="secondary"
+            className="absolute top-4 right-4 h-9 w-9 rounded-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              setFull(false);
+            }}
+            aria-label="Fermer"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          {item.kind === "video" && isInternalVideoUrl(item.url) ? (
+            <video
+              src={item.url}
+              controls
+              autoPlay
+              playsInline
+              className="max-h-full max-w-full"
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <img
+              src={item.kind === "video" ? item.thumbnail || "" : item.url}
+              alt={item.title || ""}
+              className="max-h-full max-w-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+        </div>
+      )}
+
+      {!!item.badges?.length && (
+        <div className="mt-1 flex flex-wrap gap-1">
+          {item.badges.map((b) => (
+            <span
+              key={b}
+              className="text-[9px] px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground font-semibold uppercase"
+            >
+              {b}
+            </span>
+          ))}
+        </div>
+      )}
+
+
       {item.title && (
         <p className="mt-1 text-[10px] text-muted-foreground truncate" title={item.title}>
           {item.title}
