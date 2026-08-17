@@ -579,6 +579,45 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         // un média badgé qui appartient aussi à la fiche courante reste visible dans « Fiche »
         .map((m) => ({ ...m, onFiche: ficheUrls.has(m.url.trim().toLowerCase()) }));
 
+      // Badges actifs des vidéos de fiche (tous badges, pas seulement « Generic »).
+      const docIds = [
+        ...new Set(
+          deduped
+            .filter((m) => m.mediaId && (m.source === "fiche" || m.source === "generic" || m.source === "other"))
+            .map((m) => String(m.mediaId)),
+        ),
+      ];
+      if (docIds.length) {
+        const links: any[] = [];
+        for (let i = 0; i < docIds.length; i += 200) {
+          const { data } = await supabase
+            .from("business_document_badges")
+            .select("document_id, badge_id")
+            .in("document_id", docIds.slice(i, i + 200));
+          if (data) links.push(...data);
+        }
+        const badgeIds = [...new Set(links.map((l) => String(l.badge_id)))];
+        const badgeNames = new Map<string, string>();
+        for (let i = 0; i < badgeIds.length; i += 200) {
+          const { data } = await supabase
+            .from("badges")
+            .select("id, name_fr")
+            .in("id", badgeIds.slice(i, i + 200));
+          for (const b of data ?? []) badgeNames.set(String(b.id), String((b as any).name_fr ?? ""));
+        }
+        const byDoc = new Map<string, string[]>();
+        for (const l of links) {
+          const name = badgeNames.get(String(l.badge_id));
+          if (!name) continue;
+          const key = String(l.document_id);
+          byDoc.set(key, [...(byDoc.get(key) ?? []), name]);
+        }
+        for (const m of deduped) {
+          if (m.mediaId && byDoc.has(String(m.mediaId))) m.badges = byDoc.get(String(m.mediaId));
+        }
+      }
+
+
       // Détection réelle des orientations (images + vidéos internes) pour le filtre 16:9.
       // Important : en parallèle total (des centaines de requêtes simultanées) le
       // navigateur sature et la plupart des détections expiraient → orientation null,
