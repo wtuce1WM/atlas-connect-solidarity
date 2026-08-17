@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
   ChevronDown,
   ChevronRight,
@@ -928,34 +930,49 @@ const SortableSection = ({
       </div>
 
       {expanded && (
-        <div className="mt-3 ml-9 grid gap-3 max-w-4xl">
-          <div className="grid gap-3 md:grid-cols-2">
-            <label className="text-xs text-muted-foreground grid gap-1">
-              Type de section
-              <select
-                value={section.step_type}
-                onChange={(e) => patch({ step_type: e.target.value as StepType })}
-                className="h-8 rounded-md border bg-background px-2 text-xs"
-              >
-                {STEP_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="text-xs text-muted-foreground grid gap-1">
-              Nom de la section (back-office)
-              <Input
-                value={section.label ?? ""}
-                onChange={(e) => patch({ label: e.target.value })}
-                className="h-8 text-xs"
-              />
-            </label>
+        <div className="mt-3 ml-9 grid gap-4 max-w-4xl">
+          <div className="rounded-lg border p-3 grid gap-3">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              1. Identité de la section
+            </span>
+            <div className="grid gap-3 md:grid-cols-2">
+              <label className="text-xs text-muted-foreground grid gap-1">
+                Type de section
+                <select
+                  value={section.step_type}
+                  onChange={(e) => patch({ step_type: e.target.value as StepType })}
+                  className="h-8 rounded-md border bg-background px-2 text-xs"
+                >
+                  {STEP_TYPES.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-xs text-muted-foreground grid gap-1">
+                Nom de la section (back-office)
+                <Input
+                  value={section.label ?? ""}
+                  onChange={(e) => patch({ label: e.target.value })}
+                  className="h-8 text-xs"
+                />
+              </label>
+            </div>
+            {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
           </div>
-          {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
-          <ConfigFields section={section} patch={patch} businessId={businessId} format={format} />
-          <div className="mt-3 grid gap-3">
+
+          <div className="rounded-lg border p-3 grid gap-3">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              2. Contenu — {typeLabel(section.step_type)}
+            </span>
+            <ConfigFields section={section} patch={patch} businessId={businessId} format={format} />
+          </div>
+
+          <div className="rounded-lg border p-3 grid gap-3">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              3. Voix-off et effets de l'étape
+            </span>
             <StepVoiceOverBlock
               value={(section.config?.voice as StepVoice | undefined) ?? null}
               durationSec={section.duration_sec}
@@ -976,9 +993,9 @@ const SortableSection = ({
               }}
             />
           </div>
-
         </div>
       )}
+
     </div>
   );
 };
@@ -1245,6 +1262,10 @@ const StoryboardGuide = () => {
 
 const VideoStoryboardPanel = () => {
   const [boards, setBoards] = useState<Storyboard[]>([]);
+  /** Onglet actif de l'éditeur : montage / effets / rendus. */
+  const [tab, setTab] = useState("montage");
+  /** Guide affiché en panneau latéral, plus au-dessus de l'outil. */
+  const [guideOpen, setGuideOpen] = useState(false);
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [board, setBoard] = useState<Storyboard | null>(null);
   const [sections, setSections] = useState<Section[]>([]);
@@ -1760,8 +1781,7 @@ const VideoStoryboardPanel = () => {
     loadJobs();
   };
 
-
-  // Résumé des paramètres de montage affiché sous le sélecteur.
+  // Résumé des paramètres de montage affiché dans la barre de commande.
   const usedTypes = Array.from(
     new Set(sections.filter((s) => s.enabled).map((s) => typeLabel(s.step_type))),
   );
@@ -1776,108 +1796,133 @@ const VideoStoryboardPanel = () => {
   );
 
   return (
-    <div className="space-y-6 form-legible">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-black flex items-center gap-2">
-            <Clapperboard className="h-5 w-5" /> Montages vidéo (scénario = storyboard)
-          </CardTitle>
-          <p className="text-sm text-muted-foreground mt-1">
-            Un seul sélecteur, une seule interface d'étapes : montages manuels (duplicables, 180 s max) et
-            scénarios automatiques de Studio Vidéo IA.
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap items-end gap-3">
-            <label className="text-xs text-muted-foreground grid gap-1">
-              Montage
-              <select
-                value={legacyMode ? `legacy:${legacyMode}` : currentId ?? ""}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  if (v.startsWith("legacy:")) {
-                    setLegacyMode(v.slice(7) as "business" | "corporate");
-                  } else {
-                    setLegacyMode(null);
-                    setCurrentId(v || null);
-                  }
-                }}
-                className="h-9 min-w-64 rounded-md border bg-background px-2 text-xs"
-              >
-                <option value="">—</option>
-                <optgroup label="Montages manuels (duplicables)">
-                  {boards.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.name} — {b.format === "landscape" ? "16:9" : "9:16"} · {frDate(b.created_at)}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label="Scénarios automatiques (Studio Vidéo IA)">
-                  {LEGACY_MODES.map((m) => (
-                    <option key={m.value} value={`legacy:${m.value}`}>
-                      {m.label}
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
-            </label>
+    <div className="space-y-4 form-legible">
+      {/* ---------- Barre de commande permanente ---------- */}
+      <div className="sticky top-[72px] z-30 rounded-lg border bg-background/95 backdrop-blur p-3 space-y-3 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2">
+          <Clapperboard className="h-5 w-5 text-black shrink-0" />
+          <select
+            value={legacyMode ? `legacy:${legacyMode}` : currentId ?? ""}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v.startsWith("legacy:")) {
+                setLegacyMode(v.slice(7) as "business" | "corporate");
+              } else {
+                setLegacyMode(null);
+                setCurrentId(v || null);
+              }
+            }}
+            className="h-9 min-w-64 rounded-md border bg-background px-2 text-xs"
+            aria-label="Montage"
+          >
+            <option value="">— Choisir un montage —</option>
+            <optgroup label="Montages manuels (duplicables)">
+              {boards.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name} — {b.format === "landscape" ? "16:9" : "9:16"} · {frDate(b.created_at)}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Scénarios automatiques (Studio Vidéo IA)">
+              {LEGACY_MODES.map((m) => (
+                <option key={m.value} value={`legacy:${m.value}`}>
+                  {m.label}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setLegacyMode(null);
+              createBoard();
+            }}
+          >
+            <Plus className="h-4 w-4 mr-1" /> Nouveau
+          </Button>
+          {!legacyMode && board && (
+            <Button size="sm" variant="outline" onClick={duplicateBoard}>
+              <Copy className="h-4 w-4 mr-1" /> Dupliquer
+            </Button>
+          )}
+          {!legacyMode && board && (
+            <Button size="sm" variant="outline" className="text-destructive" onClick={deleteBoard}>
+              <Trash2 className="h-4 w-4 mr-1" /> Supprimer
+            </Button>
+          )}
+
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            {!legacyMode && board && dirty && (
+              <Badge variant="destructive" className="text-[10px]">
+                Modifications non enregistrées
+              </Badge>
+            )}
+            {!legacyMode && board && overflow && (
+              <Badge variant="destructive" className="text-[10px]">
+                Durée hors plafond
+              </Badge>
+            )}
+            {!legacyMode && board && (
+              <>
+                <Button size="sm" onClick={save} disabled={!dirty || saving}>
+                  <Save className="h-4 w-4 mr-1" /> Enregistrer
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={render}
+                  disabled={rendering || saving || dirty || sections.length === 0 || overflow}
+                  title={dirty ? "Enregistre d'abord le storyboard" : undefined}
+                >
+                  <Rocket className="h-4 w-4 mr-1" />
+                  {rendering
+                    ? "Lancement…"
+                    : `Rendre (${board.preview_scale === 1 ? "1080p" : `${Math.round(board.preview_scale * 100)}%`})`}
+                </Button>
+              </>
+            )}
             <Button
               size="sm"
-              variant="outline"
-              onClick={() => {
-                setLegacyMode(null);
-                createBoard();
-              }}
+              variant="ghost"
+              onClick={() => setGuideOpen(true)}
+              title="Guide du storyboard"
+              aria-label="Guide du storyboard"
             >
-              <Plus className="h-4 w-4 mr-1" /> Nouveau
+              <Info className="h-4 w-4 mr-1" /> Guide
             </Button>
-            {!legacyMode && board && (
-              <Button size="sm" variant="outline" onClick={duplicateBoard}>
-                <Copy className="h-4 w-4 mr-1" /> Dupliquer
-              </Button>
-            )}
-            {!legacyMode && board && (
-              <Button size="sm" variant="outline" className="text-destructive" onClick={deleteBoard}>
-                <Trash2 className="h-4 w-4 mr-1" /> Supprimer
-              </Button>
-            )}
           </div>
+        </div>
 
-          {!legacyMode && board && (
-            <div className="rounded-lg border bg-muted/30 p-3 grid gap-2 md:grid-cols-3 text-[11px] text-muted-foreground">
-              <div>
-                <span className="font-semibold text-black">Créé le</span> {frDate(board.created_at)}
-                <br />
-                <span className="font-semibold text-black">Modifié le</span> {frDate(board.updated_at)}
-              </div>
-              <div>
+        {!legacyMode && board && (
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
+              <span>
                 <span className="font-semibold text-black">Format</span>{" "}
                 {board.format === "landscape" ? "Paysage 1920×1080" : "Portrait 1080×1920"}
-                <br />
-                <span className="font-semibold text-black">Durée</span> {mmss(totals.total)} / plafond{" "}
-                {mmss(maxTotal)} · rendu {board.preview_scale}×
-              </div>
-              <div>
+              </span>
+              <span>
                 <span className="font-semibold text-black">Étapes</span> {sections.length} (
-                {sections.filter((s) => s.enabled).length} actives)
-                <br />
-                <span className="font-semibold text-black">Effets / motion design</span>{" "}
-                {motionFlags.length > 0 ? motionFlags.join(", ") : "aucun activé"}
-              </div>
-              {usedTypes.length > 0 && (
-                <div className="md:col-span-3 flex flex-wrap gap-1">
-                  {usedTypes.map((t) => (
-                    <Badge key={t} variant="outline" className="text-[10px]">
-                      {t}
-                    </Badge>
-                  ))}
-                </div>
-              )}
+                {sections.filter((s) => s.enabled).length} actives / {MAX_SECTIONS})
+              </span>
+              <span className={overflow ? "font-semibold text-destructive" : "font-semibold text-black"}>
+                {mmss(totals.total)} / {mmss(maxTotal)}
+              </span>
+              <span>
+                <span className="font-semibold text-black">Modifié</span> {frDate(board.updated_at)}
+              </span>
             </div>
-          )}
-        </CardContent>
-      </Card>
+            <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+              <div
+                className={`h-full ${overflow ? "bg-destructive" : "bg-primary"}`}
+                style={{ width: `${Math.min(100, (totals.total / maxTotal) * 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
 
+      {/* ---------- Scénarios automatiques ---------- */}
       {legacyMode && (
         <>
           <VideoScenarioConfigPanel initialMode={legacyMode} hideModeSwitch />
@@ -1893,7 +1938,7 @@ const VideoStoryboardPanel = () => {
                 <code>{legacyMode === "business" ? "business-showcase" : "corporate-vertical"}</code>) : le
                 déroulé configuré ci-dessus est appliqué, mais le rendu a besoin d'un prompt et d'un
                 établissement. On lance donc le rendu depuis Studio Vidéo, et les jobs produits
-                apparaissent dans « Rendus des montages » ci-dessous, comme ceux des storyboards manuels.
+                apparaissent dans l'onglet « Rendus ».
               </p>
               <Button size="sm" variant="secondary" asChild>
                 <a href="/studio-video" target="_blank" rel="noreferrer">
@@ -1905,180 +1950,302 @@ const VideoStoryboardPanel = () => {
         </>
       )}
 
-      <div className={legacyMode ? "hidden" : "space-y-6"}>
-      <Card>
-        <CardContent className="space-y-4 pt-6">
-          {board && (
-            <>
-              <div className="grid gap-3 md:grid-cols-4">
-                <label className="text-xs text-muted-foreground grid gap-1">
-                  Nom
-                  <Input
-                    value={board.name}
-                    onChange={(e) => patchBoard({ name: e.target.value })}
-                    className="h-9 text-xs"
-                  />
-                </label>
-                <label className="text-xs text-muted-foreground grid gap-1">
-                  Type de scénario
-                  <select
-                    value={board.scenario_type}
-                    onChange={(e) => patchBoard({ scenario_type: e.target.value as Storyboard["scenario_type"] })}
-                    className="h-9 rounded-md border bg-background px-2 text-xs"
-                  >
-                    <option value="corporate_long">Corporate long</option>
-                    <option value="promo_business">Promo business</option>
-                  </select>
-                </label>
-                <label className="text-xs text-muted-foreground grid gap-1">
-                  Format
-                  <select
-                    value={board.format}
-                    onChange={(e) => patchBoard({ format: e.target.value as Storyboard["format"] })}
-                    className="h-9 rounded-md border bg-background px-2 text-xs"
-                  >
-                    <option value="landscape">Paysage 1920×1080</option>
-                    <option value="portrait">Portrait 1080×1920</option>
-                  </select>
-                </label>
-                <label className="text-xs text-muted-foreground grid gap-1">
-                  Aperçu (échelle de rendu)
-                  <select
-                    value={String(board.preview_scale)}
-                    onChange={(e) => patchBoard({ preview_scale: Number(e.target.value) })}
-                    className="h-9 rounded-md border bg-background px-2 text-xs"
-                  >
-                    <option value="0.5">0,5× — aperçu rapide (540p)</option>
-                    <option value="0.667">0,667× — 720p</option>
-                    <option value="1">1× — sortie finale 1080p</option>
-                  </select>
-                </label>
-              </div>
+      {/* ---------- Montage manuel : 3 onglets ---------- */}
+      <div className={legacyMode ? "hidden" : ""}>
+        {!board && !loading && (
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-sm text-muted-foreground">
+                Aucun montage sélectionné : choisis-en un dans la liste ci-dessus, ou crée le premier avec
+                « Nouveau ».
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
-              <div className="grid gap-3">
-                <label className="text-xs text-muted-foreground grid gap-1">
-                  Établissement associé — nom, slug (optionnel)
-                  <Input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Chaabi Payment"
-                    className="h-9 text-xs"
-                  />
-                </label>
-                {results.length > 0 && (
-                  <div className="rounded-lg border divide-y max-h-60 overflow-y-auto">
-                    {results.map((r) => (
-                      <button
-                        key={r.id}
-                        onClick={() => {
-                          setBiz(r);
-                          setQuery(r.name);
-                          setResults([]);
-                          setDirty(true);
-                        }}
-                        className="w-full text-left px-3 py-2 text-xs hover:bg-muted flex items-center gap-2"
-                      >
-                        <span className="text-black font-medium">{r.name}</span>
-                        <span className="text-muted-foreground">{r.city}</span>
-                        <span className="text-muted-foreground font-mono ml-auto">{r.slug}</span>
-                      </button>
-                    ))}
-                  </div>
+        {board && (
+          <Tabs value={tab} onValueChange={setTab} className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="montage" className="gap-2">
+                <Film className="h-4 w-4" /> Montage
+              </TabsTrigger>
+              <TabsTrigger value="effets" className="gap-2">
+                <LayoutTemplate className="h-4 w-4" /> Effets
+              </TabsTrigger>
+              <TabsTrigger value="rendus" className="gap-2">
+                <Rocket className="h-4 w-4" /> Rendus
+                {jobs.length > 0 && (
+                  <Badge variant="outline" className="text-[10px]">
+                    {jobs.length}
+                  </Badge>
                 )}
-              </div>
+              </TabsTrigger>
+            </TabsList>
 
-              <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">
-                    {sections.filter((s) => s.enabled).length} section(s) active(s) · plafond {MAX_SECTIONS}
-                  </span>
-                  <span className={overflow ? "font-semibold text-destructive" : "font-semibold text-black"}>
-                    {mmss(totals.total)} / {mmss(maxTotal)}
-                  </span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                  <div
-                    className={`h-full ${overflow ? "bg-destructive" : "bg-primary"}`}
-                    style={{ width: `${Math.min(100, (totals.total / maxTotal) * 100)}%` }}
-                  />
-                </div>
-              </div>
+            {/* ===== Onglet Montage ===== */}
+            <TabsContent value="montage" className="space-y-4">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-black text-base">Réglages du montage</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-3 md:grid-cols-4">
+                    <label className="text-xs text-muted-foreground grid gap-1">
+                      Nom
+                      <Input
+                        value={board.name}
+                        onChange={(e) => patchBoard({ name: e.target.value })}
+                        className="h-9 text-xs"
+                      />
+                    </label>
+                    <label className="text-xs text-muted-foreground grid gap-1">
+                      Type de scénario
+                      <select
+                        value={board.scenario_type}
+                        onChange={(e) => patchBoard({ scenario_type: e.target.value as Storyboard["scenario_type"] })}
+                        className="h-9 rounded-md border bg-background px-2 text-xs"
+                      >
+                        <option value="corporate_long">Corporate long</option>
+                        <option value="promo_business">Promo business</option>
+                      </select>
+                    </label>
+                    <label className="text-xs text-muted-foreground grid gap-1">
+                      Format
+                      <select
+                        value={board.format}
+                        onChange={(e) => patchBoard({ format: e.target.value as Storyboard["format"] })}
+                        className="h-9 rounded-md border bg-background px-2 text-xs"
+                      >
+                        <option value="landscape">Paysage 1920×1080</option>
+                        <option value="portrait">Portrait 1080×1920</option>
+                      </select>
+                    </label>
+                    <label className="text-xs text-muted-foreground grid gap-1">
+                      Aperçu (échelle de rendu)
+                      <select
+                        value={String(board.preview_scale)}
+                        onChange={(e) => patchBoard({ preview_scale: Number(e.target.value) })}
+                        className="h-9 rounded-md border bg-background px-2 text-xs"
+                      >
+                        <option value="0.5">0,5× — aperçu rapide (540p)</option>
+                        <option value="0.667">0,667× — 720p</option>
+                        <option value="1">1× — sortie finale 1080p</option>
+                      </select>
+                    </label>
+                  </div>
 
-              <div className="grid gap-2 rounded-lg border p-3">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  Médias du montage (affectation globale)
-                </span>
-                <div className="flex flex-wrap items-center gap-2">
-                  <VideoMediaPickerDialog
-                    businessId={biz?.id ?? board.business_id}
+                  <div className="grid gap-3">
+                    <label className="text-xs text-muted-foreground grid gap-1">
+                      Établissement associé — nom, slug (optionnel)
+                      <Input
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Chaabi Payment"
+                        className="h-9 text-xs"
+                      />
+                    </label>
+                    {results.length > 0 && (
+                      <div className="rounded-lg border divide-y max-h-60 overflow-y-auto">
+                        {results.map((r) => (
+                          <button
+                            key={r.id}
+                            onClick={() => {
+                              setBiz(r);
+                              setQuery(r.name);
+                              setResults([]);
+                              setDirty(true);
+                            }}
+                            className="w-full text-left px-3 py-2 text-xs hover:bg-muted flex items-center gap-2"
+                          >
+                            <span className="text-black font-medium">{r.name}</span>
+                            <span className="text-muted-foreground">{r.city}</span>
+                            <span className="text-muted-foreground font-mono ml-auto">{r.slug}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {usedTypes.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {usedTypes.map((t) => (
+                        <Badge key={t} variant="outline" className="text-[10px]">
+                          {t}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-black text-base">Médias du montage (affectation globale)</CardTitle>
+                  <p className="text-[11px] text-muted-foreground">
+                    Les vidéos alimentent les étapes « Vidéo », la sélection complète alimente les étapes
+                    « Photos plein écran » et (si activé) les fonds média. Chaque étape reste modifiable
+                    individuellement. Les bornes Start / End sont enregistrées avec le montage.
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <VideoMediaPickerDialog
+                      businessId={biz?.id ?? board.business_id}
+                      format={board.format}
+                      allow="all"
+                      multiple
+                      max={30}
+                      label={globalMedia.length ? `Modifier les médias (${globalMedia.length})` : "Choisir les médias"}
+                      value={globalMedia}
+                      onChange={(urls) => {
+                        const next = urls.slice(0, 30).map((url) => {
+                          const prev = globalMediaItems.find((m) => m.url === url);
+                          return { url, start: prev?.start, end: prev?.end };
+                        });
+                        setGlobalMediaItems(next);
+                        setDirty(true);
+                        applyGlobalMedia(next, globalIncludeBg);
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs"
+                      disabled={globalMedia.length === 0 || sections.length === 0}
+                      onClick={() => {
+                        applyGlobalMedia(globalMediaItems, globalIncludeBg);
+                        toast.success("Médias appliqués à toutes les étapes");
+                      }}
+                    >
+                      Appliquer à toutes les étapes
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs"
+                      disabled={sections.length === 0}
+                      onClick={clearAllMedia}
+                    >
+                      Retirer les médias partout
+                    </Button>
+                  </div>
+                  <StoryboardGlobalMediaGrid
+                    items={globalMediaItems}
                     format={board.format}
-                    allow="all"
-                    multiple
-                    max={30}
-                    label={globalMedia.length ? `Modifier les médias (${globalMedia.length})` : "Choisir les médias"}
-                    value={globalMedia}
-                    onChange={(urls) => {
-                      const next = urls.slice(0, 30).map((url) => {
-                        const prev = globalMediaItems.find((m) => m.url === url);
-                        return { url, start: prev?.start, end: prev?.end };
-                      });
+                    onChange={(next) => {
                       setGlobalMediaItems(next);
                       setDirty(true);
                       applyGlobalMedia(next, globalIncludeBg);
                     }}
                   />
-                  <Button
+                  <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <Switch
+                      checked={globalIncludeBg}
+                      onCheckedChange={(v) => {
+                        setGlobalIncludeBg(v);
+                        setDirty(true);
+                        applyGlobalMedia(globalMediaItems, v);
+                      }}
+                    />
+                    Inclure les fonds de scène (accroche, texte, compteur, outro…)
+                  </label>
+                </CardContent>
+              </Card>
 
-                    size="sm"
-                    variant="outline"
-                    className="h-8 text-xs"
-                    disabled={globalMedia.length === 0 || sections.length === 0}
-                    onClick={() => {
-                      applyGlobalMedia(globalMediaItems, globalIncludeBg);
-                      toast.success("Médias appliqués à toutes les étapes");
-                    }}
-                  >
-                    Appliquer à toutes les étapes
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8 text-xs"
-                    disabled={sections.length === 0}
-                    onClick={clearAllMedia}
-                  >
-                    Retirer les médias partout
-                  </Button>
-                </div>
-                <StoryboardGlobalMediaGrid
-                  items={globalMediaItems}
-                  format={board.format}
-                  onChange={(next) => {
-                    setGlobalMediaItems(next);
-                    setDirty(true);
-                    applyGlobalMedia(next, globalIncludeBg);
-                  }}
-                />
-                <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                  <Switch
-                    checked={globalIncludeBg}
-                    onCheckedChange={(v) => {
-                      setGlobalIncludeBg(v);
-                      setDirty(true);
-                      applyGlobalMedia(globalMediaItems, v);
-                    }}
-                  />
-                  Inclure les fonds de scène (accroche, texte, compteur, outro…)
-                </label>
+              <Card>
+                <CardHeader className="pb-3 flex flex-row items-center justify-between gap-3 flex-wrap">
+                  <CardTitle className="text-black text-base">
+                    Étapes du montage ({sections.length})
+                  </CardTitle>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <select
+                      value={newType}
+                      onChange={(e) => setNewType(e.target.value as StepType)}
+                      className="h-8 rounded-md border bg-background px-2 text-xs"
+                    >
+                      {STEP_TYPES.map((t) => (
+                        <option key={t.value} value={t.value}>
+                          {t.label}
+                        </option>
+                      ))}
+                    </select>
+                    <Button size="sm" variant="outline" onClick={addSection}>
+                      <Plus className="h-4 w-4 mr-1" /> Ajouter
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => currentId && loadBoard(currentId)}
+                      disabled={loading || saving}
+                    >
+                      <RotateCcw className="h-4 w-4 mr-1" /> Recharger
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {/* Ligne de temps : chaque bloc = une étape, largeur proportionnelle à sa durée */}
+                  {sections.length > 0 && (
+                    <div className="space-y-1">
+                      <div className="flex h-9 w-full gap-0.5 overflow-hidden rounded-md border bg-muted/40">
+                        {sections.map((s, i) => (
+                          <button
+                            key={s.id}
+                            type="button"
+                            onClick={() => setExpanded((prev) => (prev === s.id ? null : s.id))}
+                            title={`${i + 1}. ${s.label || typeLabel(s.step_type)} — ${s.duration_sec}s`}
+                            style={{ flexGrow: Math.max(1, s.duration_sec), flexBasis: 0 }}
+                            className={`min-w-0 px-1 text-[10px] font-semibold truncate transition-colors ${
+                              expanded === s.id
+                                ? "bg-primary text-primary-foreground"
+                                : s.enabled
+                                  ? "bg-primary/25 text-black hover:bg-primary/40"
+                                  : "bg-muted text-muted-foreground line-through hover:bg-muted/70"
+                            }`}
+                          >
+                            {i + 1}. {s.label || typeLabel(s.step_type)}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        Clique un bloc pour éditer l'étape · largeur = durée · barré = étape désactivée.
+                      </p>
+                    </div>
+                  )}
 
-                <span className="text-[11px] text-muted-foreground">
-                  Les vidéos alimentent les étapes « Vidéo », la sélection complète alimente les étapes
-                  « Photos plein écran » et (si activé) les fonds média. Chaque étape reste modifiable
-                  individuellement ensuite. Les bornes Start / End sont enregistrées avec le montage.
-                </span>
+                  {loading ? (
+                    <p className="text-sm text-muted-foreground">Chargement…</p>
+                  ) : sections.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      Aucune étape : ajoute une accroche pour démarrer.
+                    </p>
+                  ) : (
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+                      <SortableContext items={sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+                        <div className="divide-y rounded-lg border">
+                          {sections.map((s, i) => (
+                            <SortableSection
+                              key={s.id}
+                              section={s}
+                              index={i}
+                              startSec={totals.starts[s.id] ?? 0}
+                              expanded={expanded === s.id}
+                              onToggle={() => setExpanded((prev) => (prev === s.id ? null : s.id))}
+                              patch={(values) => patchSection(s.id, values)}
+                              remove={() => removeSection(s.id)}
+                              businessId={biz?.id ?? board.business_id}
+                              format={board.format}
+                            />
+                          ))}
+                        </div>
+                      </SortableContext>
+                    </DndContext>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-              </div>
-
+            {/* ===== Onglet Effets ===== */}
+            <TabsContent value="effets" className="space-y-4">
               <MontageEffectsBlock
                 value={board.effects ?? null}
                 onChange={(v) => {
@@ -2086,7 +2253,6 @@ const VideoStoryboardPanel = () => {
                   setDirty(true);
                 }}
               />
-
               <SimpleEffectsBlock
                 value={board.effects ?? null}
                 onChange={(v) => {
@@ -2094,144 +2260,81 @@ const VideoStoryboardPanel = () => {
                   setDirty(true);
                 }}
               />
+              <p className="text-[11px] text-muted-foreground">
+                Effets actifs détectés dans les étapes : {motionFlags.length > 0 ? motionFlags.join(", ") : "aucun"}.
+              </p>
+            </TabsContent>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <select
-                  value={newType}
-                  onChange={(e) => setNewType(e.target.value as StepType)}
-                  className="h-8 rounded-md border bg-background px-2 text-xs"
-                >
-                  {STEP_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
-                <Button size="sm" variant="outline" onClick={addSection}>
-                  <Plus className="h-4 w-4 mr-1" /> Ajouter une section
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => currentId && loadBoard(currentId)}
-                  disabled={loading || saving}
-                >
-                  <RotateCcw className="h-4 w-4 mr-1" /> Recharger
-                </Button>
-              </div>
-
-              {loading ? (
-                <p className="text-sm text-muted-foreground">Chargement…</p>
-              ) : sections.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Aucune section : ajoute une accroche pour démarrer.</p>
-              ) : (
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-                  <SortableContext items={sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-                    <div className="divide-y rounded-lg border">
-                      {sections.map((s, i) => (
-                        <SortableSection
-                          key={s.id}
-                          section={s}
-                          index={i}
-                          startSec={totals.starts[s.id] ?? 0}
-                          expanded={expanded === s.id}
-                          onToggle={() => setExpanded((prev) => (prev === s.id ? null : s.id))}
-                          patch={(values) => patchSection(s.id, values)}
-                          remove={() => removeSection(s.id)}
-                          businessId={biz?.id ?? board.business_id}
-                          format={board.format}
-                        />
-
+            {/* ===== Onglet Rendus ===== */}
+            <TabsContent value="rendus">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
+                  <CardTitle className="text-black text-base">Rendus des montages</CardTitle>
+                  <Button size="sm" variant="outline" onClick={loadJobs}>
+                    <RotateCcw className="h-4 w-4 mr-1" /> Rafraîchir
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {jobs.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Aucun rendu de montage pour le moment.</p>
+                  ) : (
+                    <div className="divide-y">
+                      {jobs.map((j) => (
+                        <div key={j.id} className="py-3 space-y-2">
+                          <div className="flex items-center gap-3 flex-wrap text-sm">
+                            <Badge
+                              variant={j.status === "done" ? "default" : j.status === "error" ? "destructive" : "outline"}
+                              className="text-[10px]"
+                            >
+                              {j.status}
+                            </Badge>
+                            <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
+                            <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
+                            {j.output_url && (
+                              <a
+                                href={j.output_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-[11px] underline text-primary ml-auto"
+                              >
+                                Ouvrir la vidéo
+                              </a>
+                            )}
+                            {j.error_message && (
+                              <span className="text-[11px] text-destructive ml-auto max-w-md truncate">
+                                {j.error_message}
+                              </span>
+                            )}
+                          </div>
+                          <VideoJobMeta
+                            job={j}
+                            businessName={j.business_id ? jobBusinessNames[j.business_id] : undefined}
+                          />
+                        </div>
                       ))}
                     </div>
-                  </SortableContext>
-                </DndContext>
-              )}
-
-              {sections.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 border-t pt-3">
-                  <Button size="sm" onClick={save} disabled={!dirty || saving}>
-                    <Save className="h-4 w-4 mr-1" /> Enregistrer
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={render}
-                    disabled={rendering || saving || dirty || sections.length === 0 || overflow}
-                    title={dirty ? "Enregistre d'abord le storyboard" : undefined}
-                  >
-                    <Rocket className="h-4 w-4 mr-1" />
-                    {rendering ? "Lancement…" : `Rendre (${board.preview_scale === 1 ? "1080p" : `${Math.round(board.preview_scale * 100)}%`})`}
-                  </Button>
-                </div>
-              )}
-
-            </>
-          )}
-
-          {!board && !loading && (
-            <p className="text-sm text-muted-foreground">
-              Aucun storyboard : crée le premier avec « Nouveau ».
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
-          <CardTitle className="text-black text-base">Rendus des montages</CardTitle>
-          <Button size="sm" variant="outline" onClick={loadJobs}>
-            <RotateCcw className="h-4 w-4 mr-1" /> Rafraîchir
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {jobs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun rendu de montage pour le moment.</p>
-          ) : (
-            <div className="divide-y">
-              {jobs.map((j) => (
-                <div key={j.id} className="py-3 space-y-2">
-                  <div className="flex items-center gap-3 flex-wrap text-sm">
-                    <Badge
-                      variant={j.status === "done" ? "default" : j.status === "error" ? "destructive" : "outline"}
-                      className="text-[10px]"
-                    >
-                      {j.status}
-                    </Badge>
-                    <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
-                    <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
-                    {j.output_url && (
-                      <a
-                        href={j.output_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-[11px] underline text-primary ml-auto"
-                      >
-                        Ouvrir la vidéo
-                      </a>
-                    )}
-                    {j.error_message && (
-                      <span className="text-[11px] text-destructive ml-auto max-w-md truncate">{j.error_message}</span>
-                    )}
-                  </div>
-                  <VideoJobMeta
-                    job={j}
-                    businessName={j.business_id ? jobBusinessNames[j.business_id] : undefined}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <StoryboardGuide />
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        )}
       </div>
 
-
-
+      {/* ---------- Guide en panneau latéral ---------- */}
+      <Sheet open={guideOpen} onOpenChange={setGuideOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-3xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="text-black">Guide du storyboard</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4">
+            <StoryboardGuide />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
+
 };
 
 export default VideoStoryboardPanel;
