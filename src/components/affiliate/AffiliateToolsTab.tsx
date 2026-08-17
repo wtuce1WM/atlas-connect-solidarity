@@ -309,14 +309,18 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   }
   #owm-embed-scrim.open { opacity: 1; pointer-events: auto; }
   #owm-embed-panel {
-    position: fixed; top: 0; right: -70vw; width: 70vw; height: 100vh;
+    position: fixed; top: 0; right: -70vw; width: 70vw; height: 100vh; height: 100dvh;
     background: ${panelSurface}; color-scheme: ${embedTheme};
     z-index: 999999; transition: right .35s ease;
     box-shadow: -8px 0 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
   }
   #owm-embed-panel.open { right: 0; }
   #owm-embed-iframe { flex: 1; width: 100%; border: none; background: ${panelSurface}; }
+  /* Scroll de l'hôte gelé pendant l'ouverture : la barre de défilement du
+     navigateur disparaît, le volet couvre donc toute la droite du viewport. */
+  html.owm-embed-lock, body.owm-embed-lock { overflow: hidden !important; overscroll-behavior: none; }
   @media (max-width: 768px) { #owm-embed-panel { width: 100vw; right: -100vw; } }
+
 
 </style>
 
