@@ -57,6 +57,10 @@ import { isForcedRouteKey, runForcedRoute, forcedMapMarker } from "../_shared/ai
 import { buildCompetitorGuard, type CompetitorGuard } from "../_shared/ai-engine/routes/competitors.ts";
 import { resolveCityScope, detectExplicitCity } from "../_shared/ai-engine/city-scope.ts";
 import {
+  detectExplicitDestination, fetchDestinationBusinesses, filterDestinationPool,
+  type DestinationScope,
+} from "../_shared/ai-engine/destination-scope.ts";
+import {
   resolveNeighborhoodInMessage, filterPoolByNeighborhood, neighborhoodEmptyMessage,
 } from "../_shared/ai-engine/neighborhood-filter.ts";
 
