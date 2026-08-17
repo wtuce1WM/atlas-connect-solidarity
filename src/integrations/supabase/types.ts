@@ -8409,6 +8409,7 @@ export type Database = {
           created_at: string
           effects: Json | null
           format: string
+          global_media: Json
           id: string
           max_duration_sec: number
           name: string
@@ -8421,6 +8422,7 @@ export type Database = {
           created_at?: string
           effects?: Json | null
           format?: string
+          global_media?: Json
           id?: string
           max_duration_sec?: number
           name: string
@@ -8433,6 +8435,7 @@ export type Database = {
           created_at?: string
           effects?: Json | null
           format?: string
+          global_media?: Json
           id?: string
           max_duration_sec?: number
           name?: string

@@ -32,6 +32,10 @@ import { toast } from "sonner";
 import VideoIconPickerDialog from "@/components/staff/VideoIconPickerDialog";
 import SvgFlowBeatsEditor, { type FlowBeat } from "@/components/staff/SvgFlowBeatsEditor";
 import { VideoMediaPickerDialog } from "@/components/staff/VideoMediaPickerDialog";
+import StoryboardGlobalMediaGrid, {
+  isVideoMediaUrl,
+  type GlobalMediaItem,
+} from "@/components/staff/StoryboardGlobalMediaGrid";
 import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
 import VideoJobMeta from "@/components/staff/VideoJobMeta";
 import StepVoiceOverBlock, { type StepVoice } from "@/components/staff/StepVoiceOverBlock";
@@ -104,6 +108,8 @@ type Storyboard = {
   max_duration_sec: number;
   /** Grade global de motion design du montage (null = aucun effet). */
   effects?: MontageEffects | null;
+  /** Médias globaux du montage : ordre + bornes de lecture (Start/End). */
+  global_media?: GlobalMediaItem[] | null;
   created_at?: string | null;
   updated_at?: string | null;
 };
@@ -1235,9 +1241,11 @@ const VideoStoryboardPanel = () => {
   const [dirty, setDirty] = useState(false);
   /** Scénario auto sélectionné dans le même sélecteur (null = storyboard manuel). */
   const [legacyMode, setLegacyMode] = useState<"business" | "corporate" | null>(null);
-  /** Médias globaux du montage (propagés à toutes les étapes). */
-  const [globalMedia, setGlobalMedia] = useState<string[]>([]);
+  /** Médias globaux du montage (ordre + bornes Start/End), propagés à toutes les étapes. */
+  const [globalMediaItems, setGlobalMediaItems] = useState<GlobalMediaItem[]>([]);
+  const globalMedia = useMemo(() => globalMediaItems.map((m) => m.url), [globalMediaItems]);
   const [globalIncludeBg, setGlobalIncludeBg] = useState(true);
+
 
 
   // Autocomplete établissement (même mécanique que Promo business).
@@ -1250,7 +1258,7 @@ const VideoStoryboardPanel = () => {
   const loadBoards = useCallback(async () => {
     const { data, error } = await supabase
       .from("video_storyboards" as any)
-      .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, effects, created_at, updated_at")
+      .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, effects, global_media, created_at, updated_at")
       .order("created_at", { ascending: false });
     if (error) {
       toast.error("Chargement des storyboards impossible");
@@ -1298,7 +1306,7 @@ const VideoStoryboardPanel = () => {
     const [boardRes, stepsRes] = await Promise.all([
       supabase
         .from("video_storyboards" as any)
-        .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, effects, created_at, updated_at")
+        .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, effects, global_media, created_at, updated_at")
         .eq("id", id)
         .maybeSingle(),
       supabase
@@ -1309,6 +1317,15 @@ const VideoStoryboardPanel = () => {
     ]);
     const b = (boardRes.data as unknown as Storyboard) ?? null;
     setBoard(b);
+    setGlobalMediaItems(
+      (Array.isArray(b?.global_media) ? b.global_media : [])
+        .filter((m: any) => m && typeof m.url === "string" && m.url.trim())
+        .map((m: any) => ({
+          url: m.url as string,
+          start: Number.isFinite(m.start) && m.start > 0 ? Number(m.start) : undefined,
+          end: Number.isFinite(m.end) && m.end > 0 ? Number(m.end) : undefined,
+        })),
+    );
     setSections(
       ((stepsRes.data ?? []) as unknown as Section[]).map((s) => ({ ...s, config: s.config ?? {} })),
     );
@@ -1402,6 +1419,7 @@ const VideoStoryboardPanel = () => {
         preview_scale: board.preview_scale,
         max_duration_sec: board.max_duration_sec,
         effects: board.effects ?? null,
+        global_media: globalMediaItems as any,
       } as any)
       .select("id")
       .maybeSingle();
@@ -1458,25 +1476,38 @@ const VideoStoryboardPanel = () => {
     setDirty(true);
   };
 
-  /** Médias affectés à l'ensemble du montage, puis propagés à toutes les étapes média. */
-  const isVideoUrl = (u: string) => /\.(mp4|mov|webm|m4v)(\?|$)/i.test(u);
+  /** Médias affectés à l'ensemble du montage, puis propagés à toutes les étapes. */
+  const isVideoUrl = (u: string) => isVideoMediaUrl(u);
 
-  const applyGlobalMedia = (urls: string[], includeBackgrounds: boolean) => {
-    const pool = urls.slice(0, 30);
-    const videos = pool.filter(isVideoUrl);
+  const applyGlobalMedia = (media: GlobalMediaItem[], includeBackgrounds: boolean) => {
+    const list = media.slice(0, 30);
+    const pool = list.map((m) => m.url);
+    const videos = list.filter((m) => isVideoUrl(m.url));
+    const trims: Record<string, { start?: number; end?: number }> = {};
+    for (const m of list) {
+      if ((m.start ?? 0) > 0 || (m.end ?? 0) > 0) trims[m.url] = { start: m.start, end: m.end };
+    }
     setSections((prev) =>
       prev.map((s) => {
         const cfg = s.config ?? {};
         if (s.step_type === "video") {
-          return { ...s, config: { ...cfg, assetUrls: (videos.length ? videos : pool), assetUrl: "" } };
+          return {
+            ...s,
+            config: {
+              ...cfg,
+              assetUrls: (videos.length ? videos : list).map((m) => m.url),
+              assetUrl: "",
+              assetTrims: trims,
+            },
+          };
         }
         if (s.step_type === "photos") {
-          return { ...s, config: { ...cfg, media: pool, images: [] } };
+          return { ...s, config: { ...cfg, media: pool, images: [], assetTrims: trims } };
         }
         if (includeBackgrounds && pool.length > 0) {
           return {
             ...s,
-            config: { ...cfg, bgMode: "medias", bgMedia: pool, bgImages: [], bgVideoUrl: "" },
+            config: { ...cfg, bgMode: "medias", bgMedia: pool, bgImages: [], bgVideoUrl: "", assetTrims: trims },
           };
         }
         return s;
@@ -1583,6 +1614,7 @@ const VideoStoryboardPanel = () => {
         preview_scale: board.preview_scale,
         max_duration_sec: board.max_duration_sec,
         effects: board.effects ?? null,
+        global_media: globalMediaItems as any,
       } as any)
       .eq("id", board.id);
 
@@ -1965,8 +1997,13 @@ const VideoStoryboardPanel = () => {
                     label={globalMedia.length ? `Modifier les médias (${globalMedia.length})` : "Choisir les médias"}
                     value={globalMedia}
                     onChange={(urls) => {
-                      setGlobalMedia(urls.slice(0, 30));
-                      applyGlobalMedia(urls, globalIncludeBg);
+                      const next = urls.slice(0, 30).map((url) => {
+                        const prev = globalMediaItems.find((m) => m.url === url);
+                        return { url, start: prev?.start, end: prev?.end };
+                      });
+                      setGlobalMediaItems(next);
+                      setDirty(true);
+                      applyGlobalMedia(next, globalIncludeBg);
                     }}
                   />
                   <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
@@ -1979,7 +2016,7 @@ const VideoStoryboardPanel = () => {
                     className="h-8 text-xs"
                     disabled={globalMedia.length === 0 || sections.length === 0}
                     onClick={() => {
-                      applyGlobalMedia(globalMedia, globalIncludeBg);
+                      applyGlobalMedia(globalMediaItems, globalIncludeBg);
                       toast.success("Médias appliqués à toutes les étapes");
                     }}
                   >
@@ -1995,6 +2032,14 @@ const VideoStoryboardPanel = () => {
                     Retirer les médias partout
                   </Button>
                 </div>
+                <StoryboardGlobalMediaGrid
+                  items={globalMediaItems}
+                  onChange={(next) => {
+                    setGlobalMediaItems(next);
+                    setDirty(true);
+                    applyGlobalMedia(next, globalIncludeBg);
+                  }}
+                />
                 <span className="text-[11px] text-muted-foreground">
                   Les vidéos alimentent les étapes vidéo, la sélection complète alimente les carrousels et
                   (si activé) les fonds média. Chaque étape reste modifiable individuellement ensuite.
