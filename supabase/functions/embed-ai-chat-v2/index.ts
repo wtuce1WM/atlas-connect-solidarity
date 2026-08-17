@@ -1215,24 +1215,35 @@ Deno.serve(async (req) => {
 
           cityDetected = city;
           try {
-            const r = await fetch(`${SUPABASE_URL}/functions/v1/business-search`, {
-              method: "POST",
-              headers: { Authorization: `Bearer ${SERVICE}`, apikey: SERVICE, "Content-Type": "application/json" },
-              body: JSON.stringify({
-                query: baseQuery,
-                spoken: baseQuery,
-                language: lang,
-                // Corpus large : les filtres qui suivent (rayon de proximité, quartier,
-                // service, vue) retirent l'essentiel. À 30, « Shopping » dans 1 km ne
-                // gardait que 6 adresses sur 19 alors que la ville en compte 327.
-                pageSize: 100,
-                offset: 0,
-                compact: "card",
-                city,
-              }),
-            });
-            const json = await r.json().catch(() => null);
+            // Corpus large : les filtres qui suivent (rayon de proximité, quartier,
+            // service, vue) retirent l'essentiel. À 30, « Shopping » dans 1 km ne gardait
+            // que 6 adresses sur 19 alors que la ville en compte 327. `business-search`
+            // plafonne pageSize à 100 : on pagine jusqu'à 300 pour que le filtre local
+            // travaille sur le vrai corpus de la ville.
+            const fetchPage = async (offset: number) => {
+              const r = await fetch(`${SUPABASE_URL}/functions/v1/business-search`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${SERVICE}`, apikey: SERVICE, "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  query: baseQuery, spoken: baseQuery, language: lang,
+                  pageSize: 100, offset, compact: "card", city,
+                }),
+              });
+              return await r.json().catch(() => null);
+            };
+            const json = await fetchPage(0);
             const all: any[] = Array.isArray(json?.businesses) ? json.businesses : [];
+            const apiTotalRaw = Number(json?.totalCount ?? 0) || 0;
+            if (all.length >= 100 && apiTotalRaw > all.length) {
+              for (const offset of [100, 200]) {
+                if (all.length >= apiTotalRaw || all.length >= 300) break;
+                const page = await fetchPage(offset);
+                const rows: any[] = Array.isArray(page?.businesses) ? page.businesses : [];
+                if (!rows.length) break;
+                all.push(...rows);
+              }
+              console.log("[embed-ai-chat-v2] search_paginated", JSON.stringify({ total: apiTotalRaw, fetched: all.length }));
+            }
             if (competitorGuard.active && all.length) {
               await (competitorGuard as any).loadSubs?.(all.map((b: any) => String(b.id)));
             }
