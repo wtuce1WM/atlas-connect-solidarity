@@ -225,9 +225,12 @@ export async function matchBusinessNameInMessage(
         id: String(b.id),
         name: String(b.name),
         city: b.city ?? null,
-        // `literal` = le nom complet est cité dans le message. Seul ce cas peut
-        // déplacer le périmètre géographique hors de la ville du master.
-        literal: msg.includes(n),
+        // `literal` = le message cite le nom (nom entier inclus dans le message, ou
+        // message = début du nom : « Le Chalet de la Plage » → « … - Chez Jeannot »).
+        // Un simple recouvrement au milieu du nom (« artisanat marocain » dans
+        // « Galerie d'artisanat marocain ») n'est PAS nominatif. Seul le cas littéral
+        // peut déplacer le périmètre géographique hors de la ville du master.
+        literal: msg.includes(n) || n.startsWith(msg),
       };
     }
   }
