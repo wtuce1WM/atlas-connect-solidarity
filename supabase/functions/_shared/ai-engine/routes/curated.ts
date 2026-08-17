@@ -12,7 +12,7 @@
 import { scrubNomadRows } from "../nomad-scope.ts";
 import { stripText } from "./nearby.ts";
 import { CTA_SELECT_FIELDS, ctaFieldsOf } from "./shared.ts";
-import { buildImmersiveLines } from "./immersive.ts";
+import { buildImmersiveLines, buildImmersiveBlock, type ImmersiveCtx } from "./immersive.ts";
 import type { CompetitorGuard } from "./competitors.ts";
 
 export type Lang = "fr" | "en" | "ar";
