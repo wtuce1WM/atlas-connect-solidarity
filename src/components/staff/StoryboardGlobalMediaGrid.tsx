@@ -21,8 +21,16 @@ const fmt = (s: number) => {
   return m > 0 ? `${m}:${String(sec).padStart(2, "0")}` : `${sec}s`;
 };
 
+/** Convertit une saisie libre ("2,3", "2.3", "") en secondes (0,1 s près). */
+const parseTime = (raw: string, maxTime: number): number | undefined => {
+  const n = parseFloat(raw.trim().replace(",", "."));
+  if (!Number.isFinite(n) || n < 0) return undefined;
+  return Math.min(maxTime, Math.round(n * 10) / 10);
+};
+
 /** Hauteur commune des vignettes : le format réel est respecté via la largeur. */
 const TILE_H = 460;
+
 
 function Tile({
   item,
