@@ -593,7 +593,7 @@ Deno.serve(async (req) => {
         // Elle ne doit RIEN faire d'autre qu'afficher le lot suivant du corpus
         // déjà trouvé au tour précédent (10 max par lot, cartes identiques).
         if (poolIds.length && isShowMoreIntent(userMessage)) {
-          const already = new Set(priorIds);
+          const already = new Set(seenIds);
           const remaining = poolIds.filter((id) => !already.has(id));
           if (remaining.length) {
             const batch = remaining.slice(0, 10);
