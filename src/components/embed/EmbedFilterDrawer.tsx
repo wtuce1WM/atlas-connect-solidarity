@@ -53,6 +53,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
   const [drag, setDrag] = useState(0);
   const startY = useRef<number | null>(null);
   const [maxH, setMaxH] = useState(360);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   const all = groups.flatMap((g) => g.items);
   const peek = all.filter((i) => i.priority).slice(0, 3);
@@ -62,17 +63,21 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
     const compute = () => {
       const h = window.innerHeight || 640;
       const ratio = h < 600 ? Math.min(maxRatio, 0.6) : maxRatio;
-      setMaxH(Math.round(h * ratio));
+      // Espace réellement disponible AU-DESSUS de la barre peek (header inclus)
+      const top = rootRef.current?.getBoundingClientRect().top ?? h;
+      const available = Math.max(180, top - 12);
+      setMaxH(Math.min(Math.round(h * ratio), Math.round(available)));
     };
     compute();
     window.addEventListener("resize", compute);
     return () => window.removeEventListener("resize", compute);
-  }, [maxRatio]);
+  }, [maxRatio, open, count]);
 
   // Reset quand la liste disparaît (nouvelle conversation, competitor guard…)
   useEffect(() => {
     if (count === 0) setOpen(false);
   }, [count]);
+
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     startY.current = e.clientY;
@@ -118,6 +123,16 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
 
   return (
     <>
+      {/* Voile sombre — remonte jusqu'en haut du viewport */}
+      <div
+        onClick={() => setOpen(false)}
+        className={`absolute bottom-0 inset-x-0 z-20 transition-opacity duration-200 ${
+          open ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        style={{ height: "200vh", background: "rgba(0,0,0,0.45)" }}
+        aria-hidden={!open}
+      />
+
       {/* Panneau déplié — overlay au-dessus du composer */}
       <div
         className={`absolute bottom-full inset-x-0 z-30 overflow-hidden transition-transform duration-200 ease-out ${
@@ -161,7 +176,8 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
       </div>
 
       {/* Ligne peek + poignée (repliée) */}
-      <div className="flex items-center gap-2 pb-2">
+      <div ref={rootRef} className="relative z-30 flex items-center gap-2 pb-2">
+
         <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide">
           {peek.map(pill)}
         </div>
