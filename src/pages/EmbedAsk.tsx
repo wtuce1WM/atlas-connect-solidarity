@@ -2289,6 +2289,68 @@ const EmbedAsk = () => {
                     {nb.name} · {nb.count}
                   </button>
                 ))}
+                {/* Relances hôte dynamiques : remplacent les 4 relances back-office
+                    (météo, POI liés, aperçu à proximité, que faire sur place). */}
+                {!usedHostBadges.includes("weather") && businessCity && (
+                  <button
+                    type="button"
+                    onClick={() => sendHostBadge(
+                      "weather",
+                      lang === "en" ? "What's the weather forecast?" : lang === "ar" ? "ما هي توقعات الطقس؟" : "Quelle est la météo prévue ?",
+                      "weather",
+                    )}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <CloudSun className="w-3.5 h-3.5" />
+                    {lang === "en" ? "Weather" : lang === "ar" ? "الطقس" : "Météo"}
+                  </button>
+                )}
+                {!usedHostBadges.includes("poi_nearby") && hostPoiCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => sendHostBadge(
+                      "poi_nearby",
+                      lang === "en" ? `Points of interest near ${businessName}` : lang === "ar" ? `أماكن مميزة قرب ${businessName}` : `Points d'intérêt à proximité de ${businessName}`,
+                      "poi_nearby",
+                    )}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <MapPinned className="w-3.5 h-3.5" />
+                    {lang === "en" ? `Points of interest · ${hostPoiCount}` : lang === "ar" ? `أماكن مميزة · ${hostPoiCount}` : `Points d'intérêt · ${hostPoiCount}`}
+                  </button>
+                )}
+                {!usedHostBadges.includes("nearby_overview") && hostLocation && (
+                  <button
+                    type="button"
+                    onClick={() => sendHostBadge(
+                      "nearby_overview",
+                      lang === "en" ? "Other activities nearby" : lang === "ar" ? "أنشطة أخرى قريبة" : "Autres activités à proximité",
+                      "nearby_overview",
+                    )}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <Compass className="w-3.5 h-3.5" />
+                    {lang === "en" ? "Nearby" : lang === "ar" ? "قريب" : "À proximité"}
+                  </button>
+                )}
+                {!usedHostBadges.includes("things_to_do") && (
+                  <button
+                    type="button"
+                    onClick={() => sendHostBadge(
+                      "things_to_do",
+                      lang === "en" ? "What is there to do around here?" : lang === "ar" ? "ما الذي يمكن فعله هنا؟" : "Que faire sur place ?",
+                      "search_businesses",
+                    )}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <Footprints className="w-3.5 h-3.5" />
+                    {lang === "en" ? "Things to do" : lang === "ar" ? "ماذا نفعل" : "Que faire sur place"}
+                  </button>
+                )}
               </>
             )}
           </div>
