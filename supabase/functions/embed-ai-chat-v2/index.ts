@@ -1407,6 +1407,12 @@ Deno.serve(async (req) => {
           hostCity: host?.city, activeCity, explicitCity: explicitCity || resolvedCityRaw,
         }) as string;
         const resolvedCity = resolvedCityRaw;
+        // Quartier résolu DANS la ville de recherche (« Médina » existe dans 9 villes).
+        searchNeighborhood = (nbAll && normalize(nbAll.city) === normalize(searchCity))
+          ? nbAll
+          : await resolveNeighborhoodInMessage(admin, userMessage, searchCity).catch(() => null);
+
+
 
         // La catégorie du classifieur n'est retenue que si elle existe vraiment en base.
         let classifierCategoryValid = false;
