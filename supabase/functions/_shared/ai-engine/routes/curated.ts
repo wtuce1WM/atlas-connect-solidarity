@@ -513,6 +513,11 @@ export async function buildPinnedAnswer(
     isCompetitor?: (b: any) => boolean;
     /** Garde-fou complet (compteur d'écartés). */
     competitorGuard?: CompetitorGuard;
+    /**
+     * Contexte du bloc immersif enrichi (TXT IA + blocs highlights + réécriture
+     * par lot orientée question). Absent → version déterministe simple.
+     */
+    immersive?: ImmersiveCtx;
   },
 ): Promise<CuratedAnswer | null> {
 
