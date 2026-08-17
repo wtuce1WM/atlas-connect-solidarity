@@ -341,9 +341,13 @@ Deno.serve(async (req) => {
 
 
       const finish = async (streamCompleted: boolean) => {
-        if (competitorGuard?.active && competitorGuard.filtered > 0) {
+        // Le marqueur ne sort QUE si le garde-fou a réellement vidé la réponse
+        // (aucun résultat présentable). Un simple écrémage incident — une recherche
+        // shopping qui croise un riad — ne doit plus supprimer les relances/badges.
+        if (competitorGuard?.active && competitorGuard.filtered > 0 && !(resultsCount ?? 0)) {
           emit("\n\n<!--COMPETITOR_GUARD_ACTIVE-->");
         }
+
         if (destinationsBlock) { emit(destinationsBlock); destinationsBlock = null; }
         if (articleTeaser) { emit(articleTeaser); articleTeaser = null; }
         end();
