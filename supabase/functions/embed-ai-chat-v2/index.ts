@@ -1243,7 +1243,7 @@ Deno.serve(async (req) => {
             // silencieux sur la ville : zéro adresse dans le quartier reste zéro.
             if (searchNeighborhood && kept.length) {
               const beforeNb = kept.length;
-              kept = filterPoolByNeighborhood(kept as any[], searchNeighborhood);
+              kept = filterPoolByNeighborhood(kept as any[], searchNeighborhood, { strict: true, includeNomads: false });
               console.log("[embed-ai-chat-v2] search_neighborhood_filter", JSON.stringify({
                 neighborhood: searchNeighborhood.name, city: searchNeighborhood.city,
                 before: beforeNb, after: kept.length,
