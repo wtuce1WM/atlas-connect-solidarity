@@ -400,6 +400,22 @@ Deno.serve(async (req) => {
           }));
         }
 
+        /**
+         * Chips de périmètre déterministes : destinations réellement représentées
+         * dans le corpus du tour. Le client renvoie un `destination_id` — plus
+         * aucune proposition géographique en texte libre à re-interpréter.
+         */
+        let destChipsEmitted = false;
+        const emitDestChips = async (ids: string[]) => {
+          if (destChipsEmitted) return;
+          const chips = await destinationChipsForBusinesses(admin, ids, lang, destScope?.id || null)
+            .catch(() => []);
+          if (chips.length) {
+            destChipsEmitted = true;
+            emit(`\n\n${destinationChipsMarker(chips)}`);
+          }
+        };
+
 
 
         // Garde-fou concurrents : sur la surface embed, jamais un établissement de la
@@ -552,6 +568,7 @@ Deno.serve(async (req) => {
               }
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               emit("\n\n" + await poolMarker(admin, poolIds, scopeCity));
+                await emitDestChips(poolIds);
               await finish(true);
               return;
             }
@@ -759,6 +776,7 @@ Deno.serve(async (req) => {
                 }
                 emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(cards.knownBusinesses)}-->`);
                 emit("\n\n" + await poolMarker(admin, ids, scopeCity));
+                await emitDestChips(ids);
                 await finish(true);
                 return;
               }
@@ -787,6 +805,7 @@ Deno.serve(async (req) => {
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               if (built.poolIds?.length) {
                 emit("\n\n" + await poolMarker(admin, built.poolIds, scopeCity));
+                await emitDestChips(built.poolIds);
               }
 
               await finish(true);
@@ -827,6 +846,7 @@ Deno.serve(async (req) => {
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               if (built.poolIds?.length) {
                 emit("\n\n" + await poolMarker(admin, built.poolIds, scopeCity));
+                await emitDestChips(built.poolIds);
               }
 
               await finish(true);
@@ -1032,6 +1052,7 @@ Deno.serve(async (req) => {
               emit(built.text);
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.kept.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })))}-->`);
               emit("\n\n" + await poolMarker(admin, poolIds, scopeCity));
+                await emitDestChips(poolIds);
               await finish(true);
               return;
             }
@@ -1628,13 +1649,7 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
           if (searchPoolIds.length) {
             emit("\n\n" + await poolMarker(admin, searchPoolIds, cityDetected || scopeCity || null));
           }
-          // Chips de périmètre déterministes (destinations réellement présentes
-          // dans le corpus) : remplacent les propositions en texte libre du modèle.
-          const chips = await destinationChipsForBusinesses(
-            admin, searchPoolIds.length ? searchPoolIds : results.map((b: any) => String(b.id)),
-            lang, destScope?.id || null,
-          );
-          if (chips.length) emit(`\n\n${destinationChipsMarker(chips)}`);
+          await emitDestChips(searchPoolIds.length ? searchPoolIds : results.map((b: any) => String(b.id)));
         } else if (priorFull.length) {
           // Relance contextuelle : cartes des seules fiches réellement citées, prises
           // dans le corpus complet du tour précédent ; le pool reste mémorisé.
