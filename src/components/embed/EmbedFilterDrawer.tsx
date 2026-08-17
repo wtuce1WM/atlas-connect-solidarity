@@ -115,11 +115,19 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
         if (closeOnPick) setOpen(false);
         i.onClick();
       }}
-      style={{ ...fontStyle, ...i.style }}
+      // Sur fond clair imposé (overlay Full Description), l'encre des pastilles
+      // neutres suit la surface : sans ça elles restent blanches sur beige.
+      style={
+        i.style
+          ? { ...fontStyle, ...i.style }
+          : surfaceStyle
+          ? { ...fontStyle, color: surfaceStyle.color, borderColor: "rgba(0,0,0,0.18)", background: "rgba(0,0,0,0.04)" }
+          : { ...fontStyle }
+      }
       className={
         i.style
           ? "text-xs px-3 py-1.5 rounded-full border transition-opacity inline-flex items-center gap-1.5 font-bold hover:opacity-90 shrink-0"
-          : `text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 hover:opacity-90 shrink-0 ${i.className ?? ""}`
+          : `text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 hover:opacity-90 shrink-0 ${surfaceStyle ? "" : i.className ?? ""}`
       }
     >
       {i.icon}
