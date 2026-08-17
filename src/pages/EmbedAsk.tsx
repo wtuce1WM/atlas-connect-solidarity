@@ -28,7 +28,7 @@ const LocationPickerDialog = lazy(() => import("@/components/LocationPickerDialo
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 import AiBusinessResultCards from "@/components/ai/AiBusinessResultCards";
 import { AI_NAME_FONT } from "@/lib/aiTypography";
-import { Maximize2, X, Navigation, Clock, Star, Building2, Compass } from "lucide-react";
+import { Maximize2, X, Navigation, Clock, Star, Building2, Compass, CloudSun, MapPinned, Footprints } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import AiTidesWidget from "@/components/embed/AiTidesWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -536,6 +536,10 @@ const EmbedAsk = () => {
   const [businessCity, setBusinessCity] = useState<string | null>(null);
   const [businessMainCategory, setBusinessMainCategory] = useState<string | null>(null);
   const [hostLocation, setHostLocation] = useState<{ lat: number; lng: number } | null>(null);
+  /** Nombre de POI liés à l'hôte : conditionne la relance dynamique « Points d'intérêt ». */
+  const [hostPoiCount, setHostPoiCount] = useState<number>(0);
+  /** Relances hôte déjà utilisées dans la conversation (ne se reproposent plus). */
+  const [usedHostBadges, setUsedHostBadges] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [locationOpen, setLocationOpen] = useState(false);
@@ -771,6 +775,20 @@ const EmbedAsk = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
+  // POI liés à l'hôte (même source que la route poi_nearby : business_poi_businesses).
+  useEffect(() => {
+    if (!businessId) { setHostPoiCount(0); return; }
+    let cancelled = false;
+    (async () => {
+      const { count } = await (supabase as any)
+        .from("business_poi_businesses")
+        .select("poi_business_id", { count: "exact", head: true })
+        .eq("business_id", businessId);
+      if (!cancelled) setHostPoiCount(Number(count || 0));
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
   // Seed the opener as an assistant UIMessage once we know the business
   useEffect(() => {
     if (!businessName) return;
@@ -988,6 +1006,17 @@ const EmbedAsk = () => {
     );
   };
 
+  /**
+   * Relances hôte dynamiques (météo / POI / à proximité / que faire sur place) :
+   * remplacent les 4 dernières relances gérées manuellement en back-office.
+   * Chaque badge ne se propose qu'une fois par conversation.
+   */
+  const sendHostBadge = (key: string, text: string, forcedRoute: string) => {
+    if (streaming || !businessName) return;
+    setUsedHostBadges((prev) => (prev.includes(key) ? prev : [...prev, key]));
+    sendLocalFilter(text, forcedRoute);
+  };
+
 
 
 
@@ -1192,6 +1221,7 @@ const EmbedAsk = () => {
     setOpenBusinessId(null);
     setActiveSuggestionId(null);
     setUsedFollowupIds([]);
+    setUsedHostBadges([]);
     pendingSendRef.current = pending || null;
 
     setChatKey((k) => k + 1); // resets useChat id → clears message list
@@ -2259,6 +2289,68 @@ const EmbedAsk = () => {
                     {nb.name} · {nb.count}
                   </button>
                 ))}
+                {/* Relances hôte dynamiques : remplacent les 4 relances back-office
+                    (météo, POI liés, aperçu à proximité, que faire sur place). */}
+                {!usedHostBadges.includes("weather") && businessCity && (
+                  <button
+                    type="button"
+                    onClick={() => sendHostBadge(
+                      "weather",
+                      lang === "en" ? "What's the weather forecast?" : lang === "ar" ? "ما هي توقعات الطقس؟" : "Quelle est la météo prévue ?",
+                      "weather",
+                    )}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <CloudSun className="w-3.5 h-3.5" />
+                    {lang === "en" ? "Weather" : lang === "ar" ? "الطقس" : "Météo"}
+                  </button>
+                )}
+                {!usedHostBadges.includes("poi_nearby") && hostPoiCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => sendHostBadge(
+                      "poi_nearby",
+                      lang === "en" ? `Points of interest near ${businessName}` : lang === "ar" ? `أماكن مميزة قرب ${businessName}` : `Points d'intérêt à proximité de ${businessName}`,
+                      "poi_nearby",
+                    )}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <MapPinned className="w-3.5 h-3.5" />
+                    {lang === "en" ? `Points of interest · ${hostPoiCount}` : lang === "ar" ? `أماكن مميزة · ${hostPoiCount}` : `Points d'intérêt · ${hostPoiCount}`}
+                  </button>
+                )}
+                {!usedHostBadges.includes("nearby_overview") && hostLocation && (
+                  <button
+                    type="button"
+                    onClick={() => sendHostBadge(
+                      "nearby_overview",
+                      lang === "en" ? "Other activities nearby" : lang === "ar" ? "أنشطة أخرى قريبة" : "Autres activités à proximité",
+                      "nearby_overview",
+                    )}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <Compass className="w-3.5 h-3.5" />
+                    {lang === "en" ? "Nearby" : lang === "ar" ? "قريب" : "À proximité"}
+                  </button>
+                )}
+                {!usedHostBadges.includes("things_to_do") && (
+                  <button
+                    type="button"
+                    onClick={() => sendHostBadge(
+                      "things_to_do",
+                      lang === "en" ? "What is there to do around here?" : lang === "ar" ? "ما الذي يمكن فعله هنا؟" : "Que faire sur place ?",
+                      "search_businesses",
+                    )}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <Footprints className="w-3.5 h-3.5" />
+                    {lang === "en" ? "Things to do" : lang === "ar" ? "ماذا نفعل" : "Que faire sur place"}
+                  </button>
+                )}
               </>
             )}
           </div>
