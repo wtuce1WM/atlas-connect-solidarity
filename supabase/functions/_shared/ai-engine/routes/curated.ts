@@ -12,7 +12,7 @@
 import { scrubNomadRows } from "../nomad-scope.ts";
 import { stripText } from "./nearby.ts";
 import { CTA_SELECT_FIELDS, ctaFieldsOf } from "./shared.ts";
-import { buildImmersiveLines } from "./immersive.ts";
+import { buildImmersiveLines, buildImmersiveBlock, type ImmersiveCtx } from "./immersive.ts";
 import type { CompetitorGuard } from "./competitors.ts";
 
 export type Lang = "fr" | "en" | "ar";
@@ -513,6 +513,11 @@ export async function buildPinnedAnswer(
     isCompetitor?: (b: any) => boolean;
     /** Garde-fou complet (compteur d'écartés). */
     competitorGuard?: CompetitorGuard;
+    /**
+     * Contexte du bloc immersif enrichi (TXT IA + blocs highlights + réécriture
+     * par lot orientée question). Absent → version déterministe simple.
+     */
+    immersive?: ImmersiveCtx;
   },
 ): Promise<CuratedAnswer | null> {
 
@@ -546,8 +551,14 @@ export async function buildPinnedAnswer(
       ? `📍 هذه هي القائمة المختارة كاملة${host?.city ? ` في ${host.city}` : ""} — تريد الخريطة أو أوقات العمل أو روابط الحجز؟`
       : `📍 C'est la sélection curatée complète${host?.city ? ` à ${host.city}` : ""} — tu veux la carte, les horaires, ou les liens de réservation ?`);
 
-  // Texte immersif (zéro token) inséré AVANT les cartes résultat.
-  const immersive = buildImmersiveLines(ordered, lang);
+  // Texte immersif inséré AVANT les cartes résultat : version enrichie (corpus
+  // éditorial étendu + réécriture par lot) si un contexte est fourni, sinon zéro token.
+  const immersive = overrides?.immersive
+    ? await buildImmersiveBlock(ordered, lang, overrides.immersive).catch((e) => {
+      console.error("[curated] immersive_rich_failed", String(e));
+      return buildImmersiveLines(ordered, lang);
+    })
+    : buildImmersiveLines(ordered, lang);
 
   return {
     text: [heading, immersive, outro].filter((p) => p && String(p).trim()).join("\n\n"),
@@ -594,6 +605,8 @@ export async function buildFilteredAnswer(
     competitorGuard?: CompetitorGuard;
     supabaseUrl: string;
     serviceKey: string;
+    /** Contexte du bloc immersif enrichi (voir `buildPinnedAnswer`). */
+    immersive?: ImmersiveCtx;
   },
 ): Promise<CuratedAnswer | null> {
   const badgeIds = (opts.badgeIds || []).filter(Boolean);
@@ -779,6 +792,7 @@ export async function buildFilteredAnswer(
     poolIds: ids.map((id) => String(id)),
     isCompetitor: opts.isCompetitor,
     competitorGuard: opts.competitorGuard,
+    immersive: opts.immersive,
   });
 
   return built;

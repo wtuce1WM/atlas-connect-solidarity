@@ -39,7 +39,7 @@ import {
 } from "../_shared/ai-engine/routes/curated.ts";
 import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
 import { buildDestinationsBlock } from "../_shared/ai-engine/routes/destinations.ts";
-import { buildImmersiveLines } from "../_shared/ai-engine/routes/immersive.ts";
+import { buildImmersiveLines, buildImmersiveBlock } from "../_shared/ai-engine/routes/immersive.ts";
 import { buildEventsWeekendAnswer, buildEventsFilteredAnswer, fetchAgendaEvents, weekendWindow, eventsSnapshotMarker, priorEventsSnapshot } from "../_shared/ai-engine/routes/events.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
@@ -475,7 +475,11 @@ Deno.serve(async (req) => {
                 : `À **${label}** — ${kept.length} adresse${kept.length > 1 ? "s" : ""} de cette sélection :`;
             const built = await buildPinnedAnswer(
               admin, kept.map((b: any) => String(b.id)), host, lang, null,
-              { route: "neighborhood_filter", heading, outro: "", competitorGuard },
+              {
+                route: "neighborhood_filter", heading, outro: "", competitorGuard,
+                // Relance mécanique (quartier) : corpus éditorial étendu, zéro token.
+                immersive: { admin, query: userMessage, rewrite: false },
+              },
             ).catch(() => null);
             if (built) {
               emit(built.text);
@@ -566,6 +570,8 @@ Deno.serve(async (req) => {
                 : `📍 ${seen} adresses affichées sur ${poolIds.length}${restAfter > 0 ? ` — je te montre les ${restAfter} dernières ?` : "."}`;
             const built = await buildPinnedAnswer(admin, batch, host, lang, null, {
               route: "pool_more", heading, outro, total: poolIds.length, poolIds, competitorGuard,
+              // Lot suivant : même corpus éditorial étendu, sans nouvel appel modèle.
+              immersive: { admin, query: userMessage, rewrite: false },
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] pool_more_failed", String(e));
               return null;
@@ -773,7 +779,14 @@ Deno.serve(async (req) => {
               const ids = built.results.map((b: any) => String(b.id));
               const cards = await buildPinnedAnswer(
                 admin, ids, host, lang, curated.label,
-                { route: "two_entity_proximity", competitorGuard, poolIds: ids },
+                {
+                  route: "two_entity_proximity", competitorGuard, poolIds: ids,
+                  immersive: {
+                    admin,
+                    query: curated.label || userMessage,
+                    apiKey: LOVABLE_API_KEY,
+                  },
+                },
               ).catch((e) => {
                 console.error("[embed-ai-chat-v2] two_entity_cards_failed", String(e));
                 return null;
@@ -801,7 +814,14 @@ Deno.serve(async (req) => {
           if (curated && keepCurated && curated.pinnedBusinessIds.length && !curatedHasTaxo) {
             const built = await buildPinnedAnswer(
               admin, curated.pinnedBusinessIds, host, lang, curated.label,
-              { competitorGuard },
+              {
+                competitorGuard,
+                immersive: {
+                  admin,
+                  query: curated.label || userMessage,
+                  apiKey: LOVABLE_API_KEY,
+                },
+              },
             ).catch((e) => {
               console.error("[embed-ai-chat-v2] pinned_route_failed", String(e));
               return null;
@@ -843,6 +863,11 @@ Deno.serve(async (req) => {
               competitorGuard,
               supabaseUrl: SUPABASE_URL,
               serviceKey: SERVICE,
+              immersive: {
+                admin,
+                query: curated.label || userMessage,
+                apiKey: LOVABLE_API_KEY,
+              },
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] curated_filter_failed", String(e));
               return null;
@@ -1459,7 +1484,11 @@ Deno.serve(async (req) => {
             if (results.length) {
               destinationBlock = [
                 destinationIntro(destScope, lang, totalFound),
-                buildImmersiveLines(results, lang as any),
+                await buildImmersiveBlock(results, lang as any, {
+                  admin,
+                  query: userMessage,
+                  apiKey: LOVABLE_API_KEY,
+                }).catch(() => buildImmersiveLines(results, lang as any)),
               ].filter((p) => p && String(p).trim()).join("\n\n");
             }
             console.log("[embed-ai-chat-v2] destination_search", JSON.stringify({
