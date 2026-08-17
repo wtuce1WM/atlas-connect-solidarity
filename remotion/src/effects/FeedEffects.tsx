@@ -269,3 +269,188 @@ export const FeedMotionBlurWrapper: React.FC<{ effects?: FeedEffectsConfig | nul
 /** Utilitaire exposé pour d'autres templates : jitter déterministe léger. */
 export const seededJitter = (seed: string, frame: number, amp: number) =>
   (random(`${seed}-${Math.floor(frame / 3)}`) - 0.5) * 2 * amp;
+
+/* ==========================================================================
+ * Effets simples (100 % déterministes, aucun coût de rendu)
+ * -------------------------------------------------------------------------
+ * Contrat de timing : AUCUN effet ci-dessous ne modifie la durée du montage.
+ * Les transitions sont jouées à l'intérieur des sections existantes, donc
+ * `computeStoryboardFrames` reste la seule source de vérité.
+ * ======================================================================== */
+
+export const FADE_SPEEDS = [
+  { label: "Rapide (~0,3 s)", value: 9 },
+  { label: "Normal (~0,5 s)", value: 15 },
+  { label: "Lent (~1 s)", value: 30 },
+];
+
+export const DEFAULT_FADE_FRAMES = 15;
+
+export const hasAnySimpleEffect = (e?: FeedEffectsConfig | null) =>
+  !!e &&
+  !!(e.fadeIn || e.fadeOut || e.fadeCross || e.flashCut || e.audioFade || (e.kenBurns && e.kenBurns !== "off"));
+
+const fadeRgb = (e?: FeedEffectsConfig | null) => (e?.fadeColor === "white" ? "#FFFFFF" : "#000000");
+const fadeLen = (e?: FeedEffectsConfig | null) => Math.max(2, e?.fadeFrames ?? DEFAULT_FADE_FRAMES);
+
+/**
+ * Fondu d'entrée / de sortie du montage + dip inter-étapes + flash de coupe.
+ * Une seule couche plein cadre au-dessus de tout, opacité calculée par frame.
+ * `boundaries` = frames de début de chaque section (hors 0).
+ */
+export const SimpleFadesOverlay: React.FC<{
+  effects?: FeedEffectsConfig | null;
+  boundaries?: number[];
+  totalFrames: number;
+}> = ({ effects, boundaries = [], totalFrames }) => {
+  const frame = useCurrentFrame();
+  if (!effects) return null;
+  const len = fadeLen(effects);
+  const half = Math.max(1, Math.round(len / 2));
+  let opacity = 0;
+
+  if (effects.fadeIn) {
+    opacity = Math.max(
+      opacity,
+      interpolate(frame, [0, len], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+    );
+  }
+  if (effects.fadeOut) {
+    opacity = Math.max(
+      opacity,
+      interpolate(frame, [totalFrames - len, totalFrames], [0, 1], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      }),
+    );
+  }
+  const dip = effects.fadeCross && (effects.crossStyle ?? "dip") === "dip";
+  if (dip) {
+    for (const b of boundaries) {
+      opacity = Math.max(
+        opacity,
+        interpolate(frame, [b - half, b, b + half], [0, 1, 0], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        }),
+      );
+    }
+  }
+
+  // Flash blanc court : indépendant de la couleur de fondu, posé par-dessus.
+  let flash = 0;
+  if (effects.flashCut) {
+    for (const b of boundaries) {
+      flash = Math.max(
+        flash,
+        interpolate(frame, [b - 1, b, b + 3], [0, 0.85, 0], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        }),
+      );
+    }
+  }
+
+  if (opacity <= 0 && flash <= 0) return null;
+  return (
+    <>
+      {opacity > 0 && (
+        <AbsoluteFill style={{ backgroundColor: fadeRgb(effects), opacity, pointerEvents: "none" }} />
+      )}
+      {flash > 0 && <AbsoluteFill style={{ backgroundColor: "#FFFFFF", opacity: flash, pointerEvents: "none" }} />}
+    </>
+  );
+};
+
+/**
+ * Entrée d'une section en slide/push ou en wipe (balayage). Joué sur les
+ * premières frames de la section, donc la durée totale ne bouge pas.
+ * `index === 0` (première section) n'est jamais animé : c'est le fondu
+ * d'entrée qui gère l'ouverture du film.
+ */
+export const SectionTransitionWrapper: React.FC<{
+  effects?: FeedEffectsConfig | null;
+  index: number;
+  children: React.ReactNode;
+}> = ({ effects, index, children }) => {
+  const frame = useCurrentFrame();
+  const style = effects?.fadeCross ? (effects.crossStyle ?? "dip") : "dip";
+  const animated = !!effects?.fadeCross && index > 0 && (style === "slide" || style === "wipe");
+  if (!animated) return <>{children}</>;
+
+  const len = fadeLen(effects);
+  const p = interpolate(frame, [0, len], [0, 1], {
+    easing: Easing.bezier(0.22, 1, 0.36, 1),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const dir = effects?.crossDir ?? "left";
+
+  if (style === "slide") {
+    const off = (1 - p) * 100;
+    const t =
+      dir === "left"
+        ? `translateX(${off}%)`
+        : dir === "right"
+          ? `translateX(${-off}%)`
+          : dir === "up"
+            ? `translateY(${off}%)`
+            : `translateY(${-off}%)`;
+    return <AbsoluteFill style={{ transform: t }}>{children}</AbsoluteFill>;
+  }
+
+  const cut = (1 - p) * 100;
+  const clip =
+    dir === "left"
+      ? `inset(0 0 0 ${cut}%)`
+      : dir === "right"
+        ? `inset(0 ${cut}% 0 0)`
+        : dir === "up"
+          ? `inset(${cut}% 0 0 0)`
+          : `inset(0 0 ${cut}% 0)`;
+  return <AbsoluteFill style={{ clipPath: clip }}>{children}</AbsoluteFill>;
+};
+
+/**
+ * Ken Burns : travelling lent sur une image fixe. Retourne la transformation
+ * CSS à appliquer, ou `undefined` quand l'effet est désactivé (rendu inchangé).
+ */
+export const kenBurnsTransform = (
+  effects: FeedEffectsConfig | null | undefined,
+  frame: number,
+  frames: number,
+  seed = 0,
+): string | undefined => {
+  const mode = effects?.kenBurns ?? "off";
+  if (mode === "off") return undefined;
+  const amp = mode === "strong" ? { z: [1.06, 1.24], pan: 5 } : { z: [1.02, 1.1], pan: 2.5 };
+  const scale = interpolate(frame, [0, frames], amp.z as [number, number], { extrapolateRight: "clamp" });
+  const sign = seed % 2 === 0 ? 1 : -1;
+  const x = interpolate(frame, [0, frames], [0, sign * amp.pan], { extrapolateRight: "clamp" });
+  const y = interpolate(frame, [0, frames], [0, (seed % 3 === 0 ? -1 : 1) * amp.pan * 0.6], {
+    extrapolateRight: "clamp",
+  });
+  return `scale(${scale}) translate(${x}%, ${y}%)`;
+};
+
+/**
+ * Volume d'une piste audio avec fondu in/out. Remotion accepte une fonction
+ * frame → volume : aucun re-render supplémentaire.
+ */
+export const audioFadeVolume = (
+  effects: FeedEffectsConfig | null | undefined,
+  gain: number,
+  frames: number,
+): number | ((f: number) => number) => {
+  if (!effects?.audioFade) return gain;
+  const len = Math.max(2, Math.min(fadeLen(effects), Math.floor(frames / 3)));
+  return (f: number) =>
+    gain *
+    Math.min(
+      interpolate(f, [0, len], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+      interpolate(f, [frames - len, frames], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+    );
+};
+
+/** Contexte : rend le grade global lisible dans les scènes profondes (Ken Burns). */
+export const EffectsContext = React.createContext<FeedEffectsConfig | null>(null);
