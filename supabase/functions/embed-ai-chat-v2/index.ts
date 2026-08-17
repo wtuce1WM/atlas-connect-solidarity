@@ -215,6 +215,10 @@ Deno.serve(async (req) => {
     });
   }
   const admin = createClient(SUPABASE_URL, SERVICE);
+  // Sous-catégories « Maps désactivée » → établissements « hors les murs ».
+  await warmNomadScope(admin);
+
+
 
   const body = await req.json().catch(() => ({} as any));
   const uiMessages: UIMessage[] = Array.isArray(body.messages) ? body.messages.slice(-8) : [];
