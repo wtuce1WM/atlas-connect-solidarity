@@ -2026,11 +2026,8 @@ const VideoStoryboardPanel = () => {
                       applyGlobalMedia(next, globalIncludeBg);
                     }}
                   />
-                  <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                    <Switch checked={globalIncludeBg} onCheckedChange={setGlobalIncludeBg} />
-                    Inclure les fonds de scène (accroche, texte, compteur, outro…)
-                  </label>
                   <Button
+
                     size="sm"
                     variant="outline"
                     className="h-8 text-xs"
