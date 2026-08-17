@@ -338,7 +338,21 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     var frame = document.getElementById('owm-embed-iframe');
     // Le voile et le volet démarrent leur transition sur la même frame :
     // l'assombrissement suit exactement l'ouverture, jamais avant.
+    var prevPadRight = '';
+    function lock() {
+      var sbw = window.innerWidth - document.documentElement.clientWidth;
+      prevPadRight = document.body.style.paddingRight;
+      if (sbw > 0) document.body.style.paddingRight = sbw + 'px';
+      document.documentElement.classList.add('owm-embed-lock');
+      document.body.classList.add('owm-embed-lock');
+    }
+    function unlock() {
+      document.documentElement.classList.remove('owm-embed-lock');
+      document.body.classList.remove('owm-embed-lock');
+      document.body.style.paddingRight = prevPadRight;
+    }
     function open() {
+      lock();
       requestAnimationFrame(function () {
         panel.classList.add('open');
         scrim.classList.add('open');
@@ -351,9 +365,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       scrim.classList.remove('open');
       panel.setAttribute('aria-hidden', 'true');
       scrim.setAttribute('aria-hidden', 'true');
+      unlock();
     }
     tab.addEventListener('click', open);
     scrim.addEventListener('click', shut);
+
 
     // La croix de fermeture est dans le widget (à gauche de l'avatar) : il nous
     // prévient par postMessage.
