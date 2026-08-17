@@ -1401,9 +1401,37 @@ Deno.serve(async (req) => {
         // On ne garde que les cibles aussi proches que la meilleure : mélanger « Piscine »
         // et « Beach club » dans la même requête ramène des adresses hors sujet.
         const bestRank = strongTargets.length ? lexicalRank(strongTargets[0]) : 9;
-        const strongTerms = [
+        let strongTerms = [
           ...new Set(strongTargets.filter((t) => lexicalRank(t) === bestRank).map((t) => t.value)),
         ].slice(0, 2);
+        // ── Le mot tapé nomme une CATÉGORIE : elle prime sur ses sous-catégories ──
+        // « Shopping » est le nom anglais de la catégorie « Commerce » : le classement
+        // par type sortait « Boutique » (sous-catégorie) et amputait le corpus (54 fiches
+        // au lieu de 327). Quand la demande nomme réellement une catégorie et que les
+        // cibles fortes retenues n'en sont que des sous-ensembles, on interroge la
+        // catégorie. Aucun effet quand le mot ne correspond à aucune catégorie réelle
+        // (« restaurants français » garde Restaurant + Cuisine française).
+        if (resolution) {
+          const namedCategory = resolution.targets.find(
+            (t) => t.type === "category" && t.strength !== "expansion" && !isExcluded(t.value),
+          );
+          if (namedCategory && strongTerms.length) {
+            const subsetOnly = strongTargets
+              .filter((t) => lexicalRank(t) === bestRank)
+              .every(
+                (t) =>
+                  t.type === "category"
+                    ? normalize(t.value) === normalize(namedCategory.value)
+                    : (t.categories ?? []).some((c) => normalize(c) === normalize(namedCategory.value)),
+              );
+            if (subsetOnly && !strongTerms.some((v) => normalize(v) === normalize(namedCategory.value))) {
+              console.log("[embed-ai-chat-v2] category_widening", JSON.stringify({
+                from: strongTerms, to: namedCategory.value, matched: namedCategory.matched,
+              }));
+              strongTerms = [namedCategory.value];
+            }
+          }
+        }
         // Les cibles fortes retenues sont-elles uniquement des services (« Alcool ») et
         // non un type de lieu (catégorie / sous-catégorie) ? Utile pour distinguer
         // « où consommer » de « où acheter » (cf. weakResolution plus bas).
