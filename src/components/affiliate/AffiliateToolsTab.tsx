@@ -309,14 +309,18 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   }
   #owm-embed-scrim.open { opacity: 1; pointer-events: auto; }
   #owm-embed-panel {
-    position: fixed; top: 0; right: -70vw; width: 70vw; height: 100vh;
+    position: fixed; top: 0; right: -70vw; width: 70vw; height: 100vh; height: 100dvh;
     background: ${panelSurface}; color-scheme: ${embedTheme};
     z-index: 999999; transition: right .35s ease;
     box-shadow: -8px 0 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
   }
   #owm-embed-panel.open { right: 0; }
   #owm-embed-iframe { flex: 1; width: 100%; border: none; background: ${panelSurface}; }
+  /* Scroll de l'hôte gelé pendant l'ouverture : la barre de défilement du
+     navigateur disparaît, le volet couvre donc toute la droite du viewport. */
+  html.owm-embed-lock, body.owm-embed-lock { overflow: hidden !important; overscroll-behavior: none; }
   @media (max-width: 768px) { #owm-embed-panel { width: 100vw; right: -100vw; } }
+
 
 </style>
 
@@ -334,7 +338,21 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     var frame = document.getElementById('owm-embed-iframe');
     // Le voile et le volet démarrent leur transition sur la même frame :
     // l'assombrissement suit exactement l'ouverture, jamais avant.
+    var prevPadRight = '';
+    function lock() {
+      var sbw = window.innerWidth - document.documentElement.clientWidth;
+      prevPadRight = document.body.style.paddingRight;
+      if (sbw > 0) document.body.style.paddingRight = sbw + 'px';
+      document.documentElement.classList.add('owm-embed-lock');
+      document.body.classList.add('owm-embed-lock');
+    }
+    function unlock() {
+      document.documentElement.classList.remove('owm-embed-lock');
+      document.body.classList.remove('owm-embed-lock');
+      document.body.style.paddingRight = prevPadRight;
+    }
     function open() {
+      lock();
       requestAnimationFrame(function () {
         panel.classList.add('open');
         scrim.classList.add('open');
@@ -347,9 +365,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       scrim.classList.remove('open');
       panel.setAttribute('aria-hidden', 'true');
       scrim.setAttribute('aria-hidden', 'true');
+      unlock();
     }
     tab.addEventListener('click', open);
     scrim.addEventListener('click', shut);
+
 
     // La croix de fermeture est dans le widget (à gauche de l'avatar) : il nous
     // prévient par postMessage.
