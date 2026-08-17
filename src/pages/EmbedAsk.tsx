@@ -1497,7 +1497,6 @@ const EmbedAsk = () => {
               icon: <Clock className="w-3.5 h-3.5" />,
               onClick: () => sendLocalFilter(lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant", "open_now"),
               className: pillClass,
-              priority: true,
             }]
           : []),
         ...(poolInfo.hasHours && poolInfo.ids.length > 1

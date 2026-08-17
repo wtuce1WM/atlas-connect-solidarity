@@ -3422,7 +3422,7 @@ const BookOnlineSlidePanelInner = ({
                         {language === "en" ? "AI Assistant" : language === "ar" ? "المساعد الذكي" : "Assistant IA"}
                       </h2>
                       <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-transparent border border-white/10">
-                        <LazyMount minHeight={760} rootMargin="300px">
+                        <LazyMount minHeight={820} rootMargin="300px">
                           <iframe
                             key={`ai-widget-${business.slug}`}
                             src={`/embed/ask/${business.slug}?preset=overlay&lang=${language}&theme=none&bg=transparent&ink=light${
@@ -3434,7 +3434,7 @@ const BookOnlineSlidePanelInner = ({
                             title={language === "en" ? "AI Assistant" : "Assistant IA"}
                             allow="clipboard-write; microphone; fullscreen"
                             className="w-full block border-0 bg-transparent"
-                            style={{ height: 760, background: "transparent" }}
+                            style={{ height: 820, background: "transparent" }}
                             loading="lazy"
                           />
                         </LazyMount>
