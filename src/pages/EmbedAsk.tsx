@@ -1010,6 +1010,7 @@ const EmbedAsk = () => {
   const sendLocalFilter = (text: string, forcedRoute: string) => {
     if (streaming || !businessName) return;
     setError(null);
+    lastLocalFilterRef.current = { forcedRoute, text };
     messageIndexRef.current += 1;
     sendMessage(
       { text },
