@@ -105,17 +105,20 @@ export async function resolveNeighborhoodInMessage(
 export function filterPoolByNeighborhood<T extends { neighborhood?: string | null; city?: string | null; address?: string | null }>(
   pool: T[],
   nb: NeighborhoodMatch,
-  opts?: { strict?: boolean },
+  opts?: { strict?: boolean; includeNomads?: boolean },
 ): T[] {
   const wanted = new Set(nb.aliases);
   const cityNorm = normalize(nb.city);
   return (pool || []).filter((b) => {
-    // « Hors les murs » (Maps désactivée) : aucune géographie → exempté du filtre.
-    if (isNomadBusiness(b)) return true;
+    // « Hors les murs » (Maps désactivée) : aucune géographie → exempté du filtre,
+    // SAUF quand l'utilisateur demande explicitement un quartier (includeNomads:false) :
+    // une adresse sans géographie ne peut pas prétendre appartenir à un quartier.
+    if (isNomadBusiness(b)) return opts?.includeNomads !== false;
     if (b?.city && normalize(String(b.city)) !== cityNorm) return false;
     const own = normalize(String(b?.neighborhood || ""));
     if (own && wanted.has(own)) return true;
     if (opts?.strict) return false;
+
     // Repli : le quartier peut n'apparaître que dans l'adresse.
     const addr = normalize(String(b?.address || ""));
     return !!addr && [...wanted].some((a) => a.length >= 4 && boundaryHit(addr, a));
