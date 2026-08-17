@@ -374,7 +374,7 @@ export async function buildOpenFilter(admin: any, ids: string[], intent: OpenFil
   const outro = skipped > 0
     ? (lang === "en" ? `\n\n_(${skipped} excluded: hours not published or closed.)_`
       : lang === "ar" ? `\n\n_(${skipped} مستبعدة: الساعات غير منشورة أو مغلقة.)_`
-      : `\n\n_(${skipped} exclu${skipped > 1 ? "s" : ""} : horaires non publiés ou fermé.)_`)
+      : `\n\n_(${skipped} exclu${skipped > 1 ? "s" : ""} : fermé à cet horaire.)_`)
     : "";
   return `${intro}\n\n${lines.join("\n")}${outro}${toMapMarker(ordered)}`;
 }
