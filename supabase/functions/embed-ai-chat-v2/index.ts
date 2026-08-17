@@ -935,6 +935,55 @@ Deno.serve(async (req) => {
           }
         }
         // ── Classe A — routes déterministes (zéro token) ────────────────────
+        // 0bis. Livraison Glovo : seule vérité = `businesses.glovo_url`.
+        if (isGlovoIntent(userMessage)) {
+          const hostRadiusGlovo = RADIUS_OPTIONS.includes(Number(host?.poi_radius_km)) ? Number(host?.poi_radius_km) : 1;
+          const glovoIds = await loadGlovoBusinessIds(admin, {
+            city: scopeCity,
+            host,
+            radiusKm: requestedRadiusKm ?? hostRadiusGlovo,
+          }).catch((e) => {
+            console.error("[embed-ai-chat-v2] glovo_route_failed", String(e));
+            return [] as string[];
+          });
+          console.log("[embed-ai-chat-v2] glovo_route", JSON.stringify({ city: scopeCity, found: glovoIds.length }));
+          const shownGlovo = glovoIds.slice(0, CFG.maxResults);
+          const cards = shownGlovo.length
+            ? await buildPinnedAnswer(admin, shownGlovo, host, lang, null, {
+                route: "glovo_delivery",
+                heading: glovoHeading(lang, scopeCity),
+                outro: lang === "en"
+                  ? `📍 ${shownGlovo.length} of ${glovoIds.length} Glovo addresses${glovoIds.length > shownGlovo.length ? " — want me to show the others?" : "."}`
+                  : lang === "ar"
+                    ? `📍 ${shownGlovo.length} من ${glovoIds.length} عنوانًا على Glovo${glovoIds.length > shownGlovo.length ? " — أعرض الباقي؟" : "."}`
+                    : `📍 ${shownGlovo.length} adresses sur ${glovoIds.length} livrables via Glovo${glovoIds.length > shownGlovo.length ? " — je te montre les suivantes ?" : "."}`,
+                total: glovoIds.length,
+                poolIds: glovoIds,
+                competitorGuard,
+                immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY },
+              }).catch((e) => {
+                console.error("[embed-ai-chat-v2] glovo_cards_failed", String(e));
+                return null;
+              })
+            : null;
+          route = "glovo_delivery";
+          if (cards) {
+            resultsCount = cards.shown;
+            emit(cards.text);
+            if (cards.mapPayload?.businesses?.length) {
+              emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(cards.mapPayload)}-->`);
+            }
+            emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(cards.knownBusinesses)}-->`);
+            emit("\n\n" + await poolMarker(admin, glovoIds, scopeCity));
+            await emitDestChips(glovoIds);
+          } else {
+            resultsCount = 0;
+            emit(glovoEmpty(lang, scopeCity));
+          }
+          await finish(true);
+          return;
+        }
+
         // 0. Marées (widget marées/houle/vent) — prioritaire sur la météo.
         if (isTidesIntent(userMessage)) {
           route = "tides";
