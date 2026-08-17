@@ -25,6 +25,12 @@ type Props = {
   /** Classes du panneau (fond + bordure + encre) */
   panelClass: string;
   labelClass: string;
+  /**
+   * Fond opaque forcé du tiroir, de la poignée et de la ligne « peek ».
+   * Utilisé par l'overlay Full Description du slidepanel, où tout le reste est
+   * transparent : sans fond, les filtres seraient illisibles.
+   */
+  surfaceStyle?: React.CSSProperties;
   /** Ratio de hauteur max du tiroir déplié (0-1) */
   maxRatio?: number;
   /** Referme le tiroir après un clic sur un filtre */
@@ -44,6 +50,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
   groups,
   panelClass,
   labelClass,
+  surfaceStyle,
   maxRatio = 0.7,
   closeOnPick = true,
   fontStyle,
@@ -108,11 +115,19 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
         if (closeOnPick) setOpen(false);
         i.onClick();
       }}
-      style={{ ...fontStyle, ...i.style }}
+      // Sur fond clair imposé (overlay Full Description), l'encre des pastilles
+      // neutres suit la surface : sans ça elles restent blanches sur beige.
+      style={
+        i.style
+          ? { ...fontStyle, ...i.style }
+          : surfaceStyle
+          ? { ...fontStyle, color: surfaceStyle.color, borderColor: "rgba(0,0,0,0.18)", background: "rgba(0,0,0,0.04)" }
+          : { ...fontStyle }
+      }
       className={
         i.style
           ? "text-xs px-3 py-1.5 rounded-full border transition-opacity inline-flex items-center gap-1.5 font-bold hover:opacity-90 shrink-0"
-          : `text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 hover:opacity-90 shrink-0 ${i.className ?? ""}`
+          : `text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 hover:opacity-90 shrink-0 ${surfaceStyle ? "" : i.className ?? ""}`
       }
     >
       {i.icon}
@@ -147,7 +162,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
       >
         <div
           className={`rounded-t-2xl border-t border-x shadow-[0_-8px_32px_rgba(0,0,0,0.25)] ${panelClass}`}
-          style={{ maxHeight: maxH, overflowY: "auto" }}
+          style={{ maxHeight: maxH, overflowY: "auto", ...surfaceStyle }}
         >
 
           <div
@@ -156,7 +171,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
             className="sticky top-0 flex items-center justify-center py-3 cursor-grab touch-none"
-            style={{ minHeight: 44 }}
+            style={{ minHeight: 44, ...surfaceStyle }}
           >
             <span className="w-10 h-1.5 rounded-full bg-current opacity-25" />
           </div>
@@ -176,7 +191,11 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
       </div>
 
       {/* Ligne peek + poignée (repliée) */}
-      <div ref={rootRef} className="relative z-30 flex items-center gap-2 pb-2">
+      <div
+        ref={rootRef}
+        className="relative z-30 flex items-center gap-2 pb-2"
+        style={surfaceStyle ? { ...surfaceStyle, borderRadius: 12, padding: 6, marginBottom: 8 } : undefined}
+      >
 
         <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide">
           {peek.map(pill)}
@@ -188,8 +207,8 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           aria-expanded={open}
-          style={fontStyle}
-          className={`shrink-0 text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-semibold hover:opacity-90 touch-none ${panelClass}`}
+          style={{ ...fontStyle, ...surfaceStyle }}
+          className={`shrink-0 text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-semibold hover:opacity-90 touch-none ${surfaceStyle ? "" : panelClass}`}
         >
           <ChevronUp className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
           {handleLabel} · {count}
