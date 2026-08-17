@@ -965,7 +965,8 @@ export function VideoMediaPickerDialog({
     if (sourceFilter === "landscape") setWideAsked(true);
   }, [sourceFilter]);
 
-  const filtered = useMemo(() => {
+  /** Résultats de la source + recherche, avant filtres format / badge. */
+  const sourceScoped = useMemo(() => {
     const q = search.trim().toLowerCase();
     const base = sourceFilter === "landscape" ? wideVideos : typeBase;
     return base.filter((m) => {
@@ -981,11 +982,44 @@ export function VideoMediaPickerDialog({
     });
   }, [typeBase, wideVideos, sourceFilter, search]);
 
+  /** Badges actifs présents dans la source sélectionnée, avec compteurs. */
+  const badgeOptions = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const m of sourceScoped) for (const b of m.badges ?? []) map.set(b, (map.get(b) ?? 0) + 1);
+    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0], "fr"));
+  }, [sourceScoped]);
+
+  useEffect(() => {
+    if (badgeFilter !== "all" && !badgeOptions.some(([b]) => b === badgeFilter)) setBadgeFilter("all");
+  }, [badgeOptions, badgeFilter]);
+
+  const formatCounts = useMemo(() => {
+    let landscape = 0;
+    let portrait = 0;
+    let square = 0;
+    for (const m of sourceScoped) {
+      if (m.orientation === "landscape") landscape++;
+      else if (m.orientation === "portrait") portrait++;
+      else if (m.orientation === "square") square++;
+    }
+    return { all: sourceScoped.length, landscape, portrait, square };
+  }, [sourceScoped]);
+
+  const filtered = useMemo(
+    () =>
+      sourceScoped.filter((m) => {
+        if (formatFilter !== "all" && m.orientation !== formatFilter) return false;
+        if (badgeFilter !== "all" && !(m.badges ?? []).includes(badgeFilter)) return false;
+        return true;
+      }),
+    [sourceScoped, formatFilter, badgeFilter],
+  );
+
   const PAGE_SIZE = 32;
   const [page, setPage] = useState(0);
   useEffect(() => {
     setPage(0);
-  }, [sourceFilter, typeFilter, search, otherSlug, open]);
+  }, [sourceFilter, typeFilter, search, otherSlug, open, formatFilter, badgeFilter]);
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = useMemo(
     () => filtered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE),
