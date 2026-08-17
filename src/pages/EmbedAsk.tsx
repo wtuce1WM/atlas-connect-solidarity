@@ -536,6 +536,10 @@ const EmbedAsk = () => {
   const [businessCity, setBusinessCity] = useState<string | null>(null);
   const [businessMainCategory, setBusinessMainCategory] = useState<string | null>(null);
   const [hostLocation, setHostLocation] = useState<{ lat: number; lng: number } | null>(null);
+  /** Nombre de POI liés à l'hôte : conditionne la relance dynamique « Points d'intérêt ». */
+  const [hostPoiCount, setHostPoiCount] = useState<number>(0);
+  /** Relances hôte déjà utilisées dans la conversation (ne se reproposent plus). */
+  const [usedHostBadges, setUsedHostBadges] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [locationOpen, setLocationOpen] = useState(false);
