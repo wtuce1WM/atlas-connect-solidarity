@@ -1260,6 +1260,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               La page hôte doit être en <span className="font-mono">https</span>.
             </li>
             <li>
+              <strong>Recherche vocale</strong> : l'attribut <span className="font-mono">allow="microphone"</span>{" "}
+              est indispensable pour que le bouton micro ouvre l'overlay vocal. Sans lui, le navigateur bloque
+              le micro dans l'iframe. Page hôte en <span className="font-mono">https</span> requise.
+
+            <li>
               <strong>Contenu automatique</strong> : les établissements affichés proviennent de la base 1WM
               (mêmes règles que la fiche). Rien à saisir de votre côté, la liste se met à jour toute seule.
             </li>
