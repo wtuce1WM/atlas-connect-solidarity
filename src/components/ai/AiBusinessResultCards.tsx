@@ -154,6 +154,7 @@ const AiBusinessResultCards = ({
             )
           : null;
         const bookingUrl = b.booking_url || null;
+        const glovoUrl = typeof b.glovo_url === "string" && b.glovo_url.trim() ? b.glovo_url.trim() : null;
         const bookingLabel = (b.booking_label || "").trim() || t.book;
         const statusLabel = b.is_open_24h ? t.open24 : hours.isOpen == null ? null : hours.isOpen ? t.open : t.closed;
 
