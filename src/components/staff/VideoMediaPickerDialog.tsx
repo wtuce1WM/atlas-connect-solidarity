@@ -1092,6 +1092,7 @@ export function VideoMediaPickerDialog({
                   {allFicheVideosSelected ? "Tout désélectionner" : `Tout sélectionner (${ficheVideoUrls.length})`}
                 </Button>
               )}
+              {sourceFilter === "other" && (
               <div className="relative">
                 <Input
                   value={slugQuery}
@@ -1120,6 +1121,7 @@ export function VideoMediaPickerDialog({
                   </div>
                 )}
               </div>
+              )}
 
               <div className="ml-auto flex items-center gap-2">
                 <select
