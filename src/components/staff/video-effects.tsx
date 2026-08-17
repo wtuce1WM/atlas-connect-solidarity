@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
-import { Wand2 } from "lucide-react";
+import { Sparkles, Wand2 } from "lucide-react";
 
 /**
  * Effets de motion design — source unique du vocabulaire côté back-office.
@@ -26,7 +26,28 @@ export type MontageEffects = {
   strokeColor?: string;
   pathFrames?: number;
   motionBlurSamples?: number;
+  /* effets simples */
+  fadeIn?: boolean;
+  fadeCross?: boolean;
+  fadeOut?: boolean;
+  fadeColor?: "black" | "white";
+  fadeFrames?: number;
+  crossStyle?: "dip" | "slide" | "wipe";
+  crossDir?: "left" | "right" | "up" | "down";
+  flashCut?: boolean;
+  kenBurns?: "off" | "soft" | "strong";
+  audioFade?: boolean;
 };
+
+export const FADE_SPEEDS = [
+  { label: "Rapide (~0,3 s)", value: 9 },
+  { label: "Normal (~0,5 s)", value: 15 },
+  { label: "Lent (~1 s)", value: 30 },
+];
+
+export const hasAnySimpleEffect = (e?: MontageEffects | null) =>
+  !!e &&
+  !!(e.fadeIn || e.fadeOut || e.fadeCross || e.flashCut || e.audioFade || (e.kenBurns && e.kenBurns !== "off"));
 
 export const STROKE_PRESETS = [
   { label: "Or", value: "#D4AF37" },
@@ -238,6 +259,170 @@ export const StepEffectsBlock = ({
       <span className="text-[11px] text-muted-foreground">
         Le grain, le vignettage et le flou de mouvement restent pilotés au niveau du montage : ils ne sont pas
         surchargeables ici, pour garder un rendu cohérent.
+      </span>
+    </div>
+  );
+};
+
+/**
+ * Effets simples — fondus, transitions, Ken Burns, fondu audio.
+ *
+ * Contrat : aucun de ces effets ne change la durée du montage (les transitions
+ * sont jouées à l'intérieur des sections). Tout est désactivé par défaut, donc
+ * un montage existant se rend à l'identique tant qu'on ne touche à rien.
+ */
+export const SimpleEffectsBlock = ({
+  value,
+  onChange,
+}: {
+  value: MontageEffects | null;
+  onChange: (v: MontageEffects | null) => void;
+}) => {
+  const e = value ?? {};
+  const set = (patch: Partial<MontageEffects>) => {
+    const next = { ...e, ...patch };
+    // On conserve l'objet dès qu'un effet (simple OU grade) est actif.
+    const keep = hasAnySimpleEffect(next) || hasAnyMontageEffect(next);
+    onChange(keep ? next : null);
+  };
+  const cross = e.crossStyle ?? "dip";
+
+  return (
+    <div className="grid gap-3 rounded-lg border p-3">
+      <div className="flex items-center gap-2">
+        <Sparkles className="h-4 w-4 text-muted-foreground" />
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Effets simples
+        </span>
+        {!hasAnySimpleEffect(e) && (
+          <Badge variant="outline" className="text-[10px]">
+            aucun — coupes franches
+          </Badge>
+        )}
+      </div>
+
+      <div className="grid gap-2 md:grid-cols-2">
+        <label className="flex items-center gap-3 rounded-md border p-2 cursor-pointer">
+          <Switch checked={!!e.fadeIn} onCheckedChange={(v) => set({ fadeIn: v })} />
+          <span className="grid gap-0.5">
+            <span className="text-xs text-black">Fondu d'entrée</span>
+            <span className="text-[10px] text-muted-foreground">Ouverture depuis la couleur de fondu.</span>
+          </span>
+        </label>
+        <label className="flex items-center gap-3 rounded-md border p-2 cursor-pointer">
+          <Switch checked={!!e.fadeOut} onCheckedChange={(v) => set({ fadeOut: v })} />
+          <span className="grid gap-0.5">
+            <span className="text-xs text-black">Fondu de sortie</span>
+            <span className="text-[10px] text-muted-foreground">Fermeture vers la couleur de fondu.</span>
+          </span>
+        </label>
+        <label className="flex items-center gap-3 rounded-md border p-2 cursor-pointer">
+          <Switch checked={!!e.fadeCross} onCheckedChange={(v) => set({ fadeCross: v })} />
+          <span className="grid gap-0.5">
+            <span className="text-xs text-black">Transition entre les étapes</span>
+            <span className="text-[10px] text-muted-foreground">Fondu (dip), slide/push ou balayage.</span>
+          </span>
+        </label>
+        <label className="flex items-center gap-3 rounded-md border p-2 cursor-pointer">
+          <Switch checked={!!e.flashCut} onCheckedChange={(v) => set({ flashCut: v })} />
+          <span className="grid gap-0.5">
+            <span className="text-xs text-black">Flash blanc sur la coupe</span>
+            <span className="text-[10px] text-muted-foreground">2-3 frames, look « social ».</span>
+          </span>
+        </label>
+        <label className="flex items-center gap-3 rounded-md border p-2 cursor-pointer">
+          <Switch checked={!!e.audioFade} onCheckedChange={(v) => set({ audioFade: v })} />
+          <span className="grid gap-0.5">
+            <span className="text-xs text-black">Fondu audio in/out</span>
+            <span className="text-[10px] text-muted-foreground">Évite les coupes sèches de voix-off.</span>
+          </span>
+        </label>
+        <label className="grid gap-1 rounded-md border p-2 text-xs text-muted-foreground">
+          Ken Burns (images fixes)
+          <select
+            value={e.kenBurns ?? "off"}
+            onChange={(ev) => set({ kenBurns: ev.target.value as MontageEffects["kenBurns"] })}
+            className="h-8 rounded-md border bg-background px-2 text-xs"
+          >
+            <option value="off">Par défaut (zoom léger)</option>
+            <option value="soft">Doux</option>
+            <option value="strong">Marqué</option>
+          </select>
+        </label>
+      </div>
+
+      <div className="grid gap-3 border-t pt-3 md:grid-cols-3">
+        <label className="grid gap-1 text-xs text-muted-foreground">
+          Vitesse des fondus
+          <select
+            value={String(e.fadeFrames ?? 15)}
+            onChange={(ev) => set({ fadeFrames: Number(ev.target.value) || 15 })}
+            className="h-8 rounded-md border bg-background px-2 text-xs"
+          >
+            {FADE_SPEEDS.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="grid gap-1">
+          <span className="text-xs text-muted-foreground">Couleur du fondu</span>
+          <div className="flex gap-2">
+            {(["black", "white"] as const).map((c) => (
+              <Button
+                key={c}
+                type="button"
+                size="sm"
+                variant={(e.fadeColor ?? "black") === c ? "default" : "outline"}
+                className="h-7 text-[11px] gap-2"
+                onClick={() => set({ fadeColor: c })}
+              >
+                <span
+                  className="h-3 w-3 rounded-full border border-black/20"
+                  style={{ backgroundColor: c === "black" ? "#000000" : "#FFFFFF" }}
+                />
+                {c === "black" ? "Noir" : "Blanc"}
+              </Button>
+            ))}
+          </div>
+        </div>
+        {e.fadeCross && (
+          <div className="grid gap-1">
+            <label className="grid gap-1 text-xs text-muted-foreground">
+              Style de transition
+              <select
+                value={cross}
+                onChange={(ev) => set({ crossStyle: ev.target.value as MontageEffects["crossStyle"] })}
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+              >
+                <option value="dip">Fondu (dip to color)</option>
+                <option value="slide">Slide / push</option>
+                <option value="wipe">Balayage (wipe)</option>
+              </select>
+            </label>
+            {cross !== "dip" && (
+              <label className="grid gap-1 text-xs text-muted-foreground">
+                Direction
+                <select
+                  value={e.crossDir ?? "left"}
+                  onChange={(ev) => set({ crossDir: ev.target.value as MontageEffects["crossDir"] })}
+                  className="h-8 rounded-md border bg-background px-2 text-xs"
+                >
+                  <option value="left">Depuis la droite →</option>
+                  <option value="right">Depuis la gauche ←</option>
+                  <option value="up">Depuis le bas ↑</option>
+                  <option value="down">Depuis le haut ↓</option>
+                </select>
+              </label>
+            )}
+          </div>
+        )}
+      </div>
+
+      <span className="text-[11px] text-muted-foreground">
+        Ces effets ne modifient jamais la durée totale : les transitions sont jouées sur les premières frames de
+        chaque étape.
       </span>
     </div>
   );
