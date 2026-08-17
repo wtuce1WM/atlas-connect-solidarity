@@ -42,8 +42,10 @@ import StepVoiceOverBlock, { type StepVoice } from "@/components/staff/StepVoice
 import { Copy } from "lucide-react";
 import {
   MontageEffectsBlock,
+  SimpleEffectsBlock,
   StepEffectsBlock,
   hasAnyMontageEffect,
+  hasAnySimpleEffect,
   type MontageEffects,
 } from "@/components/staff/video-effects";
 
