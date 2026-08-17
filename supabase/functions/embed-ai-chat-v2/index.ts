@@ -1189,6 +1189,14 @@ Deno.serve(async (req) => {
         let totalFound = 0;
         /** Corpus COMPLET de la recherche (avant coupe d'affichage) : mémorisé pour les relances. */
         let searchPoolIds: string[] = [];
+        /**
+         * Quartier nommé dans une recherche NEUVE (« adresse shopping à hivernage ») :
+         * le mot est retiré du vocabulaire de requête (ce n'est pas une catégorie), donc
+         * sans ce filtre la recherche partait ville entière. Assigné après résolution du
+         * périmètre ville, lu par `runSearch` au moment de l'appel.
+         */
+        let searchNeighborhood: NeighborhoodMatch | null = null;
+
 
         // Recherche déterministe partagée : appelée avec les champs structurés du
         // classifieur, ou en secours avec le message brut quand il n'est pas confiant.
