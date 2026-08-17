@@ -1417,7 +1417,11 @@ Deno.serve(async (req) => {
         if (!nameHit && !results.length && destScope) {
           try {
             const pool = await fetchDestinationBusinesses(admin, destScope.id);
-            const terms = [...strongTerms, ...specializingTerms, ...expansionTerms].filter(Boolean);
+            // Chip déterministe : le libellé du chip n'est pas une requête
+            // taxonomique (« Dans … » → « Danse »). Aucun affinage par termes.
+            const terms = clientDestinationId
+              ? []
+              : [...strongTerms, ...specializingTerms, ...expansionTerms].filter(Boolean);
             let kept = filterDestinationPool(pool, terms as string[]);
             if (competitorGuard.active && kept.length) {
               await (competitorGuard as any).loadSubs?.(kept.map((b: any) => String(b.id)));
