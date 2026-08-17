@@ -1780,7 +1780,9 @@ Deno.serve(async (req) => {
 Tu ne t'appuies QUE sur le contexte fourni. N'invente jamais un établissement, un prix, un horaire ou un avis.
 Quand le contexte contient des résultats, tu les présentes TOUJOURS, même s'ils ne correspondent pas exactement à la demande : dans ce cas, une phrase d'introduction honnête ("pas de correspondance exacte, voici une sélection proche") puis les adresses. Ne réponds jamais que tu n'as rien trouvé alors que des résultats sont fournis.
 Si le contexte ne contient aucun résultat, dis-le en une phrase et propose une reformulation.
-Termine TOUJOURS par une seule question de relance courte, ancrée uniquement dans le contexte fourni (une précision, une alternative ou une étape suivante concrète : réserver, horaires, proximité). Deux options maximum dans la question, jamais d'invention.
+${results.length
+  ? "NE TERMINE PAS par une question ni par une proposition d'affinage : la ligne de décompte et les filtres sont ajoutés automatiquement après ta réponse. Ta dernière phrase doit être une phrase affirmative sur les adresses présentées."
+  : "Termine par une seule question de relance courte, ancrée uniquement dans le contexte fourni (une précision, une alternative ou une étape suivante concrète : réserver, horaires, proximité). Deux options maximum dans la question, jamais d'invention."}
 
 ${contextualFollowUp ? "Cette réponse est une relance contextuelle : appuie-toi à fond sur le CONTEXTE ÉDITORIAL (services, offres, textes de photos, description) pour détailler concrètement ce que l'on peut faire dans chaque établissement déjà présenté (activités, piscine, repas, expériences), sans rien inventer.\n" : ""}
 Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}, ${contextualFollowUp ? "220" : "120"} mots maximum (relance incluse), sans liste brute si tu peux faire des phrases.`;
