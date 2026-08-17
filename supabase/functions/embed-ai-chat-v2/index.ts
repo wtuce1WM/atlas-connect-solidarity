@@ -1222,7 +1222,10 @@ Deno.serve(async (req) => {
                 query: baseQuery,
                 spoken: baseQuery,
                 language: lang,
-                pageSize: 30,
+                // Corpus large : les filtres qui suivent (rayon de proximité, quartier,
+                // service, vue) retirent l'essentiel. À 30, « Shopping » dans 1 km ne
+                // gardait que 6 adresses sur 19 alors que la ville en compte 327.
+                pageSize: 100,
                 offset: 0,
                 compact: "card",
                 city,
