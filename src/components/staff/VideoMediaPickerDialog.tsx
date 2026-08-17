@@ -694,6 +694,13 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         }
       }
 
+      // Exclusion « no_logo » après hydratation des badges (un badge no_logo est aussi exclu).
+      const cleaned = deduped.filter(
+        (m) => !(m.badges ?? []).some((b) => b.toLowerCase().replace(/[\s-]+/g, "_").includes("no_logo")),
+      );
+      deduped.length = 0;
+      deduped.push(...cleaned);
+
 
       // Détection réelle des orientations (images + vidéos internes) pour le filtre 16:9.
       // Important : en parallèle total (des centaines de requêtes simultanées) le
