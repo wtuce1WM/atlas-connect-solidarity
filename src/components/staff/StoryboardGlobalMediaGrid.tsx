@@ -53,11 +53,23 @@ function Tile({
   const [ratio, setRatio] = useState(isVideo ? 9 / 16 : 4 / 3);
   const [duration, setDuration] = useState<number | null>(null);
   const [head, setHead] = useState(item.start ?? 0);
+  const [startText, setStartText] = useState(item.start != null ? String(item.start) : "");
+  const [endText, setEndText] = useState(item.end != null ? String(item.end) : "");
 
   const start = item.start ?? 0;
   const end = item.end ?? 0;
   const maxTime = duration != null ? Math.round(duration * 10) / 10 : 3600;
   const width = Math.round(TILE_H * ratio);
+
+  // Les bornes peuvent aussi être posées par les boutons de capture : on
+  // resynchronise l'affichage texte quand la valeur change hors saisie.
+  useEffect(() => {
+    setStartText(item.start != null ? String(item.start) : "");
+  }, [item.start]);
+  useEffect(() => {
+    setEndText(item.end != null ? String(item.end) : "");
+  }, [item.end]);
+
 
   const capture = (which: "start" | "end") => {
     const el = videoRef.current;
