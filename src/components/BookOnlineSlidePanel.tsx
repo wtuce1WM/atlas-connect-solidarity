@@ -564,15 +564,19 @@ const BookOnlineSlidePanelInner = ({
   const poiProximityInitRef = useRef<string | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
   const [poiMapTypeId, setPoiMapTypeId] = useState<"roadmap" | "satellite" | "terrain">("terrain");
-  // Rayon par défaut du Pill "À proximité" = champ Rayon de l'établissement (10 km par défaut)
+  // Rayon par défaut du Pill "À proximité" = champ Rayon de l'établissement (10 km par défaut).
+  // Corpus fermé imposé (réponse IA) : aucun rayon initial — l'étendue est dictée par les
+  // points GPS du pool de résultats (fit markers), pas par le Rayon du Master.
   useEffect(() => {
     const bid = (business as any)?.id;
     if (!bid || poiProximityInitRef.current === bid) return;
     poiProximityInitRef.current = bid;
+    if ((poiOverrideIds || []).length) { setPoiProximityKm(null); return; }
     const raw = Number((business as any)?.poi_radius_km);
     const allowed = [0.5, 1, 5, 10, 20, 50, 100];
     setPoiProximityKm(allowed.includes(raw) ? raw : 10);
-  }, [business]);
+  }, [business, (poiOverrideIds || []).join(",")]);
+
 
   /* ─── Widget "Adresses à proximité" : pills Regroupements KP + Lieu d'intérêt par défaut ─── */
   type WidgetKpGroup = { slot: 1 | 2; code: string; title: string; members: any[] };
@@ -4033,7 +4037,7 @@ const BookOnlineSlidePanelInner = ({
           : afterProx.slice(0, effectiveTopLimit);
         // Pas de bascule Top 20 / Tous si le résultat courant tient sous la limite
         const showAllToggle = poiMapMode === "poi" && total > effectiveTopLimit;
-        const showCatPill = poiMapMode === "poi" && !overridePool && catPillTabs.length >= 2;
+        const showCatPill = poiMapMode === "poi" && catPillTabs.length >= 2;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi" && !!proxOrigin;
         const proxOpts: { km: number; label: string }[] = [
@@ -4048,9 +4052,12 @@ const BookOnlineSlidePanelInner = ({
 
         const proxCountsByKm: Record<number, number> = {};
         if (showProxPill) {
-          const proxBase = activeFrontTab
-            ? (poiCityBusinesses as any[]).filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
-            : afterSubcat;
+          // Corpus fermé imposé : les distances se calculent sur le pool de résultats seul.
+          const proxBase = overridePool
+            ? afterSubcat
+            : activeFrontTab
+              ? (poiCityBusinesses as any[]).filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
+              : afterSubcat;
           for (const o of proxOpts) {
             proxCountsByKm[o.km] = proxBase.filter((p) => { const d = distOf(p); return d != null && d <= o.km; }).length;
           }
@@ -4059,9 +4066,9 @@ const BookOnlineSlidePanelInner = ({
         return (
         <OverlayShell zClass="z-[80]" desktopOnly={false} animClass={isEmbedMapWidget ? "animate-slide-in-right" : "animate-slide-up-from-bottom"} bg={isEmbedMapWidget ? "bg-background" : ""}>
           <div dir="ltr" className="absolute inset-0">
-            {!embedMode && (
+            {(!embedMode || overridePool) && (
               <button
-                onClick={() => { setShowPoiMapOverlay(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
+                onClick={() => { if (embedMode) { onClose?.(); return; } setShowPoiMapOverlay(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
                 className="absolute top-[calc(3.3rem+0.75rem)] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/90 transition-opacity"
                 aria-label="Fermer"
               >
@@ -4125,7 +4132,7 @@ const BookOnlineSlidePanelInner = ({
                 </div>
               </div>
             )}
-            {(showAllToggle || showSubcatPill || showProxPill) && (
+            {(showAllToggle || showSubcatPill || showProxPill || showCatPill) && (
               <div className="absolute top-[calc(3.3rem+0.75rem+2.75rem)] left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
 
 
