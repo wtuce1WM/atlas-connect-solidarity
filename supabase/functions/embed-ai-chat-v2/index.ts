@@ -409,7 +409,8 @@ Deno.serve(async (req) => {
         const emitDestChips = async (ids: string[]) => {
           if (destChipsEmitted) return;
           const chips = await destinationChipsForBusinesses(admin, ids, lang, destScope?.id || null)
-            .catch(() => []);
+            .catch((e) => { console.error("[embed-ai-chat-v2] dest_chips_failed", String(e)); return []; });
+          console.log("[embed-ai-chat-v2] dest_chips", JSON.stringify({ pool: ids.length, chips: chips.length }));
           if (chips.length) {
             destChipsEmitted = true;
             emit(`\n\n${destinationChipsMarker(chips)}`);
