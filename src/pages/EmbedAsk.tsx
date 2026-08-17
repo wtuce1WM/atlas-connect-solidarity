@@ -728,8 +728,13 @@ const EmbedAsk = () => {
 
   useEffect(() => {
     if (!customBg) return;
-    return applyEmbedBg(activeWidgetBg || "");
-  }, [customBg, activeWidgetBg]);
+    // `?bg=transparent` (avec ou sans `card=`) = la PAGE du widget doit rester
+    // transparente : seul l'intérieur de la carte est coloré. Les couleurs de
+    // widget enregistrées en base ne doivent jamais repeindre html/body ici.
+    if (bgTransparent) return applyEmbedBg("transparent");
+    return applyEmbedBg(embedBgColor || activeWidgetBg || "");
+  }, [customBg, bgTransparent, embedBgColor, activeWidgetBg]);
+
 
   // Le panneau flottant vit dans une iframe : prévenir la page hôte afin que son
   // propre fond ne reste pas bloqué sur la couleur du mode initial.
