@@ -792,6 +792,7 @@ export async function buildFilteredAnswer(
     poolIds: ids.map((id) => String(id)),
     isCompetitor: opts.isCompetitor,
     competitorGuard: opts.competitorGuard,
+    immersive: opts.immersive,
   });
 
   return built;
