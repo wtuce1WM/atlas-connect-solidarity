@@ -884,6 +884,8 @@ export function VideoMediaPickerDialog({
   // scène n'accepte que des vidéos) : c'est le cas d'usage courant.
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("fiche");
   const [search, setSearch] = useState("");
+  const [formatFilter, setFormatFilter] = useState<"all" | "landscape" | "portrait" | "square">("all");
+  const [badgeFilter, setBadgeFilter] = useState<string>("all");
   const [uploadScope, setUploadScope] = useState<"global" | "business">(businessId ? "business" : "global");
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
