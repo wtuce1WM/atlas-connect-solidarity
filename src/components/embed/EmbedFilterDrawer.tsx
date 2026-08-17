@@ -50,6 +50,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
   groups,
   panelClass,
   labelClass,
+  surfaceStyle,
   maxRatio = 0.7,
   closeOnPick = true,
   fontStyle,
