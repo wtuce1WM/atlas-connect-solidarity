@@ -1365,6 +1365,14 @@ Deno.serve(async (req) => {
         const strongTerms = [
           ...new Set(strongTargets.filter((t) => lexicalRank(t) === bestRank).map((t) => t.value)),
         ].slice(0, 2);
+        // Les cibles fortes retenues sont-elles uniquement des services (« Alcool ») et
+        // non un type de lieu (catégorie / sous-catégorie) ? Utile pour distinguer
+        // « où consommer » de « où acheter » (cf. weakResolution plus bas).
+        const strongAreServicesOnly =
+          strongTargets.length > 0 &&
+          strongTargets
+            .filter((t) => lexicalRank(t) === bestRank)
+            .every((t) => t.type === "service");
         // Expansion par mot : bruyante, donc utilisée seulement quand rien de fort ne sort
         // (c'est ce qui rattrape « piscine », absent des catégories mais présent en service).
         const expansionTerms = resolution
