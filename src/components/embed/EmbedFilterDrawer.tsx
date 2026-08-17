@@ -154,7 +154,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
       >
         <div
           className={`rounded-t-2xl border-t border-x shadow-[0_-8px_32px_rgba(0,0,0,0.25)] ${panelClass}`}
-          style={{ maxHeight: maxH, overflowY: "auto" }}
+          style={{ maxHeight: maxH, overflowY: "auto", ...surfaceStyle }}
         >
 
           <div
@@ -163,7 +163,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
             className="sticky top-0 flex items-center justify-center py-3 cursor-grab touch-none"
-            style={{ minHeight: 44 }}
+            style={{ minHeight: 44, ...surfaceStyle }}
           >
             <span className="w-10 h-1.5 rounded-full bg-current opacity-25" />
           </div>
@@ -183,7 +183,11 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
       </div>
 
       {/* Ligne peek + poignée (repliée) */}
-      <div ref={rootRef} className="relative z-30 flex items-center gap-2 pb-2">
+      <div
+        ref={rootRef}
+        className="relative z-30 flex items-center gap-2 pb-2"
+        style={surfaceStyle ? { ...surfaceStyle, borderRadius: 12, padding: 6, marginBottom: 8 } : undefined}
+      >
 
         <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide">
           {peek.map(pill)}
@@ -195,8 +199,8 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           aria-expanded={open}
-          style={fontStyle}
-          className={`shrink-0 text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-semibold hover:opacity-90 touch-none ${panelClass}`}
+          style={{ ...fontStyle, ...surfaceStyle }}
+          className={`shrink-0 text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-semibold hover:opacity-90 touch-none ${surfaceStyle ? "" : panelClass}`}
         >
           <ChevronUp className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
           {handleLabel} · {count}
