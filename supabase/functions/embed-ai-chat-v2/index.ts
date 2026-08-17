@@ -1329,14 +1329,14 @@ Deno.serve(async (req) => {
               });
             }
 
-            // ── Continuité de proximité ────────────────────────────────────────
-            // Après un panorama « que faire à proximité ? », une question libre
-            // (« Shopping ») reste dans le rayon actif autour de l'hôte : sinon la
-            // réponse repart sur la ville entière et contredit le tour précédent.
+            // ── Rayon de proximité (toujours actif dans /embed) ────────────────
+            // L'embed est ancré sur un établissement hôte : toute recherche sans
+            // ville explicite reste dans le rayon actif autour de l'hôte (défaut
+            // 1 km), qu'elle suive un panorama « à proximité » ou non.
             // Les adresses sans coordonnées (nomades / Maps désactivée) sont conservées.
             if (
               host?.latitude != null && host?.longitude != null &&
-              priorRoute === "nearby" && !explicitCity && !resolvedCityRaw && kept.length
+              !nameHit && !destScope && !explicitCity && !resolvedCityRaw && kept.length
             ) {
               const hostRadius = RADIUS_OPTIONS.includes(Number(host.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
               const radiusKm = parseInlineRadiusKm(userMessage) ?? requestedRadiusKm ?? hostRadius;
