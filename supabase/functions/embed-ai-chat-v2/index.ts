@@ -58,7 +58,7 @@ import { buildCompetitorGuard, type CompetitorGuard } from "../_shared/ai-engine
 import { resolveCityScope, detectExplicitCity } from "../_shared/ai-engine/city-scope.ts";
 import {
   detectExplicitDestination, fetchDestinationBusinesses, filterDestinationPool,
-  fetchDestinationById, destinationChipsForBusinesses, destinationChipsMarker,
+  fetchDestinationById, destinationChipsForBusinesses, destinationChipsMarker, destinationIntro,
   type DestinationScope,
 } from "../_shared/ai-engine/destination-scope.ts";
 import {
@@ -1414,6 +1414,7 @@ Deno.serve(async (req) => {
         // ── Périmètre destination (déterministe, zéro token) ────────────────
         // Une destination nommée remplace la ville : le corpus vient de
         // `business_destinations`, puis les termes résolus l'affinent.
+        let destinationBlock: string | null = null;
         if (!nameHit && !results.length && destScope) {
           try {
             const pool = await fetchDestinationBusinesses(admin, destScope.id);
@@ -1439,6 +1440,18 @@ Deno.serve(async (req) => {
             searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, 30);
             results = kept.slice(0, CFG.maxResults);
             resultsCount = results.length;
+            /**
+             * Réponse déterministe (zéro token) sur périmètre destination :
+             * l'éditorial back-office de la destination (accroche/description)
+             * introduit la sélection, puis une ligne immersive par fiche.
+             * Aucun modèle : pas de dérive géographique ni d'invention.
+             */
+            if (results.length) {
+              destinationBlock = [
+                destinationIntro(destScope, lang, totalFound),
+                buildImmersiveLines(results, lang as any),
+              ].filter((p) => p && String(p).trim()).join("\n\n");
+            }
             console.log("[embed-ai-chat-v2] destination_search", JSON.stringify({
               destination: destScope.name, pool: pool.length, terms, kept: kept.length,
             }));
@@ -1598,10 +1611,11 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
           .filter((m) => m.content.trim());
 
         let finalText = "";
-        if (strictBlock) {
+        const deterministicBlock = strictBlock || destinationBlock;
+        if (deterministicBlock) {
           // Mode strict : réponse déterministe, aucun appel LLM, aucune adresse affichée.
-          emit(strictBlock);
-          finalText = strictBlock;
+          emit(deterministicBlock);
+          finalText = deterministicBlock;
         } else try {
           const result = streamText({
             model: gateway(AI_MODEL),
