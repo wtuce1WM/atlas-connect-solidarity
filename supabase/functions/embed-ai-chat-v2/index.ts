@@ -1237,6 +1237,19 @@ Deno.serve(async (req) => {
               });
             }
 
+            // ── Quartier nommé dans la demande = filtre dur (recherche neuve) ──
+            // Le mot quartier n'entre jamais dans la requête (ce n'est pas une catégorie) :
+            // il s'applique ici, sur le corpus rendu par business-search. Pas de repli
+            // silencieux sur la ville : zéro adresse dans le quartier reste zéro.
+            if (searchNeighborhood && kept.length) {
+              const beforeNb = kept.length;
+              kept = filterPoolByNeighborhood(kept as any[], searchNeighborhood);
+              console.log("[embed-ai-chat-v2] search_neighborhood_filter", JSON.stringify({
+                neighborhood: searchNeighborhood.name, city: searchNeighborhood.city,
+                before: beforeNb, after: kept.length,
+              }));
+            }
+
 
             // ── Filtre dur sur service qualifié ────────────────────────────────
             // Quand la demande nomme un service typé dans la même catégorie que le
