@@ -63,8 +63,10 @@ function Tile({
     const el = videoRef.current;
     if (!el || !Number.isFinite(el.currentTime)) return;
     const n = Math.round(el.currentTime * 10) / 10;
-    onPatch(which === "start" ? { start: n > 0 ? n : undefined } : { end: n > 0 ? n : undefined });
+    // On enregistre la valeur telle quelle (0 inclus pour un Start au début).
+    onPatch(which === "start" ? { start: n } : { end: n });
   };
+
 
   const fullscreen = () => {
     const el = (isVideo ? videoRef.current : wrapRef.current) as any;
