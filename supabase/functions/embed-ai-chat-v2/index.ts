@@ -97,7 +97,8 @@ const HOST_FIELDS =
 const CARD_FIELDS =
   "id, name, slug, city, neighborhood, main_category, hook_fr, hook_en, hook_ar, latitude, longitude, " +
   "min_price, manual_price_range, logo_url, images, google_rating, google_review_count, " +
-  "tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count";
+  "tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count, glovo_url";
+
 
 function textOf(m: UIMessage): string {
   const parts = (m as any)?.parts;
