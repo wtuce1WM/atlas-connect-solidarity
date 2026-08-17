@@ -106,10 +106,21 @@ function textOf(m: UIMessage): string {
   return String((m as any)?.content ?? "");
 }
 
-/** Ids d'établissements déjà présentés dans le fil (marqueurs des tours précédents). */
-function priorBusinessIds(messages: UIMessage[]): string[] {
+/**
+ * Ids d'établissements présentés dans le fil.
+ * `lastOnly = true` → uniquement le DERNIER tour porteur de marqueur : c'est la
+ * seule définition correcte de « les derniers résultats » pour les filtres
+ * locaux (plus proches, mieux notés, ouverts…). Sans ça, un tour de
+ * spécialisation (« que les golfs ») était noyé sous les résultats des tours
+ * antérieurs (rooftops de « vue sur l'Atlas »), qui remontaient en tête au
+ * classement par distance.
+ * `lastOnly = false` → cumul du fil, utilisé seulement pour la déduplication
+ * de la relance « montre-moi les suivantes ».
+ */
+function priorBusinessIds(messages: UIMessage[], lastOnly = false): string[] {
   const ids: string[] = [];
-  for (const m of messages) {
+  const ordered = lastOnly ? [...messages].reverse() : messages;
+  for (const m of ordered) {
     if ((m as any)?.role !== "assistant") continue;
     const c = textOf(m);
     const known = c.match(/<!--KNOWN_BUSINESSES:(\[[\s\S]*?\])-->/);
@@ -124,9 +135,11 @@ function priorBusinessIds(messages: UIMessage[]): string[] {
         if (id && !ids.includes(id)) ids.push(id);
       }
     } catch { /* marqueur illisible : ignoré */ }
+    if (lastOnly && ids.length) return ids;
   }
   return ids;
 }
+
 
 /**
  * Corpus COMPLET du tour précédent (marqueur `POOL_BUSINESS_IDS`) : les relances
