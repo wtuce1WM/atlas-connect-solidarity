@@ -58,6 +58,7 @@ import { buildCompetitorGuard, type CompetitorGuard } from "../_shared/ai-engine
 import { resolveCityScope, detectExplicitCity } from "../_shared/ai-engine/city-scope.ts";
 import {
   detectExplicitDestination, fetchDestinationBusinesses, filterDestinationPool,
+  fetchDestinationById, destinationChipsForBusinesses, destinationChipsMarker,
   type DestinationScope,
 } from "../_shared/ai-engine/destination-scope.ts";
 import {
@@ -242,6 +243,14 @@ Deno.serve(async (req) => {
   const clientForcedRoute: string | null = typeof body.forcedRoute === "string" && body.forcedRoute
     ? body.forcedRoute.trim()
     : null;
+  /**
+   * Périmètre destination imposé par un CHIP déterministe (marqueur
+   * `DESTINATION_CHIPS`) : l'identifiant vient de la base, jamais du texte libre.
+   */
+  const clientDestinationId: string | null =
+    typeof body.destinationId === "string" && body.destinationId.trim()
+      ? body.destinationId.trim()
+      : null;
 
   // Seule la surface embed exige un établissement hôte : /search et /club
   // travaillent sur une ville active, sans fiche d'ancrage.
@@ -382,13 +391,31 @@ Deno.serve(async (req) => {
         // Périmètre DESTINATION : « dans l'Atlas », « Vallée de l'Ourika », « Imlil »…
         // ne sont pas des villes. Quand une destination curée est nommée, elle
         // REMPLACE le périmètre ville (`_shared/ai-engine/destination-scope.ts`).
-        const destScope: DestinationScope | null = await detectExplicitDestination(admin, userMessage)
-          .catch(() => null);
+        const destScope: DestinationScope | null = clientDestinationId
+          ? await fetchDestinationById(admin, clientDestinationId, lang).catch(() => null)
+          : await detectExplicitDestination(admin, userMessage).catch(() => null);
         if (destScope) {
           console.log("[embed-ai-chat-v2] destination_scope", JSON.stringify({
             id: destScope.id, name: destScope.name, matched: destScope.matched,
           }));
         }
+
+        /**
+         * Chips de périmètre déterministes : destinations réellement représentées
+         * dans le corpus du tour. Le client renvoie un `destination_id` — plus
+         * aucune proposition géographique en texte libre à re-interpréter.
+         */
+        let destChipsEmitted = false;
+        const emitDestChips = async (ids: string[]) => {
+          if (destChipsEmitted) return;
+          const chips = await destinationChipsForBusinesses(admin, ids, lang, destScope?.id || null)
+            .catch((e) => { console.error("[embed-ai-chat-v2] dest_chips_failed", String(e)); return []; });
+          console.log("[embed-ai-chat-v2] dest_chips", JSON.stringify({ pool: ids.length, chips: chips.length }));
+          if (chips.length) {
+            destChipsEmitted = true;
+            emit(`\n\n${destinationChipsMarker(chips)}`);
+          }
+        };
 
 
 
@@ -542,6 +569,7 @@ Deno.serve(async (req) => {
               }
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               emit("\n\n" + await poolMarker(admin, poolIds, scopeCity));
+                await emitDestChips(poolIds);
               await finish(true);
               return;
             }
@@ -749,6 +777,7 @@ Deno.serve(async (req) => {
                 }
                 emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(cards.knownBusinesses)}-->`);
                 emit("\n\n" + await poolMarker(admin, ids, scopeCity));
+                await emitDestChips(ids);
                 await finish(true);
                 return;
               }
@@ -777,6 +806,7 @@ Deno.serve(async (req) => {
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               if (built.poolIds?.length) {
                 emit("\n\n" + await poolMarker(admin, built.poolIds, scopeCity));
+                await emitDestChips(built.poolIds);
               }
 
               await finish(true);
@@ -817,6 +847,7 @@ Deno.serve(async (req) => {
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               if (built.poolIds?.length) {
                 emit("\n\n" + await poolMarker(admin, built.poolIds, scopeCity));
+                await emitDestChips(built.poolIds);
               }
 
               await finish(true);
@@ -1022,6 +1053,7 @@ Deno.serve(async (req) => {
               emit(built.text);
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.kept.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })))}-->`);
               emit("\n\n" + await poolMarker(admin, poolIds, scopeCity));
+                await emitDestChips(poolIds);
               await finish(true);
               return;
             }
@@ -1385,7 +1417,11 @@ Deno.serve(async (req) => {
         if (!nameHit && !results.length && destScope) {
           try {
             const pool = await fetchDestinationBusinesses(admin, destScope.id);
-            const terms = [...strongTerms, ...specializingTerms, ...expansionTerms].filter(Boolean);
+            // Chip déterministe : le libellé du chip n'est pas une requête
+            // taxonomique (« Dans … » → « Danse »). Aucun affinage par termes.
+            const terms = clientDestinationId
+              ? []
+              : [...strongTerms, ...specializingTerms, ...expansionTerms].filter(Boolean);
             let kept = filterDestinationPool(pool, terms as string[]);
             if (competitorGuard.active && kept.length) {
               await (competitorGuard as any).loadSubs?.(kept.map((b: any) => String(b.id)));
@@ -1618,6 +1654,7 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
           if (searchPoolIds.length) {
             emit("\n\n" + await poolMarker(admin, searchPoolIds, cityDetected || scopeCity || null));
           }
+          await emitDestChips(searchPoolIds.length ? searchPoolIds : results.map((b: any) => String(b.id)));
         } else if (priorFull.length) {
           // Relance contextuelle : cartes des seules fiches réellement citées, prises
           // dans le corpus complet du tour précédent ; le pool reste mémorisé.

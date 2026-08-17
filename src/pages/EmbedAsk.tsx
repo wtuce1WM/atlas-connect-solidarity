@@ -28,7 +28,7 @@ const LocationPickerDialog = lazy(() => import("@/components/LocationPickerDialo
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 import AiBusinessResultCards from "@/components/ai/AiBusinessResultCards";
 import { AI_NAME_FONT } from "@/lib/aiTypography";
-import { Maximize2, X, Navigation, Clock, Star, Building2 } from "lucide-react";
+import { Maximize2, X, Navigation, Clock, Star, Building2, Compass } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import AiTidesWidget from "@/components/embed/AiTidesWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -261,6 +261,7 @@ const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
 const VIDEOFEED_RE = /<!--VIDEO_FEED:([\s\S]*?)-->/g;
 const TIDES_RE = /<!--TIDES_FORECAST:([\s\S]*?)-->/g;
 const COMPETITOR_GUARD_RE = /<!--COMPETITOR_GUARD_ACTIVE-->/;
+const DEST_CHIPS_RE = /<!--DESTINATION_CHIPS:([\s\S]*?)-->/g;
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[]; order?: string | null };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
@@ -268,6 +269,8 @@ type KnownBusiness = { id: string; slug: string | null; name: string };
 type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; hero?: string | null; tldr?: string | null; hook?: string | null; intro?: string | null; inline?: boolean; isOwner?: boolean; kind?: "blog" | "video_feed"; url?: string | null };
 type DestinationCard = { id: string; name: string; hook?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; distKm?: number | null };
 type DestinationsPayload = { title?: string | null; destinations: DestinationCard[] };
+/** Chip de périmètre déterministe : porte un destination_id, jamais du texte libre. */
+type ScopeChip = { id: string; name: string; count: number };
 type VideoFeedItem = {
   id: string;
   url: string;
@@ -294,7 +297,7 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; competitorGuard: boolean } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; competitorGuard: boolean; destChips: ScopeChip[] } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
@@ -304,8 +307,9 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   const weather: WeatherPayload[] = [];
   const videoFeeds: VideoFeedPayload[] = [];
   const tides: string[] = [];
+  const destChips: ScopeChip[] = [];
   const competitorGuard = COMPETITOR_GUARD_RE.test(text);
-  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, competitorGuard };
+  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, competitorGuard, destChips };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -355,6 +359,12 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     } catch { /* */ }
     return "";
   
+  }).replace(DEST_CHIPS_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && Array.isArray(p.chips)) for (const c of p.chips) if (c?.id && c?.name) destChips.push(c as ScopeChip);
+    } catch { /* */ }
+    return "";
   }).replace(TIDES_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -376,9 +386,11 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--POOL_BUSINESS_IDS:[\s\S]*?-->/g, "")
     .replace(/<!--POOL_BUSINESS_IDS:[\s\S]*$/g, "")
     .replace(/<!--COMPETITOR_GUARD_ACTIVE-->/g, "")
+    .replace(/<!--DESTINATION_CHIPS:[\s\S]*?-->/g, "")
+    .replace(/<!--DESTINATION_CHIPS:[\s\S]*$/g, "")
     .trim();
   clean = linkifyPhones(clean);
-  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, competitorGuard };
+  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, competitorGuard, destChips };
 }
 
 // Convert bare phone / WhatsApp numbers found in AI markdown into clickable links.
@@ -614,6 +626,7 @@ const EmbedAsk = () => {
         followupId: (body as any)?.followupId ?? null,
         scope: (body as any)?.scope ?? null,
         forcedRoute: (body as any)?.forcedRoute ?? null,
+        destinationId: (body as any)?.destinationId ?? null,
         radiusKm: radiusRef.current,
       },
     }),
@@ -950,6 +963,21 @@ const EmbedAsk = () => {
    * Filtre local déterministe (badges du footer) : le serveur applique une route
    * du catalogue partagé sur le corpus déjà affiché — zéro appel modèle.
    */
+  /**
+   * Chip de périmètre destination : envoie l'identifiant de la destination, pas
+   * son libellé — aucune re-interprétation NLP côté moteur.
+   */
+  const sendDestinationScope = (chip: { id: string; name: string }) => {
+    if (streaming || !businessName) return;
+    setError(null);
+    messageIndexRef.current += 1;
+    setActiveSuggestionId(null);
+    sendMessage(
+      { text: lang === "en" ? `In ${chip.name}` : lang === "ar" ? `في ${chip.name}` : `Dans ${chip.name}` },
+      { body: { suggestionId: null, followupId: null, scope: null, destinationId: chip.id } },
+    );
+  };
+
   const sendLocalFilter = (text: string, forcedRoute: string) => {
     if (streaming || !businessName) return;
     setError(null);
@@ -1072,6 +1100,20 @@ const EmbedAsk = () => {
    * comptes par quartier viennent du CORPUS COMPLET du tour (`nb` du marqueur
    * pool, ex. 18 rooftops) — jamais des 6 fiches affichées.
    */
+  /**
+   * Chips de périmètre destination du dernier tour (marqueur DESTINATION_CHIPS) :
+   * remplacent les propositions géographiques en texte libre du modèle.
+   */
+  const destScopeChips = useMemo<ScopeChip[]>(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== "assistant") continue;
+      const { destChips } = extractPayloads(messageText(m));
+      return destChips;
+    }
+    return [];
+  }, [messages]);
+
   const localFilters = useMemo(() => {
     const rows = (mapReplayTarget?.businesses ?? []) as any[];
     const poolNb = Object.entries(poolInfo.nb)
@@ -2193,6 +2235,18 @@ const EmbedAsk = () => {
                     {lang === "en" ? "Best rated" : lang === "ar" ? "الأفضل تقييمًا" : "Les mieux notés"}
                   </button>
                 )}
+                {destScopeChips.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => sendDestinationScope(c)}
+                    style={AI_NAME_FONT}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors inline-flex items-center gap-1.5 ${cardBg} ${border} ${cardInk} hover:opacity-90`}
+                  >
+                    <Compass className="w-3.5 h-3.5" />
+                    {c.name} · {c.count}
+                  </button>
+                ))}
                 {localFilters.neighborhoods.map((nb) => (
                   <button
                     key={nb.name}
