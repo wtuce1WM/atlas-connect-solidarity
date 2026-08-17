@@ -978,6 +978,7 @@ const EmbedAsk = () => {
     // L'ancienne suggestion active ne sert que de contexte à une relance explicite.
     if (!suggestionId && !followupId) setActiveSuggestionId(null);
     setError(null);
+    lastLocalFilterRef.current = null;
     messageIndexRef.current += 1;
     const effectiveSuggestionId: string | null = suggestionId || (followupId ? activeSuggestionId : null) || null;
     sendMessage(
