@@ -1813,7 +1813,7 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
           const disclosure = answerListsResults && city && totalFound > results.length
             ? `\n\n${buildDisclosureFromCounts(results.length, totalFound, city)}`
             : "";
-          if (disclosure && !/sur\s+\d+\s+trouv/i.test(finalText)) emit(disclosure);
+          if (disclosure && !/sur\s+\d+\s+(trouv|qui correspond)/i.test(finalText)) emit(disclosure);
           emit(`\n\n${toMapMarker(results, null)}`);
           emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(results.map((b) => ({ id: b.id, name: b.name })))}-->`);
           // Mémoire du corpus complet (les 30 trouvées) pour que la relance suivante
