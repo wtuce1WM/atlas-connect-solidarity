@@ -302,15 +302,22 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     font-weight: 600; font-size: 13px; letter-spacing: 0.05em; white-space: nowrap;
     cursor: pointer; z-index: 999998; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
+  #owm-embed-scrim {
+    position: fixed; inset: 0; background: rgba(0,0,0,.55);
+    opacity: 0; pointer-events: none; z-index: 999997;
+    transition: opacity .35s ease;
+  }
+  #owm-embed-scrim.open { opacity: 1; pointer-events: auto; }
   #owm-embed-panel {
-    position: fixed; top: 0; right: -100%; width: 50vw; height: 100vh;
+    position: fixed; top: 0; right: -70vw; width: 70vw; height: 100vh;
     background: ${panelSurface}; color-scheme: ${embedTheme};
     z-index: 999999; transition: right .35s ease;
     box-shadow: -8px 0 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
   }
   #owm-embed-panel.open { right: 0; }
   #owm-embed-iframe { flex: 1; width: 100%; border: none; background: ${panelSurface}; }
-  @media (max-width: 768px) { #owm-embed-panel { width: 100vw; } }
+  @media (max-width: 768px) { #owm-embed-panel { width: 100vw; right: -100vw; } }
+
 </style>
 
 <button id="owm-embed-tab" aria-label="Ouvrir l&#39;assistant IA">${trimmedAssistantName || 'Assistant 1WM'}</button>
