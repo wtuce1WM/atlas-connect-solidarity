@@ -73,7 +73,8 @@ export function fmtKm(km: number): string {
 }
 
 export function toMapMarker(businesses: any[], title: string | null = null, order: string | null = null): string {
-  const mapBusinesses = businesses.slice(0, 20).map((p: any) => ({
+  const mapBusinesses = scrubNomadRows(businesses.slice(0, 20)).map((p: any) => ({
+
     id: p.id, slug: p.slug, name: p.name,
     city: p.city, neighborhood: p.neighborhood, address: p.address,
     main_category: p.main_category || "",
