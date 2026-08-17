@@ -63,15 +63,14 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
     const compute = () => {
       const h = window.innerHeight || 640;
       const ratio = h < 600 ? Math.min(maxRatio, 0.6) : maxRatio;
-      // Espace réellement disponible AU-DESSUS de la barre peek (header inclus)
-      const top = rootRef.current?.getBoundingClientRect().top ?? h;
-      const available = Math.max(180, top - 12);
-      setMaxH(Math.min(Math.round(h * ratio), Math.round(available)));
+      // Feuille ancrée au bas du viewport : borne = ratio du viewport
+      setMaxH(Math.max(180, Math.round(h * ratio)));
     };
     compute();
     window.addEventListener("resize", compute);
     return () => window.removeEventListener("resize", compute);
   }, [maxRatio, open, count]);
+
 
   // Reset quand la liste disparaît (nouvelle conversation, competitor guard…)
   useEffect(() => {
@@ -133,9 +132,9 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
         aria-hidden={!open}
       />
 
-      {/* Panneau déplié — overlay au-dessus du composer */}
+      {/* Feuille dépliée — ancrée au bas du viewport, recouvre le composer */}
       <div
-        className={`absolute bottom-full inset-x-0 z-30 overflow-hidden transition-transform duration-200 ease-out ${
+        className={`absolute bottom-0 inset-x-0 z-40 overflow-hidden transition-transform duration-200 ease-out ${
           open ? "" : "pointer-events-none"
         }`}
         style={{
@@ -147,9 +146,10 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
         aria-hidden={!open}
       >
         <div
-          className={`mx-2 mb-1 rounded-2xl border shadow-[0_-8px_32px_rgba(0,0,0,0.25)] ${panelClass}`}
+          className={`rounded-t-2xl border-t border-x shadow-[0_-8px_32px_rgba(0,0,0,0.25)] ${panelClass}`}
           style={{ maxHeight: maxH, overflowY: "auto" }}
         >
+
           <div
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
