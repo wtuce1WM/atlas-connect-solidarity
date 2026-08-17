@@ -192,7 +192,7 @@ const AiBusinessResultCards = ({
                   }`}
                   style={
                     podium
-                      ? { background: podium.color, color: "#1b1b1b" }
+                      ? { background: podium.color, color: "#1b1b1b", boxShadow: "0 0 0 1px #000000, 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)" }
                       : { background: "rgba(0,0,0,0.65)", color: "#fff" }
                   }
                 >
