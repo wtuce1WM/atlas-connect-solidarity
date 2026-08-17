@@ -897,6 +897,12 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
   const duck = React.useContext(VoiceDuckContext);
   const muted = !cfg.sound;
   const per = clips.length ? Math.max(1, Math.floor(durationInFrames / clips.length)) : durationInFrames;
+  /** Bornes de lecture par URL, saisies dans « Médias du montage ». */
+  const trims = (cfg.assetTrims && typeof cfg.assetTrims === "object" ? cfg.assetTrims : {}) as Record<
+    string,
+    { start?: number; end?: number }
+  >;
+  const { fps } = useVideoConfig();
 
   return (
     <SceneBackdrop>
@@ -906,17 +912,24 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
           if (!src) return null;
           const from = i * per;
           const frames = i === clips.length - 1 ? Math.max(1, durationInFrames - from) : per;
+          const t = trims[raw] ?? {};
+          const startFrom = t.start && t.start > 0 ? Math.round(t.start * fps) : undefined;
+          const endAtRaw = t.end && t.end > 0 ? Math.round(t.end * fps) : undefined;
+          const endAt = endAtRaw != null && endAtRaw > (startFrom ?? 0) + 1 ? endAtRaw : undefined;
           return (
             <Sequence key={`${raw}-${i}`} from={from} durationInFrames={frames} layout="none">
               <OffthreadVideo
                 src={src}
                 muted={muted}
                 volume={muted ? 0 : duck}
+                startFrom={startFrom}
+                endAt={endAt}
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
               />
             </Sequence>
           );
         })}
+
         <AbsoluteFill
           style={{
             background: `linear-gradient(to top, ${alpha("night", 0.78)} 4%, ${alpha("night", 0)} 45%)`,
