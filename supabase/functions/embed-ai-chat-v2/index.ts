@@ -65,6 +65,8 @@ import {
 } from "../_shared/ai-engine/destination-scope.ts";
 import {
   resolveNeighborhoodInMessage, filterPoolByNeighborhood, neighborhoodEmptyMessage,
+  type NeighborhoodMatch,
+
 } from "../_shared/ai-engine/neighborhood-filter.ts";
 
 
@@ -1189,11 +1191,21 @@ Deno.serve(async (req) => {
         let totalFound = 0;
         /** Corpus COMPLET de la recherche (avant coupe d'affichage) : mémorisé pour les relances. */
         let searchPoolIds: string[] = [];
+        /**
+         * Quartier nommé dans une recherche NEUVE (« adresse shopping à hivernage ») :
+         * le mot est retiré du vocabulaire de requête (ce n'est pas une catégorie), donc
+         * sans ce filtre la recherche partait ville entière. Assigné après résolution du
+         * périmètre ville, lu par `runSearch` au moment de l'appel.
+         */
+        let searchNeighborhood: NeighborhoodMatch | null = null;
+
 
         // Recherche déterministe partagée : appelée avec les champs structurés du
         // classifieur, ou en secours avec le message brut quand il n'est pas confiant.
         const runSearch = async (baseQuery: string, city: string, excluded: string[], requiredServices: string[] = []) => {
           const views = detectViewIntent(userMessage);
+          console.log("[embed-ai-chat-v2] run_search", JSON.stringify({ baseQuery, city, excluded, requiredServices }));
+
           cityDetected = city;
           try {
             const r = await fetch(`${SUPABASE_URL}/functions/v1/business-search`, {
@@ -1225,6 +1237,19 @@ Deno.serve(async (req) => {
                 const hay = normalize(`${b.main_category || ""} ${(b.categories || []).join(" ")}`);
                 return !excluded.some((x) => hay.includes(x));
               });
+            }
+
+            // ── Quartier nommé dans la demande = filtre dur (recherche neuve) ──
+            // Le mot quartier n'entre jamais dans la requête (ce n'est pas une catégorie) :
+            // il s'applique ici, sur le corpus rendu par business-search. Pas de repli
+            // silencieux sur la ville : zéro adresse dans le quartier reste zéro.
+            if (searchNeighborhood && kept.length) {
+              const beforeNb = kept.length;
+              kept = filterPoolByNeighborhood(kept as any[], searchNeighborhood, { strict: true, includeNomads: false });
+              console.log("[embed-ai-chat-v2] search_neighborhood_filter", JSON.stringify({
+                neighborhood: searchNeighborhood.name, city: searchNeighborhood.city,
+                before: beforeNb, after: kept.length,
+              }));
             }
 
 
@@ -1307,10 +1332,10 @@ Deno.serve(async (req) => {
         // relançait une recherche ville entière au lieu d'affiner la sélection. Si le mot
         // désigne un quartier réel de la ville du périmètre, il est retiré du vocabulaire
         // de recherche et traité comme filtre déterministe sur le corpus précédent.
-        const nbMatch = (priorIds.length || poolIds.length)
-          ? await resolveNeighborhoodInMessage(admin, userMessage, scopeCity)
-          : null;
-        const nbAliases = new Set(nbMatch?.aliases || []);
+        const nbAll = await resolveNeighborhoodInMessage(admin, userMessage, scopeCity).catch(() => null);
+        const nbMatch = (priorIds.length || poolIds.length) ? nbAll : null;
+        const nbAliases = new Set(nbAll?.aliases || []);
+
         const isNeighborhoodWord = (value: string) => nbAliases.has(normalize(value));
         // Cibles fortes (exact / phrase / synonyme curé) issues du message utilisateur,
         // ordonnées par proximité lexicale avec le terme réellement tapé : « piscine »
@@ -1384,6 +1409,12 @@ Deno.serve(async (req) => {
           hostCity: host?.city, activeCity, explicitCity: explicitCity || resolvedCityRaw,
         }) as string;
         const resolvedCity = resolvedCityRaw;
+        // Quartier résolu DANS la ville de recherche (« Médina » existe dans 9 villes).
+        searchNeighborhood = (nbAll && normalize(nbAll.city) === normalize(searchCity))
+          ? nbAll
+          : await resolveNeighborhoodInMessage(admin, userMessage, searchCity).catch(() => null);
+
+
 
         // La catégorie du classifieur n'est retenue que si elle existe vraiment en base.
         let classifierCategoryValid = false;
@@ -1522,6 +1553,19 @@ Deno.serve(async (req) => {
             ? [...new Set(qualifiedServiceTargets(resolution).filter((t) => t.strength !== "expansion").map((t) => t.value))]
             : [];
           await runSearch(baseQuery, searchCity, excluded, requiredServices);
+          // Quartier nommé + corpus vide après filtre : le terme résolu était trop
+          // étroit (« shopping » → « Boutique »). On rejoue avec le message brut, dont
+          // business-search est l'autorité (il détecte lui-même le quartier), puis on
+          // réapplique le même filtre. Aucun élargissement géographique.
+          if (searchNeighborhood && !results.length) {
+            const before = totalFound;
+            await runSearch(userMessage.slice(0, 200), searchCity, excluded);
+            console.log("[embed-ai-chat-v2] neighborhood_raw_retry", JSON.stringify({
+              neighborhood: searchNeighborhood.name, before, after: results.length,
+            }));
+          }
+
+
 
         }
 
