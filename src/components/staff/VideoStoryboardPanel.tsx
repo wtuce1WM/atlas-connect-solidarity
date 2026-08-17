@@ -1340,8 +1340,9 @@ const VideoStoryboardPanel = () => {
         .filter((m: any) => m && typeof m.url === "string" && m.url.trim())
         .map((m: any) => ({
           url: m.url as string,
-          start: Number.isFinite(m.start) && m.start > 0 ? Number(m.start) : undefined,
+          start: Number.isFinite(m.start) && m.start >= 0 ? Number(m.start) : undefined,
           end: Number.isFinite(m.end) && m.end > 0 ? Number(m.end) : undefined,
+
         })),
     );
     setSections(
