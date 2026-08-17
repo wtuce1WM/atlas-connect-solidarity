@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/neighborhoods.json",
-    "generated_at": "2026-08-14T14:43:11.338Z",
+    "generated_at": "2026-08-17T05:12:36.952Z",
     "count": 104
   },
   "neighborhoods": [
@@ -87,6 +87,10 @@
         {
           "name": "Bar La Mouette et les Dromadaires",
           "url": "https://oneworldmorocco.com/bar-la-mouette-et-les-dromadaires"
+        },
+        {
+          "name": "BoujXSports",
+          "url": "https://oneworldmorocco.com/boujxsports"
         },
         {
           "name": "Cap Sim Quad",
@@ -2589,6 +2593,10 @@
           "url": "https://oneworldmorocco.com/les-bains-de-marrakech"
         },
         {
+          "name": "Monde des Arts de la Parure (MAP)",
+          "url": "https://oneworldmorocco.com/musee-des-arts-de-la-parure-map"
+        },
+        {
           "name": "Riad Alma Marrakech",
           "url": "https://oneworldmorocco.com/riad-alma-marrakech"
         },
@@ -2607,6 +2615,10 @@
         {
           "name": "Marrakech Green Wheels",
           "url": "https://oneworldmorocco.com/marrakech-green-wheels"
+        },
+        {
+          "name": "Monde des Arts de la Parure (MAP)",
+          "url": "https://oneworldmorocco.com/musee-des-arts-de-la-parure-map"
         }
       ]
     },
@@ -3168,7 +3180,7 @@
         },
         {
           "name": "Riad BE Marrakech",
-          "url": "https://oneworldmorocco.com/riad-be-marrakech"
+          "url": "https://oneworldmorocco.com/be-marrakech"
         },
         {
           "name": "Riad Botanica",
@@ -3205,6 +3217,10 @@
         {
           "name": "Le Spa de la Maison Arabe",
           "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arab"
+        },
+        {
+          "name": "Riad BE Marrakech",
+          "url": "https://oneworldmorocco.com/be-marrakech"
         }
       ]
     },
