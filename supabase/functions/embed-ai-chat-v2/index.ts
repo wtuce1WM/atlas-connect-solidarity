@@ -1546,8 +1546,22 @@ Deno.serve(async (req) => {
                 ? expansionTerms
                 : [priorCategory].filter(Boolean) as string[];
 
-          const baseQuery = [...coreTerms, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
-            || userMessage.slice(0, 200);
+          /**
+           * Résolution faible = ni terme taxonomique fort, ni catégorie validée par le
+           * classifieur (ex. intention d'usage « acheter de l'alcool »). Reconstruire la
+           * requête à partir de simples termes d'expansion appauvrit la recherche : on
+           * laisse alors `business-search` être l'autorité sur le message brut, comme /search.
+           */
+          const weakResolution = !strongTerms.length && !classifierCategoryValid;
+          const baseQuery = weakResolution
+            ? userMessage.slice(0, 200)
+            : ([...coreTerms, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
+              || userMessage.slice(0, 200));
+          if (weakResolution) {
+            console.log("[embed-ai-chat-v2] weak_resolution_raw_query", JSON.stringify({
+              message: userMessage.slice(0, 120), expansionTerms,
+            }));
+          }
           // Services qualifiés forts → filtre dur (l'expansion par mot reste du ranking).
           const requiredServices = resolution
             ? [...new Set(qualifiedServiceTargets(resolution).filter((t) => t.strength !== "expansion").map((t) => t.value))]
