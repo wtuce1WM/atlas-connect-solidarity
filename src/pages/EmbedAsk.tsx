@@ -602,6 +602,8 @@ const EmbedAsk = () => {
 
   const sessionIdRef = useRef<string>(initialPersisted?.sessionId || newSessionId());
   const messageIndexRef = useRef<number>(initialPersisted?.messageIndex || 0);
+  /** Dernier filtre local déclenché par l'utilisateur (pour masquer le texte IA quand inutile). */
+  const lastLocalFilterRef = useRef<{ forcedRoute: string; text: string } | null>(null);
   const [chatKey, setChatKey] = useState(0);
   // Relances déjà cliquées dans la conversation courante (réinitialisées au reset).
   const [usedFollowupIds, setUsedFollowupIds] = useState<string[]>([]);
