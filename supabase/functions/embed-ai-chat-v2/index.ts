@@ -307,9 +307,14 @@ Deno.serve(async (req) => {
   }
 
   const userMessage = textOf([...uiMessages].reverse().find((m: any) => m?.role === "user") as UIMessage) || "";
-  const priorIds = priorBusinessIds(uiMessages);
-  /** Corpus complet du tour précédent (19 trouvées) — surensemble de `priorIds`. */
-  const poolIds = [...new Set([...priorPoolIds(uiMessages), ...priorIds])];
+  /** Résultats du DERNIER tour uniquement : base de tous les filtres locaux. */
+  const priorIds = priorBusinessIds(uiMessages, true);
+  /** Cumul du fil : sert seulement à ne pas re-montrer une fiche déjà vue. */
+  const seenIds = priorBusinessIds(uiMessages);
+  /** Corpus complet du dernier tour (19 trouvées) — surensemble de `priorIds`. */
+  const poolIds = [...new Set([...priorPoolIds(uiMessages, lastResultsIndex(uiMessages)), ...priorIds])];
+  console.log("[embed-ai-chat-v2] prior_context", JSON.stringify({ priorIds: priorIds.length, pool: poolIds.length, seen: seenIds.length }));
+
 
   const chatId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(sessionId || ""))
     ? sessionId
