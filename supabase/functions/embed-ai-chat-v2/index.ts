@@ -304,7 +304,7 @@ Deno.serve(async (req) => {
       let competitorGuard: CompetitorGuard | null = null;
 
       try {
-        resolution = await resolveWithAdmin(admin, userMessage);
+        resolution = await resolveWithAdmin(admin, userMessage, lang);
         resolutionLog = resolutionMetric(resolution);
       } catch (e) {
         console.warn("[embed-ai-chat-v2] resolver failed", String(e));
@@ -1307,7 +1307,7 @@ Deno.serve(async (req) => {
         const proposed = out?.category || null;
         if (proposed) {
           try {
-            const chk = await resolveWithAdmin(admin, proposed);
+            const chk = await resolveWithAdmin(admin, proposed, lang);
             const hit = chk.targets.find(
               (t) => (t.type === "category" || t.type === "subcategory" || t.type === "service") && t.strength !== "expansion",
             );
