@@ -166,7 +166,13 @@ async function downloadMedia(url) {
   return null;
 }
 
-/** Réécrit récursivement toute URL média http(s) des props vers un fichier local. */
+/**
+ * Réécrit récursivement toute URL média http(s) des props vers un fichier local.
+ * Les **clés** d'objets sont réécrites elles aussi : `config.assetTrims` est
+ * indexé par URL de média, et le template compare cette clé à l'URL du clip
+ * (déjà internalisée). Sans réécriture des clés, les bornes Start/End saisies
+ * dans « Médias du montage » n'étaient jamais appliquées au rendu.
+ */
 async function internalizeRemoteMedia(value) {
   if (typeof value === "string") {
     if (!/^https?:\/\//i.test(value) || !MEDIA_EXT.test(value)) return value;
@@ -180,11 +186,17 @@ async function internalizeRemoteMedia(value) {
   }
   if (value && typeof value === "object") {
     const out = {};
-    for (const [k, v] of Object.entries(value)) out[k] = await internalizeRemoteMedia(v);
+    for (const [k, v] of Object.entries(value)) {
+      const key = /^https?:\/\//i.test(k) && MEDIA_EXT.test(k)
+        ? ((await downloadMedia(k)) ?? k)
+        : k;
+      out[key] = await internalizeRemoteMedia(v);
+    }
     return out;
   }
   return value;
 }
+
 
 
 async function renderOne() {
