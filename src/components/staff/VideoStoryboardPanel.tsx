@@ -176,14 +176,23 @@ const ConfigFields = ({
   patch,
   businessId,
   format,
+  dropGlobal,
 }: {
   section: Section;
   patch: (values: Partial<Section>) => void;
   businessId: string | null;
   format: "portrait" | "landscape";
+  /** Retire aussi les médias supprimés ici de la sélection globale du montage. */
+  dropGlobal?: (urls: string[]) => void;
 }) => {
   const cfg = section.config ?? {};
   const set = (key: string, value: any) => patch({ config: { ...cfg, [key]: value } });
+  /** Médias retirés à l'étape → retirés de la source globale (sinon ils reviennent). */
+  const syncRemoved = (before: string[], after: string[]) => {
+    const gone = before.filter((u) => !after.includes(u));
+    if (gone.length > 0) dropGlobal?.(gone);
+  };
+
 
   const text = (key: string, label: string, placeholder?: string) => (
     <label className="text-xs text-muted-foreground grid gap-1">
@@ -246,7 +255,8 @@ const ConfigFields = ({
             max={30}
             label={media.length ? `Modifier le fond (${media.length})` : "Choisir des médias"}
             value={media}
-            onChange={(urls) =>
+            onChange={(urls) => {
+              syncRemoved(media, urls);
               patch({
                 config: {
                   ...cfg,
@@ -255,8 +265,9 @@ const ConfigFields = ({
                   bgImages: [],
                   bgVideoUrl: "",
                 },
-              })
-            }
+              });
+            }}
+
           />
           {active && (
             <Button
@@ -309,9 +320,11 @@ const ConfigFields = ({
               max={30}
               label={clips.length ? `Modifier les vidéos (${clips.length})` : "Choisir les vidéos"}
               value={clips}
-              onChange={(urls) =>
-                patch({ config: { ...cfg, assetUrls: urls.slice(0, 30), assetUrl: "" } })
-              }
+              onChange={(urls) => {
+                syncRemoved(clips, urls);
+                patch({ config: { ...cfg, assetUrls: urls.slice(0, 30), assetUrl: "" } });
+              }}
+
             />
             <span className="text-[11px] text-muted-foreground">
               Vide = première vidéo interne de la fiche. La durée de la section est partagée à parts égales.
@@ -372,7 +385,11 @@ const ConfigFields = ({
               max={30}
               label={media.length ? `Modifier les médias (${media.length})` : "Choisir les médias"}
               value={media}
-              onChange={(urls) => patch({ config: { ...cfg, media: urls.slice(0, 30), images: [] } })}
+              onChange={(urls) => {
+                syncRemoved(media, urls);
+                patch({ config: { ...cfg, media: urls.slice(0, 30), images: [] } });
+              }}
+
             />
             <span className="text-[11px] text-muted-foreground">
               Vide = photos publiques de la fiche. Les vidéos jouent muettes, les images en Ken Burns.
@@ -853,6 +870,7 @@ const SortableSection = ({
   remove,
   businessId,
   format,
+  dropGlobal,
 }: {
   section: Section;
   index: number;
@@ -863,7 +881,9 @@ const SortableSection = ({
   remove: () => void;
   businessId: string | null;
   format: "portrait" | "landscape";
+  dropGlobal?: (urls: string[]) => void;
 }) => {
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
   const hint = STEP_TYPES.find((s) => s.value === section.step_type)?.hint;
 
@@ -972,7 +992,7 @@ const SortableSection = ({
             <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               2. Contenu — {typeLabel(section.step_type)}
             </span>
-            <ConfigFields section={section} patch={patch} businessId={businessId} format={format} />
+            <ConfigFields section={section} patch={patch} businessId={businessId} format={format} dropGlobal={dropGlobal} />
           </div>
 
           <div className="rounded-lg border p-3 flex flex-col gap-3 min-w-0">
@@ -2269,6 +2289,11 @@ const VideoStoryboardPanel = () => {
                               remove={() => removeSection(s.id)}
                               businessId={biz?.id ?? board.business_id}
                               format={board.format}
+                              dropGlobal={(urls) => {
+                                setGlobalMediaItems((prev) => prev.filter((m) => !urls.includes(m.url)));
+                                setDirty(true);
+                              }}
+
                             />
                           ))}
                         </div>

@@ -1172,9 +1172,53 @@ export function VideoMediaPickerDialog({
     [typeBase],
   );
 
+  /** Miniatures des URLs sélectionnées absentes de la bibliothèque chargée. */
+  const [fallbackThumbs, setFallbackThumbs] = useState<Record<string, string | null>>({});
+  useEffect(() => {
+    const missing = value.filter(
+      (u) => u && !items.some((m) => m.url === u) && !(u in fallbackThumbs),
+    );
+    if (missing.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      const [docs, gen] = await Promise.all([
+        supabase.from("business_documents").select("url, thumbnail_url").in("url", missing),
+        supabase.from("generic_videos").select("url, thumbnail_url").in("url", missing),
+      ]);
+      if (cancelled) return;
+      const next: Record<string, string | null> = {};
+      missing.forEach((u) => {
+        next[u] = null;
+      });
+      [...(docs.data ?? []), ...(gen.data ?? [])].forEach((r: any) => {
+        if (r?.url) next[r.url] = r.thumbnail_url ?? null;
+      });
+      setFallbackThumbs((prev) => ({ ...prev, ...next }));
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, items]);
+
+
+  // Les vignettes sélectionnées doivent rester lisibles AVANT toute ouverture
+  // du sélecteur (la bibliothèque `items` n'est chargée qu'à l'ouverture) :
+  // on déduit le type par l'extension et on récupère la vraie miniature en base.
   const selectedItems = value
-    .map((u) => items.find((m) => m.url === u) ?? ({ url: u, kind: "image", source: "fiche" } as PickerMedia))
+    .map((u) => {
+      const found = items.find((m) => m.url === u);
+      if (found) return found;
+      const isVideo = /\.(mp4|mov|webm|m4v)(\?|$)/i.test(u);
+      return {
+        url: u,
+        kind: isVideo ? "video" : "image",
+        source: "fiche",
+        thumbnail: fallbackThumbs[u] ?? null,
+      } as PickerMedia;
+    })
     .filter(Boolean);
+
 
   const activeTypeLabel =
     allow === "image" || typeFilter === "image"
