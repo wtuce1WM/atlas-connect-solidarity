@@ -59,10 +59,12 @@ jobs:
 
       # Capture des vidéos « Feed » : Playwright Python + Pillow (détourage alpha).
       - uses: actions/setup-python@v5
+        if: steps.peek.outputs.has_work == 'true'
         with:
           python-version: "3.12"
 
       - name: Installer Playwright Python
+        if: steps.peek.outputs.has_work == 'true'
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install playwright pillow
@@ -70,6 +72,7 @@ jobs:
 
 
       - name: Cache Bun deps
+        if: steps.peek.outputs.has_work == 'true'
         uses: actions/cache@v4
         with:
           path: |
@@ -78,16 +81,19 @@ jobs:
           key: bun-${{ runner.os }}-${{ hashFiles('remotion/package.json') }}
 
       - name: Cache Remotion Chrome
+        if: steps.peek.outputs.has_work == 'true'
         uses: actions/cache@v4
         with:
           path: ~/.cache/remotion
           key: remotion-chrome-${{ runner.os }}
 
       - name: Installer les dépendances
+        if: steps.peek.outputs.has_work == 'true'
         working-directory: remotion
         run: bun install
 
       - name: Lancer le rendu de la file d'attente
+        if: steps.peek.outputs.has_work == 'true'
         working-directory: remotion
         env:
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -96,3 +102,4 @@ jobs:
           PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
           MAX_JOBS: "10"
         run: bun run scripts/render-job.mjs
+
