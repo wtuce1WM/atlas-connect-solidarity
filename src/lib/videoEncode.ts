@@ -110,6 +110,7 @@ export const normalizeEncode = (raw: unknown): EncodeOptions => {
     scale,
     audio: r.audio === "mute" ? "mute" : "keep",
     audioBitrate: AUDIO_BITRATES.includes(String(r.audioBitrate)) ? String(r.audioBitrate) : DEFAULT_ENCODE.audioBitrate,
+    transparent: r.transparent === true,
   };
 };
 
