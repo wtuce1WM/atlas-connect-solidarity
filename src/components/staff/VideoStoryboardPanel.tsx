@@ -385,7 +385,11 @@ const ConfigFields = ({
               max={30}
               label={media.length ? `Modifier les médias (${media.length})` : "Choisir les médias"}
               value={media}
-              onChange={(urls) => patch({ config: { ...cfg, media: urls.slice(0, 30), images: [] } })}
+              onChange={(urls) => {
+                syncRemoved(media, urls);
+                patch({ config: { ...cfg, media: urls.slice(0, 30), images: [] } });
+              }}
+
             />
             <span className="text-[11px] text-muted-foreground">
               Vide = photos publiques de la fiche. Les vidéos jouent muettes, les images en Ken Burns.
