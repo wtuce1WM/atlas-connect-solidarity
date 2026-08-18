@@ -647,7 +647,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         .eq("status", "done")
         .not("output_url", "is", null)
         .order("created_at", { ascending: false })
-        .limit(300);
+        .limit(600);
       const jobRows = (jobs ?? []).filter((j: any) => {
         const t = String(j.template_id ?? "");
         return (
@@ -1397,11 +1397,47 @@ export function VideoMediaPickerDialog({
                   ))}
                 </select>
               )}
+              <div className="ml-auto flex items-center gap-2">
+                <select
+                  value={uploadScope}
+                  onChange={(e) => setUploadScope(e.target.value as "global" | "business")}
+                  className="h-8 rounded-md border bg-background px-2 text-xs"
+                  disabled={!businessId}
+                >
+                  <option value="global">Ajouter en global</option>
+                  {businessId && <option value="business">Ajouter à cette fiche</option>}
+                </select>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  multiple
+                  accept="image/*,video/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files ?? []);
+                    if (files.length) void uploadFiles(files);
+                  }}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  className="h-8 gap-1 text-xs"
+                  disabled={uploading}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                  Importer
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 border-b pb-3">
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Rechercher (titre, fiche, URL)…"
-                className="h-8 w-44 text-xs"
+                className="h-8 w-56 text-xs"
               />
               {showFicheVideosToggle && (
                 <Button
@@ -1446,39 +1482,6 @@ export function VideoMediaPickerDialog({
               </div>
               )}
 
-              <div className="ml-auto flex items-center gap-2">
-                <select
-                  value={uploadScope}
-                  onChange={(e) => setUploadScope(e.target.value as "global" | "business")}
-                  className="h-8 rounded-md border bg-background px-2 text-xs"
-                  disabled={!businessId}
-                >
-                  <option value="global">Ajouter en global</option>
-                  {businessId && <option value="business">Ajouter à cette fiche</option>}
-                </select>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  multiple
-                  accept="image/*,video/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const files = Array.from(e.target.files ?? []);
-                    if (files.length) void uploadFiles(files);
-                  }}
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  className="h-8 gap-1 text-xs"
-                  disabled={uploading}
-                  onClick={() => fileRef.current?.click()}
-                >
-                  {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
-                  Importer
-                </Button>
-              </div>
             </div>
 
             <div
