@@ -292,7 +292,7 @@ const StoryboardGlobalMediaGrid = ({
       <p className="text-[11px] text-muted-foreground">
         {counts.videos} vidéo{counts.videos > 1 ? "s" : ""} · {counts.images} image{counts.images > 1 ? "s" : ""}
       </p>
-      <div className={`items-start gap-3 ${format === "landscape" ? "grid grid-cols-2" : "flex flex-wrap"}`}>
+      <div className={`items-start gap-3 ${format === "landscape" ? "grid grid-cols-3" : "flex flex-wrap"}`}>
         {items.map((m, i) => (
           <Tile
             key={m.url}
