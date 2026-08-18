@@ -215,6 +215,7 @@ const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
 
   // Auto-open a specific channel when ?openChannel=<businessId> is present.
   useEffect(() => {
+    if (compact) return;
     if (autoOpenedRef.current || loading) return;
     const channelId = searchParams.get("openChannel");
     if (!channelId) return;
@@ -223,11 +224,13 @@ const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
     autoOpenedRef.current = true;
     handleChannelClick(ch);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, loading, searchParams]);
+  }, [groups, loading, searchParams, compact]);
 
   // Keep ?openChannel=<id> in sync with the active channel so the URL is shareable.
   useEffect(() => {
+    if (compact) return;
     const next = new URLSearchParams(searchParams);
+
     if (active?.owner.id) {
       if (next.get("openChannel") === active.owner.id) return;
       next.set("openChannel", active.owner.id);
