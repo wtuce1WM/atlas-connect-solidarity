@@ -1080,12 +1080,19 @@ export function VideoMediaPickerDialog({
     });
   }, [typeBase, wideVideos, sourceFilter, search]);
 
-  /** Badges actifs présents dans la source sélectionnée, avec compteurs. */
+  /** Résultats après filtre format uniquement (base des options de badges). */
+  const formatScoped = useMemo(
+    () => (formatFilter === "all" ? sourceScoped : sourceScoped.filter((m) => m.orientation === formatFilter)),
+    [sourceScoped, formatFilter],
+  );
+
+  /** Badges actifs présents dans la source + format sélectionnés, avec compteurs. */
   const badgeOptions = useMemo(() => {
     const map = new Map<string, number>();
-    for (const m of sourceScoped) for (const b of m.badges ?? []) map.set(b, (map.get(b) ?? 0) + 1);
+    for (const m of formatScoped) for (const b of m.badges ?? []) map.set(b, (map.get(b) ?? 0) + 1);
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0], "fr"));
-  }, [sourceScoped]);
+  }, [formatScoped]);
+
 
   useEffect(() => {
     if (badgeFilter !== "all" && !badgeOptions.some(([b]) => b === badgeFilter)) setBadgeFilter("all");
