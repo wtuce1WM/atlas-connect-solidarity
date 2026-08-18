@@ -1872,12 +1872,16 @@ const VideoStoryboardPanel = () => {
 
           <div className="ml-auto flex flex-wrap items-center gap-2">
             {!legacyMode && board && dirty && (
-              <Badge variant="destructive" className="text-[10px]">
+              <Badge variant="destructive" className="text-xs gap-1 animate-pulse">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-foreground opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-foreground" />
+                </span>
                 Modifications non enregistrées
               </Badge>
             )}
             {!legacyMode && board && overflow && (
-              <Badge variant="destructive" className="text-[10px]">
+              <Badge variant="destructive" className="text-xs">
                 Durée hors plafond
               </Badge>
             )}
