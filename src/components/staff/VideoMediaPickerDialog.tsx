@@ -1529,15 +1529,9 @@ export function VideoMediaPickerDialog({
             <div key={m.url} className="relative w-64 max-w-full">
               <div id={`sel-media-${i}`} className="rounded-md overflow-hidden border-2 border-border bg-black h-64">
                 {m.kind === "video" ? (
-                  <video
-                    src={m.url}
-                    controls
-                    muted
-                    playsInline
-                    preload="metadata"
-                    className="w-full h-full object-contain bg-black"
-                  />
+                  <SelectedVideoPreview url={m.url} thumbnail={m.thumbnail} />
                 ) : (
+
                   <img src={m.url} alt="" className="w-full h-full object-contain" loading="lazy" />
                 )}
               </div>
