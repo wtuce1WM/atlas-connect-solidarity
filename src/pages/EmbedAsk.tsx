@@ -27,6 +27,8 @@ const DestinationSlidePanel = lazy(() => import("@/components/DestinationSlidePa
 const PoiGoogleMap = lazy(() => import("@/components/PoiGoogleMap"));
 const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
 const LocationPickerDialog = lazy(() => import("@/components/LocationPickerDialog"));
+const YouTubeChannelsTabContent = lazy(() => import("@/pages/search/YouTubeChannelsTabContent"));
+
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 import AiBusinessResultCards from "@/components/ai/AiBusinessResultCards";
 import { AI_NAME_FONT } from "@/lib/aiTypography";
