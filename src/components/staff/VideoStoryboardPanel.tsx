@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1308,6 +1308,8 @@ const VideoStoryboardPanel = () => {
   const [legacyMode, setLegacyMode] = useState<"business" | "corporate" | null>(null);
   /** Médias globaux du montage (ordre + bornes Start/End), propagés à toutes les étapes. */
   const [globalMediaItems, setGlobalMediaItems] = useState<GlobalMediaItem[]>([]);
+  /** Dernière valeur synchrone utilisée par Enregistrer, même juste après une saisie. */
+  const globalMediaItemsRef = useRef<GlobalMediaItem[]>([]);
   const globalMedia = useMemo(() => globalMediaItems.map((m) => m.url), [globalMediaItems]);
   const [globalIncludeBg, setGlobalIncludeBg] = useState(true);
 
@@ -1382,16 +1384,15 @@ const VideoStoryboardPanel = () => {
     ]);
     const b = (boardRes.data as unknown as Storyboard) ?? null;
     setBoard(b);
-    setGlobalMediaItems(
-      (Array.isArray(b?.global_media) ? b.global_media : [])
+    const loadedGlobalMedia = (Array.isArray(b?.global_media) ? b.global_media : [])
         .filter((m: any) => m && typeof m.url === "string" && m.url.trim())
         .map((m: any) => ({
           url: m.url as string,
           start: Number.isFinite(m.start) && m.start >= 0 ? Number(m.start) : undefined,
           end: Number.isFinite(m.end) && m.end > 0 ? Number(m.end) : undefined,
-
-        })),
-    );
+        }));
+    globalMediaItemsRef.current = loadedGlobalMedia;
+    setGlobalMediaItems(loadedGlobalMedia);
     setSections(
       ((stepsRes.data ?? []) as unknown as Section[]).map((s) => ({ ...s, config: s.config ?? {} })),
     );
@@ -1485,7 +1486,7 @@ const VideoStoryboardPanel = () => {
         preview_scale: board.preview_scale,
         max_duration_sec: board.max_duration_sec,
         effects: board.effects ?? null,
-        global_media: globalMediaItems as any,
+        global_media: globalMediaItemsRef.current as any,
         encode: normalizeEncode(board.encode) as any,
       } as any)
       .select("id")
@@ -1681,7 +1682,7 @@ const VideoStoryboardPanel = () => {
         preview_scale: board.preview_scale,
         max_duration_sec: board.max_duration_sec,
         effects: board.effects ?? null,
-        global_media: globalMediaItems as any,
+        global_media: globalMediaItemsRef.current as any,
         encode: normalizeEncode(board.encode) as any,
       } as any)
       .eq("id", board.id);
@@ -2157,6 +2158,7 @@ const VideoStoryboardPanel = () => {
                           const prev = globalMediaItems.find((m) => m.url === url);
                           return { url, start: prev?.start, end: prev?.end };
                         });
+                        globalMediaItemsRef.current = next;
                         setGlobalMediaItems(next);
                         setDirty(true);
                         applyGlobalMedia(next, globalIncludeBg);
@@ -2188,6 +2190,7 @@ const VideoStoryboardPanel = () => {
                     items={globalMediaItems}
                     format={board.format}
                     onChange={(next) => {
+                      globalMediaItemsRef.current = next;
                       setGlobalMediaItems(next);
                       setDirty(true);
                       applyGlobalMedia(next, globalIncludeBg);
@@ -2290,7 +2293,11 @@ const VideoStoryboardPanel = () => {
                               businessId={biz?.id ?? board.business_id}
                               format={board.format}
                               dropGlobal={(urls) => {
-                                setGlobalMediaItems((prev) => prev.filter((m) => !urls.includes(m.url)));
+                                setGlobalMediaItems((prev) => {
+                                  const next = prev.filter((m) => !urls.includes(m.url));
+                                  globalMediaItemsRef.current = next;
+                                  return next;
+                                });
                                 setDirty(true);
                               }}
 
