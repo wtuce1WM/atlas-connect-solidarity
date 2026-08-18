@@ -1312,6 +1312,50 @@ const VideoStoryboardPanel = () => {
   const globalMediaItemsRef = useRef<GlobalMediaItem[]>([]);
   const globalMedia = useMemo(() => globalMediaItems.map((m) => m.url), [globalMediaItems]);
   const [globalIncludeBg, setGlobalIncludeBg] = useState(true);
+  /** Durées réelles des vidéos globales (métadonnées lues côté navigateur), pour calculer la durée nécessaire. */
+  const [mediaDurations, setMediaDurations] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const urls = globalMediaItems
+      .map((m) => m.url)
+      .filter((u) => isVideoMediaUrl(u))
+      .filter((u) => mediaDurations[u] == null);
+    if (urls.length === 0) return;
+    let cancelled = false;
+    urls.forEach((url) => {
+      const el = document.createElement("video");
+      el.preload = "metadata";
+      el.muted = true;
+      el.src = url;
+      el.onloadedmetadata = () => {
+        if (!cancelled && Number.isFinite(el.duration)) {
+          setMediaDurations((prev) => ({ ...prev, [url]: el.duration }));
+        }
+      };
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [globalMediaItems, mediaDurations]);
+
+  /** Durée nécessaire pour monter toutes les vidéos globales selon leurs bornes Start/End. */
+  const requiredVideoDuration = useMemo(() => {
+    let total = 0;
+    let unknown = 0;
+    let clips = 0;
+    for (const m of globalMediaItems) {
+      if (!isVideoMediaUrl(m.url)) continue;
+      clips += 1;
+      const dur = mediaDurations[m.url];
+      const start = Math.max(0, m.start ?? 0);
+      const end = (m.end ?? 0) > 0 ? (m.end as number) : dur;
+      if (end == null) {
+        unknown += 1;
+        continue;
+      }
+      total += Math.max(0, end - start);
+    }
+    return { total, unknown, clips };
+  }, [globalMediaItems, mediaDurations]);
 
 
 
@@ -2207,6 +2251,37 @@ const VideoStoryboardPanel = () => {
                     />
                     Inclure les fonds de scène (accroche, texte, compteur, outro…)
                   </label>
+                  <p className="text-[11px] text-muted-foreground">
+                    Activé : les médias ci-dessus sont aussi utilisés en <strong>arrière-plan</strong> des étapes
+                    non-média (accroche, texte, compteur, carte, outro…). Désactivé : ces étapes gardent leur
+                    fond d'origine (couleur/dégradé ou média propre) et seules les étapes « Vidéo » et
+                    « Photos plein écran » reçoivent les médias.
+                  </p>
+                  {requiredVideoDuration.clips > 0 && (
+                    <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3">
+                      <p className="text-xs font-semibold text-destructive">
+                        Durée nécessaire pour monter les {requiredVideoDuration.clips} vidéos (bornes Start/End
+                        appliquées)
+                      </p>
+                      <p className="text-3xl font-extrabold text-destructive leading-tight">
+                        {Math.round(requiredVideoDuration.total)} s
+                        <span className="text-base font-bold ml-2">
+                          ({Math.floor(requiredVideoDuration.total / 60)} min{" "}
+                          {String(Math.round(requiredVideoDuration.total % 60)).padStart(2, "0")} s)
+                        </span>
+                      </p>
+                      {requiredVideoDuration.unknown > 0 && (
+                        <p className="text-[11px] text-destructive/80">
+                          {requiredVideoDuration.unknown} vidéo(s) sans borne End et durée non encore lue :
+                          non comptées.
+                        </p>
+                      )}
+                      <p className="text-[11px] text-destructive/80">
+                        Règle le total des étapes « Vidéo » sur cette valeur, sinon le montage coupe (durée
+                        d'étape trop courte) ou boucle/gèle (durée trop longue).
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
