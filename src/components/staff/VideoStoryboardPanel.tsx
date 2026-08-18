@@ -43,7 +43,7 @@ import VideoJobMeta from "@/components/staff/VideoJobMeta";
 import StepVoiceOverBlock, { type StepVoice } from "@/components/staff/StepVoiceOverBlock";
 import { Copy } from "lucide-react";
 import VideoEncodeOptionsBlock from "@/components/staff/VideoEncodeOptionsBlock";
-import { DEFAULT_ENCODE, normalizeEncode, type EncodeOptions } from "@/lib/videoEncode";
+import { DEFAULT_ENCODE, ENCODE_PRESETS, normalizeEncode, type EncodeOptions } from "@/lib/videoEncode";
 
 import {
   MontageEffectsBlock,
@@ -975,10 +975,10 @@ const SortableSection = ({
             <ConfigFields section={section} patch={patch} businessId={businessId} format={format} />
           </div>
 
-          <div className="rounded-lg border p-3 grid grid-cols-1 gap-3">
-            <span className="block w-full text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <div className="rounded-lg border p-3 flex flex-col gap-3 min-w-0">
+            <h4 className="w-full text-sm font-semibold text-foreground">
               3. Voix-off et effets de l'étape
-            </span>
+            </h4>
             <StepVoiceOverBlock
               value={(section.config?.voice as StepVoice | undefined) ?? null}
               durationSec={section.duration_sec}
@@ -1698,7 +1698,7 @@ const VideoStoryboardPanel = () => {
    * sections telles quelles au moteur Remotion générique (`storyboard`),
    * jamais un template dédié à un scénario.
    */
-  const render = async () => {
+  const render = async (variants?: EncodeOptions[]) => {
     if (!board) return;
     if (dirty) {
       toast.error("Enregistre le storyboard avant de lancer le rendu");
@@ -1740,10 +1740,12 @@ const VideoStoryboardPanel = () => {
       videoUrl = ((docs ?? []) as { url?: string | null }[]).find((d) => !!d.url)?.url ?? null;
     }
     const { data: auth } = await supabase.auth.getUser();
-    const payload = {
+    const encodeVariants = variants && variants.length > 0 ? variants : [normalizeEncode(board.encode)];
+    const multi = encodeVariants.length > 1;
+    const buildPayload = (enc: EncodeOptions) => ({
       user_id: auth.user?.id ?? null,
       business_id: biz?.id ?? null,
-      title: `Storyboard — ${board.name}`,
+      title: `Storyboard — ${board.name}${multi ? ` · ${enc.preset} (CRF ${enc.crf})` : ""}`,
       prompt: board.name,
       status: "pending",
       duration_sec: Math.round(totals.total),
@@ -1763,7 +1765,7 @@ const VideoStoryboardPanel = () => {
         ...(hasAnyMontageEffect(board.effects) || hasAnySimpleEffect(board.effects)
           ? { effects: board.effects }
           : {}),
-        encode: normalizeEncode(board.encode),
+        encode: enc,
         sections: sections
           .filter((s) => s.enabled)
           .map((s) => ({
@@ -1776,8 +1778,10 @@ const VideoStoryboardPanel = () => {
             config: s.config ?? {},
           })),
       },
-    };
-    const { error } = await supabase.from("video_jobs").insert(payload as any);
+    });
+    const { error } = await supabase
+      .from("video_jobs")
+      .insert(encodeVariants.map((enc) => buildPayload(enc)) as any);
     if (error) {
       setRendering(false);
       toast.error(`Création du job impossible : ${error.message}`);
@@ -1785,8 +1789,13 @@ const VideoStoryboardPanel = () => {
     }
     const { error: wfError } = await supabase.functions.invoke("trigger-render-workflow", { body: {} });
     setRendering(false);
-    if (wfError) toast.warning("Job créé, mais le déclenchement GitHub a échoué.");
-    else toast.success("Job créé : rendu lancé (voir « Rendus du storyboard » ci-dessous).");
+    if (wfError) toast.warning(`${multi ? "Jobs créés" : "Job créé"}, mais le déclenchement GitHub a échoué.`);
+    else
+      toast.success(
+        multi
+          ? `${encodeVariants.length} jobs créés : un rendu par niveau de compression (voir « Rendus des montages »).`
+          : "Job créé : rendu lancé (voir « Rendus du storyboard » ci-dessous).",
+      );
     loadJobs();
   };
 
@@ -2276,6 +2285,16 @@ const VideoStoryboardPanel = () => {
                   setDirty(true);
                 }}
                 showScale={false}
+                onGenerateAll={() =>
+                  render(
+                    ENCODE_PRESETS.map((p) => ({
+                      ...normalizeEncode(board.encode),
+                      preset: p.id,
+                      crf: p.crf,
+                    })),
+                  )
+                }
+                generatingAll={rendering}
               />
               <p className="text-[11px] text-muted-foreground">
                 Effets actifs détectés dans les étapes : {motionFlags.length > 0 ? motionFlags.join(", ") : "aucun"}.
