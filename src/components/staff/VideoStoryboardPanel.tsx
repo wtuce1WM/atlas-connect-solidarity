@@ -870,6 +870,7 @@ const SortableSection = ({
   remove,
   businessId,
   format,
+  dropGlobal,
 }: {
   section: Section;
   index: number;
@@ -880,7 +881,9 @@ const SortableSection = ({
   remove: () => void;
   businessId: string | null;
   format: "portrait" | "landscape";
+  dropGlobal?: (urls: string[]) => void;
 }) => {
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
   const hint = STEP_TYPES.find((s) => s.value === section.step_type)?.hint;
 
