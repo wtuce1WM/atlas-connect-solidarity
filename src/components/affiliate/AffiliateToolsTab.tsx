@@ -281,12 +281,13 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     const { fullHeight } = fitFlags(fit);
     if (!fullHeight) {
       return autoHeightSnippet({
-        src: embedUrl,
+        id: `owm-ask-${slug}`,
+        msgType: "owm-ask-height",
+        url: embedUrl,
         title: `Assistant IA — ${businessName}`,
         maxWidth: 420,
         height: embedHeight,
         radius: 16,
-        extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15); overflow:hidden",
         allow: "clipboard-write; microphone",
       });
     }
