@@ -320,9 +320,11 @@ const ConfigFields = ({
               max={30}
               label={clips.length ? `Modifier les vidéos (${clips.length})` : "Choisir les vidéos"}
               value={clips}
-              onChange={(urls) =>
-                patch({ config: { ...cfg, assetUrls: urls.slice(0, 30), assetUrl: "" } })
-              }
+              onChange={(urls) => {
+                syncRemoved(clips, urls);
+                patch({ config: { ...cfg, assetUrls: urls.slice(0, 30), assetUrl: "" } });
+              }}
+
             />
             <span className="text-[11px] text-muted-foreground">
               Vide = première vidéo interne de la fiche. La durée de la section est partagée à parts égales.
