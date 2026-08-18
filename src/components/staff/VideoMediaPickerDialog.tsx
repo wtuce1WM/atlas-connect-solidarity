@@ -35,7 +35,18 @@ export type PickerMedia = {
   title?: string | null;
   thumbnail?: string | null;
   duration?: number | null;
-  source: "fiche" | "generic" | "library" | "generic_video" | "other" | "render_feed" | "render_promo";
+  source:
+    | "fiche"
+    | "generic"
+    | "badged"
+    | "library"
+    | "generic_video"
+    | "other"
+    | "render_feed"
+    | "render_promo"
+    | "render_storyboard"
+    | "render_showcase"
+    | "render_corporate";
   scope?: "global" | "business";
   libraryId?: string;
   /** ID base de la vidéo/média source (business_documents, generic_videos, bibliothèque). */
@@ -61,8 +72,12 @@ type SourceFilter =
   | "other"
   | "library_business"
   | "library_global"
+  | "badged"
   | "render_feed"
-  | "render_promo";
+  | "render_promo"
+  | "render_storyboard"
+  | "render_showcase"
+  | "render_corporate";
 
 const documentVideoUrl = (d: any): string | null => {
   const url = d?.youtube_video_url || d?.instagram_video_url || d?.tiktok_video_url || d?.url;
@@ -132,8 +147,12 @@ const SOURCE_LABEL: Record<PickerMedia["source"] | "library_global" | "library_b
   library: "Bibliothèque",
   library_global: "Bibliothèque globale",
   library_business: "Bibliothèque fiche",
+  badged: "Badgé",
   render_feed: "Rendu Scénario Feed",
   render_promo: "Rendu Promo business",
+  render_storyboard: "Rendu Montage manuel",
+  render_showcase: "Rendu Scénario auto établissement",
+  render_corporate: "Rendu Scénario auto Corporate",
 };
 
 /* ------------------------------------------------------------------ tiles */
@@ -456,31 +475,46 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         });
       }
 
-      // 2) Badge transverse « Generic » — toutes fiches confondues
-      const { data: genericBadgeRows } = await supabase
-        .from("badges")
-        .select("id, name_fr")
-        .ilike("name_fr", "generic");
-      const genericBadgeId = (genericBadgeRows ?? []).find((b: any) => /^generic$/i.test(b.name_fr))?.id;
-      let genericDocIds: string[] = [];
-      if (genericBadgeId) {
-        const { data: genericLinks } = await supabase
+      // 2) Vidéos badgées de TOUTES les fiches (tous badges confondus, pas
+      //    seulement « Generic ») : c'est le corpus du filtre « Tous les badges ».
+      const badgeLinks: any[] = [];
+      for (let page = 0; page < 20; page++) {
+        const from = page * 1000;
+        const { data, error } = await supabase
           .from("business_document_badges")
-          .select("document_id")
-          .eq("badge_id", genericBadgeId)
-          .limit(1000);
-        genericDocIds = (genericLinks ?? []).map((l: any) => String(l.document_id));
+          .select("document_id, badge_id")
+          .range(from, from + 999);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        badgeLinks.push(...data);
+        if (data.length < 1000) break;
       }
+      const badgeNameById = new Map<string, string>();
+      const allBadgeIds = [...new Set(badgeLinks.map((l) => String(l.badge_id)))];
+      for (let i = 0; i < allBadgeIds.length; i += 200) {
+        const { data } = await supabase
+          .from("badges")
+          .select("id, name_fr")
+          .in("id", allBadgeIds.slice(i, i + 200));
+        for (const b of data ?? []) badgeNameById.set(String(b.id), String((b as any).name_fr ?? ""));
+      }
+      const badgesByDoc = new Map<string, string[]>();
+      for (const l of badgeLinks) {
+        const name = badgeNameById.get(String(l.badge_id));
+        if (!name) continue;
+        const key = String(l.document_id);
+        badgesByDoc.set(key, [...(badgesByDoc.get(key) ?? []), name]);
+      }
+      const badgedDocIds = [...badgesByDoc.keys()];
 
-      if (genericDocIds.length) {
-        const genericSet = new Set(genericDocIds);
+      if (badgedDocIds.length) {
         const badgedDocs: any[] = [];
-        for (let i = 0; i < genericDocIds.length; i += 200) {
+        for (let i = 0; i < badgedDocIds.length; i += 200) {
           const { data, error } = await supabase
             .from("business_documents")
-            .select("id, url, name, thumbnail_url, business_id, hide_logo, youtube_video_url, instagram_video_url, tiktok_video_url")
+            .select("id, url, name, thumbnail_url, business_id, hide_logo, orientation, youtube_video_url, instagram_video_url, tiktok_video_url")
             .eq("type", "video")
-            .in("id", genericDocIds.slice(i, i + 200));
+            .in("id", badgedDocIds.slice(i, i + 200));
           if (error) throw error;
           if (data) badgedDocs.push(...data);
         }
@@ -497,15 +531,18 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         for (const d of badgedDocs) {
           const mediaUrl = documentVideoUrl(d);
           if (!mediaUrl) continue;
+          const badges = badgesByDoc.get(String(d.id)) ?? [];
           out.push({
             url: mediaUrl,
             kind: "video",
             title: d.name ?? "Vidéo",
             thumbnail: d.thumbnail_url ?? null,
-            source: genericSet.has(String(d.id)) ? "generic" : "fiche",
+            source: badges.some((b) => /^generic$/i.test(b)) ? "generic" : "badged",
             mediaId: String(d.id),
             ownerName: ownerNames.get(String(d.business_id)) ?? null,
             hideLogo: !!d.hide_logo,
+            orientation: (d.orientation as any) ?? null,
+            badges,
           });
         }
       }
@@ -610,10 +647,16 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         .eq("status", "done")
         .not("output_url", "is", null)
         .order("created_at", { ascending: false })
-        .limit(300);
+        .limit(600);
       const jobRows = (jobs ?? []).filter((j: any) => {
         const t = String(j.template_id ?? "");
-        return t.startsWith("feed-template") || t.startsWith("business-promo");
+        return (
+          t.startsWith("feed-template") ||
+          t.startsWith("business-promo") ||
+          t.startsWith("storyboard") ||
+          t.startsWith("business-showcase") ||
+          t.startsWith("corporate")
+        );
       });
       if (jobRows.length) {
         const jobBizIds = [...new Set(jobRows.map((j: any) => j.business_id).filter(Boolean))];
@@ -632,10 +675,28 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
           out.push({
             url,
             kind: "video",
-            title: j.title || (t.startsWith("business-promo") ? "Promo business" : "Scénario Feed"),
+            title:
+              j.title ||
+              (t.startsWith("business-promo")
+                ? "Promo business"
+                : t.startsWith("storyboard")
+                  ? "Montage manuel"
+                  : t.startsWith("business-showcase")
+                    ? "Scénario auto établissement"
+                    : t.startsWith("corporate")
+                      ? "Scénario auto Corporate"
+                      : "Scénario Feed"),
             duration: j.duration_sec != null ? Number(j.duration_sec) : null,
             orientation: t.includes("landscape") ? "landscape" : "portrait",
-            source: t.startsWith("business-promo") ? "render_promo" : "render_feed",
+            source: t.startsWith("business-promo")
+              ? "render_promo"
+              : t.startsWith("storyboard")
+                ? "render_storyboard"
+                : t.startsWith("business-showcase")
+                  ? "render_showcase"
+                  : t.startsWith("corporate")
+                    ? "render_corporate"
+                    : "render_feed",
             mediaId: String(j.id),
             ownerName: j.business_id ? (jobOwners.get(String(j.business_id)) ?? null) : null,
           });
@@ -668,7 +729,12 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
       const docIds = [
         ...new Set(
           deduped
-            .filter((m) => m.mediaId && (m.source === "fiche" || m.source === "generic" || m.source === "other"))
+            .filter(
+              (m) =>
+                m.mediaId &&
+                (m.badges ?? []).length === 0 &&
+                (m.source === "fiche" || m.source === "generic" || m.source === "badged" || m.source === "other"),
+            )
             .map((m) => String(m.mediaId)),
         ),
       ];
@@ -966,6 +1032,9 @@ export function VideoMediaPickerDialog({
         return m.source === "fiche" || !!m.onFiche;
       case "generic":
         return m.source === "generic";
+      case "badged":
+        // Toutes les vidéos internes portant au moins un badge (toutes fiches).
+        return (m.badges ?? []).length > 0;
       case "generic_video":
         return m.source === "generic_video";
       case "landscape":
@@ -981,6 +1050,12 @@ export function VideoMediaPickerDialog({
         return m.source === "render_feed";
       case "render_promo":
         return m.source === "render_promo";
+      case "render_storyboard":
+        return m.source === "render_storyboard";
+      case "render_showcase":
+        return m.source === "render_showcase";
+      case "render_corporate":
+        return m.source === "render_corporate";
     }
   };
 
@@ -1168,6 +1243,10 @@ export function VideoMediaPickerDialog({
       libGlobal: typeBase.filter((m) => m.source === "library" && m.scope === "global").length,
       renderFeed: typeBase.filter((m) => m.source === "render_feed").length,
       renderPromo: typeBase.filter((m) => m.source === "render_promo").length,
+      badged: typeBase.filter((m) => (m.badges ?? []).length > 0).length,
+      renderStoryboard: typeBase.filter((m) => m.source === "render_storyboard").length,
+      renderShowcase: typeBase.filter((m) => m.source === "render_showcase").length,
+      renderCorporate: typeBase.filter((m) => m.source === "render_corporate").length,
     }),
     [typeBase],
   );
@@ -1280,13 +1359,17 @@ export function VideoMediaPickerDialog({
                 <option value="all">Toutes les sources ({counts.all})</option>
                 <option value="fiche">Fiche · {activeTypeLabel} ({counts.fiche})</option>
                 <option value="generic_video">Vidéos génériques ({counts.genericVideo})</option>
-                <option value="generic">Badge Générique ({counts.generic})</option>
+                <option value="generic">Badge Generic ({counts.generic})</option>
+                <option value="badged">Vidéos badgées · toutes fiches ({counts.badged})</option>
                 <option value="landscape">Vidéos 16:9 · toutes fiches + génériques ({wideAsked ? counts.landscape : "…"})</option>
                 <option value="other">Autre fiche par slug · {activeTypeLabel} ({counts.other})</option>
                 <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({counts.libBiz})</option>
                 <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({counts.libGlobal})</option>
                 <option value="render_feed">Rendus · Scénario Feed ({counts.renderFeed})</option>
                 <option value="render_promo">Rendus · Promo business ({counts.renderPromo})</option>
+                <option value="render_storyboard">Rendus · Montages manuels ({counts.renderStoryboard})</option>
+                <option value="render_showcase">Rendus · Scénario auto établissement ({counts.renderShowcase})</option>
+                <option value="render_corporate">Rendus · Scénario auto Corporate ({counts.renderCorporate})</option>
               </select>
               <select
                 value={formatFilter}
@@ -1314,11 +1397,47 @@ export function VideoMediaPickerDialog({
                   ))}
                 </select>
               )}
+              <div className="ml-auto flex items-center gap-2">
+                <select
+                  value={uploadScope}
+                  onChange={(e) => setUploadScope(e.target.value as "global" | "business")}
+                  className="h-8 rounded-md border bg-background px-2 text-xs"
+                  disabled={!businessId}
+                >
+                  <option value="global">Ajouter en global</option>
+                  {businessId && <option value="business">Ajouter à cette fiche</option>}
+                </select>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  multiple
+                  accept="image/*,video/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files ?? []);
+                    if (files.length) void uploadFiles(files);
+                  }}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  className="h-8 gap-1 text-xs"
+                  disabled={uploading}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                  Importer
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 border-b pb-3">
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Rechercher (titre, fiche, URL)…"
-                className="h-8 w-44 text-xs"
+                className="h-8 w-56 text-xs"
               />
               {showFicheVideosToggle && (
                 <Button
@@ -1363,39 +1482,6 @@ export function VideoMediaPickerDialog({
               </div>
               )}
 
-              <div className="ml-auto flex items-center gap-2">
-                <select
-                  value={uploadScope}
-                  onChange={(e) => setUploadScope(e.target.value as "global" | "business")}
-                  className="h-8 rounded-md border bg-background px-2 text-xs"
-                  disabled={!businessId}
-                >
-                  <option value="global">Ajouter en global</option>
-                  {businessId && <option value="business">Ajouter à cette fiche</option>}
-                </select>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  multiple
-                  accept="image/*,video/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const files = Array.from(e.target.files ?? []);
-                    if (files.length) void uploadFiles(files);
-                  }}
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  className="h-8 gap-1 text-xs"
-                  disabled={uploading}
-                  onClick={() => fileRef.current?.click()}
-                >
-                  {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
-                  Importer
-                </Button>
-              </div>
             </div>
 
             <div
