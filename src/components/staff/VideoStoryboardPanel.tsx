@@ -114,6 +114,9 @@ type Storyboard = {
   effects?: MontageEffects | null;
   /** Médias globaux du montage : ordre + bornes de lecture (Start/End). */
   global_media?: GlobalMediaItem[] | null;
+  /** Compression de sortie (CRF / audio) du montage. */
+  encode?: EncodeOptions | null;
+
   created_at?: string | null;
   updated_at?: string | null;
 };
