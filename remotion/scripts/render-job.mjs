@@ -137,17 +137,54 @@ function extOf(url) {
 /** URLs déjà en échec dans ce process : évite de réessayer 3× le même hôte mort. */
 const FAILED_URLS = new Set();
 
+/**
+ * Contrôle d'intégrité d'un média téléchargé.
+ * Un fichier tronqué (moov atom not found) ou une page d'erreur HTML enregistrée
+ * en .mp4 passait le test `size > 0` et faisait planter ffprobe pendant le rendu.
+ */
+function validateMedia(dest, ext, expectedLength) {
+  const size = fs.statSync(dest).size;
+  if (size === 0) return "fichier vide";
+  if (expectedLength && size !== expectedLength) {
+    return `taille incomplète (${size}/${expectedLength} octets)`;
+  }
+  const fd = fs.openSync(dest, "r");
+  try {
+    const head = Buffer.alloc(Math.min(4096, size));
+    fs.readSync(fd, head, 0, head.length, 0);
+    if (/^\s*(<!doctype|<html|\{)/i.test(head.toString("latin1"))) {
+      return "réponse HTML/JSON au lieu d'un média";
+    }
+    if (/^(mp4|mov|m4v|m4a)$/.test(ext)) {
+      if (!head.includes("ftyp")) return "conteneur MP4 invalide (pas d'atome ftyp)";
+      // L'atome `moov` est soit en tête (faststart) soit en fin de fichier.
+      const tailLen = Math.min(1024 * 1024, size);
+      const tail = Buffer.alloc(tailLen);
+      fs.readSync(fd, tail, 0, tailLen, size - tailLen);
+      if (!head.includes("moov") && !tail.includes("moov")) {
+        return "conteneur MP4 incomplet (pas d'atome moov)";
+      }
+    }
+  } finally {
+    fs.closeSync(fd);
+  }
+
+  return null;
+}
+
 async function downloadMedia(url) {
   const key = Buffer.from(url).toString("base64url").slice(-40);
-  const file = `${key}.${extOf(url)}`;
+  const ext = extOf(url);
+  const file = `${key}.${ext}`;
   const dest = path.join(DL_DIR, file);
-  if (fs.existsSync(dest) && fs.statSync(dest).size > 0) return `dl/${file}`;
+  if (fs.existsSync(dest) && !validateMedia(dest, ext, null)) return `dl/${file}`;
+  if (fs.existsSync(dest)) fs.rmSync(dest, { force: true });
   if (FAILED_URLS.has(url)) return null;
   if (!fs.existsSync(DL_DIR)) fs.mkdirSync(DL_DIR, { recursive: true });
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 30000);
+    const timer = setTimeout(() => ctrl.abort(), 60000);
     try {
       const r = await fetch(url, {
         redirect: "follow",
@@ -155,9 +192,11 @@ async function downloadMedia(url) {
         headers: { "User-Agent": "Mozilla/5.0 (compatible; OWMRenderer/1.0)", Accept: "*/*" },
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const expected = Number(r.headers.get("content-length")) || 0;
       const buf = Buffer.from(await r.arrayBuffer());
-      if (buf.length === 0) throw new Error("fichier vide");
       fs.writeFileSync(dest, buf);
+      const problem = validateMedia(dest, ext, expected);
+      if (problem) throw new Error(problem);
       console.log(`⬇️  Média internalisé (${(buf.length / 1048576).toFixed(1)} Mo) : ${url}`);
       return `dl/${file}`;
     } catch (e) {
@@ -168,8 +207,10 @@ async function downloadMedia(url) {
     }
   }
   FAILED_URLS.add(url);
+  console.warn(`⛔ Média ignoré (illisible) : ${url}`);
   return null;
 }
+
 
 
 /**
@@ -183,13 +224,20 @@ async function internalizeRemoteMedia(value) {
   if (typeof value === "string") {
     if (!/^https?:\/\//i.test(value) || !MEDIA_EXT.test(value)) return value;
     const local = await downloadMedia(value);
-    return local ?? value;
+    // Média illisible : on renvoie `null` plutôt que l'URL distante, sinon
+    // Remotion le retélécharge lui-même et le rendu entier plante sur ffprobe.
+    return local ?? null;
   }
   if (Array.isArray(value)) {
     const out = [];
-    for (const v of value) out.push(await internalizeRemoteMedia(v));
+    for (const v of value) {
+      const next = await internalizeRemoteMedia(v);
+      if (typeof v === "string" && next === null) continue; // média mort : retiré de la liste
+      out.push(next);
+    }
     return out;
   }
+
   if (value && typeof value === "object") {
     const out = {};
     for (const [k, v] of Object.entries(value)) {
