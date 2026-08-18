@@ -317,9 +317,15 @@ const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
   }
 
   return (
-    <div className={`relative px-4 pt-16 pb-32 transition-all duration-300 ${active ? "lg:max-w-[50vw] lg:mr-auto lg:ml-0" : "max-w-5xl mx-auto"}`}>
-      {/* Background YouTube video */}
-      {(() => {
+    <div
+      className={
+        compact
+          ? "relative px-3 pt-2 pb-6 w-full"
+          : `relative px-4 pt-16 pb-32 transition-all duration-300 ${active ? "lg:max-w-[50vw] lg:mr-auto lg:ml-0" : "max-w-5xl mx-auto"}`
+      }
+    >
+      {/* Fond vidéo YouTube — désactivé en mode compact (iframe widget) */}
+      {!compact && (() => {
         const bgVideoId = (city || "").trim().toLowerCase() === "essaouira" ? "2RlIa-pCINg" : "1l9IMkOcVZk";
         return (
           <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-black">
@@ -346,8 +352,11 @@ const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
         );
       })()}
       {/* Dégradé pour masquer la liste qui passe derrière le header */}
-      <div className="fixed top-0 left-0 right-0 h-24 z-[20] pointer-events-none bg-gradient-to-b from-black via-black/80 to-transparent" />
-      <Accordion type="multiple" defaultValue={defaultOpen} className="space-y-2 relative z-10 mt-4">
+      {!compact && (
+        <div className="fixed top-0 left-0 right-0 h-24 z-[20] pointer-events-none bg-gradient-to-b from-black via-black/80 to-transparent" />
+      )}
+      <Accordion type="multiple" defaultValue={defaultOpen} className={`space-y-2 relative z-10 ${compact ? "mt-0" : "mt-4"}`}>
+
 
         {groups.map((g) => (
           <AccordionItem key={g.themeId} value={g.themeId} className="border border-border/40 rounded-lg bg-card/20 backdrop-blur-sm">
