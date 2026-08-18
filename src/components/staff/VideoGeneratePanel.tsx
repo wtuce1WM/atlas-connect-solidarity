@@ -255,6 +255,8 @@ const VideoGeneratePanel = () => {
     setPathFrames(Number(c.pathFrames ?? 45));
     setMotionBlurSamples(Number(c.motionBlurSamples ?? 3));
     setPathScope((c.pathScope as PathScope) ?? "all");
+    setEncode(normalizeEncode(c.encode));
+
   }, []);
 
   const handlePresetState = useCallback((dirty: boolean, id: string | null) => {
