@@ -2319,6 +2319,9 @@ const VideoStoryboardPanel = () => {
             </TabsContent>
           </Tabs>
         )}
+
+        {/* ---------- Notes de bas de page (guide) ---------- */}
+        <StoryboardGuide />
       </div>
 
       {/* ---------- Guide en panneau latéral ---------- */}
