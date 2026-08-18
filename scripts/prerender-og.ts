@@ -127,8 +127,18 @@ export function prerenderOgPlugin(): Plugin {
       const vanityById = new Map<string, string>();
       for (const v of vanity) if (byId.has(v.target_id)) vanityById.set(v.target_id, v.slug);
 
+      // C1 — Ne JAMAIS écraser une page riche déjà produite par
+      // scripts/generate-business-og-pages.ts (copiée depuis public/ vers dist/).
+      // Ces pages contiennent le JSON-LD complet + le corps textuel SEO ; la
+      // coquille légère ci-dessous est un simple fallback.
+      const isRichPage = (slugPath: string) =>
+        existsSync(path.join(distDir, slugPath, ".og-generated")) ||
+        existsSync(path.join(distDir, slugPath, "index.html"));
+
       let written = 0;
+      let preserved = 0;
       const writeOne = async (slugPath: string, biz: BizRow) => {
+        if (isRichPage(slugPath)) { preserved++; return; }
         const img = (biz.images && biz.images[0]) || DEFAULT_IMG;
         const rawDesc = biz.hook_fr || biz.description || `Découvrez ${biz.name}.`;
         const title = `${biz.name}${biz.city ? ` – ${biz.city}` : ""} | ${SITE}`;
@@ -140,6 +150,7 @@ export function prerenderOgPlugin(): Plugin {
         await writeFile(path.join(dir, "index.html"), html, "utf8");
         written++;
       };
+
 
       for (const biz of businesses) {
         const vSlug = vanityById.get(biz.id);
