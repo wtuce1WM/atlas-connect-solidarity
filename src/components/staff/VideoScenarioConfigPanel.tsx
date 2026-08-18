@@ -953,6 +953,84 @@ const VideoScenarioConfigPanel = ({
           </div>
         )}
 
+        {/* Médias du scénario : même mécanique que « Médias du montage » des storyboards. */}
+        {config && (
+          <div className="rounded-lg border p-3 space-y-3">
+            <div className="space-y-1">
+              <span className="text-sm font-medium text-black">Médias du montage (affectation globale)</span>
+              <p className="text-[11px] text-muted-foreground">
+                Sélection, ordre et bornes Start / End identiques aux montages manuels. « Appliquer à toutes les
+                étapes » recopie la sélection (et les bornes) dans chaque étape ; chaque étape reste modifiable
+                individuellement dans son panneau déplié.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <VideoMediaPickerDialog
+                businessId={config.business_id}
+                format={mediaFormat}
+                allow="all"
+                multiple
+                max={30}
+                label={globalMediaUrls.length ? `Modifier les médias (${globalMediaUrls.length})` : "Choisir les médias"}
+                value={globalMediaUrls}
+                onChange={(urls) => {
+                  const next = urls.slice(0, 30).map((url) => {
+                    const prev = globalMediaItems.find((m) => m.url === url);
+                    return { url, start: prev?.start, end: prev?.end };
+                  });
+                  setGlobalMedia(next);
+                  applyGlobalMediaToSteps(next);
+                }}
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs"
+                disabled={globalMediaUrls.length === 0 || steps.length === 0}
+                onClick={() => {
+                  applyGlobalMediaToSteps(globalMediaItems);
+                  toast.success("Médias appliqués à toutes les étapes");
+                }}
+              >
+                Appliquer à toutes les étapes
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs"
+                disabled={steps.length === 0}
+                onClick={clearStepsMedia}
+              >
+                Retirer les médias partout
+              </Button>
+            </div>
+            <StoryboardGlobalMediaGrid
+              items={globalMediaItems}
+              format={mediaFormat}
+              onChange={(next) => {
+                setGlobalMedia(next);
+                applyGlobalMediaToSteps(next);
+              }}
+            />
+            {requiredVideoDuration.clips > 0 && (
+              <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3">
+                <p className="text-xs font-semibold text-destructive">
+                  Durée nécessaire pour monter les {requiredVideoDuration.clips} vidéos (bornes Start/End appliquées)
+                </p>
+                <p className="text-3xl font-extrabold text-destructive leading-tight">
+                  {Math.round(requiredVideoDuration.total)} s
+                  <span className="text-base font-bold ml-2">
+                    ({Math.floor(requiredVideoDuration.total / 60)} min{" "}
+                    {String(Math.round(requiredVideoDuration.total % 60)).padStart(2, "0")} s)
+                  </span>
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+
+
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="text-xs text-muted-foreground">
             {steps.filter((s) => s.enabled).length} étape(s) active(s) · durées fixes cumulées : {totalFixed}s
