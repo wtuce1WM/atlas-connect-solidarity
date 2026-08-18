@@ -121,5 +121,6 @@ export const encodeSummary = (raw: unknown): string => {
   const bits = [`${label} (CRF ${e.crf})`];
   if (e.scale !== 1) bits.push(`${Math.round(e.scale * 100)} %`);
   if (e.audio === "mute") bits.push("muet");
+  if (e.transparent) bits.push("WebM alpha");
   return bits.join(" · ");
 };
