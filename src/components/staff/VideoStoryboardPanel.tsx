@@ -920,25 +920,33 @@ const SortableSection = ({
           </Badge>
         )}
         <div className="ml-auto flex items-center gap-3">
-          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            Durée
-            <Input
-              type="number"
-              min={MIN_SECTION_SEC}
-              max={MAX_SECTION_SEC}
-              value={section.duration_sec}
-              onChange={(e) =>
-                patch({
-                  duration_sec: Math.max(
-                    MIN_SECTION_SEC,
-                    Math.min(MAX_SECTION_SEC, Number(e.target.value) || MIN_SECTION_SEC),
-                  ),
-                })
-              }
-              className="w-16 h-8 text-xs"
-            />
-            s
-          </label>
+          <div className="flex items-center gap-2 flex-wrap">
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              Durée
+              <SectionDurationInput
+                value={section.duration_sec}
+                onChange={(v) => patch({ duration_sec: v })}
+              />
+              s
+            </label>
+            <div className="flex items-center gap-1">
+              {[3, 5, 10, 15, 20, 30, 60, 120, 180, 240].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => patch({ duration_sec: preset })}
+                  className={`px-1.5 py-0.5 rounded text-[10px] border transition-colors ${
+                    section.duration_sec === preset
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background text-muted-foreground border-border hover:border-primary/50"
+                  }`}
+                  title={`Régler la durée à ${preset} s`}
+                >
+                  {preset}s
+                </button>
+              ))}
+            </div>
+          </div>
           <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
             Actif
             <Switch checked={section.enabled} onCheckedChange={(v) => patch({ enabled: v })} />
