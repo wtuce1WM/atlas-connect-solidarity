@@ -166,7 +166,35 @@ const VideoEncodeOptionsBlock = ({
           </p>
         )}
       </div>
+
+      {showTransparent && (
+        <div className="space-y-2 border-t pt-3">
+          <div className="flex items-center gap-3">
+            <Switch
+              id="encode-transparent"
+              checked={v.transparent === true}
+              onCheckedChange={(checked) => patch({ transparent: checked })}
+            />
+            <Label htmlFor="encode-transparent" className="text-xs font-medium">
+              Fond transparent (WebM alpha, pour surimpression dans les montages)
+            </Label>
+          </div>
+          {v.transparent ? (
+            <p className="text-[11px] text-destructive">
+              Sortie <strong>WebM VP9 alpha</strong> au lieu de MP4/H.264 : le fond derrière le mockup reste
+              réellement vide (laisser « Fond derrière le mockup — URL /search » vide). Encodage plus lent et
+              fichier plus lourd. À utiliser comme <strong>asset de montage uniquement</strong> : l'alpha VP9 est mal
+              lu par Safari iOS, donc pas de diffusion publique directe.
+            </p>
+          ) : (
+            <p className="text-[11px] text-muted-foreground">
+              Par défaut la sortie est un MP4/H.264 opaque (aucun canal alpha possible dans ce format).
+            </p>
+          )}
+        </div>
+      )}
     </div>
+
   );
 };
 
