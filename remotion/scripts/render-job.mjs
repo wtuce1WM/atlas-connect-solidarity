@@ -445,7 +445,7 @@ async function renderOne() {
 
 
 
-    await browser.close({ silent: false });
+    await activeBrowser.close({ silent: false });
 
     console.log("🚀 Upload via URL signée...");
     const buffer = fs.readFileSync(outPath);
