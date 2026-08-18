@@ -1,8 +1,10 @@
 name: Rendu des vidéos Studio
 
 on:
+  # Filet de sécurité uniquement : le déclenchement normal est un workflow_dispatch
+  # émis par l'edge function trigger-render-workflow quand un job est créé.
   schedule:
-    - cron: "*/5 * * * *" # Toutes les 5 minutes
+    - cron: "0 * * * *" # 1x/heure
   workflow_dispatch: {}
 
 concurrency:
@@ -14,13 +16,37 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
+      # Garde coût : sort AVANT toute installation si la file est vide.
+      # Sans ça, chaque tick de cron payait ~3 min de runner pour rien.
+      - name: Vérifier la file d'attente (peek)
+        id: peek
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          WORKER_SECRET: ${{ secrets.WORKER_SECRET }}
+          ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          body=$(curl -sS -X POST "$SUPABASE_URL/functions/v1/worker-claim-job?peek=1" \
+            -H "x-worker-secret: $WORKER_SECRET" \
+            -H "Authorization: Bearer $ANON_KEY" \
+            -H "Content-Type: application/json" || echo '{}')
+          echo "peek: $body"
+          if echo "$body" | grep -q '"has_work":true'; then
+            echo "has_work=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_work=false" >> "$GITHUB_OUTPUT"
+            echo "File vide (ou peek indisponible) → arrêt immédiat, 0 minute gaspillée."
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.peek.outputs.has_work == 'true'
 
       - uses: oven-sh/setup-bun@v2
+        if: steps.peek.outputs.has_work == 'true'
         with:
           bun-version: latest
 
       - name: Installer FFmpeg, Chromium & deps
+        if: steps.peek.outputs.has_work == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg chromium-browser libnss3 libatk1.0-0 libatk-bridge2.0-0 \
@@ -29,6 +55,7 @@ jobs:
           sudo apt-get install -y ffmpeg chromium libnss3 libatk1.0-0 libatk-bridge2.0-0 \
             libcups2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 \
             libgbm1 libpango-1.0-0 libcairo2 libasound2t64
+
 
       # Capture des vidéos « Feed » : Playwright Python + Pillow (détourage alpha).
       - uses: actions/setup-python@v5
