@@ -330,8 +330,9 @@ const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessNam
           </div>
           <div>
             <span className="font-semibold text-black">Échelle de rendu</span>{" "}
-            {storyboard.renderScale != null ? `${scaleLabel(storyboard.renderScale)} (CRF ${job.template_props?.encode?.crf ?? "—"})` : "—"}
+            {`${scaleLabel(storyboard.effectiveScale)} → ${storyboard.resolution} (aperçu ${scaleLabel(storyboard.previewScale)} × encodage ${scaleLabel(storyboard.encodeScale)}, CRF ${job.template_props?.encode?.crf ?? "—"})`}
           </div>
+
           <div className="md:col-span-2">
             <span className="font-semibold text-black">Médias globaux</span>{" "}
             {storyboard.globalMediaCount > 0
