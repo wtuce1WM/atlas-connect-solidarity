@@ -650,6 +650,7 @@ const VideoScenarioConfigPanel = ({
         start: Number.isFinite(m.start) && m.start >= 0 ? Number(m.start) : undefined,
         end: Number.isFinite(m.end) && m.end > 0 ? Number(m.end) : undefined,
       }));
+    globalMediaRef.current = loadedGlobalMedia;
     setConfig({
       mode,
       business_id: raw?.business_id ?? null,
