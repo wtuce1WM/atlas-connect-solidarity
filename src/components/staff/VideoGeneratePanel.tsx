@@ -121,6 +121,8 @@ const VideoGeneratePanel = () => {
 
   // --- Montage (mêmes 5 options que Promo business)
   const [variant, setVariant] = useState<PromoVariant>("fullscreen");
+  const [encode, setEncode] = useState<EncodeOptions>({ ...DEFAULT_ENCODE });
+
   const [mockupBg, setMockupBg] = useState(PRESET_BG[0].value);
   const [browserUrl, setBrowserUrl] = useState("oneworldmorocco.com");
   const [splitSide, setSplitSide] = useState<"left" | "right">("left");
