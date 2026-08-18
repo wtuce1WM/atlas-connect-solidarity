@@ -364,7 +364,9 @@ const VideoPromoPanel = () => {
       images,
       format,
       variant: v,
-      mockupBg,
+      // Fond transparent : aucun fond uni ne doit être peint derrière le mockup.
+      mockupBg: encode?.transparent ? "transparent" : mockupBg,
+      transparentBg: encode?.transparent === true,
       browserUrl: v === "browser" || v === "multi" ? browserUrl.trim() || "oneworldmorocco.com" : null,
       splitSide: v === "split" ? splitSide : null,
       clipSource,
