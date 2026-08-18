@@ -1,7 +1,10 @@
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { formatBytes } from "@/lib/imageCompression";
 
 /**
- * Métadonnées partagées des jobs vidéo (Promo business, Scénario Feed).
+ * Métadonnées partagées des jobs vidéo (Promo business, Scénario Feed,
+ * Montages storyboard).
  * Même grammaire d'affichage que le bloc de caractéristiques des « Montages
  * vidéo » : nom réel du fichier + format, durée, étapes, effets. Pas de
  * « Modifié le » : les jobs ne sont pas éditables après coup.
@@ -135,7 +138,6 @@ export const videoJobVariantKey = (job: VideoJobMetaRow): string | null => {
   return p.kind === "promo" ? "fullscreen" : null;
 };
 
-
 /** Promo business : montage + fond d'écran vidéo (uniquement derrière un mockup). */
 const promoInfo = (job: VideoJobMetaRow) => {
   const p = job.template_props ?? {};
@@ -150,6 +152,73 @@ const promoInfo = (job: VideoJobMetaRow) => {
   };
 };
 
+/* ------------------------------------------------------------------ */
+/*  Storyboard helpers                                                */
+/* ------------------------------------------------------------------ */
+
+const SCENARIO_LABELS: Record<string, string> = {
+  corporate_long: "Corporate long",
+  promo_business: "Promo business",
+};
+
+const STEP_TYPE_LABELS: Record<string, string> = {
+  hook: "hook",
+  video: "vidéo",
+  photos: "photos",
+  text_overlay: "texte",
+  counter: "compteur",
+  map_reveal: "carte",
+  split_screen: "split",
+  icon_grid: "icônes",
+  svg_flow: "tracé SVG",
+  logo_merge: "logos",
+  outro: "outro",
+};
+
+const isStoryboardJob = (job: VideoJobMetaRow) => {
+  const p = job.template_props ?? {};
+  return p.kind === "storyboard" || job.template_id?.startsWith("storyboard") || false;
+};
+
+const isVideoUrl = (url?: string | null) =>
+  typeof url === "string" && /\.(mp4|mov|webm|m4v|mkv)(\?.*)?$/i.test(url);
+
+const storyboardInfo = (job: VideoJobMetaRow) => {
+  const p = job.template_props ?? {};
+  const sections = Array.isArray(p.sections) ? p.sections : [];
+  const globalMedia = Array.isArray(p.global_media) ? p.global_media : [];
+  const scenarioType = typeof p.scenario_type === "string" ? p.scenario_type : "";
+  const encode = p.encode ?? {};
+  const renderScale = typeof encode.scale === "number" ? encode.scale : null;
+
+  const videoCount = globalMedia.filter((m: any) => isVideoUrl(typeof m === "string" ? m : m?.url)).length;
+  const imageCount = globalMedia.filter((m: any) => {
+    const url = typeof m === "string" ? m : m?.url;
+    return typeof url === "string" && url.trim() && !isVideoUrl(url);
+  }).length;
+
+  const sectionCounts = sections.reduce((acc: Record<string, number>, s: any) => {
+    const t = s?.step_type || "étape";
+    acc[t] = (acc[t] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  return {
+    scenarioType,
+    scenarioLabel: SCENARIO_LABELS[scenarioType] || scenarioType || "Montage manuel",
+    renderScale,
+    globalMediaCount: globalMedia.length,
+    videoCount,
+    imageCount,
+    sectionCounts,
+    sectionCount: sections.length,
+  };
+};
+
+const scaleLabel = (scale: number | null) => {
+  if (scale == null) return "—";
+  return `${Math.round(scale * 100)} %`;
+};
 
 const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessName?: string }) => {
   const steps = collectSteps(job);
@@ -158,6 +227,22 @@ const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessNam
   const promo = promoInfo(job);
   const variantKey = videoJobVariantKey(job);
   const variantLabel = variantKey ? (VARIANT_LABELS[variantKey] ?? variantKey) : null;
+  const storyboard = isStoryboardJob(job) ? storyboardInfo(job) : null;
+
+  const [fileSize, setFileSize] = useState<number | null>(null);
+  useEffect(() => {
+    if (!job.output_url) return;
+    let cancelled = false;
+    fetch(job.output_url, { method: "HEAD" })
+      .then((r) => {
+        const len = r.headers.get("content-length");
+        if (!cancelled && len) setFileSize(parseInt(len, 10));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [job.output_url]);
 
   return (
     <div className="rounded-lg border bg-muted/30 p-3 grid gap-2 md:grid-cols-3 text-[11px] text-muted-foreground w-full">
@@ -170,10 +255,23 @@ const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessNam
             Montage : {variantLabel}
           </Badge>
         )}
+        {storyboard && (
+          <>
+            <Badge className="text-[10px] bg-terracotta/15 text-terracotta border border-terracotta/40 hover:bg-terracotta/15">
+              Scénario : {storyboard.scenarioLabel}
+            </Badge>
+            <Badge className="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-100">
+              Échelle : {scaleLabel(storyboard.renderScale)}
+            </Badge>
+          </>
+        )}
       </div>
 
       <div className="md:col-span-3 break-all">
         <span className="font-semibold text-black">Fichier</span> {fileName}
+        {fileSize != null && (
+          <span className="ml-2 text-[10px] text-muted-foreground">({formatBytes(fileSize)})</span>
+        )}
       </div>
       <div>
         <span className="font-semibold text-black">Créé le</span> {frDate(job.created_at)}
@@ -212,12 +310,31 @@ const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessNam
         </div>
       )}
 
+      {storyboard && (
+        <div className="md:col-span-3 grid gap-1 md:grid-cols-2 border-t pt-2">
+          <div>
+            <span className="font-semibold text-black">Type de scénario</span> {storyboard.scenarioLabel}
+          </div>
+          <div>
+            <span className="font-semibold text-black">Échelle de rendu</span>{" "}
+            {storyboard.renderScale != null ? `${scaleLabel(storyboard.renderScale)} (CRF ${job.template_props?.encode?.crf ?? "—"})` : "—"}
+          </div>
+          <div className="md:col-span-2">
+            <span className="font-semibold text-black">Médias globaux</span>{" "}
+            {storyboard.globalMediaCount > 0
+              ? `${storyboard.globalMediaCount} (${storyboard.videoCount} vidéo${storyboard.videoCount > 1 ? "s" : ""}, ${storyboard.imageCount} photo${storyboard.imageCount > 1 ? "s" : ""})`
+              : "aucun"}
+            {" · "}
+            <span className="font-semibold text-black">Étapes</span> {storyboard.sectionCount}
+          </div>
+        </div>
+      )}
 
       {steps.length > 0 && (
         <div className="md:col-span-3 flex flex-wrap gap-1">
           {steps.map((t, i) => (
             <Badge key={`${t}-${i}`} variant="outline" className="text-[10px]">
-              {t}
+              {STEP_TYPE_LABELS[t] ?? t}
             </Badge>
           ))}
         </div>
