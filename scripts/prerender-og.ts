@@ -275,7 +275,11 @@ export function prerenderOgPlugin(): Plugin {
         await writeArticle(`blog/${post.slug}`, title, description, post.cover_image_url || undefined);
       }
 
-      console.log(`[prerender-og] Wrote ${written} business OG shells + ${articlesWritten} blog article shells (${staticArticles.length} static + ${blogPosts.length} from DB).`);
+      console.log(
+        `[prerender-og] Fallback shells écrites: ${written} business + ${articlesWritten} articles. ` +
+          `Pages riches préservées (générateur public/): ${preserved} business + ${articlesPreserved} articles.`,
+      );
+
 
 
     },
