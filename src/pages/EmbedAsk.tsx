@@ -515,6 +515,10 @@ const EmbedAsk = () => {
   const noTheme = /^(none|off|0)$/i.test(params.get("theme") || "");
   // Panneau flottant : l'hôte demande une croix de fermeture dans le widget.
   const inFloatingPanel = /^(1|true)$/i.test(params.get("panel") || "");
+  // Hauteur auto : le widget redimensionne l'iframe hôte pour éviter le scroll interne.
+  const fit = params.get("fit") || "";
+  const { fullHeight } = fitFlags(parseFit(fit));
+  const autoHeight = !fullHeight && !inFloatingPanel && !overlay;
   // Nom personnalisé de l'assistant (champ éditable côté /affiliates/presence).
   const assistantNameParam = (params.get("name") || "").trim().slice(0, 60);
   // Moteur IA : V2 uniquement (V1 retiré).
