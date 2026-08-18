@@ -1262,7 +1262,7 @@ const StoryboardGuide = () => {
               <strong>Rôle.</strong> C'est le <strong>moteur de rendu vidéo manuel</strong> du back-office Vidéos. Il ne contient aucun scénario codé en dur : il lit une liste d'étapes stockée en base (<code>video_storyboards</code> / <code>video_scenario_steps</code>) et compose la vidéo étape par étape.
             </p>
             <p>
-              <strong>Formats.</strong> Portrait 1080 × 1920 ou paysage 1920 × 1080. 30 fps. Durée totale = somme des durées des étapes (max 180 s).
+              <strong>Formats.</strong> Portrait 1080 × 1920 ou paysage 1920 × 1080. 30 fps. Durée totale = somme des durées des étapes (max 240 s).
             </p>
             <div>
               <p className="font-semibold text-foreground">Types de scènes disponibles</p>
