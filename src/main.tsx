@@ -73,6 +73,10 @@ if (typeof window !== "undefined") {
 
   if ("serviceWorker" in navigator && !isInIframe && !isPreviewHost && window.location.protocol === "https:") {
     window.addEventListener("load", () => {
+      // First visit: no controller yet. The SW will take control right after
+      // install, which fires `controllerchange` — reloading there would cause
+      // a useless double document load (visible flash) on every first entry.
+      const hadControllerAtStartup = !!navigator.serviceWorker.controller;
       navigator.serviceWorker
         .register("/sw.js")
         .then((registration) => {
@@ -109,9 +113,12 @@ if (typeof window !== "undefined") {
             });
           });
 
-          // When the new SW takes over, reload to pick up the fresh assets.
+          // When a NEW SW takes over an already-controlled page, reload to pick
+          // up the fresh assets. On a first install there is nothing stale to
+          // refresh, so we skip the reload entirely.
           let reloading = false;
           navigator.serviceWorker.addEventListener("controllerchange", () => {
+            if (!hadControllerAtStartup) return;
             if (reloading) return;
             reloading = true;
             window.location.reload();
