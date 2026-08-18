@@ -764,6 +764,7 @@ const VideoScenarioConfigPanel = ({
       key_message: s.key_message,
       business_id: s.business_id,
       widget_keys: s.widget_keys ?? [],
+      config: (s.config ?? {}) as any,
     }));
 
     const stepsRes = rows.length
@@ -777,6 +778,8 @@ const VideoScenarioConfigPanel = ({
         width: Math.max(320, Math.min(3840, Number(config.width) || 1920)),
         height: Math.max(320, Math.min(3840, Number(config.height) || 1080)),
         fps: Math.max(12, Math.min(60, Number(config.fps) || 30)),
+        // Médias globaux : dernière valeur synchrone (même juste après une saisie Start/End).
+        global_media: globalMediaRef.current as any,
       } as any,
       { onConflict: "mode" },
     );
