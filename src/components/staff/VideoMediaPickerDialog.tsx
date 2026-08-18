@@ -1034,6 +1034,8 @@ export function VideoMediaPickerDialog({
 
   const matchSource = (m: PickerMedia, f: SourceFilter) => {
     switch (f) {
+      case "none":
+        return false;
       case "all":
         return true;
       case "fiche":
