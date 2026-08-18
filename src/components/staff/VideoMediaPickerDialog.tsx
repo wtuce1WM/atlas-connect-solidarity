@@ -1080,12 +1080,19 @@ export function VideoMediaPickerDialog({
     });
   }, [typeBase, wideVideos, sourceFilter, search]);
 
-  /** Badges actifs présents dans la source sélectionnée, avec compteurs. */
+  /** Résultats après filtre format uniquement (base des options de badges). */
+  const formatScoped = useMemo(
+    () => (formatFilter === "all" ? sourceScoped : sourceScoped.filter((m) => m.orientation === formatFilter)),
+    [sourceScoped, formatFilter],
+  );
+
+  /** Badges actifs présents dans la source + format sélectionnés, avec compteurs. */
   const badgeOptions = useMemo(() => {
     const map = new Map<string, number>();
-    for (const m of sourceScoped) for (const b of m.badges ?? []) map.set(b, (map.get(b) ?? 0) + 1);
+    for (const m of formatScoped) for (const b of m.badges ?? []) map.set(b, (map.get(b) ?? 0) + 1);
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0], "fr"));
-  }, [sourceScoped]);
+  }, [formatScoped]);
+
 
   useEffect(() => {
     if (badgeFilter !== "all" && !badgeOptions.some(([b]) => b === badgeFilter)) setBadgeFilter("all");
@@ -1382,21 +1389,20 @@ export function VideoMediaPickerDialog({
                 <option value="portrait">Portrait 9:16 ({formatCounts.portrait})</option>
                 <option value="square">Carré 1:1 ({formatCounts.square})</option>
               </select>
-              {badgeOptions.length > 0 && (
-                <select
-                  value={badgeFilter}
-                  onChange={(e) => setBadgeFilter(e.target.value)}
-                  className="h-8 rounded-md border bg-background px-2 text-xs"
-                  title="Filtrer par badge"
-                >
-                  <option value="all">Tous les badges ({badgeOptions.length})</option>
-                  {badgeOptions.map(([b, n]) => (
-                    <option key={b} value={b}>
-                      {b} ({n})
-                    </option>
-                  ))}
-                </select>
-              )}
+              <select
+                value={badgeFilter}
+                onChange={(e) => setBadgeFilter(e.target.value)}
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+                title="Filtrer par badge"
+              >
+                <option value="all">Tous les badges ({badgeOptions.length})</option>
+                {badgeOptions.map(([b, n]) => (
+                  <option key={b} value={b}>
+                    {b} ({n})
+                  </option>
+                ))}
+              </select>
+
               <div className="ml-auto flex items-center gap-2">
                 <select
                   value={uploadScope}
@@ -1578,10 +1584,11 @@ export function VideoMediaPickerDialog({
                         <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                           Vidéos · {vids.length}
                         </div>
-                        {/* Format natif : chaque tuile conserve son ratio réel. */}
-                        <div className="flex flex-wrap items-end gap-3">
-                          {vids.map((m) => renderTile(m, false))}
+                        {/* Grille 4 colonnes, quel que soit le format de la vidéo. */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                          {vids.map((m) => renderTile(m, true))}
                         </div>
+
                       </div>
                     )}
                     {imgs.length > 0 && (
