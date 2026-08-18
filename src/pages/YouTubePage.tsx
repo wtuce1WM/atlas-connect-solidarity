@@ -28,17 +28,27 @@ const YouTubePage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    // Fond noir : le composant peint une vidéo YouTube en `fixed inset-0 z-0`.
+    <div className="min-h-screen bg-black">
       <Header />
-      <main className="flex-1 pt-20 pb-12">
-        <div className="container mx-auto px-4">
-          <h1 className="text-2xl md:text-3xl font-bold uppercase text-foreground font-['Montserrat',sans-serif] mb-6">
-            {t("Chaînes YouTube", "YouTube channels", "قنوات يوتيوب")}
-          </h1>
-          <YouTubeChannelsTabContent city={city} />
-        </div>
+
+      {/* Titre superposé, sous le header et au-dessus du dégradé interne (z-20). */}
+      <h1
+        className="fixed left-0 right-0 top-16 md:top-20 z-[21] px-4 pointer-events-none text-base sm:text-xl md:text-2xl font-bold uppercase text-white drop-shadow-lg font-['Montserrat',sans-serif]"
+      >
+        {t("Le meilleur de YouTube sur le Maroc", "The best of YouTube about Morocco", "أفضل ما في يوتيوب عن المغرب")}
+      </h1>
+
+      {/* Pas de container ni de padding horizontal ici : le composant gère
+          lui-même `px-4`, sa largeur max et son décalage quand le slidepanel
+          droit est ouvert (lg:max-w-[50vw]). */}
+      <main className="pt-10 sm:pt-12 md:pt-16">
+        <YouTubeChannelsTabContent city={city} />
       </main>
-      <Footer />
+
+      <div className="relative z-10 bg-background">
+        <Footer />
+      </div>
     </div>
   );
 };
