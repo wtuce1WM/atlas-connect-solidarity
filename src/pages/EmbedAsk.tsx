@@ -1689,7 +1689,7 @@ const EmbedAsk = () => {
           : undefined
       }
     >
-      <div ref={mainRef} className="flex flex-col h-full">
+      <div ref={setMainEl} className="flex flex-col h-full">
         <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
         {inFloatingPanel && (
           <button
