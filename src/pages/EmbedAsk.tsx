@@ -197,6 +197,10 @@ function parseRadiusCommand(text: string): number | null {
   return best;
 }
 
+/** Cas unique : suggestion embed "Le meilleur de YouTube sur le Maroc" → page /youtube. */
+const YOUTUBE_PAGE_SUGGESTION_ID = "63d6d717-e344-4e1b-9865-850ac1ca9126";
+
+
 const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string, radius: string) => string; radiusLabel: string; radiusChanged: (r: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
     placeholder: "Posez votre question…",
@@ -2299,11 +2303,21 @@ const EmbedAsk = () => {
           <div className="flex flex-wrap gap-2 pt-1">
             {suggestions.map((s) => {
               const label = s.label.replace(/\{businessName\}/g, businessName || "").trim();
+              // Cas unique : la suggestion "Le meilleur de YouTube sur le Maroc"
+              // ne passe pas par le moteur IA — elle ouvre la page /youtube.
+              const isYoutubePage =
+                s.id === YOUTUBE_PAGE_SUGGESTION_ID || /youtube/i.test(label);
               return (
                 <button
                   key={s.id}
                   type="button"
-                  onClick={() => { send(label, s.id); }}
+                  onClick={() => {
+                    if (isYoutubePage) {
+                      window.open(`${window.location.origin}/youtube`, "_blank", "noopener,noreferrer");
+                      return;
+                    }
+                    send(label, s.id);
+                  }}
                   className={`text-xs px-3 py-1.5 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
                   style={{ ...chipStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
                 >
@@ -2311,6 +2325,7 @@ const EmbedAsk = () => {
                 </button>
               );
             })}
+
           </div>
         )}
 
