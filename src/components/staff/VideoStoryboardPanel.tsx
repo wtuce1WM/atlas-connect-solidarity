@@ -98,7 +98,7 @@ const STEP_TYPES: Array<{ value: StepType; label: string; hint: string }> = [
   { value: "map_reveal", label: "Carte / localisation", hint: "Révélation géographique." },
   { value: "split_screen", label: "Écran partagé", hint: "Média d'un côté, texte de l'autre." },
   { value: "icon_grid", label: "Icônes (grille / battements)", hint: "1 à 8 icônes curatées, Titre et/ou Texte, durée découpée au choix." },
-  { value: "svg_flow", label: "Tracé SVG animé (liaisons)", hint: "2 à 8 nœuds à icônes reliés par un tracé animé, 5 à 30 s." },
+  { value: "svg_flow", label: "Tracé SVG animé (liaisons)", hint: "2 à 8 nœuds à icônes reliés par un tracé animé, 5 à 240 s." },
   { value: "logo_merge", label: "Fusion de logos", hint: "Lockup 1WM + logo partenaire." },
   { value: "outro", label: "Outro", hint: "Logo + tagline." },
 ];
