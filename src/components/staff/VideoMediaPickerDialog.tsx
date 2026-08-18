@@ -64,6 +64,7 @@ export type PickerMedia = {
 
 type TypeFilter = "all" | "image" | "video";
 type SourceFilter =
+  | "none"
   | "all"
   | "fiche"
   | "generic"
@@ -960,7 +961,15 @@ export function VideoMediaPickerDialog({
   const [slugQuery, setSlugQuery] = useState("");
   const [otherSlug, setOtherSlug] = useState("");
   const [slugOptions, setSlugOptions] = useState<{ id: string; name: string; slug: string | null }[]>([]);
-  const { items, loading, reload, setItems } = useVideoMediaSources(businessId, open, otherSlug);
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>(allow === "all" ? "all" : allow);
+  // Aucun chargement à l'ouverture : on attend que l'utilisateur choisisse une
+  // source dans le menu déroulant (les requêtes sont lourdes).
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("none");
+  const { items, loading, reload, setItems } = useVideoMediaSources(
+    businessId,
+    open && sourceFilter !== "none",
+    otherSlug,
+  );
   const [wideAsked, setWideAsked] = useState(false);
   const {
     items: wideVideos,
@@ -969,10 +978,6 @@ export function VideoMediaPickerDialog({
     measuring: wideMeasuring,
     measure: measureWide,
   } = useLandscapeVideos(open && wideAsked);
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>(allow === "all" ? "all" : allow);
-  // Par défaut on ouvre sur les médias de la fiche (« Fiche · vidéos » quand la
-  // scène n'accepte que des vidéos) : c'est le cas d'usage courant.
-  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("fiche");
   const [search, setSearch] = useState("");
   const [formatFilter, setFormatFilter] = useState<"all" | "landscape" | "portrait" | "square">("all");
   const [badgeFilter, setBadgeFilter] = useState<string>("all");
@@ -986,7 +991,7 @@ export function VideoMediaPickerDialog({
   }, [allow]);
 
   useEffect(() => {
-    if (open) setSourceFilter("fiche");
+    if (open) setSourceFilter("none");
   }, [open]);
 
   // Auto-complete sur les autres fiches (nom ou slug) — aucun bouton à cliquer.
@@ -1029,6 +1034,8 @@ export function VideoMediaPickerDialog({
 
   const matchSource = (m: PickerMedia, f: SourceFilter) => {
     switch (f) {
+      case "none":
+        return false;
       case "all":
         return true;
       case "fiche":
@@ -1316,6 +1323,10 @@ export function VideoMediaPickerDialog({
         ? "vidéos"
         : "médias";
 
+  /** Compteur affiché : « … » tant qu'aucune source n'est choisie (rien n'est chargé). */
+  const c = (n: number) => (sourceFilter === "none" ? "…" : n);
+
+
   return (
     <div className="grid gap-2">
       <div className="flex flex-wrap items-center gap-2">
@@ -1366,20 +1377,21 @@ export function VideoMediaPickerDialog({
                 onChange={(e) => setSourceFilter(e.target.value as SourceFilter)}
                 className="h-8 rounded-md border bg-background px-2 text-xs"
               >
-                <option value="all">Toutes les sources ({counts.all})</option>
-                <option value="fiche">Fiche · {activeTypeLabel} ({counts.fiche})</option>
-                <option value="generic_video">Vidéos génériques ({counts.genericVideo})</option>
-                <option value="generic">Badge Generic ({counts.generic})</option>
-                <option value="badged">Vidéos badgées · toutes fiches ({counts.badged})</option>
+                <option value="none">— Choisir une source —</option>
+                <option value="all">Toutes les sources ({c(counts.all)})</option>
+                <option value="fiche">Fiche · {activeTypeLabel} ({c(counts.fiche)})</option>
+                <option value="generic_video">Vidéos génériques ({c(counts.genericVideo)})</option>
+                <option value="generic">Badge Generic ({c(counts.generic)})</option>
+                <option value="badged">Vidéos badgées · toutes fiches ({c(counts.badged)})</option>
                 <option value="landscape">Vidéos 16:9 · toutes fiches + génériques ({wideAsked ? counts.landscape : "…"})</option>
-                <option value="other">Autre fiche par slug · {activeTypeLabel} ({counts.other})</option>
-                <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({counts.libBiz})</option>
-                <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({counts.libGlobal})</option>
-                <option value="render_feed">Rendus · Scénario Feed ({counts.renderFeed})</option>
-                <option value="render_promo">Rendus · Promo business ({counts.renderPromo})</option>
-                <option value="render_storyboard">Rendus · Montages manuels ({counts.renderStoryboard})</option>
-                <option value="render_showcase">Rendus · Scénario auto établissement ({counts.renderShowcase})</option>
-                <option value="render_corporate">Rendus · Scénario auto Corporate ({counts.renderCorporate})</option>
+                <option value="other">Autre fiche par slug · {activeTypeLabel} ({c(counts.other)})</option>
+                <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({c(counts.libBiz)})</option>
+                <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({c(counts.libGlobal)})</option>
+                <option value="render_feed">Rendus · Scénario Feed ({c(counts.renderFeed)})</option>
+                <option value="render_promo">Rendus · Promo business ({c(counts.renderPromo)})</option>
+                <option value="render_storyboard">Rendus · Montages manuels ({c(counts.renderStoryboard)})</option>
+                <option value="render_showcase">Rendus · Scénario auto établissement ({c(counts.renderShowcase)})</option>
+                <option value="render_corporate">Rendus · Scénario auto Corporate ({c(counts.renderCorporate)})</option>
               </select>
               <select
                 value={formatFilter}
@@ -1552,7 +1564,11 @@ export function VideoMediaPickerDialog({
               </div>
             )}
 
-            {loading || (sourceFilter === "landscape" && wideLoading) ? (
+            {sourceFilter === "none" ? (
+              <p className="py-10 text-sm text-muted-foreground">
+                Choisissez d'abord une <b>source</b> dans le menu déroulant : rien n'est chargé avant votre sélection.
+              </p>
+            ) : loading || (sourceFilter === "landscape" && wideLoading) ? (
               <div className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" /> Chargement…
               </div>
