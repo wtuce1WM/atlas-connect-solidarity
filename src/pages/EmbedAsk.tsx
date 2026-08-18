@@ -2318,7 +2318,7 @@ const EmbedAsk = () => {
                   type="button"
                   onClick={() => {
                     if (isYoutubePage) {
-                      window.open(`${window.location.origin}/youtube`, "_blank", "noopener,noreferrer");
+                      setYoutubeOpen(true);
                       return;
                     }
                     send(label, s.id);
