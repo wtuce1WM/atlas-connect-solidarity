@@ -1323,7 +1323,7 @@ export function VideoMediaPickerDialog({
             </Button>
           </DialogTrigger>
           <DialogContent
-            className={`max-w-5xl max-h-[85vh] overflow-y-auto ${dragOver ? "ring-2 ring-primary" : ""}`}
+            className={`w-[90vw] max-w-[90vw] max-h-[90vh] overflow-y-auto ${dragOver ? "ring-2 ring-primary" : ""}`}
             onDragOver={(e) => {
               e.preventDefault();
               setDragOver(true);
