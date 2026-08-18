@@ -1658,6 +1658,25 @@ const EmbedAsk = () => {
       })),
     },
   ];
+  const mainRef = useRef<HTMLDivElement>(null);
+  // Redimensionne l'iframe hôte pour qu'elle épouse la hauteur du contenu du widget
+  // et éviter tout scroll vertical interne superflu en mode widget standard.
+  useEffect(() => {
+    if (!autoHeight || !mainRef.current) return;
+    const post = () => {
+      const el = mainRef.current;
+      if (!el) return;
+      const height = Math.ceil(el.scrollHeight);
+      try { window.parent?.postMessage({ type: "owm-ask-height", height }, "*"); } catch { /* noop */ }
+    };
+    post();
+    const t = setTimeout(post, 350);
+    const t2 = setTimeout(post, 900);
+    const ro = new ResizeObserver(post);
+    ro.observe(mainRef.current);
+    window.addEventListener("resize", post);
+    return () => { clearTimeout(t); clearTimeout(t2); ro.disconnect(); window.removeEventListener("resize", post); };
+  }, [autoHeight, messages, streaming, youtubeOpen, openBusinessId, openBusinessOverlay, error, filterGroups.length]);
 
   return (
 
