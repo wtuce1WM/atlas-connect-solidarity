@@ -1680,7 +1680,11 @@ const EmbedAsk = () => {
 
     <div
       dir={dir}
-      className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""} transition-[right] duration-300 ease-out ${openBusinessId ? "lg:right-1/2" : ""}`}
+      className={
+        autoHeight
+          ? `flex flex-col ${surface} ${theme === "dark" ? "dark" : ""}`
+          : `fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""} transition-[right] duration-300 ease-out ${openBusinessId ? "lg:right-1/2" : ""}`
+      }
       style={
         bgTransparent && !activeWidgetBg
           ? undefined
@@ -1689,7 +1693,7 @@ const EmbedAsk = () => {
           : undefined
       }
     >
-      <div ref={setMainEl} className="flex flex-col h-full">
+      <div ref={setMainEl} className={autoHeight ? "flex flex-col" : "flex flex-col h-full"}>
         <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
         {inFloatingPanel && (
           <button
