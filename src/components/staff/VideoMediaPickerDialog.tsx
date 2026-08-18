@@ -961,7 +961,15 @@ export function VideoMediaPickerDialog({
   const [slugQuery, setSlugQuery] = useState("");
   const [otherSlug, setOtherSlug] = useState("");
   const [slugOptions, setSlugOptions] = useState<{ id: string; name: string; slug: string | null }[]>([]);
-  const { items, loading, reload, setItems } = useVideoMediaSources(businessId, open, otherSlug);
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>(allow === "all" ? "all" : allow);
+  // Aucun chargement à l'ouverture : on attend que l'utilisateur choisisse une
+  // source dans le menu déroulant (les requêtes sont lourdes).
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("none");
+  const { items, loading, reload, setItems } = useVideoMediaSources(
+    businessId,
+    open && sourceFilter !== "none",
+    otherSlug,
+  );
   const [wideAsked, setWideAsked] = useState(false);
   const {
     items: wideVideos,
@@ -970,10 +978,6 @@ export function VideoMediaPickerDialog({
     measuring: wideMeasuring,
     measure: measureWide,
   } = useLandscapeVideos(open && wideAsked);
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>(allow === "all" ? "all" : allow);
-  // Par défaut on ouvre sur les médias de la fiche (« Fiche · vidéos » quand la
-  // scène n'accepte que des vidéos) : c'est le cas d'usage courant.
-  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("fiche");
   const [search, setSearch] = useState("");
   const [formatFilter, setFormatFilter] = useState<"all" | "landscape" | "portrait" | "square">("all");
   const [badgeFilter, setBadgeFilter] = useState<string>("all");
@@ -987,7 +991,7 @@ export function VideoMediaPickerDialog({
   }, [allow]);
 
   useEffect(() => {
-    if (open) setSourceFilter("fiche");
+    if (open) setSourceFilter("none");
   }, [open]);
 
   // Auto-complete sur les autres fiches (nom ou slug) — aucun bouton à cliquer.
