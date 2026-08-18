@@ -1172,9 +1172,23 @@ export function VideoMediaPickerDialog({
     [typeBase],
   );
 
+  // Les vignettes sélectionnées doivent rester lisibles AVANT toute ouverture
+  // du sélecteur (la bibliothèque `items` n'est chargée qu'à l'ouverture) :
+  // on déduit le type par l'extension et on récupère la vraie miniature en base.
   const selectedItems = value
-    .map((u) => items.find((m) => m.url === u) ?? ({ url: u, kind: "image", source: "fiche" } as PickerMedia))
+    .map((u) => {
+      const found = items.find((m) => m.url === u);
+      if (found) return found;
+      const isVideo = /\.(mp4|mov|webm|m4v)(\?|$)/i.test(u);
+      return {
+        url: u,
+        kind: isVideo ? "video" : "image",
+        source: "fiche",
+        thumbnail: fallbackThumbs[u] ?? null,
+      } as PickerMedia;
+    })
     .filter(Boolean);
+
 
   const activeTypeLabel =
     allow === "image" || typeFilter === "image"
