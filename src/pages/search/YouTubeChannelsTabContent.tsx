@@ -374,14 +374,22 @@ const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
             </AccordionTrigger>
 
             <AccordionContent className="px-3 pb-3">
-              <div className="flex gap-3 overflow-x-auto scrollbar-hide pt-1 pb-2 px-2" style={{ scrollbarWidth: "none" }}>
+              <div
+                className={
+                  compact
+                    ? "grid grid-cols-2 min-[420px]:grid-cols-3 min-[640px]:grid-cols-4 gap-3 pt-1 pb-1"
+                    : "flex gap-3 overflow-x-auto scrollbar-hide pt-1 pb-2 px-2"
+                }
+                style={compact ? undefined : { scrollbarWidth: "none" }}
+              >
                 {g.channels.map((ch) => (
                   <button
                     key={ch.id}
                     onClick={() => handleChannelClick(ch)}
-                    className="flex flex-col items-center gap-2 w-24 flex-shrink-0 group"
+                    className={`flex flex-col items-center gap-2 group ${compact ? "w-full min-w-0" : "w-24 flex-shrink-0"}`}
                   >
-                    <div className="relative w-20 h-20 rounded-full overflow-hidden bg-muted border border-border group-hover:border-primary transition-colors">
+                    <div className={`relative rounded-full overflow-hidden bg-muted border border-border group-hover:border-primary transition-colors ${compact ? "w-[76px] h-[76px]" : "w-20 h-20"}`}>
+
                       {(ch.youtube_channel_thumbnail_url || ch.logo_url) ? (
                         <img src={ch.youtube_channel_thumbnail_url || ch.logo_url!} alt={ch.name} className="w-full h-full object-cover" loading="lazy" />
 
