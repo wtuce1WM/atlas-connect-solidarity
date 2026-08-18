@@ -64,6 +64,7 @@ export type PickerMedia = {
 
 type TypeFilter = "all" | "image" | "video";
 type SourceFilter =
+  | "none"
   | "all"
   | "fiche"
   | "generic"
