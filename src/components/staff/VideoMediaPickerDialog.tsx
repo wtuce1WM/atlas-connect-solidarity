@@ -416,7 +416,7 @@ function Tile({
           type="button"
           onClick={copyId}
           title={`Copier l'ID ${item.mediaId}`}
-          className="mt-0.5 flex items-center gap-1 max-w-full text-[9px] font-mono text-muted-foreground hover:text-foreground"
+          className="mt-0.5 flex min-w-0 max-w-full items-center gap-1 text-[9px] font-mono text-muted-foreground hover:text-foreground"
         >
           <Copy className="h-2.5 w-2.5 shrink-0" />
           <span className="truncate">{item.mediaId}</span>
@@ -1326,7 +1326,7 @@ export function VideoMediaPickerDialog({
             </Button>
           </DialogTrigger>
           <DialogContent
-            className={`w-[90vw] max-w-[90vw] max-h-[90vh] overflow-y-auto ${dragOver ? "ring-2 ring-primary" : ""}`}
+            className={`w-[90vw] max-w-[90vw] max-h-[90vh] overflow-x-hidden overflow-y-auto ${dragOver ? "ring-2 ring-primary" : ""}`}
             onDragOver={(e) => {
               e.preventDefault();
               setDragOver(true);
@@ -1588,7 +1588,7 @@ export function VideoMediaPickerDialog({
                           Vidéos · {vids.length}
                         </div>
                         {/* Vignettes de taille fixe (~220px) quel que soit le format et la largeur du popup. */}
-                        <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(200px,220px))]">
+                        <div className="grid w-full max-w-full justify-start gap-4 [grid-template-columns:repeat(auto-fill,minmax(0,220px))]">
                           {vids.map((m) => renderTile(m, true))}
                         </div>
 
@@ -1599,7 +1599,7 @@ export function VideoMediaPickerDialog({
                         <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                           Images · {imgs.length}
                         </div>
-                        <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(200px,220px))]">
+                        <div className="grid w-full max-w-full justify-start gap-4 [grid-template-columns:repeat(auto-fill,minmax(0,220px))]">
                           {imgs.map((m) => renderTile(m, true))}
                         </div>
                       </div>
