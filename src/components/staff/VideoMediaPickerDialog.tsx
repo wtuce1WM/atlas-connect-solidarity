@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { Copy, Film, Image as ImageIcon, Loader2, Maximize2, Play, Pause, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import SelectedVideoPreview from "@/components/staff/SelectedVideoPreview";
+
 
 /**
  * Sélecteur de médias unique pour le montage vidéo (Storyboard / Studio).
