@@ -90,6 +90,8 @@ const VideoPromoPanel = () => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [bgFeedUrl, setBgFeedUrl] = useState("");
   const [format, setFormat] = useState<"portrait" | "landscape">("portrait");
+  const [encode, setEncode] = useState<EncodeOptions>({ ...DEFAULT_ENCODE });
+
   const [variant, setVariant] = useState<PromoVariant>("fullscreen");
   const [mockupBg, setMockupBg] = useState(PRESET_BG[0].value);
   const [browserUrl, setBrowserUrl] = useState("oneworldmorocco.com");
