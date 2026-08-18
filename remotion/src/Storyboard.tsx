@@ -905,7 +905,6 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
   const title = str(cfg, "title");
   const duck = React.useContext(VoiceDuckContext);
   const muted = !cfg.sound;
-  const per = clips.length ? Math.max(1, Math.floor(durationInFrames / clips.length)) : durationInFrames;
   /** Bornes de lecture par URL, saisies dans « Médias du montage ». */
   const trims = (cfg.assetTrims && typeof cfg.assetTrims === "object" ? cfg.assetTrims : {}) as Record<
     string,
@@ -913,20 +912,50 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
   >;
   const { fps } = useVideoConfig();
 
+  /**
+   * Répartition des clips : quand des bornes (start/end) sont définies, chaque
+   * clip occupe exactement sa durée utile (end - start) au lieu d'une part
+   * égale — sinon un clip court laissait du noir dans son créneau.
+   * Si la somme dépasse la durée de la section, tout est réduit au prorata.
+   */
+  const slots = React.useMemo(() => {
+    const n = clips.length;
+    if (n === 0) return [] as { from: number; frames: number }[];
+    const equal = Math.max(1, Math.floor(durationInFrames / n));
+    const weights = clips.map((raw) => {
+      const t = trims[raw] ?? {};
+      const s = t.start && t.start > 0 ? t.start : 0;
+      const e = t.end && t.end > s ? t.end : 0;
+      return e > s ? Math.max(1, Math.round((e - s) * fps)) : equal;
+    });
+    const total = weights.reduce((a, b) => a + b, 0);
+    const scale = total > durationInFrames ? durationInFrames / total : 1;
+    const out: { from: number; frames: number }[] = [];
+    let cursor = 0;
+    weights.forEach((w, i) => {
+      const isLast = i === n - 1;
+      let frames = Math.max(1, Math.round(w * scale));
+      if (cursor + frames > durationInFrames) frames = Math.max(1, durationInFrames - cursor);
+      if (isLast && scale < 1) frames = Math.max(1, durationInFrames - cursor);
+      out.push({ from: cursor, frames });
+      cursor += frames;
+    });
+    return out;
+  }, [clips, trims, durationInFrames, fps]);
+
   return (
     <SceneBackdrop>
       <AbsoluteFill style={{ opacity: out }}>
         {clips.map((raw, i) => {
           const src = assetUrl(raw);
-          if (!src) return null;
-          const from = i * per;
-          const frames = i === clips.length - 1 ? Math.max(1, durationInFrames - from) : per;
+          const slot = slots[i];
+          if (!src || !slot) return null;
           const t = trims[raw] ?? {};
           const startFrom = t.start && t.start > 0 ? Math.round(t.start * fps) : undefined;
           const endAtRaw = t.end && t.end > 0 ? Math.round(t.end * fps) : undefined;
           const endAt = endAtRaw != null && endAtRaw > (startFrom ?? 0) + 1 ? endAtRaw : undefined;
           return (
-            <Sequence key={`${raw}-${i}`} from={from} durationInFrames={frames} layout="none">
+            <Sequence key={`${raw}-${i}`} from={slot.from} durationInFrames={slot.frames} layout="none">
               <OffthreadVideo
                 src={src}
                 muted={muted}
@@ -938,6 +967,7 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
             </Sequence>
           );
         })}
+
 
         <AbsoluteFill
           style={{
