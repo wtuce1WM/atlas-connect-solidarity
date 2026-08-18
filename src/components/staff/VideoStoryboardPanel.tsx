@@ -860,6 +860,46 @@ const ConfigFields = ({
   }
 };
 
+/** Champ durée clavier-friendly : pas de flèches, saisie libre, clamp au blur. */
+const SectionDurationInput = ({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+}) => {
+  const [raw, setRaw] = useState(String(value));
+
+  useEffect(() => {
+    setRaw(String(value));
+  }, [value]);
+
+  const commit = () => {
+    const n = Number(raw.replace(/[^0-9]/g, ""));
+    const clamped = Math.max(MIN_SECTION_SEC, Math.min(MAX_SECTION_SEC, Number.isFinite(n) ? n : MIN_SECTION_SEC));
+    onChange(clamped);
+    setRaw(String(clamped));
+  };
+
+  return (
+    <Input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      value={raw}
+      onChange={(e) => setRaw(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          commit();
+        }
+      }}
+      className="w-16 h-8 text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+    />
+  );
+};
+
 const SortableSection = ({
   section,
   index,
