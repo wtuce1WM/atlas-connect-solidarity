@@ -4091,7 +4091,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 403,
+          "reviewCount": 434,
           "bestRating": 5
         }
       }
@@ -4836,7 +4836,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 87,
+          "reviewCount": 11,
           "bestRating": 5
         }
       }
@@ -10702,7 +10702,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 441,
+          "reviewCount": 517,
           "bestRating": 5
         }
       }
@@ -10734,7 +10734,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 440,
+          "reviewCount": 120,
           "bestRating": 5
         }
       }
@@ -31204,7 +31204,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 40,
+          "reviewCount": 44,
           "bestRating": 5
         }
       }
@@ -45132,7 +45132,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 168,
+          "reviewCount": 204,
           "bestRating": 5
         }
       }
@@ -48900,7 +48900,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 572,
+          "reviewCount": 575,
           "bestRating": 5
         }
       }

@@ -66,15 +66,15 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities";
 
 /**
- * Storyboard = source de vérité unique d'un montage manuel (jusqu'à 180 s).
+ * Storyboard = source de vérité unique d'un montage manuel (jusqu'à 240 s).
  * Le renderer Remotion ne contient aucune logique propre à un scénario donné :
  * chaque section porte un `step_type` générique et sa `config` JSONB.
  */
 
-export const MAX_TOTAL_SEC = 180;
+export const MAX_TOTAL_SEC = 240;
 export const MAX_SECTIONS = 15;
 export const MIN_SECTION_SEC = 3;
-export const MAX_SECTION_SEC = 30;
+export const MAX_SECTION_SEC = 240;
 
 export type StepType =
   | "hook"
@@ -98,7 +98,7 @@ const STEP_TYPES: Array<{ value: StepType; label: string; hint: string }> = [
   { value: "map_reveal", label: "Carte / localisation", hint: "Révélation géographique." },
   { value: "split_screen", label: "Écran partagé", hint: "Média d'un côté, texte de l'autre." },
   { value: "icon_grid", label: "Icônes (grille / battements)", hint: "1 à 8 icônes curatées, Titre et/ou Texte, durée découpée au choix." },
-  { value: "svg_flow", label: "Tracé SVG animé (liaisons)", hint: "2 à 8 nœuds à icônes reliés par un tracé animé, 5 à 30 s." },
+  { value: "svg_flow", label: "Tracé SVG animé (liaisons)", hint: "2 à 8 nœuds à icônes reliés par un tracé animé, 5 à 240 s." },
   { value: "logo_merge", label: "Fusion de logos", hint: "Lockup 1WM + logo partenaire." },
   { value: "outro", label: "Outro", hint: "Logo + tagline." },
 ];
@@ -860,6 +860,46 @@ const ConfigFields = ({
   }
 };
 
+/** Champ durée clavier-friendly : pas de flèches, saisie libre, clamp au blur. */
+const SectionDurationInput = ({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+}) => {
+  const [raw, setRaw] = useState(String(value));
+
+  useEffect(() => {
+    setRaw(String(value));
+  }, [value]);
+
+  const commit = () => {
+    const n = Number(raw.replace(/[^0-9]/g, ""));
+    const clamped = Math.max(MIN_SECTION_SEC, Math.min(MAX_SECTION_SEC, Number.isFinite(n) ? n : MIN_SECTION_SEC));
+    onChange(clamped);
+    setRaw(String(clamped));
+  };
+
+  return (
+    <Input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      value={raw}
+      onChange={(e) => setRaw(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          commit();
+        }
+      }}
+      className="w-16 h-8 text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+    />
+  );
+};
+
 const SortableSection = ({
   section,
   index,
@@ -920,25 +960,33 @@ const SortableSection = ({
           </Badge>
         )}
         <div className="ml-auto flex items-center gap-3">
-          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            Durée
-            <Input
-              type="number"
-              min={MIN_SECTION_SEC}
-              max={MAX_SECTION_SEC}
-              value={section.duration_sec}
-              onChange={(e) =>
-                patch({
-                  duration_sec: Math.max(
-                    MIN_SECTION_SEC,
-                    Math.min(MAX_SECTION_SEC, Number(e.target.value) || MIN_SECTION_SEC),
-                  ),
-                })
-              }
-              className="w-16 h-8 text-xs"
-            />
-            s
-          </label>
+          <div className="flex items-center gap-2 flex-wrap">
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              Durée
+              <SectionDurationInput
+                value={section.duration_sec}
+                onChange={(v) => patch({ duration_sec: v })}
+              />
+              s
+            </label>
+            <div className="flex items-center gap-1">
+              {[3, 5, 10, 15, 20, 30, 60, 120, 180, 240].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => patch({ duration_sec: preset })}
+                  className={`px-1.5 py-0.5 rounded text-[10px] border transition-colors ${
+                    section.duration_sec === preset
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background text-muted-foreground border-border hover:border-primary/50"
+                  }`}
+                  title={`Régler la durée à ${preset} s`}
+                >
+                  {preset}s
+                </button>
+              ))}
+            </div>
+          </div>
           <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
             Actif
             <Switch checked={section.enabled} onCheckedChange={(v) => patch({ enabled: v })} />
@@ -1085,7 +1133,7 @@ const StoryboardGuide = () => {
       type: "svg_flow",
       icon: <LayoutTemplate className="h-4 w-4" />,
       title: "Tracé SVG animé (liaisons)",
-      body: "2 à 8 nœuds (icône + Titre et/ou Texte optionnels) reliés par un tracé animé au frame (strokeDashoffset). Trois dispositions : Enchaînement (A → B → C), Étoile (1er nœud au centre) et Circuit fermé. Trois vitesses. Sans réglage, chaque nœud apparaît quand sa liaison est tracée, puis tout reste à l'écran. TIMELINE INTERNE (battements) : de 3 à 30 s, on déclare une suite de battements — Nœud, Liaison, Titre, Hook, Sous-hook, Chiffre/% (compteur animé, même moteur que la scène Compteur). Mode Séquence = les battements se partagent la durée à parts égales (changer 8 s en 25 s ne demande aucune ressaisie) ; mode Manuel = début et durée en secondes. Les textes et chiffres se posent au cadre (haut/centre/bas) ou se collent à un nœud. Durées minimales de lisibilité imposées : 1,2 s pour un texte, 1,5 s pour un chiffre ; la frise signale en rouge un débordement ou deux textes superposés sur la même ancre. À distinguer des effets de motion design : ici c'est une scène (contenu), pas un calque du montage.",
+      body: "2 à 8 nœuds (icône + Titre et/ou Texte optionnels) reliés par un tracé animé au frame (strokeDashoffset). Trois dispositions : Enchaînement (A → B → C), Étoile (1er nœud au centre) et Circuit fermé. Trois vitesses. Sans réglage, chaque nœud apparaît quand sa liaison est tracée, puis tout reste à l'écran. TIMELINE INTERNE (battements) : de 3 à 240 s, on déclare une suite de battements — Nœud, Liaison, Titre, Hook, Sous-hook, Chiffre/% (compteur animé, même moteur que la scène Compteur). Mode Séquence = les battements se partagent la durée à parts égales (changer 8 s en 25 s ne demande aucune ressaisie) ; mode Manuel = début et durée en secondes. Les textes et chiffres se posent au cadre (haut/centre/bas) ou se collent à un nœud. Durées minimales de lisibilité imposées : 1,2 s pour un texte, 1,5 s pour un chiffre ; la frise signale en rouge un débordement ou deux textes superposés sur la même ancre. À distinguer des effets de motion design : ici c'est une scène (contenu), pas un calque du montage.",
     },
     {
 
@@ -1214,7 +1262,7 @@ const StoryboardGuide = () => {
               <strong>Rôle.</strong> C'est le <strong>moteur de rendu vidéo manuel</strong> du back-office Vidéos. Il ne contient aucun scénario codé en dur : il lit une liste d'étapes stockée en base (<code>video_storyboards</code> / <code>video_scenario_steps</code>) et compose la vidéo étape par étape.
             </p>
             <p>
-              <strong>Formats.</strong> Portrait 1080 × 1920 ou paysage 1920 × 1080. 30 fps. Durée totale = somme des durées des étapes (max 180 s).
+              <strong>Formats.</strong> Portrait 1080 × 1920 ou paysage 1920 × 1080. 30 fps. Durée totale = somme des durées des étapes (max 240 s).
             </p>
             <div>
               <p className="font-semibold text-foreground">Types de scènes disponibles</p>
