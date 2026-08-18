@@ -616,9 +616,13 @@ const VideoScenarioConfigPanel = ({
     ]);
     if (stepsRes.error) toast.error("Chargement impossible");
     // Étape « Menus » abandonnée : on ne l'affiche plus.
-    const loadedSteps = ((stepsRes.data ?? []) as VideoScenarioStep[])
+    const loadedSteps = ((stepsRes.data ?? []) as any[])
       .filter((s) => s.scene_key !== "menu_doc")
-      .map((s) => ({ ...s, widget_keys: s.widget_keys ?? [] }));
+      .map((s) => ({
+        ...s,
+        widget_keys: s.widget_keys ?? [],
+        config: (s.config && typeof s.config === "object" ? s.config : {}) as Record<string, any>,
+      })) as VideoScenarioStep[];
     setSteps(loadedSteps);
 
     // Compteurs de notes internes par étape.
