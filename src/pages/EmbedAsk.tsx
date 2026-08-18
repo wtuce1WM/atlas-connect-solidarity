@@ -2655,7 +2655,7 @@ const EmbedAsk = () => {
       {/* Overlay inline « Le meilleur de YouTube sur le Maroc » — variante compacte,
           plein cadre de l'iframe (pas de nouvelle fenêtre, pas de 2ᵉ iframe). */}
       {youtubeOpen && (
-        <div className="absolute inset-0 z-[225] flex flex-col bg-neutral-950 animate-fade-in" dir={dir}>
+        <div className="absolute inset-0 z-[200] flex flex-col bg-neutral-950 animate-fade-in" dir={dir}>
           <div className="shrink-0 flex items-center gap-2 px-3 py-2.5 border-b border-white/10">
             <button
               type="button"
