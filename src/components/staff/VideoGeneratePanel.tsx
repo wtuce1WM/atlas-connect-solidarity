@@ -779,7 +779,10 @@ const VideoGeneratePanel = () => {
             </div>
           </div>
 
+          <VideoEncodeOptionsBlock value={encode} onChange={setEncode} />
+
           <VideoRenderPresetBar
+
             kind="feed"
             config={feedConfig}
             defaultName={label.trim() || autoSlug}
