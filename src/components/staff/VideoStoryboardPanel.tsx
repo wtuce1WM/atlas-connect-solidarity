@@ -2289,6 +2289,11 @@ const VideoStoryboardPanel = () => {
                               remove={() => removeSection(s.id)}
                               businessId={biz?.id ?? board.business_id}
                               format={board.format}
+                              dropGlobal={(urls) => {
+                                setGlobalMediaItems((prev) => prev.filter((m) => !urls.includes(m.url)));
+                                setDirty(true);
+                              }}
+
                             />
                           ))}
                         </div>
