@@ -940,7 +940,7 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
       acc.push({ from: cursor, frames });
       cursor += frames;
     });
-    return out;
+    return acc;
   }, [clips, trims, durationInFrames, fps]);
 
   return (
