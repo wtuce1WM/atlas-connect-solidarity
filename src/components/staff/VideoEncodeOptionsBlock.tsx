@@ -23,14 +23,20 @@ const VideoEncodeOptionsBlock = ({
   /** false quand la composition gère déjà sa résolution de sortie (storyboard). */
   showScale = true,
   className = "",
+  /** Optionnel : lance un rendu par niveau de compression pour comparer poids/qualité. */
+  onGenerateAll,
+  generatingAll = false,
 }: {
   value: EncodeOptions | null | undefined;
   onChange: (next: EncodeOptions) => void;
   showScale?: boolean;
   className?: string;
+  onGenerateAll?: () => void;
+  generatingAll?: boolean;
 }) => {
   const v = value ?? DEFAULT_ENCODE;
   const patch = (p: Partial<EncodeOptions>) => onChange({ ...v, ...p });
+
 
   const selectPreset = (id: EncodePresetId) => {
     const preset = ENCODE_PRESETS.find((p) => p.id === id);
