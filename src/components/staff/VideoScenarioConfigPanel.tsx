@@ -1138,6 +1138,7 @@ const VideoScenarioConfigPanel = ({
                     remove={() => removeStep(s.id)}
                     noteCount={noteCounts[s.id] ?? 0}
                     onNoteCount={(n) => setNoteCounts((prev) => ({ ...prev, [s.id]: n }))}
+                    mediaFormat={mediaFormat}
                   />
                 ))}
               </div>
