@@ -35,7 +35,18 @@ export type PickerMedia = {
   title?: string | null;
   thumbnail?: string | null;
   duration?: number | null;
-  source: "fiche" | "generic" | "library" | "generic_video" | "other" | "render_feed" | "render_promo";
+  source:
+    | "fiche"
+    | "generic"
+    | "badged"
+    | "library"
+    | "generic_video"
+    | "other"
+    | "render_feed"
+    | "render_promo"
+    | "render_storyboard"
+    | "render_showcase"
+    | "render_corporate";
   scope?: "global" | "business";
   libraryId?: string;
   /** ID base de la vidéo/média source (business_documents, generic_videos, bibliothèque). */
@@ -61,8 +72,12 @@ type SourceFilter =
   | "other"
   | "library_business"
   | "library_global"
+  | "badged"
   | "render_feed"
-  | "render_promo";
+  | "render_promo"
+  | "render_storyboard"
+  | "render_showcase"
+  | "render_corporate";
 
 const documentVideoUrl = (d: any): string | null => {
   const url = d?.youtube_video_url || d?.instagram_video_url || d?.tiktok_video_url || d?.url;
@@ -132,8 +147,12 @@ const SOURCE_LABEL: Record<PickerMedia["source"] | "library_global" | "library_b
   library: "Bibliothèque",
   library_global: "Bibliothèque globale",
   library_business: "Bibliothèque fiche",
+  badged: "Badgé",
   render_feed: "Rendu Scénario Feed",
   render_promo: "Rendu Promo business",
+  render_storyboard: "Rendu Montage manuel",
+  render_showcase: "Rendu Scénario auto établissement",
+  render_corporate: "Rendu Scénario auto Corporate",
 };
 
 /* ------------------------------------------------------------------ tiles */
@@ -631,7 +650,13 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         .limit(300);
       const jobRows = (jobs ?? []).filter((j: any) => {
         const t = String(j.template_id ?? "");
-        return t.startsWith("feed-template") || t.startsWith("business-promo");
+        return (
+          t.startsWith("feed-template") ||
+          t.startsWith("business-promo") ||
+          t.startsWith("storyboard") ||
+          t.startsWith("business-showcase") ||
+          t.startsWith("corporate")
+        );
       });
       if (jobRows.length) {
         const jobBizIds = [...new Set(jobRows.map((j: any) => j.business_id).filter(Boolean))];
@@ -650,10 +675,28 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
           out.push({
             url,
             kind: "video",
-            title: j.title || (t.startsWith("business-promo") ? "Promo business" : "Scénario Feed"),
+            title:
+              j.title ||
+              (t.startsWith("business-promo")
+                ? "Promo business"
+                : t.startsWith("storyboard")
+                  ? "Montage manuel"
+                  : t.startsWith("business-showcase")
+                    ? "Scénario auto établissement"
+                    : t.startsWith("corporate")
+                      ? "Scénario auto Corporate"
+                      : "Scénario Feed"),
             duration: j.duration_sec != null ? Number(j.duration_sec) : null,
             orientation: t.includes("landscape") ? "landscape" : "portrait",
-            source: t.startsWith("business-promo") ? "render_promo" : "render_feed",
+            source: t.startsWith("business-promo")
+              ? "render_promo"
+              : t.startsWith("storyboard")
+                ? "render_storyboard"
+                : t.startsWith("business-showcase")
+                  ? "render_showcase"
+                  : t.startsWith("corporate")
+                    ? "render_corporate"
+                    : "render_feed",
             mediaId: String(j.id),
             ownerName: j.business_id ? (jobOwners.get(String(j.business_id)) ?? null) : null,
           });
@@ -686,7 +729,12 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
       const docIds = [
         ...new Set(
           deduped
-            .filter((m) => m.mediaId && (m.source === "fiche" || m.source === "generic" || m.source === "other"))
+            .filter(
+              (m) =>
+                m.mediaId &&
+                (m.badges ?? []).length === 0 &&
+                (m.source === "fiche" || m.source === "generic" || m.source === "badged" || m.source === "other"),
+            )
             .map((m) => String(m.mediaId)),
         ),
       ];
@@ -984,6 +1032,9 @@ export function VideoMediaPickerDialog({
         return m.source === "fiche" || !!m.onFiche;
       case "generic":
         return m.source === "generic";
+      case "badged":
+        // Toutes les vidéos internes portant au moins un badge (toutes fiches).
+        return (m.badges ?? []).length > 0;
       case "generic_video":
         return m.source === "generic_video";
       case "landscape":
@@ -999,6 +1050,12 @@ export function VideoMediaPickerDialog({
         return m.source === "render_feed";
       case "render_promo":
         return m.source === "render_promo";
+      case "render_storyboard":
+        return m.source === "render_storyboard";
+      case "render_showcase":
+        return m.source === "render_showcase";
+      case "render_corporate":
+        return m.source === "render_corporate";
     }
   };
 
@@ -1186,6 +1243,10 @@ export function VideoMediaPickerDialog({
       libGlobal: typeBase.filter((m) => m.source === "library" && m.scope === "global").length,
       renderFeed: typeBase.filter((m) => m.source === "render_feed").length,
       renderPromo: typeBase.filter((m) => m.source === "render_promo").length,
+      badged: typeBase.filter((m) => (m.badges ?? []).length > 0).length,
+      renderStoryboard: typeBase.filter((m) => m.source === "render_storyboard").length,
+      renderShowcase: typeBase.filter((m) => m.source === "render_showcase").length,
+      renderCorporate: typeBase.filter((m) => m.source === "render_corporate").length,
     }),
     [typeBase],
   );
@@ -1298,13 +1359,17 @@ export function VideoMediaPickerDialog({
                 <option value="all">Toutes les sources ({counts.all})</option>
                 <option value="fiche">Fiche · {activeTypeLabel} ({counts.fiche})</option>
                 <option value="generic_video">Vidéos génériques ({counts.genericVideo})</option>
-                <option value="generic">Badge Générique ({counts.generic})</option>
+                <option value="generic">Badge Generic ({counts.generic})</option>
+                <option value="badged">Vidéos badgées · toutes fiches ({counts.badged})</option>
                 <option value="landscape">Vidéos 16:9 · toutes fiches + génériques ({wideAsked ? counts.landscape : "…"})</option>
                 <option value="other">Autre fiche par slug · {activeTypeLabel} ({counts.other})</option>
                 <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({counts.libBiz})</option>
                 <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({counts.libGlobal})</option>
                 <option value="render_feed">Rendus · Scénario Feed ({counts.renderFeed})</option>
                 <option value="render_promo">Rendus · Promo business ({counts.renderPromo})</option>
+                <option value="render_storyboard">Rendus · Montages manuels ({counts.renderStoryboard})</option>
+                <option value="render_showcase">Rendus · Scénario auto établissement ({counts.renderShowcase})</option>
+                <option value="render_corporate">Rendus · Scénario auto Corporate ({counts.renderCorporate})</option>
               </select>
               <select
                 value={formatFilter}
