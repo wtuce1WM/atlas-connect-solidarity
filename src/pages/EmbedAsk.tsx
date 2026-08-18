@@ -577,6 +577,24 @@ const EmbedAsk = () => {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
+  // Redimensionne l'iframe hôte pour qu'elle épouse la hauteur du contenu du widget
+  // et éviter tout scroll vertical interne superflu en mode widget standard.
+  useEffect(() => {
+    if (!autoHeight || !mainRef.current) return;
+    const post = () => {
+      const el = mainRef.current;
+      if (!el) return;
+      const height = Math.ceil(el.scrollHeight);
+      try { window.parent?.postMessage({ type: "owm-ask-height", height }, "*"); } catch { /* noop */ }
+    };
+    post();
+    const t = setTimeout(post, 350);
+    const ro = new ResizeObserver(post);
+    ro.observe(mainRef.current);
+    window.addEventListener("resize", post);
+    return () => { clearTimeout(t); ro.disconnect(); window.removeEventListener("resize", post); };
+  }, [autoHeight, messages, streaming, weatherPayload, youtubeOpen, openBusinessId, openBusinessOverlay, error]);
   const L = LANG_LABELS[lang];
 
   // --- Persistence (localStorage): survives page reload for ~7 days per slug+lang. ---
