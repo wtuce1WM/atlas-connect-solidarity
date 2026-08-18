@@ -96,7 +96,8 @@ export const storyboardDefaults: StoryboardProps = {
 const clampSec = (v: unknown, fallback = 6) => {
   const n = typeof v === "number" ? v : Number(v);
   if (!Number.isFinite(n)) return fallback;
-  return Math.min(30, Math.max(1, n));
+  // Plafond aligné sur le back-office (MAX_SECTION_SEC = 240 s).
+  return Math.min(240, Math.max(1, n));
 };
 
 export const computeStoryboardFrames = (p: StoryboardProps) => {
