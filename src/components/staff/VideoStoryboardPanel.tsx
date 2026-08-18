@@ -1889,7 +1889,7 @@ const VideoStoryboardPanel = () => {
                 <Button
                   size="sm"
                   variant="secondary"
-                  onClick={render}
+                  onClick={() => render()}
                   disabled={rendering || saving || dirty || sections.length === 0 || overflow}
                   title={dirty ? "Enregistre d'abord le storyboard" : undefined}
                 >
