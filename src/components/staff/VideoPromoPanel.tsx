@@ -712,7 +712,7 @@ const VideoPromoPanel = () => {
             </div>
           </div>
 
-          <VideoEncodeOptionsBlock value={encode} onChange={setEncode} />
+          <VideoEncodeOptionsBlock value={encode} onChange={setEncode} showTransparent />
 
 
           <VideoRenderPresetBar
