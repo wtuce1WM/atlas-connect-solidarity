@@ -137,17 +137,44 @@ function extOf(url) {
 /** URLs déjà en échec dans ce process : évite de réessayer 3× le même hôte mort. */
 const FAILED_URLS = new Set();
 
+/**
+ * Contrôle d'intégrité d'un média téléchargé.
+ * Un fichier tronqué (moov atom not found) ou une page d'erreur HTML enregistrée
+ * en .mp4 passait le test `size > 0` et faisait planter ffprobe pendant le rendu.
+ */
+function validateMedia(dest, ext, expectedLength) {
+  const size = fs.statSync(dest).size;
+  if (size === 0) return "fichier vide";
+  if (expectedLength && size !== expectedLength) {
+    return `taille incomplète (${size}/${expectedLength} octets)`;
+  }
+  const head = fs.readFileSync(dest).subarray(0, 4096);
+  if (/^\s*(<!doctype|<html|\{)/i.test(head.toString("latin1"))) {
+    return "réponse HTML/JSON au lieu d'un média";
+  }
+  if (/^(mp4|mov|m4v|m4a)$/.test(ext)) {
+    const txt = head.toString("latin1");
+    if (!txt.includes("ftyp")) return "conteneur MP4 invalide (pas d'atome ftyp)";
+    // L'atome `moov` peut être en fin de fichier : on le cherche sur tout le buffer.
+    const all = fs.readFileSync(dest).toString("latin1");
+    if (!all.includes("moov")) return "conteneur MP4 incomplet (pas d'atome moov)";
+  }
+  return null;
+}
+
 async function downloadMedia(url) {
   const key = Buffer.from(url).toString("base64url").slice(-40);
-  const file = `${key}.${extOf(url)}`;
+  const ext = extOf(url);
+  const file = `${key}.${ext}`;
   const dest = path.join(DL_DIR, file);
-  if (fs.existsSync(dest) && fs.statSync(dest).size > 0) return `dl/${file}`;
+  if (fs.existsSync(dest) && !validateMedia(dest, ext, null)) return `dl/${file}`;
+  if (fs.existsSync(dest)) fs.rmSync(dest, { force: true });
   if (FAILED_URLS.has(url)) return null;
   if (!fs.existsSync(DL_DIR)) fs.mkdirSync(DL_DIR, { recursive: true });
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 30000);
+    const timer = setTimeout(() => ctrl.abort(), 60000);
     try {
       const r = await fetch(url, {
         redirect: "follow",
@@ -155,9 +182,11 @@ async function downloadMedia(url) {
         headers: { "User-Agent": "Mozilla/5.0 (compatible; OWMRenderer/1.0)", Accept: "*/*" },
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const expected = Number(r.headers.get("content-length")) || 0;
       const buf = Buffer.from(await r.arrayBuffer());
-      if (buf.length === 0) throw new Error("fichier vide");
       fs.writeFileSync(dest, buf);
+      const problem = validateMedia(dest, ext, expected);
+      if (problem) throw new Error(problem);
       console.log(`⬇️  Média internalisé (${(buf.length / 1048576).toFixed(1)} Mo) : ${url}`);
       return `dl/${file}`;
     } catch (e) {
@@ -168,8 +197,10 @@ async function downloadMedia(url) {
     }
   }
   FAILED_URLS.add(url);
+  console.warn(`⛔ Média ignoré (illisible) : ${url}`);
   return null;
 }
+
 
 
 /**
