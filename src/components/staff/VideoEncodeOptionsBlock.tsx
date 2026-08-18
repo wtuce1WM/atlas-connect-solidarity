@@ -26,6 +26,8 @@ const VideoEncodeOptionsBlock = ({
   /** Optionnel : lance un rendu par niveau de compression pour comparer poids/qualité. */
   onGenerateAll,
   generatingAll = false,
+  /** true seulement sur les chaînes destinées à la surimpression (Promo business). */
+  showTransparent = false,
 }: {
   value: EncodeOptions | null | undefined;
   onChange: (next: EncodeOptions) => void;
@@ -33,7 +35,9 @@ const VideoEncodeOptionsBlock = ({
   className?: string;
   onGenerateAll?: () => void;
   generatingAll?: boolean;
+  showTransparent?: boolean;
 }) => {
+
   const v = value ?? DEFAULT_ENCODE;
   const patch = (p: Partial<EncodeOptions>) => onChange({ ...v, ...p });
 
