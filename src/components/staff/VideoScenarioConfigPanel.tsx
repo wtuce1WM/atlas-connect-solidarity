@@ -717,6 +717,7 @@ const VideoScenarioConfigPanel = ({
         // Nouvelle étape rattachée d'office à l'établissement global du mode.
         business_id: config?.business_id ?? null,
         widget_keys: [],
+        config: {},
         _new: true,
       },
     ]);
