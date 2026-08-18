@@ -400,26 +400,48 @@ async function renderOne() {
     console.log(`🗜️ Compression : CRF ${encode.crf}, échelle ${Math.round(encode.scale * 100)} %, audio ${wantsAudio ? encode.audioBitrate : "supprimé"}`);
 
     console.log("🎥 Rendu...");
-    await renderMedia({
-      composition,
-      serveUrl: bundled,
-      codec: "h264",
-      outputLocation: outPath,
-      puppeteerInstance: browser,
-      muted: !wantsAudio,
-      audioCodec: wantsAudio ? "aac" : undefined,
-      audioBitrate: wantsAudio ? encode.audioBitrate : undefined,
-      enforceAudioTrack: wantsAudio,
-      concurrency: 1,
-      jpegQuality: encode.jpegQuality,
-      crf: encode.crf,
-      scale: encode.scale,
-      inputProps: props,
-    });
+    // Le compositeur Remotion meurt parfois en extrayant une frame (proxy 500
+    // → « Error: cancelled »), y compris sur un fichier valide déjà rendu avec
+    // succès. On relance donc une fois avec un navigateur neuf avant d'abandonner.
+    const runRender = (instance) =>
+      renderMedia({
+        composition,
+        serveUrl: bundled,
+        codec: "h264",
+        outputLocation: outPath,
+        puppeteerInstance: instance,
+        muted: !wantsAudio,
+        audioCodec: wantsAudio ? "aac" : undefined,
+        audioBitrate: wantsAudio ? encode.audioBitrate : undefined,
+        enforceAudioTrack: wantsAudio,
+        concurrency: 1,
+        jpegQuality: encode.jpegQuality,
+        crf: encode.crf,
+        scale: encode.scale,
+        inputProps: props,
+      });
+
+    let activeBrowser = browser;
+    try {
+      await runRender(activeBrowser);
+    } catch (e) {
+      const msg = String(e?.message || e);
+      const transient = /cancelled|extract frame|Target closed|Page crashed|compositor/i.test(msg);
+      if (!transient) throw e;
+      console.warn(`♻️  Crash compositeur détecté (${msg.slice(0, 120)}) — nouvelle tentative avec un navigateur neuf.`);
+      try { await activeBrowser.close({ silent: true }); } catch { /* déjà mort */ }
+      activeBrowser = await openBrowser("chrome", {
+        browserExecutable: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+        chromiumOptions: { args: ["--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"] },
+        chromeMode: "chrome-for-testing",
+      });
+      await runRender(activeBrowser);
+    }
 
     // Streaming web : sans l'atome moov en tête, le lecteur attend le
     // téléchargement complet du fichier. Remux sans réencodage (sans perte).
     optimizeForWeb(outPath);
+
 
 
 
