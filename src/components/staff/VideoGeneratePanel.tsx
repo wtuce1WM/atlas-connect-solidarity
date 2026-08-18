@@ -19,6 +19,9 @@ import VideoJobMeta, {
 
 import VideoJobTitleEditor from "@/components/staff/VideoJobTitleEditor";
 import VideoRenderPresetBar from "@/components/staff/VideoRenderPresetBar";
+import VideoEncodeOptionsBlock from "@/components/staff/VideoEncodeOptionsBlock";
+import { DEFAULT_ENCODE, normalizeEncode, type EncodeOptions } from "@/lib/videoEncode";
+
 
 /**
  * Onglet « Générer » du back-office vidéo.
