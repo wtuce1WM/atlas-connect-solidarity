@@ -72,6 +72,11 @@ export type BusinessPromoProps = {
   variant: "fullscreen" | "mockup" | "browser" | "multi" | "split";
   /** fond uni des variantes mockup / navigateur */
   mockupBg?: string;
+  /**
+   * Rendu à canal alpha : aucun fond n'est peint, ni derrière le mockup ni en
+   * plein écran. Utilisé par le rendu WebM VP9 `yuva420p` pour la surimpression.
+   */
+  transparentBg?: boolean;
   /** URL affichée dans la barre d'adresse de la variante navigateur */
   browserUrl?: string | null;
   /** variante split : colonne du mockup (le texte occupe l'autre colonne) */
@@ -644,7 +649,7 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
     return (
       <AbsoluteFill
         style={{
-          background: p.mockupBg || palette.ink,
+          background: p.transparentBg ? "transparent" : p.mockupBg || palette.ink,
           justifyContent: "center",
           alignItems: "center",
         }}
@@ -665,7 +670,7 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
     return (
       <AbsoluteFill
         style={{
-          background: p.mockupBg || palette.ink,
+          background: p.transparentBg ? "transparent" : p.mockupBg || palette.ink,
           justifyContent: "center",
           alignItems: "center",
         }}
@@ -687,7 +692,7 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
     return (
       <AbsoluteFill
         style={{
-          background: p.mockupBg || palette.ink,
+          background: p.transparentBg ? "transparent" : p.mockupBg || palette.ink,
           justifyContent: "center",
           alignItems: "center",
           flexDirection: p.format === "landscape" ? "row" : "column",
@@ -722,7 +727,7 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
     return (
       <AbsoluteFill
         style={{
-          background: p.mockupBg || palette.ink,
+          background: p.transparentBg ? "transparent" : p.mockupBg || palette.ink,
           flexDirection: columns,
           alignItems: "center",
           justifyContent: "center",
