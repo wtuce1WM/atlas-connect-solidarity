@@ -47,6 +47,8 @@ export type PickerMedia = {
   onFiche?: boolean;
   /** Badges actifs du média (documents de fiche uniquement). */
   badges?: string[];
+  /** Document vidéo marqué « No logo » (colonne hide_logo). */
+  hideLogo?: boolean;
 };
 
 type TypeFilter = "all" | "image" | "video";
