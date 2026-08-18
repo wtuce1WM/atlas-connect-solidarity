@@ -276,6 +276,8 @@ const VideoPromoPanel = () => {
       photo: Number(c.seconds?.photo ?? 1.5),
       outro: Number(c.seconds?.outro ?? 2.5),
     });
+    setEncode(normalizeEncode(c.encode));
+
     if (c.businessId) {
       const { data } = await supabase
         .from("businesses")
