@@ -395,6 +395,7 @@ const SortableStep = ({
   remove,
   noteCount,
   onNoteCount,
+  mediaFormat,
 }: {
   step: VideoScenarioStep;
   index: number;
@@ -404,9 +405,33 @@ const SortableStep = ({
   remove: () => void;
   noteCount: number;
   onNoteCount: (n: number) => void;
+  mediaFormat: "portrait" | "landscape";
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: step.id });
   const doc = STEP_DOCS[step.scene_key];
+  const stepCfg = step.config ?? {};
+  const stepMedia: string[] = Array.isArray(stepCfg.media) ? (stepCfg.media as string[]) : [];
+  const stepTrims: Record<string, { start?: number; end?: number }> =
+    stepCfg.assetTrims && typeof stepCfg.assetTrims === "object" ? stepCfg.assetTrims : {};
+  const stepItems: GlobalMediaItem[] = stepMedia.map((url) => ({
+    url,
+    start: stepTrims[url]?.start,
+    end: stepTrims[url]?.end,
+  }));
+  const setStepItems = (items: GlobalMediaItem[]) => {
+    const trims: Record<string, { start?: number; end?: number }> = {};
+    for (const m of items) {
+      if ((m.start ?? 0) > 0 || (m.end ?? 0) > 0) trims[m.url] = { start: m.start, end: m.end };
+    }
+    patch({
+      config: {
+        ...stepCfg,
+        media: items.map((m) => m.url),
+        videos: items.filter((m) => isVideoMediaUrl(m.url)).map((m) => m.url),
+        assetTrims: trims,
+      },
+    });
+  };
 
   return (
     <div
@@ -414,6 +439,7 @@ const SortableStep = ({
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`p-3 bg-background ${isDragging ? "opacity-60 shadow-lg relative z-10" : ""}`}
     >
+
       <div className="flex items-center gap-3 flex-wrap">
         <button
           type="button"
