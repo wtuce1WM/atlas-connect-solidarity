@@ -1872,12 +1872,16 @@ const VideoStoryboardPanel = () => {
 
           <div className="ml-auto flex flex-wrap items-center gap-2">
             {!legacyMode && board && dirty && (
-              <Badge variant="destructive" className="text-[10px]">
+              <Badge variant="destructive" className="text-xs gap-1 animate-pulse">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-foreground opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-foreground" />
+                </span>
                 Modifications non enregistrées
               </Badge>
             )}
             {!legacyMode && board && overflow && (
-              <Badge variant="destructive" className="text-[10px]">
+              <Badge variant="destructive" className="text-xs">
                 Durée hors plafond
               </Badge>
             )}
@@ -2097,13 +2101,26 @@ const VideoStoryboardPanel = () => {
               </Card>
 
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-black text-base">Médias du montage (affectation globale)</CardTitle>
-                  <p className="text-[11px] text-muted-foreground">
-                    Les vidéos alimentent les étapes « Vidéo », la sélection complète alimente les étapes
-                    « Photos plein écran » et (si activé) les fonds média. Chaque étape reste modifiable
-                    individuellement. Les bornes Start / End sont enregistrées avec le montage.
-                  </p>
+                <CardHeader className="pb-3 flex flex-row items-start justify-between gap-3">
+                  <div className="space-y-1 min-w-0">
+                    <CardTitle className="text-black text-base">Médias du montage (affectation globale)</CardTitle>
+                    <p className="text-[11px] text-muted-foreground">
+                      Les vidéos alimentent les étapes « Vidéo », la sélection complète alimente les étapes
+                      « Photos plein écran » et (si activé) les fonds média. Chaque étape reste modifiable
+                      individuellement. Les bornes Start / End sont enregistrées avec le montage.
+                    </p>
+                  </div>
+                  {!legacyMode && board && (
+                    <Button
+                      size="sm"
+                      onClick={save}
+                      disabled={!dirty || saving}
+                      className="shrink-0"
+                      title={dirty ? "Enregistrer les modifications du montage" : "Aucune modification à enregistrer"}
+                    >
+                      <Save className="h-4 w-4 mr-1" /> Enregistrer
+                    </Button>
+                  )}
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex flex-wrap items-center gap-2">
