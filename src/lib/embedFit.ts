@@ -170,11 +170,12 @@ export const autoHeightSnippet = (o: {
   maxWidth?: number;
   height: number;
   radius?: number;
+  allow?: string;
   /** Style du conteneur (ex. position:fixed pour un bandeau footer sticky). */
   wrapperStyle?: string;
 }) =>
   `<div style="${o.wrapperStyle ?? `width:100%;${o.maxWidth ? `max-width:${o.maxWidth}px;` : ""}margin:0 auto`}">
-  <iframe id="${o.id}" src="${o.url}" style="width:100%;display:block;height:${o.height}px;border:0;border-radius:${o.radius ?? 20}px;background:transparent" title="${o.title}" loading="lazy"></iframe>
+  <iframe id="${o.id}" src="${o.url}" style="width:100%;display:block;height:${o.height}px;border:0;border-radius:${o.radius ?? 20}px;background:transparent" title="${o.title}" loading="lazy"${o.allow ? ` allow="${o.allow}"` : ""}></iframe>
 </div>
 <script>
   window.addEventListener("message", function (e) {

@@ -36,7 +36,7 @@ import { Maximize2, X, Navigation, Clock, Star, Building2, Compass, CloudSun, Ma
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import AiTidesWidget from "@/components/embed/AiTidesWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
+import { applyEmbedBg, parseBg, resolveEmbedInk, parseFit, fitFlags } from "@/lib/embedFit";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
 import { useWidgetParams } from "@/hooks/useWidgetParams";
 
@@ -515,6 +515,10 @@ const EmbedAsk = () => {
   const noTheme = /^(none|off|0)$/i.test(params.get("theme") || "");
   // Panneau flottant : l'hôte demande une croix de fermeture dans le widget.
   const inFloatingPanel = /^(1|true)$/i.test(params.get("panel") || "");
+  // Hauteur auto : le widget redimensionne l'iframe hôte pour éviter le scroll interne.
+  const fit = params.get("fit") || "";
+  const { fullHeight } = fitFlags(parseFit(fit));
+  const autoHeight = !fullHeight && !inFloatingPanel && !overlay;
   // Nom personnalisé de l'assistant (champ éditable côté /affiliates/presence).
   const assistantNameParam = (params.get("name") || "").trim().slice(0, 60);
   // Moteur IA : V2 uniquement (V1 retiré).
@@ -1654,12 +1658,33 @@ const EmbedAsk = () => {
       })),
     },
   ];
+  const [mainEl, setMainEl] = useState<HTMLDivElement | null>(null);
+  // Redimensionne l'iframe hôte pour qu'elle épouse la hauteur du contenu du widget
+  // et éviter tout scroll vertical interne superflu en mode widget standard.
+  useEffect(() => {
+    if (!autoHeight || !mainEl) return;
+    const post = () => {
+      const height = Math.ceil(mainEl.scrollHeight);
+      try { window.parent?.postMessage({ type: "owm-ask-height", height }, "*"); } catch { /* noop */ }
+    };
+    post();
+    const t = setTimeout(post, 350);
+    const t2 = setTimeout(post, 900);
+    const ro = new ResizeObserver(post);
+    ro.observe(mainEl);
+    window.addEventListener("resize", post);
+    return () => { clearTimeout(t); clearTimeout(t2); ro.disconnect(); window.removeEventListener("resize", post); };
+  }, [autoHeight, mainEl, messages, streaming, youtubeOpen, openBusinessId, openBusinessOverlay, error, filterGroups.length]);
 
   return (
 
     <div
       dir={dir}
-      className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""} transition-[right] duration-300 ease-out ${openBusinessId ? "lg:right-1/2" : ""}`}
+      className={
+        autoHeight
+          ? `flex flex-col ${surface} ${theme === "dark" ? "dark" : ""}`
+          : `fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""} transition-[right] duration-300 ease-out ${openBusinessId ? "lg:right-1/2" : ""}`
+      }
       style={
         bgTransparent && !activeWidgetBg
           ? undefined
@@ -1668,7 +1693,8 @@ const EmbedAsk = () => {
           : undefined
       }
     >
-      <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
+      <div ref={setMainEl} className={autoHeight ? "flex flex-col" : "flex flex-col h-full"}>
+        <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
         {inFloatingPanel && (
           <button
             type="button"
@@ -1714,7 +1740,7 @@ const EmbedAsk = () => {
         )}
       </header>
 
-      <div ref={scrollRef} className={`flex-1 overflow-y-auto px-4 py-4 space-y-3 ${bg} relative`}>
+      <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto"} px-4 py-4 space-y-3 ${bg} relative`}>
         {(() => {
           // Sticky pill : reprend la dernière question de l'utilisateur pour rester
           // visible en haut à droite pendant qu'on lit la réponse / la relance.
@@ -2479,6 +2505,7 @@ const EmbedAsk = () => {
         </div>
 
       </form>
+      </div>
 
       {openMap && businessId ? (
         // Overlay POI du slidepanel réutilisé tel quel (carte + rail de cartes + pastilles + clic marqueur → fiche),
