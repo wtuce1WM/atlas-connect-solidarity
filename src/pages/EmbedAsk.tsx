@@ -36,7 +36,7 @@ import { Maximize2, X, Navigation, Clock, Star, Building2, Compass, CloudSun, Ma
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import AiTidesWidget from "@/components/embed/AiTidesWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
+import { applyEmbedBg, parseBg, resolveEmbedInk, parseFit, fitFlags } from "@/lib/embedFit";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
 import { useWidgetParams } from "@/hooks/useWidgetParams";
 
