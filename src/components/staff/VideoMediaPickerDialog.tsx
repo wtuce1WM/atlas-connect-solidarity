@@ -1323,6 +1323,10 @@ export function VideoMediaPickerDialog({
         ? "vidéos"
         : "médias";
 
+  /** Compteur affiché : « … » tant qu'aucune source n'est choisie (rien n'est chargé). */
+  const c = (n: number) => (sourceFilter === "none" ? "…" : n);
+
+
   return (
     <div className="grid gap-2">
       <div className="flex flex-wrap items-center gap-2">
