@@ -607,7 +607,7 @@ const VideoScenarioConfigPanel = ({
     const [stepsRes, configRes, noteRes] = await Promise.all([
       supabase
         .from("video_scenario_steps")
-        .select("id, mode, scene_key, label, position, duration_sec, enabled, kicker, title, body, key_message, business_id, widget_keys")
+        .select("id, mode, scene_key, label, position, duration_sec, enabled, kicker, title, body, key_message, business_id, widget_keys, config")
         .eq("mode", mode)
         .order("position", { ascending: true }),
       supabase.from("video_scenario_configs").select("*").eq("mode", mode).maybeSingle(),
