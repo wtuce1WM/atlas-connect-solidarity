@@ -969,8 +969,8 @@ const SortableSection = ({
             <ConfigFields section={section} patch={patch} businessId={businessId} format={format} />
           </div>
 
-          <div className="rounded-lg border p-3 grid gap-3">
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <div className="rounded-lg border p-3 grid grid-cols-1 gap-3">
+            <span className="block w-full text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               3. Voix-off et effets de l'étape
             </span>
             <StepVoiceOverBlock
