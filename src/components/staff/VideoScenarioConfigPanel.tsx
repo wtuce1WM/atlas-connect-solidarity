@@ -585,6 +585,45 @@ const SortableStep = ({
               placeholder="Établissement global"
             />
           </div>
+
+          {/* Médias affectés à cette étape (ordre + bornes Start / End). */}
+          <div className="grid gap-2 rounded-md border p-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Médias de l'étape (images et/ou vidéos, 30 max)
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <VideoMediaPickerDialog
+                businessId={step.business_id}
+                format={mediaFormat}
+                allow="all"
+                multiple
+                max={30}
+                label={stepMedia.length ? `Modifier les médias (${stepMedia.length})` : "Choisir les médias"}
+                value={stepMedia}
+                onChange={(urls) =>
+                  setStepItems(
+                    urls.slice(0, 30).map((url) => ({
+                      url,
+                      start: stepTrims[url]?.start,
+                      end: stepTrims[url]?.end,
+                    })),
+                  )
+                }
+              />
+              {stepMedia.length > 0 && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs"
+                  onClick={() => setStepItems([])}
+                >
+                  Retirer les médias
+                </Button>
+              )}
+            </div>
+            <StoryboardGlobalMediaGrid items={stepItems} format={mediaFormat} onChange={setStepItems} />
+          </div>
           {doc && (
             <div className="space-y-0.5 text-[11px] leading-snug text-muted-foreground border-t pt-2">
               <p className="text-black/80">{doc.what}</p>
