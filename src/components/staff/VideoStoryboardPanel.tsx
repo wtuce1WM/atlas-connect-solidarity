@@ -1329,7 +1329,85 @@ const StoryboardGuide = () => {
             <p className="text-xs text-muted-foreground mt-1.5">Si tu veux du mouvement sur un clip vidéo, il faut soit découper en 2 étapes de 10 s (pour avoir une transition), soit j'étends Ken Burns aux vidéos — dis-moi.</p>
           </div>
         </div>
+
+        <div className="rounded-lg border p-3 space-y-3">
+          <h4 className="text-sm font-semibold text-black">Périmètre d'utilisation selon les paramètres de montage</h4>
+          <div className="text-xs text-muted-foreground space-y-3">
+            <div>
+              <p className="font-semibold text-foreground">Les 3 réglages qui décident du résultat</p>
+              <ul className="list-disc pl-4 space-y-1 mt-1">
+                <li>
+                  <strong>Aperçu (échelle de rendu)</strong> — onglet Montage. Réduit la <strong>résolution de la composition</strong> :
+                  0,5× en paysage = 960 × 540 réellement rendus. C'est le levier le plus violent sur le poids ET sur la netteté :
+                  la vidéo finale n'existe qu'en 540p, l'agrandir chez le lecteur ne rend pas les pixels perdus.
+                </li>
+                <li>
+                  <strong>Niveau de compression (CRF)</strong> — onglet Effets. Ne change pas la résolution, seulement la
+                  quantité de détail conservée à l'encodage. CRF 20 = quasi master, CRF 34 = le plus léger encore utilisable.
+                </li>
+                <li>
+                  <strong>Résolution de sortie (encodage)</strong> — onglet Effets. Masquée pour les montages storyboard
+                  (<code>showScale=false</code>) car l'échelle est déjà pilotée par l'Aperçu. Elle vaut donc toujours 100 % ici.
+                </li>
+              </ul>
+              <p className="mt-1">
+                Les deux échelles se <strong>multiplient</strong>. Un job en Aperçu 0,5× et encodage 100 % sort en 50 %,
+                soit 960 × 540. La carte du rendu affiche désormais l'échelle effective et la résolution réelle.
+              </p>
+            </div>
+
+            <div className="rounded-md border border-primary/30 bg-primary/5 p-2">
+              <p className="font-semibold text-foreground">Meilleure définition possible</p>
+              <p className="mt-1">
+                Aperçu <strong>1× — sortie finale 1080p</strong> + compression <strong>Master (CRF 20)</strong> + audio conservé en 128k.
+                Aucun autre réglage n'améliore la définition : le moteur rend en 30 fps, la source ne dépasse jamais 1920 × 1080.
+                Compter 4 à 8× le poids d'un rendu équilibré, et un temps de rendu 2 à 3× plus long.
+              </p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-foreground">Exemple 1 — Test de montage (itération rapide)</p>
+              <p>Aperçu <strong>0,5×</strong> · CRF <strong>34</strong> · audio supprimé.</p>
+              <p className="mt-0.5">
+                <strong>Pourquoi.</strong> Le but est de vérifier l'<em>ordre des plans, les durées, les points de coupe</em>,
+                pas la qualité d'image. On divise la surface par 4 : le rendu GitHub Actions passe de plusieurs dizaines de
+                minutes à quelques minutes, le fichier tient en quelques Mo. À ne jamais publier : le 540p se voit
+                immédiatement en plein écran desktop.
+              </p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-foreground">Exemple 2 — Hero autoplay du site / widget embarqué</p>
+              <p>Aperçu <strong>0,667× (720p)</strong> · CRF <strong>28 (Équilibré)</strong> · audio <strong>supprimé</strong>.</p>
+              <p className="mt-0.5">
+                <strong>Pourquoi.</strong> Un hero est lu en boucle, muet, souvent recouvert d'un voile sombre et d'un titre :
+                la perte de détail est masquée, et chaque Mo compte sur mobile. Le 720p suffit car le lecteur est rarement
+                plein écran. Supprimer la piste audio retire ~30 % du poids sans aucun effet visible puisque l'autoplay est
+                obligatoirement muet.
+              </p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-foreground">Exemple 3 — Livrable partenaire / diffusion réseaux sociaux</p>
+              <p>Aperçu <strong>1× (1080p)</strong> · CRF <strong>24 (Qualité préservée)</strong> · audio <strong>conservé 128k</strong>.</p>
+              <p className="mt-0.5">
+                <strong>Pourquoi.</strong> Instagram, YouTube et LinkedIn <strong>ré-encodent</strong> tout fichier reçu :
+                si on leur envoie un CRF 34, leur propre compression s'ajoute à la nôtre et le résultat se dégrade visiblement
+                (bavures sur feuillage, foule, dégradés). On leur donne donc une source large avec du détail à perdre.
+                CRF 24 plutôt que 20 parce qu'un master n'apporte rien face à un ré-encodage : il ne fait que ralentir l'envoi.
+              </p>
+            </div>
+
+            <p className="text-[11px]">
+              <strong>Règle simple.</strong> L'échelle sert à choisir <em>où</em> la vidéo sera regardée (taille d'écran),
+              le CRF sert à choisir <em>ce qu'on accepte de perdre</em>. Baisser l'échelle est irréversible et visible ;
+              monter le CRF est plus discret. Pour alléger, baisser d'abord l'échelle si la destination est petite,
+              sinon monter le CRF.
+            </p>
+          </div>
+        </div>
       </CardContent>
+
     </Card>
   );
 };
