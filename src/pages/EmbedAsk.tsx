@@ -197,6 +197,10 @@ function parseRadiusCommand(text: string): number | null {
   return best;
 }
 
+/** Cas unique : suggestion embed "Le meilleur de YouTube sur le Maroc" → page /youtube. */
+const YOUTUBE_PAGE_SUGGESTION_ID = "63d6d717-e344-4e1b-9865-850ac1ca9126";
+
+
 const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string, radius: string) => string; radiusLabel: string; radiusChanged: (r: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
     placeholder: "Posez votre question…",
