@@ -599,6 +599,8 @@ const VideoScenarioConfigPanel = ({
   const [dirty, setDirty] = useState(false);
   /** Nombre de notes internes par étape (affiché sur le bouton). */
   const [noteCounts, setNoteCounts] = useState<Record<string, number>>({});
+  /** Dernière valeur synchrone des médias globaux, utilisée par Enregistrer. */
+  const globalMediaRef = useRef<GlobalMediaItem[]>([]);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
