@@ -1312,6 +1312,50 @@ const VideoStoryboardPanel = () => {
   const globalMediaItemsRef = useRef<GlobalMediaItem[]>([]);
   const globalMedia = useMemo(() => globalMediaItems.map((m) => m.url), [globalMediaItems]);
   const [globalIncludeBg, setGlobalIncludeBg] = useState(true);
+  /** Durées réelles des vidéos globales (métadonnées lues côté navigateur), pour calculer la durée nécessaire. */
+  const [mediaDurations, setMediaDurations] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const urls = globalMediaItems
+      .map((m) => m.url)
+      .filter((u) => isVideoMediaUrl(u))
+      .filter((u) => mediaDurations[u] == null);
+    if (urls.length === 0) return;
+    let cancelled = false;
+    urls.forEach((url) => {
+      const el = document.createElement("video");
+      el.preload = "metadata";
+      el.muted = true;
+      el.src = url;
+      el.onloadedmetadata = () => {
+        if (!cancelled && Number.isFinite(el.duration)) {
+          setMediaDurations((prev) => ({ ...prev, [url]: el.duration }));
+        }
+      };
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [globalMediaItems, mediaDurations]);
+
+  /** Durée nécessaire pour monter toutes les vidéos globales selon leurs bornes Start/End. */
+  const requiredVideoDuration = useMemo(() => {
+    let total = 0;
+    let unknown = 0;
+    let clips = 0;
+    for (const m of globalMediaItems) {
+      if (!isVideoMediaUrl(m.url)) continue;
+      clips += 1;
+      const dur = mediaDurations[m.url];
+      const start = Math.max(0, m.start ?? 0);
+      const end = (m.end ?? 0) > 0 ? (m.end as number) : dur;
+      if (end == null) {
+        unknown += 1;
+        continue;
+      }
+      total += Math.max(0, end - start);
+    }
+    return { total, unknown, clips };
+  }, [globalMediaItems, mediaDurations]);
 
 
 
