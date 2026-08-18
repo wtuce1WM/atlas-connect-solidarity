@@ -2503,6 +2503,7 @@ const EmbedAsk = () => {
         </div>
 
       </form>
+      </div>
 
       {openMap && businessId ? (
         // Overlay POI du slidepanel réutilisé tel quel (carte + rail de cartes + pastilles + clic marqueur → fiche),
