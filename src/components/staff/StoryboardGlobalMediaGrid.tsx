@@ -21,13 +21,6 @@ const fmt = (s: number) => {
   return m > 0 ? `${m}:${String(sec).padStart(2, "0")}` : `${sec}s`;
 };
 
-/** Convertit une saisie libre ("2,3", "2.3", "") en secondes (0,1 s près). */
-const parseTime = (raw: string, maxTime: number): number | undefined => {
-  const n = parseFloat(raw.trim().replace(",", "."));
-  if (!Number.isFinite(n) || n < 0) return undefined;
-  return Math.min(maxTime, Math.round(n * 10) / 10);
-};
-
 /** Hauteur commune des vignettes : le format réel est respecté via la largeur. */
 const TILE_H = 460;
 
@@ -61,23 +54,10 @@ function Tile({
   const [ratio, setRatio] = useState(isVideo ? 9 / 16 : 4 / 3);
   const [duration, setDuration] = useState<number | null>(null);
   const [head, setHead] = useState(item.start ?? 0);
-  const [startText, setStartText] = useState(item.start != null ? String(item.start) : "");
-  const [endText, setEndText] = useState(item.end != null ? String(item.end) : "");
-
   const start = item.start ?? 0;
   const end = item.end ?? 0;
   const maxTime = duration != null ? Math.round(duration * 10) / 10 : 3600;
   const width = Math.round(TILE_H * ratio);
-
-  // Les bornes peuvent aussi être posées par les boutons de capture : on
-  // resynchronise l'affichage texte quand la valeur change hors saisie.
-  useEffect(() => {
-    setStartText(item.start != null ? String(item.start) : "");
-  }, [item.start]);
-  useEffect(() => {
-    setEndText(item.end != null ? String(item.end) : "");
-  }, [item.end]);
-
 
   const capture = (which: "start" | "end") => {
     const el = videoRef.current;
@@ -200,30 +180,44 @@ function Tile({
         <div className="space-y-1">
           <div className="grid grid-cols-2 gap-1">
             <Input
-              type="text"
-              inputMode="decimal"
-              value={startText}
+              type="number"
+              step="0.1"
+              min="0"
+              max={maxTime}
+              value={item.start != null ? String(item.start) : ""}
               placeholder="Start (s)"
               title="Point de départ en secondes (ex : 2.3)"
               className="h-8 text-xs"
               onChange={(e) => {
-                setStartText(e.target.value);
-                onPatch({ start: parseTime(e.target.value, maxTime) });
+                const raw = e.target.value.trim();
+                const n = parseFloat(raw);
+                onPatch({
+                  start:
+                    raw === "" || !Number.isFinite(n) || n < 0
+                      ? undefined
+                      : Math.min(maxTime, Math.round(n * 10) / 10),
+                });
               }}
-              onBlur={() => setStartText(item.start != null ? String(item.start) : "")}
             />
             <Input
-              type="text"
-              inputMode="decimal"
-              value={endText}
+              type="number"
+              step="0.1"
+              min="0"
+              max={maxTime}
+              value={item.end != null ? String(item.end) : ""}
               placeholder="End (s)"
               title="Point de fin en secondes (ex : 8.5)"
               className="h-8 text-xs"
               onChange={(e) => {
-                setEndText(e.target.value);
-                onPatch({ end: parseTime(e.target.value, maxTime) });
+                const raw = e.target.value.trim();
+                const n = parseFloat(raw);
+                onPatch({
+                  end:
+                    raw === "" || !Number.isFinite(n) || n <= 0
+                      ? undefined
+                      : Math.min(maxTime, Math.round(n * 10) / 10),
+                });
               }}
-              onBlur={() => setEndText(item.end != null ? String(item.end) : "")}
             />
           </div>
 
