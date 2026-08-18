@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-17T14:24:34.679Z",
+    "generated_at": "2026-08-18T06:35:15.105Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1853
   },
@@ -11540,7 +11540,9 @@
         "Pavillons / Villas individuelles",
         "Terrasse",
         "Retraite Yoga",
-        "Parking privé"
+        "Parking privé",
+        "Surf house",
+        "Bungalows"
       ],
       "city": "Essaouira",
       "neighborhood": "Moulay Bouzerktoun",
@@ -11554,7 +11556,7 @@
       "website": "https://baberrih.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/bf183804-416d-4cd5-984a-be5b97ce18f3-1772690206634-2b0g9i.webp",
       "google_rating": 4.7,
-      "google_review_count": 403,
+      "google_review_count": 434,
       "price_range": "$$",
       "min_price_mad": 249,
       "languages": [],
@@ -13731,7 +13733,7 @@
       "website": "https://www.capsimquad.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/4497a726-5c65-47f5-975b-b278b55db720-1776930165889-5wsdc.jpg",
       "google_rating": 5,
-      "google_review_count": 87,
+      "google_review_count": 11,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -13794,12 +13796,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.capsimquad.com/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/capsim_quad/",
         "facebook": null,
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g7008805-d33246197-Reviews-Cap_Sim_Quad-Sidi_Kaouki_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -31119,7 +31121,7 @@
       "website": "https://www.essaouirawatersports.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/6643489c-f10f-49bf-bae5-aea588830fa9-1770980064424-hvcnh0g.avif",
       "google_rating": 5,
-      "google_review_count": 441,
+      "google_review_count": 517,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -31130,7 +31132,7 @@
       "social": {
         "instagram": "https://www.instagram.com/essaouira_watersports",
         "facebook": "https://www.facebook.com/essaouirawatersports",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g298349-d17661013-Reviews-Essaouira_Watersports-Essaouira_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -31166,10 +31168,10 @@
       "address": "34 Av. Sidi Mohamed Ben Abdellah",
       "phone": "+212709639612",
       "whatsapp": "+212709639612",
-      "website": "https://www.essaouirakitesurfschool.com/fr",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/6d6f7679-1c0a-4702-90ec-5b5d893cfeac-1770621241133-q5kr88.webp",
       "google_rating": 5,
-      "google_review_count": 440,
+      "google_review_count": 120,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -89653,7 +89655,15 @@
         "Spécialités marocaines",
         "Cuisine internationale",
         "Fruits de mer",
-        "Coquillages"
+        "Coquillages",
+        "Vue sur mer",
+        "Cave à vin",
+        "Champagne",
+        "Cocktails",
+        "Crustacés",
+        "Cuisine méditerranéenne",
+        "Terrasse",
+        "Cuisine bio"
       ],
       "city": "Essaouira",
       "neighborhood": "Moulay Bouzerktoun",
@@ -89667,7 +89677,7 @@
       "website": "https://baberrih.ma/restaurant",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/758a76b4-42ad-421e-a246-51f22404a55c-1774669349773-eiki3.jpg",
       "google_rating": 4.7,
-      "google_review_count": 40,
+      "google_review_count": 44,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -89735,7 +89745,7 @@
       "social": {
         "instagram": "https://www.instagram.com/baberrihotelessaouira/",
         "facebook": "https://www.facebook.com/baberrihotel/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g19985874-d25067503-Reviews-Restaurant_Le_Tissa-Moulay_Bouzarqtoune_Essaouira_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -129950,7 +129960,7 @@
       "website": "https://www.camel-essaouira.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/6327c401-409b-41ea-9580-f4897b007a40-1780151669525-k3ec58.jpg",
       "google_rating": 5,
-      "google_review_count": 168,
+      "google_review_count": 204,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -130013,7 +130023,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.camel-essaouira.com/",
+      "booking_url": "https://www.camel-essaouira.com/contact/",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/camel_ride_with_khalid/",
@@ -141332,7 +141342,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/485a187a-aa41-4c52-a1fe-b429e4c3381b-1781240640749-t8slx.jpg",
       "google_rating": 4.9,
-      "google_review_count": 572,
+      "google_review_count": 575,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
