@@ -1,0 +1,1 @@
+ALTER TABLE public.video_scenario_configs ADD COLUMN IF NOT EXISTS global_media jsonb NOT NULL DEFAULT '[]'::jsonb;

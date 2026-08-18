@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +30,11 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities";
 import RichTextEditor from "./RichTextEditor";
 import VideoStepNotesDialog from "./VideoStepNotesDialog";
+import { VideoMediaPickerDialog } from "./VideoMediaPickerDialog";
+import StoryboardGlobalMediaGrid, {
+  isVideoMediaUrl,
+  type GlobalMediaItem,
+} from "./StoryboardGlobalMediaGrid";
 
 export type VideoScenarioMode = "business" | "corporate" | "explainer";
 
@@ -48,6 +53,8 @@ export type VideoScenarioStep = {
   business_id: string | null;
   /** Widgets embarqués sélectionnés pour cette étape. */
   widget_keys: string[];
+  /** Réglages libres de l'étape (médias affectés, bornes de lecture…). */
+  config: Record<string, any>;
   /** Étape créée localement, pas encore en base. */
   _new?: boolean;
 };
@@ -60,7 +67,10 @@ type ScenarioConfig = {
   height: number;
   fps: number;
   internal_note: string | null;
+  /** Médias globaux du scénario (ordre + bornes Start/End). */
+  global_media: GlobalMediaItem[];
 };
+
 
 const MAX_NOTE_LENGTH = 20000;
 
@@ -385,6 +395,7 @@ const SortableStep = ({
   remove,
   noteCount,
   onNoteCount,
+  mediaFormat,
 }: {
   step: VideoScenarioStep;
   index: number;
@@ -394,9 +405,33 @@ const SortableStep = ({
   remove: () => void;
   noteCount: number;
   onNoteCount: (n: number) => void;
+  mediaFormat: "portrait" | "landscape";
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: step.id });
   const doc = STEP_DOCS[step.scene_key];
+  const stepCfg = step.config ?? {};
+  const stepMedia: string[] = Array.isArray(stepCfg.media) ? (stepCfg.media as string[]) : [];
+  const stepTrims: Record<string, { start?: number; end?: number }> =
+    stepCfg.assetTrims && typeof stepCfg.assetTrims === "object" ? stepCfg.assetTrims : {};
+  const stepItems: GlobalMediaItem[] = stepMedia.map((url) => ({
+    url,
+    start: stepTrims[url]?.start,
+    end: stepTrims[url]?.end,
+  }));
+  const setStepItems = (items: GlobalMediaItem[]) => {
+    const trims: Record<string, { start?: number; end?: number }> = {};
+    for (const m of items) {
+      if ((m.start ?? 0) > 0 || (m.end ?? 0) > 0) trims[m.url] = { start: m.start, end: m.end };
+    }
+    patch({
+      config: {
+        ...stepCfg,
+        media: items.map((m) => m.url),
+        videos: items.filter((m) => isVideoMediaUrl(m.url)).map((m) => m.url),
+        assetTrims: trims,
+      },
+    });
+  };
 
   return (
     <div
@@ -404,6 +439,7 @@ const SortableStep = ({
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`p-3 bg-background ${isDragging ? "opacity-60 shadow-lg relative z-10" : ""}`}
     >
+
       <div className="flex items-center gap-3 flex-wrap">
         <button
           type="button"
@@ -549,6 +585,45 @@ const SortableStep = ({
               placeholder="Établissement global"
             />
           </div>
+
+          {/* Médias affectés à cette étape (ordre + bornes Start / End). */}
+          <div className="grid gap-2 rounded-md border p-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Médias de l'étape (images et/ou vidéos, 30 max)
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <VideoMediaPickerDialog
+                businessId={step.business_id}
+                format={mediaFormat}
+                allow="all"
+                multiple
+                max={30}
+                label={stepMedia.length ? `Modifier les médias (${stepMedia.length})` : "Choisir les médias"}
+                value={stepMedia}
+                onChange={(urls) =>
+                  setStepItems(
+                    urls.slice(0, 30).map((url) => ({
+                      url,
+                      start: stepTrims[url]?.start,
+                      end: stepTrims[url]?.end,
+                    })),
+                  )
+                }
+              />
+              {stepMedia.length > 0 && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs"
+                  onClick={() => setStepItems([])}
+                >
+                  Retirer les médias
+                </Button>
+              )}
+            </div>
+            <StoryboardGlobalMediaGrid items={stepItems} format={mediaFormat} onChange={setStepItems} />
+          </div>
           {doc && (
             <div className="space-y-0.5 text-[11px] leading-snug text-muted-foreground border-t pt-2">
               <p className="text-black/80">{doc.what}</p>
@@ -589,6 +664,8 @@ const VideoScenarioConfigPanel = ({
   const [dirty, setDirty] = useState(false);
   /** Nombre de notes internes par étape (affiché sur le bouton). */
   const [noteCounts, setNoteCounts] = useState<Record<string, number>>({});
+  /** Dernière valeur synchrone des médias globaux, utilisée par Enregistrer. */
+  const globalMediaRef = useRef<GlobalMediaItem[]>([]);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
@@ -597,7 +674,7 @@ const VideoScenarioConfigPanel = ({
     const [stepsRes, configRes, noteRes] = await Promise.all([
       supabase
         .from("video_scenario_steps")
-        .select("id, mode, scene_key, label, position, duration_sec, enabled, kicker, title, body, key_message, business_id, widget_keys")
+        .select("id, mode, scene_key, label, position, duration_sec, enabled, kicker, title, body, key_message, business_id, widget_keys, config")
         .eq("mode", mode)
         .order("position", { ascending: true }),
       supabase.from("video_scenario_configs").select("*").eq("mode", mode).maybeSingle(),
@@ -606,9 +683,13 @@ const VideoScenarioConfigPanel = ({
     ]);
     if (stepsRes.error) toast.error("Chargement impossible");
     // Étape « Menus » abandonnée : on ne l'affiche plus.
-    const loadedSteps = ((stepsRes.data ?? []) as VideoScenarioStep[])
+    const loadedSteps = ((stepsRes.data ?? []) as any[])
       .filter((s) => s.scene_key !== "menu_doc")
-      .map((s) => ({ ...s, widget_keys: s.widget_keys ?? [] }));
+      .map((s) => ({
+        ...s,
+        widget_keys: s.widget_keys ?? [],
+        config: (s.config && typeof s.config === "object" ? s.config : {}) as Record<string, any>,
+      })) as VideoScenarioStep[];
     setSteps(loadedSteps);
 
     // Compteurs de notes internes par étape.
@@ -626,16 +707,23 @@ const VideoScenarioConfigPanel = ({
       setNoteCounts({});
     }
 
-    const loadedConfig = (configRes.data as Omit<ScenarioConfig, "internal_note"> | null) ?? {
-      mode,
-      business_id: null,
-      format_key: "landscape_1080",
-      width: 1920,
-      height: 1080,
-      fps: 30,
-    };
+    const raw = (configRes.data as any) ?? null;
+    const loadedGlobalMedia: GlobalMediaItem[] = (Array.isArray(raw?.global_media) ? raw.global_media : [])
+      .filter((m: any) => m && typeof m.url === "string" && m.url.trim())
+      .map((m: any) => ({
+        url: m.url as string,
+        start: Number.isFinite(m.start) && m.start >= 0 ? Number(m.start) : undefined,
+        end: Number.isFinite(m.end) && m.end > 0 ? Number(m.end) : undefined,
+      }));
+    globalMediaRef.current = loadedGlobalMedia;
     setConfig({
-      ...loadedConfig,
+      mode,
+      business_id: raw?.business_id ?? null,
+      format_key: raw?.format_key ?? "landscape_1080",
+      width: Number(raw?.width) || 1920,
+      height: Number(raw?.height) || 1080,
+      fps: Number(raw?.fps) || 30,
+      global_media: loadedGlobalMedia,
       internal_note: (noteRes.data as { note: string | null } | null)?.note ?? null,
     });
     setRemoved([]);
@@ -651,6 +739,91 @@ const VideoScenarioConfigPanel = ({
     setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, ...values } : s)));
     setDirty(true);
   };
+
+  /** Format de prévisualisation des médias, déduit des dimensions du scénario. */
+  const mediaFormat: "portrait" | "landscape" =
+    (config?.width ?? 1920) >= (config?.height ?? 1080) ? "landscape" : "portrait";
+
+  const globalMediaItems = config?.global_media ?? [];
+  const globalMediaUrls = useMemo(() => globalMediaItems.map((m) => m.url), [globalMediaItems]);
+
+  /** Bornes Start/End de la sélection globale, indexées par URL. */
+  const globalTrims = useMemo(() => {
+    const trims: Record<string, { start?: number; end?: number }> = {};
+    for (const m of globalMediaItems) {
+      if ((m.start ?? 0) > 0 || (m.end ?? 0) > 0) trims[m.url] = { start: m.start, end: m.end };
+    }
+    return trims;
+  }, [globalMediaItems]);
+
+  const setGlobalMedia = (next: GlobalMediaItem[]) => {
+    globalMediaRef.current = next;
+    setConfig((prev) => (prev ? { ...prev, global_media: next } : prev));
+    setDirty(true);
+  };
+
+  /** Affecte la sélection globale (ordre + bornes) à toutes les étapes du scénario. */
+  const applyGlobalMediaToSteps = (media: GlobalMediaItem[]) => {
+    const list = media.slice(0, 30);
+    const urls = list.map((m) => m.url);
+    const videos = list.filter((m) => isVideoMediaUrl(m.url)).map((m) => m.url);
+    const trims: Record<string, { start?: number; end?: number }> = {};
+    for (const m of list) {
+      if ((m.start ?? 0) > 0 || (m.end ?? 0) > 0) trims[m.url] = { start: m.start, end: m.end };
+    }
+    setSteps((prev) =>
+      prev.map((s) => ({
+        ...s,
+        config: { ...(s.config ?? {}), media: urls, videos, assetTrims: trims },
+      })),
+    );
+    setDirty(true);
+  };
+
+  const clearStepsMedia = () => {
+    setSteps((prev) =>
+      prev.map((s) => ({ ...s, config: { ...(s.config ?? {}), media: [], videos: [], assetTrims: {} } })),
+    );
+    setDirty(true);
+  };
+
+  /** Durées réelles des vidéos globales (métadonnées navigateur) pour la durée nécessaire. */
+  const [mediaDurations, setMediaDurations] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const urls = globalMediaUrls.filter((u) => isVideoMediaUrl(u)).filter((u) => mediaDurations[u] == null);
+    if (urls.length === 0) return;
+    let cancelled = false;
+    urls.forEach((url) => {
+      const el = document.createElement("video");
+      el.preload = "metadata";
+      el.muted = true;
+      el.src = url;
+      el.onloadedmetadata = () => {
+        if (!cancelled && Number.isFinite(el.duration)) {
+          setMediaDurations((prev) => ({ ...prev, [url]: el.duration }));
+        }
+      };
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [globalMediaUrls, mediaDurations]);
+
+  const requiredVideoDuration = useMemo(() => {
+    let total = 0;
+    let clips = 0;
+    for (const m of globalMediaItems) {
+      if (!isVideoMediaUrl(m.url)) continue;
+      clips += 1;
+      const dur = mediaDurations[m.url];
+      const start = Math.max(0, m.start ?? 0);
+      const end = (m.end ?? 0) > 0 ? (m.end as number) : dur;
+      if (end == null) continue;
+      total += Math.max(0, end - start);
+    }
+    return { total, clips };
+  }, [globalMediaItems, mediaDurations]);
+
 
   const onDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -697,6 +870,7 @@ const VideoScenarioConfigPanel = ({
         // Nouvelle étape rattachée d'office à l'établissement global du mode.
         business_id: config?.business_id ?? null,
         widget_keys: [],
+        config: {},
         _new: true,
       },
     ]);
@@ -743,6 +917,7 @@ const VideoScenarioConfigPanel = ({
       key_message: s.key_message,
       business_id: s.business_id,
       widget_keys: s.widget_keys ?? [],
+      config: (s.config ?? {}) as any,
     }));
 
     const stepsRes = rows.length
@@ -756,6 +931,8 @@ const VideoScenarioConfigPanel = ({
         width: Math.max(320, Math.min(3840, Number(config.width) || 1920)),
         height: Math.max(320, Math.min(3840, Number(config.height) || 1080)),
         fps: Math.max(12, Math.min(60, Number(config.fps) || 30)),
+        // Médias globaux : dernière valeur synchrone (même juste après une saisie Start/End).
+        global_media: globalMediaRef.current as any,
       } as any,
       { onConflict: "mode" },
     );
@@ -841,6 +1018,84 @@ const VideoScenarioConfigPanel = ({
           </div>
         )}
 
+        {/* Médias du scénario : même mécanique que « Médias du montage » des storyboards. */}
+        {config && (
+          <div className="rounded-lg border p-3 space-y-3">
+            <div className="space-y-1">
+              <span className="text-sm font-medium text-black">Médias du montage (affectation globale)</span>
+              <p className="text-[11px] text-muted-foreground">
+                Sélection, ordre et bornes Start / End identiques aux montages manuels. « Appliquer à toutes les
+                étapes » recopie la sélection (et les bornes) dans chaque étape ; chaque étape reste modifiable
+                individuellement dans son panneau déplié.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <VideoMediaPickerDialog
+                businessId={config.business_id}
+                format={mediaFormat}
+                allow="all"
+                multiple
+                max={30}
+                label={globalMediaUrls.length ? `Modifier les médias (${globalMediaUrls.length})` : "Choisir les médias"}
+                value={globalMediaUrls}
+                onChange={(urls) => {
+                  const next = urls.slice(0, 30).map((url) => {
+                    const prev = globalMediaItems.find((m) => m.url === url);
+                    return { url, start: prev?.start, end: prev?.end };
+                  });
+                  setGlobalMedia(next);
+                  applyGlobalMediaToSteps(next);
+                }}
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs"
+                disabled={globalMediaUrls.length === 0 || steps.length === 0}
+                onClick={() => {
+                  applyGlobalMediaToSteps(globalMediaItems);
+                  toast.success("Médias appliqués à toutes les étapes");
+                }}
+              >
+                Appliquer à toutes les étapes
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs"
+                disabled={steps.length === 0}
+                onClick={clearStepsMedia}
+              >
+                Retirer les médias partout
+              </Button>
+            </div>
+            <StoryboardGlobalMediaGrid
+              items={globalMediaItems}
+              format={mediaFormat}
+              onChange={(next) => {
+                setGlobalMedia(next);
+                applyGlobalMediaToSteps(next);
+              }}
+            />
+            {requiredVideoDuration.clips > 0 && (
+              <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3">
+                <p className="text-xs font-semibold text-destructive">
+                  Durée nécessaire pour monter les {requiredVideoDuration.clips} vidéos (bornes Start/End appliquées)
+                </p>
+                <p className="text-3xl font-extrabold text-destructive leading-tight">
+                  {Math.round(requiredVideoDuration.total)} s
+                  <span className="text-base font-bold ml-2">
+                    ({Math.floor(requiredVideoDuration.total / 60)} min{" "}
+                    {String(Math.round(requiredVideoDuration.total % 60)).padStart(2, "0")} s)
+                  </span>
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+
+
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="text-xs text-muted-foreground">
             {steps.filter((s) => s.enabled).length} étape(s) active(s) · durées fixes cumulées : {totalFixed}s
@@ -922,6 +1177,7 @@ const VideoScenarioConfigPanel = ({
                     remove={() => removeStep(s.id)}
                     noteCount={noteCounts[s.id] ?? 0}
                     onNoteCount={(n) => setNoteCounts((prev) => ({ ...prev, [s.id]: n }))}
+                    mediaFormat={mediaFormat}
                   />
                 ))}
               </div>

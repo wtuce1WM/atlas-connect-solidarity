@@ -8212,6 +8212,7 @@ export type Database = {
           created_at: string
           format_key: string
           fps: number
+          global_media: Json
           height: number
           mode: string
           updated_at: string
@@ -8222,6 +8223,7 @@ export type Database = {
           created_at?: string
           format_key?: string
           fps?: number
+          global_media?: Json
           height?: number
           mode: string
           updated_at?: string
@@ -8232,6 +8234,7 @@ export type Database = {
           created_at?: string
           format_key?: string
           fps?: number
+          global_media?: Json
           height?: number
           mode?: string
           updated_at?: string
