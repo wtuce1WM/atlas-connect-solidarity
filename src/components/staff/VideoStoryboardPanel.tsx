@@ -42,6 +42,9 @@ import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPane
 import VideoJobMeta from "@/components/staff/VideoJobMeta";
 import StepVoiceOverBlock, { type StepVoice } from "@/components/staff/StepVoiceOverBlock";
 import { Copy } from "lucide-react";
+import VideoEncodeOptionsBlock from "@/components/staff/VideoEncodeOptionsBlock";
+import { DEFAULT_ENCODE, normalizeEncode, type EncodeOptions } from "@/lib/videoEncode";
+
 import {
   MontageEffectsBlock,
   SimpleEffectsBlock,
