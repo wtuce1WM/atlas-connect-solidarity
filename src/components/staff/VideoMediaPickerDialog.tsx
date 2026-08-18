@@ -1389,21 +1389,20 @@ export function VideoMediaPickerDialog({
                 <option value="portrait">Portrait 9:16 ({formatCounts.portrait})</option>
                 <option value="square">Carré 1:1 ({formatCounts.square})</option>
               </select>
-              {badgeOptions.length > 0 && (
-                <select
-                  value={badgeFilter}
-                  onChange={(e) => setBadgeFilter(e.target.value)}
-                  className="h-8 rounded-md border bg-background px-2 text-xs"
-                  title="Filtrer par badge"
-                >
-                  <option value="all">Tous les badges ({badgeOptions.length})</option>
-                  {badgeOptions.map(([b, n]) => (
-                    <option key={b} value={b}>
-                      {b} ({n})
-                    </option>
-                  ))}
-                </select>
-              )}
+              <select
+                value={badgeFilter}
+                onChange={(e) => setBadgeFilter(e.target.value)}
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+                title="Filtrer par badge"
+              >
+                <option value="all">Tous les badges ({badgeOptions.length})</option>
+                {badgeOptions.map(([b, n]) => (
+                  <option key={b} value={b}>
+                    {b} ({n})
+                  </option>
+                ))}
+              </select>
+
               <div className="ml-auto flex items-center gap-2">
                 <select
                   value={uploadScope}
