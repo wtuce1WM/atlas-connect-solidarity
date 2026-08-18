@@ -27,6 +27,13 @@ interface Props {
   city?: string | null;
   /** Kept for backward compat — no longer used (YouTube tab now opens BookOnlineSlidePanel internally). */
   onOpenBusiness?: (businessId: string) => void;
+  /**
+   * Variante « compacte » destinée aux iframes étroites (widget /embed/ask) :
+   * pas de vidéo de fond ni de dégradé plein écran, grille responsive au lieu
+   * de carrousels horizontaux, aucune écriture dans l'URL (?openChannel).
+   * `/search` et `/youtube` restent inchangés (compact = false par défaut).
+   */
+  compact?: boolean;
 }
 
 interface ActiveVideo {
@@ -36,7 +43,8 @@ interface ActiveVideo {
   owner: { id: string; name: string; logo_url: string | null };
 }
 
-const YouTubeChannelsTabContent = ({ city }: Props) => {
+const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
+
   const { language } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const [groups, setGroups] = useState<ThemeGroup[]>([]);
@@ -207,6 +215,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
 
   // Auto-open a specific channel when ?openChannel=<businessId> is present.
   useEffect(() => {
+    if (compact) return;
     if (autoOpenedRef.current || loading) return;
     const channelId = searchParams.get("openChannel");
     if (!channelId) return;
@@ -215,11 +224,13 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
     autoOpenedRef.current = true;
     handleChannelClick(ch);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, loading, searchParams]);
+  }, [groups, loading, searchParams, compact]);
 
   // Keep ?openChannel=<id> in sync with the active channel so the URL is shareable.
   useEffect(() => {
+    if (compact) return;
     const next = new URLSearchParams(searchParams);
+
     if (active?.owner.id) {
       if (next.get("openChannel") === active.owner.id) return;
       next.set("openChannel", active.owner.id);
@@ -306,9 +317,15 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   }
 
   return (
-    <div className={`relative px-4 pt-16 pb-32 transition-all duration-300 ${active ? "lg:max-w-[50vw] lg:mr-auto lg:ml-0" : "max-w-5xl mx-auto"}`}>
-      {/* Background YouTube video */}
-      {(() => {
+    <div
+      className={
+        compact
+          ? "relative px-3 pt-2 pb-6 w-full"
+          : `relative px-4 pt-16 pb-32 transition-all duration-300 ${active ? "lg:max-w-[50vw] lg:mr-auto lg:ml-0" : "max-w-5xl mx-auto"}`
+      }
+    >
+      {/* Fond vidéo YouTube — désactivé en mode compact (iframe widget) */}
+      {!compact && (() => {
         const bgVideoId = (city || "").trim().toLowerCase() === "essaouira" ? "2RlIa-pCINg" : "1l9IMkOcVZk";
         return (
           <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-black">
@@ -335,8 +352,11 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
         );
       })()}
       {/* Dégradé pour masquer la liste qui passe derrière le header */}
-      <div className="fixed top-0 left-0 right-0 h-24 z-[20] pointer-events-none bg-gradient-to-b from-black via-black/80 to-transparent" />
-      <Accordion type="multiple" defaultValue={defaultOpen} className="space-y-2 relative z-10 mt-4">
+      {!compact && (
+        <div className="fixed top-0 left-0 right-0 h-24 z-[20] pointer-events-none bg-gradient-to-b from-black via-black/80 to-transparent" />
+      )}
+      <Accordion type="multiple" defaultValue={defaultOpen} className={`space-y-2 relative z-10 ${compact ? "mt-0" : "mt-4"}`}>
+
 
         {groups.map((g) => (
           <AccordionItem key={g.themeId} value={g.themeId} className="border border-border/40 rounded-lg bg-card/20 backdrop-blur-sm">
@@ -354,14 +374,22 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
             </AccordionTrigger>
 
             <AccordionContent className="px-3 pb-3">
-              <div className="flex gap-3 overflow-x-auto scrollbar-hide pt-1 pb-2 px-2" style={{ scrollbarWidth: "none" }}>
+              <div
+                className={
+                  compact
+                    ? "grid grid-cols-2 min-[420px]:grid-cols-3 min-[640px]:grid-cols-4 gap-3 pt-1 pb-1"
+                    : "flex gap-3 overflow-x-auto scrollbar-hide pt-1 pb-2 px-2"
+                }
+                style={compact ? undefined : { scrollbarWidth: "none" }}
+              >
                 {g.channels.map((ch) => (
                   <button
                     key={ch.id}
                     onClick={() => handleChannelClick(ch)}
-                    className="flex flex-col items-center gap-2 w-24 flex-shrink-0 group"
+                    className={`flex flex-col items-center gap-2 group ${compact ? "w-full min-w-0" : "w-24 flex-shrink-0"}`}
                   >
-                    <div className="relative w-20 h-20 rounded-full overflow-hidden bg-muted border border-border group-hover:border-primary transition-colors">
+                    <div className={`relative rounded-full overflow-hidden bg-muted border border-border group-hover:border-primary transition-colors ${compact ? "w-[76px] h-[76px]" : "w-20 h-20"}`}>
+
                       {(ch.youtube_channel_thumbnail_url || ch.logo_url) ? (
                         <img src={ch.youtube_channel_thumbnail_url || ch.logo_url!} alt={ch.name} className="w-full h-full object-cover" loading="lazy" />
 
