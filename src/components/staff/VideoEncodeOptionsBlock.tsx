@@ -23,14 +23,20 @@ const VideoEncodeOptionsBlock = ({
   /** false quand la composition gère déjà sa résolution de sortie (storyboard). */
   showScale = true,
   className = "",
+  /** Optionnel : lance un rendu par niveau de compression pour comparer poids/qualité. */
+  onGenerateAll,
+  generatingAll = false,
 }: {
   value: EncodeOptions | null | undefined;
   onChange: (next: EncodeOptions) => void;
   showScale?: boolean;
   className?: string;
+  onGenerateAll?: () => void;
+  generatingAll?: boolean;
 }) => {
   const v = value ?? DEFAULT_ENCODE;
   const patch = (p: Partial<EncodeOptions>) => onChange({ ...v, ...p });
+
 
   const selectPreset = (id: EncodePresetId) => {
     const preset = ENCODE_PRESETS.find((p) => p.id === id);
@@ -72,6 +78,25 @@ const VideoEncodeOptionsBlock = ({
           ))}
         </div>
         {activePreset && <p className="text-[11px] text-muted-foreground">{activePreset.hint}</p>}
+        {onGenerateAll && (
+          <div className="space-y-1 pt-1">
+            <button
+              type="button"
+              onClick={onGenerateAll}
+              disabled={generatingAll}
+              className="rounded-md border border-primary bg-primary/10 px-3 py-2 text-xs font-semibold text-foreground hover:bg-primary/20 disabled:opacity-50"
+            >
+              {generatingAll
+                ? "Lancement…"
+                : `Générer les ${ENCODE_PRESETS.length} niveaux pour comparer`}
+            </button>
+            <p className="text-[11px] text-muted-foreground">
+              Crée {ENCODE_PRESETS.length} rendus identiques, un par niveau de compression (CRF{" "}
+              {ENCODE_PRESETS.map((p) => p.crf).join(", ")}). Le nom du job indique le niveau.
+            </p>
+          </div>
+        )}
+
       </div>
 
       {showScale && (
