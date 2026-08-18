@@ -42,6 +42,9 @@ import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPane
 import VideoJobMeta from "@/components/staff/VideoJobMeta";
 import StepVoiceOverBlock, { type StepVoice } from "@/components/staff/StepVoiceOverBlock";
 import { Copy } from "lucide-react";
+import VideoEncodeOptionsBlock from "@/components/staff/VideoEncodeOptionsBlock";
+import { DEFAULT_ENCODE, normalizeEncode, type EncodeOptions } from "@/lib/videoEncode";
+
 import {
   MontageEffectsBlock,
   SimpleEffectsBlock,
@@ -114,6 +117,9 @@ type Storyboard = {
   effects?: MontageEffects | null;
   /** Médias globaux du montage : ordre + bornes de lecture (Start/End). */
   global_media?: GlobalMediaItem[] | null;
+  /** Compression de sortie (CRF / audio) du montage. */
+  encode?: EncodeOptions | null;
+
   created_at?: string | null;
   updated_at?: string | null;
 };
@@ -1297,7 +1303,7 @@ const VideoStoryboardPanel = () => {
   const loadBoards = useCallback(async () => {
     const { data, error } = await supabase
       .from("video_storyboards" as any)
-      .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, effects, global_media, created_at, updated_at")
+      .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, effects, global_media, encode, created_at, updated_at")
       .order("created_at", { ascending: false });
     if (error) {
       toast.error("Chargement des storyboards impossible");
@@ -1345,7 +1351,7 @@ const VideoStoryboardPanel = () => {
     const [boardRes, stepsRes] = await Promise.all([
       supabase
         .from("video_storyboards" as any)
-        .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, effects, global_media, created_at, updated_at")
+        .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, effects, global_media, encode, created_at, updated_at")
         .eq("id", id)
         .maybeSingle(),
       supabase
@@ -1460,6 +1466,7 @@ const VideoStoryboardPanel = () => {
         max_duration_sec: board.max_duration_sec,
         effects: board.effects ?? null,
         global_media: globalMediaItems as any,
+        encode: normalizeEncode(board.encode) as any,
       } as any)
       .select("id")
       .maybeSingle();
@@ -1655,6 +1662,7 @@ const VideoStoryboardPanel = () => {
         max_duration_sec: board.max_duration_sec,
         effects: board.effects ?? null,
         global_media: globalMediaItems as any,
+        encode: normalizeEncode(board.encode) as any,
       } as any)
       .eq("id", board.id);
 
@@ -1755,6 +1763,7 @@ const VideoStoryboardPanel = () => {
         ...(hasAnyMontageEffect(board.effects) || hasAnySimpleEffect(board.effects)
           ? { effects: board.effects }
           : {}),
+        encode: normalizeEncode(board.encode),
         sections: sections
           .filter((s) => s.enabled)
           .map((s) => ({
@@ -2259,6 +2268,14 @@ const VideoStoryboardPanel = () => {
                   setBoard((prev) => (prev ? { ...prev, effects: v } : prev));
                   setDirty(true);
                 }}
+              />
+              <VideoEncodeOptionsBlock
+                value={normalizeEncode(board.encode)}
+                onChange={(v) => {
+                  setBoard((prev) => (prev ? { ...prev, encode: v } : prev));
+                  setDirty(true);
+                }}
+                showScale={false}
               />
               <p className="text-[11px] text-muted-foreground">
                 Effets actifs détectés dans les étapes : {motionFlags.length > 0 ? motionFlags.join(", ") : "aucun"}.

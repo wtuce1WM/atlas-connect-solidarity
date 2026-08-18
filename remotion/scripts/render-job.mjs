@@ -84,6 +84,48 @@ function getVideoDurationSeconds(videoPath) {
     return null;
   }
 }
+
+/**
+ * Format et compression du rendu (`template_props.encode`, réglé en
+ * back-office). Le repli n'est volontairement plus `crf: 16` : ce réglage
+ * quasi-master produisait des fichiers de 20 à 50 Mo pour aucun gain visible.
+ */
+const ENCODE_FALLBACK = { crf: 28, scale: 1, audio: "keep", audioBitrate: "96k", jpegQuality: 90 };
+
+function normalizeEncode(raw) {
+  const r = raw && typeof raw === "object" ? raw : {};
+  const crf = Number.isFinite(Number(r.crf))
+    ? Math.min(40, Math.max(14, Math.round(Number(r.crf))))
+    : ENCODE_FALLBACK.crf;
+  const scaleRaw = Number(r.scale);
+  const scale = Number.isFinite(scaleRaw) && scaleRaw > 0 && scaleRaw <= 1 ? scaleRaw : 1;
+  const audio = r.audio === "mute" ? "mute" : "keep";
+  const audioBitrate = ["64k", "96k", "128k"].includes(String(r.audioBitrate))
+    ? String(r.audioBitrate)
+    : ENCODE_FALLBACK.audioBitrate;
+  // Au-delà de CRF 26, une qualité JPEG de 100 sur les frames intermédiaires
+  // ne sert plus à rien : x264 rejette l'information juste après.
+  const jpegQuality = crf <= 22 ? 100 : crf <= 28 ? 90 : 80;
+  return { crf, scale, audio, audioBitrate, jpegQuality };
+}
+
+/** Remux `+faststart` sans réencodage : indispensable pour la lecture progressive. */
+function optimizeForWeb(videoPath) {
+  const tmp = `${videoPath}.web.mp4`;
+  try {
+    const before = fs.statSync(videoPath).size;
+    execFileSync("ffmpeg", ["-v", "error", "-y", "-i", videoPath, "-c", "copy", "-movflags", "+faststart", tmp], {
+      stdio: "inherit",
+    });
+    fs.renameSync(tmp, videoPath);
+    const after = fs.statSync(videoPath).size;
+    console.log(`📦 Poids final : ${(after / 1024 / 1024).toFixed(2)} Mo (faststart appliqué, avant remux ${(before / 1024 / 1024).toFixed(2)} Mo)`);
+  } catch (e) {
+    if (fs.existsSync(tmp)) fs.unlinkSync(tmp);
+    console.log(`⚠️ Remux faststart ignoré : ${e?.message || e}`);
+  }
+}
+
 const MEDIA_EXT = /\.(mp4|mov|webm|m4v|ogv|jpe?g|png|webp|avif|gif|mp3|m4a|wav|aac)(\?|#|$)/i;
 const DL_DIR = path.resolve(__dirname, "../public/dl");
 
@@ -333,8 +375,11 @@ async function renderOne() {
         const v = s?.config?.voice;
         return v && v.enabled !== false && typeof v.url === "string" && v.url.trim().length > 0;
       });
-    const wantsAudio = Boolean(props?.soundtrackUrl) || Boolean(props?.continuousBgSound) || hasVoiceOver;
-    console.log(`🔊 Audio ${wantsAudio ? "activé" : "désactivé"} (soundtrack=${Boolean(props?.soundtrackUrl)}, bgSound=${Boolean(props?.continuousBgSound)}, voix off=${hasVoiceOver})`);
+    const encode = normalizeEncode(props?.encode);
+    const wantsAudio = encode.audio !== "mute"
+      && (Boolean(props?.soundtrackUrl) || Boolean(props?.continuousBgSound) || hasVoiceOver);
+    console.log(`🔊 Audio ${wantsAudio ? "activé" : "désactivé"} (soundtrack=${Boolean(props?.soundtrackUrl)}, bgSound=${Boolean(props?.continuousBgSound)}, voix off=${hasVoiceOver}, option=${encode.audio})`);
+    console.log(`🗜️ Compression : CRF ${encode.crf}, échelle ${Math.round(encode.scale * 100)} %, audio ${wantsAudio ? encode.audioBitrate : "supprimé"}`);
 
     console.log("🎥 Rendu...");
     await renderMedia({
@@ -345,12 +390,19 @@ async function renderOne() {
       puppeteerInstance: browser,
       muted: !wantsAudio,
       audioCodec: wantsAudio ? "aac" : undefined,
+      audioBitrate: wantsAudio ? encode.audioBitrate : undefined,
       enforceAudioTrack: wantsAudio,
       concurrency: 1,
-      jpegQuality: 100,
-      crf: 16,
+      jpegQuality: encode.jpegQuality,
+      crf: encode.crf,
+      scale: encode.scale,
       inputProps: props,
     });
+
+    // Streaming web : sans l'atome moov en tête, le lecteur attend le
+    // téléchargement complet du fichier. Remux sans réencodage (sans perte).
+    optimizeForWeb(outPath);
+
 
 
     await browser.close({ silent: false });

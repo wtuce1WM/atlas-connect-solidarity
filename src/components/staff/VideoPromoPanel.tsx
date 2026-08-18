@@ -16,6 +16,9 @@ import { Rocket, RefreshCw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { isInternalVideoUrl } from "@/lib/videoSourceFilter";
 import RichTextEditor from "@/components/staff/RichTextEditor";
+import VideoEncodeOptionsBlock from "@/components/staff/VideoEncodeOptionsBlock";
+import { DEFAULT_ENCODE, normalizeEncode, type EncodeOptions } from "@/lib/videoEncode";
+
 
 /**
  * Sous-onglet « Promo business » de l'onglet Générer.
@@ -90,6 +93,8 @@ const VideoPromoPanel = () => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [bgFeedUrl, setBgFeedUrl] = useState("");
   const [format, setFormat] = useState<"portrait" | "landscape">("portrait");
+  const [encode, setEncode] = useState<EncodeOptions>({ ...DEFAULT_ENCODE });
+
   const [variant, setVariant] = useState<PromoVariant>("fullscreen");
   const [mockupBg, setMockupBg] = useState(PRESET_BG[0].value);
   const [browserUrl, setBrowserUrl] = useState("oneworldmorocco.com");
@@ -242,8 +247,10 @@ const VideoPromoPanel = () => {
       clipSource,
       blocks,
       seconds,
+      encode,
     }),
-    [biz?.id, hook, tagline, text, bgFeedUrl, format, variant, mockupBg, browserUrl, splitSide, clipSource, blocks, seconds],
+    [biz?.id, hook, tagline, text, bgFeedUrl, format, variant, mockupBg, browserUrl, splitSide, clipSource, blocks, seconds, encode],
+
   );
 
   const applyPromoConfig = useCallback(async (c: any) => {
@@ -269,6 +276,8 @@ const VideoPromoPanel = () => {
       photo: Number(c.seconds?.photo ?? 1.5),
       outro: Number(c.seconds?.outro ?? 2.5),
     });
+    setEncode(normalizeEncode(c.encode));
+
     if (c.businessId) {
       const { data } = await supabase
         .from("businesses")
@@ -361,6 +370,8 @@ const VideoPromoPanel = () => {
       clipSource,
       blocks,
       seconds,
+      encode,
+
     },
   });
 
@@ -699,6 +710,7 @@ const VideoPromoPanel = () => {
             </div>
           </div>
 
+          <VideoEncodeOptionsBlock value={encode} onChange={setEncode} />
 
 
           <VideoRenderPresetBar

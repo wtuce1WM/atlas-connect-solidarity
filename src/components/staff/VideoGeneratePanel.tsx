@@ -19,6 +19,9 @@ import VideoJobMeta, {
 
 import VideoJobTitleEditor from "@/components/staff/VideoJobTitleEditor";
 import VideoRenderPresetBar from "@/components/staff/VideoRenderPresetBar";
+import VideoEncodeOptionsBlock from "@/components/staff/VideoEncodeOptionsBlock";
+import { DEFAULT_ENCODE, normalizeEncode, type EncodeOptions } from "@/lib/videoEncode";
+
 
 /**
  * Onglet « Générer » du back-office vidéo.
@@ -121,6 +124,8 @@ const VideoGeneratePanel = () => {
 
   // --- Montage (mêmes 5 options que Promo business)
   const [variant, setVariant] = useState<PromoVariant>("fullscreen");
+  const [encode, setEncode] = useState<EncodeOptions>({ ...DEFAULT_ENCODE });
+
   const [mockupBg, setMockupBg] = useState(PRESET_BG[0].value);
   const [browserUrl, setBrowserUrl] = useState("oneworldmorocco.com");
   const [splitSide, setSplitSide] = useState<"left" | "right">("left");
@@ -189,7 +194,9 @@ const VideoGeneratePanel = () => {
       pathFrames,
       motionBlurSamples,
       pathScope,
+      encode,
     }),
+
     [
       url,
       label,
@@ -212,7 +219,9 @@ const VideoGeneratePanel = () => {
       pathFrames,
       motionBlurSamples,
       pathScope,
+      encode,
     ],
+
   );
 
 
@@ -246,6 +255,8 @@ const VideoGeneratePanel = () => {
     setPathFrames(Number(c.pathFrames ?? 45));
     setMotionBlurSamples(Number(c.motionBlurSamples ?? 3));
     setPathScope((c.pathScope as PathScope) ?? "all");
+    setEncode(normalizeEncode(c.encode));
+
   }, []);
 
   const handlePresetState = useCallback((dirty: boolean, id: string | null) => {
@@ -325,6 +336,8 @@ const VideoGeneratePanel = () => {
         mockupBg: isFramed(variant) ? mockupBg : null,
         browserUrl: variant === "browser" || variant === "multi" ? browserUrl.trim() || "oneworldmorocco.com" : null,
         splitSide: variant === "split" ? splitSide : null,
+        encode,
+
 
         timing: {
           hookHold,
@@ -766,7 +779,10 @@ const VideoGeneratePanel = () => {
             </div>
           </div>
 
+          <VideoEncodeOptionsBlock value={encode} onChange={setEncode} />
+
           <VideoRenderPresetBar
+
             kind="feed"
             config={feedConfig}
             defaultName={label.trim() || autoSlug}
