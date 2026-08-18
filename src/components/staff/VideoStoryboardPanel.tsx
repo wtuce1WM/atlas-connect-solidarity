@@ -66,15 +66,15 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities";
 
 /**
- * Storyboard = source de vérité unique d'un montage manuel (jusqu'à 180 s).
+ * Storyboard = source de vérité unique d'un montage manuel (jusqu'à 240 s).
  * Le renderer Remotion ne contient aucune logique propre à un scénario donné :
  * chaque section porte un `step_type` générique et sa `config` JSONB.
  */
 
-export const MAX_TOTAL_SEC = 180;
+export const MAX_TOTAL_SEC = 240;
 export const MAX_SECTIONS = 15;
 export const MIN_SECTION_SEC = 3;
-export const MAX_SECTION_SEC = 30;
+export const MAX_SECTION_SEC = 240;
 
 export type StepType =
   | "hook"
