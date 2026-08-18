@@ -214,7 +214,9 @@ const VideoGeneratePanel = () => {
       pathFrames,
       motionBlurSamples,
       pathScope,
+      encode,
     ],
+
   );
 
 
