@@ -577,7 +577,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
             supabase.from("businesses").select("images").eq("id", o.id).maybeSingle(),
             supabase
               .from("business_documents")
-              .select("id, url, name, thumbnail_url, youtube_video_url, instagram_video_url, tiktok_video_url")
+              .select("id, url, name, thumbnail_url, hide_logo, youtube_video_url, instagram_video_url, tiktok_video_url")
               .eq("business_id", o.id)
               .eq("type", "video"),
           ]);
@@ -596,6 +596,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
               source: "other",
               mediaId: String(d.id),
               ownerName: o.name,
+              hideLogo: !!d.hide_logo,
             });
           }
         }
