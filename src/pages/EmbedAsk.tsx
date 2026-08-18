@@ -2651,6 +2651,41 @@ const EmbedAsk = () => {
           </Suspense>
         </div>
       )}
+
+      {/* Overlay inline « Le meilleur de YouTube sur le Maroc » — variante compacte,
+          plein cadre de l'iframe (pas de nouvelle fenêtre, pas de 2ᵉ iframe). */}
+      {youtubeOpen && (
+        <div className="absolute inset-0 z-[225] flex flex-col bg-neutral-950 animate-fade-in" dir={dir}>
+          <div className="shrink-0 flex items-center gap-2 px-3 py-2.5 border-b border-white/10">
+            <button
+              type="button"
+              onClick={() => setYoutubeOpen(false)}
+              aria-label={lang === "en" ? "Back" : lang === "ar" ? "رجوع" : "Retour"}
+              className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center border border-white/20 bg-white/10 text-white hover:bg-white/20 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <h2
+              className="min-w-0 flex-1 truncate text-sm sm:text-base font-bold uppercase text-white"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              {lang === "en"
+                ? "The best of YouTube about Morocco"
+                : lang === "ar"
+                ? "أفضل ما في يوتيوب عن المغرب"
+                : "Le meilleur de YouTube sur le Maroc"}
+            </h2>
+          </div>
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+            <Suspense
+              fallback={<div className="py-10 text-center text-xs text-white/60">…</div>}
+            >
+              <YouTubeChannelsTabContent compact />
+            </Suspense>
+          </div>
+        </div>
+      )}
+
       <Suspense fallback={null}>
         <LocationPickerDialog
           open={locationOpen}
