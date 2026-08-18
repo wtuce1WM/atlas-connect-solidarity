@@ -1584,10 +1584,11 @@ export function VideoMediaPickerDialog({
                         <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                           Vidéos · {vids.length}
                         </div>
-                        {/* Format natif : chaque tuile conserve son ratio réel. */}
-                        <div className="flex flex-wrap items-end gap-3">
-                          {vids.map((m) => renderTile(m, false))}
+                        {/* Grille 4 colonnes, quel que soit le format de la vidéo. */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                          {vids.map((m) => renderTile(m, true))}
                         </div>
+
                       </div>
                     )}
                     {imgs.length > 0 && (
