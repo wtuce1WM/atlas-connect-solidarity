@@ -361,6 +361,8 @@ const VideoPromoPanel = () => {
       clipSource,
       blocks,
       seconds,
+      encode,
+
     },
   });
 
