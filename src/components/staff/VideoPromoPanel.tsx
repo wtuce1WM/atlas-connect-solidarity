@@ -710,6 +710,7 @@ const VideoPromoPanel = () => {
             </div>
           </div>
 
+          <VideoEncodeOptionsBlock value={encode} onChange={setEncode} />
 
 
           <VideoRenderPresetBar
