@@ -1373,20 +1373,21 @@ export function VideoMediaPickerDialog({
                 onChange={(e) => setSourceFilter(e.target.value as SourceFilter)}
                 className="h-8 rounded-md border bg-background px-2 text-xs"
               >
-                <option value="all">Toutes les sources ({counts.all})</option>
-                <option value="fiche">Fiche · {activeTypeLabel} ({counts.fiche})</option>
-                <option value="generic_video">Vidéos génériques ({counts.genericVideo})</option>
-                <option value="generic">Badge Generic ({counts.generic})</option>
-                <option value="badged">Vidéos badgées · toutes fiches ({counts.badged})</option>
+                <option value="none">— Choisir une source —</option>
+                <option value="all">Toutes les sources ({c(counts.all)})</option>
+                <option value="fiche">Fiche · {activeTypeLabel} ({c(counts.fiche)})</option>
+                <option value="generic_video">Vidéos génériques ({c(counts.genericVideo)})</option>
+                <option value="generic">Badge Generic ({c(counts.generic)})</option>
+                <option value="badged">Vidéos badgées · toutes fiches ({c(counts.badged)})</option>
                 <option value="landscape">Vidéos 16:9 · toutes fiches + génériques ({wideAsked ? counts.landscape : "…"})</option>
-                <option value="other">Autre fiche par slug · {activeTypeLabel} ({counts.other})</option>
-                <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({counts.libBiz})</option>
-                <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({counts.libGlobal})</option>
-                <option value="render_feed">Rendus · Scénario Feed ({counts.renderFeed})</option>
-                <option value="render_promo">Rendus · Promo business ({counts.renderPromo})</option>
-                <option value="render_storyboard">Rendus · Montages manuels ({counts.renderStoryboard})</option>
-                <option value="render_showcase">Rendus · Scénario auto établissement ({counts.renderShowcase})</option>
-                <option value="render_corporate">Rendus · Scénario auto Corporate ({counts.renderCorporate})</option>
+                <option value="other">Autre fiche par slug · {activeTypeLabel} ({c(counts.other)})</option>
+                <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({c(counts.libBiz)})</option>
+                <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({c(counts.libGlobal)})</option>
+                <option value="render_feed">Rendus · Scénario Feed ({c(counts.renderFeed)})</option>
+                <option value="render_promo">Rendus · Promo business ({c(counts.renderPromo)})</option>
+                <option value="render_storyboard">Rendus · Montages manuels ({c(counts.renderStoryboard)})</option>
+                <option value="render_showcase">Rendus · Scénario auto établissement ({c(counts.renderShowcase)})</option>
+                <option value="render_corporate">Rendus · Scénario auto Corporate ({c(counts.renderCorporate)})</option>
               </select>
               <select
                 value={formatFilter}
