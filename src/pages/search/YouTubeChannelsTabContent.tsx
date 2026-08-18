@@ -211,7 +211,7 @@ const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
     return () => { cancelled = true; };
   }, []);
 
-  const defaultOpen = useMemo(() => groups.map((g) => g.themeId), [groups]);
+  const defaultOpen = useMemo(() => compact ? [] : groups.map((g) => g.themeId), [groups, compact]);
 
   // Auto-open a specific channel when ?openChannel=<businessId> is present.
   useEffect(() => {
