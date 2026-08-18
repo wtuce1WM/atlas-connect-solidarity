@@ -1584,8 +1584,8 @@ export function VideoMediaPickerDialog({
                         <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                           Vidéos · {vids.length}
                         </div>
-                        {/* Grille 4 colonnes, quel que soit le format de la vidéo. */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {/* Vignettes de taille fixe (~220px) quel que soit le format et la largeur du popup. */}
+                        <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(200px,220px))]">
                           {vids.map((m) => renderTile(m, true))}
                         </div>
 
@@ -1596,8 +1596,8 @@ export function VideoMediaPickerDialog({
                         <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                           Images · {imgs.length}
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                          {imgs.map((m) => renderTile(m))}
+                        <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(200px,220px))]">
+                          {imgs.map((m) => renderTile(m, true))}
                         </div>
                       </div>
                     )}
