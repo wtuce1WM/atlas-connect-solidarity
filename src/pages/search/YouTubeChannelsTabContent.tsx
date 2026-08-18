@@ -27,6 +27,13 @@ interface Props {
   city?: string | null;
   /** Kept for backward compat — no longer used (YouTube tab now opens BookOnlineSlidePanel internally). */
   onOpenBusiness?: (businessId: string) => void;
+  /**
+   * Variante « compacte » destinée aux iframes étroites (widget /embed/ask) :
+   * pas de vidéo de fond ni de dégradé plein écran, grille responsive au lieu
+   * de carrousels horizontaux, aucune écriture dans l'URL (?openChannel).
+   * `/search` et `/youtube` restent inchangés (compact = false par défaut).
+   */
+  compact?: boolean;
 }
 
 interface ActiveVideo {
@@ -36,7 +43,8 @@ interface ActiveVideo {
   owner: { id: string; name: string; logo_url: string | null };
 }
 
-const YouTubeChannelsTabContent = ({ city }: Props) => {
+const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
+
   const { language } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const [groups, setGroups] = useState<ThemeGroup[]>([]);
