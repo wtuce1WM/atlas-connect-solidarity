@@ -334,6 +334,8 @@ const VideoGeneratePanel = () => {
         mockupBg: isFramed(variant) ? mockupBg : null,
         browserUrl: variant === "browser" || variant === "multi" ? browserUrl.trim() || "oneworldmorocco.com" : null,
         splitSide: variant === "split" ? splitSide : null,
+        encode,
+
 
         timing: {
           hookHold,
