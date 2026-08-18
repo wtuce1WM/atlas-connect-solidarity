@@ -2251,6 +2251,37 @@ const VideoStoryboardPanel = () => {
                     />
                     Inclure les fonds de scène (accroche, texte, compteur, outro…)
                   </label>
+                  <p className="text-[11px] text-muted-foreground">
+                    Activé : les médias ci-dessus sont aussi utilisés en <strong>arrière-plan</strong> des étapes
+                    non-média (accroche, texte, compteur, carte, outro…). Désactivé : ces étapes gardent leur
+                    fond d'origine (couleur/dégradé ou média propre) et seules les étapes « Vidéo » et
+                    « Photos plein écran » reçoivent les médias.
+                  </p>
+                  {requiredVideoDuration.clips > 0 && (
+                    <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3">
+                      <p className="text-xs font-semibold text-destructive">
+                        Durée nécessaire pour monter les {requiredVideoDuration.clips} vidéos (bornes Start/End
+                        appliquées)
+                      </p>
+                      <p className="text-3xl font-extrabold text-destructive leading-tight">
+                        {Math.round(requiredVideoDuration.total)} s
+                        <span className="text-base font-bold ml-2">
+                          ({Math.floor(requiredVideoDuration.total / 60)} min{" "}
+                          {String(Math.round(requiredVideoDuration.total % 60)).padStart(2, "0")} s)
+                        </span>
+                      </p>
+                      {requiredVideoDuration.unknown > 0 && (
+                        <p className="text-[11px] text-destructive/80">
+                          {requiredVideoDuration.unknown} vidéo(s) sans borne End et durée non encore lue :
+                          non comptées.
+                        </p>
+                      )}
+                      <p className="text-[11px] text-destructive/80">
+                        Règle le total des étapes « Vidéo » sur cette valeur, sinon le montage coupe (durée
+                        d'étape trop courte) ou boucle/gèle (durée trop longue).
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
