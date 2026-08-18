@@ -1866,6 +1866,8 @@ const VideoStoryboardPanel = () => {
       template_props: {
         kind: "storyboard",
         storyboardId: board.id,
+        storyboardName: board.name,
+        scenario_type: board.scenario_type,
         format: board.format,
         previewScale: board.preview_scale,
         logoUrl,
@@ -1874,6 +1876,7 @@ const VideoStoryboardPanel = () => {
         hook: hookFr,
         photos,
         videoUrl,
+        global_media: globalMediaItemsRef.current as any,
         // Grade global : rien n'est transmis si aucun effet n'est activé.
         ...(hasAnyMontageEffect(board.effects) || hasAnySimpleEffect(board.effects)
           ? { effects: board.effects }
