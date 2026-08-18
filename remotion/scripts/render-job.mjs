@@ -214,13 +214,20 @@ async function internalizeRemoteMedia(value) {
   if (typeof value === "string") {
     if (!/^https?:\/\//i.test(value) || !MEDIA_EXT.test(value)) return value;
     const local = await downloadMedia(value);
-    return local ?? value;
+    // Média illisible : on renvoie `null` plutôt que l'URL distante, sinon
+    // Remotion le retélécharge lui-même et le rendu entier plante sur ffprobe.
+    return local ?? null;
   }
   if (Array.isArray(value)) {
     const out = [];
-    for (const v of value) out.push(await internalizeRemoteMedia(v));
+    for (const v of value) {
+      const next = await internalizeRemoteMedia(v);
+      if (typeof v === "string" && next === null) continue; // média mort : retiré de la liste
+      out.push(next);
+    }
     return out;
   }
+
   if (value && typeof value === "object") {
     const out = {};
     for (const [k, v] of Object.entries(value)) {
