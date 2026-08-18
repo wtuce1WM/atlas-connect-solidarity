@@ -333,8 +333,11 @@ async function renderOne() {
         const v = s?.config?.voice;
         return v && v.enabled !== false && typeof v.url === "string" && v.url.trim().length > 0;
       });
-    const wantsAudio = Boolean(props?.soundtrackUrl) || Boolean(props?.continuousBgSound) || hasVoiceOver;
-    console.log(`🔊 Audio ${wantsAudio ? "activé" : "désactivé"} (soundtrack=${Boolean(props?.soundtrackUrl)}, bgSound=${Boolean(props?.continuousBgSound)}, voix off=${hasVoiceOver})`);
+    const encode = normalizeEncode(props?.encode);
+    const wantsAudio = encode.audio !== "mute"
+      && (Boolean(props?.soundtrackUrl) || Boolean(props?.continuousBgSound) || hasVoiceOver);
+    console.log(`🔊 Audio ${wantsAudio ? "activé" : "désactivé"} (soundtrack=${Boolean(props?.soundtrackUrl)}, bgSound=${Boolean(props?.continuousBgSound)}, voix off=${hasVoiceOver}, option=${encode.audio})`);
+    console.log(`🗜️ Compression : CRF ${encode.crf}, échelle ${Math.round(encode.scale * 100)} %, audio ${wantsAudio ? encode.audioBitrate : "supprimé"}`);
 
     console.log("🎥 Rendu...");
     await renderMedia({
@@ -345,12 +348,19 @@ async function renderOne() {
       puppeteerInstance: browser,
       muted: !wantsAudio,
       audioCodec: wantsAudio ? "aac" : undefined,
+      audioBitrate: wantsAudio ? encode.audioBitrate : undefined,
       enforceAudioTrack: wantsAudio,
       concurrency: 1,
-      jpegQuality: 100,
-      crf: 16,
+      jpegQuality: encode.jpegQuality,
+      crf: encode.crf,
+      scale: encode.scale,
       inputProps: props,
     });
+
+    // Streaming web : sans l'atome moov en tête, le lecteur attend le
+    // téléchargement complet du fichier. Remux sans réencodage (sans perte).
+    optimizeForWeb(outPath);
+
 
 
     await browser.close({ silent: false });
