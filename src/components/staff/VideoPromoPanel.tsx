@@ -247,8 +247,10 @@ const VideoPromoPanel = () => {
       clipSource,
       blocks,
       seconds,
+      encode,
     }),
-    [biz?.id, hook, tagline, text, bgFeedUrl, format, variant, mockupBg, browserUrl, splitSide, clipSource, blocks, seconds],
+    [biz?.id, hook, tagline, text, bgFeedUrl, format, variant, mockupBg, browserUrl, splitSide, clipSource, blocks, seconds, encode],
+
   );
 
   const applyPromoConfig = useCallback(async (c: any) => {
