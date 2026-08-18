@@ -176,14 +176,23 @@ const ConfigFields = ({
   patch,
   businessId,
   format,
+  dropGlobal,
 }: {
   section: Section;
   patch: (values: Partial<Section>) => void;
   businessId: string | null;
   format: "portrait" | "landscape";
+  /** Retire aussi les médias supprimés ici de la sélection globale du montage. */
+  dropGlobal?: (urls: string[]) => void;
 }) => {
   const cfg = section.config ?? {};
   const set = (key: string, value: any) => patch({ config: { ...cfg, [key]: value } });
+  /** Médias retirés à l'étape → retirés de la source globale (sinon ils reviennent). */
+  const syncRemoved = (before: string[], after: string[]) => {
+    const gone = before.filter((u) => !after.includes(u));
+    if (gone.length > 0) dropGlobal?.(gone);
+  };
+
 
   const text = (key: string, label: string, placeholder?: string) => (
     <label className="text-xs text-muted-foreground grid gap-1">
