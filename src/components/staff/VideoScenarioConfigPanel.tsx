@@ -640,16 +640,22 @@ const VideoScenarioConfigPanel = ({
       setNoteCounts({});
     }
 
-    const loadedConfig = (configRes.data as Omit<ScenarioConfig, "internal_note"> | null) ?? {
-      mode,
-      business_id: null,
-      format_key: "landscape_1080",
-      width: 1920,
-      height: 1080,
-      fps: 30,
-    };
+    const raw = (configRes.data as any) ?? null;
+    const loadedGlobalMedia: GlobalMediaItem[] = (Array.isArray(raw?.global_media) ? raw.global_media : [])
+      .filter((m: any) => m && typeof m.url === "string" && m.url.trim())
+      .map((m: any) => ({
+        url: m.url as string,
+        start: Number.isFinite(m.start) && m.start >= 0 ? Number(m.start) : undefined,
+        end: Number.isFinite(m.end) && m.end > 0 ? Number(m.end) : undefined,
+      }));
     setConfig({
-      ...loadedConfig,
+      mode,
+      business_id: raw?.business_id ?? null,
+      format_key: raw?.format_key ?? "landscape_1080",
+      width: Number(raw?.width) || 1920,
+      height: Number(raw?.height) || 1080,
+      fps: Number(raw?.fps) || 30,
+      global_media: loadedGlobalMedia,
       internal_note: (noteRes.data as { note: string | null } | null)?.note ?? null,
     });
     setRemoved([]);
