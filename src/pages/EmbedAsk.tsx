@@ -1740,7 +1740,7 @@ const EmbedAsk = () => {
         )}
       </header>
 
-      <div ref={scrollRef} className={`flex-1 overflow-y-auto px-4 py-4 space-y-3 ${bg} relative`}>
+      <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto"} px-4 py-4 space-y-3 ${bg} relative`}>
         {(() => {
           // Sticky pill : reprend la dernière question de l'utilisateur pour rester
           // visible en haut à droite pendant qu'on lit la réponse / la relance.
