@@ -992,7 +992,7 @@ const SortableSection = ({
             <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               2. Contenu — {typeLabel(section.step_type)}
             </span>
-            <ConfigFields section={section} patch={patch} businessId={businessId} format={format} />
+            <ConfigFields section={section} patch={patch} businessId={businessId} format={format} dropGlobal={dropGlobal} />
           </div>
 
           <div className="rounded-lg border p-3 flex flex-col gap-3 min-w-0">
