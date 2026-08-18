@@ -273,8 +273,9 @@ const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessNam
               Scénario : {storyboard.scenarioLabel}
             </Badge>
             <Badge className="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-100">
-              Échelle : {scaleLabel(storyboard.renderScale)}
+              Échelle : {scaleLabel(storyboard.effectiveScale)} · {storyboard.resolution}
             </Badge>
+
           </>
         )}
       </div>
