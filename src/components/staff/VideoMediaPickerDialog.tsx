@@ -228,7 +228,10 @@ function Tile({
   };
 
   return (
-    <div className={`relative ${freeSize ? "shrink-0" : ""}`} style={freeSize ? { width: Math.round(width) } : undefined}>
+    <div
+      className={`relative min-w-0 ${freeSize ? "shrink-0" : "w-full"}`}
+      style={freeSize ? { width: Math.round(width) } : undefined}
+    >
       <button
         type="button"
         onClick={onSelect}
