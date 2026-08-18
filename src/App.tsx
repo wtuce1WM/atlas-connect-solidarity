@@ -61,6 +61,7 @@ const BlogBrummellTypography = lazy(() => import("./pages/BlogBrummellTypography
 const RatedBusinesses = lazy(() => import("./pages/RatedBusinesses"));
 const NeighborhoodPage = lazy(() => import("./pages/NeighborhoodPage"));
 const AllBusinessesMap = lazy(() => import("./pages/AllBusinessesMap"));
+const YouTubePage = lazy(() => import("./pages/YouTubePage"));
 const SubcategoryPage = lazy(() => import("./pages/SubcategoryPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AncienAccueil = lazy(() => import("./pages/AncienAccueil"));
@@ -226,6 +227,7 @@ const LocalizedRoutes = () => {
               <Route path="/ar/videos/:slug" element={renderLazyRoute(<VideoFeed />)} />
               <Route path="/neighborhood/:neighborhood" element={renderLazyRoute(<NeighborhoodPage />)} />
               <Route path="/carte" element={renderLazyRoute(<AllBusinessesMap />)} />
+              <Route path="/youtube" element={renderLazyRoute(<YouTubePage />)} />
               <Route path="/subcategory/:subcategoryName" element={renderLazyRoute(<SubcategoryPage />)} />
               <Route path="/hotels" element={renderLazyRoute(<HotelSearch />)} />
               <Route path="/club" element={renderLazyRoute(<Club />)} />
