@@ -456,31 +456,46 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         });
       }
 
-      // 2) Badge transverse « Generic » — toutes fiches confondues
-      const { data: genericBadgeRows } = await supabase
-        .from("badges")
-        .select("id, name_fr")
-        .ilike("name_fr", "generic");
-      const genericBadgeId = (genericBadgeRows ?? []).find((b: any) => /^generic$/i.test(b.name_fr))?.id;
-      let genericDocIds: string[] = [];
-      if (genericBadgeId) {
-        const { data: genericLinks } = await supabase
+      // 2) Vidéos badgées de TOUTES les fiches (tous badges confondus, pas
+      //    seulement « Generic ») : c'est le corpus du filtre « Tous les badges ».
+      const badgeLinks: any[] = [];
+      for (let page = 0; page < 20; page++) {
+        const from = page * 1000;
+        const { data, error } = await supabase
           .from("business_document_badges")
-          .select("document_id")
-          .eq("badge_id", genericBadgeId)
-          .limit(1000);
-        genericDocIds = (genericLinks ?? []).map((l: any) => String(l.document_id));
+          .select("document_id, badge_id")
+          .range(from, from + 999);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        badgeLinks.push(...data);
+        if (data.length < 1000) break;
       }
+      const badgeNameById = new Map<string, string>();
+      const allBadgeIds = [...new Set(badgeLinks.map((l) => String(l.badge_id)))];
+      for (let i = 0; i < allBadgeIds.length; i += 200) {
+        const { data } = await supabase
+          .from("badges")
+          .select("id, name_fr")
+          .in("id", allBadgeIds.slice(i, i + 200));
+        for (const b of data ?? []) badgeNameById.set(String(b.id), String((b as any).name_fr ?? ""));
+      }
+      const badgesByDoc = new Map<string, string[]>();
+      for (const l of badgeLinks) {
+        const name = badgeNameById.get(String(l.badge_id));
+        if (!name) continue;
+        const key = String(l.document_id);
+        badgesByDoc.set(key, [...(badgesByDoc.get(key) ?? []), name]);
+      }
+      const badgedDocIds = [...badgesByDoc.keys()];
 
-      if (genericDocIds.length) {
-        const genericSet = new Set(genericDocIds);
+      if (badgedDocIds.length) {
         const badgedDocs: any[] = [];
-        for (let i = 0; i < genericDocIds.length; i += 200) {
+        for (let i = 0; i < badgedDocIds.length; i += 200) {
           const { data, error } = await supabase
             .from("business_documents")
-            .select("id, url, name, thumbnail_url, business_id, hide_logo, youtube_video_url, instagram_video_url, tiktok_video_url")
+            .select("id, url, name, thumbnail_url, business_id, hide_logo, orientation, youtube_video_url, instagram_video_url, tiktok_video_url")
             .eq("type", "video")
-            .in("id", genericDocIds.slice(i, i + 200));
+            .in("id", badgedDocIds.slice(i, i + 200));
           if (error) throw error;
           if (data) badgedDocs.push(...data);
         }
@@ -497,15 +512,18 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         for (const d of badgedDocs) {
           const mediaUrl = documentVideoUrl(d);
           if (!mediaUrl) continue;
+          const badges = badgesByDoc.get(String(d.id)) ?? [];
           out.push({
             url: mediaUrl,
             kind: "video",
             title: d.name ?? "Vidéo",
             thumbnail: d.thumbnail_url ?? null,
-            source: genericSet.has(String(d.id)) ? "generic" : "fiche",
+            source: badges.some((b) => /^generic$/i.test(b)) ? "generic" : "badged",
             mediaId: String(d.id),
             ownerName: ownerNames.get(String(d.business_id)) ?? null,
             hideLogo: !!d.hide_logo,
+            orientation: (d.orientation as any) ?? null,
+            badges,
           });
         }
       }
