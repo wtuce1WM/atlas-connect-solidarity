@@ -47,6 +47,8 @@ export type PickerMedia = {
   onFiche?: boolean;
   /** Badges actifs du média (documents de fiche uniquement). */
   badges?: string[];
+  /** Document vidéo marqué « No logo » (colonne hide_logo). */
+  hideLogo?: boolean;
 };
 
 type TypeFilter = "all" | "image" | "video";
@@ -476,7 +478,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         for (let i = 0; i < genericDocIds.length; i += 200) {
           const { data, error } = await supabase
             .from("business_documents")
-            .select("id, url, name, thumbnail_url, business_id, youtube_video_url, instagram_video_url, tiktok_video_url")
+            .select("id, url, name, thumbnail_url, business_id, hide_logo, youtube_video_url, instagram_video_url, tiktok_video_url")
             .eq("type", "video")
             .in("id", genericDocIds.slice(i, i + 200));
           if (error) throw error;
@@ -503,6 +505,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
             source: genericSet.has(String(d.id)) ? "generic" : "fiche",
             mediaId: String(d.id),
             ownerName: ownerNames.get(String(d.business_id)) ?? null,
+            hideLogo: !!d.hide_logo,
           });
         }
       }
@@ -514,7 +517,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
           supabase.from("businesses").select("images, logo_url").eq("id", businessId).maybeSingle(),
           supabase
             .from("business_documents")
-            .select("id, url, name, thumbnail_url, type, youtube_video_url, instagram_video_url, tiktok_video_url")
+            .select("id, url, name, thumbnail_url, type, hide_logo, youtube_video_url, instagram_video_url, tiktok_video_url")
             .eq("business_id", businessId)
             .eq("type", "video"),
         ]);
@@ -536,6 +539,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
             thumbnail: d.thumbnail_url ?? null,
             source: "fiche",
             mediaId: String(d.id),
+            hideLogo: !!d.hide_logo,
           });
         }
       }
@@ -573,7 +577,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
             supabase.from("businesses").select("images").eq("id", o.id).maybeSingle(),
             supabase
               .from("business_documents")
-              .select("id, url, name, thumbnail_url, youtube_video_url, instagram_video_url, tiktok_video_url")
+              .select("id, url, name, thumbnail_url, hide_logo, youtube_video_url, instagram_video_url, tiktok_video_url")
               .eq("business_id", o.id)
               .eq("type", "video"),
           ]);
@@ -592,6 +596,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
               source: "other",
               mediaId: String(d.id),
               ownerName: o.name,
+              hideLogo: !!d.hide_logo,
             });
           }
         }
@@ -643,8 +648,10 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         // Les vidéos externes (YouTube / TikTok / Instagram) ne sont pas des fichiers
         // téléchargeables : le moteur de rendu ne peut pas les monter → jamais affichées.
         .filter((m) => (m.kind === "video" ? isInternalVideoUrl(m.url) : true))
-        // Les vidéos marquées « no_logo » (titre, URL ou libellé) ne sont jamais montables ici.
+        // Les vidéos marquées « No logo » (colonne hide_logo, titre, URL ou badge) ne sont
+        // jamais montables ici.
         .filter((m) => {
+          if (m.hideLogo) return false;
           const hay = `${m.title ?? ""} ${m.url} ${(m.badges ?? []).join(" ")}`.toLowerCase().replace(/[\s-]+/g, "_");
           return !hay.includes("no_logo");
         })
@@ -695,9 +702,9 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         }
       }
 
-      // Exclusion « no_logo » après hydratation des badges (un badge no_logo est aussi exclu).
+      // Exclusion « No logo » après hydratation des badges (un badge no_logo est aussi exclu).
       const cleaned = deduped.filter(
-        (m) => !(m.badges ?? []).some((b) => b.toLowerCase().replace(/[\s-]+/g, "_").includes("no_logo")),
+        (m) => !m.hideLogo && !(m.badges ?? []).some((b) => b.toLowerCase().replace(/[\s-]+/g, "_").includes("no_logo")),
       );
       deduped.length = 0;
       deduped.push(...cleaned);
@@ -753,7 +760,7 @@ export function useLandscapeVideos(enabled: boolean) {
       const [{ data: docs }, { data: gen }, { count: pendDocs }, { count: pendGen }] = await Promise.all([
         supabase
           .from("business_documents")
-          .select("id, url, name, thumbnail_url, business_id, media_width, media_height")
+          .select("id, url, name, thumbnail_url, business_id, hide_logo, media_width, media_height")
           .eq("type", "video")
           .eq("orientation", "landscape")
           .order("created_at", { ascending: false })
@@ -788,7 +795,7 @@ export function useLandscapeVideos(enabled: boolean) {
       const out: PickerMedia[] = [];
       for (const d of (docs ?? []) as any[]) {
         const url = typeof d.url === "string" ? d.url.trim() : "";
-        if (!url || !isInternalVideoUrl(url)) continue;
+        if (!url || !isInternalVideoUrl(url) || !!d.hide_logo) continue;
         out.push({
           url,
           kind: "video",
@@ -798,6 +805,7 @@ export function useLandscapeVideos(enabled: boolean) {
           orientation: "landscape",
           mediaId: String(d.id),
           ownerName: ownerNames.get(String(d.business_id)) ?? null,
+          hideLogo: !!d.hide_logo,
         });
       }
       for (const g of (gen ?? []) as any[]) {
