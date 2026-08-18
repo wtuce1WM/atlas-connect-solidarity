@@ -63,10 +63,10 @@ async function finalizeJob(payload) {
   if (!r.ok) console.error(`❌ finalize ${r.status}:`, await r.text());
 }
 
-async function uploadToSignedUrl(signedUrl, buffer) {
+async function uploadToSignedUrl(signedUrl, buffer, contentType = "video/mp4") {
   const r = await fetch(signedUrl, {
     method: "PUT",
-    headers: { "Content-Type": "video/mp4", "x-upsert": "true" },
+    headers: { "Content-Type": contentType, "x-upsert": "true" },
     body: buffer,
   });
   if (!r.ok) throw new Error(`upload ${r.status}: ${await r.text()}`);
@@ -106,7 +106,9 @@ function normalizeEncode(raw) {
   // Au-delà de CRF 26, une qualité JPEG de 100 sur les frames intermédiaires
   // ne sert plus à rien : x264 rejette l'information juste après.
   const jpegQuality = crf <= 22 ? 100 : crf <= 28 ? 90 : 80;
-  return { crf, scale, audio, audioBitrate, jpegQuality };
+  // Fond transparent : H.264/MP4 n'a pas de canal alpha → sortie WebM VP9 yuva420p.
+  const transparent = r.transparent === true;
+  return { crf, scale, audio, audioBitrate, jpegQuality, transparent };
 }
 
 /** Remux `+faststart` sans réencodage : indispensable pour la lecture progressive. */
@@ -267,10 +269,12 @@ async function renderOne() {
     const tempDir = path.resolve(__dirname, "../tmp-render");
     if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
-    const outPath = path.join(tempDir, `${job.id}.mp4`);
     let props = (job.template_props && Object.keys(job.template_props).length > 0)
       ? job.template_props
       : (job.scenario_json || {});
+    // Rendu à canal alpha : conteneur WebM (VP9 yuva420p), MP4/H.264 sinon.
+    const alpha = props?.encode?.transparent === true;
+    const outPath = path.join(tempDir, `${job.id}.${alpha ? "webm" : "mp4"}`);
 
     // --- Scénario « Feed » : capture Playwright réelle puis rendu par le template
     // paramétrique. Toute la géométrie/rythme passe par le manifest, aucun calibrage
@@ -455,11 +459,12 @@ async function renderOne() {
       renderMedia({
         composition,
         serveUrl: bundled,
-        codec: "h264",
+        codec: alpha ? "vp9" : "h264",
+        pixelFormat: alpha ? "yuva420p" : undefined,
         outputLocation: outPath,
         puppeteerInstance: instance,
         muted: !wantsAudio,
-        audioCodec: wantsAudio ? "aac" : undefined,
+        audioCodec: wantsAudio ? (alpha ? "opus" : "aac") : undefined,
         audioBitrate: wantsAudio ? encode.audioBitrate : undefined,
         enforceAudioTrack: wantsAudio,
         concurrency: 1,
@@ -488,7 +493,13 @@ async function renderOne() {
 
     // Streaming web : sans l'atome moov en tête, le lecteur attend le
     // téléchargement complet du fichier. Remux sans réencodage (sans perte).
-    optimizeForWeb(outPath);
+    // Le remux faststart est spécifique MP4 : inutile (et invalide) en WebM.
+    if (alpha) {
+      const size = fs.statSync(outPath).size;
+      console.log(`📦 Poids final : ${(size / 1024 / 1024).toFixed(2)} Mo (WebM VP9 alpha, faststart non applicable)`);
+    } else {
+      optimizeForWeb(outPath);
+    }
 
 
 
@@ -497,7 +508,7 @@ async function renderOne() {
 
     console.log("🚀 Upload via URL signée...");
     const buffer = fs.readFileSync(outPath);
-    await uploadToSignedUrl(upload.signedUrl, buffer);
+    await uploadToSignedUrl(upload.signedUrl, buffer, alpha ? "video/webm" : "video/mp4");
 
     const realDuration = getVideoDurationSeconds(outPath);
     if (realDuration) console.log(`⏱️ Durée réelle : ${realDuration}s`);

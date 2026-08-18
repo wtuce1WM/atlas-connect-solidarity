@@ -51,7 +51,9 @@ function buildFileName(job: Record<string, any>, businessSlug: string | null): s
   const pad = (n: number) => String(n).padStart(2, '0');
   const stamp = `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}-${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}`;
   const parts = ['1wm', sourceOf(template), biz, title !== biz ? title : '', formatOf(template, props), stamp, String(job.id).slice(0, 8)];
-  return `${parts.filter(Boolean).join('_')}.mp4`;
+  // Rendu à canal alpha : sortie WebM VP9 (H.264/MP4 n'a pas de canal alpha).
+  const ext = props?.encode?.transparent === true ? 'webm' : 'mp4';
+  return `${parts.filter(Boolean).join('_')}.${ext}`;
 }
 
 
