@@ -1578,9 +1578,9 @@ export function VideoMediaPickerDialog({
                         <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                           Vidéos · {vids.length}
                         </div>
-                        {/* Tableau 4x4 : 4 vidéos par ligne, 16 par page visuelle. */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                          {vids.map((m) => renderTile(m, true))}
+                        {/* Format natif : chaque tuile conserve son ratio réel. */}
+                        <div className="flex flex-wrap items-end gap-3">
+                          {vids.map((m) => renderTile(m, false))}
                         </div>
                       </div>
                     )}
