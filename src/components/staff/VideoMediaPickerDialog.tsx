@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Copy, Film, Image as ImageIcon, Loader2, Maximize2, Play, Pause, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
-import SelectedVideoPreview from "@/components/staff/SelectedVideoPreview";
 
 
 /**
@@ -1531,7 +1530,15 @@ export function VideoMediaPickerDialog({
             <div key={m.url} className="relative w-64 max-w-full">
               <div id={`sel-media-${i}`} className="rounded-md overflow-hidden border-2 border-border bg-black h-64">
                 {m.kind === "video" ? (
-                  <SelectedVideoPreview url={m.url} thumbnail={m.thumbnail} />
+                  <video
+                    src={m.url}
+                    poster={m.thumbnail || undefined}
+                    controls
+                    muted
+                    playsInline
+                    preload="metadata"
+                    className="w-full h-full object-contain"
+                  />
                 ) : (
 
                   <img src={m.url} alt="" className="w-full h-full object-contain" loading="lazy" />
