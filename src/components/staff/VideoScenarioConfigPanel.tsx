@@ -30,6 +30,11 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities";
 import RichTextEditor from "./RichTextEditor";
 import VideoStepNotesDialog from "./VideoStepNotesDialog";
+import { VideoMediaPickerDialog } from "./VideoMediaPickerDialog";
+import StoryboardGlobalMediaGrid, {
+  isVideoMediaUrl,
+  type GlobalMediaItem,
+} from "./StoryboardGlobalMediaGrid";
 
 export type VideoScenarioMode = "business" | "corporate" | "explainer";
 
@@ -48,6 +53,8 @@ export type VideoScenarioStep = {
   business_id: string | null;
   /** Widgets embarqués sélectionnés pour cette étape. */
   widget_keys: string[];
+  /** Réglages libres de l'étape (médias affectés, bornes de lecture…). */
+  config: Record<string, any>;
   /** Étape créée localement, pas encore en base. */
   _new?: boolean;
 };
@@ -60,7 +67,10 @@ type ScenarioConfig = {
   height: number;
   fps: number;
   internal_note: string | null;
+  /** Médias globaux du scénario (ordre + bornes Start/End). */
+  global_media: GlobalMediaItem[];
 };
+
 
 const MAX_NOTE_LENGTH = 20000;
 
