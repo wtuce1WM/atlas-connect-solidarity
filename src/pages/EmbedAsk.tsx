@@ -683,6 +683,9 @@ const EmbedAsk = () => {
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   const [openBusinessOverlay, setOpenBusinessOverlay] = useState<"reviews" | null>(null);
   const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
+  /** Overlay inline « Le meilleur de YouTube sur le Maroc » (variante compacte de /youtube). */
+  const [youtubeOpen, setYoutubeOpen] = useState(false);
+
   // Carte des destinations (distincte de la carte des résultats établissements) :
   // marqueurs = destinations liées à la suggestion.
   const [openDestMap, setOpenDestMap] = useState<{ title?: string | null; destinations: DestinationCard[] } | null>(null);
