@@ -648,8 +648,10 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         // Les vidéos externes (YouTube / TikTok / Instagram) ne sont pas des fichiers
         // téléchargeables : le moteur de rendu ne peut pas les monter → jamais affichées.
         .filter((m) => (m.kind === "video" ? isInternalVideoUrl(m.url) : true))
-        // Les vidéos marquées « no_logo » (titre, URL ou libellé) ne sont jamais montables ici.
+        // Les vidéos marquées « No logo » (colonne hide_logo, titre, URL ou badge) ne sont
+        // jamais montables ici.
         .filter((m) => {
+          if (m.hideLogo) return false;
           const hay = `${m.title ?? ""} ${m.url} ${(m.badges ?? []).join(" ")}`.toLowerCase().replace(/[\s-]+/g, "_");
           return !hay.includes("no_logo");
         })
@@ -700,9 +702,9 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         }
       }
 
-      // Exclusion « no_logo » après hydratation des badges (un badge no_logo est aussi exclu).
+      // Exclusion « No logo » après hydratation des badges (un badge no_logo est aussi exclu).
       const cleaned = deduped.filter(
-        (m) => !(m.badges ?? []).some((b) => b.toLowerCase().replace(/[\s-]+/g, "_").includes("no_logo")),
+        (m) => !m.hideLogo && !(m.badges ?? []).some((b) => b.toLowerCase().replace(/[\s-]+/g, "_").includes("no_logo")),
       );
       deduped.length = 0;
       deduped.push(...cleaned);
