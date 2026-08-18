@@ -1,0 +1,1 @@
+ALTER TABLE public.video_storyboards ADD COLUMN IF NOT EXISTS encode jsonb;

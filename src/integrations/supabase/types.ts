@@ -8408,6 +8408,7 @@ export type Database = {
           business_id: string | null
           created_at: string
           effects: Json | null
+          encode: Json | null
           format: string
           global_media: Json
           id: string
@@ -8421,6 +8422,7 @@ export type Database = {
           business_id?: string | null
           created_at?: string
           effects?: Json | null
+          encode?: Json | null
           format?: string
           global_media?: Json
           id?: string
@@ -8434,6 +8436,7 @@ export type Database = {
           business_id?: string | null
           created_at?: string
           effects?: Json | null
+          encode?: Json | null
           format?: string
           global_media?: Json
           id?: string
