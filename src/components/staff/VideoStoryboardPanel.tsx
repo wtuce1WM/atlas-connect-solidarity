@@ -255,7 +255,8 @@ const ConfigFields = ({
             max={30}
             label={media.length ? `Modifier le fond (${media.length})` : "Choisir des médias"}
             value={media}
-            onChange={(urls) =>
+            onChange={(urls) => {
+              syncRemoved(media, urls);
               patch({
                 config: {
                   ...cfg,
@@ -264,8 +265,9 @@ const ConfigFields = ({
                   bgImages: [],
                   bgVideoUrl: "",
                 },
-              })
-            }
+              });
+            }}
+
           />
           {active && (
             <Button
