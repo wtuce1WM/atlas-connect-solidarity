@@ -930,14 +930,14 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
     });
     const total = weights.reduce((a, b) => a + b, 0);
     const scale = total > durationInFrames ? durationInFrames / total : 1;
-    const out: { from: number; frames: number }[] = [];
+    const acc: { from: number; frames: number }[] = [];
     let cursor = 0;
     weights.forEach((w, i) => {
       const isLast = i === n - 1;
       let frames = Math.max(1, Math.round(w * scale));
       if (cursor + frames > durationInFrames) frames = Math.max(1, durationInFrames - cursor);
       if (isLast && scale < 1) frames = Math.max(1, durationInFrames - cursor);
-      out.push({ from: cursor, frames });
+      acc.push({ from: cursor, frames });
       cursor += frames;
     });
     return out;
