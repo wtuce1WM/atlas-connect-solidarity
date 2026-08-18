@@ -148,17 +148,27 @@ function validateMedia(dest, ext, expectedLength) {
   if (expectedLength && size !== expectedLength) {
     return `taille incomplète (${size}/${expectedLength} octets)`;
   }
-  const head = fs.readFileSync(dest).subarray(0, 4096);
-  if (/^\s*(<!doctype|<html|\{)/i.test(head.toString("latin1"))) {
-    return "réponse HTML/JSON au lieu d'un média";
+  const fd = fs.openSync(dest, "r");
+  try {
+    const head = Buffer.alloc(Math.min(4096, size));
+    fs.readSync(fd, head, 0, head.length, 0);
+    if (/^\s*(<!doctype|<html|\{)/i.test(head.toString("latin1"))) {
+      return "réponse HTML/JSON au lieu d'un média";
+    }
+    if (/^(mp4|mov|m4v|m4a)$/.test(ext)) {
+      if (!head.includes("ftyp")) return "conteneur MP4 invalide (pas d'atome ftyp)";
+      // L'atome `moov` est soit en tête (faststart) soit en fin de fichier.
+      const tailLen = Math.min(1024 * 1024, size);
+      const tail = Buffer.alloc(tailLen);
+      fs.readSync(fd, tail, 0, tailLen, size - tailLen);
+      if (!head.includes("moov") && !tail.includes("moov")) {
+        return "conteneur MP4 incomplet (pas d'atome moov)";
+      }
+    }
+  } finally {
+    fs.closeSync(fd);
   }
-  if (/^(mp4|mov|m4v|m4a)$/.test(ext)) {
-    const txt = head.toString("latin1");
-    if (!txt.includes("ftyp")) return "conteneur MP4 invalide (pas d'atome ftyp)";
-    // L'atome `moov` peut être en fin de fichier : on le cherche sur tout le buffer.
-    const all = fs.readFileSync(dest).toString("latin1");
-    if (!all.includes("moov")) return "conteneur MP4 incomplet (pas d'atome moov)";
-  }
+
   return null;
 }
 
