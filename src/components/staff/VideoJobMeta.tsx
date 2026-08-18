@@ -189,7 +189,15 @@ const storyboardInfo = (job: VideoJobMetaRow) => {
   const globalMedia = Array.isArray(p.global_media) ? p.global_media : [];
   const scenarioType = typeof p.scenario_type === "string" ? p.scenario_type : "";
   const encode = p.encode ?? {};
-  const renderScale = typeof encode.scale === "number" ? encode.scale : null;
+  // Deux échelles indépendantes se multiplient :
+  //  - `previewScale` réduit la résolution de la COMPOSITION (Aperçu / échelle de rendu)
+  //  - `encode.scale` réduit la résolution à l'ENCODAGE (bloc Format et compression)
+  const previewScale = typeof p.previewScale === "number" && p.previewScale > 0 ? p.previewScale : 1;
+  const encodeScale = typeof encode.scale === "number" && encode.scale > 0 ? encode.scale : 1;
+  const effectiveScale = previewScale * encodeScale;
+  const base = videoJobFormatKey(job) === "landscape" ? { w: 1920, h: 1080 } : { w: 1080, h: 1920 };
+  const outWidth = Math.round((base.w * effectiveScale) / 2) * 2;
+  const outHeight = Math.round((base.h * effectiveScale) / 2) * 2;
 
   const videoCount = globalMedia.filter((m: any) => isVideoUrl(typeof m === "string" ? m : m?.url)).length;
   const imageCount = globalMedia.filter((m: any) => {
@@ -206,7 +214,10 @@ const storyboardInfo = (job: VideoJobMetaRow) => {
   return {
     scenarioType,
     scenarioLabel: SCENARIO_LABELS[scenarioType] || scenarioType || "Montage manuel",
-    renderScale,
+    previewScale,
+    encodeScale,
+    effectiveScale,
+    resolution: `${outWidth}×${outHeight}`,
     globalMediaCount: globalMedia.length,
     videoCount,
     imageCount,
@@ -219,6 +230,7 @@ const scaleLabel = (scale: number | null) => {
   if (scale == null) return "—";
   return `${Math.round(scale * 100)} %`;
 };
+
 
 const VideoJobMeta = ({ job, businessName }: { job: VideoJobMetaRow; businessName?: string }) => {
   const steps = collectSteps(job);
