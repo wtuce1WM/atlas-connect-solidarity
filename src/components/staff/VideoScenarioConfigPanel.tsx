@@ -672,6 +672,91 @@ const VideoScenarioConfigPanel = ({
     setDirty(true);
   };
 
+  /** Format de prévisualisation des médias, déduit des dimensions du scénario. */
+  const mediaFormat: "portrait" | "landscape" =
+    (config?.width ?? 1920) >= (config?.height ?? 1080) ? "landscape" : "portrait";
+
+  const globalMediaItems = config?.global_media ?? [];
+  const globalMediaUrls = useMemo(() => globalMediaItems.map((m) => m.url), [globalMediaItems]);
+
+  /** Bornes Start/End de la sélection globale, indexées par URL. */
+  const globalTrims = useMemo(() => {
+    const trims: Record<string, { start?: number; end?: number }> = {};
+    for (const m of globalMediaItems) {
+      if ((m.start ?? 0) > 0 || (m.end ?? 0) > 0) trims[m.url] = { start: m.start, end: m.end };
+    }
+    return trims;
+  }, [globalMediaItems]);
+
+  const setGlobalMedia = (next: GlobalMediaItem[]) => {
+    globalMediaRef.current = next;
+    setConfig((prev) => (prev ? { ...prev, global_media: next } : prev));
+    setDirty(true);
+  };
+
+  /** Affecte la sélection globale (ordre + bornes) à toutes les étapes du scénario. */
+  const applyGlobalMediaToSteps = (media: GlobalMediaItem[]) => {
+    const list = media.slice(0, 30);
+    const urls = list.map((m) => m.url);
+    const videos = list.filter((m) => isVideoMediaUrl(m.url)).map((m) => m.url);
+    const trims: Record<string, { start?: number; end?: number }> = {};
+    for (const m of list) {
+      if ((m.start ?? 0) > 0 || (m.end ?? 0) > 0) trims[m.url] = { start: m.start, end: m.end };
+    }
+    setSteps((prev) =>
+      prev.map((s) => ({
+        ...s,
+        config: { ...(s.config ?? {}), media: urls, videos, assetTrims: trims },
+      })),
+    );
+    setDirty(true);
+  };
+
+  const clearStepsMedia = () => {
+    setSteps((prev) =>
+      prev.map((s) => ({ ...s, config: { ...(s.config ?? {}), media: [], videos: [], assetTrims: {} } })),
+    );
+    setDirty(true);
+  };
+
+  /** Durées réelles des vidéos globales (métadonnées navigateur) pour la durée nécessaire. */
+  const [mediaDurations, setMediaDurations] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const urls = globalMediaUrls.filter((u) => isVideoMediaUrl(u)).filter((u) => mediaDurations[u] == null);
+    if (urls.length === 0) return;
+    let cancelled = false;
+    urls.forEach((url) => {
+      const el = document.createElement("video");
+      el.preload = "metadata";
+      el.muted = true;
+      el.src = url;
+      el.onloadedmetadata = () => {
+        if (!cancelled && Number.isFinite(el.duration)) {
+          setMediaDurations((prev) => ({ ...prev, [url]: el.duration }));
+        }
+      };
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [globalMediaUrls, mediaDurations]);
+
+  const requiredVideoDuration = useMemo(() => {
+    let total = 0;
+    let clips = 0;
+    for (const m of globalMediaItems) {
+      if (!isVideoMediaUrl(m.url)) continue;
+      clips += 1;
+      const dur = mediaDurations[m.url];
+      const start = Math.max(0, m.start ?? 0);
+      const end = (m.end ?? 0) > 0 ? (m.end as number) : dur;
+      if (end == null) continue;
+      total += Math.max(0, end - start);
+    }
+    return { total, clips };
+  }, [globalMediaItems, mediaDurations]);
+
+
   const onDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
