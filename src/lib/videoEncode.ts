@@ -23,7 +23,16 @@ export type EncodeOptions = {
   audio: "keep" | "mute";
   /** Débit audio quand la piste est conservée. */
   audioBitrate: string;
+  /**
+   * Rendu à fond transparent (canal alpha).
+   *
+   * H.264/MP4 n'a pas de canal alpha : ce mode force une sortie **WebM VP9
+   * `yuva420p`**, destinée à la surimpression dans les montages. Ce n'est pas
+   * un livrable public (alpha VP9 mal supporté par Safari iOS).
+   */
+  transparent?: boolean;
 };
+
 
 export const ENCODE_PRESETS: {
   id: EncodePresetId;
@@ -101,6 +110,7 @@ export const normalizeEncode = (raw: unknown): EncodeOptions => {
     scale,
     audio: r.audio === "mute" ? "mute" : "keep",
     audioBitrate: AUDIO_BITRATES.includes(String(r.audioBitrate)) ? String(r.audioBitrate) : DEFAULT_ENCODE.audioBitrate,
+    transparent: r.transparent === true,
   };
 };
 
@@ -111,5 +121,6 @@ export const encodeSummary = (raw: unknown): string => {
   const bits = [`${label} (CRF ${e.crf})`];
   if (e.scale !== 1) bits.push(`${Math.round(e.scale * 100)} %`);
   if (e.audio === "mute") bits.push("muet");
+  if (e.transparent) bits.push("WebM alpha");
   return bits.join(" · ");
 };
