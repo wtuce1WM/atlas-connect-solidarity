@@ -760,7 +760,7 @@ export function useLandscapeVideos(enabled: boolean) {
       const [{ data: docs }, { data: gen }, { count: pendDocs }, { count: pendGen }] = await Promise.all([
         supabase
           .from("business_documents")
-          .select("id, url, name, thumbnail_url, business_id, media_width, media_height")
+          .select("id, url, name, thumbnail_url, business_id, hide_logo, media_width, media_height")
           .eq("type", "video")
           .eq("orientation", "landscape")
           .order("created_at", { ascending: false })
@@ -795,7 +795,7 @@ export function useLandscapeVideos(enabled: boolean) {
       const out: PickerMedia[] = [];
       for (const d of (docs ?? []) as any[]) {
         const url = typeof d.url === "string" ? d.url.trim() : "";
-        if (!url || !isInternalVideoUrl(url)) continue;
+        if (!url || !isInternalVideoUrl(url) || !!d.hide_logo) continue;
         out.push({
           url,
           kind: "video",
@@ -805,6 +805,7 @@ export function useLandscapeVideos(enabled: boolean) {
           orientation: "landscape",
           mediaId: String(d.id),
           ownerName: ownerNames.get(String(d.business_id)) ?? null,
+          hideLogo: !!d.hide_logo,
         });
       }
       for (const g of (gen ?? []) as any[]) {
