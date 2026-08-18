@@ -14,3 +14,4 @@
 - [Template vidéo feed](mem://features/video-feed-template) — Capture Playwright + manifest + Remotion pour générer une vidéo de feed /search en 720x1280 ou 1280x720
 - [Filtre quartier relances IA](mem://logic/ai-engine/neighborhood-followup-filter) — Quartier = filtre strict scoped ville sur le corpus précédent, jamais une nouvelle recherche
 - [Horaires implicites 24h/24](mem://logic/opening-hours-implicit-24h) — show_opening_hours décoché = ouvert 24h/24 pour les filtres/relances horaires ; is_open_24h en fin de vie
+- [Toujours recommander](mem://preferences/toujours-recommander) — Terminer toute analyse par une recommandation unique et tranchée
