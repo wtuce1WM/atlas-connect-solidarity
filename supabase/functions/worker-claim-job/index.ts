@@ -72,7 +72,23 @@ Deno.serve(async (req) => {
   const serviceRole = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const supabase = createClient(url, serviceRole);
 
+  // Mode "peek" (?peek=1) : ne réclame RIEN, renvoie juste s'il y a du travail.
+  // Utilisé par le workflow GitHub pour sortir avant les installs coûteuses.
+  if (new URL(req.url).searchParams.get('peek') === '1') {
+    const staleBefore = new Date(Date.now() - 25 * 60 * 1000).toISOString();
+    const [pendingRes, staleRes] = await Promise.all([
+      supabase.from('video_jobs').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      supabase.from('video_jobs').select('id', { count: 'exact', head: true })
+        .eq('status', 'rendering').lt('updated_at', staleBefore),
+    ]);
+    const pending = (pendingRes.count ?? 0) + (staleRes.count ?? 0);
+    return new Response(JSON.stringify({ pending, has_work: pending > 0 }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
+
     let { data: candidate, error: selErr } = await supabase
       .from('video_jobs')
       .select('id')
