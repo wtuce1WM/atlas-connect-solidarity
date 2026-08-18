@@ -134,16 +134,20 @@ function extOf(url) {
   return m ? m[1].toLowerCase() : "bin";
 }
 
+/** URLs déjà en échec dans ce process : évite de réessayer 3× le même hôte mort. */
+const FAILED_URLS = new Set();
+
 async function downloadMedia(url) {
   const key = Buffer.from(url).toString("base64url").slice(-40);
   const file = `${key}.${extOf(url)}`;
   const dest = path.join(DL_DIR, file);
   if (fs.existsSync(dest) && fs.statSync(dest).size > 0) return `dl/${file}`;
+  if (FAILED_URLS.has(url)) return null;
   if (!fs.existsSync(DL_DIR)) fs.mkdirSync(DL_DIR, { recursive: true });
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 90000);
+    const timer = setTimeout(() => ctrl.abort(), 30000);
     try {
       const r = await fetch(url, {
         redirect: "follow",
@@ -163,8 +167,10 @@ async function downloadMedia(url) {
       clearTimeout(timer);
     }
   }
+  FAILED_URLS.add(url);
   return null;
 }
+
 
 /**
  * Réécrit récursivement toute URL média http(s) des props vers un fichier local.
