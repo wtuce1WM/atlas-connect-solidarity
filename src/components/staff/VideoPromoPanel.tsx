@@ -16,6 +16,9 @@ import { Rocket, RefreshCw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { isInternalVideoUrl } from "@/lib/videoSourceFilter";
 import RichTextEditor from "@/components/staff/RichTextEditor";
+import VideoEncodeOptionsBlock from "@/components/staff/VideoEncodeOptionsBlock";
+import { DEFAULT_ENCODE, normalizeEncode, type EncodeOptions } from "@/lib/videoEncode";
+
 
 /**
  * Sous-onglet « Promo business » de l'onglet Générer.
