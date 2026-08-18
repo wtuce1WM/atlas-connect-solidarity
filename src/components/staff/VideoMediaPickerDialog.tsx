@@ -478,7 +478,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         for (let i = 0; i < genericDocIds.length; i += 200) {
           const { data, error } = await supabase
             .from("business_documents")
-            .select("id, url, name, thumbnail_url, business_id, youtube_video_url, instagram_video_url, tiktok_video_url")
+            .select("id, url, name, thumbnail_url, business_id, hide_logo, youtube_video_url, instagram_video_url, tiktok_video_url")
             .eq("type", "video")
             .in("id", genericDocIds.slice(i, i + 200));
           if (error) throw error;
@@ -505,6 +505,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
             source: genericSet.has(String(d.id)) ? "generic" : "fiche",
             mediaId: String(d.id),
             ownerName: ownerNames.get(String(d.business_id)) ?? null,
+            hideLogo: !!d.hide_logo,
           });
         }
       }
