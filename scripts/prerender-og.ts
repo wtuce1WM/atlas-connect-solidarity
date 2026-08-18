@@ -213,8 +213,12 @@ export function prerenderOgPlugin(): Plugin {
       ];
 
       let articlesWritten = 0;
+      let articlesPreserved = 0;
       const writeArticle = async (slugPath: string, title: string, description: string, image?: string, dates?: { publishedAt?: string; modifiedAt?: string }) => {
+        // C1 — ne pas écraser une page riche déjà générée dans public/ → dist/
+        if (isRichPage(slugPath)) { articlesPreserved++; return; }
         const url = `${BASE}/${slugPath}`;
+
         const cleanTitle = title.replace(` — ${SITE}`, "").replace(` | ${SITE}`, "");
         const cleanDescription = stripHtml(description).substring(0, 200);
         const articleImage = image || DEFAULT_IMG;
