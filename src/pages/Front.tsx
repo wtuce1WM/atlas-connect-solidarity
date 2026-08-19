@@ -407,6 +407,7 @@ const Front = () => {
           {/* Recherche (avec overlay vocal) */}
           <div className="w-full" onClick={(e) => e.stopPropagation()}>
             <HeroInlineSearch
+              hideBarWhenVoiceActive
               placeholder="Que cherchez-vous ? Et où ?"
               onVoiceActiveChange={setVoiceActive}
               voiceTextClassName="text-white"
