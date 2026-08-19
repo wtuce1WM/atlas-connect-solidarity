@@ -58,9 +58,12 @@ const STEPS: Step[] = [
   },
 ];
 
-const BULLET_STEPS = STEPS.map((s, i) => (s.bullet ? i : -1)).filter((i) => i >= 0);
-/** Largeur relative de chaque segment, calée sur la longueur du texte du bullet point. */
-const BULLET_WEIGHTS = [5, 0.8, 0.8, 2, 5, 3];
+/** Premier bullet point : toujours visible (le plus important). */
+const PERMANENT_STEP = 1;
+/** Indices des bullets qui défilent dans le carrousel (2-6). */
+const CAROUSEL_STEPS = [2, 3, 4, 5, 6];
+/** Largeur relative de chaque segment, calée sur la longueur du bullet point défilant. */
+const BULLET_WEIGHTS = [0.8, 0.8, 2, 5, 3];
 
 
 const CTAS: { label: string; to: string }[] = [
@@ -85,7 +88,7 @@ const Front = () => {
   });
 
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1);
   const [progress, setProgress] = useState(0);
   const [isPortrait, setIsPortrait] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches
@@ -132,7 +135,7 @@ const Front = () => {
   }, []);
 
   useEffect(() => {
-    scheduleNext(0);
+    scheduleNext(PERMANENT_STEP);
     return () => {
       if (timerRef.current) window.clearTimeout(timerRef.current);
     };
@@ -475,40 +478,50 @@ const Front = () => {
           >
             <style>{`@keyframes owmSlideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}`}</style>
             <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
-              <div className="min-h-[4.5rem] md:min-h-[5rem]">
-                {step > 0 && (
-                  <div
-                    key={step}
-                    className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-base"
-                    style={{
-                      animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
-                    }}
-                  >
-                    {STEPS[step].bullet ? (
+              <div className="flex flex-col gap-4">
+                {/* Bullet permanent — reste visible à sa place */}
+                <div className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-base">
+                  <img
+                    src={hamsaIcon.url}
+                    alt=""
+                    className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
+                    loading="lazy"
+                  />
+                  <span>{STEPS[PERMANENT_STEP].render()}</span>
+                </div>
+
+                {/* Bullet courant du carrousel (2-6) */}
+                <div className="min-h-[3rem] md:min-h-[3.5rem]">
+                  {step >= CAROUSEL_STEPS[0] && (
+                    <div
+                      key={step}
+                      className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-base"
+                      style={{
+                        animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
+                      }}
+                    >
                       <img
                         src={hamsaIcon.url}
                         alt=""
                         className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
                         loading="lazy"
                       />
-                    ) : (
-                      <span className="w-0 shrink-0" />
-                    )}
-                    <span>{STEPS[step].render()}</span>
-                  </div>
-                )}
+                      <span>{STEPS[step].render()}</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Progress bar segmentée — un segment par étape narrative */}
+              {/* Progress bar segmentée — un segment par bullet défilant (2-6), la première barre (bullet 1) est supprimée */}
               <div className="mt-4 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
-                {BULLET_STEPS.map((stepIndex, i) => {
+                {CAROUSEL_STEPS.map((stepIndex, i) => {
                   const done = step > stepIndex;
                   const current = step === stepIndex;
                   return (
                     <button
                       key={stepIndex}
                       type="button"
-                      aria-label={`Étape ${i + 1}`}
+                      aria-label={`Bullet ${stepIndex}`}
                       aria-current={current}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -528,7 +541,6 @@ const Front = () => {
                           ...(current && !reduced && auto
                             ? { animation: `owmFillBar ${STEP_MS}ms linear both` }
                             : null),
-
                         }}
                       />
                     </button>
