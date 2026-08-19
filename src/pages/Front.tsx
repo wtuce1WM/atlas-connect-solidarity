@@ -696,10 +696,9 @@ const Front = () => {
             color: "transparent",
             WebkitTextStrokeWidth: "2px",
             WebkitTextStrokeColor: "#FFFFFF",
-            animation: !ctaActive || reduced ? undefined : "owmSlideDown 420ms ease-out both",
           }}
         >
-          <span className="block md:inline">One</span> World Morocco
+          <span className="block md:inline">One World</span> Morocco
         </p>
 
         <div className="grid w-full max-w-5xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
