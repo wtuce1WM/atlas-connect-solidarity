@@ -52,6 +52,7 @@ import StoryboardGlobalMediaGrid, {
   type GlobalMediaItem,
 } from "@/components/staff/StoryboardGlobalMediaGrid";
 import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
+import VideoScenarioRenderPanel from "@/components/staff/VideoScenarioRenderPanel";
 import VideoJobMeta from "@/components/staff/VideoJobMeta";
 import StepVoiceOverBlock, { type StepVoice } from "@/components/staff/StepVoiceOverBlock";
 import { Copy } from "lucide-react";
@@ -2172,33 +2173,34 @@ const VideoStoryboardPanel = () => {
         )}
       </div>
 
-      {/* ---------- Scénarios automatiques ---------- */}
+      {/* ---------- Scénarios automatiques : mêmes 3 onglets que les montages ---------- */}
       {legacyMode && (
-        <>
-          <VideoScenarioConfigPanel initialMode={legacyMode} hideModeSwitch />
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-black text-base flex items-center gap-2">
-                <Rocket className="h-4 w-4" /> Rendu du scénario automatique
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-xs text-muted-foreground">
-                Ce montage utilise le moteur <strong>Studio Vidéo IA</strong> (
-                <code>{legacyMode === "business" ? "business-showcase" : "corporate-vertical"}</code>) : le
-                déroulé configuré ci-dessus est appliqué, mais le rendu a besoin d'un prompt et d'un
-                établissement. On lance donc le rendu depuis Studio Vidéo, et les jobs produits
-                apparaissent dans l'onglet « Rendus ».
-              </p>
-              <Button size="sm" variant="secondary" asChild>
-                <a href="/studio-video" target="_blank" rel="noreferrer">
-                  <Rocket className="h-4 w-4 mr-1" /> Lancer un rendu dans Studio Vidéo IA
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
-        </>
+        <Tabs value={tab} onValueChange={setTab} className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="montage" className="gap-2">
+              <Film className="h-4 w-4" /> Montage
+            </TabsTrigger>
+            <TabsTrigger value="effets" className="gap-2">
+              <LayoutTemplate className="h-4 w-4" /> Effets
+            </TabsTrigger>
+            <TabsTrigger value="rendus" className="gap-2">
+              <Rocket className="h-4 w-4" /> Rendus
+            </TabsTrigger>
+          </TabsList>
+          {/* Le panneau d'étapes reste monté hors onglet actif pour ne pas perdre les saisies. */}
+          <div className={tab === "montage" ? "" : "hidden"}>
+            <VideoScenarioConfigPanel initialMode={legacyMode} hideModeSwitch />
+          </div>
+          <VideoScenarioRenderPanel
+            mode={legacyMode}
+            activeTab={tab}
+            jobs={jobs}
+            jobBusinessNames={jobBusinessNames}
+            onReloadJobs={loadJobs}
+          />
+        </Tabs>
       )}
+
 
       {/* ---------- Montage manuel : 3 onglets ---------- */}
       <div className={legacyMode ? "hidden" : ""}>
