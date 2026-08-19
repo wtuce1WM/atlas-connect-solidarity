@@ -186,9 +186,11 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick, onVoiceA
           liveTranscript={voice.liveTranscript}
           audioLevel={voice.audioLevel}
           micReady={voice.micReady}
+          textClassName={voiceTextClassName}
           onClose={voice.toggleRecording}
           onFinish={voice.finishRecording}
         />
+
       )}
     </div>
   );
