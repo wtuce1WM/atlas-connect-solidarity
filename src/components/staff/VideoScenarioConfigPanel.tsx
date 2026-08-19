@@ -667,6 +667,18 @@ const VideoScenarioConfigPanel = ({
   const [noteCounts, setNoteCounts] = useState<Record<string, number>>({});
   /** Dernière valeur synchrone des médias globaux, utilisée par Enregistrer. */
   const globalMediaRef = useRef<GlobalMediaItem[]>([]);
+  /** Slot DOM du panneau Guide du storyboard (mode Corporate uniquement). */
+  const [corporateNoteSlot, setCorporateNoteSlot] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (mode !== "corporate" || typeof document === "undefined") return;
+    const update = () => setCorporateNoteSlot(document.getElementById("corporate-note-slot") as HTMLElement | null);
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [mode]);
+
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
