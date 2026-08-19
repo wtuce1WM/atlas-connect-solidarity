@@ -801,10 +801,7 @@ function buildArticleHtml(article: StaticArticle): string {
       ...(s.paragraphs || []),
       ...(s.body ? [s.body] : []),
     ];
-    for (const b of bodies) {
-      const txt = stripHtml(String(b)).trim();
-      if (txt) parts.push(`<p>${escapeHtml(txt)}</p>`);
-    }
+    for (const b of bodies) pushParagraph(String(b));
   }
 
   const entries = (article.entries || []).filter((en) => en && (en.title || en.hook));
@@ -819,11 +816,8 @@ function buildArticleHtml(article: StaticArticle): string {
         : escapeHtml(name);
       parts.push(`<h3>${en.rank ? `${en.rank}. ` : ""}${heading}</h3>`);
       if (en.pretitle) parts.push(`<p><strong>${escapeHtml(stripHtml(String(en.pretitle)))}</strong></p>`);
-      if (en.hook) parts.push(`<p>${escapeHtml(stripHtml(String(en.hook)))}</p>`);
-      for (const p of en.paragraphs || []) {
-        const txt = stripHtml(String(p)).trim();
-        if (txt) parts.push(`<p>${escapeHtml(txt)}</p>`);
-      }
+      if (en.hook) pushParagraph(String(en.hook));
+      for (const p of en.paragraphs || []) pushParagraph(String(p));
       if (en.hours) parts.push(`<p>${escapeHtml(stripHtml(String(en.hours)))}</p>`);
       if (name) {
         listItems.push({
