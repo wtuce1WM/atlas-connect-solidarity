@@ -171,6 +171,62 @@ const Front = () => {
   const [accrocheVisible, setAccrocheVisible] = useState(false);
   const [bulletsVisible, setBulletsVisible] = useState(false);
 
+  /** Auto-fit du slogan écran 1 : taille max possible dans l'espace réellement libre
+   *  (conteneur − paddings − bloc inférieur), au lieu d'une taille calculée sur le
+   *  viewport (vh) qui débordait sous la barre de recherche sur iOS. Si 5 lignes ne
+   *  tiennent pas lisiblement, repli automatique en 3 lignes. Mobile uniquement. */
+  const narrativeBoxRef = useRef<HTMLDivElement | null>(null);
+  const bottomBlockRef = useRef<HTMLDivElement | null>(null);
+  const [sloganFontPx, setSloganFontPx] = useState<number | null>(null);
+  const [sloganCompact, setSloganCompact] = useState(false);
+
+  useEffect(() => {
+    const LEADING = 1.12;
+    const MIN_5_LINES_PX = 26;
+    const compute = () => {
+      const box = narrativeBoxRef.current;
+      const bottom = bottomBlockRef.current;
+      if (!box || !bottom) return;
+      if (window.innerWidth >= 768) {
+        setSloganFontPx(null);
+        setSloganCompact(false);
+        return;
+      }
+      const cs = getComputedStyle(box);
+      const avail =
+        box.clientHeight -
+        parseFloat(cs.paddingTop) -
+        parseFloat(cs.paddingBottom) -
+        bottom.offsetHeight;
+      if (avail <= 0) {
+        setSloganCompact(true);
+        setSloganFontPx(16);
+        return;
+      }
+      const cap = Math.min(0.06 * window.innerWidth, 0.055 * window.innerHeight, 60);
+      const usable = avail * 0.94;
+      const fit5 = usable / (5 * LEADING);
+      if (fit5 >= MIN_5_LINES_PX) {
+        setSloganCompact(false);
+        setSloganFontPx(Math.min(cap, fit5));
+      } else {
+        setSloganCompact(true);
+        setSloganFontPx(Math.max(16, Math.min(cap, usable / (3 * LEADING))));
+      }
+    };
+    compute();
+    const ro = new ResizeObserver(compute);
+    if (narrativeBoxRef.current) ro.observe(narrativeBoxRef.current);
+    if (bottomBlockRef.current) ro.observe(bottomBlockRef.current);
+    window.addEventListener("resize", compute);
+    window.addEventListener("orientationchange", compute);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", compute);
+      window.removeEventListener("orientationchange", compute);
+    };
+  }, []);
+
   // délais d'apparition de l'accroche et des bullets
   useEffect(() => {
     const t1 = window.setTimeout(() => setAccrocheVisible(true), 1000);
@@ -439,7 +495,8 @@ const Front = () => {
 
       {/* Bloc central — slogan centré entre header et recherche, recherche ancrée en bas */}
       <div
-        className="absolute inset-0 z-20 flex flex-col px-5 pt-24 pb-20 md:px-10 md:pb-20 lg:px-16"
+        ref={narrativeBoxRef}
+        className="absolute inset-0 z-20 flex flex-col px-5 pt-16 pb-20 md:pt-24 md:px-10 md:pb-20 lg:px-16"
         style={{
           opacity: narrativeOpacity,
           transform: reduced
@@ -452,31 +509,53 @@ const Front = () => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Slogan — centré verticalement dans l'espace restant au-dessus de la recherche */}
-        <div className="flex flex-1 flex-col items-center justify-center md:justify-start md:pt-10">
+        <div
+          className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden md:justify-start md:pt-10"
+        >
           <h1
-            className="mb-[-0.75rem] text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight md:mb-[-1.25rem] md:leading-[0.95] md:-translate-y-6"
+            className={`text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight md:mb-[-1.25rem] md:leading-[0.95] md:-translate-y-6 ${
+              sloganCompact ? "" : "mb-[-0.75rem]"
+            }`}
             style={{
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 900,
               color: "transparent",
               WebkitTextStrokeWidth: "2px",
               WebkitTextStrokeColor: "#FFFFFF",
+              ...(sloganFontPx ? { fontSize: `${sloganFontPx}px` } : null),
               opacity: voiceActive ? 0 : 1,
               animation: reduced || voiceActive ? undefined : "owmSlideDown 420ms ease-out both",
               transition: motion,
             }}
             aria-hidden={voiceActive}
           >
-            <span className="block">LOCAL</span>
-            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-            <span className="block">DIGITAL</span>
-            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-            <span className="block">SOLIDAIRE</span>
+            {sloganCompact ? (
+              <>
+                <span className="block">
+                  LOCAL <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+                </span>
+                <span className="block">
+                  DIGITAL <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+                </span>
+                <span className="block">SOLIDAIRE</span>
+              </>
+            ) : (
+              <>
+                <span className="block">LOCAL</span>
+                <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+                <span className="block">DIGITAL</span>
+                <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+                <span className="block">SOLIDAIRE</span>
+              </>
+            )}
           </h1>
         </div>
 
         {/* Bloc inférieur — recherche + demo + accroche + storybox */}
-        <div className="flex w-full max-w-2xl flex-col items-center gap-2 self-center md:gap-3">
+        <div
+          ref={bottomBlockRef}
+          className="flex w-full max-w-2xl flex-col items-center gap-2 self-center md:gap-3"
+        >
           {/* Recherche (avec overlay vocal) */}
           <div
             className="w-full"
