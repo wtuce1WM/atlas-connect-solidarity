@@ -143,6 +143,18 @@ const Front = () => {
 
   const [auto, setAuto] = useState(true);
   const [voiceActive, setVoiceActive] = useState(false);
+  const [accrocheVisible, setAccrocheVisible] = useState(false);
+  const [bulletsVisible, setBulletsVisible] = useState(false);
+
+  // délais d'apparition de l'accroche et des bullets
+  useEffect(() => {
+    const t1 = window.setTimeout(() => setAccrocheVisible(true), 1000);
+    const t2 = window.setTimeout(() => setBulletsVisible(true), 2000);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, []);
 
 
   const goToStep = useCallback(
@@ -367,7 +379,7 @@ const Front = () => {
 
       {/* Bloc central — slogan centré entre header et recherche, recherche ancrée en bas */}
       <div
-        className="absolute inset-0 z-20 flex flex-col px-5 pt-24 pb-6 md:px-10 md:pb-8 lg:px-16"
+        className="absolute inset-0 z-20 flex flex-col px-5 pt-24 pb-14 md:px-10 md:pb-20 lg:px-16"
         style={{
           opacity: narrativeOpacity,
           transform: reduced
@@ -407,7 +419,7 @@ const Front = () => {
         </div>
 
         {/* Bloc inférieur — recherche + demo + accroche + storybox */}
-        <div className="flex w-full max-w-2xl flex-col items-center gap-4 self-center">
+        <div className="flex w-full max-w-2xl flex-col items-center gap-3 self-center">
           {/* Recherche (avec overlay vocal) */}
           <div className="w-full" onClick={(e) => e.stopPropagation()}>
             <HeroInlineSearch
@@ -459,24 +471,29 @@ const Front = () => {
           </div>
 
 
-          {/* Accroche fixe sous le CTA Demo */}
+          {/* Accroche fixe sous le CTA Demo — apparaît après 1 s */}
           <p
             className="font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-lg"
-            style={{ opacity: voiceActive ? 0 : 1, transition: motion }}
-            aria-hidden={voiceActive}
+            style={{
+              opacity: voiceActive || !accrocheVisible ? 0 : 1,
+              transform: voiceActive || !accrocheVisible ? "translateY(12px)" : "translateY(0)",
+              transition: motion,
+            }}
+            aria-hidden={voiceActive || !accrocheVisible}
           >
             Notre App fait ce que font...
           </p>
 
-          {/* Storybox — sous l'accroche, une seule étape à la fois */}
+          {/* Storybox — sous l'accroche, apparaît après 2 s */}
           <div
             className="w-full"
             style={{
-              opacity: voiceActive ? 0 : 1,
-              pointerEvents: voiceActive ? "none" : "auto",
+              opacity: voiceActive || !bulletsVisible ? 0 : 1,
+              transform: voiceActive || !bulletsVisible ? "translateY(12px)" : "translateY(0)",
+              pointerEvents: voiceActive || !bulletsVisible ? "none" : "auto",
               transition: motion,
             }}
-            aria-hidden={voiceActive}
+            aria-hidden={voiceActive || !bulletsVisible}
           >
             <style>{`@keyframes owmSlideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}`}</style>
             <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
