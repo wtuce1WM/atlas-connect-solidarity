@@ -30,7 +30,6 @@ import {
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import RichTextEditor from "./RichTextEditor";
-import VideoStepNotesDialog from "./VideoStepNotesDialog";
 import { VideoMediaPickerDialog } from "./VideoMediaPickerDialog";
 import StoryboardGlobalMediaGrid, {
   isVideoMediaUrl,
