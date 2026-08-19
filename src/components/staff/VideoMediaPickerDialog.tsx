@@ -257,7 +257,17 @@ function Tile({
                   noteOrientation(ratioToOrientation(v.videoWidth, v.videoHeight));
                 }
                 if (Number.isFinite(v.duration)) setDuration(v.duration);
+                // Sans poster, la vignette reste noire : on décale la tête de
+                // lecture pour forcer l'affichage d'une image réelle.
+                if (v.currentTime === 0 && Number.isFinite(v.duration) && v.duration > 0.2) {
+                  try {
+                    v.currentTime = 0.1;
+                  } catch {
+                    /* ignore */
+                  }
+                }
               }}
+
               onEnded={() => setPlaying(false)}
             />
           ) : (
