@@ -38,6 +38,7 @@ const StoryboardStepNotesList = () => {
   const [sort, setSort] = useState<SortKey>("updated");
   const [openId, setOpenId] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
