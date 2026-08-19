@@ -548,7 +548,10 @@ const Front = () => {
         </div>
 
         {/* Bloc inférieur — recherche + demo + accroche + storybox */}
-        <div className="flex w-full max-w-2xl flex-col items-center gap-2 self-center md:gap-3">
+        <div
+          ref={bottomBlockRef}
+          className="flex w-full max-w-2xl flex-col items-center gap-2 self-center md:gap-3"
+        >
           {/* Recherche (avec overlay vocal) */}
           <div
             className="w-full"
