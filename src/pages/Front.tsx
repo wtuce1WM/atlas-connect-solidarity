@@ -483,6 +483,7 @@ const Front = () => {
 
       {/* Bloc central — slogan centré entre header et recherche, recherche ancrée en bas */}
       <div
+        ref={narrativeBoxRef}
         className="absolute inset-0 z-20 flex flex-col px-5 pt-24 pb-20 md:px-10 md:pb-20 lg:px-16"
         style={{
           opacity: narrativeOpacity,
