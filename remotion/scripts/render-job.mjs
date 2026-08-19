@@ -470,7 +470,7 @@ async function renderOne() {
         audioBitrate: wantsAudio ? encode.audioBitrate : undefined,
         enforceAudioTrack: wantsAudio,
         concurrency: 1,
-        jpegQuality: encode.jpegQuality,
+        jpegQuality: alpha ? undefined : encode.jpegQuality,
         crf: encode.crf,
         scale: encode.scale,
         inputProps: props,
