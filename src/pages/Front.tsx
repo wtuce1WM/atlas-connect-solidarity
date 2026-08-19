@@ -379,7 +379,7 @@ const Front = () => {
 
       {/* Bloc central — slogan centré entre header et recherche, recherche ancrée en bas */}
       <div
-        className="absolute inset-0 z-20 flex flex-col px-5 pt-24 pb-14 md:px-10 md:pb-20 lg:px-16"
+        className="absolute inset-0 z-20 flex flex-col px-5 pt-24 pb-24 md:px-10 md:pb-20 lg:px-16"
         style={{
           opacity: narrativeOpacity,
           transform: reduced
@@ -424,7 +424,7 @@ const Front = () => {
           <div className="w-full" onClick={(e) => e.stopPropagation()}>
             <HeroInlineSearch
               hideBarWhenVoiceActive
-              placeholder="Que cherchez-vous ? Et où ?"
+              placeholder="Inspirez-vous"
               onVoiceActiveChange={setVoiceActive}
               voiceTextClassName="text-white"
               onSearch={(params) => {
@@ -471,25 +471,28 @@ const Front = () => {
           </div>
 
 
-          {/* Accroche fixe sous le CTA Demo — apparaît après 1 s */}
-          <p
-            className="font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-lg"
-            style={{
-              opacity: voiceActive || !accrocheVisible ? 0 : 1,
-              transform: voiceActive || !accrocheVisible ? "translateY(12px)" : "translateY(0)",
-              transition: motion,
-            }}
-            aria-hidden={voiceActive || !accrocheVisible}
-          >
-            Notre App fait ce que font...
-          </p>
+          {/* Accroche fixe sous le CTA Demo — apparaît après 1 s, même effet que les bullets */}
+          <div className="min-h-[1.5rem] md:min-h-[1.75rem]">
+            {accrocheVisible && (
+              <p
+                className="font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-lg"
+                style={{
+                  opacity: voiceActive ? 0 : 1,
+                  animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
+                  transition: motion,
+                }}
+                aria-hidden={voiceActive}
+              >
+                Notre App fait ce que font...
+              </p>
+            )}
+          </div>
 
           {/* Storybox — sous l'accroche, apparaît après 2 s */}
           <div
             className="w-full"
             style={{
-              opacity: voiceActive || !bulletsVisible ? 0 : 1,
-              transform: voiceActive || !bulletsVisible ? "translateY(12px)" : "translateY(0)",
+              opacity: voiceActive ? 0 : 1,
               pointerEvents: voiceActive || !bulletsVisible ? "none" : "auto",
               transition: motion,
             }}
@@ -498,25 +501,29 @@ const Front = () => {
             <style>{`@keyframes owmSlideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}`}</style>
             <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
               <div className="flex flex-col gap-4">
-                {/* Bullet permanent — toujours visible, avec animation d'apparition initiale */}
-                <div
-                  className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-base"
-                  style={{
-                    animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
-                  }}
-                >
-                  <img
-                    src={hamsaIcon.url}
-                    alt=""
-                    className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
-                    loading="lazy"
-                  />
-                  <span>{STEPS[PERMANENT_STEP].render()}</span>
+                {/* Bullet permanent — hauteur réservée pour éviter tout saut visuel */}
+                <div className="min-h-[5.5rem] md:min-h-[3.5rem]">
+                  {bulletsVisible && (
+                    <div
+                      className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-base"
+                      style={{
+                        animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
+                      }}
+                    >
+                      <img
+                        src={hamsaIcon.url}
+                        alt=""
+                        className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
+                        loading="lazy"
+                      />
+                      <span>{STEPS[PERMANENT_STEP].render()}</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Bullet courant du carrousel (2-6) */}
-                <div className="min-h-[3rem] md:min-h-[3.5rem]">
-                  {step >= CAROUSEL_STEPS[0] && (
+                {/* Bullet courant du carrousel (2-6) — hauteur réservée sur le plus long texte */}
+                <div className="min-h-[4.5rem] md:min-h-[3.5rem]">
+                  {bulletsVisible && step >= CAROUSEL_STEPS[0] && (
                     <div
                       key={step}
                       className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-base"
@@ -535,6 +542,7 @@ const Front = () => {
                   )}
                 </div>
               </div>
+
 
               {/* Progress bar segmentée — un segment par bullet défilant (2-6), la première barre (bullet 1) est supprimée */}
               <div className="mt-4 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
