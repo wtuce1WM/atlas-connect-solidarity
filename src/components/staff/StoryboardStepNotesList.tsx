@@ -21,7 +21,7 @@ type Row = {
   title: string | null;
   content: string | null;
   updated_at: string;
-  step_id: string;
+  step_id: string | null;
   step_label: string;
 };
 
