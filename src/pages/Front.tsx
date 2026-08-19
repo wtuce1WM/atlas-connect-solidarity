@@ -462,7 +462,7 @@ const Front = () => {
               WebkitTextStrokeWidth: "2px",
               WebkitTextStrokeColor: "#FFFFFF",
               opacity: voiceActive ? 0 : 1,
-              animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
+              animation: reduced || voiceActive ? undefined : "owmSlideDown 420ms ease-out both",
               transition: motion,
             }}
             aria-hidden={voiceActive}
