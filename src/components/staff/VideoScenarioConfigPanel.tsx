@@ -527,20 +527,6 @@ const SortableStep = ({
               maxHeight="320px"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <VideoStepNotesDialog
-              stepId={step.id}
-              stepLabel={step.label || step.scene_key}
-              disabled={step._new}
-              count={noteCount}
-              onCountChange={onNoteCount}
-            />
-            {step._new && (
-              <span className="text-[11px] text-muted-foreground">
-                Enregistre le scénario pour pouvoir ajouter des notes à cette étape.
-              </span>
-            )}
-          </div>
           <label className="text-xs text-muted-foreground grid gap-1">
             Message clé (bas d'écran)
             <Textarea
