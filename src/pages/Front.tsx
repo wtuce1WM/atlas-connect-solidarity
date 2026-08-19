@@ -546,7 +546,16 @@ const Front = () => {
 
 
               {/* Progress bar segmentée — un segment par bullet défilant (2-6), la première barre (bullet 1) est supprimée */}
-              <div className="mt-4 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+              <div
+                className="mt-4 flex gap-1.5"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  opacity: barsVisible ? 1 : 0,
+                  animation: barsVisible && !reduced ? "owmSlideDown 420ms ease-out both" : undefined,
+                  pointerEvents: barsVisible ? "auto" : "none",
+                }}
+                aria-hidden={!barsVisible}
+              >
                 {CAROUSEL_STEPS.map((stepIndex, i) => {
                   const done = step > stepIndex;
                   const current = step === stepIndex;
