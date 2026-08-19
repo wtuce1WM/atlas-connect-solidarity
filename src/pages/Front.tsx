@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronUp, ArrowUpRight, Menu, X } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
+import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import { useLanguage } from "@/contexts/LanguageContext";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import portraitVideo from "@/assets/hero-home-portrait.mp4.asset.json";
