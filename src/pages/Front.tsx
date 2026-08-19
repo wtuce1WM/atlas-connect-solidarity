@@ -501,7 +501,9 @@ const Front = () => {
           className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden md:justify-start md:pt-10"
         >
           <h1
-            className="mb-[-0.75rem] text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight md:mb-[-1.25rem] md:leading-[0.95] md:-translate-y-6"
+            className={`text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight md:mb-[-1.25rem] md:leading-[0.95] md:-translate-y-6 ${
+              sloganCompact ? "" : "mb-[-0.75rem]"
+            }`}
             style={{
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 900,
@@ -515,11 +517,25 @@ const Front = () => {
             }}
             aria-hidden={voiceActive}
           >
-            <span className="block">LOCAL</span>
-            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-            <span className="block">DIGITAL</span>
-            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-            <span className="block">SOLIDAIRE</span>
+            {sloganCompact ? (
+              <>
+                <span className="block">
+                  LOCAL <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+                </span>
+                <span className="block">
+                  DIGITAL <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+                </span>
+                <span className="block">SOLIDAIRE</span>
+              </>
+            ) : (
+              <>
+                <span className="block">LOCAL</span>
+                <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+                <span className="block">DIGITAL</span>
+                <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+                <span className="block">SOLIDAIRE</span>
+              </>
+            )}
           </h1>
         </div>
 
