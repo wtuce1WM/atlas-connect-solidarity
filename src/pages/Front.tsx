@@ -14,7 +14,12 @@ const STEP_MS = 3400;
 type Step = { bullet: boolean; render: () => React.ReactNode };
 
 const STEPS: Step[] = [
-  { bullet: false, render: () => <>Notre App fait ce que font...</> },
+  {
+    bullet: false,
+    render: () => (
+      <span className="text-[#F4EEE4]">Notre App fait ce que font...</span>
+    ),
+  },
   {
     bullet: true,
     render: () => (
@@ -37,7 +42,7 @@ const STEPS: Step[] = [
     render: () => (
       <>
         avec un modèle économique direct-to-local, sans commission et solidaire :{" "}
-        <strong className="font-bold text-gold">20 %</strong> des abonnements des affiliés
+        <strong className="font-bold text-white">20 %</strong> des abonnements des affiliés
         sont destinés à des causes humanitaires au Maroc...
       </>
     ),
@@ -343,9 +348,51 @@ const Front = () => {
         </nav>
       </div>
 
-      {/* Couche narrative */}
+      {/* Bloc slogan + recherche — conteneur séparé et fixe pour éviter le saut visuel du récit */}
       <div
-        className="absolute inset-0 z-10 flex flex-col justify-center px-5 pb-24 pt-20 md:px-10 lg:px-16"
+        className="absolute left-0 right-0 top-0 z-20 flex flex-col items-center px-5 pt-[14vh] md:px-10 lg:px-16 md:pt-[16vh]"
+        style={{
+          opacity: narrativeOpacity,
+          transform: reduced
+            ? undefined
+            : `translateY(${-range(progress, 0, 0.35) * 40}px)`,
+          pointerEvents: narrativeActive ? "auto" : "none",
+          transition: motion,
+        }}
+        aria-hidden={!narrativeActive}
+      >
+        <div className="w-full max-w-4xl">
+          <h1
+            className="text-[clamp(2.25rem,6.5vw,5.5rem)] uppercase leading-[0.88] tracking-tight text-[#F4EEE4]"
+            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900 }}
+          >
+            <span className="block">
+              LOCAL <span className="text-primary">×</span> DIGITAL{" "}
+              <span className="text-primary">×</span>
+            </span>
+            <span className="block">SOLIDAIRE</span>
+          </h1>
+
+          {/* Recherche (avec overlay vocal) */}
+          <div
+            className="mt-5 w-full max-w-2xl md:mt-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <HeroInlineSearch
+              placeholder="Que cherchez-vous ? Et où ?"
+              onSearch={(params) => {
+                const qs = new URLSearchParams(params).toString();
+                if (qs) navigate(`/search?${qs}`);
+              }}
+              onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Couche narrative (storybox) — ancrée en bas pour ne pas pousser le slogan */}
+      <div
+        className="absolute left-0 right-0 bottom-[6vh] z-10 flex flex-col justify-end px-5 md:px-10 lg:px-16"
         style={{
           opacity: narrativeOpacity,
           transform: reduced
@@ -357,35 +404,9 @@ const Front = () => {
         aria-hidden={!narrativeActive}
       >
         <div className="mx-auto w-full max-w-4xl">
-          {/* Bloc identité + slogan, conteneur séparé du récit pour éviter le saut visuel */}
-          <div className="mb-6 md:mb-8">
-            <h1 className="font-josefin text-[clamp(2.75rem,8.5vw,7rem)] font-black uppercase leading-[0.9] tracking-tight text-[#F4EEE4]">
-              <span className="block">
-                Local <span className="text-primary">×</span> Digital{" "}
-                <span className="text-primary">×</span>
-              </span>
-              <span className="block">Solidaire</span>
-            </h1>
-
-            {/* Recherche (avec overlay vocal) */}
-            <div
-              className="mt-6 w-full max-w-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <HeroInlineSearch
-                placeholder="Que cherchez-vous ? Et où ?"
-                onSearch={(params) => {
-                  const qs = new URLSearchParams(params).toString();
-                  if (qs) navigate(`/search?${qs}`);
-                }}
-                onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
-              />
-            </div>
-          </div>
-
           {/* Storybox */}
           <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
-            <ul className="space-y-2.5">
+            <ul className="space-y-2">
               {STEPS.slice(0, step + 1).map((s, i) => {
                 const isActive = i === step;
                 return (
@@ -415,7 +436,7 @@ const Front = () => {
             </ul>
 
             {/* Progress bar segmentée */}
-            <div className="mt-6 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+            <div className="mt-5 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
               {STEPS.map((_, i) => (
                 <button
                   key={i}
@@ -462,7 +483,6 @@ const Front = () => {
                 Lecture automatique{auto ? "" : " (en pause)"}
               </button>
             </div>
-
           </div>
         </div>
       </div>
