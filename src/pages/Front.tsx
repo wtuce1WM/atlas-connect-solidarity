@@ -198,7 +198,11 @@ const Front = () => {
         parseFloat(cs.paddingTop) -
         parseFloat(cs.paddingBottom) -
         bottom.offsetHeight;
-      if (avail <= 0) return;
+      if (avail <= 0) {
+        setSloganCompact(true);
+        setSloganFontPx(16);
+        return;
+      }
       const cap = Math.min(0.06 * window.innerWidth, 0.055 * window.innerHeight, 60);
       const usable = avail * 0.94;
       const fit5 = usable / (5 * LEADING);
@@ -207,7 +211,7 @@ const Front = () => {
         setSloganFontPx(Math.min(cap, fit5));
       } else {
         setSloganCompact(true);
-        setSloganFontPx(Math.max(14, Math.min(cap, usable / (3 * LEADING))));
+        setSloganFontPx(Math.max(16, Math.min(cap, usable / (3 * LEADING))));
       }
     };
     compute();
@@ -492,7 +496,7 @@ const Front = () => {
       {/* Bloc central — slogan centré entre header et recherche, recherche ancrée en bas */}
       <div
         ref={narrativeBoxRef}
-        className="absolute inset-0 z-20 flex flex-col px-5 pt-24 pb-20 md:px-10 md:pb-20 lg:px-16"
+        className="absolute inset-0 z-20 flex flex-col px-5 pt-16 pb-20 md:pt-24 md:px-10 md:pb-20 lg:px-16"
         style={{
           opacity: narrativeOpacity,
           transform: reduced
