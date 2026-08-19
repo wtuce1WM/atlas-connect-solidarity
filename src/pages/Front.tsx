@@ -689,9 +689,9 @@ const Front = () => {
         }}
         aria-hidden={!ctaActive}
       >
-        {/* Titre écran 2 — même lettrage que le slogan */}
+        {/* Titre écran 2 — même lettrage, taille et espacement que le slogan écran 1 */}
         <p
-          className="text-center text-[clamp(1.6rem,5.5vw,3.5rem)] uppercase leading-[1.05] tracking-tight md:text-[clamp(1.8rem,6vw,4rem)]"
+          className="text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[1.12] tracking-tight"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
@@ -710,7 +710,6 @@ const Front = () => {
               to={cta.to}
               tabIndex={ctaActive ? 0 : -1}
               className="group relative overflow-hidden rounded-xl border border-[rgba(244,238,228,0.15)] bg-black/35 p-3.5 pt-4 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-gold/60 focus-visible:-translate-y-1 focus-visible:border-gold/60 focus-visible:outline-none md:p-5 md:pt-6"
-              style={{ animation: !ctaActive || reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
             >
               <span
                 className="absolute inset-x-0 top-0 h-[3px]"
@@ -728,16 +727,15 @@ const Front = () => {
           ))}
         </div>
 
-        {/* Slogan écran 2 */}
+        {/* Slogan écran 2 — identique au titre écran 2 */}
         <p
-          className="text-center text-[clamp(1.1rem,4vw,2.5rem)] uppercase leading-[1.05] tracking-tight md:text-[clamp(1.4rem,5vw,3rem)] md:leading-[1.12]"
+          className="text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[1.12] tracking-tight"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
             color: "transparent",
             WebkitTextStrokeWidth: "2px",
             WebkitTextStrokeColor: "#FFFFFF",
-            animation: !ctaActive || reduced ? undefined : "owmSlideDown 420ms ease-out both",
           }}
         >
           <span className="block">
