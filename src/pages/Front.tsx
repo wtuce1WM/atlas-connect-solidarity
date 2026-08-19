@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, ArrowUpRight, Menu, X } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
+import HeroInlineSearch from "@/components/HeroInlineSearch";
 import portraitVideo from "@/assets/hero-home-portrait.mp4.asset.json";
 import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 
@@ -72,6 +73,7 @@ const Front = () => {
     canonical: "/front",
   });
 
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPortrait, setIsPortrait] = useState(
@@ -277,7 +279,7 @@ const Front = () => {
       {/* Mini-header pinné (identité + menu, toujours visible) */}
       <div className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between px-5 py-4 md:px-10">
         <div className="flex items-center gap-3">
-          <span className="h-2 w-2 shrink-0 rounded-full bg-whatsapp" />
+          <img src="/images/logo_blanc.webp" alt="One World Morocco" className="h-7 w-7 shrink-0 object-contain" />
           <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
             One World Morocco
           </span>
@@ -287,7 +289,7 @@ const Front = () => {
           aria-label="Ouvrir le menu"
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen(true)}
-          className="rounded-full border border-[rgba(244,238,228,0.2)] bg-black/35 p-2.5 text-[#F4EEE4] backdrop-blur-sm transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+          className="rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
         >
           <Menu className="h-5 w-5" />
         </button>
@@ -302,7 +304,7 @@ const Front = () => {
       >
         <div className="flex items-center justify-between px-5 py-4 md:px-10">
           <div className="flex items-center gap-3">
-            <span className="h-2 w-2 shrink-0 rounded-full bg-whatsapp" />
+            <img src="/images/logo_blanc.webp" alt="One World Morocco" className="h-7 w-7 shrink-0 object-contain" />
             <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
               One World Morocco
             </span>
@@ -311,7 +313,7 @@ const Front = () => {
             type="button"
             aria-label="Fermer le menu"
             onClick={() => setMenuOpen(false)}
-            className="rounded-full border border-[rgba(244,238,228,0.2)] bg-black/35 p-2.5 text-[#F4EEE4] backdrop-blur-sm transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            className="rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
           >
             <X className="h-5 w-5" />
           </button>
@@ -359,12 +361,26 @@ const Front = () => {
           <div className="mb-6 md:mb-8">
             <h1 className="font-josefin text-[clamp(2.75rem,8.5vw,7rem)] font-black uppercase leading-[0.9] tracking-tight text-[#F4EEE4]">
               <span className="block">
-                Local <span className="text-primary">×</span> Digital
+                Local <span className="text-primary">×</span> Digital{" "}
+                <span className="text-primary">×</span>
               </span>
-              <span className="block pl-[0.08em] sm:pl-[0.13em]">
-                <span className="text-primary">×</span> Solidaire
-              </span>
+              <span className="block">Solidaire</span>
             </h1>
+
+            {/* Recherche (avec overlay vocal) */}
+            <div
+              className="mt-6 w-full max-w-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <HeroInlineSearch
+                placeholder="Que cherchez-vous ? Et où ?"
+                onSearch={(params) => {
+                  const qs = new URLSearchParams(params).toString();
+                  if (qs) navigate(`/search?${qs}`);
+                }}
+                onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
+              />
+            </div>
           </div>
 
           {/* Storybox */}
