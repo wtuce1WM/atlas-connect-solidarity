@@ -508,7 +508,7 @@ const Front = () => {
 
               <div className="flex flex-col gap-4">
                 {/* Bullet permanent — hauteur réservée pour éviter tout saut visuel */}
-                <div className="min-h-[5.5rem] md:min-h-[4rem]">
+                <div className="min-h-[5.5rem] md:min-h-[4.5rem]">
                   {bulletsVisible && (
                     <div
                       className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-base"
