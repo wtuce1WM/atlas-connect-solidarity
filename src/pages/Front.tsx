@@ -536,9 +536,10 @@ const Front = () => {
                           opacity: done || current ? 1 : 0,
                           transition:
                             reduced || !current ? "none" : `width ${STEP_MS}ms linear`,
-                          ...(current && !reduced
+                          ...(current && !reduced && auto
                             ? { animation: `owmFillBar ${STEP_MS}ms linear both` }
                             : null),
+
                         }}
                       />
                     </button>
