@@ -12,6 +12,17 @@ const LANDSCAPE_VIDEO_URL =
 
 const STEP_MS = 3400;
 const FIRST_CAROUSEL_DELAY_MS = 5000;
+const MIN_STEP_MS = 2000;
+
+/** Durées affichées de chaque bullet défilant (indices 2-6), en ms.
+ *  Base = 3400 ms. Step 5 (solidarité) : +5 s. Step 6 (valeur) : -5 s (plancher 2 s). */
+const CAROUSEL_DURATIONS_MS = [
+  STEP_MS,
+  STEP_MS,
+  STEP_MS,
+  STEP_MS + 5000,
+  Math.max(MIN_STEP_MS, STEP_MS - 5000),
+];
 
 type Step = { bullet: boolean; render: () => React.ReactNode };
 
@@ -64,8 +75,8 @@ const STEPS: Step[] = [
 const PERMANENT_STEP = 1;
 /** Indices des bullets qui défilent dans le carrousel (2-6). */
 const CAROUSEL_STEPS = [2, 3, 4, 5, 6];
-/** Largeur relative de chaque segment, calée sur la longueur du bullet point défilant. */
-const BULLET_WEIGHTS = [0.8, 0.8, 2, 5, 3];
+/** Largeur relative de chaque segment, calée sur la durée d'affichage réelle. */
+const BULLET_WEIGHTS = CAROUSEL_DURATIONS_MS.map((d) => d / Math.min(...CAROUSEL_DURATIONS_MS));
 
 
 const CTAS: { label: string; to: string }[] = [
@@ -135,7 +146,10 @@ const Front = () => {
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
     if (from >= STEPS.length - 1) return;
-    const delay = from === PERMANENT_STEP ? FIRST_CAROUSEL_DELAY_MS : STEP_MS;
+    const delay =
+      from === PERMANENT_STEP
+        ? FIRST_CAROUSEL_DELAY_MS
+        : CAROUSEL_DURATIONS_MS[CAROUSEL_STEPS.indexOf(from)] ?? STEP_MS;
     timerRef.current = window.setTimeout(() => {
       setStep((s) => {
         const next = Math.min(STEPS.length - 1, s + 1);
@@ -440,7 +454,7 @@ const Front = () => {
         {/* Slogan — centré verticalement dans l'espace restant au-dessus de la recherche */}
         <div className="flex flex-1 flex-col items-center justify-center">
           <h1
-            className="mb-[-0.75rem] text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[1.12] tracking-tight md:mb-[-1.25rem]"
+            className="mb-[-0.75rem] text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight md:mb-[-1.25rem]"
             style={{
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 900,
@@ -453,14 +467,10 @@ const Front = () => {
             }}
             aria-hidden={voiceActive}
           >
-            <span className="block">
-              LOCAL{" "}
-              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-            </span>
-            <span className="block">
-              DIGITAL{" "}
-              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-            </span>
+            <span className="block">LOCAL</span>
+            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+            <span className="block">DIGITAL</span>
+            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
             <span className="block">SOLIDAIRE</span>
           </h1>
         </div>
@@ -607,9 +617,10 @@ const Front = () => {
                 }}
                 aria-hidden={!barsVisible}
               >
-                {CAROUSEL_STEPS.map((stepIndex, i) => {
+              {CAROUSEL_STEPS.map((stepIndex, i) => {
                   const done = step > stepIndex;
                   const current = step === stepIndex;
+                  const durationMs = CAROUSEL_DURATIONS_MS[i] ?? STEP_MS;
                   return (
                     <button
                       key={stepIndex}
@@ -630,9 +641,9 @@ const Front = () => {
                           width: done ? "100%" : current ? "100%" : "0%",
                           opacity: done || current ? 1 : 0,
                           transition:
-                            reduced || !current ? "none" : `width ${STEP_MS}ms linear`,
+                            reduced || !current ? "none" : `width ${durationMs}ms linear`,
                           ...(current && !reduced && auto
-                            ? { animation: `owmFillBar ${STEP_MS}ms linear both` }
+                            ? { animation: `owmFillBar ${durationMs}ms linear both` }
                             : null),
                         }}
                       />
@@ -728,9 +739,9 @@ const Front = () => {
           ))}
         </div>
 
-        {/* Slogan écran 2 — identique au titre écran 2 */}
+        {/* Slogan écran 2 — identique au slogan écran 1, version 5 lignes */}
         <p
-          className="text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[1.12] tracking-tight"
+          className="text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
@@ -739,14 +750,10 @@ const Front = () => {
             WebkitTextStrokeColor: "#FFFFFF",
           }}
         >
-          <span className="block">
-            LOCAL{" "}
-            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-          </span>
-          <span className="block">
-            DIGITAL{" "}
-            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-          </span>
+          <span className="block">LOCAL</span>
+          <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+          <span className="block">DIGITAL</span>
+          <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
           <span className="block">SOLIDAIRE</span>
         </p>
       </div>
