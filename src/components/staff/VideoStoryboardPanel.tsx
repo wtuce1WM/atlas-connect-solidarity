@@ -1753,6 +1753,66 @@ const VideoStoryboardPanel = () => {
     setDirty(true);
   };
 
+  /**
+   * Copie (seed) des étapes du scénario auto correspondant dans le storyboard.
+   * Une fois copiées, les étapes appartiennent au storyboard et sont librement
+   * éditables : aucune synchronisation ultérieure avec le scénario auto (pas de
+   * double source de vérité au rendu).
+   */
+  const seedFromScenario = async (type: "establishment" | "corporate") => {
+    if (!board) return;
+    setSeeding(true);
+    const mode = type === "establishment" ? "business" : "corporate";
+    const { data, error } = await supabase
+      .from("video_scenario_steps" as any)
+      .select("scene_key, step_type, label, position, duration_sec, enabled, config")
+      .is("storyboard_id", null)
+      .eq("mode", mode)
+      .order("position", { ascending: true });
+    setSeeding(false);
+    if (error) {
+      toast.error(`Import du scénario impossible : ${error.message}`);
+      return;
+    }
+    const src = ((data ?? []) as any[]).slice(0, MAX_SECTIONS);
+    if (src.length === 0) {
+      toast.error("Ce scénario auto n'a aucune étape configurée");
+      return;
+    }
+    setRemoved((prev) => [...prev, ...sections.filter((s) => !s._new).map((s) => s.id)]);
+    setSections(
+      src.map((s, i) => ({
+        id: crypto.randomUUID(),
+        storyboard_id: board.id,
+        mode: "corporate",
+        scene_key: String(s.scene_key || `${s.step_type}_${i + 1}`),
+        step_type: s.step_type as StepType,
+        label: s.label ?? typeLabel(String(s.step_type)),
+        position: (i + 1) * 10,
+        duration_sec: Number(s.duration_sec) || MIN_SECTION_SEC,
+        enabled: s.enabled !== false,
+        config: s.config ?? {},
+        _new: true,
+      })),
+    );
+    setExpanded(null);
+    patchBoard({ scenario_type: type });
+    toast.success(`${src.length} étape(s) importée(s) du scénario auto — ${type === "establishment" ? "Établissement" : "Corporate"}`);
+  };
+
+  /** Changement du type de scénario : confirmation si des étapes existent déjà. */
+  const changeScenarioType = (value: Storyboard["scenario_type"]) => {
+    if (value === "new") {
+      patchBoard({ scenario_type: "new" });
+      return;
+    }
+    if (sections.length > 0) {
+      setPendingScenario(value);
+      return;
+    }
+    seedFromScenario(value);
+  };
+
   const patchSection = (id: string, values: Partial<Section>) => {
     setSections((prev) => prev.map((s) => (s.id === id ? { ...s, ...values } : s)));
     setDirty(true);
