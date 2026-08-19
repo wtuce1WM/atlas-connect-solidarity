@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 import portraitVideoAsset from "@/assets/hero-home-portrait-ios-v2.mp4.asset.json";
+import portraitVideoPoster from "@/assets/hero-home-portrait-poster.jpg.asset.json";
 
 /** Vidéo de fond ré-encodée pour iOS Safari (yuv420p / Main / faststart).
  *  Servie par le CDN avec le MIME video/mp4 requis par Safari iOS. */
@@ -136,6 +137,7 @@ const Front = () => {
   const rafRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
+  const backgroundVideoRef = useRef<HTMLVideoElement | null>(null);
   const touchYRef = useRef<number | null>(null);
 
   // format vidéo
@@ -151,6 +153,22 @@ const Front = () => {
       mqMotion.removeEventListener("change", onM);
     };
   }, []);
+
+  // Safari iOS peut différer l'autoplay malgré muted + playsInline.
+  // Une interaction utilisateur permet alors de relancer la lecture.
+  useEffect(() => {
+    const retryPlayback = () => {
+      const video = backgroundVideoRef.current;
+      if (video?.paused) void video.play().catch(() => undefined);
+    };
+    retryPlayback();
+    document.addEventListener("touchstart", retryPlayback, { passive: true, once: true });
+    document.addEventListener("click", retryPlayback, { once: true });
+    return () => {
+      document.removeEventListener("touchstart", retryPlayback);
+      document.removeEventListener("click", retryPlayback);
+    };
+  }, [isPortrait]);
 
   // auto-avance du récit
   const scheduleNext = useCallback((from: number) => {
@@ -372,9 +390,11 @@ const Front = () => {
     >
       {/* Vidéo de fond */}
       <video
+        ref={backgroundVideoRef}
         key={isPortrait ? "portrait" : "landscape"}
         className="absolute inset-0 h-full w-full object-cover"
         src={isPortrait ? PORTRAIT_VIDEO_URL : LANDSCAPE_VIDEO_URL}
+        poster={isPortrait ? portraitVideoPoster.url : undefined}
         autoPlay
         muted
         loop
