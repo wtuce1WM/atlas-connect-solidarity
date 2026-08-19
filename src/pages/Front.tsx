@@ -363,7 +363,7 @@ const Front = () => {
       >
         <div className="w-full max-w-4xl">
           <h1
-            className="text-[clamp(2.75rem,8.5vw,7rem)] uppercase leading-[0.85] tracking-tighter text-[#F4EEE4]"
+            className="text-[clamp(2.25rem,6.5vw,5.5rem)] uppercase leading-[0.88] tracking-tight text-[#F4EEE4]"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900 }}
           >
             <span className="block">
