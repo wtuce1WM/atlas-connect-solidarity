@@ -88,7 +88,7 @@ const Front = () => {
   });
 
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1);
   const [progress, setProgress] = useState(0);
   const [isPortrait, setIsPortrait] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches
