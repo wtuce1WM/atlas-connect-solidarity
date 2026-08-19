@@ -374,7 +374,7 @@ const Front = () => {
       <video
         key={isPortrait ? "portrait" : "landscape"}
         className="absolute inset-0 h-full w-full object-cover"
-        src={isPortrait ? portraitVideo.url : LANDSCAPE_VIDEO_URL}
+        src={isPortrait ? PORTRAIT_VIDEO_URL : LANDSCAPE_VIDEO_URL}
         autoPlay
         muted
         loop
