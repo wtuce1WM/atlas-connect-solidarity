@@ -424,7 +424,7 @@ const Front = () => {
           <div className="w-full" onClick={(e) => e.stopPropagation()}>
             <HeroInlineSearch
               hideBarWhenVoiceActive
-              placeholder="Que cherchez-vous ? Et où ?"
+              placeholder="Inspirez-vous"
               onVoiceActiveChange={setVoiceActive}
               voiceTextClassName="text-white"
               onSearch={(params) => {

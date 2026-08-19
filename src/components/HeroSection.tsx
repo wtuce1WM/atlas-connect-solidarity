@@ -191,7 +191,7 @@ const HeroSection = () => {
 
               {(() => {
                 const placeholders = {
-                  all: { fr: "Que cherchez-vous ? Et où ?", en: "What are you looking for? And where?", ar: "ماذا تبحث عنه؟ وأين؟" },
+                  all: { fr: "Inspirez-vous", en: "Get inspired", ar: "استلهم" },
                   "Hôtellerie": { fr: "Trouvez les meilleurs hôtels & riads", en: "Find the best hotels & riads", ar: "اعثر على أفضل الفنادق والرياضات" },
                   "Restauration": { fr: "Trouvez un bon restaurant", en: "Find a great restaurant", ar: "اعثر على مطعم جيد" },
                   "Tourisme": { fr: "Trouvez une activité inoubliable", en: "Find an unforgettable activity", ar: "اعثر على نشاط لا يُنسى" },
