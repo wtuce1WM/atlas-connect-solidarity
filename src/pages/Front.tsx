@@ -471,11 +471,15 @@ const Front = () => {
           </div>
 
 
-          {/* Accroche fixe sous le CTA Demo */}
+          {/* Accroche fixe sous le CTA Demo — apparaît après 1 s */}
           <p
             className="font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-lg"
-            style={{ opacity: voiceActive ? 0 : 1, transition: motion }}
-            aria-hidden={voiceActive}
+            style={{
+              opacity: voiceActive || !accrocheVisible ? 0 : 1,
+              transform: voiceActive || !accrocheVisible ? "translateY(12px)" : "translateY(0)",
+              transition: motion,
+            }}
+            aria-hidden={voiceActive || !accrocheVisible}
           >
             Notre App fait ce que font...
           </p>
