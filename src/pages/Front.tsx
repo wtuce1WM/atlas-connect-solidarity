@@ -124,13 +124,28 @@ const Front = () => {
     };
   }, [scheduleNext]);
 
+  const [auto, setAuto] = useState(true);
+
   const goToStep = useCallback(
     (i: number) => {
-      setStep(Math.min(STEPS.length - 1, Math.max(0, i)));
-      scheduleNext(i);
+      const next = Math.min(STEPS.length - 1, Math.max(0, i));
+      setStep(next);
+      if (auto) scheduleNext(next);
     },
-    [scheduleNext]
+    [scheduleNext, auto]
   );
+
+  const toggleAuto = useCallback(() => {
+    setAuto((a) => {
+      if (a) {
+        if (timerRef.current) window.clearTimeout(timerRef.current);
+      } else {
+        scheduleNext(step);
+      }
+      return !a;
+    });
+  }, [scheduleNext, step]);
+
 
   // progression virtuelle lissée
   const setTarget = useCallback(
@@ -207,7 +222,7 @@ const Front = () => {
 
   const narrativeOpacity = 1 - range(progress, 0, 0.35);
   const narrativeActive = progress < 0.35;
-  const headerOpacity = range(progress, 0.15, 0.45);
+  
   const ctaP = range(progress, 0.25, 0.9);
   const ctaActive = progress > 0.575;
   const showCue = progress <= 0.06;
@@ -258,19 +273,18 @@ const Front = () => {
         }}
       />
 
-      {/* Mini-header pinné */}
-      <div
-        className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex items-center gap-3 px-5 py-4 md:px-10"
-        style={{ opacity: headerOpacity, transition: motion }}
-      >
-        <span className="h-2 w-2 shrink-0 rounded-full bg-whatsapp" />
-        <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
-          One World Morocco
-        </span>
-        <span className="font-josefin text-xs font-black uppercase tracking-[0.18em] text-[rgba(244,238,228,0.6)] md:text-sm">
+      {/* Mini-header pinné (identité + slogan, toujours visible) */}
+      <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex flex-col gap-1 px-5 py-4 sm:flex-row sm:items-center sm:gap-3 md:px-10">
+        <div className="flex items-center gap-3">
+          <span className="h-2 w-2 shrink-0 rounded-full bg-whatsapp" />
+          <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
+            One World Morocco
+          </span>
+        </div>
+        <h1 className="font-josefin text-xs font-extrabold uppercase tracking-[0.18em] text-[rgba(244,238,228,0.85)] md:text-sm">
           Local <span className="text-primary">×</span> Digital{" "}
           <span className="text-primary">×</span> Solidaire
-        </span>
+        </h1>
       </div>
 
       {/* Couche narrative */}
@@ -287,20 +301,8 @@ const Front = () => {
         aria-hidden={!narrativeActive}
       >
         <div className="mx-auto w-full max-w-4xl">
-          <div className="mb-3 flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-whatsapp" />
-            <span className="font-josefin text-xs font-black uppercase tracking-[0.22em] text-[rgba(244,238,228,0.8)] md:text-sm">
-              One World Morocco
-            </span>
-          </div>
 
-          <h1
-            className="font-josefin font-black uppercase leading-[0.95] tracking-tight text-[#F4EEE4]"
-            style={{ fontSize: "clamp(30px, 7vw, 76px)" }}
-          >
-            Local <span className="text-primary">×</span> Digital{" "}
-            <span className="text-primary">×</span> Solidaire
-          </h1>
+
 
           {/* Storybox */}
           <div className="mt-7 border-l-2 border-gold/70 pl-4 md:pl-6">
@@ -354,6 +356,34 @@ const Front = () => {
                 </button>
               ))}
             </div>
+
+            {/* Hint / CTAs de lecture */}
+            <div
+              className="mt-4 hidden items-center gap-2 font-josefin text-[11px] font-bold uppercase tracking-[0.14em] text-[rgba(244,238,228,0.62)] sm:flex"
+              style={{
+                opacity: step >= STEPS.length - 1 ? 0 : 1,
+                pointerEvents: step >= STEPS.length - 1 ? "none" : "auto",
+                transition: motion,
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => goToStep(step + 1)}
+                className="uppercase transition-colors hover:text-gold"
+              >
+                Cliquez pour avancer
+              </button>
+              <span aria-hidden="true">·</span>
+              <button
+                type="button"
+                onClick={() => toggleAuto()}
+                className={`uppercase transition-colors hover:text-gold ${auto ? "text-gold" : ""}`}
+              >
+                Lecture automatique{auto ? "" : " (en pause)"}
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
