@@ -6,11 +6,11 @@ import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import { useLanguage } from "@/contexts/LanguageContext";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
+import portraitVideoAsset from "@/assets/hero-home-portrait-ios-v2.mp4.asset.json";
 
 /** Vidéo de fond ré-encodée pour iOS Safari (yuv420p / Main / faststart).
- *  L'ancien asset portrait était en yuvj420p (full-range) → non décodé sur iPhone. */
-const PORTRAIT_VIDEO_URL =
-  "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/studio-videos/front/hero-home-portrait-ios-v1.mp4";
+ *  Servie par le CDN avec le MIME video/mp4 requis par Safari iOS. */
+const PORTRAIT_VIDEO_URL = portraitVideoAsset.url;
 
 const LANDSCAPE_VIDEO_URL =
   "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/studio-videos/1wm_montage_storyboard-home-portrait-20_vertical_20260818-1320_3376434b.mp4";
