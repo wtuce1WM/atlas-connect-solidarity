@@ -547,6 +547,11 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   const scribePartialRef = useRef<string>("");
 
   const finishScribeRef = useRef<() => void>(() => {});
+  /** True dès qu'un transcript de la session courante a été consommé (traité).
+   *  Empêche un second finish/close (clic micro après l'auto-finish du timer
+   *  de silence) d'émettre un faux "Aucun texte détecté". */
+  const transcriptConsumedRef = useRef(false);
+
 
   const scheduleScribeAutoFinish = useCallback(() => {
     clearSilenceTimer();
