@@ -58,7 +58,10 @@ const STEPS: Step[] = [
   },
 ];
 
+const BULLET_STEPS = STEPS.map((s, i) => (s.bullet ? i : -1)).filter((i) => i >= 0);
+
 const CTAS: { label: string; to: string }[] = [
+
   { label: "Installer l'App", to: "/install" },
   { label: "Devenez membre du club OWM", to: "/club" },
   { label: "Ce que nous faisons", to: "/mission" },
