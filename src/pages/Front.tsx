@@ -379,7 +379,7 @@ const Front = () => {
         <div className="flex w-full max-w-2xl flex-col items-center gap-4">
           {/* Slogan */}
           <h1
-            className="mb-2 text-center text-[clamp(1.6rem,min(6.5vw,8vh),5.5rem)] uppercase leading-[0.9] tracking-tight md:mb-6"
+            className="mb-2 text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[0.9] tracking-tight md:mb-6"
             style={{
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 900,
