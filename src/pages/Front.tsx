@@ -523,7 +523,7 @@ const Front = () => {
                       aria-current={current}
                       onClick={(e) => {
                         e.stopPropagation();
-                        goToStep(stepIndex);
+                        goToStep(stepIndex, true);
                       }}
                       style={{ flex: `${BULLET_WEIGHTS[i] ?? 1} 1 0%` }}
                       className="h-2 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)] py-[3px]"
