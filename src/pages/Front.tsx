@@ -358,7 +358,7 @@ const Front = () => {
 
       {/* Slogan — ancré en haut, hors du flux centré */}
       <div
-        className="absolute left-0 right-0 top-[9vh] bottom-[54vh] z-20 flex items-center justify-center px-5 md:px-10 lg:px-16"
+        className="absolute left-0 right-0 top-[8vh] bottom-[58vh] z-20 flex items-center justify-center overflow-hidden px-5 md:px-10 lg:px-16"
         style={{
           opacity: voiceActive ? 0 : narrativeOpacity,
           transform: reduced
@@ -370,7 +370,8 @@ const Front = () => {
         aria-hidden={!narrativeActive || voiceActive}
       >
         <h1
-          className="text-center text-[clamp(2.25rem,6.5vw,5.5rem)] uppercase leading-[0.9] tracking-tight"
+          className="text-center text-[clamp(1.75rem,min(6.5vw,9.5vh),5.5rem)] uppercase leading-[0.9] tracking-tight"
+
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
