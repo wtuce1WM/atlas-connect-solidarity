@@ -8415,6 +8415,7 @@ export type Database = {
           format: string
           global_media: Json
           id: string
+          internal_note: string | null
           max_duration_sec: number
           name: string
           preview_scale: number
@@ -8429,6 +8430,7 @@ export type Database = {
           format?: string
           global_media?: Json
           id?: string
+          internal_note?: string | null
           max_duration_sec?: number
           name: string
           preview_scale?: number
@@ -8443,6 +8445,7 @@ export type Database = {
           format?: string
           global_media?: Json
           id?: string
+          internal_note?: string | null
           max_duration_sec?: number
           name?: string
           preview_scale?: number

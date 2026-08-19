@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import StoryboardStepNotesList from "@/components/staff/StoryboardStepNotesList";
+import StoryboardInternalNote from "@/components/staff/StoryboardInternalNote";
 import {
   ChevronDown,
   ChevronRight,
@@ -2630,8 +2631,14 @@ const VideoStoryboardPanel = () => {
               <StoryboardGuide />
             </TabsContent>
             <TabsContent value="note" className="mt-4">
-              {/* Slot recevant la note interne du scénario (tous modes) depuis VideoScenarioConfigPanel. */}
+              {/* Scénarios auto : note téléportée depuis VideoScenarioConfigPanel.
+                  Montage manuel : note propre au storyboard. */}
               <div id="scenario-note-slot" />
+              {!legacyMode && (board ? (
+                <StoryboardInternalNote boardId={board.id} />
+              ) : (
+                <p className="text-xs text-muted-foreground">Sélectionne un montage pour saisir sa note interne.</p>
+              ))}
             </TabsContent>
             <TabsContent value="notes" className="mt-4">
               <StoryboardStepNotesList />
