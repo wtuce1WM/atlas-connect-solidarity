@@ -133,6 +133,8 @@ const Front = () => {
   }, [scheduleNext]);
 
   const [auto, setAuto] = useState(true);
+  const [voiceActive, setVoiceActive] = useState(false);
+
 
   const goToStep = useCallback(
     (i: number) => {
