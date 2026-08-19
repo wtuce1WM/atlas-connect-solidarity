@@ -143,13 +143,19 @@ const Front = () => {
 
 
   const goToStep = useCallback(
-    (i: number) => {
+    (i: number, freeze = false) => {
       const next = Math.min(STEPS.length - 1, Math.max(0, i));
       setStep(next);
+      if (timerRef.current) window.clearTimeout(timerRef.current);
+      if (freeze) {
+        setAuto(false);
+        return;
+      }
       if (auto) scheduleNext(next);
     },
     [scheduleNext, auto]
   );
+
 
   const toggleAuto = useCallback(() => {
     setAuto((a) => {
