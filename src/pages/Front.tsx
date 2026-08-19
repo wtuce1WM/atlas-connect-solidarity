@@ -355,9 +355,10 @@ const Front = () => {
 
       {/* Slogan — ancré en haut, hors du flux centré */}
       <div
-        className="absolute left-0 right-0 top-[11vh] z-20 flex justify-center px-5 md:px-10 lg:px-16"
+        className="absolute left-0 right-0 top-[9vh] bottom-[54vh] z-20 flex items-center justify-center px-5 md:px-10 lg:px-16"
         style={{
           opacity: narrativeOpacity,
+
           transform: reduced
             ? undefined
             : `translateY(${-range(progress, 0, 0.35) * 40}px)`,
