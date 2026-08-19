@@ -47,7 +47,7 @@ const STEPS: Step[] = [
   {
     bullet: true,
     render: () => (
-      <>sur 3 surfaces : orienté client, orienté entreprise hôte, orienté plateforme 1WM...</>
+      <>sur 3 surfaces : orienté client / entreprise hôte / plateforme 1WM...</>
     ),
   },
   {
