@@ -85,6 +85,7 @@ const SearchLayoutDemo = lazy(() => import("./pages/SearchLayoutDemo"));
 
 const StrictModePage = lazy(() => import("./pages/StrictModePage"));
 const StudioVideo = lazy(() => import("./pages/StudioVideo"));
+const Front = lazy(() => import("./pages/Front"));
 const IconPreview = lazy(() => import("./pages/IconPreview"));
 const BlogPresentation = lazy(() => import("./pages/BlogPresentation"));
 const BlogPresentationFR = lazy(() => import("./pages/BlogPresentationFR"));
@@ -130,7 +131,7 @@ const BusinessRedirect = () => {
 const GlobalFloatingSearchBar = () => {
   const location = useLocation();
   // Hide on home page and staff/affiliate backoffice pages
-  const hiddenPaths = ["/", "/corporate", "/club", "/install", "/search", "/test", "/videos", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/ia", "/staff/blog", "/staff/b2b", "/staff/front", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
+  const hiddenPaths = ["/", "/front", "/corporate", "/club", "/install", "/search", "/test", "/videos", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/ia", "/staff/blog", "/staff/b2b", "/staff/front", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
   if (hiddenPaths.includes(location.pathname)) return null;
   if (location.pathname.startsWith("/blog")) return null;
   return <Suspense fallback={null}><FloatingSearchBar /></Suspense>;
@@ -252,6 +253,7 @@ const LocalizedRoutes = () => {
               <Route path="/en/install" element={renderLazyRoute(<Install />)} />
               <Route path="/ar/install" element={renderLazyRoute(<Install />)} />
               <Route path="/studio-video" element={renderLazyRoute(<StudioVideo />)} />
+              <Route path="/front" element={renderLazyRoute(<Front />)} />
               <Route path="/en/studio-video" element={renderLazyRoute(<StudioVideo />)} />
               <Route path="/ar/studio-video" element={renderLazyRoute(<StudioVideo />)} />
               <Route path="/corporate" element={renderLazyRoute(<Corporate />)} />
