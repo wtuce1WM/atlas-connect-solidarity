@@ -400,8 +400,7 @@ const Front = () => {
         <div className="flex flex-1 flex-col items-center justify-center">
           <h1
             className="mb-[-0.5rem] text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[1.0] tracking-tight md:mb-[-0.75rem]"
-            style={{</parameter>
-</invoke>
+            style={{
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 900,
               color: "transparent",
