@@ -598,6 +598,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     try {
       scribeFinalRef.current = "";
       scribePartialRef.current = "";
+      transcriptConsumedRef.current = false;
       setLiveTranscript("");
       setStatus("recording");
       // Do NOT set micReady=true yet — wait for the mic warm-up to complete
@@ -697,13 +698,14 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     scribeFinalRef.current = "";
     scribePartialRef.current = "";
     if (transcript) {
+      transcriptConsumedRef.current = true;
       setStatus("processing");
       processTranscript(transcript).finally(() => setLiveTranscript(""));
     } else {
-      console.warn("[Scribe] finish with empty transcript");
+      console.warn("[Scribe] finish with empty transcript (consumed=" + transcriptConsumedRef.current + ")");
       setLiveTranscript("");
       setStatus("idle");
-      onErrorRef.current?.("Aucun texte détecté, réessayez.");
+      if (!transcriptConsumedRef.current) onErrorRef.current?.("Aucun texte détecté, réessayez.");
     }
   }, [scribe, processTranscript, clearSilenceTimer, clearMaxDurationTimer]);
 
