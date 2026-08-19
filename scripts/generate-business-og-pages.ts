@@ -1407,9 +1407,18 @@ async function main() {
 
   const { data: posts, error: postsErr } = await supabase
     .from("blog_posts")
-    .select("slug, title_fr, excerpt_fr, cover_image_url, custom_hero_image_url, published_at, updated_at, is_published")
+    .select(
+      "slug, title_fr, excerpt_fr, cover_image_url, custom_hero_image_url, published_at, updated_at, is_published, author_name, hero_title_top_fr, hero_title_bottom_fr, intro_fr, tldr_fr, content_fr, entries_fr, editorial_sections_fr, faq_fr",
+    )
     .eq("is_published", true);
   if (postsErr) console.error("[og-pages] blog_posts fetch error:", postsErr);
+
+  // Maillage interne : id business → URL vanity (sinon /fiche/slug)
+  const bizUrlById = new Map<string, string>();
+  for (const v of vanities) if (v.slug && v.target_id) bizUrlById.set(v.target_id, `${BASE_URL}/${v.slug}`);
+  for (const b of bizById.values() as any) {
+    if (b?.id && !bizUrlById.has(b.id) && b.slug) bizUrlById.set(b.id, `${BASE_URL}/fiche/${b.slug}`);
+  }
 
   const articles: StaticArticle[] = (posts || [])
     .filter((p: any) => p.slug && p.title_fr)
@@ -1420,7 +1429,18 @@ async function main() {
       image: p.custom_hero_image_url || p.cover_image_url || `${BASE_URL}/og-install-app.jpg`,
       publishedAt: p.published_at || p.updated_at || new Date().toISOString(),
       modifiedAt: p.updated_at || p.published_at || new Date().toISOString(),
+      heroTitle:
+        [p.hero_title_top_fr, p.hero_title_bottom_fr].filter(Boolean).join(" ").trim() || p.title_fr,
+      intro: p.intro_fr || null,
+      tldr: p.tldr_fr || null,
+      content: p.content_fr || null,
+      entries: Array.isArray(p.entries_fr) ? (p.entries_fr as ArticleEntry[]) : null,
+      sections: Array.isArray(p.editorial_sections_fr) ? (p.editorial_sections_fr as ArticleSection[]) : null,
+      faq: Array.isArray(p.faq_fr) ? (p.faq_fr as ArticleFaq[]) : null,
+      authorName: p.author_name || null,
+      entryUrlById: bizUrlById,
     }));
+
 
   for (const article of articles) {
     // Supprime un éventuel fichier sans extension (ancienne génération) qui était téléchargé
