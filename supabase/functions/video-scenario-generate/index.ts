@@ -1889,6 +1889,17 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         Number.isFinite(ch) && ch >= 320 && ch <= 3840 ? Math.round(ch) : 1280;
     }
 
+    // Compression / format de sortie et grade d'effets pilotés depuis le
+    // backoffice « Montages vidéo » (onglet Effets des scénarios auto).
+    // Le renderer lit ces props de façon générique (render-job.mjs).
+    if (options?.encode && typeof options.encode === "object") {
+      (template_props as Record<string, unknown>).encode = options.encode;
+    }
+    if (options?.effects && typeof options.effects === "object") {
+      (template_props as Record<string, unknown>).effects = options.effects;
+    }
+
+
     if (preview_only) {
 
       return json({
