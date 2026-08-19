@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.protect_affiliate_entitlements() FROM PUBLIC, anon, authenticated;
