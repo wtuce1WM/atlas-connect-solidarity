@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown, ArrowUpRight } from "lucide-react";
+import { ChevronDown, ArrowUpRight, Menu, X } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import portraitVideo from "@/assets/hero-home-portrait.mp4.asset.json";
 import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
@@ -82,6 +82,7 @@ const Front = () => {
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const targetRef = useRef(0);
   const currentRef = useRef(0);
@@ -273,12 +274,71 @@ const Front = () => {
         }}
       />
 
-      {/* Mini-header pinné (identité seule, toujours visible) */}
-      <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex items-center gap-3 px-5 py-4 md:px-10">
-        <span className="h-2 w-2 shrink-0 rounded-full bg-whatsapp" />
-        <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
-          One World Morocco
-        </span>
+      {/* Mini-header pinné (identité + menu, toujours visible) */}
+      <div className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between px-5 py-4 md:px-10">
+        <div className="flex items-center gap-3">
+          <span className="h-2 w-2 shrink-0 rounded-full bg-whatsapp" />
+          <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
+            One World Morocco
+          </span>
+        </div>
+        <button
+          type="button"
+          aria-label="Ouvrir le menu"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen(true)}
+          className="rounded-full border border-[rgba(244,238,228,0.2)] bg-black/35 p-2.5 text-[#F4EEE4] backdrop-blur-sm transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* Overlay menu navigation */}
+      <div
+        className={`fixed inset-0 z-40 flex flex-col bg-black/90 backdrop-blur-md transition-opacity duration-300 ${
+          menuOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        aria-hidden={!menuOpen}
+      >
+        <div className="flex items-center justify-between px-5 py-4 md:px-10">
+          <div className="flex items-center gap-3">
+            <span className="h-2 w-2 shrink-0 rounded-full bg-whatsapp" />
+            <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
+              One World Morocco
+            </span>
+          </div>
+          <button
+            type="button"
+            aria-label="Fermer le menu"
+            onClick={() => setMenuOpen(false)}
+            className="rounded-full border border-[rgba(244,238,228,0.2)] bg-black/35 p-2.5 text-[#F4EEE4] backdrop-blur-sm transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <nav className="flex flex-1 flex-col justify-center gap-3 px-5 pb-10 md:px-10">
+          {CTAS.map((cta) => (
+            <Link
+              key={cta.to}
+              to={cta.to}
+              onClick={() => setMenuOpen(false)}
+              className="group relative overflow-hidden rounded-xl border border-[rgba(244,238,228,0.15)] bg-black/35 p-5 backdrop-blur-md transition-all hover:border-gold/60 focus-visible:border-gold/60 focus-visible:outline-none"
+            >
+              <span
+                className="absolute inset-x-0 top-0 h-[3px]"
+                style={{
+                  background:
+                    "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--gold)))",
+                }}
+                aria-hidden="true"
+              />
+              <ArrowUpRight className="absolute right-4 top-5 h-4 w-4 text-[rgba(244,238,228,0.6)] transition-colors group-hover:text-gold" />
+              <span className="block pr-8 font-roboto text-base font-bold text-[#F4EEE4] md:text-lg">
+                {cta.label}
+              </span>
+            </Link>
+          ))}
+        </nav>
       </div>
 
       {/* Couche narrative */}
