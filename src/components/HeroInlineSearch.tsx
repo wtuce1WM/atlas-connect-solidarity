@@ -15,12 +15,15 @@ interface Props {
   onVoiceActiveChange?: (active: boolean) => void;
   /** Override de la couleur du texte de l'overlay vocal (ex: "text-white" sur fond sombre). */
   voiceTextClassName?: string;
+  /** Masque la barre de recherche pendant l'enregistrement vocal (overlay STT seul). */
+  hideBarWhenVoiceActive?: boolean;
 }
 
 const normalize = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick, onVoiceActiveChange, voiceTextClassName }: Props) => {
+const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick, onVoiceActiveChange, voiceTextClassName, hideBarWhenVoiceActive }: Props) => {
+
 
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
