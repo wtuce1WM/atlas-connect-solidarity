@@ -417,26 +417,40 @@ const Front = () => {
           </div>
 
           {/* CTA Demo — liquid glass + shimmer différé */}
-          <button
-            type="button"
-            aria-label="Demo"
-            onClick={(e) => e.stopPropagation()}
-            className="demo-cta group relative overflow-hidden rounded-2xl border border-white/25 bg-white/[0.08] px-10 py-4 backdrop-blur-2xl transition-all duration-300 hover:scale-[1.03] hover:border-white/45 hover:bg-white/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98]"
+          <div
+            className="flex flex-col items-center gap-1"
+            style={{
+              opacity: voiceActive ? 0 : 1,
+              pointerEvents: voiceActive ? "none" : "auto",
+              transition: motion,
+            }}
+            aria-hidden={voiceActive}
           >
-            <span
-              className="relative z-10 text-[clamp(1.75rem,5vw,3.25rem)] uppercase leading-none tracking-tight"
-              style={{
-                fontFamily: "'Montserrat', sans-serif",
-                fontWeight: 900,
-                color: "transparent",
-                WebkitTextStrokeWidth: "2px",
-                WebkitTextStrokeColor: "#FFFFFF",
-              }}
+            <button
+              type="button"
+              aria-label="Demo (bientôt)"
+              onClick={(e) => e.stopPropagation()}
+              className="demo-cta group relative overflow-hidden rounded-xl border border-white/25 bg-white/[0.08] px-6 py-2.5 backdrop-blur-2xl transition-all duration-300 hover:scale-[1.03] hover:border-white/45 hover:bg-white/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98]"
             >
-              Demo
+              <span
+                className="relative z-10 text-[clamp(1.1rem,2.6vw,1.6rem)] uppercase leading-none tracking-tight"
+                style={{
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontWeight: 900,
+                  color: "transparent",
+                  WebkitTextStrokeWidth: "2px",
+                  WebkitTextStrokeColor: "#FFFFFF",
+                }}
+              >
+                Demo
+              </span>
+              <span className="demo-shimmer absolute inset-0 -translate-x-full" aria-hidden="true" />
+            </button>
+            <span className="font-roboto text-[0.65rem] uppercase tracking-[0.18em] text-[rgba(244,238,228,0.7)]">
+              (bientôt)
             </span>
-            <span className="demo-shimmer absolute inset-0 -translate-x-full" aria-hidden="true" />
-          </button>
+          </div>
+
 
           {/* Accroche fixe sous le CTA Demo */}
           <p
