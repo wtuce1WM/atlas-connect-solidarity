@@ -465,8 +465,83 @@ const Front = () => {
           >
             Notre App fait ce que font...
           </p>
+
+          {/* Storybox — sous l'accroche, une seule étape à la fois */}
+          <div
+            className="w-full"
+            style={{
+              opacity: voiceActive ? 0 : 1,
+              pointerEvents: voiceActive ? "none" : "auto",
+              transition: motion,
+            }}
+            aria-hidden={voiceActive}
+          >
+            <style>{`@keyframes owmSlideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}`}</style>
+            <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
+              <div className="min-h-[4.5rem] md:min-h-[5rem]">
+                {step > 0 && (
+                  <div
+                    key={step}
+                    className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-base"
+                    style={{
+                      animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
+                    }}
+                  >
+                    {STEPS[step].bullet ? (
+                      <img
+                        src={hamsaIcon.url}
+                        alt=""
+                        className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="w-0 shrink-0" />
+                    )}
+                    <span>{STEPS[step].render()}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Progress bar segmentée — un segment par étape narrative */}
+              <div className="mt-4 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+                {BULLET_STEPS.map((stepIndex, i) => {
+                  const done = step > stepIndex;
+                  const current = step === stepIndex;
+                  return (
+                    <button
+                      key={stepIndex}
+                      type="button"
+                      aria-label={`Étape ${i + 1}`}
+                      aria-current={current}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        goToStep(stepIndex);
+                      }}
+                      style={{ flex: `${BULLET_WEIGHTS[i] ?? 1} 1 0%` }}
+                      className="h-2 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)] py-[3px]"
+                    >
+                      <span
+                        key={current ? `cur-${step}` : done ? "done" : "todo"}
+                        className="block h-full rounded-full bg-gold"
+                        style={{
+                          width: done ? "100%" : current ? "100%" : "0%",
+                          opacity: done || current ? 1 : 0,
+                          transition:
+                            reduced || !current ? "none" : `width ${STEP_MS}ms linear`,
+                          ...(current && !reduced
+                            ? { animation: `owmFillBar ${STEP_MS}ms linear both` }
+                            : null),
+                        }}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
 
       <style>{`
         @keyframes owmShimmer {
