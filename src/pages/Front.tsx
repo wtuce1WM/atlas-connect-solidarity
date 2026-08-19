@@ -404,17 +404,18 @@ const Front = () => {
 
       {/* Couche narrative (storybox) — ancrée en bas pour ne pas pousser le slogan */}
       <div
-        className="absolute left-0 right-0 bottom-[6vh] z-10 flex flex-col justify-end px-5 md:px-10 lg:px-16"
+        className="absolute left-0 right-0 top-[46vh] bottom-[6vh] z-10 flex flex-col justify-end overflow-y-auto px-5 md:top-[48vh] md:px-10 lg:px-16"
         style={{
-          opacity: narrativeOpacity,
+          opacity: voiceActive ? 0 : narrativeOpacity,
           transform: reduced
             ? undefined
             : `translateY(${-range(progress, 0, 0.35) * 40}px)`,
-          pointerEvents: narrativeActive ? "auto" : "none",
+          pointerEvents: narrativeActive && !voiceActive ? "auto" : "none",
           transition: motion,
         }}
-        aria-hidden={!narrativeActive}
+        aria-hidden={!narrativeActive || voiceActive}
       >
+
         <div className="mx-auto w-full max-w-4xl">
           {/* Storybox */}
           <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
