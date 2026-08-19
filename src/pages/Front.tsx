@@ -468,7 +468,12 @@ const Front = () => {
           0% { transform: translateX(-100%) skewX(-20deg); }
           100% { transform: translateX(200%) skewX(-20deg); }
         }
+        @keyframes owmFillBar {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
         .demo-shimmer {
+
           background: linear-gradient(
             105deg,
             transparent 30%,
