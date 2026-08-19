@@ -486,7 +486,10 @@ const Front = () => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Slogan — centré verticalement dans l'espace restant au-dessus de la recherche */}
-        <div className="flex flex-1 flex-col items-center justify-center md:justify-start md:pt-10">
+        <div
+          ref={sloganBoxRef}
+          className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden md:justify-start md:pt-10"
+        >
           <h1
             className="mb-[-0.75rem] text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight md:mb-[-1.25rem] md:leading-[0.95] md:-translate-y-6"
             style={{
@@ -495,6 +498,7 @@ const Front = () => {
               color: "transparent",
               WebkitTextStrokeWidth: "2px",
               WebkitTextStrokeColor: "#FFFFFF",
+              ...(sloganFontPx ? { fontSize: `${sloganFontPx}px` } : null),
               opacity: voiceActive ? 0 : 1,
               animation: reduced || voiceActive ? undefined : "owmSlideDown 420ms ease-out both",
               transition: motion,
