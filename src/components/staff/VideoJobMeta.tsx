@@ -157,8 +157,11 @@ const promoInfo = (job: VideoJobMetaRow) => {
 /* ------------------------------------------------------------------ */
 
 const SCENARIO_LABELS: Record<string, string> = {
-  corporate_long: "Corporate long",
-  promo_business: "Promo business",
+  establishment: "Établissement",
+  corporate: "Corporate",
+  // Anciennes valeurs conservées pour les jobs déjà rendus.
+  corporate_long: "Corporate",
+  promo_business: "Établissement",
 };
 
 const STEP_TYPE_LABELS: Record<string, string> = {
