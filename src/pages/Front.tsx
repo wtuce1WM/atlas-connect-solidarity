@@ -273,18 +273,12 @@ const Front = () => {
         }}
       />
 
-      {/* Mini-header pinné (identité + slogan, toujours visible) */}
-      <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex flex-col gap-1 px-5 py-4 sm:flex-row sm:items-center sm:gap-3 md:px-10">
-        <div className="flex items-center gap-3">
-          <span className="h-2 w-2 shrink-0 rounded-full bg-whatsapp" />
-          <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
-            One World Morocco
-          </span>
-        </div>
-        <h1 className="font-josefin text-xs font-extrabold uppercase tracking-[0.18em] text-[rgba(244,238,228,0.85)] md:text-sm">
-          Local <span className="text-primary">×</span> Digital{" "}
-          <span className="text-primary">×</span> Solidaire
-        </h1>
+      {/* Mini-header pinné (identité seule, toujours visible) */}
+      <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex items-center gap-3 px-5 py-4 md:px-10">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-whatsapp" />
+        <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
+          One World Morocco
+        </span>
       </div>
 
       {/* Couche narrative */}
@@ -301,11 +295,20 @@ const Front = () => {
         aria-hidden={!narrativeActive}
       >
         <div className="mx-auto w-full max-w-4xl">
-
-
+          {/* Bloc identité + slogan, conteneur séparé du récit pour éviter le saut visuel */}
+          <div className="mb-6 md:mb-8">
+            <h1 className="font-montserrat text-[clamp(2.25rem,7vw,5.5rem)] font-black uppercase leading-[0.9] tracking-tight text-[#F4EEE4]">
+              <span className="block sm:inline">
+                Local <span className="text-primary">×</span> Digital
+              </span>
+              <span className="block sm:ml-3 sm:inline">
+                <span className="text-primary">×</span> Solidaire
+              </span>
+            </h1>
+          </div>
 
           {/* Storybox */}
-          <div className="mt-7 border-l-2 border-gold/70 pl-4 md:pl-6">
+          <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
             <ul className="space-y-2.5">
               {STEPS.slice(0, step + 1).map((s, i) => {
                 const isActive = i === step;
