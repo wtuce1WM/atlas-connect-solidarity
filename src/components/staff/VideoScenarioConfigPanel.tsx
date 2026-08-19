@@ -586,9 +586,10 @@ const SortableStep = ({
               placeholder="Établissement global"
             />
           </div>
+          </div>
 
-          {/* Médias affectés à cette étape (ordre + bornes Start / End). */}
-          <div className="grid gap-2 rounded-md border p-2">
+          {/* Médias affectés à cette étape (ordre + bornes Start / End) — pleine largeur. */}
+          <div className="grid gap-2 rounded-md border p-2 w-full">
             <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               Médias de l'étape (images et/ou vidéos, 30 max)
             </span>
