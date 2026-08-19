@@ -701,9 +701,9 @@ const Front = () => {
         }}
         aria-hidden={!ctaActive}
       >
-        {/* Titre écran 2 — mobile : 3 lignes, même taille/leading que le slogan écran 1 */}
+        {/* Titre écran 2 — mobile : 3 lignes, même taille/leading visuel que le slogan écran 1 */}
         <p
-          className="text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight md:text-[clamp(2rem,min(9vw,8vh),5.5rem)]"
+          className="text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.35] tracking-tight md:text-[clamp(2rem,min(9vw,8vh),5.5rem)] md:leading-[1.12]"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
