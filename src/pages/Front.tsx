@@ -751,7 +751,10 @@ const Front = () => {
             color: "transparent",
             WebkitTextStrokeWidth: "2px",
             WebkitTextStrokeColor: "#FFFFFF",
+            opacity: voiceActive ? 0 : 1,
+            pointerEvents: voiceActive ? "none" : "auto",
           }}
+          aria-hidden={voiceActive}
         >
           <span className="block">LOCAL</span>
           <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
