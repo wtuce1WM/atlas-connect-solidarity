@@ -222,7 +222,7 @@ const Front = () => {
 
   const narrativeOpacity = 1 - range(progress, 0, 0.35);
   const narrativeActive = progress < 0.35;
-  const headerOpacity = range(progress, 0.15, 0.45);
+  
   const ctaP = range(progress, 0.25, 0.9);
   const ctaActive = progress > 0.575;
   const showCue = progress <= 0.06;
