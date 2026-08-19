@@ -156,6 +156,11 @@ const Front = () => {
     };
   }, []);
 
+  // les barres gold (verticale + horizontales) apparaissent avec le bullet 2
+  const barsVisible = bulletsVisible && step >= CAROUSEL_STEPS[0];
+
+
+
 
   const goToStep = useCallback(
     (i: number, freeze = false) => {
