@@ -77,6 +77,13 @@ const CTAS: { label: string; to: string }[] = [
   { label: "Widgets", to: "/widgets" },
 ];
 
+const FRONT_LANGS = [
+  { code: "fr", flag: "🇫🇷", label: "Français" },
+  { code: "en", flag: "🇬🇧", label: "English" },
+  { code: "ar", flag: "🇲🇦", label: "العربية" },
+] as const;
+
+
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const range = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
 
