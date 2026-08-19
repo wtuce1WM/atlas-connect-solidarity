@@ -57,7 +57,7 @@ const VideoScenarioRenderPanel = ({
 }: {
   mode: ScenarioRenderMode;
   activeTab: string;
-  jobs: VideoJobMetaRow[] & Array<{ status?: string; error_message?: string | null; business_id?: string | null }>;
+  jobs: Array<VideoJobMetaRow & { status?: string; error_message?: string | null; business_id?: string | null }>;
   jobBusinessNames: Record<string, string>;
   onReloadJobs: () => void;
 }) => {
