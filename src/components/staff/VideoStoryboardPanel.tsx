@@ -2305,6 +2305,37 @@ const VideoStoryboardPanel = () => {
 
             {/* ===== Onglet Montage ===== */}
             <TabsContent value="montage" className="space-y-4">
+              {/* Confirmation d'écrasement des étapes lors d'un import de scénario auto. */}
+              <AlertDialog
+                open={pendingScenario !== null}
+                onOpenChange={(o) => {
+                  if (!o) setPendingScenario(null);
+                }}
+              >
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Remplacer les étapes du montage ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Les {sections.length} étape(s) actuelles seront remplacées par celles du scénario auto —{" "}
+                      {pendingScenario === "establishment" ? "Établissement" : "Corporate"}. Les étapes importées
+                      deviennent ensuite librement modifiables dans ce montage (aucune synchronisation ultérieure).
+                      La suppression est effective à l'enregistrement.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        const t = pendingScenario;
+                        setPendingScenario(null);
+                        if (t) seedFromScenario(t);
+                      }}
+                    >
+                      Remplacer
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-black text-base">Réglages du montage</CardTitle>
