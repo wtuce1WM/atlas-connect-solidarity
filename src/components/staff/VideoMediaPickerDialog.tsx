@@ -1001,8 +1001,10 @@ export function VideoMediaPickerDialog({
   }, [allow]);
 
   useEffect(() => {
-    if (open) setSourceFilter("none");
-  }, [open]);
+    // Un établissement lié : on ouvre directement sur ses propres médias.
+    if (open) setSourceFilter(businessId ? "fiche" : "none");
+  }, [open, businessId]);
+
 
   // Auto-complete sur les autres fiches (nom ou slug) — aucun bouton à cliquer.
   useEffect(() => {
