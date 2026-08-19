@@ -989,24 +989,8 @@ const SortableSection = ({
               />
               s
             </label>
-            <div className="flex items-center gap-1">
-              {[3, 5, 10, 15, 20, 30, 60, 120, 180, 240].map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  onClick={() => patch({ duration_sec: preset })}
-                  className={`px-1.5 py-0.5 rounded text-[10px] border transition-colors ${
-                    section.duration_sec === preset
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background text-muted-foreground border-border hover:border-primary/50"
-                  }`}
-                  title={`Régler la durée à ${preset} s`}
-                >
-                  {preset}s
-                </button>
-              ))}
-            </div>
           </div>
+
           <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
             Actif
             <Switch checked={section.enabled} onCheckedChange={(v) => patch({ enabled: v })} />
