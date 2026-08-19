@@ -173,25 +173,35 @@ const Front = () => {
 
   /** Auto-fit du slogan écran 1 : taille max possible dans l'espace réellement libre
    *  (mesuré), au lieu d'une taille calculée sur le viewport (vh) qui débordait sous
-   *  la barre de recherche sur iOS. Mobile uniquement (<768px). */
+   *  la barre de recherche sur iOS. Si 5 lignes ne tiennent pas lisiblement, repli
+   *  automatique en 3 lignes (× inline). Mobile uniquement (<768px). */
   const sloganBoxRef = useRef<HTMLDivElement | null>(null);
   const [sloganFontPx, setSloganFontPx] = useState<number | null>(null);
+  const [sloganCompact, setSloganCompact] = useState(false);
 
   useEffect(() => {
     const el = sloganBoxRef.current;
     if (!el) return;
-    const LINES = 5;
     const LEADING = 1.12;
+    const MIN_5_LINES_PX = 26;
     const compute = () => {
       if (window.innerWidth >= 768) {
         setSloganFontPx(null);
+        setSloganCompact(false);
         return;
       }
       const avail = el.clientHeight;
       if (!avail) return;
       const cap = Math.min(0.06 * window.innerWidth, 0.055 * window.innerHeight, 60);
-      const fit = (avail * 0.98) / (LINES * LEADING);
-      setSloganFontPx(Math.max(18, Math.min(cap, fit)));
+      const usable = avail * 0.98;
+      const fit5 = usable / (5 * LEADING);
+      if (fit5 >= MIN_5_LINES_PX) {
+        setSloganCompact(false);
+        setSloganFontPx(Math.min(cap, fit5));
+      } else {
+        setSloganCompact(true);
+        setSloganFontPx(Math.max(18, Math.min(cap, usable / (3 * LEADING))));
+      }
     };
     compute();
     const ro = new ResizeObserver(compute);
