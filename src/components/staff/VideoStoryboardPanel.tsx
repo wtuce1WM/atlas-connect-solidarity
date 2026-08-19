@@ -2635,7 +2635,7 @@ const VideoStoryboardPanel = () => {
                   Montage manuel : note propre au storyboard. */}
               <div id="scenario-note-slot" />
               {!legacyMode && (board ? (
-                <StoryboardInternalNote modeKey={`storyboard:${board.id}`} />
+                <StoryboardInternalNote boardId={board.id} />
               ) : (
                 <p className="text-xs text-muted-foreground">Sélectionne un montage pour saisir sa note interne.</p>
               ))}

@@ -15,11 +15,8 @@ const plainLen = (html: string) => {
   return (div.textContent || "").trim().length;
 };
 
-/**
- * Note interne d'un montage manuel (storyboard), stockée dans
- * video_scenario_internal_notes avec une clé « storyboard:<id> ».
- */
-const StoryboardInternalNote = ({ modeKey }: { modeKey: string }) => {
+/** Note interne d'un montage manuel (storyboard), stockée sur le montage. */
+const StoryboardInternalNote = ({ boardId }: { boardId: string }) => {
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -27,13 +24,13 @@ const StoryboardInternalNote = ({ modeKey }: { modeKey: string }) => {
   const load = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
-      .from("video_scenario_internal_notes")
-      .select("note")
-      .eq("mode", modeKey)
+      .from("video_storyboards" as any)
+      .select("internal_note")
+      .eq("id", boardId)
       .maybeSingle();
-    setNote(((data as any)?.note as string) ?? "");
+    setNote(((data as any)?.internal_note as string) ?? "");
     setLoading(false);
-  }, [modeKey]);
+  }, [boardId]);
 
   useEffect(() => {
     load();
@@ -43,8 +40,9 @@ const StoryboardInternalNote = ({ modeKey }: { modeKey: string }) => {
     if (plainLen(note) > MAX_NOTE) return toast.error(`Note limitée à ${MAX_NOTE} caractères.`);
     setSaving(true);
     const { error } = await supabase
-      .from("video_scenario_internal_notes")
-      .upsert({ mode: modeKey, note }, { onConflict: "mode" });
+      .from("video_storyboards" as any)
+      .update({ internal_note: note } as any)
+      .eq("id", boardId);
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Note enregistrée");
