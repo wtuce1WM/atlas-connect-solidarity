@@ -391,6 +391,7 @@ const Front = () => {
             <HeroInlineSearch
               placeholder="Que cherchez-vous ? Et où ?"
               onVoiceActiveChange={setVoiceActive}
+              voiceTextClassName="text-white"
               onSearch={(params) => {
                 const qs = new URLSearchParams(params).toString();
                 if (qs) navigate(`/search?${qs}`);
@@ -398,8 +399,18 @@ const Front = () => {
               onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
             />
           </div>
+
+          {/* Accroche fixe sous le champ de recherche (hors défilement) */}
+          <p
+            className="mt-4 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-lg"
+            style={{ opacity: voiceActive ? 0 : 1, transition: motion }}
+            aria-hidden={voiceActive}
+          >
+            Notre App fait ce que font...
+          </p>
         </div>
       </div>
+
 
 
       {/* Couche narrative (storybox) — ancrée en bas pour ne pas pousser le slogan */}
