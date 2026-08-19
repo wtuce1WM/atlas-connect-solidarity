@@ -2622,6 +2622,8 @@ const VideoStoryboardPanel = () => {
           <div className="mt-4">
             <StoryboardGuide />
           </div>
+          {/* Slot recevant la note interne du scénario Corporate depuis VideoScenarioConfigPanel. */}
+          <div id="corporate-note-slot" className="mt-6" />
         </SheetContent>
       </Sheet>
     </div>
