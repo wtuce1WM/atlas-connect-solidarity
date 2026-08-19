@@ -12,11 +12,17 @@ const LANDSCAPE_VIDEO_URL =
 
 const STEP_MS = 3400;
 const FIRST_CAROUSEL_DELAY_MS = 5000;
+const MIN_STEP_MS = 2000;
 
 /** Durées affichées de chaque bullet défilant (indices 2-6), en ms.
- *  Basé sur les poids visuels précédents : 0.8 / 0.8 / 2 / 5 / 3 × 3400 ms.
- *  Step 5 (solidarité) : +5 s. Step 6 (valeur) : -5 s. */
-const CAROUSEL_DURATIONS_MS = [2720, 2720, 6800, 22000, 5200];
+ *  Base = 3400 ms. Step 5 (solidarité) : +5 s. Step 6 (valeur) : -5 s (plancher 2 s). */
+const CAROUSEL_DURATIONS_MS = [
+  STEP_MS,
+  STEP_MS,
+  STEP_MS,
+  STEP_MS + 5000,
+  Math.max(MIN_STEP_MS, STEP_MS - 5000),
+];
 
 type Step = { bullet: boolean; render: () => React.ReactNode };
 
