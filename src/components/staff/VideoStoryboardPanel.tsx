@@ -1465,6 +1465,9 @@ const VideoStoryboardPanel = () => {
   const [removed, setRemoved] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [newType, setNewType] = useState<StepType>("hook");
+  /** Type de scénario en attente de confirmation d'écrasement des étapes. */
+  const [pendingScenario, setPendingScenario] = useState<"establishment" | "corporate" | null>(null);
+  const [seeding, setSeeding] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [rendering, setRendering] = useState(false);
