@@ -384,7 +384,7 @@ const Front = () => {
 
       {/* Bloc central — slogan centré entre header et recherche, recherche ancrée en bas */}
       <div
-        className="absolute inset-0 z-20 flex flex-col px-5 pt-24 pb-14 md:px-10 md:pb-20 lg:px-16"
+        className="absolute inset-0 z-20 flex flex-col px-5 pt-24 pb-20 md:px-10 md:pb-20 lg:px-16"
         style={{
           opacity: narrativeOpacity,
           transform: reduced
@@ -508,7 +508,7 @@ const Front = () => {
 
               <div className="flex flex-col gap-4">
                 {/* Bullet permanent — hauteur réservée pour éviter tout saut visuel */}
-                <div className="min-h-[5.5rem] md:min-h-[3.5rem]">
+                <div className="min-h-[5.5rem] md:min-h-[4rem]">
                   {bulletsVisible && (
                     <div
                       className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-base"
@@ -528,7 +528,7 @@ const Front = () => {
                 </div>
 
                 {/* Bullet courant du carrousel (2-6) — hauteur réservée sur le plus long texte */}
-                <div className="min-h-[6.25rem] md:min-h-[3.5rem]">
+                <div className="min-h-[6.25rem] md:min-h-[4.25rem]">
                   {bulletsVisible && step >= CAROUSEL_STEPS[0] && (
                     <div
                       key={step}
@@ -552,7 +552,7 @@ const Front = () => {
 
               {/* Progress bar segmentée — un segment par bullet défilant (2-6), la première barre (bullet 1) est supprimée */}
               <div
-                className="mt-4 flex gap-1.5"
+                className="mt-1.5 flex gap-1.5 md:mt-4"
                 onClick={(e) => e.stopPropagation()}
                 style={{
                   opacity: barsVisible ? 1 : 0,
