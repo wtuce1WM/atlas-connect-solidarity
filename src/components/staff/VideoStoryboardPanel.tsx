@@ -122,8 +122,13 @@ const typeLabel = (t: string) => STEP_TYPES.find((s) => s.value === t)?.label ??
 type Storyboard = {
   id: string;
   name: string;
-  /** Deux scénarios possibles d'un montage : établissement ou corporate. */
-  scenario_type: "establishment" | "corporate";
+  /**
+   * Cadre éditorial du montage :
+   * - `new` : composition manuelle libre (défaut) ;
+   * - `establishment` / `corporate` : étapes initialisées par copie du scénario
+   *   auto correspondant, puis librement éditables (source unique = storyboard).
+   */
+  scenario_type: "new" | "establishment" | "corporate";
   format: "portrait" | "landscape";
   business_id: string | null;
   preview_scale: number;
