@@ -399,7 +399,7 @@ const Front = () => {
         {/* Slogan — centré verticalement dans l'espace restant au-dessus de la recherche */}
         <div className="flex flex-1 flex-col items-center justify-center">
           <h1
-            className="text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[0.9] tracking-tight"
+            className="mb-[-0.5rem] text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[1.0] tracking-tight md:mb-[-0.75rem]"
             style={{
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 900,
@@ -508,7 +508,7 @@ const Front = () => {
 
               <div className="flex flex-col gap-4">
                 {/* Bullet permanent — hauteur réservée pour éviter tout saut visuel */}
-                <div className="min-h-[5.5rem] md:min-h-[4rem]">
+                <div className="min-h-[5.5rem] md:min-h-[4.5rem]">
                   {bulletsVisible && (
                     <div
                       className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-base"
@@ -528,7 +528,7 @@ const Front = () => {
                 </div>
 
                 {/* Bullet courant du carrousel (2-6) — hauteur réservée sur le plus long texte */}
-                <div className="min-h-[6.25rem] md:min-h-[4.25rem]">
+                <div className="min-h-[6.25rem] md:min-h-[4.75rem]">
                   {bulletsVisible && step >= CAROUSEL_STEPS[0] && (
                     <div
                       key={step}
