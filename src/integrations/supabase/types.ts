@@ -8210,33 +8210,48 @@ export type Database = {
         Row: {
           business_id: string | null
           created_at: string
+          effects: Json | null
+          encode: Json | null
           format_key: string
           fps: number
           global_media: Json
           height: number
           mode: string
+          render_duration_sec: number
+          render_prompt: string | null
+          render_tone: string
           updated_at: string
           width: number
         }
         Insert: {
           business_id?: string | null
           created_at?: string
+          effects?: Json | null
+          encode?: Json | null
           format_key?: string
           fps?: number
           global_media?: Json
           height?: number
           mode: string
+          render_duration_sec?: number
+          render_prompt?: string | null
+          render_tone?: string
           updated_at?: string
           width?: number
         }
         Update: {
           business_id?: string | null
           created_at?: string
+          effects?: Json | null
+          encode?: Json | null
           format_key?: string
           fps?: number
           global_media?: Json
           height?: number
           mode?: string
+          render_duration_sec?: number
+          render_prompt?: string | null
+          render_tone?: string
           updated_at?: string
           width?: number
         }
