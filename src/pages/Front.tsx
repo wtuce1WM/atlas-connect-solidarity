@@ -301,7 +301,7 @@ const Front = () => {
               <span className="block">
                 Local <span className="text-primary">×</span> Digital
               </span>
-              <span className="block pl-[0.08em]">
+              <span className="block pl-[0.08em] sm:pl-[0.13em]">
                 <span className="text-primary">×</span> Solidaire
               </span>
             </h1>
