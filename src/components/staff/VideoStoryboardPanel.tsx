@@ -52,6 +52,7 @@ import StoryboardGlobalMediaGrid, {
   type GlobalMediaItem,
 } from "@/components/staff/StoryboardGlobalMediaGrid";
 import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
+import VideoScenarioRenderPanel from "@/components/staff/VideoScenarioRenderPanel";
 import VideoJobMeta from "@/components/staff/VideoJobMeta";
 import StepVoiceOverBlock, { type StepVoice } from "@/components/staff/StepVoiceOverBlock";
 import { Copy } from "lucide-react";
