@@ -350,9 +350,9 @@ const Front = () => {
         </nav>
       </div>
 
-      {/* Bloc slogan + recherche — conteneur séparé et fixe pour éviter le saut visuel du récit */}
+      {/* Slogan — ancré en haut, hors du flux centré */}
       <div
-        className="absolute left-0 right-0 top-0 z-20 flex flex-col items-center px-5 pt-[14vh] md:px-10 lg:px-16 md:pt-[16vh]"
+        className="absolute left-0 right-0 top-[11vh] z-20 flex justify-center px-5 md:px-10 lg:px-16"
         style={{
           opacity: narrativeOpacity,
           transform: reduced
@@ -363,31 +363,43 @@ const Front = () => {
         }}
         aria-hidden={!narrativeActive}
       >
-        <div className="w-full max-w-4xl">
-          <h1
-            className="text-[clamp(2.25rem,6.5vw,5.5rem)] uppercase leading-[0.88] tracking-tight"
-            style={{
-              fontFamily: "'Montserrat', sans-serif",
-              fontWeight: 900,
-              color: "transparent",
-              WebkitTextStrokeWidth: "2px",
-              WebkitTextStrokeColor: "#FFFFFF",
-            }}
-          >
-            <span className="block">
-              LOCAL{" "}
-              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>{" "}
-              DIGITAL{" "}
-              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-            </span>
-            <span className="block">SOLIDAIRE</span>
-          </h1>
+        <h1
+          className="text-center text-[clamp(2.25rem,6.5vw,5.5rem)] uppercase leading-[0.88] tracking-tight"
+          style={{
+            fontFamily: "'Montserrat', sans-serif",
+            fontWeight: 900,
+            color: "transparent",
+            WebkitTextStrokeWidth: "2px",
+            WebkitTextStrokeColor: "#FFFFFF",
+          }}
+        >
+          <span className="block">
+            LOCAL{" "}
+            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>{" "}
+            DIGITAL{" "}
+            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+          </span>
+          <span className="block">SOLIDAIRE</span>
+        </h1>
+      </div>
 
+      {/* Bloc central — champ de recherche centré verticalement dans le viewport */}
+      <div
+        className="absolute inset-0 z-20 flex flex-col items-center justify-center px-5 md:px-10 lg:px-16"
+        style={{
+          opacity: narrativeOpacity,
+          transform: reduced
+            ? undefined
+            : `translateY(${-range(progress, 0, 0.35) * 40}px)`,
+          pointerEvents: narrativeActive ? "auto" : "none",
+          transition: motion,
+        }}
+        aria-hidden={!narrativeActive}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex w-full max-w-2xl flex-col items-center gap-4">
           {/* Recherche (avec overlay vocal) */}
-          <div
-            className="mt-5 w-full max-w-2xl md:mt-6"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="w-full" onClick={(e) => e.stopPropagation()}>
             <HeroInlineSearch
               placeholder="Que cherchez-vous ? Et où ?"
               onVoiceActiveChange={setVoiceActive}
@@ -400,9 +412,31 @@ const Front = () => {
             />
           </div>
 
-          {/* Accroche fixe sous le champ de recherche (hors défilement) */}
+          {/* CTA Demo — liquid glass + shimmer différé */}
+          <button
+            type="button"
+            aria-label="Demo"
+            onClick={(e) => e.stopPropagation()}
+            className="demo-cta group relative overflow-hidden rounded-2xl border border-white/25 bg-white/[0.08] px-10 py-4 backdrop-blur-2xl transition-all duration-300 hover:scale-[1.03] hover:border-white/45 hover:bg-white/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98]"
+          >
+            <span
+              className="relative z-10 text-[clamp(1.75rem,5vw,3.25rem)] uppercase leading-none tracking-tight"
+              style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontWeight: 900,
+                color: "transparent",
+                WebkitTextStrokeWidth: "2px",
+                WebkitTextStrokeColor: "#FFFFFF",
+              }}
+            >
+              Demo
+            </span>
+            <span className="demo-shimmer absolute inset-0 -translate-x-full" aria-hidden="true" />
+          </button>
+
+          {/* Accroche fixe sous le CTA Demo */}
           <p
-            className="mt-4 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-lg"
+            className="font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-lg"
             style={{ opacity: voiceActive ? 0 : 1, transition: motion }}
             aria-hidden={voiceActive}
           >
@@ -410,6 +444,25 @@ const Front = () => {
           </p>
         </div>
       </div>
+
+      <style>{`
+        @keyframes owmShimmer {
+          0% { transform: translateX(-100%) skewX(-20deg); }
+          100% { transform: translateX(200%) skewX(-20deg); }
+        }
+        .demo-shimmer {
+          background: linear-gradient(
+            105deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.35) 50%,
+            transparent 70%
+          );
+          animation: owmShimmer 900ms ease-in-out 500ms 1;
+        }
+        .demo-cta:hover .demo-shimmer {
+          animation: owmShimmer 700ms ease-in-out 1;
+        }
+      `}</style>
 
 
 
