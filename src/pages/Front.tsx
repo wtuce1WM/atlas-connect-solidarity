@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown, ArrowUpRight, Menu, X } from "lucide-react";
+import { ChevronDown, ChevronUp, ArrowUpRight, Menu, X } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
+import { useLanguage } from "@/contexts/LanguageContext";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import portraitVideo from "@/assets/hero-home-portrait.mp4.asset.json";
 import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
@@ -76,6 +77,13 @@ const CTAS: { label: string; to: string }[] = [
   { label: "Widgets", to: "/widgets" },
 ];
 
+const FRONT_LANGS = [
+  { code: "fr", flag: "🇫🇷", label: "Français" },
+  { code: "en", flag: "🇬🇧", label: "English" },
+  { code: "ar", flag: "🇲🇦", label: "العربية" },
+] as const;
+
+
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const range = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
 
@@ -88,6 +96,7 @@ const Front = () => {
   });
 
   const navigate = useNavigate();
+  const { language, setLanguage } = useLanguage();
   const [step, setStep] = useState(1);
   const [progress, setProgress] = useState(0);
   const [isPortrait, setIsPortrait] = useState(
@@ -327,8 +336,14 @@ const Front = () => {
           type="button"
           aria-label="Ouvrir le menu"
           aria-expanded={menuOpen}
+          aria-hidden={ctaActive}
+          tabIndex={ctaActive ? -1 : 0}
           onClick={() => setMenuOpen(true)}
-          className="rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+          className="rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-opacity duration-300 hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+          style={{
+            opacity: ctaActive ? 0 : 1,
+            pointerEvents: ctaActive ? "none" : "auto",
+          }}
         >
           <Menu className="h-5 w-5" />
         </button>
@@ -379,6 +394,29 @@ const Front = () => {
               </span>
             </Link>
           ))}
+
+          {/* Switch de langues */}
+          <div className="mt-2 grid grid-cols-3 gap-3">
+            {FRONT_LANGS.map((lang) => (
+              <button
+                key={lang.code}
+                type="button"
+                aria-label={lang.label}
+                aria-current={language === lang.code}
+                onClick={() => setLanguage(lang.code)}
+                className={`flex flex-col items-center justify-center gap-1.5 rounded-xl border bg-black/35 py-4 backdrop-blur-md transition-all focus-visible:outline-none ${
+                  language === lang.code
+                    ? "border-gold/70"
+                    : "border-[rgba(244,238,228,0.15)] hover:border-gold/60"
+                }`}
+              >
+                <span className="text-3xl leading-none md:text-4xl">{lang.flag}</span>
+                <span className="font-roboto text-xs font-bold uppercase tracking-[0.14em] text-[#F4EEE4]">
+                  {lang.code}
+                </span>
+              </button>
+            ))}
+          </div>
         </nav>
       </div>
 
@@ -640,7 +678,7 @@ const Front = () => {
 
       {/* Couche CTA */}
       <div
-        className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-8 px-5 pt-16 md:px-10"
+        className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-8 px-5 pt-16 pb-24 md:px-10"
         style={{
           opacity: ctaP,
           transform: reduced ? undefined : `translateY(${(1 - ctaP) * 48}px) scale(${0.96 + ctaP * 0.04})`,
@@ -658,10 +696,9 @@ const Front = () => {
             color: "transparent",
             WebkitTextStrokeWidth: "2px",
             WebkitTextStrokeColor: "#FFFFFF",
-            animation: !ctaActive || reduced ? undefined : "owmSlideDown 420ms ease-out both",
           }}
         >
-          <span className="block md:inline">One</span> World Morocco
+          <span className="block md:inline">One World</span> Morocco
         </p>
 
         <div className="grid w-full max-w-5xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -691,26 +728,52 @@ const Front = () => {
       </div>
 
       {/* Cue de scroll */}
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setTarget(1);
-        }}
-        className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 flex flex-col items-center gap-1 text-[rgba(244,238,228,0.8)] hover:text-gold"
-        style={{
-          opacity: showCue ? 1 : 0,
-          pointerEvents: showCue ? "auto" : "none",
-          animation: reduced || !showCue ? undefined : "owmSlideDown 420ms ease-out both",
-          transition: motion,
-        }}
-        tabIndex={showCue ? 0 : -1}
-      >
-        <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
-        <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
-          Découvrir
-        </span>
-      </button>
+      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setTarget(1);
+          }}
+          className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.8)] hover:text-gold"
+          style={{
+            opacity: showCue ? 1 : 0,
+            pointerEvents: showCue ? "auto" : "none",
+            animation: reduced || !showCue ? undefined : "owmSlideDown 420ms ease-out both",
+            transition: motion,
+          }}
+          tabIndex={showCue ? 0 : -1}
+        >
+          <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+          <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
+            Découvrir
+          </span>
+        </button>
+      </div>
+
+      {/* CTA Revenir — symétrique de Découvrir, visible sur écran 2 */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setTarget(0);
+          }}
+          className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.8)] hover:text-gold"
+          style={{
+            opacity: ctaActive ? 1 : 0,
+            pointerEvents: ctaActive ? "auto" : "none",
+            transition: motion,
+          }}
+          tabIndex={ctaActive ? 0 : -1}
+          aria-hidden={!ctaActive}
+        >
+          <ChevronUp className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+          <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
+            Revenir
+          </span>
+        </button>
+      </div>
     </section>
   );
 };
