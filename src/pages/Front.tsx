@@ -143,6 +143,18 @@ const Front = () => {
 
   const [auto, setAuto] = useState(true);
   const [voiceActive, setVoiceActive] = useState(false);
+  const [accrocheVisible, setAccrocheVisible] = useState(false);
+  const [bulletsVisible, setBulletsVisible] = useState(false);
+
+  // délais d'apparition de l'accroche et des bullets
+  useEffect(() => {
+    const t1 = window.setTimeout(() => setAccrocheVisible(true), 1000);
+    const t2 = window.setTimeout(() => setBulletsVisible(true), 2000);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, []);
 
 
   const goToStep = useCallback(
