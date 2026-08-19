@@ -135,7 +135,7 @@ const Front = () => {
   }, []);
 
   useEffect(() => {
-    scheduleNext(0);
+    scheduleNext(PERMANENT_STEP);
     return () => {
       if (timerRef.current) window.clearTimeout(timerRef.current);
     };
