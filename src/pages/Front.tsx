@@ -48,7 +48,7 @@ const STEPS: Step[] = [
     ),
   },
   {
-    bullet: false,
+    bullet: true,
     render: () => (
       <>
         Parce que créer de la valeur ne devrait pas seulement profiter à ceux qui la
@@ -60,7 +60,8 @@ const STEPS: Step[] = [
 
 const BULLET_STEPS = STEPS.map((s, i) => (s.bullet ? i : -1)).filter((i) => i >= 0);
 /** Largeur relative de chaque segment, calée sur la longueur du texte du bullet point. */
-const BULLET_WEIGHTS = [3, 1, 1, 2, 3];
+const BULLET_WEIGHTS = [5, 0.8, 0.8, 2, 5, 3];
+
 
 const CTAS: { label: string; to: string }[] = [
 
