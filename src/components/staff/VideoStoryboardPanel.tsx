@@ -2645,8 +2645,8 @@ const VideoStoryboardPanel = () => {
           </Tabs>
         )}
 
-        {/* ---------- Notes de bas de page (guide) ---------- */}
-        <StoryboardGuide />
+        {/* Le guide n'est plus dupliqué en bas de page : accès unique par le CTA « Guide ». */}
+
       </div>
 
       {/* ---------- Guide en panneau latéral ---------- */}
