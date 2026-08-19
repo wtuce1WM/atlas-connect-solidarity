@@ -8289,7 +8289,7 @@ export type Database = {
           created_at: string
           id: string
           position: number
-          step_id: string
+          step_id: string | null
           title: string | null
           updated_at: string
         }
@@ -8298,7 +8298,7 @@ export type Database = {
           created_at?: string
           id?: string
           position?: number
-          step_id: string
+          step_id?: string | null
           title?: string | null
           updated_at?: string
         }
@@ -8307,7 +8307,7 @@ export type Database = {
           created_at?: string
           id?: string
           position?: number
-          step_id?: string
+          step_id?: string | null
           title?: string | null
           updated_at?: string
         }

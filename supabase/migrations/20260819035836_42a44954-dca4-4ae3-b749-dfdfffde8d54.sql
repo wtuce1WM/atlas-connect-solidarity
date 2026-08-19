@@ -1,0 +1,1 @@
+ALTER TABLE public.video_scenario_step_notes ALTER COLUMN step_id DROP NOT NULL;
