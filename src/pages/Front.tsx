@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown, ArrowUpRight } from "lucide-react";
+import { ChevronDown, ArrowUpRight, Menu, X } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import portraitVideo from "@/assets/hero-home-portrait.mp4.asset.json";
 import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
