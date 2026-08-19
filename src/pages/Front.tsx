@@ -140,7 +140,10 @@ const Front = () => {
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
     if (from >= STEPS.length - 1) return;
-    const delay = from === PERMANENT_STEP ? FIRST_CAROUSEL_DELAY_MS : STEP_MS;
+    const delay =
+      from === PERMANENT_STEP
+        ? FIRST_CAROUSEL_DELAY_MS
+        : CAROUSEL_DURATIONS_MS[CAROUSEL_STEPS.indexOf(from)] ?? STEP_MS;
     timerRef.current = window.setTimeout(() => {
       setStep((s) => {
         const next = Math.min(STEPS.length - 1, s + 1);
