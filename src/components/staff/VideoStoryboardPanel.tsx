@@ -122,7 +122,8 @@ const typeLabel = (t: string) => STEP_TYPES.find((s) => s.value === t)?.label ??
 type Storyboard = {
   id: string;
   name: string;
-  scenario_type: "promo_business" | "corporate_long";
+  /** Deux scénarios possibles d'un montage : établissement ou corporate. */
+  scenario_type: "establishment" | "corporate";
   format: "portrait" | "landscape";
   business_id: string | null;
   preview_scale: number;
@@ -2257,8 +2258,8 @@ const VideoStoryboardPanel = () => {
                         onChange={(e) => patchBoard({ scenario_type: e.target.value as Storyboard["scenario_type"] })}
                         className="h-9 rounded-md border bg-background px-2 text-xs"
                       >
-                        <option value="corporate_long">Corporate long</option>
-                        <option value="promo_business">Promo business</option>
+                        <option value="establishment">Établissement</option>
+                        <option value="corporate">Corporate</option>
                       </select>
                     </label>
                     <label className="text-xs text-muted-foreground grid gap-1">

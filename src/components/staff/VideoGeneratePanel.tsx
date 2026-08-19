@@ -415,7 +415,7 @@ const VideoGeneratePanel = () => {
           <Film className="h-4 w-4" /> Scénario Feed
         </TabsTrigger>
         <TabsTrigger value="promo" className="gap-2">
-          <Sparkles className="h-4 w-4" /> Promo business
+          <Sparkles className="h-4 w-4" /> Clips · Promo business
         </TabsTrigger>
       </TabsList>
 
