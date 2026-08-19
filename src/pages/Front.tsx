@@ -701,9 +701,9 @@ const Front = () => {
         }}
         aria-hidden={!ctaActive}
       >
-        {/* Titre écran 2 — même lettrage, taille et espacement que le slogan écran 1 */}
+        {/* Titre écran 2 — mobile : 3 lignes, même taille/leading que le slogan écran 1 */}
         <p
-          className="text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[1.12] tracking-tight"
+          className="text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight md:text-[clamp(2rem,min(9vw,8vh),5.5rem)]"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
@@ -712,7 +712,10 @@ const Front = () => {
             WebkitTextStrokeColor: "#FFFFFF",
           }}
         >
-          <span className="block md:inline">One World</span> Morocco
+          <span className="block md:hidden">One</span>
+          <span className="block md:hidden">World</span>
+          <span className="block md:hidden">Morocco</span>
+          <span className="hidden md:inline">One World Morocco</span>
         </p>
 
         <div className="grid w-full max-w-5xl grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3 md:gap-3">
