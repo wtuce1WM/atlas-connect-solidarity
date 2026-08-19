@@ -96,6 +96,7 @@ const Front = () => {
   });
 
   const navigate = useNavigate();
+  const { language, setLanguage } = useLanguage();
   const [step, setStep] = useState(1);
   const [progress, setProgress] = useState(0);
   const [isPortrait, setIsPortrait] = useState(
