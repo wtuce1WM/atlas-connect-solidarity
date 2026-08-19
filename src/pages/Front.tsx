@@ -11,6 +11,7 @@ const LANDSCAPE_VIDEO_URL =
   "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/studio-videos/1wm_montage_storyboard-home-portrait-20_vertical_20260818-1320_3376434b.mp4";
 
 const STEP_MS = 3400;
+const FIRST_CAROUSEL_DELAY_MS = 5000;
 
 type Step = { bullet: boolean; render: () => React.ReactNode };
 
