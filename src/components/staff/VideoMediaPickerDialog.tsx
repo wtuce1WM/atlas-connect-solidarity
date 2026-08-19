@@ -261,7 +261,7 @@ function Tile({
                 // lecture pour forcer l'affichage d'une image réelle.
                 if (v.currentTime === 0 && Number.isFinite(v.duration) && v.duration > 0.2) {
                   try {
-                    v.currentTime = 0.1;
+                    v.currentTime = Math.min(0.5, v.duration / 2);
                   } catch {
                     /* ignore */
                   }
@@ -1001,8 +1001,10 @@ export function VideoMediaPickerDialog({
   }, [allow]);
 
   useEffect(() => {
-    if (open) setSourceFilter("none");
-  }, [open]);
+    // Un établissement lié : on ouvre directement sur ses propres médias.
+    if (open) setSourceFilter(businessId ? "fiche" : "none");
+  }, [open, businessId]);
+
 
   // Auto-complete sur les autres fiches (nom ou slug) — aucun bouton à cliquer.
   useEffect(() => {
