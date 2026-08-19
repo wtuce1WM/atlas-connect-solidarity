@@ -787,6 +787,8 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     }
 
     accumulatedTranscriptRef.current = "";
+    transcriptConsumedRef.current = false;
+
     setLiveTranscript("");
     clearSilenceTimer();
     // Indicate immediately we're starting so UI shows feedback during warm-up
