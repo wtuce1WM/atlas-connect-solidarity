@@ -728,26 +728,52 @@ const Front = () => {
       </div>
 
       {/* Cue de scroll */}
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setTarget(1);
-        }}
-        className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 flex flex-col items-center gap-1 text-[rgba(244,238,228,0.8)] hover:text-gold"
-        style={{
-          opacity: showCue ? 1 : 0,
-          pointerEvents: showCue ? "auto" : "none",
-          animation: reduced || !showCue ? undefined : "owmSlideDown 420ms ease-out both",
-          transition: motion,
-        }}
-        tabIndex={showCue ? 0 : -1}
-      >
-        <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
-        <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
-          Découvrir
-        </span>
-      </button>
+      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setTarget(1);
+          }}
+          className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.8)] hover:text-gold"
+          style={{
+            opacity: showCue ? 1 : 0,
+            pointerEvents: showCue ? "auto" : "none",
+            animation: reduced || !showCue ? undefined : "owmSlideDown 420ms ease-out both",
+            transition: motion,
+          }}
+          tabIndex={showCue ? 0 : -1}
+        >
+          <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+          <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
+            Découvrir
+          </span>
+        </button>
+      </div>
+
+      {/* CTA Revenir — symétrique de Découvrir, visible sur écran 2 */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setTarget(0);
+          }}
+          className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.8)] hover:text-gold"
+          style={{
+            opacity: ctaActive ? 1 : 0,
+            pointerEvents: ctaActive ? "auto" : "none",
+            transition: motion,
+          }}
+          tabIndex={ctaActive ? 0 : -1}
+          aria-hidden={!ctaActive}
+        >
+          <ChevronUp className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+          <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
+            Revenir
+          </span>
+        </button>
+      </div>
     </section>
   );
 };
