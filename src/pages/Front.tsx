@@ -363,12 +363,20 @@ const Front = () => {
       >
         <div className="w-full max-w-4xl">
           <h1
-            className="text-[clamp(2.25rem,6.5vw,5.5rem)] uppercase leading-[0.88] tracking-tight text-[#F4EEE4]"
-            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900 }}
+            className="text-[clamp(2.25rem,6.5vw,5.5rem)] uppercase leading-[0.88] tracking-tight"
+            style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 900,
+              color: "transparent",
+              WebkitTextStrokeWidth: "2px",
+              WebkitTextStrokeColor: "#FFFFFF",
+            }}
           >
             <span className="block">
-              LOCAL <span className="text-primary">×</span> DIGITAL{" "}
-              <span className="text-primary">×</span>
+              LOCAL{" "}
+              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>{" "}
+              DIGITAL{" "}
+              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
             </span>
             <span className="block">SOLIDAIRE</span>
           </h1>
@@ -380,6 +388,7 @@ const Front = () => {
           >
             <HeroInlineSearch
               placeholder="Que cherchez-vous ? Et où ?"
+              onVoiceActiveChange={setVoiceActive}
               onSearch={(params) => {
                 const qs = new URLSearchParams(params).toString();
                 if (qs) navigate(`/search?${qs}`);
@@ -389,6 +398,7 @@ const Front = () => {
           </div>
         </div>
       </div>
+
 
       {/* Couche narrative (storybox) — ancrée en bas pour ne pas pousser le slogan */}
       <div
