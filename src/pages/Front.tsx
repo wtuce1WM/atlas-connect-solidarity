@@ -58,7 +58,10 @@ const STEPS: Step[] = [
   },
 ];
 
+const BULLET_STEPS = STEPS.map((s, i) => (s.bullet ? i : -1)).filter((i) => i >= 0);
+
 const CTAS: { label: string; to: string }[] = [
+
   { label: "Installer l'App", to: "/install" },
   { label: "Devenez membre du club OWM", to: "/club" },
   { label: "Ce que nous faisons", to: "/mission" },
@@ -352,9 +355,10 @@ const Front = () => {
 
       {/* Slogan — ancré en haut, hors du flux centré */}
       <div
-        className="absolute left-0 right-0 top-[11vh] z-20 flex justify-center px-5 md:px-10 lg:px-16"
+        className="absolute left-0 right-0 top-[9vh] bottom-[54vh] z-20 flex items-center justify-center px-5 md:px-10 lg:px-16"
         style={{
           opacity: narrativeOpacity,
+
           transform: reduced
             ? undefined
             : `translateY(${-range(progress, 0, 0.35) * 40}px)`,
@@ -413,26 +417,40 @@ const Front = () => {
           </div>
 
           {/* CTA Demo — liquid glass + shimmer différé */}
-          <button
-            type="button"
-            aria-label="Demo"
-            onClick={(e) => e.stopPropagation()}
-            className="demo-cta group relative overflow-hidden rounded-2xl border border-white/25 bg-white/[0.08] px-10 py-4 backdrop-blur-2xl transition-all duration-300 hover:scale-[1.03] hover:border-white/45 hover:bg-white/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98]"
+          <div
+            className="flex flex-col items-center gap-1"
+            style={{
+              opacity: voiceActive ? 0 : 1,
+              pointerEvents: voiceActive ? "none" : "auto",
+              transition: motion,
+            }}
+            aria-hidden={voiceActive}
           >
-            <span
-              className="relative z-10 text-[clamp(1.75rem,5vw,3.25rem)] uppercase leading-none tracking-tight"
-              style={{
-                fontFamily: "'Montserrat', sans-serif",
-                fontWeight: 900,
-                color: "transparent",
-                WebkitTextStrokeWidth: "2px",
-                WebkitTextStrokeColor: "#FFFFFF",
-              }}
+            <button
+              type="button"
+              aria-label="Demo (bientôt)"
+              onClick={(e) => e.stopPropagation()}
+              className="demo-cta group relative overflow-hidden rounded-xl border border-white/25 bg-white/[0.08] px-6 py-2.5 backdrop-blur-2xl transition-all duration-300 hover:scale-[1.03] hover:border-white/45 hover:bg-white/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98]"
             >
-              Demo
+              <span
+                className="relative z-10 text-[clamp(1.1rem,2.6vw,1.6rem)] uppercase leading-none tracking-tight"
+                style={{
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontWeight: 900,
+                  color: "transparent",
+                  WebkitTextStrokeWidth: "2px",
+                  WebkitTextStrokeColor: "#FFFFFF",
+                }}
+              >
+                Demo
+              </span>
+              <span className="demo-shimmer absolute inset-0 -translate-x-full" aria-hidden="true" />
+            </button>
+            <span className="font-roboto text-[0.65rem] uppercase tracking-[0.18em] text-[rgba(244,238,228,0.7)]">
+              (bientôt)
             </span>
-            <span className="demo-shimmer absolute inset-0 -translate-x-full" aria-hidden="true" />
-          </button>
+          </div>
+
 
           {/* Accroche fixe sous le CTA Demo */}
           <p
@@ -450,7 +468,12 @@ const Front = () => {
           0% { transform: translateX(-100%) skewX(-20deg); }
           100% { transform: translateX(200%) skewX(-20deg); }
         }
+        @keyframes owmFillBar {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
         .demo-shimmer {
+
           background: linear-gradient(
             105deg,
             transparent 30%,
@@ -509,27 +532,38 @@ const Front = () => {
             </div>
 
 
-            {/* Progress bar segmentée */}
+            {/* Progress bar segmentée — uniquement les 5 bullet points */}
             <div className="mt-5 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
-              {STEPS.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  aria-label={`Étape ${i + 1}`}
-                  onClick={() => goToStep(i)}
-                  className="h-1 flex-1 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)]"
-                >
-                  <span
-                    className="block h-full rounded-full bg-gold"
-                    style={{
-                      width: i < step ? "100%" : i === step ? "100%" : "0%",
-                      opacity: i <= step ? 1 : 0,
-                      transition: reduced ? "none" : `width ${STEP_MS}ms linear`,
-                    }}
-                  />
-                </button>
-              ))}
+              {BULLET_STEPS.map((stepIndex, i) => {
+                const done = step > stepIndex;
+                const current = step === stepIndex;
+                return (
+                  <button
+                    key={stepIndex}
+                    type="button"
+                    aria-label={`Étape ${i + 1}`}
+                    aria-current={current}
+                    onClick={() => goToStep(stepIndex)}
+                    className="h-1 flex-1 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)]"
+                  >
+                    <span
+                      key={current ? `cur-${step}` : done ? "done" : "todo"}
+                      className="block h-full rounded-full bg-gold"
+                      style={{
+                        width: done ? "100%" : current ? "100%" : "0%",
+                        opacity: done || current ? 1 : 0,
+                        transition:
+                          reduced || !current ? "none" : `width ${STEP_MS}ms linear`,
+                        ...(current && !reduced
+                          ? { animation: `owmFillBar ${STEP_MS}ms linear both` }
+                          : null),
+                      }}
+                    />
+                  </button>
+                );
+              })}
             </div>
+
 
           </div>
         </div>
