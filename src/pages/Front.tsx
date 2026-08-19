@@ -264,10 +264,10 @@ const Front = () => {
         style={{ opacity: headerOpacity, transition: motion }}
       >
         <span className="h-2 w-2 shrink-0 rounded-full bg-whatsapp" />
-        <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[hsl(36_38%_93%)] md:text-sm">
+        <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
           One World Morocco
         </span>
-        <span className="font-josefin text-xs font-black uppercase tracking-[0.18em] text-[hsl(36_38%_93%)]/60 md:text-sm">
+        <span className="font-josefin text-xs font-black uppercase tracking-[0.18em] text-[rgba(244,238,228,0.6)] md:text-sm">
           Local <span className="text-primary">×</span> Digital{" "}
           <span className="text-primary">×</span> Solidaire
         </span>
@@ -289,13 +289,13 @@ const Front = () => {
         <div className="mx-auto w-full max-w-4xl">
           <div className="mb-3 flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-whatsapp" />
-            <span className="font-josefin text-xs font-black uppercase tracking-[0.22em] text-[hsl(36_38%_93%)]/80 md:text-sm">
+            <span className="font-josefin text-xs font-black uppercase tracking-[0.22em] text-[rgba(244,238,228,0.8)] md:text-sm">
               One World Morocco
             </span>
           </div>
 
           <h1
-            className="font-josefin font-black uppercase leading-[0.95] tracking-tight text-[hsl(36_38%_93%)]"
+            className="font-josefin font-black uppercase leading-[0.95] tracking-tight text-[#F4EEE4]"
             style={{ fontSize: "clamp(30px, 7vw, 76px)" }}
           >
             Local <span className="text-primary">×</span> Digital{" "}
@@ -312,8 +312,8 @@ const Front = () => {
                     key={i}
                     className={`flex items-start gap-3 font-roboto text-sm leading-snug md:text-lg ${
                       isActive
-                        ? "font-bold text-[hsl(36_38%_93%)]"
-                        : "font-medium text-[hsl(36_38%_93%)]/45"
+                        ? "font-bold text-[#F4EEE4]"
+                        : "font-medium text-[rgba(244,238,228,0.45)]"
                     }`}
                     style={{ transition: motion }}
                   >
@@ -341,7 +341,7 @@ const Front = () => {
                   type="button"
                   aria-label={`Étape ${i + 1}`}
                   onClick={() => goToStep(i)}
-                  className="h-1 flex-1 overflow-hidden rounded-full bg-[hsl(36_38%_93%)]/20"
+                  className="h-1 flex-1 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)]"
                 >
                   <span
                     className="block h-full rounded-full bg-gold"
@@ -375,7 +375,7 @@ const Front = () => {
               key={cta.to}
               to={cta.to}
               tabIndex={ctaActive ? 0 : -1}
-              className="group relative overflow-hidden rounded-xl border border-[hsl(36_38%_93%)]/15 bg-black/35 p-5 pt-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-gold/60 focus-visible:-translate-y-1 focus-visible:border-gold/60 focus-visible:outline-none"
+              className="group relative overflow-hidden rounded-xl border border-[rgba(244,238,228,0.15)] bg-black/35 p-5 pt-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-gold/60 focus-visible:-translate-y-1 focus-visible:border-gold/60 focus-visible:outline-none"
             >
               <span
                 className="absolute inset-x-0 top-0 h-[3px]"
@@ -385,8 +385,8 @@ const Front = () => {
                 }}
                 aria-hidden="true"
               />
-              <ArrowUpRight className="absolute right-4 top-5 h-4 w-4 text-[hsl(36_38%_93%)]/60 transition-colors group-hover:text-gold" />
-              <span className="block pr-8 font-roboto text-base font-bold text-[hsl(36_38%_93%)] md:text-lg">
+              <ArrowUpRight className="absolute right-4 top-5 h-4 w-4 text-[rgba(244,238,228,0.6)] transition-colors group-hover:text-gold" />
+              <span className="block pr-8 font-roboto text-base font-bold text-[#F4EEE4] md:text-lg">
                 {cta.label}
               </span>
             </Link>
@@ -401,7 +401,7 @@ const Front = () => {
           e.stopPropagation();
           setTarget(1);
         }}
-        className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 flex flex-col items-center gap-1 text-[hsl(36_38%_93%)]/80 hover:text-gold"
+        className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 flex flex-col items-center gap-1 text-[rgba(244,238,228,0.8)] hover:text-gold"
         style={{
           opacity: showCue ? 1 : 0,
           pointerEvents: showCue ? "auto" : "none",
