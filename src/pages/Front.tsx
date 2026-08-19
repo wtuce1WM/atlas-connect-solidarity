@@ -394,6 +394,29 @@ const Front = () => {
               </span>
             </Link>
           ))}
+
+          {/* Switch de langues */}
+          <div className="mt-2 grid grid-cols-3 gap-3">
+            {FRONT_LANGS.map((lang) => (
+              <button
+                key={lang.code}
+                type="button"
+                aria-label={lang.label}
+                aria-current={language === lang.code}
+                onClick={() => setLanguage(lang.code)}
+                className={`flex flex-col items-center justify-center gap-1.5 rounded-xl border bg-black/35 py-4 backdrop-blur-md transition-all focus-visible:outline-none ${
+                  language === lang.code
+                    ? "border-gold/70"
+                    : "border-[rgba(244,238,228,0.15)] hover:border-gold/60"
+                }`}
+              >
+                <span className="text-3xl leading-none md:text-4xl">{lang.flag}</span>
+                <span className="font-roboto text-xs font-bold uppercase tracking-[0.14em] text-[#F4EEE4]">
+                  {lang.code}
+                </span>
+              </button>
+            ))}
+          </div>
         </nav>
       </div>
 
