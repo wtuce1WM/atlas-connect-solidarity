@@ -419,7 +419,7 @@ const Front = () => {
         </div>
 
         {/* Bloc inférieur — recherche + demo + accroche + storybox */}
-        <div className="flex w-full max-w-2xl flex-col items-center gap-4 self-center">
+        <div className="flex w-full max-w-2xl flex-col items-center gap-3 self-center">
           {/* Recherche (avec overlay vocal) */}
           <div className="w-full" onClick={(e) => e.stopPropagation()}>
             <HeroInlineSearch
