@@ -651,7 +651,7 @@ const Front = () => {
             WebkitTextStrokeColor: "#FFFFFF",
           }}
         >
-          One World Morocco
+          <span className="block md:inline">One</span> World Morocco
         </p>
 
         <div className="grid w-full max-w-5xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
