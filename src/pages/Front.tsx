@@ -288,6 +288,7 @@ const Front = () => {
         <div className="mx-auto w-full max-w-4xl">
 
 
+
           {/* Storybox */}
           <div className="mt-7 border-l-2 border-gold/70 pl-4 md:pl-6">
             <ul className="space-y-2.5">
