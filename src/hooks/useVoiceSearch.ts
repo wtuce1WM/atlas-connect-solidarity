@@ -547,6 +547,11 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   const scribePartialRef = useRef<string>("");
 
   const finishScribeRef = useRef<() => void>(() => {});
+  /** True dès qu'un transcript de la session courante a été consommé (traité).
+   *  Empêche un second finish/close (clic micro après l'auto-finish du timer
+   *  de silence) d'émettre un faux "Aucun texte détecté". */
+  const transcriptConsumedRef = useRef(false);
+
 
   const scheduleScribeAutoFinish = useCallback(() => {
     clearSilenceTimer();
@@ -593,6 +598,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     try {
       scribeFinalRef.current = "";
       scribePartialRef.current = "";
+      transcriptConsumedRef.current = false;
       setLiveTranscript("");
       setStatus("recording");
       // Do NOT set micReady=true yet — wait for the mic warm-up to complete
@@ -692,13 +698,14 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     scribeFinalRef.current = "";
     scribePartialRef.current = "";
     if (transcript) {
+      transcriptConsumedRef.current = true;
       setStatus("processing");
       processTranscript(transcript).finally(() => setLiveTranscript(""));
     } else {
-      console.warn("[Scribe] finish with empty transcript");
+      console.warn("[Scribe] finish with empty transcript (consumed=" + transcriptConsumedRef.current + ")");
       setLiveTranscript("");
       setStatus("idle");
-      onErrorRef.current?.("Aucun texte détecté, réessayez.");
+      if (!transcriptConsumedRef.current) onErrorRef.current?.("Aucun texte détecté, réessayez.");
     }
   }, [scribe, processTranscript, clearSilenceTimer, clearMaxDurationTimer]);
 
@@ -780,6 +787,8 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     }
 
     accumulatedTranscriptRef.current = "";
+    transcriptConsumedRef.current = false;
+
     setLiveTranscript("");
     clearSilenceTimer();
     // Indicate immediately we're starting so UI shows feedback during warm-up
@@ -889,6 +898,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       // côté serveur (beaucoup plus fiable que le STT natif Android).
       const fallbackBlob = await stopFallbackRecorderAndGetBlob();
       if (transcript) {
+        transcriptConsumedRef.current = true;
         processTranscript(transcript);
       } else if (fallbackBlob) {
         console.log("[VoiceSearch] empty native transcript → server fallback");
@@ -896,11 +906,12 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         const serverText = await transcribeFallbackBlob(fallbackBlob);
         if (serverText) {
           // Affiche le texte dans l'overlay (Web Speech n'a rien émis sur Android).
+          transcriptConsumedRef.current = true;
           setLiveTranscript(serverText);
           processTranscript(serverText).finally(() => setLiveTranscript(""));
         } else {
           setStatus("idle");
-          onErrorRef.current?.("Aucun texte détecté, réessayez.");
+          if (!transcriptConsumedRef.current) onErrorRef.current?.("Aucun texte détecté, réessayez.");
         }
       } else if (status === "recording") {
         setStatus("idle");
@@ -984,6 +995,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     accumulatedTranscriptRef.current = "";
     const fallbackBlob = await stopFallbackRecorderAndGetBlob();
     if (transcript) {
+      transcriptConsumedRef.current = true;
       setStatus("processing");
       processTranscript(transcript).finally(() => setLiveTranscript(""));
     } else if (fallbackBlob) {
@@ -992,12 +1004,13 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       const serverText = await transcribeFallbackBlob(fallbackBlob);
       if (serverText) {
         // Affiche le texte dans l'overlay (Web Speech n'a rien émis sur Android).
+        transcriptConsumedRef.current = true;
         setLiveTranscript(serverText);
         processTranscript(serverText).finally(() => setLiveTranscript(""));
       } else {
         setLiveTranscript("");
         setStatus("idle");
-        onErrorRef.current?.("Aucun texte détecté, réessayez.");
+        if (!transcriptConsumedRef.current) onErrorRef.current?.("Aucun texte détecté, réessayez.");
       }
     } else {
       setLiveTranscript("");
