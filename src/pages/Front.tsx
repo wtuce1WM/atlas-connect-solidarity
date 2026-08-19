@@ -365,9 +365,9 @@ const Front = () => {
         </nav>
       </div>
 
-      {/* Bloc central — slogan + recherche, centrés dans le viewport (aucun chevauchement possible) */}
+      {/* Bloc central — slogan centré entre header et recherche, recherche ancrée en bas */}
       <div
-        className="absolute inset-0 z-20 flex flex-col items-center justify-center px-5 md:px-10 lg:px-16"
+        className="absolute inset-0 z-20 flex flex-col px-5 pt-24 pb-6 md:px-10 md:pb-8 lg:px-16"
         style={{
           opacity: narrativeOpacity,
           transform: reduced
@@ -379,10 +379,10 @@ const Front = () => {
         aria-hidden={!narrativeActive}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex w-full max-w-2xl flex-col items-center gap-4">
-          {/* Slogan */}
+        {/* Slogan — centré verticalement dans l'espace restant au-dessus de la recherche */}
+        <div className="flex flex-1 flex-col items-center justify-center">
           <h1
-            className="mb-2 text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[0.9] tracking-tight md:mb-6"
+            className="text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[0.9] tracking-tight"
             style={{
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 900,
@@ -404,8 +404,10 @@ const Front = () => {
             </span>
             <span className="block">SOLIDAIRE</span>
           </h1>
+        </div>
 
-
+        {/* Bloc inférieur — recherche + demo + accroche + storybox */}
+        <div className="flex w-full max-w-2xl flex-col items-center gap-4 self-center">
           {/* Recherche (avec overlay vocal) */}
           <div className="w-full" onClick={(e) => e.stopPropagation()}>
             <HeroInlineSearch
@@ -479,8 +481,13 @@ const Front = () => {
             <style>{`@keyframes owmSlideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}`}</style>
             <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
               <div className="flex flex-col gap-4">
-                {/* Bullet permanent — reste visible à sa place */}
-                <div className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-base">
+                {/* Bullet permanent — toujours visible, avec animation d'apparition initiale */}
+                <div
+                  className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-base"
+                  style={{
+                    animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
+                  }}
+                >
                   <img
                     src={hamsaIcon.url}
                     alt=""
