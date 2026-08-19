@@ -93,6 +93,27 @@ const CUISINE_KEYWORDS: Array<[RegExp, string]> = [
   [/végétarien|vegan|healthy/i, "Vegetarian"],
 ];
 
+interface ArticleEntry {
+  rank?: number | null;
+  pretitle?: string | null;
+  title?: string | null;
+  hook?: string | null;
+  hours?: string | null;
+  paragraphs?: string[] | null;
+  id?: string | null;
+}
+
+interface ArticleFaq {
+  question?: string | null;
+  answer?: string | null;
+}
+
+interface ArticleSection {
+  title?: string | null;
+  body?: string | null;
+  paragraphs?: string[] | null;
+}
+
 interface StaticArticle {
   path: string;
   title: string;
@@ -100,7 +121,19 @@ interface StaticArticle {
   image: string;
   publishedAt: string;
   modifiedAt: string;
+  /** Corps SEO (prérendu lisible sans JS) */
+  heroTitle?: string;
+  intro?: string | null;
+  tldr?: string | null;
+  content?: string | null;
+  entries?: ArticleEntry[] | null;
+  sections?: ArticleSection[] | null;
+  faq?: ArticleFaq[] | null;
+  authorName?: string | null;
+  /** id business → URL interne (vanity) pour le maillage */
+  entryUrlById?: Map<string, string>;
 }
+
 
 
 function escapeHtml(s: string): string {
