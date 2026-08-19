@@ -399,8 +399,9 @@ const Front = () => {
         {/* Slogan — centré verticalement dans l'espace restant au-dessus de la recherche */}
         <div className="flex flex-1 flex-col items-center justify-center">
           <h1
-            className="text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[0.9] tracking-tight"
-            style={{
+            className="mb-[-0.5rem] text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[1.0] tracking-tight md:mb-[-0.75rem]"
+            style={{</parameter>
+</invoke>
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 900,
               color: "transparent",
