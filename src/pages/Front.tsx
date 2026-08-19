@@ -82,6 +82,7 @@ const Front = () => {
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const targetRef = useRef(0);
   const currentRef = useRef(0);
