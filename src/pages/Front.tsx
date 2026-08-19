@@ -172,40 +172,48 @@ const Front = () => {
   const [bulletsVisible, setBulletsVisible] = useState(false);
 
   /** Auto-fit du slogan écran 1 : taille max possible dans l'espace réellement libre
-   *  (mesuré), au lieu d'une taille calculée sur le viewport (vh) qui débordait sous
-   *  la barre de recherche sur iOS. Si 5 lignes ne tiennent pas lisiblement, repli
-   *  automatique en 3 lignes (× inline). Mobile uniquement (<768px). */
-  const sloganBoxRef = useRef<HTMLDivElement | null>(null);
+   *  (conteneur − paddings − bloc inférieur), au lieu d'une taille calculée sur le
+   *  viewport (vh) qui débordait sous la barre de recherche sur iOS. Si 5 lignes ne
+   *  tiennent pas lisiblement, repli automatique en 3 lignes. Mobile uniquement. */
+  const narrativeBoxRef = useRef<HTMLDivElement | null>(null);
+  const bottomBlockRef = useRef<HTMLDivElement | null>(null);
   const [sloganFontPx, setSloganFontPx] = useState<number | null>(null);
   const [sloganCompact, setSloganCompact] = useState(false);
 
   useEffect(() => {
-    const el = sloganBoxRef.current;
-    if (!el) return;
     const LEADING = 1.12;
     const MIN_5_LINES_PX = 26;
     const compute = () => {
+      const box = narrativeBoxRef.current;
+      const bottom = bottomBlockRef.current;
+      if (!box || !bottom) return;
       if (window.innerWidth >= 768) {
         setSloganFontPx(null);
         setSloganCompact(false);
         return;
       }
-      const avail = el.clientHeight;
-      if (!avail) return;
+      const cs = getComputedStyle(box);
+      const avail =
+        box.clientHeight -
+        parseFloat(cs.paddingTop) -
+        parseFloat(cs.paddingBottom) -
+        bottom.offsetHeight;
+      if (avail <= 0) return;
       const cap = Math.min(0.06 * window.innerWidth, 0.055 * window.innerHeight, 60);
-      const usable = avail * 0.98;
+      const usable = avail * 0.94;
       const fit5 = usable / (5 * LEADING);
       if (fit5 >= MIN_5_LINES_PX) {
         setSloganCompact(false);
         setSloganFontPx(Math.min(cap, fit5));
       } else {
         setSloganCompact(true);
-        setSloganFontPx(Math.max(18, Math.min(cap, usable / (3 * LEADING))));
+        setSloganFontPx(Math.max(14, Math.min(cap, usable / (3 * LEADING))));
       }
     };
     compute();
     const ro = new ResizeObserver(compute);
-    ro.observe(el);
+    if (narrativeBoxRef.current) ro.observe(narrativeBoxRef.current);
+    if (bottomBlockRef.current) ro.observe(bottomBlockRef.current);
     window.addEventListener("resize", compute);
     window.addEventListener("orientationchange", compute);
     return () => {
