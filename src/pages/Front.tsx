@@ -326,8 +326,15 @@ const Front = () => {
         }}
       />
 
-      {/* Mini-header pinné (identité + menu, toujours visible) */}
-      <div className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between px-5 py-4 md:px-10">
+      {/* Mini-header pinné (identité + menu) — masqué sur l'écran 2 */}
+      <div
+        className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between px-5 py-4 md:px-10 transition-opacity duration-300"
+        style={{
+          opacity: ctaActive ? 0 : 1,
+          pointerEvents: ctaActive ? "none" : "auto",
+        }}
+        aria-hidden={ctaActive}
+      >
         <div className="flex items-center gap-3">
           <img src="/images/logo_blanc.webp" alt="One World Morocco" className="h-7 w-7 shrink-0 object-contain" />
           <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
@@ -338,14 +345,8 @@ const Front = () => {
           type="button"
           aria-label="Ouvrir le menu"
           aria-expanded={menuOpen}
-          aria-hidden={ctaActive}
-          tabIndex={ctaActive ? -1 : 0}
           onClick={() => setMenuOpen(true)}
-          className="rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-opacity duration-300 hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-          style={{
-            opacity: ctaActive ? 0 : 1,
-            pointerEvents: ctaActive ? "none" : "auto",
-          }}
+          className="rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
         >
           <Menu className="h-5 w-5" />
         </button>
