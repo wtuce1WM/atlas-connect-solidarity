@@ -993,15 +993,36 @@ const SortableSection = ({
             Actif
             <Switch checked={section.enabled} onCheckedChange={(v) => patch({ enabled: v })} />
           </label>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-8 w-8 text-destructive"
-            onClick={remove}
-            aria-label="Supprimer la section"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 text-destructive"
+                aria-label="Supprimer la section"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Supprimer cette étape du montage ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  L'étape « {section.label || section.scene_key} » et ses réglages seront retirés du montage. Action
+                  définitive après enregistrement.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={remove}
+                >
+                  Supprimer
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
