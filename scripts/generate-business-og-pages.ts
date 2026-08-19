@@ -773,7 +773,77 @@ function buildArticleHtml(article: StaticArticle): string {
   const image = article.image || `${BASE_URL}/og-install-app.jpg`;
   const url = `${BASE_URL}/${article.path}`;
   const cleanTitle = title.replace(` — ${SITE_NAME}`, "");
-  const jsonLd = {
+  const h1 = article.heroTitle?.trim() || cleanTitle;
+
+  /* ---- Corps SEO lisible sans JS (Googlebot + crawlers IA) ---- */
+  const parts: string[] = [];
+  parts.push(`<h1>${escapeHtml(h1)}</h1>`);
+  if (article.tldr) {
+    parts.push(`<section><h2>L'essentiel</h2><p>${escapeHtml(stripHtml(article.tldr))}</p></section>`);
+  }
+  if (article.intro) {
+    for (const p of stripHtml(article.intro).split(/\n{2,}|\r?\n/).map((s) => s.trim()).filter(Boolean)) {
+      parts.push(`<p>${escapeHtml(p)}</p>`);
+    }
+  }
+  if (article.content) {
+    for (const p of stripHtml(article.content).split(/\n{2,}|\r?\n/).map((s) => s.trim()).filter(Boolean)) {
+      parts.push(`<p>${escapeHtml(p)}</p>`);
+    }
+  }
+  for (const s of article.sections || []) {
+    if (s.title) parts.push(`<h2>${escapeHtml(stripHtml(s.title))}</h2>`);
+    const bodies = [
+      ...(s.paragraphs || []),
+      ...(s.body ? [s.body] : []),
+    ];
+    for (const b of bodies) {
+      const txt = stripHtml(String(b)).trim();
+      if (txt) parts.push(`<p>${escapeHtml(txt)}</p>`);
+    }
+  }
+
+  const entries = (article.entries || []).filter((en) => en && (en.title || en.hook));
+  const listItems: any[] = [];
+  if (entries.length) {
+    parts.push(`<h2>${escapeHtml(`La sélection ${SITE_NAME}`)}</h2>`);
+    entries.forEach((en, i) => {
+      const name = stripHtml(String(en.title || "")).trim();
+      const internal = en.id ? article.entryUrlById?.get(en.id) : undefined;
+      const heading = internal
+        ? `<a href="${escapeHtml(internal)}">${escapeHtml(name)}</a>`
+        : escapeHtml(name);
+      parts.push(`<h3>${en.rank ? `${en.rank}. ` : ""}${heading}</h3>`);
+      if (en.pretitle) parts.push(`<p><strong>${escapeHtml(stripHtml(String(en.pretitle)))}</strong></p>`);
+      if (en.hook) parts.push(`<p>${escapeHtml(stripHtml(String(en.hook)))}</p>`);
+      for (const p of en.paragraphs || []) {
+        const txt = stripHtml(String(p)).trim();
+        if (txt) parts.push(`<p>${escapeHtml(txt)}</p>`);
+      }
+      if (en.hours) parts.push(`<p>${escapeHtml(stripHtml(String(en.hours)))}</p>`);
+      if (name) {
+        listItems.push({
+          "@type": "ListItem",
+          position: i + 1,
+          name,
+          ...(internal ? { url: internal } : {}),
+        });
+      }
+    });
+  }
+
+  const faq = (article.faq || []).filter((f) => f?.question && f?.answer);
+  if (faq.length) {
+    parts.push(`<h2>Questions fréquentes</h2>`);
+    for (const f of faq) {
+      parts.push(`<h3>${escapeHtml(stripHtml(String(f.question)))}</h3><p>${escapeHtml(stripHtml(String(f.answer)))}</p>`);
+    }
+  }
+  parts.push(`<p><a href="${BASE_URL}/blog">Retour au blog ${escapeHtml(SITE_NAME)}</a></p>`);
+  const bodyHtml = parts.join("\n      ");
+  const wordCount = stripHtml(parts.join(" ")).split(/\s+/).filter(Boolean).length;
+
+  const articleLd: Record<string, any> = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: cleanTitle,
@@ -781,10 +851,34 @@ function buildArticleHtml(article: StaticArticle): string {
     image: [image],
     datePublished: article.publishedAt,
     dateModified: article.modifiedAt,
-    author: { "@type": "Organization", name: SITE_NAME, url: BASE_URL },
+    inLanguage: "fr",
+    ...(wordCount ? { wordCount } : {}),
+    author: article.authorName
+      ? { "@type": "Person", name: article.authorName }
+      : { "@type": "Organization", name: SITE_NAME, url: BASE_URL },
     publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: `${BASE_URL}/favicon.webp` } },
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
   };
+  const graph: any[] = [articleLd];
+  graph.push({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: SITE_NAME, item: `${BASE_URL}/` },
+      { "@type": "ListItem", position: 2, name: "Blog", item: `${BASE_URL}/blog` },
+      { "@type": "ListItem", position: 3, name: cleanTitle, item: url },
+    ],
+  });
+  if (listItems.length) {
+    graph.push({
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: cleanTitle,
+      numberOfItems: listItems.length,
+      itemListElement: listItems,
+    });
+  }
+
   const e = {
     title: escapeHtml(title),
     description: escapeHtml(description),
@@ -808,13 +902,15 @@ function buildArticleHtml(article: StaticArticle): string {
     <meta property="og:image" content="${e.image}" />
     <meta property="og:site_name" content="${SITE_NAME}" />
     <meta property="og:locale" content="fr_FR" />
+    <meta property="article:published_time" content="${escapeHtml(article.publishedAt)}" />
+    <meta property="article:modified_time" content="${escapeHtml(article.modifiedAt)}" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${e.title}" />
     <meta name="twitter:description" content="${e.description}" />
     <meta name="twitter:image" content="${e.image}" />
 
-    <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>
+${graph.map((g) => `    <script type="application/ld+json">${JSON.stringify(g).replace(/</g, "\\u003c")}</script>`).join("\n")}
   </head>
   <body style="background-color:#faf8f5;margin:0">
     <script>
@@ -832,12 +928,12 @@ function buildArticleHtml(article: StaticArticle): string {
           .catch(function () {});
       })();
     </script>
-    <noscript>
-      <h1>${e.title}</h1>
-      <p>${e.description}</p>
-    </noscript>
+    <main style="max-width:52rem;margin:0 auto;padding:24px;font-family:system-ui,sans-serif;color:#2b2b2b;line-height:1.6">
+      ${bodyHtml}
+    </main>
   </body>
 </html>`;
+
 }
 
 /* ------------------------------------------------------------------------
