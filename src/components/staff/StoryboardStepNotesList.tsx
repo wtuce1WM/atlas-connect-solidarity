@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, ChevronRight, Loader2, RefreshCw } from "lucide-react";
+import { ChevronDown, ChevronRight, Loader2, Plus, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import RichTextEditor from "./RichTextEditor";
 
@@ -21,7 +21,7 @@ type Row = {
   title: string | null;
   content: string | null;
   updated_at: string;
-  step_id: string;
+  step_id: string | null;
   step_label: string;
 };
 
@@ -38,6 +38,7 @@ const StoryboardStepNotesList = () => {
   const [sort, setSort] = useState<SortKey>("updated");
   const [openId, setOpenId] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -56,7 +57,7 @@ const StoryboardStepNotesList = () => {
         content: n.content,
         updated_at: n.updated_at,
         step_id: n.step_id,
-        step_label: labelById.get(n.step_id) ?? "Étape",
+        step_label: n.step_id ? labelById.get(n.step_id) ?? "Étape" : "Note libre",
       })),
     );
     setLoading(false);
@@ -96,6 +97,29 @@ const StoryboardStepNotesList = () => {
     toast.success("Note enregistrée");
   };
 
+  const createNote = async () => {
+    setCreating(true);
+    const { data, error } = await supabase
+      .from("video_scenario_step_notes")
+      .insert({ title: "Nouvelle note", content: "", step_id: null } as any)
+      .select("id, title, content, updated_at, step_id")
+      .maybeSingle();
+    setCreating(false);
+    if (error || !data) return toast.error(error?.message || "Création impossible");
+    const row: Row = {
+      id: (data as any).id,
+      title: (data as any).title,
+      content: (data as any).content,
+      updated_at: (data as any).updated_at,
+      step_id: null,
+      step_label: "Note libre",
+    };
+    setRows((prev) => [row, ...prev]);
+    setOpenId(row.id);
+    toast.success("Note créée");
+  };
+
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
@@ -121,6 +145,11 @@ const StoryboardStepNotesList = () => {
           <RefreshCw className="h-3.5 w-3.5" />
         </Button>
       </div>
+
+      <Button type="button" size="sm" className="h-8 text-[11px]" onClick={createNote} disabled={creating}>
+        {creating ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Plus className="h-3.5 w-3.5 mr-1" />}
+        Nouvelle note
+      </Button>
 
       {loading && (
         <p className="text-xs text-muted-foreground flex items-center gap-2">
