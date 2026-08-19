@@ -297,11 +297,11 @@ const Front = () => {
         <div className="mx-auto w-full max-w-4xl">
           {/* Bloc identité + slogan, conteneur séparé du récit pour éviter le saut visuel */}
           <div className="mb-6 md:mb-8">
-            <h1 className="font-josefin text-[clamp(2.25rem,7vw,5.5rem)] font-black uppercase leading-[0.9] tracking-tight text-[#F4EEE4]">
-              <span className="block sm:inline">
+            <h1 className="font-josefin text-[clamp(2.75rem,8.5vw,7rem)] font-black uppercase leading-[0.9] tracking-tight text-[#F4EEE4]">
+              <span className="block">
                 Local <span className="text-primary">×</span> Digital
               </span>
-              <span className="block sm:ml-3 sm:inline">
+              <span className="block pl-[0.08em]">
                 <span className="text-primary">×</span> Solidaire
               </span>
             </h1>
