@@ -362,44 +362,7 @@ const Front = () => {
         </nav>
       </div>
 
-      {/* Slogan — ancré en haut, hors du flux centré */}
-      <div
-        className="absolute left-0 right-0 top-[8vh] bottom-[58vh] z-20 flex items-center justify-center overflow-hidden px-5 md:px-10 lg:px-16"
-        style={{
-          opacity: voiceActive ? 0 : narrativeOpacity,
-          transform: reduced
-            ? undefined
-            : `translateY(${-range(progress, 0, 0.35) * 40}px)`,
-          pointerEvents: narrativeActive && !voiceActive ? "auto" : "none",
-          transition: motion,
-        }}
-        aria-hidden={!narrativeActive || voiceActive}
-      >
-        <h1
-          className="text-center text-[clamp(1.75rem,min(6.5vw,9.5vh),5.5rem)] uppercase leading-[0.9] tracking-tight"
-
-          style={{
-            fontFamily: "'Montserrat', sans-serif",
-            fontWeight: 900,
-            color: "transparent",
-            WebkitTextStrokeWidth: "2px",
-            WebkitTextStrokeColor: "#FFFFFF",
-          }}
-        >
-          <span className="block">
-            LOCAL{" "}
-            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-          </span>
-          <span className="block">
-            DIGITAL{" "}
-            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-          </span>
-          <span className="block">SOLIDAIRE</span>
-        </h1>
-
-      </div>
-
-      {/* Bloc central — champ de recherche centré verticalement dans le viewport */}
+      {/* Bloc central — slogan + recherche, centrés dans le viewport (aucun chevauchement possible) */}
       <div
         className="absolute inset-0 z-20 flex flex-col items-center justify-center px-5 md:px-10 lg:px-16"
         style={{
@@ -414,6 +377,32 @@ const Front = () => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex w-full max-w-2xl flex-col items-center gap-4">
+          {/* Slogan */}
+          <h1
+            className="mb-2 text-center text-[clamp(1.6rem,min(6.5vw,8vh),5.5rem)] uppercase leading-[0.9] tracking-tight md:mb-6"
+            style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 900,
+              color: "transparent",
+              WebkitTextStrokeWidth: "2px",
+              WebkitTextStrokeColor: "#FFFFFF",
+              opacity: voiceActive ? 0 : 1,
+              transition: motion,
+            }}
+            aria-hidden={voiceActive}
+          >
+            <span className="block">
+              LOCAL{" "}
+              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+            </span>
+            <span className="block">
+              DIGITAL{" "}
+              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+            </span>
+            <span className="block">SOLIDAIRE</span>
+          </h1>
+
+
           {/* Recherche (avec overlay vocal) */}
           <div className="w-full" onClick={(e) => e.stopPropagation()}>
             <HeroInlineSearch
