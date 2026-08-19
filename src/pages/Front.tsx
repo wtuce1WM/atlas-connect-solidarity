@@ -133,6 +133,8 @@ const Front = () => {
   }, [scheduleNext]);
 
   const [auto, setAuto] = useState(true);
+  const [voiceActive, setVoiceActive] = useState(false);
+
 
   const goToStep = useCallback(
     (i: number) => {
@@ -363,12 +365,20 @@ const Front = () => {
       >
         <div className="w-full max-w-4xl">
           <h1
-            className="text-[clamp(2.25rem,6.5vw,5.5rem)] uppercase leading-[0.88] tracking-tight text-[#F4EEE4]"
-            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900 }}
+            className="text-[clamp(2.25rem,6.5vw,5.5rem)] uppercase leading-[0.88] tracking-tight"
+            style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 900,
+              color: "transparent",
+              WebkitTextStrokeWidth: "2px",
+              WebkitTextStrokeColor: "#FFFFFF",
+            }}
           >
             <span className="block">
-              LOCAL <span className="text-primary">×</span> DIGITAL{" "}
-              <span className="text-primary">×</span>
+              LOCAL{" "}
+              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>{" "}
+              DIGITAL{" "}
+              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
             </span>
             <span className="block">SOLIDAIRE</span>
           </h1>
@@ -380,6 +390,7 @@ const Front = () => {
           >
             <HeroInlineSearch
               placeholder="Que cherchez-vous ? Et où ?"
+              onVoiceActiveChange={setVoiceActive}
               onSearch={(params) => {
                 const qs = new URLSearchParams(params).toString();
                 if (qs) navigate(`/search?${qs}`);
@@ -390,19 +401,21 @@ const Front = () => {
         </div>
       </div>
 
+
       {/* Couche narrative (storybox) — ancrée en bas pour ne pas pousser le slogan */}
       <div
-        className="absolute left-0 right-0 bottom-[6vh] z-10 flex flex-col justify-end px-5 md:px-10 lg:px-16"
+        className="absolute left-0 right-0 top-[46vh] bottom-[6vh] z-10 flex flex-col justify-end overflow-y-auto px-5 md:top-[48vh] md:px-10 lg:px-16"
         style={{
-          opacity: narrativeOpacity,
+          opacity: voiceActive ? 0 : narrativeOpacity,
           transform: reduced
             ? undefined
             : `translateY(${-range(progress, 0, 0.35) * 40}px)`,
-          pointerEvents: narrativeActive ? "auto" : "none",
+          pointerEvents: narrativeActive && !voiceActive ? "auto" : "none",
           transition: motion,
         }}
-        aria-hidden={!narrativeActive}
+        aria-hidden={!narrativeActive || voiceActive}
       >
+
         <div className="mx-auto w-full max-w-4xl">
           {/* Storybox */}
           <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
@@ -457,32 +470,6 @@ const Front = () => {
               ))}
             </div>
 
-            {/* Hint / CTAs de lecture */}
-            <div
-              className="mt-4 hidden items-center gap-2 font-josefin text-[11px] font-bold uppercase tracking-[0.14em] text-[rgba(244,238,228,0.62)] sm:flex"
-              style={{
-                opacity: step >= STEPS.length - 1 ? 0 : 1,
-                pointerEvents: step >= STEPS.length - 1 ? "none" : "auto",
-                transition: motion,
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                onClick={() => goToStep(step + 1)}
-                className="uppercase transition-colors hover:text-gold"
-              >
-                Cliquez pour avancer
-              </button>
-              <span aria-hidden="true">·</span>
-              <button
-                type="button"
-                onClick={() => toggleAuto()}
-                className={`uppercase transition-colors hover:text-gold ${auto ? "text-gold" : ""}`}
-              >
-                Lecture automatique{auto ? "" : " (en pause)"}
-              </button>
-            </div>
           </div>
         </div>
       </div>
