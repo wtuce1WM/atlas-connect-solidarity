@@ -14709,7 +14709,7 @@
         "name": "Kasbah Tamadot",
         "url": "https://oneworldmorocco.com/kasbah-tamadot",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/3b29ce70-646a-41a4-b79e-e7784b4f25a4-1775826321900-kej6rb.jpg",
-        "description": "Kasbah Tamadot est le refuge magique et primé de Sir Richard Branson, niché dans les montagnes de l'Atlas marocain. Signifiant « douce brise » en berbère, cet hôtel surplombe une vallée offrant une vue imprenable sur le majestueux mont Toubkal. Des chambres au design unique aux tentes berbères et aux riads flambant neufs, en passant par l'accueil chaleureux de notre équipe locale, Kasbah Tamadot surprend et enchante à chaque instant. Récompensé par trois Clés MICHELIN du Guide MICHELIN 2025 Figu",
+        "description": "Une parenthèse d’exception au pied de l’Atlas, entre jardins luxuriants, tentes berbères et vues spectaculaires sur les montagnes. À environ une heure de Marrakech, sur les contreforts du Haut Atlas , la Kasbah Tamadot offre une expérience qui dépasse largement celle d’un hôtel de luxe : un véritable refuge hors du temps, perché au-dessus de la vallée d’Asni, avec des vues remarquables vers le mont Toubkal. L’architecture traditionnelle mauresque, les jardins paysagers et les antiquités venues d",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "P2005 Marrakech, BP 67, Asni",
@@ -14725,7 +14725,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 513,
+          "reviewCount": 559,
           "bestRating": 5
         }
       }

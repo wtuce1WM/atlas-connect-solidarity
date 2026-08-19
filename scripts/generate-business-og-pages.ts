@@ -93,6 +93,27 @@ const CUISINE_KEYWORDS: Array<[RegExp, string]> = [
   [/végétarien|vegan|healthy/i, "Vegetarian"],
 ];
 
+interface ArticleEntry {
+  rank?: number | null;
+  pretitle?: string | null;
+  title?: string | null;
+  hook?: string | null;
+  hours?: string | null;
+  paragraphs?: string[] | null;
+  id?: string | null;
+}
+
+interface ArticleFaq {
+  question?: string | null;
+  answer?: string | null;
+}
+
+interface ArticleSection {
+  title?: string | null;
+  body?: string | null;
+  paragraphs?: string[] | null;
+}
+
 interface StaticArticle {
   path: string;
   title: string;
@@ -100,7 +121,19 @@ interface StaticArticle {
   image: string;
   publishedAt: string;
   modifiedAt: string;
+  /** Corps SEO (prérendu lisible sans JS) */
+  heroTitle?: string;
+  intro?: string | null;
+  tldr?: string | null;
+  content?: string | null;
+  entries?: ArticleEntry[] | null;
+  sections?: ArticleSection[] | null;
+  faq?: ArticleFaq[] | null;
+  authorName?: string | null;
+  /** id business → URL interne (vanity) pour le maillage */
+  entryUrlById?: Map<string, string>;
 }
+
 
 
 function escapeHtml(s: string): string {
@@ -740,7 +773,75 @@ function buildArticleHtml(article: StaticArticle): string {
   const image = article.image || `${BASE_URL}/og-install-app.jpg`;
   const url = `${BASE_URL}/${article.path}`;
   const cleanTitle = title.replace(` — ${SITE_NAME}`, "");
-  const jsonLd = {
+  const h1 = article.heroTitle?.trim() || cleanTitle;
+
+  /* ---- Corps SEO lisible sans JS (Googlebot + crawlers IA) ---- */
+  const parts: string[] = [];
+  parts.push(`<h1>${escapeHtml(h1)}</h1>`);
+  if (article.tldr) {
+    parts.push(`<section><h2>L'essentiel</h2><p>${escapeHtml(stripHtml(article.tldr))}</p></section>`);
+  }
+  const seenParagraphs = new Set<string>();
+  const pushParagraph = (raw: string) => {
+    const txt = stripHtml(raw).trim();
+    if (!txt) return;
+    const key = txt.toLowerCase().replace(/\s+/g, " ");
+    if (seenParagraphs.has(key)) return;
+    seenParagraphs.add(key);
+    parts.push(`<p>${escapeHtml(txt)}</p>`);
+  };
+  for (const src of [article.intro, article.content]) {
+    if (!src) continue;
+    for (const p of stripHtml(src).split(/\n{2,}|\r?\n/)) pushParagraph(p);
+  }
+
+  for (const s of article.sections || []) {
+    if (s.title) parts.push(`<h2>${escapeHtml(stripHtml(s.title))}</h2>`);
+    const bodies = [
+      ...(s.paragraphs || []),
+      ...(s.body ? [s.body] : []),
+    ];
+    for (const b of bodies) pushParagraph(String(b));
+  }
+
+  const entries = (article.entries || []).filter((en) => en && (en.title || en.hook));
+  const listItems: any[] = [];
+  if (entries.length) {
+    parts.push(`<h2>${escapeHtml(`La sélection ${SITE_NAME}`)}</h2>`);
+    entries.forEach((en, i) => {
+      const name = stripHtml(String(en.title || "")).trim();
+      const internal = en.id ? article.entryUrlById?.get(en.id) : undefined;
+      const heading = internal
+        ? `<a href="${escapeHtml(internal)}">${escapeHtml(name)}</a>`
+        : escapeHtml(name);
+      parts.push(`<h3>${en.rank ? `${en.rank}. ` : ""}${heading}</h3>`);
+      if (en.pretitle) parts.push(`<p><strong>${escapeHtml(stripHtml(String(en.pretitle)))}</strong></p>`);
+      if (en.hook) pushParagraph(String(en.hook));
+      for (const p of en.paragraphs || []) pushParagraph(String(p));
+      if (en.hours) parts.push(`<p>${escapeHtml(stripHtml(String(en.hours)))}</p>`);
+      if (name) {
+        listItems.push({
+          "@type": "ListItem",
+          position: i + 1,
+          name,
+          ...(internal ? { url: internal } : {}),
+        });
+      }
+    });
+  }
+
+  const faq = (article.faq || []).filter((f) => f?.question && f?.answer);
+  if (faq.length) {
+    parts.push(`<h2>Questions fréquentes</h2>`);
+    for (const f of faq) {
+      parts.push(`<h3>${escapeHtml(stripHtml(String(f.question)))}</h3><p>${escapeHtml(stripHtml(String(f.answer)))}</p>`);
+    }
+  }
+  parts.push(`<p><a href="${BASE_URL}/blog">Retour au blog ${escapeHtml(SITE_NAME)}</a></p>`);
+  const bodyHtml = parts.join("\n      ");
+  const wordCount = stripHtml(parts.join(" ")).split(/\s+/).filter(Boolean).length;
+
+  const articleLd: Record<string, any> = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: cleanTitle,
@@ -748,10 +849,34 @@ function buildArticleHtml(article: StaticArticle): string {
     image: [image],
     datePublished: article.publishedAt,
     dateModified: article.modifiedAt,
-    author: { "@type": "Organization", name: SITE_NAME, url: BASE_URL },
+    inLanguage: "fr",
+    ...(wordCount ? { wordCount } : {}),
+    author: article.authorName
+      ? { "@type": "Person", name: article.authorName }
+      : { "@type": "Organization", name: SITE_NAME, url: BASE_URL },
     publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: `${BASE_URL}/favicon.webp` } },
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
   };
+  const graph: any[] = [articleLd];
+  graph.push({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: SITE_NAME, item: `${BASE_URL}/` },
+      { "@type": "ListItem", position: 2, name: "Blog", item: `${BASE_URL}/blog` },
+      { "@type": "ListItem", position: 3, name: cleanTitle, item: url },
+    ],
+  });
+  if (listItems.length) {
+    graph.push({
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: cleanTitle,
+      numberOfItems: listItems.length,
+      itemListElement: listItems,
+    });
+  }
+
   const e = {
     title: escapeHtml(title),
     description: escapeHtml(description),
@@ -775,13 +900,15 @@ function buildArticleHtml(article: StaticArticle): string {
     <meta property="og:image" content="${e.image}" />
     <meta property="og:site_name" content="${SITE_NAME}" />
     <meta property="og:locale" content="fr_FR" />
+    <meta property="article:published_time" content="${escapeHtml(article.publishedAt)}" />
+    <meta property="article:modified_time" content="${escapeHtml(article.modifiedAt)}" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${e.title}" />
     <meta name="twitter:description" content="${e.description}" />
     <meta name="twitter:image" content="${e.image}" />
 
-    <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>
+${graph.map((g) => `    <script type="application/ld+json">${JSON.stringify(g).replace(/</g, "\\u003c")}</script>`).join("\n")}
   </head>
   <body style="background-color:#faf8f5;margin:0">
     <script>
@@ -799,12 +926,12 @@ function buildArticleHtml(article: StaticArticle): string {
           .catch(function () {});
       })();
     </script>
-    <noscript>
-      <h1>${e.title}</h1>
-      <p>${e.description}</p>
-    </noscript>
+    <main style="max-width:52rem;margin:0 auto;padding:24px;font-family:system-ui,sans-serif;color:#2b2b2b;line-height:1.6">
+      ${bodyHtml}
+    </main>
   </body>
 </html>`;
+
 }
 
 /* ------------------------------------------------------------------------
@@ -1278,9 +1405,18 @@ async function main() {
 
   const { data: posts, error: postsErr } = await supabase
     .from("blog_posts")
-    .select("slug, title_fr, excerpt_fr, cover_image_url, custom_hero_image_url, published_at, updated_at, is_published")
+    .select(
+      "slug, title_fr, excerpt_fr, cover_image_url, custom_hero_image_url, published_at, updated_at, is_published, author_name, hero_title_top_fr, hero_title_bottom_fr, intro_fr, tldr_fr, content_fr, entries_fr, editorial_sections_fr, faq_fr",
+    )
     .eq("is_published", true);
   if (postsErr) console.error("[og-pages] blog_posts fetch error:", postsErr);
+
+  // Maillage interne : id business → URL vanity (sinon /fiche/slug)
+  const bizUrlById = new Map<string, string>();
+  for (const v of vanities) if (v.slug && v.target_id) bizUrlById.set(v.target_id, `${BASE_URL}/${v.slug}`);
+  for (const b of bizById.values() as any) {
+    if (b?.id && !bizUrlById.has(b.id) && b.slug) bizUrlById.set(b.id, `${BASE_URL}/fiche/${b.slug}`);
+  }
 
   const articles: StaticArticle[] = (posts || [])
     .filter((p: any) => p.slug && p.title_fr)
@@ -1291,7 +1427,18 @@ async function main() {
       image: p.custom_hero_image_url || p.cover_image_url || `${BASE_URL}/og-install-app.jpg`,
       publishedAt: p.published_at || p.updated_at || new Date().toISOString(),
       modifiedAt: p.updated_at || p.published_at || new Date().toISOString(),
+      heroTitle:
+        [p.hero_title_top_fr, p.hero_title_bottom_fr].filter(Boolean).join(" ").trim() || p.title_fr,
+      intro: p.intro_fr || null,
+      tldr: p.tldr_fr || null,
+      content: p.content_fr || null,
+      entries: Array.isArray(p.entries_fr) ? (p.entries_fr as ArticleEntry[]) : null,
+      sections: Array.isArray(p.editorial_sections_fr) ? (p.editorial_sections_fr as ArticleSection[]) : null,
+      faq: Array.isArray(p.faq_fr) ? (p.faq_fr as ArticleFaq[]) : null,
+      authorName: p.author_name || null,
+      entryUrlById: bizUrlById,
     }));
+
 
   for (const article of articles) {
     // Supprime un éventuel fichier sans extension (ancienne génération) qui était téléchargé

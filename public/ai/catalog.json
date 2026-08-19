@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-18T10:05:31.928Z",
+    "generated_at": "2026-08-19T02:53:54.795Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1853
   },
@@ -42775,11 +42775,13 @@
       "slug": "kasbah-tamadot",
       "url": "https://oneworldmorocco.com/kasbah-tamadot",
       "name": "Kasbah Tamadot",
-      "hook": "Kasbah Tamadot est le refuge magique de Sir Richard Branson, niché dans les montagnes de l'Atlas marocain.",
-      "description": "Kasbah Tamadot est le refuge magique et primé de Sir Richard Branson, niché dans les montagnes de l'Atlas marocain. Signifiant « douce brise » en berbère, cet hôtel surplombe une vallée offrant une vue imprenable sur le majestueux mont Toubkal. Des chambres au design unique aux tentes berbères et aux riads flambant neufs, en passant par l'accueil chaleureux de notre équipe locale, Kasbah Tamadot surprend et enchante à chaque instant. Récompensé par trois Clés MICHELIN du Guide MICHELIN 2025 Figu",
+      "hook": "Kasbah Tamadot, le refuge magique de Sir Richard Branson, niché dans les montagnes de l'Atlas marocain.",
+      "description": "Une parenthèse d’exception au pied de l’Atlas, entre jardins luxuriants, tentes berbères et vues spectaculaires sur les montagnes. À environ une heure de Marrakech, sur les contreforts du Haut Atlas , la Kasbah Tamadot offre une expérience qui dépasse largement celle d’un hôtel de luxe : un véritable refuge hors du temps, perché au-dessus de la vallée d’Asni, avec des vues remarquables vers le mont Toubkal. L’architecture traditionnelle mauresque, les jardins paysagers et les antiquités venues d",
       "main_category": "Hôtellerie",
       "categories": [
-        "Hôtel"
+        "Hôtel",
+        "Piscine",
+        "Sports de raquette"
       ],
       "services": [
         "Jardin",
@@ -42796,7 +42798,9 @@
         "Parking privé",
         "Sauna",
         "WiFi",
-        "Restauration sur place"
+        "Restauration sur place",
+        "Tennis",
+        "Piscine extérieure"
       ],
       "city": "Asni",
       "neighborhood": null,
@@ -42810,7 +42814,7 @@
       "website": "https://www.virginlimitededition.com/kasbah-tamadot",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/3b29ce70-646a-41a4-b79e-e7784b4f25a4-1775826321900-kej6rb.jpg",
       "google_rating": 4.7,
-      "google_review_count": 513,
+      "google_review_count": 559,
       "price_range": "500 à 1000€",
       "min_price_mad": 917,
       "languages": [],
@@ -42821,7 +42825,7 @@
       "social": {
         "instagram": "https://www.instagram.com/kasbahtamadot/",
         "facebook": "https://www.facebook.com/kasbahtamadot",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g676158-d536204-Reviews-Kasbah_Tamadot_Sir_Richard_Branson_s_Moroccan_Retreat-Asni_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -45575,7 +45579,8 @@
         "Musique Live",
         "Lounge",
         "Smoothies",
-        "Cave à vin d'exception"
+        "Cave à vin d'exception",
+        "DJ résidents"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -45586,7 +45591,7 @@
       "address": "Kissariat Ben Khalid R'mila",
       "phone": "+212664464450",
       "whatsapp": "+212664464450",
-      "website": null,
+      "website": "https://www.kabana-marrakech.com/fr",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e9fb7268-74cb-4211-ac40-8e5e192935b4-1777272052457-2haukm.jpg",
       "google_rating": 4.4,
       "google_review_count": 5540,
@@ -45624,7 +45629,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.kabana-marrakech.com/fr",
+      "booking_url": "https://www.kabana-marrakech.com/fr/online-reservation#anchors-mi3og2yd",
       "menu_url": "https://www.kabana-marrakech.com/fr/menu",
       "social": {
         "instagram": "https://www.instagram.com/kabana.marrakech/",
