@@ -102,7 +102,16 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick, onVoiceA
 
   return (
     <div ref={containerRef} className="relative w-full">
-      <div className="relative flex flex-col md:flex-row md:items-center gap-3 md:gap-2">
+      <div
+        className="relative flex flex-col md:flex-row md:items-center gap-3 md:gap-2 transition-opacity duration-200"
+        style={
+          hideBarWhenVoiceActive &&
+          !useMobileOverlay &&
+          (voice.status === "recording" || voice.status === "processing")
+            ? { opacity: 0, pointerEvents: "none" }
+            : undefined
+        }
+      >
         <div className="relative flex-1 btn-flash rounded-xl overflow-hidden">
           <input
             ref={inputRef}
