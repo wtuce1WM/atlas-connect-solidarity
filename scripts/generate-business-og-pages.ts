@@ -781,16 +781,20 @@ function buildArticleHtml(article: StaticArticle): string {
   if (article.tldr) {
     parts.push(`<section><h2>L'essentiel</h2><p>${escapeHtml(stripHtml(article.tldr))}</p></section>`);
   }
-  if (article.intro) {
-    for (const p of stripHtml(article.intro).split(/\n{2,}|\r?\n/).map((s) => s.trim()).filter(Boolean)) {
-      parts.push(`<p>${escapeHtml(p)}</p>`);
-    }
+  const seenParagraphs = new Set<string>();
+  const pushParagraph = (raw: string) => {
+    const txt = stripHtml(raw).trim();
+    if (!txt) return;
+    const key = txt.toLowerCase().replace(/\s+/g, " ");
+    if (seenParagraphs.has(key)) return;
+    seenParagraphs.add(key);
+    parts.push(`<p>${escapeHtml(txt)}</p>`);
+  };
+  for (const src of [article.intro, article.content]) {
+    if (!src) continue;
+    for (const p of stripHtml(src).split(/\n{2,}|\r?\n/)) pushParagraph(p);
   }
-  if (article.content) {
-    for (const p of stripHtml(article.content).split(/\n{2,}|\r?\n/).map((s) => s.trim()).filter(Boolean)) {
-      parts.push(`<p>${escapeHtml(p)}</p>`);
-    }
-  }
+
   for (const s of article.sections || []) {
     if (s.title) parts.push(`<h2>${escapeHtml(stripHtml(s.title))}</h2>`);
     const bodies = [
