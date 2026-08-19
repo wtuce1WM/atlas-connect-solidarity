@@ -494,7 +494,8 @@ const SortableStep = ({
       </div>
 
       {expanded && (
-        <div className="mt-3 ml-9 grid gap-3 max-w-4xl">
+        <div className="mt-3 ml-9 grid gap-3 w-full">
+          <div className="grid gap-3 max-w-4xl">
           <div className="grid gap-3 md:grid-cols-2">
             <label className="text-xs text-muted-foreground grid gap-1">
               Nom de l'étape (back-office)
