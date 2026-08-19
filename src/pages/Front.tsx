@@ -484,15 +484,16 @@ const Front = () => {
             Notre App fait ce que font...
           </p>
 
-          {/* Storybox — sous l'accroche, une seule étape à la fois */}
+          {/* Storybox — sous l'accroche, apparaît après 2 s */}
           <div
             className="w-full"
             style={{
-              opacity: voiceActive ? 0 : 1,
-              pointerEvents: voiceActive ? "none" : "auto",
+              opacity: voiceActive || !bulletsVisible ? 0 : 1,
+              transform: voiceActive || !bulletsVisible ? "translateY(12px)" : "translateY(0)",
+              pointerEvents: voiceActive || !bulletsVisible ? "none" : "auto",
               transition: motion,
             }}
-            aria-hidden={voiceActive}
+            aria-hidden={voiceActive || !bulletsVisible}
           >
             <style>{`@keyframes owmSlideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}`}</style>
             <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
