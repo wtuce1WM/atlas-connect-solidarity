@@ -547,7 +547,8 @@ const Front = () => {
                     aria-label={`Étape ${i + 1}`}
                     aria-current={current}
                     onClick={() => goToStep(stepIndex)}
-                    className="h-1 flex-1 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)]"
+                    style={{ flex: `${BULLET_WEIGHTS[i] ?? 1} 1 0%` }}
+                    className="h-1 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)]"
                   >
                     <span
                       key={current ? `cur-${step}` : done ? "done" : "todo"}
