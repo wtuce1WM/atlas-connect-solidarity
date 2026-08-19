@@ -680,7 +680,7 @@ const Front = () => {
 
       {/* Couche CTA */}
       <div
-        className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-5 pt-10 pb-16 md:gap-8 md:px-10 md:pt-16 md:pb-24"
+        className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 px-5 pt-10 pb-14 md:gap-8 md:px-10 md:pt-16 md:pb-24"
         style={{
           opacity: ctaP,
           transform: reduced ? undefined : `translateY(${(1 - ctaP) * 48}px) scale(${0.96 + ctaP * 0.04})`,
