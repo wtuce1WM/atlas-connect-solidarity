@@ -631,7 +631,7 @@ const Front = () => {
 
       {/* Couche CTA */}
       <div
-        className="absolute inset-0 z-10 flex items-center justify-center px-5 pt-16 md:px-10"
+        className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-8 px-5 pt-16 md:px-10"
         style={{
           opacity: ctaP,
           transform: reduced ? undefined : `translateY(${(1 - ctaP) * 48}px) scale(${0.96 + ctaP * 0.04})`,
@@ -640,6 +640,20 @@ const Front = () => {
         }}
         aria-hidden={!ctaActive}
       >
+        {/* Titre écran 2 — même lettrage que le slogan */}
+        <p
+          className="text-center text-[clamp(1.8rem,6vw,4rem)] uppercase leading-[1.05] tracking-tight"
+          style={{
+            fontFamily: "'Montserrat', sans-serif",
+            fontWeight: 900,
+            color: "transparent",
+            WebkitTextStrokeWidth: "2px",
+            WebkitTextStrokeColor: "#FFFFFF",
+          }}
+        >
+          One World Morocco
+        </p>
+
         <div className="grid w-full max-w-5xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {CTAS.map((cta) => (
             <Link
