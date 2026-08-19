@@ -122,8 +122,13 @@ const typeLabel = (t: string) => STEP_TYPES.find((s) => s.value === t)?.label ??
 type Storyboard = {
   id: string;
   name: string;
-  /** Deux scénarios possibles d'un montage : établissement ou corporate. */
-  scenario_type: "establishment" | "corporate";
+  /**
+   * Cadre éditorial du montage :
+   * - `new` : composition manuelle libre (défaut) ;
+   * - `establishment` / `corporate` : étapes initialisées par copie du scénario
+   *   auto correspondant, puis librement éditables (source unique = storyboard).
+   */
+  scenario_type: "new" | "establishment" | "corporate";
   format: "portrait" | "landscape";
   business_id: string | null;
   preview_scale: number;
@@ -1460,6 +1465,9 @@ const VideoStoryboardPanel = () => {
   const [removed, setRemoved] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [newType, setNewType] = useState<StepType>("hook");
+  /** Type de scénario en attente de confirmation d'écrasement des étapes. */
+  const [pendingScenario, setPendingScenario] = useState<"establishment" | "corporate" | null>(null);
+  const [seeding, setSeeding] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [rendering, setRendering] = useState(false);
@@ -1743,6 +1751,66 @@ const VideoStoryboardPanel = () => {
   const patchBoard = (values: Partial<Storyboard>) => {
     setBoard((prev) => (prev ? { ...prev, ...values } : prev));
     setDirty(true);
+  };
+
+  /**
+   * Copie (seed) des étapes du scénario auto correspondant dans le storyboard.
+   * Une fois copiées, les étapes appartiennent au storyboard et sont librement
+   * éditables : aucune synchronisation ultérieure avec le scénario auto (pas de
+   * double source de vérité au rendu).
+   */
+  const seedFromScenario = async (type: "establishment" | "corporate") => {
+    if (!board) return;
+    setSeeding(true);
+    const mode = type === "establishment" ? "business" : "corporate";
+    const { data, error } = await supabase
+      .from("video_scenario_steps" as any)
+      .select("scene_key, step_type, label, position, duration_sec, enabled, config")
+      .is("storyboard_id", null)
+      .eq("mode", mode)
+      .order("position", { ascending: true });
+    setSeeding(false);
+    if (error) {
+      toast.error(`Import du scénario impossible : ${error.message}`);
+      return;
+    }
+    const src = ((data ?? []) as any[]).slice(0, MAX_SECTIONS);
+    if (src.length === 0) {
+      toast.error("Ce scénario auto n'a aucune étape configurée");
+      return;
+    }
+    setRemoved((prev) => [...prev, ...sections.filter((s) => !s._new).map((s) => s.id)]);
+    setSections(
+      src.map((s, i) => ({
+        id: crypto.randomUUID(),
+        storyboard_id: board.id,
+        mode: "corporate",
+        scene_key: String(s.scene_key || `${s.step_type}_${i + 1}`),
+        step_type: s.step_type as StepType,
+        label: s.label ?? typeLabel(String(s.step_type)),
+        position: (i + 1) * 10,
+        duration_sec: Number(s.duration_sec) || MIN_SECTION_SEC,
+        enabled: s.enabled !== false,
+        config: s.config ?? {},
+        _new: true,
+      })),
+    );
+    setExpanded(null);
+    patchBoard({ scenario_type: type });
+    toast.success(`${src.length} étape(s) importée(s) du scénario auto — ${type === "establishment" ? "Établissement" : "Corporate"}`);
+  };
+
+  /** Changement du type de scénario : confirmation si des étapes existent déjà. */
+  const changeScenarioType = (value: Storyboard["scenario_type"]) => {
+    if (value === "new") {
+      patchBoard({ scenario_type: "new" });
+      return;
+    }
+    if (sections.length > 0) {
+      setPendingScenario(value);
+      return;
+    }
+    seedFromScenario(value);
   };
 
   const patchSection = (id: string, values: Partial<Section>) => {
@@ -2237,6 +2305,37 @@ const VideoStoryboardPanel = () => {
 
             {/* ===== Onglet Montage ===== */}
             <TabsContent value="montage" className="space-y-4">
+              {/* Confirmation d'écrasement des étapes lors d'un import de scénario auto. */}
+              <AlertDialog
+                open={pendingScenario !== null}
+                onOpenChange={(o) => {
+                  if (!o) setPendingScenario(null);
+                }}
+              >
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Remplacer les étapes du montage ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Les {sections.length} étape(s) actuelles seront remplacées par celles du scénario auto —{" "}
+                      {pendingScenario === "establishment" ? "Établissement" : "Corporate"}. Les étapes importées
+                      deviennent ensuite librement modifiables dans ce montage (aucune synchronisation ultérieure).
+                      La suppression est effective à l'enregistrement.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        const t = pendingScenario;
+                        setPendingScenario(null);
+                        if (t) seedFromScenario(t);
+                      }}
+                    >
+                      Remplacer
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-black text-base">Réglages du montage</CardTitle>
@@ -2255,11 +2354,13 @@ const VideoStoryboardPanel = () => {
                       Type de scénario
                       <select
                         value={board.scenario_type}
-                        onChange={(e) => patchBoard({ scenario_type: e.target.value as Storyboard["scenario_type"] })}
+                        onChange={(e) => changeScenarioType(e.target.value as Storyboard["scenario_type"])}
+                        disabled={seeding}
                         className="h-9 rounded-md border bg-background px-2 text-xs"
                       >
-                        <option value="establishment">Établissement</option>
-                        <option value="corporate">Corporate</option>
+                        <option value="new">Nouveau scénario (étapes manuelles)</option>
+                        <option value="establishment">Établissement (importer le scénario auto)</option>
+                        <option value="corporate">Corporate (importer le scénario auto)</option>
                       </select>
                     </label>
                     <label className="text-xs text-muted-foreground grid gap-1">
