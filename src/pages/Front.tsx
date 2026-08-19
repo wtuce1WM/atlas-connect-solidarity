@@ -509,27 +509,38 @@ const Front = () => {
             </div>
 
 
-            {/* Progress bar segmentée */}
+            {/* Progress bar segmentée — uniquement les 5 bullet points */}
             <div className="mt-5 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
-              {STEPS.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  aria-label={`Étape ${i + 1}`}
-                  onClick={() => goToStep(i)}
-                  className="h-1 flex-1 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)]"
-                >
-                  <span
-                    className="block h-full rounded-full bg-gold"
-                    style={{
-                      width: i < step ? "100%" : i === step ? "100%" : "0%",
-                      opacity: i <= step ? 1 : 0,
-                      transition: reduced ? "none" : `width ${STEP_MS}ms linear`,
-                    }}
-                  />
-                </button>
-              ))}
+              {BULLET_STEPS.map((stepIndex, i) => {
+                const done = step > stepIndex;
+                const current = step === stepIndex;
+                return (
+                  <button
+                    key={stepIndex}
+                    type="button"
+                    aria-label={`Étape ${i + 1}`}
+                    aria-current={current}
+                    onClick={() => goToStep(stepIndex)}
+                    className="h-1 flex-1 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)]"
+                  >
+                    <span
+                      key={current ? `cur-${step}` : done ? "done" : "todo"}
+                      className="block h-full rounded-full bg-gold"
+                      style={{
+                        width: done ? "100%" : current ? "100%" : "0%",
+                        opacity: done || current ? 1 : 0,
+                        transition:
+                          reduced || !current ? "none" : `width ${STEP_MS}ms linear`,
+                        ...(current && !reduced
+                          ? { animation: `owmFillBar ${STEP_MS}ms linear both` }
+                          : null),
+                      }}
+                    />
+                  </button>
+                );
+              })}
             </div>
+
 
           </div>
         </div>
