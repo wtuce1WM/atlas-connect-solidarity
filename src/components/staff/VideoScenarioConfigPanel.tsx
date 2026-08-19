@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -666,6 +667,18 @@ const VideoScenarioConfigPanel = ({
   const [noteCounts, setNoteCounts] = useState<Record<string, number>>({});
   /** Dernière valeur synchrone des médias globaux, utilisée par Enregistrer. */
   const globalMediaRef = useRef<GlobalMediaItem[]>([]);
+  /** Slot DOM du panneau Guide du storyboard (mode Corporate uniquement). */
+  const [corporateNoteSlot, setCorporateNoteSlot] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (mode !== "corporate" || typeof document === "undefined") return;
+    const update = () => setCorporateNoteSlot(document.getElementById("corporate-note-slot") as HTMLElement | null);
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [mode]);
+
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
@@ -970,6 +983,40 @@ const VideoScenarioConfigPanel = ({
     [steps],
   );
 
+  const InternalNoteEditor = () => (
+    <div className="space-y-1 rounded-lg border p-3">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm font-medium text-black">Note interne</span>
+        <span
+          className={`text-xs ${noteLength > MAX_NOTE_LENGTH ? "text-destructive font-bold" : "text-muted-foreground"}`}
+        >
+          {noteLength} / {MAX_NOTE_LENGTH}
+          {noteLength > MAX_NOTE_LENGTH && " ⚠ Limite dépassée"}
+        </span>
+      </div>
+      <RichTextEditor
+        content={config?.internal_note ?? ""}
+        onChange={(html) => {
+          setConfig((prev) => (prev ? { ...prev, internal_note: html } : prev));
+          setDirty(true);
+        }}
+        placeholder="Notes de production, arbitrages, à faire…"
+        className="prose-base"
+        simple
+        maxHeight="calc(85vh - 240px)"
+      />
+
+      <div className="flex items-center justify-end gap-2 pt-2">
+        <span className="text-xs text-muted-foreground">
+          {dirty ? "Modifications non enregistrées" : "À jour"}
+        </span>
+        <Button size="sm" onClick={save} disabled={saving || noteLength > MAX_NOTE_LENGTH}>
+          <Save className="h-4 w-4 mr-1" /> Enregistrer la note
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
@@ -1185,40 +1232,16 @@ const VideoScenarioConfigPanel = ({
           </DndContext>
         )}
 
-        {/* Note interne (par mode) : usage staff uniquement, jamais affichée au rendu. */}
+        {/* Note interne (par mode) : usage staff uniquement, jamais affichée au rendu.
+            En mode Corporate, elle est téléportée dans le slidepanel Guide du storyboard. */}
         {config && (
-          <div className="space-y-1 rounded-lg border p-3">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-sm font-medium text-black">Note interne</span>
-              <span
-                className={`text-xs ${noteLength > MAX_NOTE_LENGTH ? "text-destructive font-bold" : "text-muted-foreground"}`}
-              >
-                {noteLength} / {MAX_NOTE_LENGTH}
-                {noteLength > MAX_NOTE_LENGTH && " ⚠ Limite dépassée"}
-              </span>
-            </div>
-            <RichTextEditor
-              content={config.internal_note ?? ""}
-              onChange={(html) => {
-                setConfig((prev) => (prev ? { ...prev, internal_note: html } : prev));
-                setDirty(true);
-              }}
-              placeholder="Notes de production, arbitrages, à faire…"
-              className="prose-base"
-              simple
-              maxHeight="calc(85vh - 240px)"
-            />
-
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <span className="text-xs text-muted-foreground">
-                {dirty ? "Modifications non enregistrées" : "À jour"}
-              </span>
-              <Button size="sm" onClick={save} disabled={saving || noteLength > MAX_NOTE_LENGTH}>
-                <Save className="h-4 w-4 mr-1" /> Enregistrer la note
-              </Button>
-            </div>
-          </div>
+          mode === "corporate" ? (
+            corporateNoteSlot ? createPortal(<InternalNoteEditor />, corporateNoteSlot) : null
+          ) : (
+            <InternalNoteEditor />
+          )
         )}
+
 
       </CardContent>
     </Card>
