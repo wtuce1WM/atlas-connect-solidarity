@@ -14,7 +14,12 @@ const STEP_MS = 3400;
 type Step = { bullet: boolean; render: () => React.ReactNode };
 
 const STEPS: Step[] = [
-  { bullet: false, render: () => <>Notre App fait ce que font...</> },
+  {
+    bullet: false,
+    render: () => (
+      <span className="text-[#F4EEE4]">Notre App fait ce que font...</span>
+    ),
+  },
   {
     bullet: true,
     render: () => (
@@ -37,7 +42,7 @@ const STEPS: Step[] = [
     render: () => (
       <>
         avec un modèle économique direct-to-local, sans commission et solidaire :{" "}
-        <strong className="font-bold text-gold">20 %</strong> des abonnements des affiliés
+        <strong className="font-bold text-white">20 %</strong> des abonnements des affiliés
         sont destinés à des causes humanitaires au Maroc...
       </>
     ),
