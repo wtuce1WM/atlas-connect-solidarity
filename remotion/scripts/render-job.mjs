@@ -461,6 +461,8 @@ async function renderOne() {
         serveUrl: bundled,
         codec: alpha ? "vp9" : "h264",
         pixelFormat: alpha ? "yuva420p" : undefined,
+        // Le canal alpha exige des frames PNG (le JPEG n'a pas de transparence).
+        imageFormat: alpha ? "png" : "jpeg",
         outputLocation: outPath,
         puppeteerInstance: instance,
         muted: !wantsAudio,
