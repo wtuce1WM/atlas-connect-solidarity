@@ -528,7 +528,7 @@ const Front = () => {
                 </div>
 
                 {/* Bullet courant du carrousel (2-6) — hauteur réservée sur le plus long texte */}
-                <div className="min-h-[6.25rem] md:min-h-[4.25rem]">
+                <div className="min-h-[6.25rem] md:min-h-[4.75rem]">
                   {bulletsVisible && step >= CAROUSEL_STEPS[0] && (
                     <div
                       key={step}
