@@ -341,6 +341,34 @@ const Front = () => {
                 </button>
               ))}
             </div>
+
+            {/* Hint / CTAs de lecture */}
+            <div
+              className="mt-4 hidden items-center gap-2 font-josefin text-[11px] font-bold uppercase tracking-[0.14em] text-[rgba(244,238,228,0.62)] sm:flex"
+              style={{
+                opacity: step >= STEPS.length - 1 ? 0 : 1,
+                pointerEvents: step >= STEPS.length - 1 ? "none" : "auto",
+                transition: motion,
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => goToStep(step + 1)}
+                className="uppercase transition-colors hover:text-gold"
+              >
+                Cliquez pour avancer
+              </button>
+              <span aria-hidden="true">·</span>
+              <button
+                type="button"
+                onClick={() => toggleAuto()}
+                className={`uppercase transition-colors hover:text-gold ${auto ? "text-gold" : ""}`}
+              >
+                Lecture automatique{auto ? "" : " (en pause)"}
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
