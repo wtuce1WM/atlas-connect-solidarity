@@ -1235,12 +1235,13 @@ const VideoScenarioConfigPanel = ({
         {/* Note interne (par mode) : usage staff uniquement, jamais affichée au rendu.
             En mode Corporate, elle est téléportée dans le slidepanel Guide du storyboard. */}
         {config && (
-          mode === "corporate" && typeof document !== "undefined" && document.getElementById("corporate-note-slot") ? (
-            createPortal(<InternalNoteEditor />, document.getElementById("corporate-note-slot")!)
+          mode === "corporate" ? (
+            corporateNoteSlot ? createPortal(<InternalNoteEditor />, corporateNoteSlot) : null
           ) : (
             <InternalNoteEditor />
           )
         )}
+
 
       </CardContent>
     </Card>
