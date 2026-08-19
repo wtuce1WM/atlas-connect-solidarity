@@ -2323,11 +2323,13 @@ const VideoStoryboardPanel = () => {
                       Type de scénario
                       <select
                         value={board.scenario_type}
-                        onChange={(e) => patchBoard({ scenario_type: e.target.value as Storyboard["scenario_type"] })}
+                        onChange={(e) => changeScenarioType(e.target.value as Storyboard["scenario_type"])}
+                        disabled={seeding}
                         className="h-9 rounded-md border bg-background px-2 text-xs"
                       >
-                        <option value="establishment">Établissement</option>
-                        <option value="corporate">Corporate</option>
+                        <option value="new">Nouveau scénario (étapes manuelles)</option>
+                        <option value="establishment">Établissement (importer le scénario auto)</option>
+                        <option value="corporate">Corporate (importer le scénario auto)</option>
                       </select>
                     </label>
                     <label className="text-xs text-muted-foreground grid gap-1">
