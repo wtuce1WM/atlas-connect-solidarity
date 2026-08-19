@@ -143,13 +143,19 @@ const Front = () => {
 
 
   const goToStep = useCallback(
-    (i: number) => {
+    (i: number, freeze = false) => {
       const next = Math.min(STEPS.length - 1, Math.max(0, i));
       setStep(next);
+      if (timerRef.current) window.clearTimeout(timerRef.current);
+      if (freeze) {
+        setAuto(false);
+        return;
+      }
       if (auto) scheduleNext(next);
     },
     [scheduleNext, auto]
   );
+
 
   const toggleAuto = useCallback(() => {
     setAuto((a) => {
@@ -356,43 +362,7 @@ const Front = () => {
         </nav>
       </div>
 
-      {/* Slogan — ancré en haut, hors du flux centré */}
-      <div
-        className="absolute left-0 right-0 top-[9vh] bottom-[54vh] z-20 flex items-center justify-center px-5 md:px-10 lg:px-16"
-        style={{
-          opacity: voiceActive ? 0 : narrativeOpacity,
-          transform: reduced
-            ? undefined
-            : `translateY(${-range(progress, 0, 0.35) * 40}px)`,
-          pointerEvents: narrativeActive && !voiceActive ? "auto" : "none",
-          transition: motion,
-        }}
-        aria-hidden={!narrativeActive || voiceActive}
-      >
-        <h1
-          className="text-center text-[clamp(2.25rem,6.5vw,5.5rem)] uppercase leading-[0.9] tracking-tight"
-          style={{
-            fontFamily: "'Montserrat', sans-serif",
-            fontWeight: 900,
-            color: "transparent",
-            WebkitTextStrokeWidth: "2px",
-            WebkitTextStrokeColor: "#FFFFFF",
-          }}
-        >
-          <span className="block">
-            LOCAL{" "}
-            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-          </span>
-          <span className="block">
-            DIGITAL{" "}
-            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-          </span>
-          <span className="block">SOLIDAIRE</span>
-        </h1>
-
-      </div>
-
-      {/* Bloc central — champ de recherche centré verticalement dans le viewport */}
+      {/* Bloc central — slogan + recherche, centrés dans le viewport (aucun chevauchement possible) */}
       <div
         className="absolute inset-0 z-20 flex flex-col items-center justify-center px-5 md:px-10 lg:px-16"
         style={{
@@ -407,6 +377,32 @@ const Front = () => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex w-full max-w-2xl flex-col items-center gap-4">
+          {/* Slogan */}
+          <h1
+            className="mb-2 text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[0.9] tracking-tight md:mb-6"
+            style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 900,
+              color: "transparent",
+              WebkitTextStrokeWidth: "2px",
+              WebkitTextStrokeColor: "#FFFFFF",
+              opacity: voiceActive ? 0 : 1,
+              transition: motion,
+            }}
+            aria-hidden={voiceActive}
+          >
+            <span className="block">
+              LOCAL{" "}
+              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+            </span>
+            <span className="block">
+              DIGITAL{" "}
+              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+            </span>
+            <span className="block">SOLIDAIRE</span>
+          </h1>
+
+
           {/* Recherche (avec overlay vocal) */}
           <div className="w-full" onClick={(e) => e.stopPropagation()}>
             <HeroInlineSearch
@@ -516,7 +512,7 @@ const Front = () => {
                       aria-current={current}
                       onClick={(e) => {
                         e.stopPropagation();
-                        goToStep(stepIndex);
+                        goToStep(stepIndex, true);
                       }}
                       style={{ flex: `${BULLET_WEIGHTS[i] ?? 1} 1 0%` }}
                       className="h-2 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)] py-[3px]"
@@ -529,9 +525,10 @@ const Front = () => {
                           opacity: done || current ? 1 : 0,
                           transition:
                             reduced || !current ? "none" : `width ${STEP_MS}ms linear`,
-                          ...(current && !reduced
+                          ...(current && !reduced && auto
                             ? { animation: `owmFillBar ${STEP_MS}ms linear both` }
                             : null),
+
                         }}
                       />
                     </button>
