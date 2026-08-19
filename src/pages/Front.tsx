@@ -48,7 +48,7 @@ const STEPS: Step[] = [
     ),
   },
   {
-    bullet: false,
+    bullet: true,
     render: () => (
       <>
         Parce que créer de la valeur ne devrait pas seulement profiter à ceux qui la
@@ -60,7 +60,8 @@ const STEPS: Step[] = [
 
 const BULLET_STEPS = STEPS.map((s, i) => (s.bullet ? i : -1)).filter((i) => i >= 0);
 /** Largeur relative de chaque segment, calée sur la longueur du texte du bullet point. */
-const BULLET_WEIGHTS = [3, 1, 1, 2, 3];
+const BULLET_WEIGHTS = [5, 0.8, 0.8, 2, 5, 3];
+
 
 const CTAS: { label: string; to: string }[] = [
 
@@ -465,8 +466,83 @@ const Front = () => {
           >
             Notre App fait ce que font...
           </p>
+
+          {/* Storybox — sous l'accroche, une seule étape à la fois */}
+          <div
+            className="w-full"
+            style={{
+              opacity: voiceActive ? 0 : 1,
+              pointerEvents: voiceActive ? "none" : "auto",
+              transition: motion,
+            }}
+            aria-hidden={voiceActive}
+          >
+            <style>{`@keyframes owmSlideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}`}</style>
+            <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
+              <div className="min-h-[4.5rem] md:min-h-[5rem]">
+                {step > 0 && (
+                  <div
+                    key={step}
+                    className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-base"
+                    style={{
+                      animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
+                    }}
+                  >
+                    {STEPS[step].bullet ? (
+                      <img
+                        src={hamsaIcon.url}
+                        alt=""
+                        className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="w-0 shrink-0" />
+                    )}
+                    <span>{STEPS[step].render()}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Progress bar segmentée — un segment par étape narrative */}
+              <div className="mt-4 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+                {BULLET_STEPS.map((stepIndex, i) => {
+                  const done = step > stepIndex;
+                  const current = step === stepIndex;
+                  return (
+                    <button
+                      key={stepIndex}
+                      type="button"
+                      aria-label={`Étape ${i + 1}`}
+                      aria-current={current}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        goToStep(stepIndex);
+                      }}
+                      style={{ flex: `${BULLET_WEIGHTS[i] ?? 1} 1 0%` }}
+                      className="h-2 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)] py-[3px]"
+                    >
+                      <span
+                        key={current ? `cur-${step}` : done ? "done" : "todo"}
+                        className="block h-full rounded-full bg-gold"
+                        style={{
+                          width: done ? "100%" : current ? "100%" : "0%",
+                          opacity: done || current ? 1 : 0,
+                          transition:
+                            reduced || !current ? "none" : `width ${STEP_MS}ms linear`,
+                          ...(current && !reduced
+                            ? { animation: `owmFillBar ${STEP_MS}ms linear both` }
+                            : null),
+                        }}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
 
       <style>{`
         @keyframes owmShimmer {
@@ -494,86 +570,8 @@ const Front = () => {
 
 
 
-      {/* Couche narrative (storybox) — ancrée en bas pour ne pas pousser le slogan */}
-      <div
-        className="absolute left-0 right-0 top-[46vh] bottom-[6vh] z-10 flex flex-col justify-end overflow-y-auto px-5 md:top-[48vh] md:px-10 lg:px-16"
-        style={{
-          opacity: voiceActive ? 0 : narrativeOpacity,
-          transform: reduced
-            ? undefined
-            : `translateY(${-range(progress, 0, 0.35) * 40}px)`,
-          pointerEvents: narrativeActive && !voiceActive ? "auto" : "none",
-          transition: motion,
-        }}
-        aria-hidden={!narrativeActive || voiceActive}
-      >
-
-        <div className="mx-auto w-full max-w-4xl">
-          {/* Storybox — une seule étape à la fois, entrée par le haut */}
-          <style>{`@keyframes owmSlideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}`}</style>
-          <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
-            <div className="min-h-[4.5rem] md:min-h-[5rem]">
-              {step > 0 && (
-                <div
-                  key={step}
-                  className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-lg"
-                  style={{
-                    animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
-                  }}
-                >
-                  {STEPS[step].bullet ? (
-                    <img
-                      src={hamsaIcon.url}
-                      alt=""
-                      className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <span className="w-0 shrink-0" />
-                  )}
-                  <span>{STEPS[step].render()}</span>
-                </div>
-              )}
-            </div>
 
 
-            {/* Progress bar segmentée — uniquement les 5 bullet points */}
-            <div className="mt-5 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
-              {BULLET_STEPS.map((stepIndex, i) => {
-                const done = step > stepIndex;
-                const current = step === stepIndex;
-                return (
-                  <button
-                    key={stepIndex}
-                    type="button"
-                    aria-label={`Étape ${i + 1}`}
-                    aria-current={current}
-                    onClick={() => goToStep(stepIndex)}
-                    style={{ flex: `${BULLET_WEIGHTS[i] ?? 1} 1 0%` }}
-                    className="h-1 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)]"
-                  >
-                    <span
-                      key={current ? `cur-${step}` : done ? "done" : "todo"}
-                      className="block h-full rounded-full bg-gold"
-                      style={{
-                        width: done ? "100%" : current ? "100%" : "0%",
-                        opacity: done || current ? 1 : 0,
-                        transition:
-                          reduced || !current ? "none" : `width ${STEP_MS}ms linear`,
-                        ...(current && !reduced
-                          ? { animation: `owmFillBar ${STEP_MS}ms linear both` }
-                          : null),
-                      }}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-
-
-          </div>
-        </div>
-      </div>
 
       {/* Couche CTA */}
       <div
