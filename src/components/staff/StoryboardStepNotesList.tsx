@@ -96,6 +96,29 @@ const StoryboardStepNotesList = () => {
     toast.success("Note enregistrée");
   };
 
+  const createNote = async () => {
+    setCreating(true);
+    const { data, error } = await supabase
+      .from("video_scenario_step_notes")
+      .insert({ title: "Nouvelle note", content: "", step_id: null } as any)
+      .select("id, title, content, updated_at, step_id")
+      .maybeSingle();
+    setCreating(false);
+    if (error || !data) return toast.error(error?.message || "Création impossible");
+    const row: Row = {
+      id: (data as any).id,
+      title: (data as any).title,
+      content: (data as any).content,
+      updated_at: (data as any).updated_at,
+      step_id: null,
+      step_label: "Note libre",
+    };
+    setRows((prev) => [row, ...prev]);
+    setOpenId(row.id);
+    toast.success("Note créée");
+  };
+
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
