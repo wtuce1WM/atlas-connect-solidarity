@@ -258,19 +258,18 @@ const Front = () => {
         }}
       />
 
-      {/* Mini-header pinné */}
-      <div
-        className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex items-center gap-3 px-5 py-4 md:px-10"
-        style={{ opacity: headerOpacity, transition: motion }}
-      >
-        <span className="h-2 w-2 shrink-0 rounded-full bg-whatsapp" />
-        <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
-          One World Morocco
-        </span>
-        <span className="font-josefin text-xs font-black uppercase tracking-[0.18em] text-[rgba(244,238,228,0.6)] md:text-sm">
+      {/* Mini-header pinné (identité + slogan, toujours visible) */}
+      <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex flex-col gap-1 px-5 py-4 sm:flex-row sm:items-center sm:gap-3 md:px-10">
+        <div className="flex items-center gap-3">
+          <span className="h-2 w-2 shrink-0 rounded-full bg-whatsapp" />
+          <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
+            One World Morocco
+          </span>
+        </div>
+        <h1 className="font-josefin text-xs font-extrabold uppercase tracking-[0.18em] text-[rgba(244,238,228,0.85)] md:text-sm">
           Local <span className="text-primary">×</span> Digital{" "}
           <span className="text-primary">×</span> Solidaire
-        </span>
+        </h1>
       </div>
 
       {/* Couche narrative */}
@@ -287,20 +286,7 @@ const Front = () => {
         aria-hidden={!narrativeActive}
       >
         <div className="mx-auto w-full max-w-4xl">
-          <div className="mb-3 flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-whatsapp" />
-            <span className="font-josefin text-xs font-black uppercase tracking-[0.22em] text-[rgba(244,238,228,0.8)] md:text-sm">
-              One World Morocco
-            </span>
-          </div>
 
-          <h1
-            className="font-josefin font-black uppercase leading-[0.95] tracking-tight text-[#F4EEE4]"
-            style={{ fontSize: "clamp(30px, 7vw, 76px)" }}
-          >
-            Local <span className="text-primary">×</span> Digital{" "}
-            <span className="text-primary">×</span> Solidaire
-          </h1>
 
           {/* Storybox */}
           <div className="mt-7 border-l-2 border-gold/70 pl-4 md:pl-6">
