@@ -407,6 +407,7 @@ const Front = () => {
               WebkitTextStrokeWidth: "2px",
               WebkitTextStrokeColor: "#FFFFFF",
               opacity: voiceActive ? 0 : 1,
+              animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
               transition: motion,
             }}
             aria-hidden={voiceActive}
@@ -426,7 +427,11 @@ const Front = () => {
         {/* Bloc inférieur — recherche + demo + accroche + storybox */}
         <div className="flex w-full max-w-2xl flex-col items-center gap-2 self-center md:gap-3">
           {/* Recherche (avec overlay vocal) */}
-          <div className="w-full" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="w-full"
+            onClick={(e) => e.stopPropagation()}
+            style={{ animation: reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
+          >
             <HeroInlineSearch
               hideBarWhenVoiceActive
               placeholder="Inspirez-vous"
@@ -446,6 +451,7 @@ const Front = () => {
             style={{
               opacity: voiceActive ? 0 : 1,
               pointerEvents: voiceActive ? "none" : "auto",
+              animation: reduced || voiceActive ? undefined : "owmSlideDown 420ms ease-out both",
               transition: motion,
             }}
             aria-hidden={voiceActive}
@@ -495,7 +501,6 @@ const Front = () => {
             }}
             aria-hidden={voiceActive || !bulletsVisible}
           >
-            <style>{`@keyframes owmSlideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}`}</style>
             <div className="relative pl-4 md:pl-6">
               {/* Barre gold verticale — apparaît avec le bullet 2, même effet */}
               {barsVisible && (
@@ -690,6 +695,7 @@ const Front = () => {
         style={{
           opacity: showCue ? 1 : 0,
           pointerEvents: showCue ? "auto" : "none",
+          animation: reduced || !showCue ? undefined : "owmSlideDown 420ms ease-out both",
           transition: motion,
         }}
         tabIndex={showCue ? 0 : -1}
