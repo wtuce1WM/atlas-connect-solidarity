@@ -30,11 +30,14 @@ interface Props {
   align?: "center" | "start";
   audioLevel?: number;
   micReady?: boolean;
+  /** Override de la couleur du texte (ex: "text-white" sur fond sombre). */
+  textClassName?: string;
 }
 
 const ACCENT = "#194CFF";
 
-const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center", audioLevel = 0, micReady = true }: Props) => {
+const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center", audioLevel = 0, micReady = true, textClassName }: Props) => {
+  const textColor = textClassName ?? "${textColor}";
   const { language } = useLanguage();
   const L = LABELS[language as "fr" | "en" | "ar"] || LABELS.fr;
   const isStart = align === "start";
@@ -71,11 +74,11 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
     <div className={`w-full flex flex-col gap-6 py-6 ${isStart ? "items-start" : "items-center"}`}>
       {/* Transcript / hint */}
       {liveTranscript ? (
-        <p className={`text-xl md:text-2xl text-black md:text-white font-semibold leading-relaxed max-w-2xl px-4 ${isStart ? "text-left" : "text-center"}`}>
+        <p className={`text-xl md:text-2xl ${textColor} font-semibold leading-relaxed max-w-2xl px-4 ${isStart ? "text-left" : "text-center"}`}>
           {liveTranscript}
         </p>
       ) : (
-        <p className={`text-lg md:text-xl text-black md:text-white font-semibold ${isStart ? "text-left" : "text-center"}`}>
+        <p className={`text-lg md:text-xl ${textColor} font-semibold ${isStart ? "text-left" : "text-center"}`}>
           {hint}
         </p>
       )}
@@ -147,7 +150,7 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
       </div>
 
 
-      <p className={`text-base md:text-lg text-black md:text-white font-bold px-4 ${isStart ? "text-left" : "text-center"}`}>
+      <p className={`text-base md:text-lg ${textColor} font-bold px-4 ${isStart ? "text-left" : "text-center"}`}>
         {L.hintLine1}<br />{L.hintLine2}
       </p>
     </div>
