@@ -452,7 +452,7 @@ const Front = () => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Slogan — centré verticalement dans l'espace restant au-dessus de la recherche */}
-        <div className="flex flex-1 flex-col items-center justify-center">
+        <div className="flex flex-1 flex-col items-center justify-center md:justify-start md:pt-10">
           <h1
             className="mb-[-0.75rem] text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight md:mb-[-1.25rem] md:leading-[0.95] md:-translate-y-6"
             style={{
@@ -462,7 +462,7 @@ const Front = () => {
               WebkitTextStrokeWidth: "2px",
               WebkitTextStrokeColor: "#FFFFFF",
               opacity: voiceActive ? 0 : 1,
-              animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
+              animation: reduced || voiceActive ? undefined : "owmSlideDown 420ms ease-out both",
               transition: motion,
             }}
             aria-hidden={voiceActive}
@@ -701,9 +701,9 @@ const Front = () => {
         }}
         aria-hidden={!ctaActive}
       >
-        {/* Titre écran 2 — mobile : 3 lignes, même taille/leading que le slogan écran 1 */}
+        {/* Titre écran 2 — mobile : 3 lignes, même taille/leading visuel que le slogan écran 1 */}
         <p
-          className="text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight md:text-[clamp(2rem,min(9vw,8vh),5.5rem)]"
+          className="text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.35] tracking-tight md:text-[clamp(2rem,min(9vw,8vh),5.5rem)] md:leading-[1.12]"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
@@ -751,7 +751,10 @@ const Front = () => {
             color: "transparent",
             WebkitTextStrokeWidth: "2px",
             WebkitTextStrokeColor: "#FFFFFF",
+            opacity: voiceActive ? 0 : 1,
+            pointerEvents: voiceActive ? "none" : "auto",
           }}
+          aria-hidden={voiceActive}
         >
           <span className="block">LOCAL</span>
           <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
