@@ -384,7 +384,7 @@ const Front = () => {
 
       {/* Bloc central — slogan centré entre header et recherche, recherche ancrée en bas */}
       <div
-        className="absolute inset-0 z-20 flex flex-col px-5 pt-24 pb-24 md:px-10 md:pb-20 lg:px-16"
+        className="absolute inset-0 z-20 flex flex-col px-5 pt-24 pb-14 md:px-10 md:pb-20 lg:px-16"
         style={{
           opacity: narrativeOpacity,
           transform: reduced
@@ -424,7 +424,7 @@ const Front = () => {
         </div>
 
         {/* Bloc inférieur — recherche + demo + accroche + storybox */}
-        <div className="flex w-full max-w-2xl flex-col items-center gap-3 self-center">
+        <div className="flex w-full max-w-2xl flex-col items-center gap-2 self-center md:gap-3">
           {/* Recherche (avec overlay vocal) */}
           <div className="w-full" onClick={(e) => e.stopPropagation()}>
             <HeroInlineSearch
@@ -528,7 +528,7 @@ const Front = () => {
                 </div>
 
                 {/* Bullet courant du carrousel (2-6) — hauteur réservée sur le plus long texte */}
-                <div className="min-h-[4.5rem] md:min-h-[3.5rem]">
+                <div className="min-h-[6.25rem] md:min-h-[3.5rem]">
                   {bulletsVisible && step >= CAROUSEL_STEPS[0] && (
                     <div
                       key={step}
@@ -651,7 +651,7 @@ const Front = () => {
             WebkitTextStrokeColor: "#FFFFFF",
           }}
         >
-          One World Morocco
+          <span className="block md:inline">One</span> World Morocco
         </p>
 
         <div className="grid w-full max-w-5xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
