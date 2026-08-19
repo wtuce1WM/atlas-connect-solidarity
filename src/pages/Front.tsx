@@ -407,6 +407,7 @@ const Front = () => {
               WebkitTextStrokeWidth: "2px",
               WebkitTextStrokeColor: "#FFFFFF",
               opacity: voiceActive ? 0 : 1,
+              animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
               transition: motion,
             }}
             aria-hidden={voiceActive}
@@ -426,7 +427,11 @@ const Front = () => {
         {/* Bloc inférieur — recherche + demo + accroche + storybox */}
         <div className="flex w-full max-w-2xl flex-col items-center gap-2 self-center md:gap-3">
           {/* Recherche (avec overlay vocal) */}
-          <div className="w-full" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="w-full"
+            onClick={(e) => e.stopPropagation()}
+            style={{ animation: reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
+          >
             <HeroInlineSearch
               hideBarWhenVoiceActive
               placeholder="Inspirez-vous"
@@ -446,6 +451,7 @@ const Front = () => {
             style={{
               opacity: voiceActive ? 0 : 1,
               pointerEvents: voiceActive ? "none" : "auto",
+              animation: reduced || voiceActive ? undefined : "owmSlideDown 420ms ease-out both",
               transition: motion,
             }}
             aria-hidden={voiceActive}
@@ -495,7 +501,6 @@ const Front = () => {
             }}
             aria-hidden={voiceActive || !bulletsVisible}
           >
-            <style>{`@keyframes owmSlideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}`}</style>
             <div className="relative pl-4 md:pl-6">
               {/* Barre gold verticale — apparaît avec le bullet 2, même effet */}
               {barsVisible && (
@@ -601,6 +606,10 @@ const Front = () => {
 
 
       <style>{`
+        @keyframes owmSlideDown {
+          from { opacity: 0; transform: translateY(-24px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         @keyframes owmShimmer {
           0% { transform: translateX(-100%) skewX(-20deg); }
           100% { transform: translateX(200%) skewX(-20deg); }
@@ -649,6 +658,7 @@ const Front = () => {
             color: "transparent",
             WebkitTextStrokeWidth: "2px",
             WebkitTextStrokeColor: "#FFFFFF",
+            animation: !ctaActive || reduced ? undefined : "owmSlideDown 420ms ease-out both",
           }}
         >
           <span className="block md:inline">One</span> World Morocco
@@ -661,6 +671,7 @@ const Front = () => {
               to={cta.to}
               tabIndex={ctaActive ? 0 : -1}
               className="group relative overflow-hidden rounded-xl border border-[rgba(244,238,228,0.15)] bg-black/35 p-5 pt-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-gold/60 focus-visible:-translate-y-1 focus-visible:border-gold/60 focus-visible:outline-none"
+              style={{ animation: !ctaActive || reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
             >
               <span
                 className="absolute inset-x-0 top-0 h-[3px]"
@@ -690,6 +701,7 @@ const Front = () => {
         style={{
           opacity: showCue ? 1 : 0,
           pointerEvents: showCue ? "auto" : "none",
+          animation: reduced || !showCue ? undefined : "owmSlideDown 420ms ease-out both",
           transition: motion,
         }}
         tabIndex={showCue ? 0 : -1}
