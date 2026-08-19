@@ -2569,6 +2569,49 @@ export type Database = {
           },
         ]
       }
+      business_youtube_badge_rules: {
+        Row: {
+          badge_id: string
+          business_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          badge_id: string
+          business_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          badge_id?: string
+          business_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_youtube_badge_rules_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_badge_rules_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_badge_rules_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_youtube_themes: {
         Row: {
           business_id: string
