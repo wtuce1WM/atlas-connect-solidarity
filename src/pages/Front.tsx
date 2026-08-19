@@ -606,6 +606,10 @@ const Front = () => {
 
 
       <style>{`
+        @keyframes owmSlideDown {
+          from { opacity: 0; transform: translateY(-24px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         @keyframes owmShimmer {
           0% { transform: translateX(-100%) skewX(-20deg); }
           100% { transform: translateX(200%) skewX(-20deg); }
@@ -654,6 +658,7 @@ const Front = () => {
             color: "transparent",
             WebkitTextStrokeWidth: "2px",
             WebkitTextStrokeColor: "#FFFFFF",
+            animation: !ctaActive || reduced ? undefined : "owmSlideDown 420ms ease-out both",
           }}
         >
           <span className="block md:inline">One</span> World Morocco
@@ -666,6 +671,7 @@ const Front = () => {
               to={cta.to}
               tabIndex={ctaActive ? 0 : -1}
               className="group relative overflow-hidden rounded-xl border border-[rgba(244,238,228,0.15)] bg-black/35 p-5 pt-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-gold/60 focus-visible:-translate-y-1 focus-visible:border-gold/60 focus-visible:outline-none"
+              style={{ animation: !ctaActive || reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
             >
               <span
                 className="absolute inset-x-0 top-0 h-[3px]"
