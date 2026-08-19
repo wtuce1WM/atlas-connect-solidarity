@@ -56,7 +56,7 @@ const StoryboardStepNotesList = () => {
         content: n.content,
         updated_at: n.updated_at,
         step_id: n.step_id,
-        step_label: labelById.get(n.step_id) ?? "Étape",
+        step_label: n.step_id ? labelById.get(n.step_id) ?? "Étape" : "Note libre",
       })),
     );
     setLoading(false);
