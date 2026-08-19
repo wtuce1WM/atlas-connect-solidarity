@@ -171,6 +171,40 @@ const Front = () => {
   const [accrocheVisible, setAccrocheVisible] = useState(false);
   const [bulletsVisible, setBulletsVisible] = useState(false);
 
+  /** Auto-fit du slogan écran 1 : taille max possible dans l'espace réellement libre
+   *  (mesuré), au lieu d'une taille calculée sur le viewport (vh) qui débordait sous
+   *  la barre de recherche sur iOS. Mobile uniquement (<768px). */
+  const sloganBoxRef = useRef<HTMLDivElement | null>(null);
+  const [sloganFontPx, setSloganFontPx] = useState<number | null>(null);
+
+  useEffect(() => {
+    const el = sloganBoxRef.current;
+    if (!el) return;
+    const LINES = 5;
+    const LEADING = 1.12;
+    const compute = () => {
+      if (window.innerWidth >= 768) {
+        setSloganFontPx(null);
+        return;
+      }
+      const avail = el.clientHeight;
+      if (!avail) return;
+      const cap = Math.min(0.06 * window.innerWidth, 0.055 * window.innerHeight, 60);
+      const fit = (avail * 0.98) / (LINES * LEADING);
+      setSloganFontPx(Math.max(18, Math.min(cap, fit)));
+    };
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(el);
+    window.addEventListener("resize", compute);
+    window.addEventListener("orientationchange", compute);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", compute);
+      window.removeEventListener("orientationchange", compute);
+    };
+  }, []);
+
   // délais d'apparition de l'accroche et des bullets
   useEffect(() => {
     const t1 = window.setTimeout(() => setAccrocheVisible(true), 1000);
