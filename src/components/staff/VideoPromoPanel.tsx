@@ -445,11 +445,12 @@ const VideoPromoPanel = () => {
       <Card>
         <CardHeader>
           <CardTitle className="text-black flex items-center gap-2">
-            <Sparkles className="h-5 w-5" /> Promo business (assets de la fiche)
+            <Sparkles className="h-5 w-5" /> Générateur de clips — Promo business (assets de la fiche)
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Montage direct depuis la base : vidéo interne + 4 premières images. Aucun crédit IA, aucune capture — seul
-            le rendu Remotion est facturé.
+            Ce n'est pas un scénario : ce générateur produit des <strong>clips autonomes</strong> réutilisables comme
+            médias dans un montage (Storyboard). Montage direct depuis la base : vidéo interne + 4 premières images.
+            Aucun crédit IA, aucune capture — seul le rendu Remotion est facturé.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
