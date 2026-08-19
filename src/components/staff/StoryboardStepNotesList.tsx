@@ -146,6 +146,11 @@ const StoryboardStepNotesList = () => {
         </Button>
       </div>
 
+      <Button type="button" size="sm" className="h-8 text-[11px]" onClick={createNote} disabled={creating}>
+        {creating ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Plus className="h-3.5 w-3.5 mr-1" />}
+        Nouvelle note
+      </Button>
+
       {loading && (
         <p className="text-xs text-muted-foreground flex items-center gap-2">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
