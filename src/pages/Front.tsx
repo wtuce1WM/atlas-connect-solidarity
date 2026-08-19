@@ -506,7 +506,6 @@ const Front = () => {
       >
         {/* Slogan — centré verticalement dans l'espace restant au-dessus de la recherche */}
         <div
-          ref={sloganBoxRef}
           className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden md:justify-start md:pt-10"
         >
           <h1
