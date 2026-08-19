@@ -989,24 +989,8 @@ const SortableSection = ({
               />
               s
             </label>
-            <div className="flex items-center gap-1">
-              {[3, 5, 10, 15, 20, 30, 60, 120, 180, 240].map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  onClick={() => patch({ duration_sec: preset })}
-                  className={`px-1.5 py-0.5 rounded text-[10px] border transition-colors ${
-                    section.duration_sec === preset
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background text-muted-foreground border-border hover:border-primary/50"
-                  }`}
-                  title={`Régler la durée à ${preset} s`}
-                >
-                  {preset}s
-                </button>
-              ))}
-            </div>
           </div>
+
           <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
             Actif
             <Switch checked={section.enabled} onCheckedChange={(v) => patch({ enabled: v })} />
@@ -1763,10 +1747,11 @@ const VideoStoryboardPanel = () => {
     if (!board) return;
     setSeeding(true);
     const mode = type === "establishment" ? "business" : "corporate";
+    // Même source que le backoffice « Scénarios vidéo : étapes et textes » :
+    // toutes les étapes du mode (globales et rattachées), triées par position.
     const { data, error } = await supabase
       .from("video_scenario_steps" as any)
       .select("scene_key, step_type, label, position, duration_sec, enabled, config")
-      .is("storyboard_id", null)
       .eq("mode", mode)
       .order("position", { ascending: true });
     setSeeding(false);
@@ -1774,27 +1759,44 @@ const VideoStoryboardPanel = () => {
       toast.error(`Import du scénario impossible : ${error.message}`);
       return;
     }
-    const src = ((data ?? []) as any[]).slice(0, MAX_SECTIONS);
+    // Seules les étapes activées en backoffice sont reprises.
+    const src = ((data ?? []) as any[]).filter((s) => s.enabled !== false).slice(0, MAX_SECTIONS);
     if (src.length === 0) {
-      toast.error("Ce scénario auto n'a aucune étape configurée");
+      toast.error("Ce scénario auto n'a aucune étape activée");
       return;
     }
+    // Les étapes de scénario n'ont pas toujours de step_type : on le déduit du scene_key.
+    const inferType = (key: string): StepType => {
+      const k = key.toLowerCase();
+      if (k.startsWith("logo")) return "logo_merge";
+      if (k.startsWith("outro") || k.startsWith("cta")) return "outro";
+      if (k.startsWith("hook") || k.startsWith("welcome")) return "hook";
+      if (k.startsWith("video") || k.startsWith("media")) return "video";
+      if (k.startsWith("photo")) return "photos";
+      if (k.startsWith("map") || k.startsWith("exp_geo")) return "map_reveal";
+      return "text_overlay";
+    };
     setRemoved((prev) => [...prev, ...sections.filter((s) => !s._new).map((s) => s.id)]);
     setSections(
-      src.map((s, i) => ({
-        id: crypto.randomUUID(),
-        storyboard_id: board.id,
-        mode: "corporate",
-        scene_key: String(s.scene_key || `${s.step_type}_${i + 1}`),
-        step_type: s.step_type as StepType,
-        label: s.label ?? typeLabel(String(s.step_type)),
-        position: (i + 1) * 10,
-        duration_sec: Number(s.duration_sec) || MIN_SECTION_SEC,
-        enabled: s.enabled !== false,
-        config: s.config ?? {},
-        _new: true,
-      })),
+      src.map((s, i) => {
+        const sceneKey = String(s.scene_key || `step_${i + 1}`);
+        const stepType = (s.step_type as StepType) || inferType(sceneKey);
+        return {
+          id: crypto.randomUUID(),
+          storyboard_id: board.id,
+          mode: "corporate",
+          scene_key: sceneKey,
+          step_type: stepType,
+          label: s.label ?? typeLabel(stepType),
+          position: (i + 1) * 10,
+          duration_sec: Number(s.duration_sec) || MIN_SECTION_SEC,
+          enabled: true,
+          config: s.config ?? {},
+          _new: true,
+        };
+      }),
     );
+
     setExpanded(null);
     patchBoard({ scenario_type: type });
     toast.success(`${src.length} étape(s) importée(s) du scénario auto — ${type === "establishment" ? "Établissement" : "Corporate"}`);
