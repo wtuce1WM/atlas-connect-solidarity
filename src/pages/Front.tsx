@@ -135,13 +135,14 @@ const Front = () => {
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
     if (from >= STEPS.length - 1) return;
+    const delay = from === PERMANENT_STEP ? FIRST_CAROUSEL_DELAY_MS : STEP_MS;
     timerRef.current = window.setTimeout(() => {
       setStep((s) => {
         const next = Math.min(STEPS.length - 1, s + 1);
         scheduleNext(next);
         return next;
       });
-    }, STEP_MS);
+    }, delay);
   }, []);
 
   useEffect(() => {
