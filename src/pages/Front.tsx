@@ -491,7 +491,16 @@ const Front = () => {
             aria-hidden={voiceActive || !bulletsVisible}
           >
             <style>{`@keyframes owmSlideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}`}</style>
-            <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
+            <div className="relative pl-4 md:pl-6">
+              {/* Barre gold verticale — apparaît avec le bullet 2, même effet */}
+              {barsVisible && (
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-0 bottom-0 w-[2px] rounded-full bg-gold/70"
+                  style={{ animation: reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
+                />
+              )}
+
               <div className="flex flex-col gap-4">
                 {/* Bullet permanent — hauteur réservée pour éviter tout saut visuel */}
                 <div className="min-h-[5.5rem] md:min-h-[3.5rem]">
