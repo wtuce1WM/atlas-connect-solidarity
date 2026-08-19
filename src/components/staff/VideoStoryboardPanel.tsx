@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import StoryboardStepNotesList from "@/components/staff/StoryboardStepNotesList";
 import {
   ChevronDown,
   ChevronRight,
@@ -2619,11 +2620,23 @@ const VideoStoryboardPanel = () => {
           <SheetHeader>
             <SheetTitle className="text-black">Guide du storyboard</SheetTitle>
           </SheetHeader>
-          <div className="mt-4">
-            <StoryboardGuide />
-          </div>
-          {/* Slot recevant la note interne du scénario Corporate depuis VideoScenarioConfigPanel. */}
-          <div id="corporate-note-slot" className="mt-6" />
+          <Tabs defaultValue="guide" className="mt-4">
+            <TabsList className="flex flex-wrap h-auto gap-1">
+              <TabsTrigger value="guide">Guide du storyboard</TabsTrigger>
+              <TabsTrigger value="note">Note interne</TabsTrigger>
+              <TabsTrigger value="notes">Notes</TabsTrigger>
+            </TabsList>
+            <TabsContent value="guide" className="mt-4">
+              <StoryboardGuide />
+            </TabsContent>
+            <TabsContent value="note" className="mt-4">
+              {/* Slot recevant la note interne du scénario (tous modes) depuis VideoScenarioConfigPanel. */}
+              <div id="scenario-note-slot" />
+            </TabsContent>
+            <TabsContent value="notes" className="mt-4">
+              <StoryboardStepNotesList />
+            </TabsContent>
+          </Tabs>
         </SheetContent>
       </Sheet>
     </div>
