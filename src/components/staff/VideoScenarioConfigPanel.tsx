@@ -30,7 +30,6 @@ import {
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import RichTextEditor from "./RichTextEditor";
-import VideoStepNotesDialog from "./VideoStepNotesDialog";
 import { VideoMediaPickerDialog } from "./VideoMediaPickerDialog";
 import StoryboardGlobalMediaGrid, {
   isVideoMediaUrl,
@@ -494,7 +493,8 @@ const SortableStep = ({
       </div>
 
       {expanded && (
-        <div className="mt-3 ml-9 grid gap-3 max-w-4xl">
+        <div className="mt-3 ml-9 grid gap-3 w-full">
+          <div className="grid gap-3 max-w-4xl">
           <div className="grid gap-3 md:grid-cols-2">
             <label className="text-xs text-muted-foreground grid gap-1">
               Nom de l'étape (back-office)
@@ -526,20 +526,6 @@ const SortableStep = ({
               simple
               maxHeight="320px"
             />
-          </div>
-          <div className="flex items-center gap-2">
-            <VideoStepNotesDialog
-              stepId={step.id}
-              stepLabel={step.label || step.scene_key}
-              disabled={step._new}
-              count={noteCount}
-              onCountChange={onNoteCount}
-            />
-            {step._new && (
-              <span className="text-[11px] text-muted-foreground">
-                Enregistre le scénario pour pouvoir ajouter des notes à cette étape.
-              </span>
-            )}
           </div>
           <label className="text-xs text-muted-foreground grid gap-1">
             Message clé (bas d'écran)
@@ -586,9 +572,10 @@ const SortableStep = ({
               placeholder="Établissement global"
             />
           </div>
+          </div>
 
-          {/* Médias affectés à cette étape (ordre + bornes Start / End). */}
-          <div className="grid gap-2 rounded-md border p-2">
+          {/* Médias affectés à cette étape (ordre + bornes Start / End) — pleine largeur. */}
+          <div className="grid gap-2 rounded-md border p-2 w-full">
             <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               Médias de l'étape (images et/ou vidéos, 30 max)
             </span>
