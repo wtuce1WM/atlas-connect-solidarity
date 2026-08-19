@@ -156,6 +156,11 @@ const Front = () => {
     };
   }, []);
 
+  // les barres gold (verticale + horizontales) apparaissent avec le bullet 2
+  const barsVisible = bulletsVisible && step >= CAROUSEL_STEPS[0];
+
+
+
 
   const goToStep = useCallback(
     (i: number, freeze = false) => {
@@ -451,18 +456,10 @@ const Front = () => {
               onClick={(e) => e.stopPropagation()}
               className="demo-cta group relative overflow-hidden rounded-xl border border-white/25 bg-white/[0.08] px-6 py-2.5 backdrop-blur-2xl transition-all duration-300 hover:scale-[1.03] hover:border-white/45 hover:bg-white/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98]"
             >
-              <span
-                className="relative z-10 text-[clamp(1.1rem,2.6vw,1.6rem)] uppercase leading-none tracking-tight"
-                style={{
-                  fontFamily: "'Montserrat', sans-serif",
-                  fontWeight: 900,
-                  color: "transparent",
-                  WebkitTextStrokeWidth: "2px",
-                  WebkitTextStrokeColor: "#FFFFFF",
-                }}
-              >
+              <span className="relative z-10 font-roboto text-base font-semibold uppercase leading-none tracking-wide text-[#F4EEE4] md:text-lg">
                 Demo
               </span>
+
               <span className="demo-shimmer absolute inset-0 -translate-x-full" aria-hidden="true" />
             </button>
             <span className="font-roboto text-[0.65rem] uppercase tracking-[0.18em] text-[rgba(244,238,228,0.7)]">
@@ -499,7 +496,16 @@ const Front = () => {
             aria-hidden={voiceActive || !bulletsVisible}
           >
             <style>{`@keyframes owmSlideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}`}</style>
-            <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
+            <div className="relative pl-4 md:pl-6">
+              {/* Barre gold verticale — apparaît avec le bullet 2, même effet */}
+              {barsVisible && (
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-0 bottom-0 w-[2px] rounded-full bg-gold/70"
+                  style={{ animation: reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
+                />
+              )}
+
               <div className="flex flex-col gap-4">
                 {/* Bullet permanent — hauteur réservée pour éviter tout saut visuel */}
                 <div className="min-h-[5.5rem] md:min-h-[3.5rem]">
@@ -545,7 +551,16 @@ const Front = () => {
 
 
               {/* Progress bar segmentée — un segment par bullet défilant (2-6), la première barre (bullet 1) est supprimée */}
-              <div className="mt-4 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+              <div
+                className="mt-4 flex gap-1.5"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  opacity: barsVisible ? 1 : 0,
+                  animation: barsVisible && !reduced ? "owmSlideDown 420ms ease-out both" : undefined,
+                  pointerEvents: barsVisible ? "auto" : "none",
+                }}
+                aria-hidden={!barsVisible}
+              >
                 {CAROUSEL_STEPS.map((stepIndex, i) => {
                   const done = step > stepIndex;
                   const current = step === stepIndex;
@@ -616,7 +631,7 @@ const Front = () => {
 
       {/* Couche CTA */}
       <div
-        className="absolute inset-0 z-10 flex items-center justify-center px-5 pt-16 md:px-10"
+        className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-8 px-5 pt-16 md:px-10"
         style={{
           opacity: ctaP,
           transform: reduced ? undefined : `translateY(${(1 - ctaP) * 48}px) scale(${0.96 + ctaP * 0.04})`,
@@ -625,6 +640,20 @@ const Front = () => {
         }}
         aria-hidden={!ctaActive}
       >
+        {/* Titre écran 2 — même lettrage que le slogan */}
+        <p
+          className="text-center text-[clamp(1.8rem,6vw,4rem)] uppercase leading-[1.05] tracking-tight"
+          style={{
+            fontFamily: "'Montserrat', sans-serif",
+            fontWeight: 900,
+            color: "transparent",
+            WebkitTextStrokeWidth: "2px",
+            WebkitTextStrokeColor: "#FFFFFF",
+          }}
+        >
+          One World Morocco
+        </p>
+
         <div className="grid w-full max-w-5xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {CTAS.map((cta) => (
             <Link
