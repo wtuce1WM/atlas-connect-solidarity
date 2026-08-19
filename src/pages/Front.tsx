@@ -391,6 +391,7 @@ const Front = () => {
             <HeroInlineSearch
               placeholder="Que cherchez-vous ? Et où ?"
               onVoiceActiveChange={setVoiceActive}
+              voiceTextClassName="text-white"
               onSearch={(params) => {
                 const qs = new URLSearchParams(params).toString();
                 if (qs) navigate(`/search?${qs}`);
@@ -398,8 +399,18 @@ const Front = () => {
               onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
             />
           </div>
+
+          {/* Accroche fixe sous le champ de recherche (hors défilement) */}
+          <p
+            className="mt-4 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-lg"
+            style={{ opacity: voiceActive ? 0 : 1, transition: motion }}
+            aria-hidden={voiceActive}
+          >
+            Notre App fait ce que font...
+          </p>
         </div>
       </div>
+
 
 
       {/* Couche narrative (storybox) — ancrée en bas pour ne pas pousser le slogan */}
@@ -417,36 +428,33 @@ const Front = () => {
       >
 
         <div className="mx-auto w-full max-w-4xl">
-          {/* Storybox */}
+          {/* Storybox — une seule étape à la fois, entrée par le haut */}
+          <style>{`@keyframes owmSlideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}`}</style>
           <div className="border-l-2 border-gold/70 pl-4 md:pl-6">
-            <ul className="space-y-2">
-              {STEPS.slice(0, step + 1).map((s, i) => {
-                const isActive = i === step;
-                return (
-                  <li
-                    key={i}
-                    className={`flex items-start gap-3 font-roboto text-sm leading-snug md:text-lg ${
-                      isActive
-                        ? "font-bold text-[#F4EEE4]"
-                        : "font-medium text-[rgba(244,238,228,0.45)]"
-                    }`}
-                    style={{ transition: motion }}
-                  >
-                    {s.bullet ? (
-                      <img
-                        src={hamsaIcon.url}
-                        alt=""
-                        className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span className="w-0 shrink-0" />
-                    )}
-                    <span>{s.render()}</span>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className="min-h-[4.5rem] md:min-h-[5rem]">
+              {step > 0 && (
+                <div
+                  key={step}
+                  className="flex items-start gap-3 font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-lg"
+                  style={{
+                    animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
+                  }}
+                >
+                  {STEPS[step].bullet ? (
+                    <img
+                      src={hamsaIcon.url}
+                      alt=""
+                      className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span className="w-0 shrink-0" />
+                  )}
+                  <span>{STEPS[step].render()}</span>
+                </div>
+              )}
+            </div>
+
 
             {/* Progress bar segmentée */}
             <div className="mt-5 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
