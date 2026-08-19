@@ -680,7 +680,7 @@ const Front = () => {
 
       {/* Couche CTA */}
       <div
-        className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 px-5 pt-12 pb-20 md:gap-8 md:px-10 md:pt-16 md:pb-24"
+        className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-5 pt-10 pb-16 md:gap-8 md:px-10 md:pt-16 md:pb-24"
         style={{
           opacity: ctaP,
           transform: reduced ? undefined : `translateY(${(1 - ctaP) * 48}px) scale(${0.96 + ctaP * 0.04})`,
@@ -691,7 +691,7 @@ const Front = () => {
       >
         {/* Titre écran 2 — même lettrage que le slogan */}
         <p
-          className="text-center text-[clamp(1.8rem,6vw,4rem)] uppercase leading-[1.05] tracking-tight"
+          className="text-center text-[clamp(1.6rem,5.5vw,3.5rem)] uppercase leading-[1.05] tracking-tight md:text-[clamp(1.8rem,6vw,4rem)]"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
@@ -703,13 +703,13 @@ const Front = () => {
           <span className="block md:inline">One World</span> Morocco
         </p>
 
-        <div className="grid w-full max-w-5xl grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 md:gap-3">
+        <div className="grid w-full max-w-5xl grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3 md:gap-3">
           {CTAS.map((cta) => (
             <Link
               key={cta.to}
               to={cta.to}
               tabIndex={ctaActive ? 0 : -1}
-              className="group relative overflow-hidden rounded-xl border border-[rgba(244,238,228,0.15)] bg-black/35 p-4 pt-5 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-gold/60 focus-visible:-translate-y-1 focus-visible:border-gold/60 focus-visible:outline-none md:p-5 md:pt-6"
+              className="group relative overflow-hidden rounded-xl border border-[rgba(244,238,228,0.15)] bg-black/35 p-3.5 pt-4 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-gold/60 focus-visible:-translate-y-1 focus-visible:border-gold/60 focus-visible:outline-none md:p-5 md:pt-6"
               style={{ animation: !ctaActive || reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
             >
               <span
@@ -721,7 +721,7 @@ const Front = () => {
                 aria-hidden="true"
               />
               <ArrowUpRight className="absolute right-4 top-5 h-4 w-4 text-[rgba(244,238,228,0.6)] transition-colors group-hover:text-gold" />
-              <span className="block pr-8 font-roboto text-sm font-bold text-[#F4EEE4] md:text-base md:text-lg">
+              <span className="block pr-8 font-roboto text-sm font-bold text-[#F4EEE4] md:text-lg">
                 {cta.label}
               </span>
             </Link>
@@ -730,7 +730,7 @@ const Front = () => {
 
         {/* Slogan écran 2 */}
         <p
-          className="text-center text-[clamp(1.4rem,5vw,3rem)] uppercase leading-[1.12] tracking-tight"
+          className="text-center text-[clamp(1.1rem,4vw,2.5rem)] uppercase leading-[1.05] tracking-tight md:text-[clamp(1.4rem,5vw,3rem)] md:leading-[1.12]"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
