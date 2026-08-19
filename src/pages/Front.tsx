@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronUp, ArrowUpRight, Menu, X } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
+import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import { useLanguage } from "@/contexts/LanguageContext";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import portraitVideo from "@/assets/hero-home-portrait.mp4.asset.json";
@@ -106,6 +107,10 @@ const Front = () => {
       "Une seule interface pour découvrir le Maroc authentique : adresses sélectionnées, Agent IA personnalisé et modèle solidaire sans commission.",
     canonical: "/front",
   });
+
+  // Chrome navigateur noir + annulation des paddings safe-area du body
+  // (sinon iOS Safari peint deux bandes #ECD6B8 en haut et en bas).
+  useDarkBrowserChrome(true, "#000000");
 
   const navigate = useNavigate();
   const { language, setLanguage } = useLanguage();
@@ -355,7 +360,7 @@ const Front = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-[hsl(0_0%_4%)] touch-none"
+      className="relative h-[100dvh] min-h-[560px] w-full overflow-hidden bg-[hsl(0_0%_4%)] touch-none"
       onClick={() => {
         if (narrativeActive && step < STEPS.length - 1) goToStep(step + 1);
       }}
@@ -398,7 +403,7 @@ const Front = () => {
 
       {/* Mini-header pinné (identité + menu) — masqué sur l'écran 2 */}
       <div
-        className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between px-5 py-4 md:px-10 transition-opacity duration-300"
+        className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between px-5 py-4 pt-safe md:px-10 transition-opacity duration-300"
         style={{
           opacity: ctaActive ? 0 : 1,
           pointerEvents: ctaActive ? "none" : "auto",
