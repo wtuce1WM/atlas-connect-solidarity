@@ -124,13 +124,28 @@ const Front = () => {
     };
   }, [scheduleNext]);
 
+  const [auto, setAuto] = useState(true);
+
   const goToStep = useCallback(
     (i: number) => {
-      setStep(Math.min(STEPS.length - 1, Math.max(0, i)));
-      scheduleNext(i);
+      const next = Math.min(STEPS.length - 1, Math.max(0, i));
+      setStep(next);
+      if (auto) scheduleNext(next);
     },
-    [scheduleNext]
+    [scheduleNext, auto]
   );
+
+  const toggleAuto = useCallback(() => {
+    setAuto((a) => {
+      if (a) {
+        if (timerRef.current) window.clearTimeout(timerRef.current);
+      } else {
+        scheduleNext(step);
+      }
+      return !a;
+    });
+  }, [scheduleNext, step]);
+
 
   // progression virtuelle lissée
   const setTarget = useCallback(
