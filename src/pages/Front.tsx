@@ -615,9 +615,10 @@ const Front = () => {
                 }}
                 aria-hidden={!barsVisible}
               >
-                {CAROUSEL_STEPS.map((stepIndex, i) => {
+              {CAROUSEL_STEPS.map((stepIndex, i) => {
                   const done = step > stepIndex;
                   const current = step === stepIndex;
+                  const durationMs = CAROUSEL_DURATIONS_MS[i] ?? STEP_MS;
                   return (
                     <button
                       key={stepIndex}
@@ -638,9 +639,9 @@ const Front = () => {
                           width: done ? "100%" : current ? "100%" : "0%",
                           opacity: done || current ? 1 : 0,
                           transition:
-                            reduced || !current ? "none" : `width ${STEP_MS}ms linear`,
+                            reduced || !current ? "none" : `width ${durationMs}ms linear`,
                           ...(current && !reduced && auto
-                            ? { animation: `owmFillBar ${STEP_MS}ms linear both` }
+                            ? { animation: `owmFillBar ${durationMs}ms linear both` }
                             : null),
                         }}
                       />
