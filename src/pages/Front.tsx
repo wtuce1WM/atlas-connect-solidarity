@@ -448,7 +448,7 @@ const Front = () => {
         {/* Slogan — centré verticalement dans l'espace restant au-dessus de la recherche */}
         <div className="flex flex-1 flex-col items-center justify-center">
           <h1
-            className="mb-[-0.75rem] text-center text-[clamp(2rem,min(9vw,8vh),5.5rem)] uppercase leading-[1.12] tracking-tight md:mb-[-1.25rem]"
+            className="mb-[-0.75rem] text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight md:mb-[-1.25rem]"
             style={{
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 900,
@@ -461,14 +461,10 @@ const Front = () => {
             }}
             aria-hidden={voiceActive}
           >
-            <span className="block">
-              LOCAL{" "}
-              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-            </span>
-            <span className="block">
-              DIGITAL{" "}
-              <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
-            </span>
+            <span className="block">LOCAL</span>
+            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+            <span className="block">DIGITAL</span>
+            <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
             <span className="block">SOLIDAIRE</span>
           </h1>
         </div>
