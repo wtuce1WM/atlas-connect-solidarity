@@ -122,7 +122,8 @@ const typeLabel = (t: string) => STEP_TYPES.find((s) => s.value === t)?.label ??
 type Storyboard = {
   id: string;
   name: string;
-  scenario_type: "promo_business" | "corporate_long";
+  /** Deux scénarios possibles d'un montage : établissement ou corporate. */
+  scenario_type: "establishment" | "corporate";
   format: "portrait" | "landscape";
   business_id: string | null;
   preview_scale: number;
