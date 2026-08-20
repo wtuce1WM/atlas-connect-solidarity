@@ -1168,6 +1168,33 @@ const EmbedAsk = () => {
     return [];
   }, [messages]);
 
+  /**
+   * Feed vidéo curaté (mode `video_feed`, ex. suggestion « Suivez le guide ») :
+   * dès que le marqueur VIDEO_FEED du dernier message assistant est complet,
+   * on ouvre directement le slidepanel vidéo sur la 1re vidéo (swipe vertical),
+   * au lieu d'attendre un clic sur une miniature. Une seule fois par message.
+   */
+  const autoOpenedFeedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (streaming) return;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== "assistant") continue;
+      const { videoFeeds } = extractPayloads(messageText(m));
+      const payload = videoFeeds[videoFeeds.length - 1] || null;
+      if (!payload || !payload.videos.length) return;
+      const key = String((m as any).id || `idx-${i}`);
+      if (autoOpenedFeedRef.current === key) return;
+      autoOpenedFeedRef.current = key;
+      setVideoFeedList(payload.videos);
+      setFeedVideoTime(0);
+      setActiveFeedVideoId(payload.videos[0].id);
+      return;
+    }
+  }, [messages, streaming]);
+
+
+
   const localFilters = useMemo(() => {
     const rows = (mapReplayTarget?.businesses ?? []) as any[];
     const poolNb = Object.entries(poolInfo.nb)
