@@ -225,6 +225,27 @@ const VideoSlidePanel = ({
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
+  // Transition morphée : la barre info viewer sert de « graine » à l'overlay Full Description
+  // (identique à BookOnlineSlidePanel).
+  const [descMorphRect, setDescMorphRect] = useState<DOMRect | null>(null);
+  const [descMorphDone, setDescMorphDone] = useState(false);
+  const startDescMorph = useCallback((rect?: DOMRect) => {
+    setDescMorphRect(rect ?? null);
+    setDescMorphDone(false);
+    setDescOverlayOpen(true);
+    if (rect) window.setTimeout(() => { setDescMorphDone(true); setDescMorphRect(null); }, 700);
+  }, []);
+  const applyDescMorph = useCallback((el: HTMLDivElement | null) => {
+    if (!el || !descMorphRect) return;
+    const r = descMorphRect;
+    const o = el.getBoundingClientRect();
+    if (!o.width || !o.height) return;
+    el.style.setProperty("--owm-mt", `${Math.max(0, r.top - o.top)}px`);
+    el.style.setProperty("--owm-ml", `${Math.max(0, r.left - o.left)}px`);
+    el.style.setProperty("--owm-mr", `${Math.max(0, o.right - r.right)}px`);
+    el.style.setProperty("--owm-mb", `${Math.max(0, o.bottom - r.bottom)}px`);
+  }, [descMorphRect]);
+
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [eventInfo, setEventInfo] = useState<{ name: string; logo_url: string | null; description: string | null; start_date: string | null; end_date: string | null; days_of_week: string[] | null; start_time: string | null; end_time: string | null } | null>(null);
   const [poiOverlayBusinessId, setPoiOverlayBusinessId] = useState<string | null>(null);
