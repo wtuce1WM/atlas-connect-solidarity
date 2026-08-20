@@ -1226,19 +1226,21 @@ const VideoSlidePanel = ({
 
               {ctaBusiness && !compactBusinessHeader && !hideDirections && (
                 <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      storeReturnToTest();
-                      const url = await buildKpSearchUrl(ctaBusiness.id);
-                      navigate(url);
-                    }}
-                    className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
-                    style={{ fontFamily: "'Montserrat', sans-serif" }}
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    <span className="truncate">En savoir +</span>
-                  </button>
+                  {social?.platform !== "youtube" && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        storeReturnToTest();
+                        const url = await buildKpSearchUrl(ctaBusiness.id);
+                        navigate(url);
+                      }}
+                      className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
+                      style={{ fontFamily: "'Montserrat', sans-serif" }}
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      <span className="truncate">En savoir +</span>
+                    </button>
+                  )}
                   {ctaBusiness.latitude && ctaBusiness.longitude && (
                     <button
                       type="button"
