@@ -8,7 +8,7 @@ import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { X, ChevronUp, ChevronDown, Youtube, MapPin, ExternalLink } from "lucide-react";
+import { X, ChevronUp, ChevronDown, Youtube, MapPin, ExternalLink, Home } from "lucide-react";
 import { GiWalkingBoot } from "react-icons/gi";
 import { InstagramIcon, YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
@@ -162,6 +162,7 @@ const VideoSlidePanel = ({
 }: VideoSlidePanelProps) => {
 
   const navigate = useLocalizedNavigate();
+  const rawNavigate = useNavigate();
   const isMobile = useIsMobile();
   const { language, setLanguage } = useLanguage();
   // Chrome navigateur en noir tant que le panneau plein écran est ouvert (supprime les bandes beiges iOS)
@@ -1193,7 +1194,16 @@ const VideoSlidePanel = ({
           )}
           {/* TEMPORAIRE (debug) : ID de la vidéo au centre, clic = copie */}
           {feedLayout && videoId && !descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && (
-            <div className="absolute inset-0 z-[45] flex items-center justify-center pointer-events-none">
+            <div className="absolute inset-0 z-[45] flex flex-col items-center justify-center gap-2 pointer-events-none">
+              <button
+                type="button"
+                onClick={() => rawNavigate('/front')}
+                className="pointer-events-auto flex items-center gap-2 rounded-full bg-black/70 border border-white/20 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm hover:bg-black/90 transition-colors"
+                title="Retour à /front"
+              >
+                <Home className="h-4 w-4" />
+                Retour à /front
+              </button>
               <button
                 type="button"
                 onClick={() => {
