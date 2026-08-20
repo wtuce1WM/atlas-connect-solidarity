@@ -2694,8 +2694,8 @@ const EmbedAsk = () => {
           owner: v.businessId && v.businessName
             ? { id: v.businessId, name: v.businessName, logo_url: null, logo_bg: null }
             : null,
-          social: null,
-          showSocialBadge: false,
+          social: v.social ?? null,
+          showSocialBadge: !!v.social,
           description: v.description ?? null,
           manualCard: null,
           title: v.title ?? null,
