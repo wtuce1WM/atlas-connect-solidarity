@@ -991,8 +991,29 @@ const Front = () => {
           </span>
         </button>
       </div>
+
+      {demoActiveId && (() => {
+        const active = demoList.find((v) => v.id === demoActiveId) || null;
+        if (!active) return null;
+        return (
+          <Suspense fallback={null}>
+            <HomeVideoSlidePanel
+              open
+              onClose={() => setDemoActiveId(null)}
+              activeVideo={active as any}
+              activeList={demoList as any}
+              onActiveVideoChange={(v: any) => { setDemoActiveId(v.id); setDemoTime(0); void maybeLoadMoreDemo(String(v.id)); }}
+              isActiveGeneric={!!active._isGeneric}
+              currentTime={demoTime}
+              onTimeUpdate={setDemoTime}
+              returnContext={null}
+            />
+          </Suspense>
+        );
+      })()}
     </section>
   );
+
 };
 
 export default Front;
