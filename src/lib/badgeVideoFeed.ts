@@ -215,7 +215,24 @@ async function fetchRandomYoutubeVideoOf(
   const rows = ((data as any[]) || []).filter((r) => r.video_id);
   if (!rows.length) return null;
   const r = rows[Math.floor(Math.random() * rows.length)];
+  // Badges « Activé sur le front » de la vidéo injectée (chips du viewer).
+  const { data: badgeLinks } = await (supabase as any)
+    .from("business_youtube_video_badges")
+    .select("badges!inner(id, name_fr, name_en, color, text_color, sort_order, is_active_on_front)")
+    .eq("youtube_video_id", r.id);
+  const badges: FeedBadge[] = ((badgeLinks as any[]) || [])
+    .map((l) => l.badges)
+    .filter((b: any) => b?.is_active_on_front)
+    .map((b: any) => ({
+      id: String(b.id),
+      name: b.name_fr,
+      name_en: b.name_en ?? null,
+      color: b.color ?? null,
+      text_color: b.text_color ?? null,
+      sort_order: b.sort_order ?? null,
+    }));
   return {
+    badges,
     id: String(r.id),
     source: "youtube",
     url: (r.is_short ? "https://www.youtube.com/shorts/" : "https://www.youtube.com/watch?v=") + r.video_id,
