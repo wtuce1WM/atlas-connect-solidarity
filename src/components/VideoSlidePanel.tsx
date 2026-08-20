@@ -86,6 +86,8 @@ interface VideoSlidePanelProps {
   manualCardLabel?: string | null;
   /** Price of the item for pricing badge */
   price?: string | null;
+  /** Layout "feed" : pas de badge copyright, pas d'entête business, pas de chevrons (swipe vertical), nom+description au-dessus de la barre de navigation */
+  feedLayout?: boolean;
 }
 
 
