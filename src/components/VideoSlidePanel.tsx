@@ -1088,6 +1088,24 @@ const VideoSlidePanel = ({
               />
             </div>
           )}
+          {/* TEMPORAIRE (debug) : ID de la vidéo au centre, clic = copie */}
+          {feedLayout && videoId && !descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && (
+            <div className="absolute inset-0 z-[45] flex items-center justify-center pointer-events-none">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard?.writeText(String(videoId)).then(
+                    () => toast({ description: `ID copié : ${videoId}` }),
+                    () => {},
+                  );
+                }}
+                className="pointer-events-auto rounded-full bg-black/60 border border-white/20 px-3 py-1.5 font-mono text-[11px] text-white backdrop-blur-sm hover:bg-black/80 transition-colors"
+                title="Copier l'ID de la vidéo"
+              >
+                {videoId}
+              </button>
+            </div>
+          )}
           <div className={`absolute inset-0 z-30 pointer-events-none ${descOverlayOpen ? "hidden" : ""}`}>
             <div className="fixed lg:absolute inset-x-0 bottom-[calc(120px+env(safe-area-inset-bottom))] lg:bottom-[7rem] z-30 px-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
               {compactBusinessHeader && (
