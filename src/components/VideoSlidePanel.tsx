@@ -9,6 +9,7 @@ import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { X, ChevronUp, ChevronDown, Youtube, MapPin, ExternalLink } from "lucide-react";
+import { GiWalkingBoot } from "react-icons/gi";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 import { createPortal } from "react-dom";
