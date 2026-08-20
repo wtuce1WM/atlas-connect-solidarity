@@ -152,6 +152,7 @@ const VideoSlidePanel = ({
   hideLeftCtas = false,
   manualCardLabel = null,
   price = null,
+  feedLayout = false,
 }: VideoSlidePanelProps) => {
 
   const navigate = useLocalizedNavigate();
