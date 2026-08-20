@@ -1036,7 +1036,7 @@ const VideoSlidePanel = ({
                     </div>
                   );
                 }
-                if (owner && owner.name) {
+                if (owner && owner.name && !feedLayout) {
                   return (
                     <div
                       key={`credit-owner-${videoId || videoUrl}`}
