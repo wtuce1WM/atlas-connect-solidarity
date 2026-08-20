@@ -26,7 +26,15 @@ export type VideoFeedItem = {
 
 export type VideoFeedAnswer = {
   text: string;
-  payload: { title: string | null; videos: VideoFeedItem[] };
+  payload: {
+    title: string | null;
+    videos: VideoFeedItem[];
+    /** Nombre RÉEL de vidéos éligibles (peut dépasser `videos.length`). */
+    total: number;
+    /** Contexte de pagination du feed (round-robin stable côté base). */
+    badgeIds?: string[];
+    seed?: string;
+  };
   count: number;
   route: string;
 };
@@ -40,9 +48,63 @@ function normCity(v: any): string {
     .trim();
 }
 
+/** Résout un nom de ville en ids `cities` (FR ou EN). */
+async function resolveCityIds(admin: any, city?: string | null): Promise<string[] | null> {
+  const target = normCity(city);
+  if (!target) return null;
+  const { data } = await admin.from("cities").select("id, name_fr, name_en");
+  const ids = (data || [])
+    .filter((c: any) => normCity(c.name_fr) === target || normCity(c.name_en) === target)
+    .map((c: any) => String(c.id));
+  return ids.length ? ids : null;
+}
+
+export type VideoFeedLoad = { videos: VideoFeedItem[]; total: number; seed: string };
+
 /**
- * Charge les vidéos ciblées par badges (et, à défaut, par établissements épinglés).
- * Ordre : vidéos internes puis génériques, dans l'ordre des badges fournis.
+ * Charge les vidéos portrait 9:16 badgées via la source de vérité unique
+ * `get_badges_video_feed` (mélange stable par seed + round-robin par
+ * établissement/auteur), et renvoie le nombre total réel.
+ * Repli legacy (sans mélange) uniquement si aucun badge n'est fourni.
+ */
+export async function loadBadgeVideoFeed(
+  admin: any,
+  opts: { badgeIds: string[]; max?: number; city?: string | null; seed?: string },
+): Promise<VideoFeedLoad> {
+  const max = Math.min(Math.max(opts.max ?? 30, 1), 300);
+  const seed = opts.seed || Math.random().toString(36).slice(2, 10);
+  const badgeIds = (opts.badgeIds || []).filter(Boolean);
+  if (!badgeIds.length) return { videos: [], total: 0, seed };
+
+  const cityIds = await resolveCityIds(admin, opts.city).catch(() => null);
+  const { data, error } = await admin.rpc("get_badges_video_feed", {
+    _badge_ids: badgeIds,
+    _seed: seed,
+    _limit: max,
+    _offset: 0,
+    _city_ids: cityIds,
+  });
+  if (error || !data) return { videos: [], total: 0, seed };
+
+  const rows = data as any[];
+  const videos: VideoFeedItem[] = rows.map((r) => ({
+    id: String(r.id),
+    url: String(r.url),
+    title: r.title || null,
+    description: r.description || null,
+    price: r.price || null,
+    thumbnailUrl: r.thumbnail_url || null,
+    isGeneric: !!r.is_generic,
+    businessId: r.business_id ? String(r.business_id) : null,
+    businessName: r.business_name || null,
+  }));
+  const total = rows.length ? Number(rows[0].total_count ?? rows.length) : 0;
+  return { videos, total, seed };
+}
+
+/**
+ * Repli legacy : vidéos des établissements épinglés (aucun badge sur l'entrée).
+ * Ordre : vidéos internes puis génériques.
  */
 export async function loadVideoFeed(
   admin: any,
@@ -55,6 +117,7 @@ export async function loadVideoFeed(
   const cityFilter = normCity(opts.city);
   const badgeIds = (opts.badgeIds || []).filter(Boolean);
   const pinned = (opts.pinnedBusinessIds || []).filter(Boolean);
+
 
   const internal: VideoFeedItem[] = [];
   const generic: VideoFeedItem[] = [];
