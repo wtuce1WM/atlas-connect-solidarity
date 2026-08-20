@@ -1447,14 +1447,16 @@ const VideoSlidePanel = ({
           />
         )}
         {descBusinessId && (
-          <Suspense fallback={null}>
-            <LazyBusinessPanel
-              open
-              businessId={descBusinessId}
-              initialOverlay="description"
-              onClose={() => setDescBusinessId(null)}
-            />
-          </Suspense>
+          <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[240] bg-black h-[100dvh] overflow-hidden">
+            <Suspense fallback={null}>
+              <LazyBusinessPanel
+                open
+                businessId={descBusinessId}
+                initialOverlay="description"
+                onClose={() => setDescBusinessId(null)}
+              />
+            </Suspense>
+          </div>
         )}
       </div>
     </div>,
