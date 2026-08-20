@@ -247,37 +247,60 @@ export async function loadVideoFeed(
   return out;
 }
 
-/** Construit la réponse déterministe (texte court + payload marqueur). */
+/**
+ * Construit la réponse déterministe (texte court + payload marqueur).
+ * Standard commun à toutes les suggestions/relances dont le mode est `video_feed` :
+ *   1) tirage au sort + round-robin via `get_badges_video_feed` (seed par tour) ;
+ *   2) annonce du nombre RÉEL de vidéos éligibles (pas la taille de la page) ;
+ *   3) repli legacy sur les établissements épinglés si l'entrée n'a aucun badge.
+ */
 export async function buildVideoFeedAnswer(
   admin: any,
-  opts: { badgeIds: string[]; pinnedBusinessIds?: string[]; label?: string | null; lang: Lang; max?: number; city?: string | null },
+  opts: { badgeIds: string[]; pinnedBusinessIds?: string[]; label?: string | null; lang: Lang; max?: number; city?: string | null; seed?: string },
 ): Promise<VideoFeedAnswer | null> {
-  const videos = await loadVideoFeed(admin, {
-    badgeIds: opts.badgeIds,
-    pinnedBusinessIds: opts.pinnedBusinessIds,
-    max: opts.max ?? 30,
-    city: opts.city ?? null,
-  });
+  const max = opts.max ?? 30;
+  const badgeIds = (opts.badgeIds || []).filter(Boolean);
+
+  let videos: VideoFeedItem[] = [];
+  let total = 0;
+  let seed = opts.seed || "";
+
+  if (badgeIds.length) {
+    const loaded = await loadBadgeVideoFeed(admin, { badgeIds, max, city: opts.city ?? null, seed: opts.seed });
+    videos = loaded.videos;
+    total = loaded.total;
+    seed = loaded.seed;
+  }
+  if (!videos.length) {
+    videos = await loadVideoFeed(admin, {
+      badgeIds,
+      pinnedBusinessIds: opts.pinnedBusinessIds,
+      max,
+      city: opts.city ?? null,
+    });
+    total = videos.length;
+  }
   if (!videos.length) return null;
 
   const lang = opts.lang;
   const label = (opts.label || "").trim();
-  const n = videos.length;
+  const n = Math.max(total, videos.length);
   const head = label ? `**${label}**\n\n` : "";
   const text =
     lang === "en"
-      ? `${head}${n} video${n > 1 ? "s" : ""} to watch. Tap a thumbnail to open the player, then swipe up or down to move through the feed.`
+      ? `${head}${n} vertical video${n > 1 ? "s" : ""} available, shuffled at random. Tap a thumbnail to open the player, then swipe up or down to move through the feed.`
       : lang === "ar"
-        ? `${head}${n} فيديو للمشاهدة. اضغط على صورة مصغّرة لفتح المشغّل، ثم اسحب لأعلى أو لأسفل للتنقل.`
-        : `${head}${n} vidéo${n > 1 ? "s" : ""} à découvrir. Clique sur une miniature pour ouvrir le lecteur, puis fais défiler verticalement pour passer à la suivante.`;
+        ? `${head}${n} فيديو عمودي متاح، بترتيب عشوائي. اضغط على صورة مصغّرة لفتح المشغّل، ثم اسحب لأعلى أو لأسفل للتنقل.`
+        : `${head}${n} vidéo${n > 1 ? "s" : ""} verticale${n > 1 ? "s" : ""} disponible${n > 1 ? "s" : ""}, tirées au sort. Clique sur une miniature pour ouvrir le lecteur, puis fais défiler verticalement pour passer à la suivante.`;
 
   return {
     text,
-    payload: { title: label || null, videos },
+    payload: { title: label || null, videos, total: n, badgeIds, seed: seed || undefined },
     count: n,
     route: "video_feed",
   };
 }
+
 
 /** Sérialise le marqueur front (échappe `-->` comme les autres marqueurs). */
 export function videoFeedMarker(payload: { title: string | null; videos: VideoFeedItem[] }): string {
