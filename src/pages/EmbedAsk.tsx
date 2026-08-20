@@ -4,7 +4,7 @@
 // - Streams via the Vercel AI SDK UIMessageStream protocol (useChat).
 // - Parses trailing markers (SHOW_ON_MAP, EVENTS_SNAPSHOT, KNOWN_BUSINESSES)
 //   from the assistant text to render the same panels as /club.
-import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { useChat } from "@ai-sdk/react";
@@ -290,7 +290,7 @@ type VideoFeedItem = {
   businessId?: string | null;
   businessName?: string | null;
 };
-type VideoFeedPayload = { title?: string | null; videos: VideoFeedItem[] };
+type VideoFeedPayload = { title?: string | null; videos: VideoFeedItem[]; total?: number; badgeIds?: string[]; seed?: string };
 type PinnedBusinessCard = {
   id: string;
   name: string;
@@ -694,9 +694,14 @@ const EmbedAsk = () => {
   // marqueurs = destinations liées à la suggestion.
   const [openDestMap, setOpenDestMap] = useState<{ title?: string | null; destinations: DestinationCard[] } | null>(null);
   // Feed vidéo (mode curaté `video_feed`) : liste active + vidéo ouverte.
+  // `videoFeedCtx` porte le contexte de pagination (badges + seed du tirage au
+  // sort côté base) pour charger les pages suivantes pendant le swipe.
   const [videoFeedList, setVideoFeedList] = useState<VideoFeedItem[]>([]);
+  const [videoFeedCtx, setVideoFeedCtx] = useState<{ badgeIds: string[]; seed: string; total: number } | null>(null);
+  const feedLoadingMoreRef = useRef(false);
   const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
   const [feedVideoTime, setFeedVideoTime] = useState(0);
+
   const [openSiblings, setOpenSiblings] = useState<string[]>([]);
   // Overlay de réservation déclenché par les liens "Réservez" du markdown IA.
   const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
@@ -1187,11 +1192,50 @@ const EmbedAsk = () => {
       if (autoOpenedFeedRef.current === key) return;
       autoOpenedFeedRef.current = key;
       setVideoFeedList(payload.videos);
+      setVideoFeedCtx(
+        payload.badgeIds?.length && payload.seed
+          ? { badgeIds: payload.badgeIds, seed: payload.seed, total: Number(payload.total ?? payload.videos.length) }
+          : null,
+      );
+      feedLoadingMoreRef.current = false;
       setFeedVideoTime(0);
       setActiveFeedVideoId(payload.videos[0].id);
       return;
     }
   }, [messages, streaming]);
+
+  /**
+   * Pagination du feed vidéo : même tirage au sort (seed) et même round-robin
+   * que le premier lot, servis par la source de vérité unique côté base.
+   * Déclenchée pendant le swipe, à 5 vidéos de la fin.
+   */
+  const maybeLoadMoreFeed = useCallback(async (currentId: string) => {
+    const ctx = videoFeedCtx;
+    if (!ctx || feedLoadingMoreRef.current) return;
+    const idx = videoFeedList.findIndex((v) => v.id === currentId);
+    if (idx < 0 || idx < videoFeedList.length - 5) return;
+    if (videoFeedList.length >= ctx.total) return;
+    feedLoadingMoreRef.current = true;
+    try {
+      const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
+      const { items } = await fetchBadgesVideoFeed(ctx.badgeIds, {
+        seed: ctx.seed,
+        limit: 30,
+        offset: videoFeedList.length,
+      });
+      if (items.length) {
+        setVideoFeedList((prev) => {
+          const seen = new Set(prev.map((v) => v.id));
+          return [...prev, ...items.filter((it) => !seen.has(it.id))];
+        });
+      }
+    } catch {
+      /* pagination best-effort : le feed reste utilisable */
+    } finally {
+      feedLoadingMoreRef.current = false;
+    }
+  }, [videoFeedCtx, videoFeedList]);
+
 
 
 
@@ -2666,7 +2710,7 @@ const EmbedAsk = () => {
               onClose={() => setActiveFeedVideoId(null)}
               activeVideo={active as any}
               activeList={list as any}
-              onActiveVideoChange={(v: any) => { setActiveFeedVideoId(v.id); setFeedVideoTime(0); }}
+              onActiveVideoChange={(v: any) => { setActiveFeedVideoId(v.id); setFeedVideoTime(0); void maybeLoadMoreFeed(String(v.id)); }}
               isActiveGeneric={!!(active as any)._isGeneric}
               currentTime={feedVideoTime}
               onTimeUpdate={setFeedVideoTime}
