@@ -1194,7 +1194,16 @@ const VideoSlidePanel = ({
           )}
           {/* TEMPORAIRE (debug) : ID de la vidéo au centre, clic = copie */}
           {feedLayout && videoId && !descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && (
-            <div className="absolute inset-0 z-[45] flex items-center justify-center pointer-events-none">
+            <div className="absolute inset-0 z-[45] flex flex-col items-center justify-center gap-2 pointer-events-none">
+              <button
+                type="button"
+                onClick={() => rawNavigate('/front')}
+                className="pointer-events-auto flex items-center gap-2 rounded-full bg-black/70 border border-white/20 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm hover:bg-black/90 transition-colors"
+                title="Retour à /front"
+              >
+                <Home className="h-4 w-4" />
+                Retour à /front
+              </button>
               <button
                 type="button"
                 onClick={() => {
