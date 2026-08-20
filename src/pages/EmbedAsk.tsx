@@ -1192,11 +1192,50 @@ const EmbedAsk = () => {
       if (autoOpenedFeedRef.current === key) return;
       autoOpenedFeedRef.current = key;
       setVideoFeedList(payload.videos);
+      setVideoFeedCtx(
+        payload.badgeIds?.length && payload.seed
+          ? { badgeIds: payload.badgeIds, seed: payload.seed, total: Number(payload.total ?? payload.videos.length) }
+          : null,
+      );
+      feedLoadingMoreRef.current = false;
       setFeedVideoTime(0);
       setActiveFeedVideoId(payload.videos[0].id);
       return;
     }
   }, [messages, streaming]);
+
+  /**
+   * Pagination du feed vidéo : même tirage au sort (seed) et même round-robin
+   * que le premier lot, servis par la source de vérité unique côté base.
+   * Déclenchée pendant le swipe, à 5 vidéos de la fin.
+   */
+  const maybeLoadMoreFeed = useCallback(async (currentId: string) => {
+    const ctx = videoFeedCtx;
+    if (!ctx || feedLoadingMoreRef.current) return;
+    const idx = videoFeedList.findIndex((v) => v.id === currentId);
+    if (idx < 0 || idx < videoFeedList.length - 5) return;
+    if (videoFeedList.length >= ctx.total) return;
+    feedLoadingMoreRef.current = true;
+    try {
+      const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
+      const { items } = await fetchBadgesVideoFeed(ctx.badgeIds, {
+        seed: ctx.seed,
+        limit: 30,
+        offset: videoFeedList.length,
+      });
+      if (items.length) {
+        setVideoFeedList((prev) => {
+          const seen = new Set(prev.map((v) => v.id));
+          return [...prev, ...items.filter((it) => !seen.has(it.id))];
+        });
+      }
+    } catch {
+      /* pagination best-effort : le feed reste utilisable */
+    } finally {
+      feedLoadingMoreRef.current = false;
+    }
+  }, [videoFeedCtx, videoFeedList]);
+
 
 
 
