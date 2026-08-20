@@ -1730,6 +1730,19 @@ const BookOnlineSlidePanelInner = ({
     void handleOpenReviews();
   }, [initialOverlay, business?.id, hasReviewsCard, handleOpenReviews]);
 
+  // Ouverture directe de l'overlay « Full Description » (feed vidéo : la barre info
+  // du viewer ouvre la Full Description de l'établissement lié) : initialOverlay="description".
+  const autoDescOpenedRef = useRef(false);
+  useEffect(() => {
+    if (initialOverlay !== "description" || autoDescOpenedRef.current) return;
+    if (!business?.id) return;
+    autoDescOpenedRef.current = true;
+    setDescGridSection(null);
+    setDescOverlayContent(null);
+    setDescOverlayDirect(false);
+    setShowDescriptionOverlay(true);
+  }, [initialOverlay, business?.id]);
+
   // Extracted open status hook
   const openBadgeInfo = useOpenStatus({ business, language });
 
