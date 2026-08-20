@@ -2710,7 +2710,7 @@ const EmbedAsk = () => {
               onClose={() => setActiveFeedVideoId(null)}
               activeVideo={active as any}
               activeList={list as any}
-              onActiveVideoChange={(v: any) => { setActiveFeedVideoId(v.id); setFeedVideoTime(0); }}
+              onActiveVideoChange={(v: any) => { setActiveFeedVideoId(v.id); setFeedVideoTime(0); void maybeLoadMoreFeed(String(v.id)); }}
               isActiveGeneric={!!(active as any)._isGeneric}
               currentTime={feedVideoTime}
               onTimeUpdate={setFeedVideoTime}
