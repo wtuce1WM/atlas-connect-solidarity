@@ -642,10 +642,11 @@ const VideoSlidePanel = ({
   if (embed.type === "youtube") {
     const ytId = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
     embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`);
-    if (soundOn && !isMobile) {
-      embedUrl = embedUrl.replace(/[?&]mute=1/, (m) => m[0] + "mute=0");
-    }
+    // On garde toujours mute=1 dans l'URL : un autoplay non muté est bloqué par
+    // Chrome/Safari et le lecteur reste alors en "unstarted" (iframe non cliquable).
+    // Le démutage est fait après démarrage via postMessage (effet ci-dessus).
   } else if (embed.type === "vimeo") {
+
     embedUrl = embedUrl.replace("loop=0", "loop=1");
     if (soundOn && !isMobile) embedUrl = embedUrl.replace("muted=1", "muted=0");
   } else if (embed.type === "bunny") {
