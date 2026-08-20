@@ -1378,6 +1378,7 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange, morph
             className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_img]:max-w-full [&_img]:rounded-md prose-strong:!text-white"
             dangerouslySetInnerHTML={{ __html: groupImagesWithHeadings(html).replace(/([\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}])/gu, '<span style="font-size:1.6em;line-height:1;vertical-align:middle">$1</span>') }}
           />
+          {footerSlot && <div className="mt-6">{footerSlot}</div>}
         </div>
       </div>
     </OverlayShell>
