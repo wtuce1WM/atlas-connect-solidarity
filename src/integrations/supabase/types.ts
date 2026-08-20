@@ -9280,12 +9280,14 @@ export type Database = {
       get_badges_video_feed: {
         Args: {
           _badge_ids: string[]
-          _city_ids?: string[]
-          _limit?: number
-          _offset?: number
-          _seed?: string
+          _city_ids: string[]
+          _include_no_city?: boolean
+          _limit: number
+          _offset: number
+          _seed: string
         }
         Returns: {
+          badges: Json
           business_id: string
           business_logo_bg: string
           business_logo_url: string
