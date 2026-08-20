@@ -289,6 +289,7 @@ type VideoFeedItem = {
   isGeneric?: boolean;
   businessId?: string | null;
   businessName?: string | null;
+  social?: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
 };
 type VideoFeedPayload = { title?: string | null; videos: VideoFeedItem[]; total?: number; badgeIds?: string[]; seed?: string };
 type PinnedBusinessCard = {
