@@ -218,7 +218,7 @@ async function fetchRandomYoutubeVideoOf(
   // Badges « Activé sur le front » de la vidéo injectée (chips du viewer).
   const { data: badgeLinks } = await (supabase as any)
     .from("business_youtube_video_badges")
-    .select("badges!inner(id, name_fr, name_en, color, text_color, sort_order, is_active_on_front)")
+    .select("badges!inner(id, name_fr, name_en, color_hex, text_color_hex, sort_order, is_active_on_front)")
     .eq("youtube_video_id", r.id);
   const badges: FeedBadge[] = ((badgeLinks as any[]) || [])
     .map((l) => l.badges)
@@ -227,8 +227,8 @@ async function fetchRandomYoutubeVideoOf(
       id: String(b.id),
       name: b.name_fr,
       name_en: b.name_en ?? null,
-      color: b.color ?? null,
-      text_color: b.text_color ?? null,
+      color: b.color_hex ?? null,
+      text_color: b.text_color_hex ?? null,
       sort_order: b.sort_order ?? null,
     }));
   return {
