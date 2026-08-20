@@ -438,30 +438,26 @@ const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
         ))}
       </Accordion>
 
-      <BookOnlineSlidePanel
-        open={!!active}
-        onClose={() => { setActive(null); setActiveVideos([]); }}
-        videoUrl={active?.videoUrl || null}
-        videoId={null}
-        businessName={active?.owner.name || ""}
-        pageBusinessId={active?.owner.id || null}
-        isGeneric={false}
-        owner={active ? { ...active.owner } : null}
-        social={null}
-        showSocialBadge={false}
-        description={null}
-        videoName={null}
-        eventId={null}
-        currentTime={currentTime}
-        onTimeUpdate={setCurrentTime}
-        returnContext={null}
-        compactBusinessHeader
-        onPrev={() => goToVideoOffset(-1)}
-        onNext={() => goToVideoOffset(1)}
-        hasPrev={hasPrevVideo}
-        hasNext={hasNextVideo}
-
-      />
+      {active && (
+        <Suspense fallback={null}>
+          <HomeVideoSlidePanel
+            open={!!activePanelVideo}
+            onClose={() => { setActive(null); setActiveVideos([]); }}
+            activeVideo={activePanelVideo as any}
+            activeList={panelList as any}
+            onActiveVideoChange={(v: any) => {
+              const next = activeVideos.find((av) => av.videoId === v.id);
+              if (!next) return;
+              setCurrentTime(0);
+              setActive(next);
+            }}
+            isActiveGeneric={false}
+            currentTime={currentTime}
+            onTimeUpdate={setCurrentTime}
+            returnContext={null}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };
