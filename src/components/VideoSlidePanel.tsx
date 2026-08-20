@@ -41,6 +41,7 @@ import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
 import type { YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import type { BookOnlineBusiness } from "@/hooks/useBookOnlineData";
+import VideoSocialBadge from "@/components/slidepanel/VideoSocialBadge";
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
@@ -1116,24 +1117,10 @@ const VideoSlidePanel = ({
               {(() => {
                 if (visibleSocial) {
                   return (
-                    <div
-                      key={`credit-social-${videoId || videoUrl}`}
-                      className="flex flex-col items-center justify-center gap-2 px-4 pointer-events-none"
-                    >
-                      {visibleSocial.platform === "instagram" && <InstagramIcon className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                      {visibleSocial.platform === "tiktok" && <SiTiktok className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                      {visibleSocial.platform === "youtube" && <Youtube className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                      <a
-                        href={visibleSocial.url || undefined}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors"
-                      >
-                        <span className="text-xs font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                          Follow @{visibleSocial.account}
-                        </span>
-                      </a>
-                    </div>
+                    <VideoSocialBadge
+                      social={visibleSocial}
+                      animKey={videoId || videoUrl}
+                    />
                   );
                 }
                 if (owner && owner.name && !feedLayout) {
