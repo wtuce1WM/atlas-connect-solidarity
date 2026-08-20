@@ -1082,7 +1082,7 @@ const VideoSlidePanel = ({
                     </div>
                   );
                 }
-                if (!owner && eventId && (eventBusiness || eventInfo)) {
+                if (!owner && !feedLayout && eventId && (eventBusiness || eventInfo)) {
                   const eventName = eventBusiness?.name || eventInfo?.name;
                   if (!eventName) return null;
                   return (
