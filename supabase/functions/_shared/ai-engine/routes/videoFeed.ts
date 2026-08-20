@@ -99,6 +99,9 @@ export async function loadBadgeVideoFeed(
     isGeneric: !!r.is_generic,
     businessId: r.business_id ? String(r.business_id) : null,
     businessName: r.business_name || null,
+    social: r.social_platform && r.social_account
+      ? { platform: r.social_platform, account: String(r.social_account).replace(/^@+/, ""), url: r.social_url || null }
+      : null,
   }));
   const total = rows.length ? Number(rows[0].total_count ?? rows.length) : 0;
   return { videos, total, seed };
