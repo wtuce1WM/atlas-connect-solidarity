@@ -2171,7 +2171,7 @@ const BookOnlineSlidePanelInner = ({
   }
 
 
-  if (!business) { console.log("[dbg] Inner no business", businessId, isLoading); return null; }
+  if (!business) return null;
 
   const destName = (d: Destination) => language === "en" && d.name_en ? d.name_en : d.name_fr;
 
@@ -4991,7 +4991,6 @@ function HoursOverlayContent({ business, language }: { business: any; language: 
  * This is the unified entry point replacing the legacy SlidePanelHome.
  */
 const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
-  console.log("[dbg] wrapper", { videoUrl: props.videoUrl, businessId: props.businessId, initialOverlay: props.initialOverlay });
   if (props.videoUrl !== undefined) {
     return (
       <VideoSlidePanel
