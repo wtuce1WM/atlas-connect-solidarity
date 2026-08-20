@@ -1,10 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
-import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
+
+// Lecteur unifié du feed vidéo (même viewer que la route IA `video_feed`).
+const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
+
+
 
 
 interface Channel {
@@ -41,6 +45,7 @@ interface ActiveVideo {
   videoUrl: string;
   videoName: string | null;
   owner: { id: string; name: string; logo_url: string | null };
+  channelUrl: string | null;
 }
 
 const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
@@ -263,6 +268,7 @@ const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
         : `https://www.youtube.com/watch?v=${row.video_id}`,
       videoName: row.title,
       owner: { id: ch.id, name: ch.name, logo_url: ch.logo_url },
+      channelUrl: ch.youtube_url ?? null,
     }));
 
     if (videos.length === 0) {
@@ -289,16 +295,30 @@ const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
     }));
   };
 
-  const activeIndex = active ? activeVideos.findIndex((v) => v.videoId === active.videoId) : -1;
-  const hasPrevVideo = activeIndex > 0;
-  const hasNextVideo = activeIndex >= 0 && activeIndex < activeVideos.length - 1;
-  const goToVideoOffset = (offset: number) => {
-    if (activeIndex < 0) return;
-    const next = activeVideos[activeIndex + offset];
-    if (!next) return;
-    setCurrentTime(0);
-    setActive(next);
-  };
+  // Liste au format attendu par HomeVideoSlidePanel (viewer unifié du feed).
+  const panelList = useMemo(
+    () =>
+      activeVideos.map((v) => ({
+        id: v.videoId,
+        url: v.videoUrl,
+        business_name: v.owner.name,
+        pageBusinessName: v.owner.name,
+        pageBusinessId: v.owner.id,
+        owner: { id: v.owner.id, name: v.owner.name, logo_url: v.owner.logo_url, logo_bg: null },
+        social: v.channelUrl
+          ? { platform: "youtube" as const, account: v.owner.name, url: v.channelUrl }
+          : null,
+        showSocialBadge: !!v.channelUrl,
+        description: null,
+        manualCard: null,
+        title: v.videoName,
+        price: null,
+      })),
+    [activeVideos],
+  );
+  const activePanelVideo = active
+    ? panelList.find((v) => v.id === active.videoId) || null
+    : null;
 
   if (loading) {
     return (
@@ -418,30 +438,26 @@ const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
         ))}
       </Accordion>
 
-      <BookOnlineSlidePanel
-        open={!!active}
-        onClose={() => { setActive(null); setActiveVideos([]); }}
-        videoUrl={active?.videoUrl || null}
-        videoId={null}
-        businessName={active?.owner.name || ""}
-        pageBusinessId={active?.owner.id || null}
-        isGeneric={false}
-        owner={active ? { ...active.owner } : null}
-        social={null}
-        showSocialBadge={false}
-        description={null}
-        videoName={null}
-        eventId={null}
-        currentTime={currentTime}
-        onTimeUpdate={setCurrentTime}
-        returnContext={null}
-        compactBusinessHeader
-        onPrev={() => goToVideoOffset(-1)}
-        onNext={() => goToVideoOffset(1)}
-        hasPrev={hasPrevVideo}
-        hasNext={hasNextVideo}
-
-      />
+      {active && (
+        <Suspense fallback={null}>
+          <HomeVideoSlidePanel
+            open={!!activePanelVideo}
+            onClose={() => { setActive(null); setActiveVideos([]); }}
+            activeVideo={activePanelVideo as any}
+            activeList={panelList as any}
+            onActiveVideoChange={(v: any) => {
+              const next = activeVideos.find((av) => av.videoId === v.id);
+              if (!next) return;
+              setCurrentTime(0);
+              setActive(next);
+            }}
+            isActiveGeneric={false}
+            currentTime={currentTime}
+            onTimeUpdate={setCurrentTime}
+            returnContext={null}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };
