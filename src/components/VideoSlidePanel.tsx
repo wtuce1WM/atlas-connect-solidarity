@@ -341,7 +341,9 @@ const VideoSlidePanel = ({
   // instead of the owner.
   const [pageBusiness, setPageBusiness] = useState<AgendaEvent["business"] | null>(null);
   useEffect(() => {
-    if (!open || eventId || isGeneric || !pageBusinessId) {
+    // En mode feed, une vidéo générique/externe peut être liée à un établissement :
+    // on charge la fiche pour alimenter la barre info + le rail de CTAs de gauche.
+    if (!open || eventId || (isGeneric && !feedLayout) || !pageBusinessId) {
       setPageBusiness(null);
       return;
     }
