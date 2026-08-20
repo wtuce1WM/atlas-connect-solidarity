@@ -199,6 +199,73 @@ const Front = () => {
   const [accrocheVisible, setAccrocheVisible] = useState(false);
   const [bulletsVisible, setBulletsVisible] = useState(false);
 
+  /* ---- CTA Demo : feed vidéo « découverte » (viewer unifié HomeVideoSlidePanel) ---- */
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoList, setDemoList] = useState<any[]>([]);
+  const [demoCtx, setDemoCtx] = useState<DiscoveryFeedContext | null>(null);
+  const [demoActiveId, setDemoActiveId] = useState<string | null>(null);
+  const [demoTime, setDemoTime] = useState(0);
+  const demoLoadingMoreRef = useRef(false);
+
+  const toPanelVideo = (v: BadgeVideoFeedItem) => ({
+    id: v.id,
+    url: v.url,
+    business_name: v.businessName || "",
+    pageBusinessName: v.businessName ?? null,
+    pageBusinessId: v.businessId ?? null,
+    owner: v.businessId
+      ? { id: v.businessId, name: v.businessName || "", logo_url: v.businessLogoUrl ?? null, logo_bg: v.businessLogoBg ?? null }
+      : null,
+    social: v.social ?? null,
+    showSocialBadge: !!v.social,
+    description: v.description ?? null,
+    manualCard: null,
+    title: v.title ?? null,
+    price: v.price ?? null,
+    _isGeneric: !!v.isGeneric,
+  });
+
+  const openDemoFeed = useCallback(async () => {
+    if (demoLoading) return;
+    setDemoLoading(true);
+    try {
+      const { fetchDiscoveryVideoFeed } = await import("@/lib/badgeVideoFeed");
+      const { items, ctx } = await fetchDiscoveryVideoFeed({ limit: 60, featuredAuthor: "Tarik Belasri" });
+      if (!items.length) return;
+      setDemoList(items.map(toPanelVideo));
+      setDemoCtx(ctx);
+      setDemoTime(0);
+      demoLoadingMoreRef.current = false;
+      setDemoActiveId(items[0].id);
+    } finally {
+      setDemoLoading(false);
+    }
+  }, [demoLoading]);
+
+  const maybeLoadMoreDemo = useCallback(async (currentId: string) => {
+    const ctx = demoCtx;
+    if (!ctx || demoLoadingMoreRef.current) return;
+    const idx = demoList.findIndex((v) => v.id === currentId);
+    if (idx < 0 || idx < demoList.length - 10) return;
+    if (demoList.length >= ctx.total) return;
+    demoLoadingMoreRef.current = true;
+    try {
+      const { fetchDiscoveryVideoFeedPage } = await import("@/lib/badgeVideoFeed");
+      const items = await fetchDiscoveryVideoFeedPage(ctx, demoList.length, 30);
+      if (items.length) {
+        setDemoList((prev) => {
+          const seen = new Set(prev.map((v) => v.id));
+          return [...prev, ...items.filter((it) => !seen.has(it.id)).map(toPanelVideo)];
+        });
+      }
+    } catch {
+      /* pagination best-effort */
+    } finally {
+      demoLoadingMoreRef.current = false;
+    }
+  }, [demoCtx, demoList]);
+
+
   /** Auto-fit du slogan écran 1 : taille max possible dans l'espace réellement libre
    *  (conteneur − paddings − bloc inférieur), au lieu d'une taille calculée sur le
    *  viewport (vh) qui débordait sous la barre de recherche sur iOS. Si 5 lignes ne
