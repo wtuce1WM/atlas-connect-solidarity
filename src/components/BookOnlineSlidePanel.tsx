@@ -242,7 +242,7 @@ interface BookOnlineSlidePanelProps {
   /** Layout "feed" du viewer vidéo (voir VideoSlidePanel) */
   feedLayout?: boolean;
   /** Auto-opens an overlay as soon as the data is ready (embed usage) */
-  initialOverlay?: "poi" | "reviews";
+  initialOverlay?: "poi" | "reviews" | "description";
   /** Embed mode: hides the internal close/Club affordances of the auto-opened overlay */
   embedMode?: boolean;
   /** Widget only: custom hex base color for the Google map background */
@@ -1729,6 +1729,19 @@ const BookOnlineSlidePanelInner = ({
     autoReviewsOpenedRef.current = true;
     void handleOpenReviews();
   }, [initialOverlay, business?.id, hasReviewsCard, handleOpenReviews]);
+
+  // Ouverture directe de l'overlay « Full Description » (feed vidéo : la barre info
+  // du viewer ouvre la Full Description de l'établissement lié) : initialOverlay="description".
+  const autoDescOpenedRef = useRef(false);
+  useEffect(() => {
+    if (initialOverlay !== "description" || autoDescOpenedRef.current) return;
+    if (!business?.id) return;
+    autoDescOpenedRef.current = true;
+    setDescGridSection(null);
+    setDescOverlayContent(null);
+    setDescOverlayDirect(false);
+    setShowDescriptionOverlay(true);
+  }, [initialOverlay, business?.id]);
 
   // Extracted open status hook
   const openBadgeInfo = useOpenStatus({ business, language });

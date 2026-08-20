@@ -44,6 +44,10 @@ import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
 import type { YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import type { BookOnlineBusiness } from "@/hooks/useBookOnlineData";
 import VideoSocialBadge from "@/components/slidepanel/VideoSocialBadge";
+import { lazy } from "react";
+
+// Import paresseux (BookOnlineSlidePanel importe ce fichier → évite le cycle au chargement).
+const LazyBusinessPanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
@@ -232,6 +236,11 @@ const VideoSlidePanel = ({
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
+  // Feed : quand la vidéo est liée à un établissement, la barre info ouvre la
+  // Full Description de BookOnlineSlidePanel de cet établissement (pas l'overlay local).
+  const [descBusinessId, setDescBusinessId] = useState<string | null>(null);
+  useEffect(() => { setDescBusinessId(null); }, [videoId, videoUrl]);
+  useEffect(() => { if (!open) setDescBusinessId(null); }, [open]);
   // Transition morphée : la barre info viewer sert de « graine » à l'overlay Full Description
   // (identique à BookOnlineSlidePanel).
   const [descMorphRect, setDescMorphRect] = useState<DOMRect | null>(null);
@@ -1310,7 +1319,11 @@ const VideoSlidePanel = ({
                     teaser={feedInfoTeaser}
                     language={language}
                     bare
-                    onOpen={(rect) => { if (effectiveDescription) startDescMorph(rect); }}
+                    onOpen={(rect) => {
+                      // Vidéo liée à un établissement → Full Description de BookOnlineSlidePanel.
+                      if (ctaBusiness?.id) { setDescBusinessId(String(ctaBusiness.id)); return; }
+                      if (effectiveDescription) startDescMorph(rect);
+                    }}
                   />
                 </div>
               )}
@@ -1432,6 +1445,15 @@ const VideoSlidePanel = ({
             onPlayingChange={() => {}}
             onClose={() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); }}
           />
+        )}
+        {descBusinessId && (
+          <Suspense fallback={null}>
+            <LazyBusinessPanel
+              businessId={descBusinessId}
+              initialOverlay="description"
+              onClose={() => setDescBusinessId(null)}
+            />
+          </Suspense>
         )}
       </div>
     </div>,
