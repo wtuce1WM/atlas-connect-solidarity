@@ -4991,6 +4991,7 @@ function HoursOverlayContent({ business, language }: { business: any; language: 
  * This is the unified entry point replacing the legacy SlidePanelHome.
  */
 const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
+  console.log("[dbg] wrapper", { videoUrl: props.videoUrl, businessId: props.businessId, initialOverlay: props.initialOverlay });
   if (props.videoUrl !== undefined) {
     return (
       <VideoSlidePanel
