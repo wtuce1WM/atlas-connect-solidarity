@@ -948,6 +948,7 @@ const VideoSlidePanel = ({
             morphRect={descMorphRect}
             morphDone={descMorphDone}
             applyMorph={applyDescMorph}
+            footerSlot={visibleSocial ? <VideoSocialBadge social={visibleSocial} animKey={`desc-${videoId || videoUrl}`} /> : null}
           />
         )}
 
@@ -1341,7 +1342,7 @@ export const DescriptionPlusInlineButton = ({ onOpen }: { onOpen: () => void }) 
   </button>
 );
 
-const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange, morphRect = null, morphDone = false, applyMorph }: { html: string; businessName: string; isOpen: boolean; onOpenChange: (v: boolean) => void; morphRect?: DOMRect | null; morphDone?: boolean; applyMorph?: (el: HTMLDivElement | null) => void }) => {
+const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange, morphRect = null, morphDone = false, applyMorph, footerSlot = null }: { html: string; businessName: string; isOpen: boolean; onOpenChange: (v: boolean) => void; morphRect?: DOMRect | null; morphDone?: boolean; applyMorph?: (el: HTMLDivElement | null) => void; footerSlot?: React.ReactNode }) => {
   const open = isOpen;
   const setOpen = onOpenChange;
   useEffect(() => {
