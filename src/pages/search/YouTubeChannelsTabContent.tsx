@@ -1,10 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
-import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
+
+// Lecteur unifié du feed vidéo (même viewer que la route IA `video_feed`).
+const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
+
+
 
 
 interface Channel {
