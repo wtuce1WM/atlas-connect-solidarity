@@ -999,7 +999,7 @@ const VideoSlidePanel = ({
               </div>
             )}
           </div>
-          {effectiveDescription && !descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !showYoutubeOverlay && (
+          {effectiveDescription && !feedLayout && !descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !showYoutubeOverlay && (
             <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
               <DescriptionPlusInlineButton
                 key={`desc-plus-${videoId || videoUrl}`}
