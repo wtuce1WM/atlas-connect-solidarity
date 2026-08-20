@@ -1442,6 +1442,15 @@ const VideoSlidePanel = ({
             onClose={() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); }}
           />
         )}
+        {descBusinessId && (
+          <Suspense fallback={null}>
+            <LazyBusinessPanel
+              businessId={descBusinessId}
+              initialOverlay="description"
+              onClose={() => setDescBusinessId(null)}
+            />
+          </Suspense>
+        )}
       </div>
     </div>,
     document.body,
