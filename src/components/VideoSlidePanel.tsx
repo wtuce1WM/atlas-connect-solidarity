@@ -1315,7 +1315,11 @@ const VideoSlidePanel = ({
                     teaser={feedInfoTeaser}
                     language={language}
                     bare
-                    onOpen={(rect) => { if (effectiveDescription) startDescMorph(rect); }}
+                    onOpen={(rect) => {
+                      // Vidéo liée à un établissement → Full Description de BookOnlineSlidePanel.
+                      if (ctaBusiness?.id) { setDescBusinessId(String(ctaBusiness.id)); return; }
+                      if (effectiveDescription) startDescMorph(rect);
+                    }}
                   />
                 </div>
               )}
