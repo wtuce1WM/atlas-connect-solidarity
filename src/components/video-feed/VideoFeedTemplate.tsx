@@ -306,8 +306,14 @@ const VideoFeedTemplate = ({
           pageBusinessName: v.businessName ?? null,
           pageBusinessId: v.businessId ?? null,
           owner: v.businessId && v.businessName
-            ? { id: v.businessId, name: v.businessName, logo_url: null, logo_bg: null }
+            ? {
+                id: v.businessId,
+                name: v.businessName,
+                logo_url: (v as any).businessLogoUrl ?? null,
+                logo_bg: (v as any).businessLogoBg ?? null,
+              }
             : null,
+
           social: null,
           showSocialBadge: false,
           description: v.description ?? null,
