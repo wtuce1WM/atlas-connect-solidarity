@@ -14,6 +14,7 @@ interface VideoLike {
   manualCard: { label: string; badgeId: string | null; eventId?: string | null } | null;
   title?: string | null;
   price?: string | null;
+  badges?: { id: string; name: string; color?: string | null; text_color?: string | null }[] | null;
 }
 
 interface Props<T extends VideoLike> {
@@ -28,6 +29,8 @@ interface Props<T extends VideoLike> {
   returnContext: string | null;
   hideDirections?: boolean;
   hideSecondaryCtas?: boolean;
+  /** Clic sur une chip badge en haut de la vidéo (relance du feed) */
+  onBadgeSelect?: (badge: { id: string; name: string }) => void;
 }
 
 /**
@@ -46,6 +49,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   returnContext,
   hideDirections = false,
   hideSecondaryCtas = false,
+  onBadgeSelect,
 }: Props<T>) {
   const currentIndex = useMemo(
     () => (activeVideo ? activeList.findIndex((v) => v.id === activeVideo.id) : -1),
@@ -95,6 +99,8 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       feedLayout
       manualCardLabel={activeVideo?.manualCard?.label || null}
       price={activeVideo?.price || null}
+      feedBadges={activeVideo?.badges ?? null}
+      onFeedBadgeSelect={onBadgeSelect}
     />
   );
 }

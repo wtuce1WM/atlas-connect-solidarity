@@ -241,6 +241,10 @@ interface BookOnlineSlidePanelProps {
   price?: string | null;
   /** Layout "feed" du viewer vidéo (voir VideoSlidePanel) */
   feedLayout?: boolean;
+  /** Badges affichés en haut de la vidéo en mode feed */
+  feedBadges?: { id: string; name: string; color?: string | null; text_color?: string | null }[] | null;
+  /** Clic sur une chip badge (relance du feed) */
+  onFeedBadgeSelect?: (badge: { id: string; name: string }) => void;
   /** Auto-opens an overlay as soon as the data is ready (embed usage) */
   initialOverlay?: "poi" | "reviews" | "description";
   /** Embed mode: hides the internal close/Club affordances of the auto-opened overlay */
@@ -5023,6 +5027,8 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         manualCardLabel={props.manualCardLabel}
         price={props.price}
         feedLayout={props.feedLayout}
+        feedBadges={props.feedBadges ?? null}
+        onFeedBadgeSelect={props.onFeedBadgeSelect}
       />
     );
   }
