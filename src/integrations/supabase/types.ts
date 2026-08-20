@@ -9252,6 +9252,31 @@ export type Database = {
         Returns: number
       }
       generate_slug: { Args: { input_text: string }; Returns: string }
+      get_badge_video_feed: {
+        Args: {
+          _badge_id: string
+          _city_ids?: string[]
+          _limit?: number
+          _offset?: number
+          _seed?: string
+        }
+        Returns: {
+          business_id: string
+          business_logo_bg: string
+          business_logo_url: string
+          business_name: string
+          description: string
+          feed_position: number
+          group_key: string
+          id: string
+          is_generic: boolean
+          price: string
+          source: string
+          thumbnail_url: string
+          title: string
+          url: string
+        }[]
+      }
       get_blocked_domains_list: { Args: never; Returns: string[] }
       get_blog_analytics: { Args: { p_days?: number }; Returns: Json }
       get_broken_urls_list: { Args: never; Returns: string[] }
