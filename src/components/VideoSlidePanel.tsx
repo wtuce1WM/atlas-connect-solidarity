@@ -1181,9 +1181,9 @@ const VideoSlidePanel = ({
                 }
                 return null;
               })()}
-              {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel (masque transparent/blur + morph) */}
+              {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer */}
               {feedLayout && (feedInfoTitle || feedInfoTeaser) && (
-                <div className="w-full max-w-xl mx-auto rounded-2xl bg-gradient-to-b from-black/25 to-black/55 backdrop-blur-[2px] border border-white/10 overflow-hidden pointer-events-auto">
+                <div className="relative w-[calc(100%+2rem)] -mx-4 md:w-[calc(100%-1rem)] md:max-w-[450px] md:mx-auto max-w-none rounded-t-2xl border-x border-b-0 border-white/10 bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] pointer-events-auto pb-[calc(120px+env(safe-area-inset-bottom))] -mb-[calc(120px+env(safe-area-inset-bottom))] lg:pb-[7rem] lg:-mb-[7rem]">
                   <MediaViewerInfo
                     name={feedInfoTitle}
                     city={ctaBusiness?.city}
@@ -1197,6 +1197,7 @@ const VideoSlidePanel = ({
                   />
                 </div>
               )}
+
 
               {ctaBusiness && !compactBusinessHeader && !hideDirections && (
                 <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
