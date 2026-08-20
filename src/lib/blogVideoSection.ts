@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { BlogArticleVideo } from "@/components/blog/BlogArticleTemplate";
+import { fetchBadgeVideoFeed } from "@/lib/badgeVideoFeed";
 
 export type VideoSectionCopy = { title: string; intro?: string };
 
@@ -7,12 +8,19 @@ export interface BlogVideoSectionConfig {
   badge_id: string;
   city_ids?: string[];
   price_type?: string; // e.g. 'location'
+  /**
+   * Opt-in : feed portrait 9:16 unifié (internes + génériques + Shorts YouTube),
+   * ordre mélangé stable par session et alterné par établissement/auteur.
+   * Sans ce drapeau, le comportement historique (2 sources, non filtré) est conservé.
+   */
+  shuffle_portrait_feed?: boolean;
   copy?: {
     fr?: VideoSectionCopy;
     en?: VideoSectionCopy;
     ar?: VideoSectionCopy;
   };
 }
+
 
 export function pickVideoSectionCopy(
   config: BlogVideoSectionConfig | null | undefined,
