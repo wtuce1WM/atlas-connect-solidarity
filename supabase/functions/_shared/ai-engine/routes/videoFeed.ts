@@ -22,6 +22,8 @@ export type VideoFeedItem = {
   isGeneric: boolean;
   businessId: string | null;
   businessName: string | null;
+  /** Compte social attaché à la vidéo (logo + « Follow @… » dans le lecteur). */
+  social?: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
 };
 
 export type VideoFeedAnswer = {
