@@ -694,9 +694,14 @@ const EmbedAsk = () => {
   // marqueurs = destinations liées à la suggestion.
   const [openDestMap, setOpenDestMap] = useState<{ title?: string | null; destinations: DestinationCard[] } | null>(null);
   // Feed vidéo (mode curaté `video_feed`) : liste active + vidéo ouverte.
+  // `videoFeedCtx` porte le contexte de pagination (badges + seed du tirage au
+  // sort côté base) pour charger les pages suivantes pendant le swipe.
   const [videoFeedList, setVideoFeedList] = useState<VideoFeedItem[]>([]);
+  const [videoFeedCtx, setVideoFeedCtx] = useState<{ badgeIds: string[]; seed: string; total: number } | null>(null);
+  const feedLoadingMoreRef = useRef(false);
   const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
   const [feedVideoTime, setFeedVideoTime] = useState(0);
+
   const [openSiblings, setOpenSiblings] = useState<string[]>([]);
   // Overlay de réservation déclenché par les liens "Réservez" du markdown IA.
   const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
