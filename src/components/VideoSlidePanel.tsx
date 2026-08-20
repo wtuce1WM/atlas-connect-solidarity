@@ -566,25 +566,40 @@ const VideoSlidePanel = ({
     };
   }, [videoUrl, videoId, soundOn, setSoundOn]);
 
-  // On mobile the embed URL forces mute=1 so autoplay works.
-  // Make sure the mute toggle reflects that when the video changes.
+  // L'URL d'embed force toujours mute=1 pour que l'autoplay démarre.
+  // Le toggle son reflète cet état de départ à chaque changement de vidéo.
   useEffect(() => {
-    if (!open || !isMobile) return;
+    if (!open) return;
     setYtMuted(true);
     setYtPlaying(true);
-  }, [videoUrl, videoId, open, isMobile]);
+  }, [videoUrl, videoId, open]);
+
 
   // Sync YouTube iframe state with the real player (onStateChange + volume)
+  // + démutage après démarrage : l'URL d'embed reste toujours mute=1 (sinon
+  // l'autoplay est bloqué et la vidéo ne démarre jamais), on rétablit le son
+  // via l'API postMessage dès que le player passe en "playing".
   useEffect(() => {
     if (!open) return;
     const iframe = iframeRef.current;
     if (!iframe) return;
+
+    let unmuteApplied = false;
 
     const subscribe = () => {
       const w = iframe.contentWindow;
       if (!w) return;
       w.postMessage(JSON.stringify({ event: "listening" }), "*");
       w.postMessage(JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"] }), "*");
+    };
+
+    const applyUnmute = () => {
+      if (unmuteApplied || !soundOn) return;
+      const w = iframe.contentWindow;
+      if (!w) return;
+      unmuteApplied = true;
+      w.postMessage(JSON.stringify({ event: "command", func: "unMute", args: [] }), "*");
+      w.postMessage(JSON.stringify({ event: "command", func: "setVolume", args: [100] }), "*");
     };
 
     // Subscribe once iframe is loaded, and re-subscribe on src change
@@ -601,18 +616,19 @@ const VideoSlidePanel = ({
         // onStateChange: info is a number (playerState)
         // 1 = playing, 2 = paused, 3 = buffering, 0 = ended, -1 = unstarted
         if (data?.event === "onStateChange" && typeof info === "number") {
-          if (info === 1) setYtPlaying(true);
+          if (info === 1) { setYtPlaying(true); applyUnmute(); }
           else if (info === 2 || info === 0 || info === -1) setYtPlaying(false);
         }
         // infoDelivery: info is an object with playerState/muted
         if (info && typeof info === "object") {
           if (typeof info.playerState === "number") {
-            if (info.playerState === 1) setYtPlaying(true);
+            if (info.playerState === 1) { setYtPlaying(true); applyUnmute(); }
             else if (info.playerState === 2 || info.playerState === 0) setYtPlaying(false);
           }
           if (typeof info.muted === "boolean") {
             setYtMuted(info.muted);
-            setSoundOn(!info.muted);
+            // Ne pas écraser la préférence son avec le mute technique de départ
+            if (unmuteApplied || !soundOn) setSoundOn(!info.muted);
           }
         }
       } catch {}
@@ -623,7 +639,8 @@ const VideoSlidePanel = ({
       iframe.removeEventListener("load", subscribe);
       window.removeEventListener("message", onMessage);
     };
-  }, [open, videoUrl, videoId, setSoundOn]);
+  }, [open, videoUrl, videoId, soundOn, setSoundOn]);
+
 
 
   if (!open || !videoUrl) return null;
@@ -642,10 +659,11 @@ const VideoSlidePanel = ({
   if (embed.type === "youtube") {
     const ytId = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
     embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`);
-    if (soundOn && !isMobile) {
-      embedUrl = embedUrl.replace(/[?&]mute=1/, (m) => m[0] + "mute=0");
-    }
+    // On garde toujours mute=1 dans l'URL : un autoplay non muté est bloqué par
+    // Chrome/Safari et le lecteur reste alors en "unstarted" (iframe non cliquable).
+    // Le démutage est fait après démarrage via postMessage (effet ci-dessus).
   } else if (embed.type === "vimeo") {
+
     embedUrl = embedUrl.replace("loop=0", "loop=1");
     if (soundOn && !isMobile) embedUrl = embedUrl.replace("muted=1", "muted=0");
   } else if (embed.type === "bunny") {
