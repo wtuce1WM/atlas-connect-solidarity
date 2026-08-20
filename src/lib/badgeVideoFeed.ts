@@ -93,6 +93,9 @@ function mapFeedRow(r: any): BadgeVideoFeedItem {
     businessName: r.business_name ?? null,
     businessLogoUrl: r.business_logo_url ?? null,
     businessLogoBg: r.business_logo_bg ?? null,
+    social: r.social_platform && r.social_account
+      ? { platform: r.social_platform, account: String(r.social_account).replace(/^@+/, ""), url: r.social_url ?? null }
+      : null,
   };
 }
 
