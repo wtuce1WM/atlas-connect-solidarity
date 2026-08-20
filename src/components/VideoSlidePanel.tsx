@@ -554,7 +554,7 @@ const VideoSlidePanel = ({
 
   if (!open || !videoUrl) return null;
 
-  const visibleSocial = showSocialBadge ? social : null;
+  const visibleSocial = (showSocialBadge || feedLayout) ? social : null;
   const swipeNavigationEnabled = isMobile && !descOverlayOpen && !searchOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !agendaCity;
 
   const resetSwipe = () => {
