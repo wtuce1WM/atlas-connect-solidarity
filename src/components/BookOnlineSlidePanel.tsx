@@ -239,6 +239,8 @@ interface BookOnlineSlidePanelProps {
   manualCardLabel?: string | null;
   /** Price value for the price badge */
   price?: string | null;
+  /** Layout "feed" du viewer vidéo (voir VideoSlidePanel) */
+  feedLayout?: boolean;
   /** Auto-opens an overlay as soon as the data is ready (embed usage) */
   initialOverlay?: "poi" | "reviews";
   /** Embed mode: hides the internal close/Club affordances of the auto-opened overlay */
@@ -5005,6 +5007,7 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         hideLeftCtas={props.hideLeftCtas}
         manualCardLabel={props.manualCardLabel}
         price={props.price}
+        feedLayout={props.feedLayout}
       />
     );
   }

@@ -86,6 +86,8 @@ interface VideoSlidePanelProps {
   manualCardLabel?: string | null;
   /** Price of the item for pricing badge */
   price?: string | null;
+  /** Layout "feed" : pas de badge copyright, pas d'entête business, pas de chevrons (swipe vertical), nom+description au-dessus de la barre de navigation */
+  feedLayout?: boolean;
 }
 
 
@@ -150,6 +152,7 @@ const VideoSlidePanel = ({
   hideLeftCtas = false,
   manualCardLabel = null,
   price = null,
+  feedLayout = false,
 }: VideoSlidePanelProps) => {
 
   const navigate = useLocalizedNavigate();
@@ -554,7 +557,7 @@ const VideoSlidePanel = ({
 
   if (!open || !videoUrl) return null;
 
-  const visibleSocial = showSocialBadge ? social : null;
+  const visibleSocial = (showSocialBadge || feedLayout) ? social : null;
   const swipeNavigationEnabled = isMobile && !descOverlayOpen && !searchOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !agendaCity;
 
   const resetSwipe = () => {
@@ -750,7 +753,7 @@ const VideoSlidePanel = ({
         })()}
 
         {/* BusinessHeader: Logo + Nom + Ville + Quartier + Adresse */}
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && ctaBusiness && (
+        {!feedLayout && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && ctaBusiness && (
           <div className="absolute top-16 md:top-14 lg:top-16 left-2 right-2 z-[65] pointer-events-none">
             <BusinessHeader
               business={{
@@ -829,7 +832,7 @@ const VideoSlidePanel = ({
         })()}
 
 
-        {(onPrev || onNext) && (
+        {!feedLayout && (onPrev || onNext) && (
           <div className="absolute top-1/2 -translate-y-1/2 right-3 z-30 flex flex-col gap-6 pointer-events-none">
             <button
               type="button"
@@ -999,7 +1002,7 @@ const VideoSlidePanel = ({
               </div>
             )}
           </div>
-          {effectiveDescription && !descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !showYoutubeOverlay && (
+          {effectiveDescription && !feedLayout && !descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !showYoutubeOverlay && (
             <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
               <DescriptionPlusInlineButton
                 key={`desc-plus-${videoId || videoUrl}`}
@@ -1036,7 +1039,7 @@ const VideoSlidePanel = ({
                     </div>
                   );
                 }
-                if (owner && owner.name) {
+                if (owner && owner.name && !feedLayout) {
                   return (
                     <div
                       key={`credit-owner-${videoId || videoUrl}`}
@@ -1082,7 +1085,7 @@ const VideoSlidePanel = ({
                     </div>
                   );
                 }
-                if (!owner && eventId && (eventBusiness || eventInfo)) {
+                if (!owner && !feedLayout && eventId && (eventBusiness || eventInfo)) {
                   const eventName = eventBusiness?.name || eventInfo?.name;
                   if (!eventName) return null;
                   return (
@@ -1099,6 +1102,42 @@ const VideoSlidePanel = ({
                   );
                 }
                 return null;
+              })()}
+              {/* Feed layout : Nom + Description (vidéo, sinon établissement) au-dessus de la barre liquidglass */}
+              {feedLayout && (() => {
+                const hasVideoDesc = !!(description && description.trim());
+                const feedTitle = hasVideoDesc
+                  ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName)
+                  : (ctaBusiness?.name || businessName);
+                const plain = (effectiveDescription || "")
+                  .replace(/<[^>]*>/g, " ")
+                  .replace(/&nbsp;/g, " ")
+                  .replace(/\s+/g, " ")
+                  .trim();
+                if (!feedTitle && !plain) return null;
+                return (
+                  <div
+                    className={`w-11/12 max-w-md text-center ${effectiveDescription ? "pointer-events-auto cursor-pointer" : "pointer-events-none"}`}
+                    onClick={() => { if (effectiveDescription) setDescOverlayOpen(true); }}
+                  >
+                    {feedTitle && (
+                      <p
+                        className="text-sm md:text-base font-bold uppercase text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.7)]"
+                        style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.06em" }}
+                      >
+                        {feedTitle}
+                      </p>
+                    )}
+                    {plain && (
+                      <p
+                        className="mt-1 text-xs md:text-sm text-white/85 line-clamp-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.7)]"
+                        style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif" }}
+                      >
+                        {plain}
+                      </p>
+                    )}
+                  </div>
+                );
               })()}
               {ctaBusiness && !compactBusinessHeader && !hideDirections && (
                 <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">

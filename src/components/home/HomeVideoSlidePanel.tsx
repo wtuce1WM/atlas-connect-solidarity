@@ -92,6 +92,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       hideDirections={hideDirections}
       hideSecondaryCtas={hideSecondaryCtas}
       hideLeftCtas
+      feedLayout
       manualCardLabel={activeVideo?.manualCard?.label || null}
       price={activeVideo?.price || null}
     />
