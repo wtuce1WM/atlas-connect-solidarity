@@ -1237,8 +1237,8 @@ const VideoSlidePanel = ({
                     name={feedInfoTitle}
                     city={ctaBusiness?.city}
                     neighborhood={(ctaBusiness as any)?.neighborhood}
-                    avgOn20={null}
-                    totalReviewCount={0}
+                    avgOn20={feedAvgOn20}
+                    totalReviewCount={feedReviewCount}
                     teaser={feedInfoTeaser}
                     language={language}
                     bare
