@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, useCallback, Suspense } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo, Suspense } from "react";
 import MediaViewerInfo from "@/components/slidepanel/MediaViewerInfo";
+import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { toast } from "sonner";
 
 import { useIsMobile } from "@/hooks/use-mobile";
