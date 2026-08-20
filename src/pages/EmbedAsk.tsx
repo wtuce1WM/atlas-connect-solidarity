@@ -1208,13 +1208,13 @@ const EmbedAsk = () => {
   /**
    * Pagination du feed vidéo : même tirage au sort (seed) et même round-robin
    * que le premier lot, servis par la source de vérité unique côté base.
-   * Déclenchée pendant le swipe, à 5 vidéos de la fin.
+   * Déclenchée pendant le swipe, à 10 vidéos de la fin.
    */
   const maybeLoadMoreFeed = useCallback(async (currentId: string) => {
     const ctx = videoFeedCtx;
     if (!ctx || feedLoadingMoreRef.current) return;
     const idx = videoFeedList.findIndex((v) => v.id === currentId);
-    if (idx < 0 || idx < videoFeedList.length - 5) return;
+    if (idx < 0 || idx < videoFeedList.length - 10) return;
     if (videoFeedList.length >= ctx.total) return;
     feedLoadingMoreRef.current = true;
     try {
