@@ -162,7 +162,7 @@ const VideoSlidePanel = ({
 
   const navigate = useLocalizedNavigate();
   const isMobile = useIsMobile();
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   // Chrome navigateur en noir tant que le panneau plein écran est ouvert (supprime les bandes beiges iOS)
   useDarkBrowserChrome(true);
 
