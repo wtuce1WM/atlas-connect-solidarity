@@ -289,6 +289,7 @@ type VideoFeedItem = {
   isGeneric?: boolean;
   businessId?: string | null;
   businessName?: string | null;
+  social?: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
 };
 type VideoFeedPayload = { title?: string | null; videos: VideoFeedItem[]; total?: number; badgeIds?: string[]; seed?: string };
 type PinnedBusinessCard = {
@@ -2693,8 +2694,8 @@ const EmbedAsk = () => {
           owner: v.businessId && v.businessName
             ? { id: v.businessId, name: v.businessName, logo_url: null, logo_bg: null }
             : null,
-          social: null,
-          showSocialBadge: false,
+          social: v.social ?? null,
+          showSocialBadge: !!v.social,
           description: v.description ?? null,
           manualCard: null,
           title: v.title ?? null,

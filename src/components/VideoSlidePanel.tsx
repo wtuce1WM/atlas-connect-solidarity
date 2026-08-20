@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback, Suspense } from "react";
 import MediaViewerInfo from "@/components/slidepanel/MediaViewerInfo";
+import { toast } from "sonner";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
@@ -1086,6 +1087,24 @@ const VideoSlidePanel = ({
                 key={`desc-plus-${videoId || videoUrl}`}
                 onOpen={() => setDescOverlayOpen(true)}
               />
+            </div>
+          )}
+          {/* TEMPORAIRE (debug) : ID de la vidéo au centre, clic = copie */}
+          {feedLayout && videoId && !descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && (
+            <div className="absolute inset-0 z-[45] flex items-center justify-center pointer-events-none">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard?.writeText(String(videoId)).then(
+                    () => toast.success(`ID copié : ${videoId}`),
+                    () => {},
+                  );
+                }}
+                className="pointer-events-auto rounded-full bg-black/60 border border-white/20 px-3 py-1.5 font-mono text-[11px] text-white backdrop-blur-sm hover:bg-black/80 transition-colors"
+                title="Copier l'ID de la vidéo"
+              >
+                {videoId}
+              </button>
             </div>
           )}
           <div className={`absolute inset-0 z-30 pointer-events-none ${descOverlayOpen ? "hidden" : ""}`}>

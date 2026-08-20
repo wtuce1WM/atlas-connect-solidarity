@@ -48,6 +48,8 @@ export interface BadgeVideoFeedItem extends BlogArticleVideo {
   source: "internal" | "generic" | "youtube";
   businessLogoUrl?: string | null;
   businessLogoBg?: string | null;
+  /** Compte social attaché à la vidéo (logo + « Follow @… » dans le lecteur). */
+  social?: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
 }
 
 export interface FetchBadgeVideoFeedOptions {
@@ -91,6 +93,9 @@ function mapFeedRow(r: any): BadgeVideoFeedItem {
     businessName: r.business_name ?? null,
     businessLogoUrl: r.business_logo_url ?? null,
     businessLogoBg: r.business_logo_bg ?? null,
+    social: r.social_platform && r.social_account
+      ? { platform: r.social_platform, account: String(r.social_account).replace(/^@+/, ""), url: r.social_url ?? null }
+      : null,
   };
 }
 
