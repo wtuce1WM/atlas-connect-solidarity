@@ -290,7 +290,7 @@ type VideoFeedItem = {
   businessId?: string | null;
   businessName?: string | null;
 };
-type VideoFeedPayload = { title?: string | null; videos: VideoFeedItem[] };
+type VideoFeedPayload = { title?: string | null; videos: VideoFeedItem[]; total?: number; badgeIds?: string[]; seed?: string };
 type PinnedBusinessCard = {
   id: string;
   name: string;
