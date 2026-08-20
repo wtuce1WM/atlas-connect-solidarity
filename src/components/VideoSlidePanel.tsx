@@ -41,6 +41,7 @@ import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
 import type { YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import type { BookOnlineBusiness } from "@/hooks/useBookOnlineData";
+import VideoSocialBadge from "@/components/slidepanel/VideoSocialBadge";
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
@@ -947,6 +948,7 @@ const VideoSlidePanel = ({
             morphRect={descMorphRect}
             morphDone={descMorphDone}
             applyMorph={applyDescMorph}
+            footerSlot={visibleSocial ? <VideoSocialBadge social={visibleSocial} animKey={`desc-${videoId || videoUrl}`} /> : null}
           />
         )}
 
@@ -1116,24 +1118,10 @@ const VideoSlidePanel = ({
               {(() => {
                 if (visibleSocial) {
                   return (
-                    <div
-                      key={`credit-social-${videoId || videoUrl}`}
-                      className="flex flex-col items-center justify-center gap-2 px-4 pointer-events-none"
-                    >
-                      {visibleSocial.platform === "instagram" && <InstagramIcon className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                      {visibleSocial.platform === "tiktok" && <SiTiktok className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                      {visibleSocial.platform === "youtube" && <Youtube className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                      <a
-                        href={visibleSocial.url || undefined}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors"
-                      >
-                        <span className="text-xs font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                          Follow @{visibleSocial.account}
-                        </span>
-                      </a>
-                    </div>
+                    <VideoSocialBadge
+                      social={visibleSocial}
+                      animKey={videoId || videoUrl}
+                    />
                   );
                 }
                 if (owner && owner.name && !feedLayout) {
@@ -1354,7 +1342,7 @@ export const DescriptionPlusInlineButton = ({ onOpen }: { onOpen: () => void }) 
   </button>
 );
 
-const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange, morphRect = null, morphDone = false, applyMorph }: { html: string; businessName: string; isOpen: boolean; onOpenChange: (v: boolean) => void; morphRect?: DOMRect | null; morphDone?: boolean; applyMorph?: (el: HTMLDivElement | null) => void }) => {
+const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange, morphRect = null, morphDone = false, applyMorph, footerSlot = null }: { html: string; businessName: string; isOpen: boolean; onOpenChange: (v: boolean) => void; morphRect?: DOMRect | null; morphDone?: boolean; applyMorph?: (el: HTMLDivElement | null) => void; footerSlot?: React.ReactNode }) => {
   const open = isOpen;
   const setOpen = onOpenChange;
   useEffect(() => {
@@ -1390,6 +1378,7 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange, morph
             className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_img]:max-w-full [&_img]:rounded-md prose-strong:!text-white"
             dangerouslySetInnerHTML={{ __html: groupImagesWithHeadings(html).replace(/([\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}])/gu, '<span style="font-size:1.6em;line-height:1;vertical-align:middle">$1</span>') }}
           />
+          {footerSlot && <div className="mt-6">{footerSlot}</div>}
         </div>
       </div>
     </OverlayShell>
