@@ -44,6 +44,10 @@ import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
 import type { YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import type { BookOnlineBusiness } from "@/hooks/useBookOnlineData";
 import VideoSocialBadge from "@/components/slidepanel/VideoSocialBadge";
+import { lazy } from "react";
+
+// Import paresseux (BookOnlineSlidePanel importe ce fichier → évite le cycle au chargement).
+const LazyBusinessPanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
