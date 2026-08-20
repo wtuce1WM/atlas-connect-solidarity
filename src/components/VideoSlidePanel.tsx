@@ -1100,6 +1100,42 @@ const VideoSlidePanel = ({
                 }
                 return null;
               })()}
+              {/* Feed layout : Nom + Description (vidéo, sinon établissement) au-dessus de la barre liquidglass */}
+              {feedLayout && (() => {
+                const hasVideoDesc = !!(description && description.trim());
+                const feedTitle = hasVideoDesc
+                  ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName)
+                  : (ctaBusiness?.name || businessName);
+                const plain = (effectiveDescription || "")
+                  .replace(/<[^>]*>/g, " ")
+                  .replace(/&nbsp;/g, " ")
+                  .replace(/\s+/g, " ")
+                  .trim();
+                if (!feedTitle && !plain) return null;
+                return (
+                  <div
+                    className={`w-11/12 max-w-md text-center ${effectiveDescription ? "pointer-events-auto cursor-pointer" : "pointer-events-none"}`}
+                    onClick={() => { if (effectiveDescription) setDescOverlayOpen(true); }}
+                  >
+                    {feedTitle && (
+                      <p
+                        className="text-sm md:text-base font-bold uppercase text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.7)]"
+                        style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.06em" }}
+                      >
+                        {feedTitle}
+                      </p>
+                    )}
+                    {plain && (
+                      <p
+                        className="mt-1 text-xs md:text-sm text-white/85 line-clamp-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.7)]"
+                        style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif" }}
+                      >
+                        {plain}
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
               {ctaBusiness && !compactBusinessHeader && !hideDirections && (
                 <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
                   <button
