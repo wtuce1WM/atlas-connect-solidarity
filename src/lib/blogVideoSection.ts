@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { BlogArticleVideo } from "@/components/blog/BlogArticleTemplate";
+import { fetchBadgeVideoFeed } from "@/lib/badgeVideoFeed";
 
 export type VideoSectionCopy = { title: string; intro?: string };
 
@@ -7,12 +8,19 @@ export interface BlogVideoSectionConfig {
   badge_id: string;
   city_ids?: string[];
   price_type?: string; // e.g. 'location'
+  /**
+   * Opt-in : feed portrait 9:16 unifié (internes + génériques + Shorts YouTube),
+   * ordre mélangé stable par session et alterné par établissement/auteur.
+   * Sans ce drapeau, le comportement historique (2 sources, non filtré) est conservé.
+   */
+  shuffle_portrait_feed?: boolean;
   copy?: {
     fr?: VideoSectionCopy;
     en?: VideoSectionCopy;
     ar?: VideoSectionCopy;
   };
 }
+
 
 export function pickVideoSectionCopy(
   config: BlogVideoSectionConfig | null | undefined,
@@ -34,6 +42,15 @@ export async function fetchBlogVideoSection(
 ): Promise<BlogArticleVideo[]> {
   const { badge_id, city_ids, price_type } = config;
   const cityFilterActive = Array.isArray(city_ids) && city_ids.length > 0;
+
+  // Feed portrait unifié (3 sources, ordre mélangé + round-robin par auteur).
+  if (config.shuffle_portrait_feed) {
+    return fetchBadgeVideoFeed(badge_id, {
+      cityIds: cityFilterActive ? (city_ids as string[]) : null,
+      limit: 120,
+    });
+  }
+
 
   // --- 1) Internal business_documents (video) filtered by badge (+ cities + price_type)
   let internal: BlogArticleVideo[] = [];
