@@ -1255,32 +1255,34 @@ const VideoSlidePanel = ({
                 </div>
               )}
             </div>
-            <div className="pointer-events-auto">
-              <PanelSearchBar
-                iconVariant="black"
-                onOverlayChange={setSearchOverlayOpen}
-                onAiClick={() => navigate("/search?tab=ai")}
-                onHashtagsOverlayChange={setHashtagsOverlayOpen}
-                onSearch={(params) => {
-                  const sp = new URLSearchParams(params);
-                  navigate(`/search?${sp.toString()}`);
-                }}
-                onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-                videoControls={
-                  embed.type === "file"
-                    ? { type: "file", videoRef, paused: filePaused, muted: fileMuted }
-                    : embed.type === "youtube"
-                      ? {
-                          type: "youtube",
-                          iframeRef,
-                          playing: ytPlaying,
-                          muted: ytMuted,
-                          onPlayingChange: setYtPlaying,
-                          onMutedChange: (m) => { setYtMuted(m); setSoundOn(!m); },
-                        }
-                      : undefined
-                }
-              />
+            <div className="absolute pointer-events-none bottom-0 left-1/2 -translate-x-1/2 w-[96%] sm:w-[94%] max-w-[540px] z-[85]">
+              <div className="relative w-full h-full pointer-events-auto">
+                <PanelSearchBar
+                  iconVariant="black"
+                  onOverlayChange={setSearchOverlayOpen}
+                  onAiClick={() => navigate("/search?tab=ai")}
+                  onHashtagsOverlayChange={setHashtagsOverlayOpen}
+                  onSearch={(params) => {
+                    const sp = new URLSearchParams(params);
+                    navigate(`/search?${sp.toString()}`);
+                  }}
+                  onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+                  videoControls={
+                    embed.type === "file"
+                      ? { type: "file", videoRef, paused: filePaused, muted: fileMuted }
+                      : embed.type === "youtube"
+                        ? {
+                            type: "youtube",
+                            iframeRef,
+                            playing: ytPlaying,
+                            muted: ytMuted,
+                            onPlayingChange: setYtPlaying,
+                            onMutedChange: (m) => { setYtMuted(m); setSoundOn(!m); },
+                          }
+                        : undefined
+                  }
+                />
+              </div>
             </div>
           </div>
         </div>
