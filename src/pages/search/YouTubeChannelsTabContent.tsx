@@ -268,6 +268,7 @@ const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
         : `https://www.youtube.com/watch?v=${row.video_id}`,
       videoName: row.title,
       owner: { id: ch.id, name: ch.name, logo_url: ch.logo_url },
+      channelUrl: ch.youtube_url ?? null,
     }));
 
     if (videos.length === 0) {
