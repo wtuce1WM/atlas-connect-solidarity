@@ -295,16 +295,30 @@ const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
     }));
   };
 
-  const activeIndex = active ? activeVideos.findIndex((v) => v.videoId === active.videoId) : -1;
-  const hasPrevVideo = activeIndex > 0;
-  const hasNextVideo = activeIndex >= 0 && activeIndex < activeVideos.length - 1;
-  const goToVideoOffset = (offset: number) => {
-    if (activeIndex < 0) return;
-    const next = activeVideos[activeIndex + offset];
-    if (!next) return;
-    setCurrentTime(0);
-    setActive(next);
-  };
+  // Liste au format attendu par HomeVideoSlidePanel (viewer unifié du feed).
+  const panelList = useMemo(
+    () =>
+      activeVideos.map((v) => ({
+        id: v.videoId,
+        url: v.videoUrl,
+        business_name: v.owner.name,
+        pageBusinessName: v.owner.name,
+        pageBusinessId: v.owner.id,
+        owner: { id: v.owner.id, name: v.owner.name, logo_url: v.owner.logo_url, logo_bg: null },
+        social: v.channelUrl
+          ? { platform: "youtube" as const, account: v.owner.name, url: v.channelUrl }
+          : null,
+        showSocialBadge: !!v.channelUrl,
+        description: null,
+        manualCard: null,
+        title: v.videoName,
+        price: null,
+      })),
+    [activeVideos],
+  );
+  const activePanelVideo = active
+    ? panelList.find((v) => v.id === active.videoId) || null
+    : null;
 
   if (loading) {
     return (
