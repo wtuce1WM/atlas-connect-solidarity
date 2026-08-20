@@ -232,6 +232,11 @@ const VideoSlidePanel = ({
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
+  // Feed : quand la vidéo est liée à un établissement, la barre info ouvre la
+  // Full Description de BookOnlineSlidePanel de cet établissement (pas l'overlay local).
+  const [descBusinessId, setDescBusinessId] = useState<string | null>(null);
+  useEffect(() => { setDescBusinessId(null); }, [videoId, videoUrl]);
+  useEffect(() => { if (!open) setDescBusinessId(null); }, [open]);
   // Transition morphée : la barre info viewer sert de « graine » à l'overlay Full Description
   // (identique à BookOnlineSlidePanel).
   const [descMorphRect, setDescMorphRect] = useState<DOMRect | null>(null);
