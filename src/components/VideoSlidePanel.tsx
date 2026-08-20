@@ -1096,7 +1096,7 @@ const VideoSlidePanel = ({
                 type="button"
                 onClick={() => {
                   navigator.clipboard?.writeText(String(videoId)).then(
-                    () => toast({ description: `ID copié : ${videoId}` }),
+                    () => toast.success(`ID copié : ${videoId}`),
                     () => {},
                   );
                 }}
