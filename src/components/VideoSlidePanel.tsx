@@ -702,7 +702,7 @@ const VideoSlidePanel = ({
     >
       <div
         ref={panelRef}
-        className="absolute right-0 top-0 h-full w-full bg-black lg:bg-background border-l border-border shadow-2xl overflow-hidden"
+        className={`absolute right-0 top-0 h-full w-full bg-black shadow-2xl overflow-hidden${feedLayout ? "" : " lg:bg-background border-l border-border"}`}
         style={swipeNavigationEnabled ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
         onTouchStart={swipeNavigationEnabled ? (e) => {
           if (e.touches.length !== 1) return;
