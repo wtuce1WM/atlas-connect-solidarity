@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState, Suspense } from "react";
+import { useEffect, useRef, useState, useCallback, Suspense } from "react";
+import MediaViewerInfo from "@/components/slidepanel/MediaViewerInfo";
+
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
