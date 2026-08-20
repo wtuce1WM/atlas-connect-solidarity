@@ -242,7 +242,7 @@ interface BookOnlineSlidePanelProps {
   /** Layout "feed" du viewer vidéo (voir VideoSlidePanel) */
   feedLayout?: boolean;
   /** Auto-opens an overlay as soon as the data is ready (embed usage) */
-  initialOverlay?: "poi" | "reviews";
+  initialOverlay?: "poi" | "reviews" | "description";
   /** Embed mode: hides the internal close/Club affordances of the auto-opened overlay */
   embedMode?: boolean;
   /** Widget only: custom hex base color for the Google map background */
