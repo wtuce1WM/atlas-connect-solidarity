@@ -566,13 +566,14 @@ const VideoSlidePanel = ({
     };
   }, [videoUrl, videoId, soundOn, setSoundOn]);
 
-  // On mobile the embed URL forces mute=1 so autoplay works.
-  // Make sure the mute toggle reflects that when the video changes.
+  // L'URL d'embed force toujours mute=1 pour que l'autoplay démarre.
+  // Le toggle son reflète cet état de départ à chaque changement de vidéo.
   useEffect(() => {
-    if (!open || !isMobile) return;
+    if (!open) return;
     setYtMuted(true);
     setYtPlaying(true);
-  }, [videoUrl, videoId, open, isMobile]);
+  }, [videoUrl, videoId, open]);
+
 
   // Sync YouTube iframe state with the real player (onStateChange + volume)
   // + démutage après démarrage : l'URL d'embed reste toujours mute=1 (sinon
