@@ -5005,6 +5005,7 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         hideLeftCtas={props.hideLeftCtas}
         manualCardLabel={props.manualCardLabel}
         price={props.price}
+        feedLayout={props.feedLayout}
       />
     );
   }
