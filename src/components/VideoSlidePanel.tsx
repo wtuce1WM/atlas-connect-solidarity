@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState, Suspense } from "react";
+import { useEffect, useRef, useState, useCallback, Suspense } from "react";
+import MediaViewerInfo from "@/components/slidepanel/MediaViewerInfo";
+
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
@@ -225,6 +227,27 @@ const VideoSlidePanel = ({
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
+  // Transition morphée : la barre info viewer sert de « graine » à l'overlay Full Description
+  // (identique à BookOnlineSlidePanel).
+  const [descMorphRect, setDescMorphRect] = useState<DOMRect | null>(null);
+  const [descMorphDone, setDescMorphDone] = useState(false);
+  const startDescMorph = useCallback((rect?: DOMRect) => {
+    setDescMorphRect(rect ?? null);
+    setDescMorphDone(false);
+    setDescOverlayOpen(true);
+    if (rect) window.setTimeout(() => { setDescMorphDone(true); setDescMorphRect(null); }, 700);
+  }, []);
+  const applyDescMorph = useCallback((el: HTMLDivElement | null) => {
+    if (!el || !descMorphRect) return;
+    const r = descMorphRect;
+    const o = el.getBoundingClientRect();
+    if (!o.width || !o.height) return;
+    el.style.setProperty("--owm-mt", `${Math.max(0, r.top - o.top)}px`);
+    el.style.setProperty("--owm-ml", `${Math.max(0, r.left - o.left)}px`);
+    el.style.setProperty("--owm-mr", `${Math.max(0, o.right - r.right)}px`);
+    el.style.setProperty("--owm-mb", `${Math.max(0, o.bottom - r.bottom)}px`);
+  }, [descMorphRect]);
+
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [eventInfo, setEventInfo] = useState<{ name: string; logo_url: string | null; description: string | null; start_date: string | null; end_date: string | null; days_of_week: string[] | null; start_time: string | null; end_time: string | null } | null>(null);
   const [poiOverlayBusinessId, setPoiOverlayBusinessId] = useState<string | null>(null);
@@ -333,6 +356,52 @@ const VideoSlidePanel = ({
   }, [open, eventId, isGeneric, pageBusinessId]);
 
   const ctaBusiness = eventBusiness || pageBusiness || ownerBusiness;
+  // Feed layout : titre + teaser de la barre info (description vidéo, sinon établissement lié)
+  const feedInfoTitle = (description && description.trim())
+    ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
+    : (ctaBusiness?.name || businessName || "");
+  const feedInfoTeaser = (effectiveDescription || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim() || null;
+
+  // Navigation verticale à la molette / trackpad (desktop) — même effet que le swipe.
+  const wheelNav = useRef({ enabled: false, onPrev, onNext, hasPrev, hasNext });
+  wheelNav.current = {
+    enabled: !descOverlayOpen && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !agendaCity,
+    onPrev, onNext, hasPrev, hasNext,
+  };
+  useEffect(() => {
+    if (!open) return;
+    const el = panelRef.current;
+    if (!el) return;
+    let acc = 0;
+    let lockedUntil = 0;
+    let resetTimer: number | undefined;
+    const onWheel = (e: WheelEvent) => {
+      const s = wheelNav.current;
+      if (!s.enabled) return;
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      e.preventDefault();
+      const now = Date.now();
+      if (now < lockedUntil) return;
+      const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1);
+      acc += dy;
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => { acc = 0; }, 200);
+      if (Math.abs(acc) < 60) return;
+      const forward = acc > 0;
+      acc = 0;
+      lockedUntil = now + 550;
+      if (forward && s.hasNext) s.onNext?.();
+      else if (!forward && s.hasPrev) s.onPrev?.();
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => { el.removeEventListener("wheel", onWheel); window.clearTimeout(resetTimer); };
+  }, [open]);
+
+
   const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(ctaBusiness?.id ? String(ctaBusiness.id) : undefined);
   const videoLikeSource = isGeneric ? "generic" as const : "business" as const;
   const videoLikeId = videoId || null;
@@ -869,8 +938,17 @@ const VideoSlidePanel = ({
         )}
 
         {effectiveDescription && (
-          <DescriptionPlusButton html={effectiveDescription} businessName={businessName} isOpen={descOverlayOpen} onOpenChange={setDescOverlayOpen} />
+          <DescriptionPlusButton
+            html={effectiveDescription}
+            businessName={feedLayout ? (feedInfoTitle || businessName) : businessName}
+            isOpen={descOverlayOpen}
+            onOpenChange={(v) => { if (!v) { setDescOverlayOpen(false); setDescMorphRect(null); setDescMorphDone(false); } else setDescOverlayOpen(true); }}
+            morphRect={descMorphRect}
+            morphDone={descMorphDone}
+            applyMorph={applyDescMorph}
+          />
         )}
+
 
 
         <div className="relative w-full h-full">
@@ -1103,42 +1181,23 @@ const VideoSlidePanel = ({
                 }
                 return null;
               })()}
-              {/* Feed layout : Nom + Description (vidéo, sinon établissement) au-dessus de la barre liquidglass */}
-              {feedLayout && (() => {
-                const hasVideoDesc = !!(description && description.trim());
-                const feedTitle = hasVideoDesc
-                  ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName)
-                  : (ctaBusiness?.name || businessName);
-                const plain = (effectiveDescription || "")
-                  .replace(/<[^>]*>/g, " ")
-                  .replace(/&nbsp;/g, " ")
-                  .replace(/\s+/g, " ")
-                  .trim();
-                if (!feedTitle && !plain) return null;
-                return (
-                  <div
-                    className={`w-11/12 max-w-md text-center ${effectiveDescription ? "pointer-events-auto cursor-pointer" : "pointer-events-none"}`}
-                    onClick={() => { if (effectiveDescription) setDescOverlayOpen(true); }}
-                  >
-                    {feedTitle && (
-                      <p
-                        className="text-sm md:text-base font-bold uppercase text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.7)]"
-                        style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.06em" }}
-                      >
-                        {feedTitle}
-                      </p>
-                    )}
-                    {plain && (
-                      <p
-                        className="mt-1 text-xs md:text-sm text-white/85 line-clamp-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.7)]"
-                        style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif" }}
-                      >
-                        {plain}
-                      </p>
-                    )}
-                  </div>
-                );
-              })()}
+              {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel (masque transparent/blur + morph) */}
+              {feedLayout && (feedInfoTitle || feedInfoTeaser) && (
+                <div className="w-full max-w-xl mx-auto rounded-2xl bg-gradient-to-b from-black/25 to-black/55 backdrop-blur-[2px] border border-white/10 overflow-hidden pointer-events-auto">
+                  <MediaViewerInfo
+                    name={feedInfoTitle}
+                    city={ctaBusiness?.city}
+                    neighborhood={(ctaBusiness as any)?.neighborhood}
+                    avgOn20={null}
+                    totalReviewCount={0}
+                    teaser={feedInfoTeaser}
+                    language={language}
+                    bare
+                    onOpen={(rect) => { if (effectiveDescription) startDescMorph(rect); }}
+                  />
+                </div>
+              )}
+
               {ctaBusiness && !compactBusinessHeader && !hideDirections && (
                 <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
                   <button
@@ -1275,7 +1334,7 @@ export const DescriptionPlusInlineButton = ({ onOpen }: { onOpen: () => void }) 
   </button>
 );
 
-const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { html: string; businessName: string; isOpen: boolean; onOpenChange: (v: boolean) => void }) => {
+const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange, morphRect = null, morphDone = false, applyMorph }: { html: string; businessName: string; isOpen: boolean; onOpenChange: (v: boolean) => void; morphRect?: DOMRect | null; morphDone?: boolean; applyMorph?: (el: HTMLDivElement | null) => void }) => {
   const open = isOpen;
   const setOpen = onOpenChange;
   useEffect(() => {
@@ -1286,7 +1345,13 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { h
   }, [open]);
   if (!open) return null;
   return (
-    <OverlayShell zClass="z-[80]" animClass="animate-zoom-out-center" className="flex flex-col">
+    <OverlayShell
+      zClass="z-[80]"
+      animClass={morphRect ? "owm-desc-morph" : (morphDone ? "" : "animate-zoom-out-center")}
+      outerRef={applyMorph}
+      className="flex flex-col"
+    >
+
       <div className="absolute inset-0 bg-black/70" />
       <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
         <button
