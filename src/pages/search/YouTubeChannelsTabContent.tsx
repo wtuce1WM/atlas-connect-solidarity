@@ -45,6 +45,7 @@ interface ActiveVideo {
   videoUrl: string;
   videoName: string | null;
   owner: { id: string; name: string; logo_url: string | null };
+  channelUrl: string | null;
 }
 
 const YouTubeChannelsTabContent = ({ city, compact = false }: Props) => {
