@@ -9296,6 +9296,9 @@ export type Database = {
           id: string
           is_generic: boolean
           price: string
+          social_account: string
+          social_platform: string
+          social_url: string
           source: string
           thumbnail_url: string
           title: string
