@@ -74,7 +74,11 @@ export async function fetchBadgeVideoFeed(
     _city_ids: cityIds && cityIds.length > 0 ? cityIds : null,
   });
   if (error || !data) return [];
-  return (data as any[]).map((r) => ({
+  return (data as any[]).map(mapFeedRow);
+}
+
+function mapFeedRow(r: any): BadgeVideoFeedItem {
+  return {
     id: String(r.id),
     source: r.source,
     url: r.url,
@@ -87,5 +91,33 @@ export async function fetchBadgeVideoFeed(
     businessName: r.business_name ?? null,
     businessLogoUrl: r.business_logo_url ?? null,
     businessLogoBg: r.business_logo_bg ?? null,
-  }));
+  };
 }
+
+/**
+ * Version multi-badges (standard des suggestions IA `video_feed`) : même mélange
+ * stable par seed + round-robin, et renvoie le nombre total réel de vidéos
+ * éligibles pour permettre la pagination du feed.
+ */
+export async function fetchBadgesVideoFeed(
+  badgeIds: string[],
+  options: FetchBadgeVideoFeedOptions = {},
+): Promise<{ items: BadgeVideoFeedItem[]; total: number }> {
+  const ids = (badgeIds || []).filter(Boolean);
+  if (!ids.length) return { items: [], total: 0 };
+  const { seed, limit = 60, offset = 0, cityIds } = options;
+  const { data, error } = await (supabase as any).rpc("get_badges_video_feed", {
+    _badge_ids: ids,
+    _seed: seed ?? getBadgeFeedSeed(ids.join(",")),
+    _limit: limit,
+    _offset: offset,
+    _city_ids: cityIds && cityIds.length > 0 ? cityIds : null,
+  });
+  if (error || !data) return { items: [], total: 0 };
+  const rows = data as any[];
+  return {
+    items: rows.map(mapFeedRow),
+    total: rows.length ? Number(rows[0].total_count ?? rows.length) : 0,
+  };
+}
+
