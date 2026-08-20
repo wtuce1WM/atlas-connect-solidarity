@@ -303,7 +303,7 @@ export async function buildVideoFeedAnswer(
 
 
 /** Sérialise le marqueur front (échappe `-->` comme les autres marqueurs). */
-export function videoFeedMarker(payload: { title: string | null; videos: VideoFeedItem[] }): string {
+export function videoFeedMarker(payload: VideoFeedAnswer["payload"]): string {
   const safe = JSON.stringify(payload).replace(/-->/g, "--&gt;");
   return `\n\n<!--VIDEO_FEED:${safe}-->`;
 }
