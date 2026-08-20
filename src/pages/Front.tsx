@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import type { BadgeVideoFeedItem, DiscoveryFeedContext } from "@/lib/badgeVideoFeed";
+
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronUp, ArrowUpRight, Menu, X } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
