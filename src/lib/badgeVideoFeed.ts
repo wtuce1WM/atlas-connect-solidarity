@@ -126,3 +126,137 @@ export async function fetchBadgesVideoFeed(
   };
 }
 
+
+/* ------------------------------------------------------------------ *
+ * Mode « découverte » (CTA Demo de /front)
+ * ------------------------------------------------------------------ *
+ * Même source de vérité (`get_badges_video_feed`) : mélange stable par
+ * seed + round-robin par établissement/auteur. Différences :
+ *  - le pool est l'ensemble des badges « Activé sur le front »
+ *    (`badges.is_active_on_front`), donc aucune vidéo non badgée ;
+ *  - villes autorisées : Marrakech, Essaouira, ou aucune ville
+ *    (`_include_no_city`) ;
+ *  - le seed est tiré à chaque ouverture (découverte aléatoire).
+ */
+
+const DISCOVERY_CITIES = ["Marrakech", "Essaouira"];
+
+export interface DiscoveryFeedContext {
+  badgeIds: string[];
+  cityIds: string[];
+  seed: string;
+  total: number;
+}
+
+/** Badges activés sur le front + villes de découverte. */
+async function loadDiscoveryScope(): Promise<{ badgeIds: string[]; cityIds: string[] }> {
+  const [badgesRes, citiesRes] = await Promise.all([
+    (supabase as any).from("badges").select("id").eq("is_active_on_front", true),
+    (supabase as any).from("cities").select("id").in("name_fr", DISCOVERY_CITIES),
+  ]);
+  return {
+    badgeIds: ((badgesRes?.data as any[]) || []).map((b) => String(b.id)),
+    cityIds: ((citiesRes?.data as any[]) || []).map((c) => String(c.id)),
+  };
+}
+
+async function fetchDiscoveryPage(
+  scope: { badgeIds: string[]; cityIds: string[] },
+  seed: string,
+  limit: number,
+  offset: number,
+): Promise<{ items: BadgeVideoFeedItem[]; total: number }> {
+  const { data, error } = await (supabase as any).rpc("get_badges_video_feed", {
+    _badge_ids: scope.badgeIds,
+    _seed: seed,
+    _limit: limit,
+    _offset: offset,
+    _city_ids: scope.cityIds.length ? scope.cityIds : null,
+    _include_no_city: true,
+  });
+  if (error || !data) return { items: [], total: 0 };
+  const rows = data as any[];
+  return {
+    items: rows.map(mapFeedRow),
+    total: rows.length ? Number(rows[0].total_count ?? rows.length) : 0,
+  };
+}
+
+/** Vidéo YouTube aléatoire d'un établissement donné, mise en tête du feed. */
+async function fetchRandomYoutubeVideoOf(
+  businessName: string,
+  badgeIds: string[],
+): Promise<BadgeVideoFeedItem | null> {
+  const { data: biz } = await (supabase as any)
+    .from("businesses")
+    .select("id, name, logo_url, youtube_url")
+    .ilike("name", businessName)
+    .limit(1)
+    .maybeSingle();
+  if (!biz?.id) return null;
+  const { data } = await (supabase as any)
+    .from("business_youtube_videos")
+    .select("id, video_id, title, is_short, thumbnail, custom_thumbnail_url, business_youtube_video_badges!inner(badge_id)")
+    .eq("business_id", biz.id)
+    .in("business_youtube_video_badges.badge_id", badgeIds)
+    .not("video_id", "is", null);
+  const rows = ((data as any[]) || []).filter((r) => r.video_id);
+  if (!rows.length) return null;
+  const r = rows[Math.floor(Math.random() * rows.length)];
+  return {
+    id: String(r.id),
+    source: "youtube",
+    url: (r.is_short ? "https://www.youtube.com/shorts/" : "https://www.youtube.com/watch?v=") + r.video_id,
+    title: r.title || "",
+    description: null,
+    price: null,
+    thumbnailUrl: r.custom_thumbnail_url || r.thumbnail || `https://i.ytimg.com/vi/${r.video_id}/hqdefault.jpg`,
+    isGeneric: false,
+    businessId: String(biz.id),
+    businessName: biz.name,
+    businessLogoUrl: biz.logo_url ?? null,
+    businessLogoBg: null,
+    social: { platform: "youtube", account: String(biz.name), url: biz.youtube_url ?? null },
+  } as BadgeVideoFeedItem;
+}
+
+/**
+ * Premier lot du feed découverte, avec injection éditoriale d'une vidéo
+ * YouTube aléatoire de `featuredAuthor` en tête (si elle n'est pas déjà là).
+ */
+export async function fetchDiscoveryVideoFeed(options: {
+  limit?: number;
+  featuredAuthor?: string | null;
+} = {}): Promise<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext }> {
+  const { limit = 60, featuredAuthor = null } = options;
+  const seed = randomSeed();
+  const scope = await loadDiscoveryScope();
+  const empty: DiscoveryFeedContext = { ...scope, seed, total: 0 };
+  if (!scope.badgeIds.length) return { items: [], ctx: empty };
+
+  const [{ items, total }, featured] = await Promise.all([
+    fetchDiscoveryPage(scope, seed, limit, 0),
+    featuredAuthor ? fetchRandomYoutubeVideoOf(featuredAuthor, scope.badgeIds) : Promise.resolve(null),
+  ]);
+
+  let list = items;
+  if (featured) {
+    list = [featured, ...items.filter((it) => it.id !== featured.id)];
+  }
+  return { items: list, ctx: { ...scope, seed, total } };
+}
+
+/** Pagination du feed découverte (même seed, donc même ordre). */
+export async function fetchDiscoveryVideoFeedPage(
+  ctx: DiscoveryFeedContext,
+  offset: number,
+  limit = 30,
+): Promise<BadgeVideoFeedItem[]> {
+  const { items } = await fetchDiscoveryPage(
+    { badgeIds: ctx.badgeIds, cityIds: ctx.cityIds },
+    ctx.seed,
+    limit,
+    offset,
+  );
+  return items;
+}

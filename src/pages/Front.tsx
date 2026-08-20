@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import type { BadgeVideoFeedItem, DiscoveryFeedContext } from "@/lib/badgeVideoFeed";
+
+// Lecteur unifié du feed vidéo (même viewer que la route IA `video_feed`).
+const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
+
+
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronUp, ArrowUpRight, Menu, X } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
@@ -198,6 +204,73 @@ const Front = () => {
   const [voiceActive, setVoiceActive] = useState(false);
   const [accrocheVisible, setAccrocheVisible] = useState(false);
   const [bulletsVisible, setBulletsVisible] = useState(false);
+
+  /* ---- CTA Demo : feed vidéo « découverte » (viewer unifié HomeVideoSlidePanel) ---- */
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoList, setDemoList] = useState<any[]>([]);
+  const [demoCtx, setDemoCtx] = useState<DiscoveryFeedContext | null>(null);
+  const [demoActiveId, setDemoActiveId] = useState<string | null>(null);
+  const [demoTime, setDemoTime] = useState(0);
+  const demoLoadingMoreRef = useRef(false);
+
+  const toPanelVideo = (v: BadgeVideoFeedItem) => ({
+    id: v.id,
+    url: v.url,
+    business_name: v.businessName || "",
+    pageBusinessName: v.businessName ?? null,
+    pageBusinessId: v.businessId ?? null,
+    owner: v.businessId
+      ? { id: v.businessId, name: v.businessName || "", logo_url: v.businessLogoUrl ?? null, logo_bg: v.businessLogoBg ?? null }
+      : null,
+    social: v.social ?? null,
+    showSocialBadge: !!v.social,
+    description: v.description ?? null,
+    manualCard: null,
+    title: v.title ?? null,
+    price: v.price ?? null,
+    _isGeneric: !!v.isGeneric,
+  });
+
+  const openDemoFeed = useCallback(async () => {
+    if (demoLoading) return;
+    setDemoLoading(true);
+    try {
+      const { fetchDiscoveryVideoFeed } = await import("@/lib/badgeVideoFeed");
+      const { items, ctx } = await fetchDiscoveryVideoFeed({ limit: 60, featuredAuthor: "Tarik Belasri" });
+      if (!items.length) return;
+      setDemoList(items.map(toPanelVideo));
+      setDemoCtx(ctx);
+      setDemoTime(0);
+      demoLoadingMoreRef.current = false;
+      setDemoActiveId(items[0].id);
+    } finally {
+      setDemoLoading(false);
+    }
+  }, [demoLoading]);
+
+  const maybeLoadMoreDemo = useCallback(async (currentId: string) => {
+    const ctx = demoCtx;
+    if (!ctx || demoLoadingMoreRef.current) return;
+    const idx = demoList.findIndex((v) => v.id === currentId);
+    if (idx < 0 || idx < demoList.length - 10) return;
+    if (demoList.length >= ctx.total) return;
+    demoLoadingMoreRef.current = true;
+    try {
+      const { fetchDiscoveryVideoFeedPage } = await import("@/lib/badgeVideoFeed");
+      const items = await fetchDiscoveryVideoFeedPage(ctx, demoList.length, 30);
+      if (items.length) {
+        setDemoList((prev) => {
+          const seen = new Set(prev.map((v) => v.id));
+          return [...prev, ...items.filter((it) => !seen.has(it.id)).map(toPanelVideo)];
+        });
+      }
+    } catch {
+      /* pagination best-effort */
+    } finally {
+      demoLoadingMoreRef.current = false;
+    }
+  }, [demoCtx, demoList]);
+
 
   /** Auto-fit du slogan écran 1 : taille max possible dans l'espace réellement libre
    *  (conteneur − paddings − bloc inférieur), au lieu d'une taille calculée sur le
@@ -618,9 +691,10 @@ const Front = () => {
           >
             <button
               type="button"
-              aria-label="Demo (bientôt)"
-              onClick={(e) => e.stopPropagation()}
-              className="demo-cta group relative overflow-hidden rounded-xl border border-white/25 bg-white/[0.08] px-6 py-2.5 backdrop-blur-2xl transition-all duration-300 hover:scale-[1.03] hover:border-white/45 hover:bg-white/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98]"
+              aria-label="Demo — découverte vidéo"
+              onClick={(e) => { e.stopPropagation(); void openDemoFeed(); }}
+              disabled={demoLoading}
+              className="demo-cta group relative overflow-hidden rounded-xl border border-white/25 bg-white/[0.08] px-6 py-2.5 backdrop-blur-2xl transition-all duration-300 hover:scale-[1.03] hover:border-white/45 hover:bg-white/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98] disabled:opacity-70"
             >
               <span className="relative z-10 font-roboto text-base font-semibold uppercase leading-none tracking-wide text-[#F4EEE4] md:text-lg">
                 Demo
@@ -629,8 +703,9 @@ const Front = () => {
               <span className="demo-shimmer absolute inset-0 -translate-x-full" aria-hidden="true" />
             </button>
             <span className="font-roboto text-[0.65rem] uppercase tracking-[0.18em] text-[rgba(244,238,228,0.7)]">
-              (bientôt)
+              {demoLoading ? "chargement…" : "découverte"}
             </span>
+
           </div>
 
 
@@ -920,8 +995,29 @@ const Front = () => {
           </span>
         </button>
       </div>
+
+      {demoActiveId && (() => {
+        const active = demoList.find((v) => v.id === demoActiveId) || null;
+        if (!active) return null;
+        return (
+          <Suspense fallback={null}>
+            <HomeVideoSlidePanel
+              open
+              onClose={() => setDemoActiveId(null)}
+              activeVideo={active as any}
+              activeList={demoList as any}
+              onActiveVideoChange={(v: any) => { setDemoActiveId(v.id); setDemoTime(0); void maybeLoadMoreDemo(String(v.id)); }}
+              isActiveGeneric={!!active._isGeneric}
+              currentTime={demoTime}
+              onTimeUpdate={setDemoTime}
+              returnContext={null}
+            />
+          </Suspense>
+        );
+      })()}
     </section>
   );
+
 };
 
 export default Front;
