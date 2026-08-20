@@ -266,13 +266,15 @@ const BookOnlineSlidePanelInner = ({
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
-  poiOverrideIds, poiOverrideTitle,
+  poiOverrideIds, poiOverrideTitle, feedLayout,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const rateIframeHeight = useEmbedIframeHeight("owm-rate-height", 380);
   const effectiveOnPrev = onPrevBusiness ?? onPrev;
-  // Chrome navigateur (barres iOS) en noir tant que le panneau est monté hors embed
-  useDarkBrowserChrome(!embedMode);
+  // Chrome navigateur (barres iOS) en noir tant que le panneau est monté hors embed.
+  // Le feed vidéo (HomeVideoSlidePanel) est plein cadre même en embed → chrome noir aussi,
+  // sinon iOS Safari teinte la bande basse avec le beige de la page.
+  useDarkBrowserChrome(!embedMode || !!feedLayout);
 
   const effectiveOnNext = onNextBusiness ?? onNext;
   const effectiveHasPrev = hasPrevBusiness ?? hasPrev;
