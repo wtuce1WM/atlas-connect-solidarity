@@ -366,6 +366,42 @@ const VideoSlidePanel = ({
     .replace(/\s+/g, " ")
     .trim() || null;
 
+  // Navigation verticale à la molette / trackpad (desktop) — même effet que le swipe.
+  const wheelNav = useRef({ enabled: false, onPrev, onNext, hasPrev, hasNext });
+  wheelNav.current = {
+    enabled: !descOverlayOpen && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !agendaCity,
+    onPrev, onNext, hasPrev, hasNext,
+  };
+  useEffect(() => {
+    if (!open) return;
+    const el = panelRef.current;
+    if (!el) return;
+    let acc = 0;
+    let lockedUntil = 0;
+    let resetTimer: number | undefined;
+    const onWheel = (e: WheelEvent) => {
+      const s = wheelNav.current;
+      if (!s.enabled) return;
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      e.preventDefault();
+      const now = Date.now();
+      if (now < lockedUntil) return;
+      const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1);
+      acc += dy;
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => { acc = 0; }, 200);
+      if (Math.abs(acc) < 60) return;
+      const forward = acc > 0;
+      acc = 0;
+      lockedUntil = now + 550;
+      if (forward && s.hasNext) s.onNext?.();
+      else if (!forward && s.hasPrev) s.onPrev?.();
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => { el.removeEventListener("wheel", onWheel); window.clearTimeout(resetTimer); };
+  }, [open]);
+
+
   const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(ctaBusiness?.id ? String(ctaBusiness.id) : undefined);
   const videoLikeSource = isGeneric ? "generic" as const : "business" as const;
   const videoLikeId = videoId || null;
