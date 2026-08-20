@@ -869,8 +869,17 @@ const VideoSlidePanel = ({
         )}
 
         {effectiveDescription && (
-          <DescriptionPlusButton html={effectiveDescription} businessName={businessName} isOpen={descOverlayOpen} onOpenChange={setDescOverlayOpen} />
+          <DescriptionPlusButton
+            html={effectiveDescription}
+            businessName={feedLayout ? (feedInfoTitle || businessName) : businessName}
+            isOpen={descOverlayOpen}
+            onOpenChange={(v) => { if (!v) { setDescOverlayOpen(false); setDescMorphRect(null); setDescMorphDone(false); } else setDescOverlayOpen(true); }}
+            morphRect={descMorphRect}
+            morphDone={descMorphDone}
+            applyMorph={applyDescMorph}
+          />
         )}
+
 
 
         <div className="relative w-full h-full">
