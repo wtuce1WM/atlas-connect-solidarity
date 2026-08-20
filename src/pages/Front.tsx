@@ -228,6 +228,7 @@ const Front = () => {
     manualCard: null,
     title: v.title ?? null,
     price: v.price ?? null,
+    badges: v.badges ?? null,
     _isGeneric: !!v.isGeneric,
   });
 
@@ -271,6 +272,20 @@ const Front = () => {
     }
   }, [demoCtx, demoList]);
 
+
+  /** Clic sur une chip badge dans le viewer → relance du feed sur ce badge. */
+  const selectDemoBadge = useCallback(async (badge: { id: string; name: string }) => {
+    const ctx = demoCtx;
+    if (!ctx) return;
+    const { fetchDiscoveryVideoFeedForBadge } = await import("@/lib/badgeVideoFeed");
+    const { items, ctx: nextCtx } = await fetchDiscoveryVideoFeedForBadge(ctx, badge.id, 60);
+    if (!items.length) return;
+    setDemoList(items.map(toPanelVideo));
+    setDemoCtx(nextCtx);
+    setDemoTime(0);
+    demoLoadingMoreRef.current = false;
+    setDemoActiveId(items[0].id);
+  }, [demoCtx]);
 
   /** Auto-fit du slogan écran 1 : taille max possible dans l'espace réellement libre
    *  (conteneur − paddings − bloc inférieur), au lieu d'une taille calculée sur le
@@ -1011,6 +1026,7 @@ const Front = () => {
               currentTime={demoTime}
               onTimeUpdate={setDemoTime}
               returnContext={null}
+              onBadgeSelect={(b: any) => { void selectDemoBadge(b); }}
             />
           </Suspense>
         );
