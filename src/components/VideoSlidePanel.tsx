@@ -358,6 +358,29 @@ const VideoSlidePanel = ({
   }, [open, eventId, isGeneric, pageBusinessId]);
 
   const ctaBusiness = eventBusiness || pageBusiness || ownerBusiness;
+
+  // Feed layout : note /20 + nombre d'avis clients sous le nom (comme BookOnlineSlidePanel)
+  const [ratingRow, setRatingRow] = useState<any | null>(null);
+  useEffect(() => {
+    if (!open || !feedLayout || !ctaBusiness?.id) { setRatingRow(null); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("businesses")
+        .select(
+          "google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, avis_verifies_rating, avis_verifies_review_count, trustpilot_rating, trustpilot_review_count, kayak_rating, kayak_review_count, tourradar_rating, tourradar_review_count",
+        )
+        .eq("id", ctaBusiness.id)
+        .maybeSingle();
+      if (!cancelled) setRatingRow(data || null);
+    })();
+    return () => { cancelled = true; };
+  }, [open, feedLayout, ctaBusiness?.id]);
+  const feedAvgOn20 = useMemo(
+    () => (ratingRow ? computeWeightedRatingOn20(collectRatingSources(ratingRow)) : null),
+    [ratingRow],
+  );
+  const feedReviewCount = useMemo(() => (ratingRow ? getTotalReviewCount(ratingRow) : 0), [ratingRow]);
   // Feed layout : titre + teaser de la barre info (description vidéo, sinon établissement lié)
   const feedInfoTitle = (description && description.trim())
     ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
