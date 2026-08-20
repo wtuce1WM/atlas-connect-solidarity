@@ -50,6 +50,17 @@ export interface BadgeVideoFeedItem extends BlogArticleVideo {
   businessLogoBg?: string | null;
   /** Compte social attaché à la vidéo (logo + « Follow @… » dans le lecteur). */
   social?: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
+  /** Badges « Activé sur le front » liés à la vidéo (chips cliquables du viewer). */
+  badges?: FeedBadge[];
+}
+
+export interface FeedBadge {
+  id: string;
+  name: string;
+  name_en?: string | null;
+  color?: string | null;
+  text_color?: string | null;
+  sort_order?: number | null;
 }
 
 export interface FetchBadgeVideoFeedOptions {
@@ -93,6 +104,7 @@ function mapFeedRow(r: any): BadgeVideoFeedItem {
     businessName: r.business_name ?? null,
     businessLogoUrl: r.business_logo_url ?? null,
     businessLogoBg: r.business_logo_bg ?? null,
+    badges: Array.isArray(r.badges) ? (r.badges as FeedBadge[]) : [],
     social: r.social_platform && r.social_account
       ? { platform: r.social_platform, account: String(r.social_account).replace(/^@+/, ""), url: r.social_url ?? null }
       : null,
@@ -259,4 +271,19 @@ export async function fetchDiscoveryVideoFeedPage(
     offset,
   );
   return items;
+}
+
+/**
+ * Relance du feed découverte sur un seul badge (clic sur une chip du viewer).
+ * Même périmètre géographique (Marrakech / Essaouira / sans ville), nouveau seed.
+ */
+export async function fetchDiscoveryVideoFeedForBadge(
+  ctx: DiscoveryFeedContext,
+  badgeId: string,
+  limit = 60,
+): Promise<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext }> {
+  const seed = randomSeed();
+  const scope = { badgeIds: [badgeId], cityIds: ctx.cityIds };
+  const { items, total } = await fetchDiscoveryPage(scope, seed, limit, 0);
+  return { items, ctx: { ...scope, seed, total } };
 }
