@@ -2171,7 +2171,7 @@ const BookOnlineSlidePanelInner = ({
   }
 
 
-  if (!business) return null;
+  if (!business) { console.log("[dbg] Inner no business", businessId, isLoading); return null; }
 
   const destName = (d: Destination) => language === "en" && d.name_en ? d.name_en : d.name_fr;
 

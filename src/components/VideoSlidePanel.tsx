@@ -1320,6 +1320,7 @@ const VideoSlidePanel = ({
                     language={language}
                     bare
                     onOpen={(rect) => {
+                      console.log("[dbg] info bar open", { biz: ctaBusiness?.id, hasDesc: !!effectiveDescription });
                       // Vidéo liée à un établissement → Full Description de BookOnlineSlidePanel.
                       if (ctaBusiness?.id) { setDescBusinessId(String(ctaBusiness.id)); return; }
                       if (effectiveDescription) startDescMorph(rect);
@@ -1446,6 +1447,7 @@ const VideoSlidePanel = ({
             onClose={() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); }}
           />
         )}
+        {(console.log("[dbg] render descBusinessId", descBusinessId, typeof LazyBusinessPanel) as any) || null}
         {descBusinessId && (
           <Suspense fallback={null}>
             <LazyBusinessPanel
