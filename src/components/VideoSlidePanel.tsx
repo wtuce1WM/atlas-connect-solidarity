@@ -1298,7 +1298,7 @@ export const DescriptionPlusInlineButton = ({ onOpen }: { onOpen: () => void }) 
   </button>
 );
 
-const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { html: string; businessName: string; isOpen: boolean; onOpenChange: (v: boolean) => void }) => {
+const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange, morphRect = null, morphDone = false, applyMorph }: { html: string; businessName: string; isOpen: boolean; onOpenChange: (v: boolean) => void; morphRect?: DOMRect | null; morphDone?: boolean; applyMorph?: (el: HTMLDivElement | null) => void }) => {
   const open = isOpen;
   const setOpen = onOpenChange;
   useEffect(() => {
@@ -1309,7 +1309,13 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { h
   }, [open]);
   if (!open) return null;
   return (
-    <OverlayShell zClass="z-[80]" animClass="animate-zoom-out-center" className="flex flex-col">
+    <OverlayShell
+      zClass="z-[80]"
+      animClass={morphRect ? "owm-desc-morph" : (morphDone ? "" : "animate-zoom-out-center")}
+      outerRef={applyMorph}
+      className="flex flex-col"
+    >
+
       <div className="absolute inset-0 bg-black/70" />
       <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
         <button
