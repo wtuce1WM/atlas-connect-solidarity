@@ -356,6 +356,16 @@ const VideoSlidePanel = ({
   }, [open, eventId, isGeneric, pageBusinessId]);
 
   const ctaBusiness = eventBusiness || pageBusiness || ownerBusiness;
+  // Feed layout : titre + teaser de la barre info (description vidéo, sinon établissement lié)
+  const feedInfoTitle = (description && description.trim())
+    ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
+    : (ctaBusiness?.name || businessName || "");
+  const feedInfoTeaser = (effectiveDescription || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim() || null;
+
   const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(ctaBusiness?.id ? String(ctaBusiness.id) : undefined);
   const videoLikeSource = isGeneric ? "generic" as const : "business" as const;
   const videoLikeId = videoId || null;
