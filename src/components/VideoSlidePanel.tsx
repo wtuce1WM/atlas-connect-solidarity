@@ -970,16 +970,80 @@ const VideoSlidePanel = ({
           </div>
         )}
 
-        {/* Left sidebar — YouTube button (hover-expand, mirror of BookOnlineSlidePanel) */}
-        {!hideLeftCtas && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && ctaBusiness?.youtube_url && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
-            <div
-              onClick={() => { setShowYoutubeOverlay(true); }}
-              className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4"
-            >
-              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">YouTube</span>
-              <YouTubeIcon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300 text-red-600" />
-            </div>
+        {/* Left sidebar CTAs — miroir du rail de BookOnlineSlidePanel.
+            Hors feed : uniquement le bouton YouTube (comportement historique).
+            En feed : Langue / Localisation / Itinéraire / YouTube dès qu'un
+            établissement est lié à la vidéo (y compris générique/externe). */}
+        {((feedLayout && !!ctaBusiness) || (!hideLeftCtas && !!ctaBusiness?.youtube_url))
+          && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
+          <div dir="ltr" className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
+            {feedLayout && (() => {
+              const LANG_OPTIONS = [
+                { code: "fr" as const, flag: "🇫🇷", label: "Français" },
+                { code: "en" as const, flag: "🇬🇧", label: "English" },
+                { code: "ar" as const, flag: "🇲🇦", label: "العربية" },
+              ];
+              const ctaLabel = language === "en" ? "Language" : language === "ar" ? "اللغة" : "Langue";
+              const currentLang = LANG_OPTIONS.find((opt) => opt.code === language) || LANG_OPTIONS[0];
+              const otherLangs = LANG_OPTIONS.filter((opt) => opt.code !== language);
+              return (
+                <div className="group relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+                  <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{ctaLabel}</span>
+                  <span className="flex items-center gap-0 group-hover:gap-1.5 group-hover:ml-2 transition-[margin,gap] duration-300">
+                    <button
+                      type="button"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={`Current language ${currentLang.label}`}
+                      title={currentLang.label}
+                      className="relative inline-flex items-center justify-center h-[22px] w-[22px] text-[19px] leading-none shrink-0"
+                    >
+                      {currentLang.flag}
+                    </button>
+                    <span className="flex items-center gap-1.5 opacity-0 max-w-0 overflow-hidden group-hover:opacity-100 group-hover:max-w-[120px] transition-all duration-300 ease-out shrink-0">
+                      {otherLangs.map((opt) => (
+                        <button
+                          key={opt.code}
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setLanguage(opt.code); }}
+                          aria-label={`Switch to ${opt.label}`}
+                          title={opt.label}
+                          className="relative inline-flex items-center justify-center text-[22px] leading-none shrink-0 opacity-60 hover:opacity-100 hover:scale-110 transition-all duration-200"
+                        >
+                          {opt.flag}
+                        </button>
+                      ))}
+                    </span>
+                  </span>
+                </div>
+              );
+            })()}
+            {feedLayout && ctaBusiness?.id && (ctaBusiness.latitude || ctaBusiness.longitude) && (
+              <div
+                onClick={() => setPoiOverlayBusinessId(String(ctaBusiness.id))}
+                className="group relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4"
+              >
+                <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation"}</span>
+                <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+              </div>
+            )}
+            {feedLayout && !hideDirections && ctaBusiness?.latitude && ctaBusiness?.longitude && (
+              <div
+                onClick={() => setDirectionsBusiness(ctaBusiness)}
+                className="group relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4"
+              >
+                <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "Directions" : language === "ar" ? "طريق" : "Itinéraire"}</span>
+                <GiWalkingBoot className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+              </div>
+            )}
+            {ctaBusiness?.youtube_url && (
+              <div
+                onClick={() => { setShowYoutubeOverlay(true); }}
+                className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4"
+              >
+                <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">YouTube</span>
+                <YouTubeIcon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300 text-red-600" />
+              </div>
+            )}
           </div>
         )}
 
