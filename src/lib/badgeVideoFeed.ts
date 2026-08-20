@@ -48,6 +48,8 @@ export interface BadgeVideoFeedItem extends BlogArticleVideo {
   source: "internal" | "generic" | "youtube";
   businessLogoUrl?: string | null;
   businessLogoBg?: string | null;
+  /** Compte social attaché à la vidéo (logo + « Follow @… » dans le lecteur). */
+  social?: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
 }
 
 export interface FetchBadgeVideoFeedOptions {
