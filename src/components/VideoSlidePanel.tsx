@@ -358,7 +358,7 @@ const VideoSlidePanel = ({
       setPageBusiness((bizRow as any) || null);
     })();
     return () => { cancelled = true; };
-  }, [open, eventId, isGeneric, pageBusinessId]);
+  }, [open, eventId, isGeneric, pageBusinessId, feedLayout]);
 
   const ctaBusiness = eventBusiness || pageBusiness || ownerBusiness;
 
