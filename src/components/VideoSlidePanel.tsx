@@ -1250,7 +1250,8 @@ const VideoSlidePanel = ({
 
               {ctaBusiness && !compactBusinessHeader && !hideDirections && (
                 <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
-                  {social?.platform !== "youtube" && (
+                  {/* Feed (HomeVideoSlidePanel) : pas de CTA « En savoir + » (issu des url 2 à 5) */}
+                  {!feedLayout && social?.platform !== "youtube" && (
                     <button
                       type="button"
                       onClick={async () => {
