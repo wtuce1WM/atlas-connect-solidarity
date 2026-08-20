@@ -1315,7 +1315,8 @@ const VideoSlidePanel = ({
               )}
 
 
-              {ctaBusiness && !compactBusinessHeader && !hideDirections && (
+              {/* Feed : plus de CTA sur la vidéo (En savoir + / Itinéraire) — ils vivent dans le rail de gauche */}
+              {!feedLayout && ctaBusiness && !compactBusinessHeader && !hideDirections && (
                 <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
                   {/* Feed (HomeVideoSlidePanel) : pas de CTA « En savoir + » (issu des url 2 à 5) */}
                   {!feedLayout && social?.platform !== "youtube" && (
