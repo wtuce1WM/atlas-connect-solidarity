@@ -43,6 +43,15 @@ export async function fetchBlogVideoSection(
   const { badge_id, city_ids, price_type } = config;
   const cityFilterActive = Array.isArray(city_ids) && city_ids.length > 0;
 
+  // Feed portrait unifié (3 sources, ordre mélangé + round-robin par auteur).
+  if (config.shuffle_portrait_feed) {
+    return fetchBadgeVideoFeed(badge_id, {
+      cityIds: cityFilterActive ? (city_ids as string[]) : null,
+      limit: 120,
+    });
+  }
+
+
   // --- 1) Internal business_documents (video) filtered by badge (+ cities + price_type)
   let internal: BlogArticleVideo[] = [];
   const { data: badgedDocs } = await supabase
