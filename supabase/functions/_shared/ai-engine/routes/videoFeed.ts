@@ -263,7 +263,7 @@ export async function buildVideoFeedAnswer(
   admin: any,
   opts: { badgeIds: string[]; pinnedBusinessIds?: string[]; label?: string | null; lang: Lang; max?: number; city?: string | null; seed?: string },
 ): Promise<VideoFeedAnswer | null> {
-  const max = opts.max ?? 30;
+  const max = opts.max ?? 60;
   const badgeIds = (opts.badgeIds || []).filter(Boolean);
 
   let videos: VideoFeedItem[] = [];
