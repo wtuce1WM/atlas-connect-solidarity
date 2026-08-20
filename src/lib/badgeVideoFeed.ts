@@ -50,6 +50,17 @@ export interface BadgeVideoFeedItem extends BlogArticleVideo {
   businessLogoBg?: string | null;
   /** Compte social attaché à la vidéo (logo + « Follow @… » dans le lecteur). */
   social?: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
+  /** Badges « Activé sur le front » liés à la vidéo (chips cliquables du viewer). */
+  badges?: FeedBadge[];
+}
+
+export interface FeedBadge {
+  id: string;
+  name: string;
+  name_en?: string | null;
+  color?: string | null;
+  text_color?: string | null;
+  sort_order?: number | null;
 }
 
 export interface FetchBadgeVideoFeedOptions {
@@ -93,6 +104,7 @@ function mapFeedRow(r: any): BadgeVideoFeedItem {
     businessName: r.business_name ?? null,
     businessLogoUrl: r.business_logo_url ?? null,
     businessLogoBg: r.business_logo_bg ?? null,
+    badges: Array.isArray(r.badges) ? (r.badges as FeedBadge[]) : [],
     social: r.social_platform && r.social_account
       ? { platform: r.social_platform, account: String(r.social_account).replace(/^@+/, ""), url: r.social_url ?? null }
       : null,
@@ -203,7 +215,24 @@ async function fetchRandomYoutubeVideoOf(
   const rows = ((data as any[]) || []).filter((r) => r.video_id);
   if (!rows.length) return null;
   const r = rows[Math.floor(Math.random() * rows.length)];
+  // Badges « Activé sur le front » de la vidéo injectée (chips du viewer).
+  const { data: badgeLinks } = await (supabase as any)
+    .from("business_youtube_video_badges")
+    .select("badges!inner(id, name_fr, name_en, color_hex, text_color_hex, sort_order, is_active_on_front)")
+    .eq("youtube_video_id", r.id);
+  const badges: FeedBadge[] = ((badgeLinks as any[]) || [])
+    .map((l) => l.badges)
+    .filter((b: any) => b?.is_active_on_front)
+    .map((b: any) => ({
+      id: String(b.id),
+      name: b.name_fr,
+      name_en: b.name_en ?? null,
+      color: b.color_hex ?? null,
+      text_color: b.text_color_hex ?? null,
+      sort_order: b.sort_order ?? null,
+    }));
   return {
+    badges,
     id: String(r.id),
     source: "youtube",
     url: (r.is_short ? "https://www.youtube.com/shorts/" : "https://www.youtube.com/watch?v=") + r.video_id,
@@ -259,4 +288,19 @@ export async function fetchDiscoveryVideoFeedPage(
     offset,
   );
   return items;
+}
+
+/**
+ * Relance du feed découverte sur un seul badge (clic sur une chip du viewer).
+ * Même périmètre géographique (Marrakech / Essaouira / sans ville), nouveau seed.
+ */
+export async function fetchDiscoveryVideoFeedForBadge(
+  ctx: DiscoveryFeedContext,
+  badgeId: string,
+  limit = 60,
+): Promise<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext }> {
+  const seed = randomSeed();
+  const scope = { badgeIds: [badgeId], cityIds: ctx.cityIds };
+  const { items, total } = await fetchDiscoveryPage(scope, seed, limit, 0);
+  return { items, ctx: { ...scope, seed, total } };
 }

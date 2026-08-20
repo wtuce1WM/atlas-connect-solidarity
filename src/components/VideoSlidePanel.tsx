@@ -96,6 +96,10 @@ interface VideoSlidePanelProps {
   manualCardLabel?: string | null;
   /** Price of the item for pricing badge */
   price?: string | null;
+  /** Badges (« Activé sur le front ») affichés en haut de la vidéo en mode feed */
+  feedBadges?: { id: string; name: string; color?: string | null; text_color?: string | null }[] | null;
+  /** Clic sur une chip badge → relance du feed sur ce badge */
+  onFeedBadgeSelect?: (badge: { id: string; name: string }) => void;
   /** Layout "feed" : pas de badge copyright, pas d'entête business, pas de chevrons (swipe vertical), nom+description au-dessus de la barre de navigation */
   feedLayout?: boolean;
 }
@@ -162,6 +166,8 @@ const VideoSlidePanel = ({
   hideLeftCtas = false,
   manualCardLabel = null,
   price = null,
+  feedBadges = null,
+  onFeedBadgeSelect,
   feedLayout = false,
 }: VideoSlidePanelProps) => {
 
@@ -978,6 +984,31 @@ const VideoSlidePanel = ({
             >
               <ChevronDown className="h-5 w-5" />
             </button>
+          </div>
+        )}
+
+        {/* Chips badges (« Activé sur le front ») en haut de la vidéo — feed uniquement.
+            Un clic relance le feed sur le badge choisi (si le parent le gère). */}
+        {feedLayout && !!feedBadges?.length && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
+          && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
+          <div className="absolute top-16 md:top-16 left-3 right-3 z-[66] flex flex-wrap justify-center gap-1.5 pointer-events-none">
+            {feedBadges.slice(0, 6).map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                disabled={!onFeedBadgeSelect}
+                onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.name })}
+                className="pointer-events-auto inline-flex items-center rounded-full border border-white/25 px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide shadow-lg backdrop-blur-md transition-transform active:scale-95"
+                style={{
+                  backgroundColor: b.color || "rgba(0,0,0,0.7)",
+                  color: b.text_color || "#FFFFFF",
+                  fontFamily: "'Montserrat',system-ui,sans-serif",
+                }}
+                title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
+              >
+                {b.name}
+              </button>
+            ))}
           </div>
         )}
 
