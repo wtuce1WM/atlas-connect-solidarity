@@ -1520,8 +1520,8 @@ const VideoSlidePanel = ({
               <LazyBusinessPanel
                 open
                 businessId={descBusinessId}
-                initialOverlay="description"
-                onClose={() => setDescBusinessId(null)}
+                initialOverlay={nestedOverlayKind}
+                onClose={() => { setDescBusinessId(null); setNestedOverlayKind("description"); }}
               />
             </Suspense>
           </div>
