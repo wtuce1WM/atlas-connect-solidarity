@@ -992,7 +992,7 @@ const VideoSlidePanel = ({
             (centre de l'écran) pour rester lisibles sans masquer le contenu principal.
             z-index maximal sous les overlays majeurs (description, recherche, etc.) pour
             passer au-dessus de l'ID vidéo temporaire et des cartes POI/business du timeframe. */}
-        {feedLayout && !!feedBadges?.length && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
+        {feedLayout && !!feedBadges?.length && feedBadges.length > 1 && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
           <div className="absolute top-[22%] left-3 right-3 z-[100] flex flex-wrap justify-center gap-1.5 pointer-events-none">
             {feedBadges.slice(0, 6).map((b) => (
@@ -1343,7 +1343,7 @@ const VideoSlidePanel = ({
               })()}
               {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer */}
               {feedLayout && (feedInfoTitle || feedInfoTeaser) && (
-                <div className="relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto md:w-[calc(100%-1rem)] md:max-w-[450px] rounded-t-2xl border-x border-b-0 border-white/10 bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] pointer-events-auto pb-[calc(120px+env(safe-area-inset-bottom))] -mb-[calc(120px+env(safe-area-inset-bottom))] lg:pb-[7rem] lg:-mb-[7rem]">
+                <div className="relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto md:w-[calc(100%-1rem)] md:max-w-[450px] rounded-t-2xl border-x border-b-0 border-white/10 bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] pointer-events-auto pb-[calc(72px+env(safe-area-inset-bottom))] -mb-[calc(72px+env(safe-area-inset-bottom))] lg:pb-[4.5rem] lg:-mb-[4.5rem]">
                   <MediaViewerInfo
                     name={feedInfoTitle}
                     city={ctaBusiness?.city}
