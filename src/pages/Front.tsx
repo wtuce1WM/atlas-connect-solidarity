@@ -184,13 +184,48 @@ const Front = () => {
     };
   }, [isPortrait]);
 
+  // progression virtuelle lissée
+  const setTarget = useCallback(
+    (v: number) => {
+      targetRef.current = clamp01(v);
+      if (reduced) {
+        currentRef.current = targetRef.current;
+        setProgress(targetRef.current);
+        return;
+      }
+      if (rafRef.current !== null) return;
+      const tick = () => {
+        currentRef.current += (targetRef.current - currentRef.current) * 0.32;
+        if (Math.abs(targetRef.current - currentRef.current) < 0.001) {
+          currentRef.current = targetRef.current;
+          setProgress(currentRef.current);
+          rafRef.current = null;
+          return;
+        }
+        setProgress(currentRef.current);
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    },
+    [reduced]
+  );
+
+  useEffect(
+    () => () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    },
+    []
+  );
+
   // auto-avance du récit
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
-    // Fin du récit : on revient au bullet 1 (affiché seul), puis on s'arrête.
+    // Fin du récit : on revient brièvement au bullet 1, puis bascule vers l'écran 2.
     if (from >= STEPS.length - 1) {
-      const last = CAROUSEL_DURATIONS_MS[CAROUSEL_DURATIONS_MS.length - 1] ?? STEP_MS;
-      timerRef.current = window.setTimeout(() => setStep(PERMANENT_STEP), last);
+      timerRef.current = window.setTimeout(() => {
+        setStep(PERMANENT_STEP);
+        window.setTimeout(() => setTarget(1), 900);
+      }, 600);
       return;
     }
     const delay =
@@ -204,7 +239,7 @@ const Front = () => {
         return next;
       });
     }, delay);
-  }, []);
+  }, [setTarget]);
 
   useEffect(() => {
     scheduleNext(PERMANENT_STEP);
@@ -395,55 +430,13 @@ const Front = () => {
   }, [scheduleNext, step]);
 
 
-  // progression virtuelle lissée
-  const setTarget = useCallback(
-    (v: number) => {
-      targetRef.current = clamp01(v);
-      if (reduced) {
-        currentRef.current = targetRef.current;
-        setProgress(targetRef.current);
-        return;
-      }
-      if (rafRef.current !== null) return;
-      const tick = () => {
-        currentRef.current += (targetRef.current - currentRef.current) * 0.14;
-        if (Math.abs(targetRef.current - currentRef.current) < 0.001) {
-          currentRef.current = targetRef.current;
-          setProgress(currentRef.current);
-          rafRef.current = null;
-          return;
-        }
-        setProgress(currentRef.current);
-        rafRef.current = requestAnimationFrame(tick);
-      };
-      rafRef.current = requestAnimationFrame(tick);
-    },
-    [reduced]
-  );
-
-  useEffect(
-    () => () => {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-    },
-    []
-  );
-
-  // Déclenche l'écran CTA à la fin naturelle du carrousel (transition du dernier step → bullet 1).
-  const prevStepRef = useRef(step);
-  useEffect(() => {
-    if (step === PERMANENT_STEP && prevStepRef.current === STEPS.length - 1) {
-      setTarget(1);
-    }
-    prevStepRef.current = step;
-  }, [step, setTarget]);
-
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      setTarget(targetRef.current + e.deltaY / 900);
+      setTarget(targetRef.current + e.deltaY / 600);
     };
     const onTouchStart = (e: TouchEvent) => {
       touchYRef.current = e.touches[0]?.clientY ?? null;
@@ -452,7 +445,7 @@ const Front = () => {
       const y = e.touches[0]?.clientY ?? null;
       if (y === null || touchYRef.current === null) return;
       e.preventDefault();
-      setTarget(targetRef.current + (touchYRef.current - y) / 500);
+      setTarget(targetRef.current + (touchYRef.current - y) / 350);
       touchYRef.current = y;
     };
     const onKey = (e: KeyboardEvent) => {
