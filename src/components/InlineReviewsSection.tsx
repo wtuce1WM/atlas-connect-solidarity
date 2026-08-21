@@ -168,7 +168,8 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
             src={`/embed/reviews/${slug}?preset=overlay&platform=all&lang=${language}&bg=transparent&theme=dark&notexts=1`}
             title={t.title}
             className="w-full block border-0 bg-transparent"
-            style={{ height: reviewsIframeHeight, background: "transparent" }}
+            allowTransparency
+            style={{ height: reviewsIframeHeight, background: "transparent", colorScheme: "normal" }}
             loading="lazy"
           />
         </div>

@@ -103,18 +103,10 @@ export const applyEmbedBg = (color: string | null | undefined) => {
     root.style.setProperty("background", bg, "important");
     root.style.setProperty("background-color", bg, "important");
   }
-  // `color-scheme` : Chromium peint le fond de base d'une iframe transparente
-  // avec le "color-adjust background" (blanc/noir) dès que le color-scheme de
-  // l'iframe diffère de celui du document hôte. En overlay interne (hôte dark)
-  // on garde `dark` posé par le bootstrap ; sinon rien quand c'est transparent.
-  const isOverlay = /(^|[?&])preset=overlay(&|$)/.test(window.location.search);
-  if (bg === "transparent" && isOverlay) {
-    document.documentElement.style.setProperty("color-scheme", "dark");
-  } else {
-    // Embed réel : toujours `light`, sinon le canvas de l'iframe transparente
-    // est peint en sombre par Chromium et le widget n'est plus transparent.
-    document.documentElement.style.setProperty("color-scheme", "light");
-  }
+  // Une iframe réellement transparente ne doit pas demander au navigateur de
+  // peindre son canvas natif en mode sombre. Safari/iOS transforme sinon le
+  // fond transparent en noir, même si html/body/#root sont bien transparents.
+  document.documentElement.style.setProperty("color-scheme", bg === "transparent" ? "normal" : "light");
 
 
   return () => {
