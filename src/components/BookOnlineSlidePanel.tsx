@@ -788,6 +788,16 @@ const BookOnlineSlidePanelInner = ({
     }
   }, [showDescriptionOverlay]);
   const [descOverlayDirect, setDescOverlayDirect] = useState(false);
+  // Le panneau monté uniquement pour la Full Description (feed vidéo) doit se démonter
+  // à la fermeture de l'overlay, sinon la fiche business apparaît sous le viewer.
+  const closeDescriptionOverlay = useCallback(() => {
+    setShowDescriptionOverlay(false);
+    setDescOverlayContent(null);
+    setDescOverlayDirect(false);
+    setDescGridSection(null);
+    setDescGridPage(0);
+    if (initialOverlay === "description") onClose?.();
+  }, [initialOverlay, onClose]);
   // Transition morphée : la barre info viewer sert de « graine » à l'overlay Full Description.
   // La classe d'animation est pilotée par un state React (sinon un re-render du panneau
   // réécrit className et supprime la classe ajoutée en DOM). Le ref ne fait que poser
@@ -1136,7 +1146,7 @@ const BookOnlineSlidePanelInner = ({
         if (selectedPoiBusinessId) { setSelectedPoiBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); return true; }
         if (selectedKpBusinessId && kpInterceptCloseRef.current?.()) return true;
         if (selectedKpBusinessId) { setSelectedKpBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); return true; }
-        if (showDescriptionOverlay) { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); return true; }
+        if (showDescriptionOverlay) { closeDescriptionOverlay(); return true; }
         return false;
       };
     } else if (previousBusinessId) {
@@ -1172,11 +1182,7 @@ const BookOnlineSlidePanelInner = ({
       e.stopPropagation();
       if (descGridSection && !descOverlayDirect) { setDescGridSection(null); setDescGridPage(0); return; }
       if (descOverlayContent && !descOverlayDirect) { setDescOverlayContent(null); return; }
-      setShowDescriptionOverlay(false);
-      setDescOverlayContent(null);
-      setDescOverlayDirect(false);
-      setDescGridSection(null);
-      setDescGridPage(0);
+      closeDescriptionOverlay();
     };
     window.addEventListener("keydown", onKey, true);
     return () => window.removeEventListener("keydown", onKey, true);
@@ -2842,7 +2848,7 @@ const BookOnlineSlidePanelInner = ({
           {!selectedPoiBusinessId && !selectedKpBusinessId && (
           <div data-owm-video-header className="relative z-30 shrink-0 flex flex-col gap-2 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
             <div className="flex items-center gap-3 min-w-0">
-              <button onClick={() => { if (descGridSection && !descOverlayDirect) { setDescGridSection(null); setDescGridPage(0); } else if (descOverlayContent && !descOverlayDirect) { setDescOverlayContent(null); } else { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); setDescGridSection(null); setDescGridPage(0); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
+              <button onClick={() => { if (descGridSection && !descOverlayDirect) { setDescGridSection(null); setDescGridPage(0); } else if (descOverlayContent && !descOverlayDirect) { setDescOverlayContent(null); } else { closeDescriptionOverlay(); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
                 <X className="h-4 w-4" />
               </button>
               <h2 className="text-sm font-bold uppercase font-['Montserrat',sans-serif] truncate text-white flex-1">{business?.name}</h2>
