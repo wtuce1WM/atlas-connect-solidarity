@@ -28,13 +28,13 @@ const FIRST_CAROUSEL_DELAY_MS = 5000;
 const MIN_STEP_MS = 2000;
 
 /** Durées affichées de chaque bullet défilant (indices 2-6), en ms.
- *  Base = 3400 ms. Step 5 (solidarité) : +5 s. Step 6 (valeur) : -5 s (plancher 2 s). */
+ *  Base = 3400 ms. Step 5 (solidarité) : +2 s. Step 6 (valeur) : +1,6 s. */
 const CAROUSEL_DURATIONS_MS = [
   STEP_MS,
   STEP_MS,
   STEP_MS,
-  STEP_MS + 5000,
-  Math.max(MIN_STEP_MS, STEP_MS - 5000),
+  STEP_MS + 2000,
+  Math.max(MIN_STEP_MS, 5000),
 ];
 
 type Step = { bullet: boolean; render: () => React.ReactNode };
