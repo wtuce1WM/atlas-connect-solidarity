@@ -179,7 +179,12 @@ const Front = () => {
   // auto-avance du récit
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
-    if (from >= STEPS.length - 1) return;
+    // Fin du récit : on revient au bullet 1 (affiché seul), puis on s'arrête.
+    if (from >= STEPS.length - 1) {
+      const last = CAROUSEL_DURATIONS_MS[CAROUSEL_DURATIONS_MS.length - 1] ?? STEP_MS;
+      timerRef.current = window.setTimeout(() => setStep(PERMANENT_STEP), last);
+      return;
+    }
     const delay =
       from === PERMANENT_STEP
         ? FIRST_CAROUSEL_DELAY_MS
