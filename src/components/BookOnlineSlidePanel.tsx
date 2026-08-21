@@ -4095,7 +4095,7 @@ const BookOnlineSlidePanelInner = ({
           <div dir="ltr" className="absolute inset-0">
             {(!embedMode || overridePool) && (
               <button
-                onClick={() => { if (embedMode) { onClose?.(); return; } setShowPoiMapOverlay(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
+                onClick={() => { if (embedMode || initialOverlay === "poi") { onClose?.(); return; } setShowPoiMapOverlay(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
                 className="absolute top-[calc(3.3rem+0.75rem)] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/90 transition-opacity"
                 aria-label="Fermer"
               >
