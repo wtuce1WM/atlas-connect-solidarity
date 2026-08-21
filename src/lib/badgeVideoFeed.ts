@@ -70,6 +70,11 @@ export interface FetchBadgeVideoFeedOptions {
   cityIds?: string[] | null;
 }
 
+// TEMPORAIRE — debug badge #Vlogs : force une vidéo en tête de feed.
+// TODO: retirer dès que le debug est terminé.
+const DEBUG_VLOGS_BADGE_ID = "b1113b87-127a-43e0-be80-d3262934a320";
+const DEBUG_VLOGS_VIDEO_ID = "091bfa7b-6182-4d25-93c2-4d61d48a61ea";
+
 /**
  * Charge une page du feed portrait d'un badge, prête à alimenter
  * `HomeVideoSlidePanel` (donc `BookOnlineSlidePanel`) sans transformation.
@@ -79,15 +84,31 @@ export async function fetchBadgeVideoFeed(
   options: FetchBadgeVideoFeedOptions = {},
 ): Promise<BadgeVideoFeedItem[]> {
   const { seed, limit = 60, offset = 0, cityIds } = options;
+  // TEMPORAIRE — debug badge #Vlogs : on élargit le pool pour s'assurer de
+  // récupérer la vidéo cible, puis on la force en tête.
+  const isDebugVlogs = badgeId === DEBUG_VLOGS_BADGE_ID && offset === 0;
+  const rpcLimit = isDebugVlogs ? 300 : limit;
   const { data, error } = await (supabase as any).rpc("get_badge_video_feed", {
     _badge_id: badgeId,
     _seed: seed ?? getBadgeFeedSeed(badgeId),
-    _limit: limit,
+    _limit: rpcLimit,
     _offset: offset,
     _city_ids: cityIds && cityIds.length > 0 ? cityIds : null,
   });
   if (error || !data) return [];
-  return (data as any[]).map(mapFeedRow);
+  let items = (data as any[]).map(mapFeedRow);
+
+  // TEMPORAIRE — debug badge #Vlogs : force 091bfa7b en première position.
+  if (isDebugVlogs) {
+    const idx = items.findIndex((i) => i.id === DEBUG_VLOGS_VIDEO_ID);
+    if (idx >= 0) {
+      const [forced] = items.splice(idx, 1);
+      items.unshift(forced);
+    }
+    items = items.slice(0, limit);
+  }
+
+  return items;
 }
 
 function mapFeedRow(r: any): BadgeVideoFeedItem {
