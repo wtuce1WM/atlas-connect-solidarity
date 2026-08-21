@@ -2339,7 +2339,7 @@ const BookOnlineSlidePanelInner = ({
 
       {/* Full-bleed background — extracted component.
           Widget embarqué "carte" : pas de média de fond (évite l'écran noir + vidéo avant la carte). */}
-      {isEmbedMapWidget ? (
+      {isEmbedMapWidget || isPoiOnlyPanel ? (
         <div className="absolute inset-0 bg-transparent" />
       ) : (
         <div className={externalVideoBackgroundClass}>
