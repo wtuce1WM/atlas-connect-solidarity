@@ -24,6 +24,8 @@ export type VideoFeedItem = {
   businessName: string | null;
   /** Compte social attaché à la vidéo (logo + « Follow @… » dans le lecteur). */
   social?: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
+  /** Badges actifs sur le front attachés à la vidéo (chips cliquables dans le lecteur). */
+  badges?: { id: string; name: string; color?: string | null; text_color?: string | null }[] | null;
 };
 
 export type VideoFeedAnswer = {
