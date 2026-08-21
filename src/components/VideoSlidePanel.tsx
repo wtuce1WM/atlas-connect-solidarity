@@ -854,6 +854,12 @@ const VideoSlidePanel = ({
                     <button
                       type="button"
                       onClick={async () => {
+                        // En feed, dès qu'une entrée de timeline est apparue,
+                        // le coeur ouvre le popup « Sauvegardez vos coups de cœur ».
+                        if (feedLayout && timelineHasEntries) {
+                          window.dispatchEvent(new CustomEvent("open-video-timeline-club"));
+                          return;
+                        }
                         if (!isVideoLikeLoggedIn) {
                           window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
                           return;
@@ -862,20 +868,27 @@ const VideoSlidePanel = ({
                         setLikeBurst((b) => b + 1);
                         await toggleVideoLike();
                       }}
-                      disabled={isVideoLikeLoggedIn && !videoLikeId}
+                      disabled={isVideoLikeLoggedIn && !videoLikeId && !(feedLayout && timelineHasEntries)}
                       style={{ backgroundColor: "#F1F1F1" }}
                       className={`relative h-9 w-9 flex items-center justify-center rounded-full shadow-2xl transition-all shrink-0 glass-toolbar-btn ${
-                        isVideoLikeLoggedIn && !videoLikeId ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 active:scale-90"
+                        isVideoLikeLoggedIn && !videoLikeId && !(feedLayout && timelineHasEntries) ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 active:scale-90"
                       }`}
-                      title={!isVideoLikeLoggedIn ? "Connectez-vous pour liker" : videoLikeId ? (isVideoLiked ? "Retirer le like" : "Liker") : "Indisponible"}
-                      aria-label="Liker la vidéo"
+                      title={feedLayout && timelineHasEntries ? "Sauvegardez vos coups de cœur" : !isVideoLikeLoggedIn ? "Connectez-vous pour liker" : videoLikeId ? (isVideoLiked ? "Retirer le like" : "Liker") : "Indisponible"}
+                      aria-label={feedLayout && timelineHasEntries ? "Sauvegardez vos coups de cœur" : "Liker la vidéo"}
                     >
                       <Heart
-                        key={`h-${likeBurst}`}
-                        className={`h-4 w-4 transition-transform ${isVideoLiked ? "text-red-500 animate-[heart-pop_0.4s_ease-out]" : "text-black"}`}
+                        key={`h-${likeBurst}-${timelinePulse}`}
+                        className={`h-4 w-4 transition-transform ${
+                          isVideoLiked
+                            ? "text-red-500 animate-[heart-pop_0.4s_ease-out]"
+                            : timelinePulse > 0
+                              ? "text-black animate-[heart-color-pulse_0.9s_ease-out]"
+                              : "text-black"
+                        }`}
                         fill={isVideoLiked ? "currentColor" : "none"}
                         strokeWidth={2.5}
                       />
+
                       {likeBurst > 0 && isVideoLiked && (
                         <Heart
                           key={`fly-${likeBurst}`}
