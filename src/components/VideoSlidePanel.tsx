@@ -1513,7 +1513,7 @@ const VideoSlidePanel = ({
           />
         )}
         {descBusinessId && (
-          <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[240] bg-black h-[100dvh] overflow-hidden">
+          <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[240] h-[100dvh] overflow-hidden">
             <Suspense fallback={null}>
               <LazyBusinessPanel
                 open
