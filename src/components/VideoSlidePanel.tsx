@@ -1477,15 +1477,6 @@ const VideoSlidePanel = ({
             />
           </Suspense>
         )}
-        {poiOverlayBusinessId && (
-          <div className="absolute inset-0 z-[85]">
-            <PoiSlidePanel
-              businessId={poiOverlayBusinessId}
-              onClose={() => setPoiOverlayBusinessId(null)}
-              slideFrom="bottom"
-            />
-          </div>
-        )}
         <LocationPickerDialog
           open={locationDialogOpen}
           onOpenChange={setLocationDialogOpen}
