@@ -2737,6 +2737,7 @@ const EmbedAsk = () => {
               returnContext={null}
               hideDirections
               hideSecondaryCtas
+              onBadgeSelect={(b: any) => { void selectFeedBadge(b); }}
             />
           </Suspense>
         );
