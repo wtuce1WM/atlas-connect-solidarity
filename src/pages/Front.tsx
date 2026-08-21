@@ -647,7 +647,7 @@ const Front = () => {
         >
           {/* × gold en fond du slogan, hauteur pleine conteneur */}
           <span
-            className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-gold/35"
+            className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-gold/40"
             aria-hidden="true"
           >
             <svg
@@ -657,10 +657,10 @@ const Front = () => {
               fill="currentColor"
             >
               {/* X très bold, très fat, très squarish — quatre losanges autour d’un contre-forme central */}
-              <path d="M50 0 L72 22 L50 44 L28 22 Z" />
-              <path d="M100 50 L78 72 L56 50 L78 28 Z" />
-              <path d="M50 100 L28 78 L50 56 L72 78 Z" />
-              <path d="M0 50 L22 28 L44 50 L22 72 Z" />
+              <path d="M50 0 L70 20 L50 40 L30 20 Z" />
+              <path d="M100 50 L80 70 L60 50 L80 30 Z" />
+              <path d="M50 100 L30 80 L50 60 L70 80 Z" />
+              <path d="M0 50 L20 30 L40 50 L20 70 Z" />
             </svg>
           </span>
 
