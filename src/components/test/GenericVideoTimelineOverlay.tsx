@@ -109,6 +109,13 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
   // Note: this overlay no longer listens to "open-generic-club-popup".
   // That global event is handled by ClubLoginPopup to avoid showing two
   // identical popups when the Profil CTA is clicked.
+  // Le popup « Sauvegardez vos coups de cœur » est désormais ouvert par
+  // l'icône Bookmark du header du viewer (le CTA texte a été supprimé).
+  useEffect(() => {
+    const onOpen = () => setClubOpen(true);
+    window.addEventListener("open-video-timeline-club", onOpen as EventListener);
+    return () => window.removeEventListener("open-video-timeline-club", onOpen as EventListener);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
