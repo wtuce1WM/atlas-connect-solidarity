@@ -965,7 +965,7 @@ const Front = () => {
         >
           {/* × gold en fond du slogan, hauteur pleine conteneur */}
           <span
-            className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-gold/10"
+            className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-gold/35"
             aria-hidden="true"
           >
             <svg
