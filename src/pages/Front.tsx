@@ -432,6 +432,15 @@ const Front = () => {
     []
   );
 
+  // Déclenche l'écran CTA à la fin naturelle du carrousel (transition du dernier step → bullet 1).
+  const prevStepRef = useRef(step);
+  useEffect(() => {
+    if (step === PERMANENT_STEP && prevStepRef.current === STEPS.length - 1) {
+      setTarget(1);
+    }
+    prevStepRef.current = step;
+  }, [step, setTarget]);
+
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
@@ -738,7 +747,7 @@ const Front = () => {
           <div className="min-h-[1.5rem] md:min-h-[1.75rem]">
             {accrocheVisible && (
               <p
-                className="font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-lg"
+                className="font-roboto text-base font-bold leading-snug text-[#F4EEE4] md:text-xl"
                 style={{
                   opacity: voiceActive ? 0 : 1,
                   animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
@@ -781,7 +790,7 @@ const Front = () => {
                     <div
                       key={i}
                       aria-hidden={!isActive}
-                      className={`col-start-1 row-start-1 flex items-start gap-3 font-roboto text-[0.8125rem] font-bold leading-[1.3] text-[#F4EEE4] md:text-base md:leading-snug ${
+                      className={`col-start-1 row-start-1 flex items-start gap-3 font-roboto text-base font-bold leading-[1.3] text-[#F4EEE4] md:text-lg md:leading-snug ${
                         isActive && bulletsVisible ? "opacity-100" : "pointer-events-none opacity-0"
                       }`}
                       style={{
