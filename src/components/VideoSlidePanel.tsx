@@ -1343,7 +1343,7 @@ const VideoSlidePanel = ({
               })()}
               {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer */}
               {feedLayout && (feedInfoTitle || feedInfoTeaser) && (
-                <div className="relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto md:w-[calc(100%-1rem)] md:max-w-[450px] rounded-t-2xl border-x border-b-0 border-white/10 bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] pointer-events-auto pb-[calc(40px+env(safe-area-inset-bottom))] -mb-[calc(40px+env(safe-area-inset-bottom))] lg:pb-[40px] lg:-mb-[40px]">
+                <div className="relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto md:w-[calc(100%-1rem)] md:max-w-[450px] rounded-t-2xl border-x border-b-0 border-white/10 bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] pointer-events-auto pb-[calc(8px+env(safe-area-inset-bottom))] -mb-[calc(8px+env(safe-area-inset-bottom))] lg:pb-[8px] lg:-mb-[8px]">
                   <MediaViewerInfo
                     name={feedInfoTitle}
                     city={ctaBusiness?.city}
