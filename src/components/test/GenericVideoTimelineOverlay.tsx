@@ -242,7 +242,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
         .from("bookmarks" as any)
         .select("business_id")
         .eq("user_id", userId)
-        .in("business_id", items.map((i) => i.id));
+        .in("business_id", items.filter((i) => i.kind === "business").map((i) => i.id));
       const set = new Set<string>((data || []).map((d: any) => d.business_id));
       setBookmarkedIds(set);
     };
