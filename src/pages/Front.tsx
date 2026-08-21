@@ -651,8 +651,13 @@ const Front = () => {
           onClick={(e) => e.stopPropagation()}
         >
           <h1
-            className="text-outline-owm text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight"
+            className="text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight"
             style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 900,
+              color: "transparent",
+              WebkitTextStrokeWidth: "2px",
+              WebkitTextStrokeColor: "#FFFFFF",
               ...(sloganFontPx ? { fontSize: `${sloganFontPx}px` } : null),
               opacity: voiceActive ? 0 : 1,
               animation: reduced || voiceActive ? undefined : "owmSlideDown 420ms ease-out both",
@@ -898,14 +903,21 @@ const Front = () => {
         aria-hidden={!ctaActive}
       >
         {/* Titre écran 2 — mobile : 3 lignes, même taille/leading visuel que le slogan écran 1 */}
-        <h2
-          className="text-outline-owm text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.35] tracking-tight md:text-[clamp(2rem,min(9vw,8vh),5.5rem)] md:leading-[1.12]"
+        <p
+          className="text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.35] tracking-tight md:text-[clamp(2rem,min(9vw,8vh),5.5rem)] md:leading-[1.12]"
+          style={{
+            fontFamily: "'Montserrat', sans-serif",
+            fontWeight: 900,
+            color: "transparent",
+            WebkitTextStrokeWidth: "2px",
+            WebkitTextStrokeColor: "#FFFFFF",
+          }}
         >
           <span className="block md:hidden">One</span>
           <span className="block md:hidden">World</span>
           <span className="block md:hidden">Morocco</span>
           <span className="hidden md:inline">One World Morocco</span>
-        </h2>
+        </p>
 
         <div className="grid w-full max-w-5xl grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3 md:gap-3">
           {CTAS.map((cta) => (
@@ -933,8 +945,13 @@ const Front = () => {
 
         {/* Slogan écran 2 — identique au slogan écran 1, version 5 lignes */}
         <p
-          className="text-outline-owm text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight"
+          className="text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight"
           style={{
+            fontFamily: "'Montserrat', sans-serif",
+            fontWeight: 900,
+            color: "transparent",
+            WebkitTextStrokeWidth: "2px",
+            WebkitTextStrokeColor: "#FFFFFF",
             opacity: voiceActive ? 0 : 1,
             pointerEvents: voiceActive ? "none" : "auto",
           }}
