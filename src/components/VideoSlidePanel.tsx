@@ -883,12 +883,8 @@ const VideoSlidePanel = ({
                     >
                       <Heart
                         key={`h-${likeBurst}-${timelinePulse}`}
-                        className={`h-4 w-4 transition-transform ${
-                          isVideoLiked
-                            ? "text-red-500 animate-[heart-pop_0.4s_ease-out]"
-                            : timelinePulse > 0
-                              ? "text-white animate-[heart-color-pulse_0.9s_ease-out]"
-                              : "text-black"
+                        className={`h-4 w-4 transition-transform !text-black ${
+                          isVideoLiked ? "animate-[heart-pop_0.4s_ease-out]" : ""
                         }`}
                         fill={isVideoLiked ? "currentColor" : "none"}
                         strokeWidth={2.5}
