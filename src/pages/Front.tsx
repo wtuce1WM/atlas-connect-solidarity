@@ -642,11 +642,26 @@ const Front = () => {
         {/* Section 1 : Slogan */}
         <div
           ref={sloganSectionRef}
-          className="flex flex-1 flex-col items-center justify-center overflow-hidden"
+          className="relative flex flex-1 flex-col items-center justify-center overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
+          {/* × gold en fond du slogan, hauteur pleine conteneur */}
+          <span
+            className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-gold/10"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 100 100"
+              preserveAspectRatio="xMidYMid meet"
+              className="h-full w-auto"
+              fill="currentColor"
+            >
+              <path d="M55.6 50 L95.6 10 L90 4.4 L50 44.4 L10 4.4 L4.4 10 L44.4 50 L4.4 90 L10 95.6 L50 55.6 L90 95.6 L95.6 90 Z" />
+            </svg>
+          </span>
+
           <h1
-            className="text-center text-[clamp(1.5rem,min(5.5vw,5vh),3.25rem)] uppercase leading-[1.12] tracking-tight"
+            className="relative z-10 text-center text-[clamp(1.5rem,min(5.5vw,5vh),3.25rem)] uppercase leading-[1.12] tracking-tight"
             style={{
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 900,
@@ -662,20 +677,14 @@ const Front = () => {
           >
             {sloganCompact ? (
               <>
-                <span className="block">
-                  LOCAL <span style={{ WebkitTextStrokeColor: "hsl(var(--gold))" }}>×</span>
-                </span>
-                <span className="block">
-                  DIGITAL <span style={{ WebkitTextStrokeColor: "hsl(var(--gold))" }}>×</span>
-                </span>
+                <span className="block">LOCAL</span>
+                <span className="block">DIGITAL</span>
                 <span className="block">SOLIDAIRE</span>
               </>
             ) : (
               <>
                 <span className="block">LOCAL</span>
-                <span style={{ WebkitTextStrokeColor: "hsl(var(--gold))" }}>×</span>
                 <span className="block">DIGITAL</span>
-                <span style={{ WebkitTextStrokeColor: "hsl(var(--gold))" }}>×</span>
                 <span className="block">SOLIDAIRE</span>
               </>
             )}
@@ -942,7 +951,7 @@ const Front = () => {
 
         {/* Slogan écran 2 — identique au slogan écran 1, version 5 lignes */}
         <p
-          className="text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight"
+          className="relative overflow-hidden text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
@@ -954,11 +963,24 @@ const Front = () => {
           }}
           aria-hidden={voiceActive}
         >
-          <span className="block">LOCAL</span>
-          <span style={{ WebkitTextStrokeColor: "hsl(var(--gold))" }}>×</span>
-          <span className="block">DIGITAL</span>
-          <span style={{ WebkitTextStrokeColor: "hsl(var(--gold))" }}>×</span>
-          <span className="block">SOLIDAIRE</span>
+          {/* × gold en fond du slogan, hauteur pleine conteneur */}
+          <span
+            className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-gold/10"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 100 100"
+              preserveAspectRatio="xMidYMid meet"
+              className="h-full w-auto"
+              fill="currentColor"
+            >
+              <path d="M55.6 50 L95.6 10 L90 4.4 L50 44.4 L10 4.4 L4.4 10 L44.4 50 L4.4 90 L10 95.6 L50 55.6 L90 95.6 L95.6 90 Z" />
+            </svg>
+          </span>
+
+          <span className="relative z-10 block">LOCAL</span>
+          <span className="relative z-10 block">DIGITAL</span>
+          <span className="relative z-10 block">SOLIDAIRE</span>
         </p>
       </div>
 
