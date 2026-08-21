@@ -815,7 +815,7 @@ const Front = () => {
               </div>
 
 
-              {/* Progress bar segmentée — un segment par bullet défilant (2-6), la première barre (bullet 1) est supprimée */}
+              {/* Progress bar segmentée — un segment par bullet défilant (2-7), la première barre (bullet 1) est supprimée */}
               <div
                 className="mt-1.5 flex gap-1.5 md:mt-4"
                 onClick={(e) => e.stopPropagation()}
