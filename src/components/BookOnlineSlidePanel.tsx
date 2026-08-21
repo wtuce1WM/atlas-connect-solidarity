@@ -2308,7 +2308,7 @@ const BookOnlineSlidePanelInner = ({
   })();
 
   return (
-    <div className={`h-full overflow-visible overscroll-none relative ${isEmbedMapWidget ? "bg-transparent" : "bg-black"}`}>
+    <div className={`h-full overflow-visible overscroll-none relative ${isEmbedMapWidget || isPoiOnlyPanel ? "bg-transparent" : "bg-black"}`}>
       {/* Toolbar portals */}
       <ToolbarPortals
         business={business}
