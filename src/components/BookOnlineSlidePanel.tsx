@@ -551,6 +551,9 @@ const BookOnlineSlidePanelInner = ({
   // Pills POI / Catégories : menu déroulant sur desktop, overlay plein écran sur mobile
   const isMobileView = useIsMobile();
   const isEmbedMapWidget = embedMode && initialOverlay === "poi";
+  // Panneau ouvert uniquement pour la carte POI (feed vidéo, résultats IA) :
+  // pas de média de fond de la fiche (sinon l'image 1 s'affiche par-dessus la vidéo).
+  const isPoiOnlyPanel = initialOverlay === "poi";
   // En embed, les breakpoints Tailwind se basent sur la largeur de l'iframe (souvent < 1024px)
   // alors que l'hôte est un desktop. On mesure donc la largeur réelle du widget.
   const [embedWideView, setEmbedWideView] = useState(() =>
@@ -2170,7 +2173,7 @@ const BookOnlineSlidePanelInner = ({
 
   if (isLoading) {
     // Widget carte embarqué : pas de squelette de fiche (on n'affiche jamais l'accueil du Master).
-    if (isEmbedMapWidget) return <div className="h-full w-full bg-transparent" />;
+    if (isEmbedMapWidget || isPoiOnlyPanel) return <div className="h-full w-full bg-transparent" />;
     return (
       <div className="h-full overflow-y-auto bg-background p-6 space-y-6">
         <Skeleton className="w-full aspect-video rounded-xl" />
@@ -2305,7 +2308,7 @@ const BookOnlineSlidePanelInner = ({
   })();
 
   return (
-    <div className={`h-full overflow-visible overscroll-none relative ${isEmbedMapWidget ? "bg-transparent" : "bg-black"}`}>
+    <div className={`h-full overflow-visible overscroll-none relative ${isEmbedMapWidget || isPoiOnlyPanel ? "bg-transparent" : "bg-black"}`}>
       {/* Toolbar portals */}
       <ToolbarPortals
         business={business}
@@ -2336,7 +2339,7 @@ const BookOnlineSlidePanelInner = ({
 
       {/* Full-bleed background — extracted component.
           Widget embarqué "carte" : pas de média de fond (évite l'écran noir + vidéo avant la carte). */}
-      {isEmbedMapWidget ? (
+      {isEmbedMapWidget || isPoiOnlyPanel ? (
         <div className="absolute inset-0 bg-transparent" />
       ) : (
         <div className={externalVideoBackgroundClass}>
