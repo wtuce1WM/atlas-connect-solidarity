@@ -213,6 +213,15 @@ const Front = () => {
     };
   }, [scheduleNext]);
 
+  // Déclenche l'écran CTA à la fin naturelle du carrousel (transition du dernier step → bullet 1).
+  const prevStepRef = useRef(step);
+  useEffect(() => {
+    if (step === PERMANENT_STEP && prevStepRef.current === STEPS.length - 1) {
+      setTarget(1);
+    }
+    prevStepRef.current = step;
+  }, [step, setTarget]);
+
   const [auto, setAuto] = useState(true);
   const [voiceActive, setVoiceActive] = useState(false);
   const [accrocheVisible, setAccrocheVisible] = useState(false);
