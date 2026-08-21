@@ -869,7 +869,10 @@ const VideoSlidePanel = ({
                         await toggleVideoLike();
                       }}
                       disabled={isVideoLikeLoggedIn && !videoLikeId && !(feedLayout && timelineHasEntries)}
-                      style={{ backgroundColor: "#F1F1F1" }}
+                      style={{
+                        backgroundColor: timelinePulse > 0 ? "#FF1A1A" : "#F1F1F1",
+                        boxShadow: timelinePulse > 0 ? "0 0 18px 4px rgba(255,26,26,0.55)" : undefined,
+                      }}
                       className={`relative h-9 w-9 flex items-center justify-center rounded-full shadow-2xl transition-all shrink-0 glass-toolbar-btn ${
                         isVideoLikeLoggedIn && !videoLikeId && !(feedLayout && timelineHasEntries) ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 active:scale-90"
                       }`}
@@ -882,7 +885,7 @@ const VideoSlidePanel = ({
                           isVideoLiked
                             ? "text-red-500 animate-[heart-pop_0.4s_ease-out]"
                             : timelinePulse > 0
-                              ? "text-black animate-[heart-color-pulse_0.9s_ease-out]"
+                              ? "text-white animate-[heart-color-pulse_0.9s_ease-out]"
                               : "text-black"
                         }`}
                         fill={isVideoLiked ? "currentColor" : "none"}
