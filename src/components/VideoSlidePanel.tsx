@@ -852,6 +852,7 @@ const VideoSlidePanel = ({
                   {/* Like vidéo */}
                   <div className="relative flex flex-col items-center">
                     <button
+                      key={`heart-btn-${timelinePulse}`}
                       type="button"
                       onClick={async () => {
                         // En feed, dès qu'une entrée de timeline est apparue,
@@ -870,10 +871,11 @@ const VideoSlidePanel = ({
                       }}
                       disabled={isVideoLikeLoggedIn && !videoLikeId && !(feedLayout && timelineHasEntries)}
                       style={{
-                        backgroundColor: timelinePulse > 0 ? "#FF1A1A" : "#F1F1F1",
                         boxShadow: timelinePulse > 0 ? "0 0 18px 4px rgba(255,26,26,0.55)" : undefined,
                       }}
-                      className={`relative h-9 w-9 flex items-center justify-center rounded-full shadow-2xl transition-all shrink-0 glass-toolbar-btn ${
+                      className={`relative h-9 w-9 flex items-center justify-center rounded-full shadow-2xl transition-all shrink-0 glass-toolbar-btn bg-[#F1F1F1] ${
+                        timelinePulse > 0 ? "animate-[heart-bg-pulse_0.9s_ease-out]" : ""
+                      } ${
                         isVideoLikeLoggedIn && !videoLikeId && !(feedLayout && timelineHasEntries) ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 active:scale-90"
                       }`}
                       title={feedLayout && timelineHasEntries ? "Sauvegardez vos coups de cœur" : !isVideoLikeLoggedIn ? "Connectez-vous pour liker" : videoLikeId ? (isVideoLiked ? "Retirer le like" : "Liker") : "Indisponible"}

@@ -160,6 +160,12 @@ export default {
           "60%": { color: "#6050DC", transform: "scale(1.15)" },
           "100%": { color: "#000000", transform: "scale(1)" },
         },
+        "heart-bg-pulse": {
+          "0%": { backgroundColor: "#F1F1F1" },
+          "30%": { backgroundColor: "#FF1A1A" },
+          "60%": { backgroundColor: "#FF1A1A" },
+          "100%": { backgroundColor: "#F1F1F1" },
+        },
         "heart-fly": {
           "0%": { transform: "translate(0,0) scale(1)", opacity: "1" },
           "100%": { transform: "translate(0,-40px) scale(1.8)", opacity: "0" },
