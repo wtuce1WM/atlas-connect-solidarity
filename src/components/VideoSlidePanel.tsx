@@ -20,7 +20,6 @@ import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineO
 import { useNavigate } from "react-router-dom";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
-import PoiSlidePanel from "@/components/PoiSlidePanel";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { buildOgShareUrl } from "@/lib/businessUrl";
