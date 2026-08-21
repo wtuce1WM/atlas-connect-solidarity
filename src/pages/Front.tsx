@@ -668,19 +668,19 @@ const Front = () => {
             {sloganCompact ? (
               <>
                 <span className="block">
-                  LOCAL <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+                  LOCAL <span style={{ WebkitTextStrokeColor: "hsl(var(--gold))" }}>×</span>
                 </span>
                 <span className="block">
-                  DIGITAL <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+                  DIGITAL <span style={{ WebkitTextStrokeColor: "hsl(var(--gold))" }}>×</span>
                 </span>
                 <span className="block">SOLIDAIRE</span>
               </>
             ) : (
               <>
                 <span className="block">LOCAL</span>
-                <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+                <span style={{ WebkitTextStrokeColor: "hsl(var(--gold))" }}>×</span>
                 <span className="block">DIGITAL</span>
-                <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+                <span style={{ WebkitTextStrokeColor: "hsl(var(--gold))" }}>×</span>
                 <span className="block">SOLIDAIRE</span>
               </>
             )}
@@ -958,9 +958,9 @@ const Front = () => {
           aria-hidden={voiceActive}
         >
           <span className="block">LOCAL</span>
-          <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+          <span style={{ WebkitTextStrokeColor: "hsl(var(--gold))" }}>×</span>
           <span className="block">DIGITAL</span>
-          <span style={{ WebkitTextStrokeColor: "hsl(var(--primary))" }}>×</span>
+          <span style={{ WebkitTextStrokeColor: "hsl(var(--gold))" }}>×</span>
           <span className="block">SOLIDAIRE</span>
         </p>
       </div>
