@@ -220,12 +220,15 @@ const Front = () => {
   // auto-avance du récit
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
-    // Fin du récit : on revient sur le bullet 1 (affiché ~2.4 s), puis bascule vers l'écran 2.
+    // Fin du récit : laisser la dernière phrase terminer sa durée, revenir
+    // réellement sur le bullet 1, puis seulement basculer vers l'écran 2.
     if (from >= STEPS.length - 1) {
+      const finalStepDuration =
+        CAROUSEL_DURATIONS_MS[CAROUSEL_STEPS.indexOf(from)] ?? STEP_MS;
       timerRef.current = window.setTimeout(() => {
         setStep(PERMANENT_STEP);
         timerRef.current = window.setTimeout(() => setTarget(1), 2400);
-      }, 600);
+      }, finalStepDuration);
       return;
     }
 
@@ -234,11 +237,9 @@ const Front = () => {
         ? FIRST_CAROUSEL_DELAY_MS
         : CAROUSEL_DURATIONS_MS[CAROUSEL_STEPS.indexOf(from)] ?? STEP_MS;
     timerRef.current = window.setTimeout(() => {
-      setStep((s) => {
-        const next = Math.min(STEPS.length - 1, s + 1);
-        scheduleNext(next);
-        return next;
-      });
+      const next = Math.min(STEPS.length - 1, from + 1);
+      setStep(next);
+      scheduleNext(next);
     }, delay);
   }, [setTarget]);
 
