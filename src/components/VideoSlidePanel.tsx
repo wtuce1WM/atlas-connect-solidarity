@@ -453,6 +453,19 @@ const VideoSlidePanel = ({
   const videoLikeId = videoId || null;
   const { isLiked: isVideoLiked, count: videoLikeCount, isLoggedIn: isVideoLikeLoggedIn, toggle: toggleVideoLike } = useVideoLike(videoLikeId, videoLikeSource);
   const [likeBurst, setLikeBurst] = useState(0);
+  // Pulsation colorée de l'icône Like/coeur à chaque nouvelle entrée de la timeline
+  const [timelinePulse, setTimelinePulse] = useState(0);
+  const [timelineHasEntries, setTimelineHasEntries] = useState(false);
+  useEffect(() => {
+    const onEntry = () => {
+      setTimelinePulse((p) => p + 1);
+      setTimelineHasEntries(true);
+    };
+    window.addEventListener("video-timeline-entry", onEntry as EventListener);
+    return () => window.removeEventListener("video-timeline-entry", onEntry as EventListener);
+  }, []);
+  useEffect(() => { setTimelineHasEntries(false); }, [videoId]);
+
   const ctaShareUrl = (() => {
     try {
       const params = new URLSearchParams(window.location.search);
