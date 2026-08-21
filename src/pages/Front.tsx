@@ -730,9 +730,6 @@ const Front = () => {
 
               <span className="demo-shimmer absolute inset-0 -translate-x-full" aria-hidden="true" />
             </button>
-            <span className="font-roboto text-[0.65rem] uppercase tracking-[0.18em] text-[rgba(244,238,228,0.7)]">
-              {demoLoading ? "chargement…" : "découverte"}
-            </span>
 
           </div>
 
