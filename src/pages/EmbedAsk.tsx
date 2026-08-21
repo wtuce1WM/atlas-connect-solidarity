@@ -2702,6 +2702,7 @@ const EmbedAsk = () => {
           title: v.title ?? null,
           _isGeneric: !!v.isGeneric,
           price: v.price ?? null,
+          badges: v.badges ?? null,
         }));
         const active = list.find((v) => v.id === activeFeedVideoId) || null;
         if (!active) return null;
