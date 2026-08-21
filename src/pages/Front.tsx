@@ -656,11 +656,11 @@ const Front = () => {
               className="h-full w-auto"
               fill="currentColor"
             >
-              {/* X très bold, très fat, très squarish — quatre losanges autour d’un contre-forme central */}
-              <path d="M50 0 L70 20 L50 40 L30 20 Z" />
-              <path d="M100 50 L80 70 L60 50 L80 30 Z" />
-              <path d="M50 100 L30 80 L50 60 L70 80 Z" />
-              <path d="M0 50 L20 30 L40 50 L20 70 Z" />
+              {/* X très bold, très fat, très squarish — quatre losanges autour d’un petit contre-forme central */}
+              <path d="M50 0 L73 23 L50 46 L27 23 Z" />
+              <path d="M100 50 L77 73 L54 50 L77 27 Z" />
+              <path d="M50 100 L27 77 L50 54 L73 77 Z" />
+              <path d="M0 50 L23 27 L46 50 L23 73 Z" />
             </svg>
           </span>
 
