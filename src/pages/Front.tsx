@@ -774,15 +774,24 @@ const Front = () => {
                 />
               )}
 
-              <div className="flex flex-col">
-                {/* Unique slot bullet : bullet 1 permanent, puis le bullet courant du carrousel */}
-                <div className="min-h-[5.25rem] md:min-h-[4.75rem]">
-                  {bulletsVisible && step === PERMANENT_STEP && (
+              <div className="grid grid-cols-1">
+                {/* Tous les bullets sont rendus dans la même celle : hauteur = max du contenu,
+                    seul le bullet actif est visible. */}
+                {STEPS.map((s, i) => {
+                  if (!s.bullet) return null;
+                  const isActive = i === step;
+                  return (
                     <div
-                      key="permanent"
-                      className="flex items-start gap-3 font-roboto text-[0.8125rem] font-bold leading-[1.3] text-[#F4EEE4] md:text-base md:leading-snug"
+                      key={i}
+                      aria-hidden={!isActive}
+                      className={`col-start-1 row-start-1 flex items-start gap-3 font-roboto text-[0.8125rem] font-bold leading-[1.3] text-[#F4EEE4] md:text-base md:leading-snug ${
+                        isActive && bulletsVisible ? "opacity-100" : "pointer-events-none opacity-0"
+                      }`}
                       style={{
-                        animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
+                        animation:
+                          reduced || !isActive || !bulletsVisible
+                            ? undefined
+                            : "owmSlideDown 420ms ease-out both",
                       }}
                     >
                       <img
@@ -791,27 +800,10 @@ const Front = () => {
                         className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
                         loading="lazy"
                       />
-                      <span>{STEPS[PERMANENT_STEP].render()}</span>
+                      <span>{s.render()}</span>
                     </div>
-                  )}
-                  {bulletsVisible && step >= CAROUSEL_STEPS[0] && (
-                    <div
-                      key={step}
-                      className="flex items-start gap-3 font-roboto text-[0.8125rem] font-bold leading-[1.3] text-[#F4EEE4] md:text-base md:leading-snug"
-                      style={{
-                        animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
-                      }}
-                    >
-                      <img
-                        src={hamsaIcon.url}
-                        alt=""
-                        className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
-                        loading="lazy"
-                      />
-                      <span>{STEPS[step].render()}</span>
-                    </div>
-                  )}
-                </div>
+                  );
+                })}
               </div>
 
 
