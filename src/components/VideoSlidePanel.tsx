@@ -414,7 +414,7 @@ const VideoSlidePanel = ({
   // Navigation verticale à la molette / trackpad (desktop) — même effet que le swipe.
   const wheelNav = useRef({ enabled: false, onPrev, onNext, hasPrev, hasNext });
   wheelNav.current = {
-    enabled: !descOverlayOpen && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !agendaCity,
+    enabled: !descOverlayOpen && !descBusinessId && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !agendaCity,
     onPrev, onNext, hasPrev, hasNext,
   };
   useEffect(() => {
@@ -689,7 +689,7 @@ const VideoSlidePanel = ({
   if (!open || !videoUrl) return null;
 
   const visibleSocial = (showSocialBadge || feedLayout) ? social : null;
-  const swipeNavigationEnabled = isMobile && !descOverlayOpen && !searchOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !agendaCity;
+  const swipeNavigationEnabled = isMobile && !descOverlayOpen && !descBusinessId && !searchOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !agendaCity;
 
   const resetSwipe = () => {
     swipeStartY.current = null;
