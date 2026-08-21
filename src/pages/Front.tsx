@@ -300,12 +300,11 @@ const Front = () => {
     setDemoActiveId(items[0].id);
   }, [demoCtx]);
 
-  /** Auto-fit du slogan écran 1 : taille max possible dans l'espace réellement libre
-   *  (conteneur − paddings − bloc inférieur), au lieu d'une taille calculée sur le
-   *  viewport (vh) qui débordait sous la barre de recherche sur iOS. Si 5 lignes ne
-   *  tiennent pas lisiblement, repli automatique en 3 lignes. Mobile uniquement. */
+  /** Auto-fit du slogan écran 1 : taille max possible dans la hauteur de la section
+   *  qui lui est dédiée (1/3 de l'espace entre header et CTA Découvrir). Si 5 lignes
+   *  ne tiennent pas lisiblement, repli automatique en 3 lignes. Mobile uniquement. */
   const narrativeBoxRef = useRef<HTMLDivElement | null>(null);
-  const bottomBlockRef = useRef<HTMLDivElement | null>(null);
+  const sloganSectionRef = useRef<HTMLDivElement | null>(null);
   const [sloganFontPx, setSloganFontPx] = useState<number | null>(null);
   const [sloganCompact, setSloganCompact] = useState(false);
 
@@ -313,20 +312,18 @@ const Front = () => {
     const LEADING = 1.12;
     const MIN_5_LINES_PX = 26;
     const compute = () => {
-      const box = narrativeBoxRef.current;
-      const bottom = bottomBlockRef.current;
-      if (!box || !bottom) return;
+      const section = sloganSectionRef.current;
+      if (!section) return;
       if (window.innerWidth >= 768) {
         setSloganFontPx(null);
         setSloganCompact(false);
         return;
       }
-      const cs = getComputedStyle(box);
+      const cs = getComputedStyle(section);
       const avail =
-        box.clientHeight -
+        section.clientHeight -
         parseFloat(cs.paddingTop) -
-        parseFloat(cs.paddingBottom) -
-        bottom.offsetHeight;
+        parseFloat(cs.paddingBottom);
       if (avail <= 0) {
         setSloganCompact(true);
         setSloganFontPx(16);
@@ -345,8 +342,7 @@ const Front = () => {
     };
     compute();
     const ro = new ResizeObserver(compute);
-    if (narrativeBoxRef.current) ro.observe(narrativeBoxRef.current);
-    if (bottomBlockRef.current) ro.observe(bottomBlockRef.current);
+    if (sloganSectionRef.current) ro.observe(sloganSectionRef.current);
     window.addEventListener("resize", compute);
     window.addEventListener("orientationchange", compute);
     return () => {
