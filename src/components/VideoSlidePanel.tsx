@@ -901,7 +901,7 @@ const VideoSlidePanel = ({
                     disabled={!feedLayout && isBookmarkLoggedIn && !ctaBusiness?.id}
                     style={{ backgroundColor: "#F1F1F1" }}
                     className={`h-9 w-9 flex items-center justify-center rounded-full text-black shadow-2xl transition-opacity shrink-0 glass-toolbar-btn ${
-                      isBookmarkLoggedIn && !ctaBusiness?.id ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
+                      !feedLayout && isBookmarkLoggedIn && !ctaBusiness?.id ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
                     }`}
                     title={isBookmarked ? "Retirer des favoris" : "Le Club OWM"}
                     aria-label="Le Club OWM"
