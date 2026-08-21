@@ -52,7 +52,7 @@ const VideoSocialBadge = ({ social, animKey }: Props) => {
           </span>
         </a>
       ) : (
-        <div className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-2.5 py-1">
+        <div className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-2.5 py-1">
           <span className="text-[11px] font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Follow @{social.account}
           </span>
