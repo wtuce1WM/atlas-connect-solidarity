@@ -1096,16 +1096,16 @@ const VideoSlidePanel = ({
                 </div>
               );
             })()}
-            {feedLayout && ctaBusiness?.id && (ctaBusiness.latitude || ctaBusiness.longitude) && (
+            {feedLayout && ctaBusiness?.id && ctaBusiness.latitude && ctaBusiness.longitude && (
               <div
-                onClick={() => setPoiOverlayBusinessId(String(ctaBusiness.id))}
+                onClick={() => { setNestedOverlayKind("poi"); setDescBusinessId(String(ctaBusiness.id)); }}
                 className="group relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4"
               >
                 <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation"}</span>
                 <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
               </div>
             )}
-            {feedLayout && !hideDirections && ctaBusiness?.latitude && ctaBusiness?.longitude && (
+            {feedLayout && ctaBusiness?.latitude && ctaBusiness?.longitude && (
               <div
                 onClick={() => setDirectionsBusiness(ctaBusiness)}
                 className="group relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4"
