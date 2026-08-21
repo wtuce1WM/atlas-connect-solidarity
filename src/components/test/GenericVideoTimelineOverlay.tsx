@@ -173,7 +173,15 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
         });
       });
       built.sort((a, b) => a.sort_order - b.sort_order);
-      if (!cancelled) setItems(built);
+      // Dédoublonnage : un même établissement peut être lié à la fois en POI
+      // et en business — on ne garde que la première occurrence (POI prioritaire).
+      const seen = new Set<string>();
+      const deduped = built.filter((it) => {
+        if (seen.has(it.id)) return false;
+        seen.add(it.id);
+        return true;
+      });
+      if (!cancelled) setItems(deduped);
     };
     load();
     return () => {
