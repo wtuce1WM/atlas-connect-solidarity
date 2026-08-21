@@ -738,7 +738,7 @@ const Front = () => {
           <div className="min-h-[1.5rem] md:min-h-[1.75rem]">
             {accrocheVisible && (
               <p
-                className="font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-lg"
+                className="font-roboto text-base font-bold leading-snug text-[#F4EEE4] md:text-xl"
                 style={{
                   opacity: voiceActive ? 0 : 1,
                   animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
