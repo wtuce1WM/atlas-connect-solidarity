@@ -69,6 +69,7 @@ const clubTranslations = {
 
 interface TimelineItem {
   id: string;
+  kind: "business" | "destination";
   name: string;
   hook: string | null;
   ratingOn20: number | null;
