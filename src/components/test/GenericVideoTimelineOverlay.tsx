@@ -279,7 +279,10 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
 
   // Items shown inside the Club popup: all items once the video has played
   // through once, otherwise only those reached so far.
-  const popupItems = hasCompletedOnce ? items : reachedItems;
+  // Les destinations ne sont pas sauvegardables en favoris (bookmarks = business).
+  const popupItems = (hasCompletedOnce ? items : reachedItems).filter(
+    (it) => it.kind === "business"
+  );
 
   const activeId = useMemo(() => {
     if (reachedItems.length === 0) return null;
