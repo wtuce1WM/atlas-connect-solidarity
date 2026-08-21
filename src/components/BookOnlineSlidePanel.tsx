@@ -1171,7 +1171,7 @@ const BookOnlineSlidePanelInner = ({
     } else {
       interceptCloseRef.current = null;
     }
-  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, showHoursOverlay, showAvailabilitySearch, showDescriptionOverlay, showDirections, showBookingOverlay, docOverlay, showMosaic, showYoutubeOverlay, showExternalVideosOverlay]);
+  }, [closeDescriptionOverlay, previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, showHoursOverlay, showAvailabilitySearch, showDescriptionOverlay, showDirections, showBookingOverlay, docOverlay, showMosaic, showYoutubeOverlay, showExternalVideosOverlay]);
 
   // Desktop: Esc closes the Full Description overlay (same cascade as the header X)
   useEffect(() => {
@@ -1186,7 +1186,7 @@ const BookOnlineSlidePanelInner = ({
     };
     window.addEventListener("keydown", onKey, true);
     return () => window.removeEventListener("keydown", onKey, true);
-  }, [showDescriptionOverlay, descGridSection, descOverlayContent, descOverlayDirect]);
+  }, [showDescriptionOverlay, descGridSection, descOverlayContent, descOverlayDirect, closeDescriptionOverlay]);
 
   // À l'ouverture de l'overlay Full Description : toujours démarrer en haut
   // (des sections comme "Réservez" / iframes peuvent forcer un scroll auto)
