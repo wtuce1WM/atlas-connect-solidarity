@@ -154,10 +154,17 @@ export default {
           "40%": { transform: "scale(1.4)" },
           "100%": { transform: "scale(1)" },
         },
+        "heart-color-pulse": {
+          "0%": { color: "#000000", transform: "scale(1)" },
+          "30%": { color: "#ef4444", transform: "scale(1.35)" },
+          "60%": { color: "#6050DC", transform: "scale(1.15)" },
+          "100%": { color: "#000000", transform: "scale(1)" },
+        },
         "heart-fly": {
           "0%": { transform: "translate(0,0) scale(1)", opacity: "1" },
           "100%": { transform: "translate(0,-40px) scale(1.8)", opacity: "0" },
         },
+
         "shimmer": {
           "0%": { transform: "translateX(-100%)" },
           "100%": { transform: "translateX(100%)" },
