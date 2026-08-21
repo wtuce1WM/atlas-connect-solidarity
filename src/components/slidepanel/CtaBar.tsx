@@ -317,7 +317,7 @@ export function CtaBar({
 
       {/* Barre info viewer (+ CTAs liquid glass si présents) : fond continu jusqu'au bas du panneau */}
       {infoSlot ? (
-        <div className={`relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto rounded-t-2xl border-x border-b-0 border-white/10 md:w-[calc(100%-1rem)] md:max-w-[450px] md:mx-auto md:rounded-t-2xl md:border-x md:border-b-0 md:border-white/10 pointer-events-auto bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] ${showSearchBar ? 'pb-[calc(40px+env(safe-area-inset-bottom))] -mb-[calc(40px+env(safe-area-inset-bottom))] md:pb-[40px] md:-mb-[40px]' : 'pb-[16px] -mb-[16px]'}`}>
+        <div className={`relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto rounded-t-2xl border-x border-b-0 border-white/10 md:w-[calc(100%-1rem)] md:max-w-[450px] md:mx-auto md:rounded-t-2xl md:border-x md:border-b-0 md:border-white/10 pointer-events-auto bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] ${showSearchBar ? 'pb-[calc(8px+env(safe-area-inset-bottom))] -mb-[calc(8px+env(safe-area-inset-bottom))] md:pb-[8px] md:-mb-[8px]' : 'pb-[8px] -mb-[8px]'}`}>
           {infoSlot}
 
           {restCtas.length > 0 && (
