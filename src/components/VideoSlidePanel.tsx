@@ -20,7 +20,6 @@ import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineO
 import { useNavigate } from "react-router-dom";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
-import PoiSlidePanel from "@/components/PoiSlidePanel";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { buildOgShareUrl } from "@/lib/businessUrl";
@@ -245,6 +244,8 @@ const VideoSlidePanel = ({
   // Feed : quand la vidéo est liée à un établissement, la barre info ouvre la
   // Full Description de BookOnlineSlidePanel de cet établissement (pas l'overlay local).
   const [descBusinessId, setDescBusinessId] = useState<string | null>(null);
+  /** Quel overlay ouvrir dans le panneau business imbriqué (identique à BookOnlineSlidePanel) */
+  const [nestedOverlayKind, setNestedOverlayKind] = useState<"description" | "poi">("description");
   useEffect(() => { setDescBusinessId(null); }, [videoId, videoUrl]);
   useEffect(() => { if (!open) setDescBusinessId(null); }, [open]);
   // Transition morphée : la barre info viewer sert de « graine » à l'overlay Full Description
@@ -1094,16 +1095,16 @@ const VideoSlidePanel = ({
                 </div>
               );
             })()}
-            {feedLayout && ctaBusiness?.id && (ctaBusiness.latitude || ctaBusiness.longitude) && (
+            {feedLayout && ctaBusiness?.id && ctaBusiness.latitude && ctaBusiness.longitude && (
               <div
-                onClick={() => setPoiOverlayBusinessId(String(ctaBusiness.id))}
+                onClick={() => { setNestedOverlayKind("poi"); setDescBusinessId(String(ctaBusiness.id)); }}
                 className="group relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4"
               >
                 <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation"}</span>
                 <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
               </div>
             )}
-            {feedLayout && !hideDirections && ctaBusiness?.latitude && ctaBusiness?.longitude && (
+            {feedLayout && ctaBusiness?.latitude && ctaBusiness?.longitude && (
               <div
                 onClick={() => setDirectionsBusiness(ctaBusiness)}
                 className="group relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4"
@@ -1387,7 +1388,7 @@ const VideoSlidePanel = ({
                     bare
                     onOpen={(rect) => {
                       // Vidéo liée à un établissement → Full Description de BookOnlineSlidePanel.
-                      if (ctaBusiness?.id) { setDescBusinessId(String(ctaBusiness.id)); return; }
+                      if (ctaBusiness?.id) { setNestedOverlayKind("description"); setDescBusinessId(String(ctaBusiness.id)); return; }
                       if (effectiveDescription) startDescMorph(rect);
                     }}
                   />
@@ -1475,15 +1476,6 @@ const VideoSlidePanel = ({
             />
           </Suspense>
         )}
-        {poiOverlayBusinessId && (
-          <div className="absolute inset-0 z-[85]">
-            <PoiSlidePanel
-              businessId={poiOverlayBusinessId}
-              onClose={() => setPoiOverlayBusinessId(null)}
-              slideFrom="bottom"
-            />
-          </div>
-        )}
         <LocationPickerDialog
           open={locationDialogOpen}
           onOpenChange={setLocationDialogOpen}
@@ -1518,8 +1510,8 @@ const VideoSlidePanel = ({
               <LazyBusinessPanel
                 open
                 businessId={descBusinessId}
-                initialOverlay="description"
-                onClose={() => setDescBusinessId(null)}
+                initialOverlay={nestedOverlayKind}
+                onClose={() => { setDescBusinessId(null); setNestedOverlayKind("description"); }}
               />
             </Suspense>
           </div>
