@@ -68,9 +68,16 @@ const STEPS: Step[] = [
     bullet: true,
     render: () => (
       <>
-        avec un modèle économique direct-to-local, sans commission et solidaire :{" "}
-        <strong className="font-bold text-white">20 %</strong> des abonnements des affiliés
-        sont destinés à des causes humanitaires au Maroc...
+        avec un modèle économique direct-to-local, sans commission et solidaire :
+      </>
+    ),
+  },
+  {
+    bullet: true,
+    render: () => (
+      <>
+        <strong className="font-bold text-white">20 %</strong> des abonnements des
+        affiliés sont destinés à des causes humanitaires au Maroc...
       </>
     ),
   },
@@ -87,8 +94,8 @@ const STEPS: Step[] = [
 
 /** Premier bullet point : toujours visible (le plus important). */
 const PERMANENT_STEP = 1;
-/** Indices des bullets qui défilent dans le carrousel (2-6). */
-const CAROUSEL_STEPS = [2, 3, 4, 5, 6];
+/** Indices des bullets qui défilent dans le carrousel (2-7). */
+const CAROUSEL_STEPS = [2, 3, 4, 5, 6, 7];
 /** Largeur relative de chaque segment, calée sur la durée d'affichage réelle. */
 const BULLET_WEIGHTS = CAROUSEL_DURATIONS_MS.map((d) => d / Math.min(...CAROUSEL_DURATIONS_MS));
 
