@@ -384,11 +384,6 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                   }`}
                 >
                   <p className="text-sm font-semibold leading-tight break-words">{it.name}</p>
-                  {it.hook && (
-                    <p className="text-[11px] text-white/85 leading-snug mt-0.5 break-words">
-                      {it.hook}
-                    </p>
-                  )}
                   {it.ratingOn20 != null && (
                     <p className="text-xs font-bold text-gold mt-1">
                       {formatRating(it.ratingOn20)}/20
