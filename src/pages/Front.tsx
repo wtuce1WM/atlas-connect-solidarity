@@ -951,7 +951,7 @@ const Front = () => {
 
         {/* Slogan écran 2 — identique au slogan écran 1, version 5 lignes */}
         <p
-          className="relative text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight"
+          className="relative overflow-hidden text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
