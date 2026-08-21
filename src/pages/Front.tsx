@@ -76,7 +76,7 @@ const STEPS: Step[] = [
     bullet: true,
     render: () => (
       <>
-        <strong className="font-bold text-white">20 %</strong> des abonnements des
+        <strong className="font-normal text-white">20 %</strong> des abonnements des
         affiliés sont destinés à des causes humanitaires au Maroc...
       </>
     ),
@@ -785,7 +785,7 @@ const Front = () => {
                     <div
                       key={i}
                       aria-hidden={!isActive}
-                      className={`col-start-1 row-start-1 flex items-start gap-3 font-roboto text-base font-bold leading-[1.3] text-[#F4EEE4] md:text-lg md:leading-snug ${
+                      className={`col-start-1 row-start-1 flex items-start gap-3 font-roboto text-base font-normal leading-[1.3] text-[#F4EEE4] md:text-lg md:leading-snug ${
                         isActive && bulletsVisible ? "opacity-100" : "pointer-events-none opacity-0"
                       }`}
                       style={{
