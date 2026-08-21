@@ -1238,6 +1238,23 @@ const EmbedAsk = () => {
     }
   }, [videoFeedCtx, videoFeedList]);
 
+  /** Clic sur une chip badge dans le viewer → relance le feed sur ce badge. */
+  const selectFeedBadge = useCallback(async (badge: { id: string; name: string }) => {
+    feedLoadingMoreRef.current = true;
+    try {
+      const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
+      const seed = Math.random().toString(36).slice(2, 10);
+      const { items, total } = await fetchBadgesVideoFeed([badge.id], { seed, limit: 60 });
+      if (!items.length) return;
+      setVideoFeedList(items);
+      setVideoFeedCtx({ badgeIds: [badge.id], seed, total });
+      setFeedVideoTime(0);
+      feedLoadingMoreRef.current = false;
+      setActiveFeedVideoId(items[0].id);
+    } catch {
+      feedLoadingMoreRef.current = false;
+    }
+  }, []);
 
 
 
