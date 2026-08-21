@@ -216,6 +216,18 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
     [items, currentTime]
   );
 
+  // Signale au header (icône Like/coeur) chaque nouvelle entrée affichée.
+  const prevReachedRef = useRef(0);
+  useEffect(() => {
+    if (reachedItems.length > prevReachedRef.current) {
+      window.dispatchEvent(
+        new CustomEvent("video-timeline-entry", { detail: { count: reachedItems.length } })
+      );
+    }
+    prevReachedRef.current = reachedItems.length;
+  }, [reachedItems.length]);
+
+
   // Track whether the video has completed at least one full play.
   // Detect a loop by spotting a backwards jump in currentTime (end → ~0).
   const [hasCompletedOnce, setHasCompletedOnce] = useState(false);
