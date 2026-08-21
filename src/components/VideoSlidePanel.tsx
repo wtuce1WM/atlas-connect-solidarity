@@ -988,12 +988,13 @@ const VideoSlidePanel = ({
         )}
 
         {/* Chips badges (« Activé sur le front ») en haut de la vidéo — feed uniquement.
-            Un clic relance le feed sur le badge choisi (si le parent le gère).
+            Positionnées entre le badge Sauvegarder (toolbar haute) et le CTA retour à /front
+            (centre de l'écran) pour rester lisibles sans masquer le contenu principal.
             z-index maximal sous les overlays majeurs (description, recherche, etc.) pour
             passer au-dessus de l'ID vidéo temporaire et des cartes POI/business du timeframe. */}
         {feedLayout && !!feedBadges?.length && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
-          <div className="absolute top-16 md:top-16 left-3 right-3 z-[100] flex flex-wrap justify-center gap-1.5 pointer-events-none">
+          <div className="absolute top-[22%] left-3 right-3 z-[100] flex flex-wrap justify-center gap-1.5 pointer-events-none">
             {feedBadges.slice(0, 6).map((b) => (
               <button
                 key={b.id}

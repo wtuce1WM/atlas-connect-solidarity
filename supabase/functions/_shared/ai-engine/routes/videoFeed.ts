@@ -24,6 +24,8 @@ export type VideoFeedItem = {
   businessName: string | null;
   /** Compte social attaché à la vidéo (logo + « Follow @… » dans le lecteur). */
   social?: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
+  /** Badges actifs sur le front attachés à la vidéo (chips cliquables dans le lecteur). */
+  badges?: { id: string; name: string; color?: string | null; text_color?: string | null }[] | null;
 };
 
 export type VideoFeedAnswer = {
@@ -101,6 +103,14 @@ export async function loadBadgeVideoFeed(
     businessName: r.business_name || null,
     social: r.social_platform && r.social_account
       ? { platform: r.social_platform, account: String(r.social_account).replace(/^@+/, ""), url: r.social_url || null }
+      : null,
+    badges: Array.isArray(r.badges)
+      ? r.badges.map((b: any) => ({
+          id: String(b.id ?? b.badge_id ?? ""),
+          name: String(b.name ?? b.name_fr ?? ""),
+          color: b.color ?? b.color_hex ?? null,
+          text_color: b.text_color ?? b.text_color_hex ?? null,
+        })).filter((b: any) => b.id && b.name)
       : null,
   }));
   const total = rows.length ? Number(rows[0].total_count ?? rows.length) : 0;
