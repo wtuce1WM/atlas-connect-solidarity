@@ -830,7 +830,7 @@ const VideoSlidePanel = ({
                 className="h-9 w-9 flex items-center justify-center rounded-full bg-white hover:bg-white/90 transition-colors shadow-lg"
                 aria-label="Le Club OWM"
               >
-                <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                <Heart className="h-4 w-4 text-black" strokeWidth={2.5} />
               </button>
               <ShareButton
                 title={ctaBusiness?.name || businessName}
