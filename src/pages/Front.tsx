@@ -741,10 +741,10 @@ const Front = () => {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Accroche fixe — apparaît après 1 s */}
-          <div className="min-h-[1.5rem] md:min-h-[1.75rem]">
+          <div className="min-h-[1.75rem] md:min-h-[2.25rem]">
             {accrocheVisible && (
               <p
-                className="font-roboto text-base font-bold leading-snug text-[#F4EEE4] md:text-xl"
+                className="font-roboto text-xl font-bold leading-snug text-[#F4EEE4] md:text-2xl"
                 style={{
                   opacity: voiceActive ? 0 : 1,
                   animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
