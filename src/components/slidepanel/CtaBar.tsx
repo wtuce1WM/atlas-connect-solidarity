@@ -298,7 +298,7 @@ export function CtaBar({
   return (
     <div
       dir="ltr"
-      className={`${cardsHidden && showSearchBar ? 'absolute bottom-[72px] left-0 right-0 z-[74]' : 'shrink-0 pt-2 pb-0'} flex flex-col items-center gap-0 ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`}
+      className={`${cardsHidden && showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`}
       style={hideStyle}
     >
       {!cardsHidden && appStoreLinks && appStoreLinks.length > 0 && (
@@ -317,11 +317,11 @@ export function CtaBar({
 
       {/* Barre info viewer (+ CTAs liquid glass si présents) : fond continu jusqu'au bas du panneau */}
       {infoSlot ? (
-        <div className="relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto rounded-t-2xl border-x border-b-0 border-white/10 md:w-[calc(100%-1rem)] md:max-w-[450px] md:mx-auto md:rounded-t-2xl md:border-x md:border-b-0 md:border-white/10 pointer-events-auto before:absolute before:inset-x-0 before:top-0 before:-bottom-[calc(72px+env(safe-area-inset-bottom))] before:rounded-t-2xl before:bg-gradient-to-b before:from-black/25 before:to-black/70 before:backdrop-blur-[3px] before:pointer-events-none">
-          <div className="relative z-10">{infoSlot}</div>
+        <div className={`relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto rounded-t-2xl border-x border-b-0 border-white/10 md:w-[calc(100%-1rem)] md:max-w-[450px] md:mx-auto md:rounded-t-2xl md:border-x md:border-b-0 md:border-white/10 pointer-events-auto bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] ${showSearchBar ? 'pb-[calc(104px+env(safe-area-inset-bottom))] -mb-[calc(104px+env(safe-area-inset-bottom))] md:pb-[103px] md:-mb-[103px]' : 'pb-[40px] -mb-[40px]'}`}>
+          {infoSlot}
 
           {restCtas.length > 0 && (
-            <div className={`relative z-10 w-full px-3 md:px-4 ${restCtas.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
+            <div className={`w-full px-3 md:px-4 ${restCtas.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
               {restCtas.map((item, i) => (
                 <div key={i} className={restCtas.length === 4 || restCtas.length === 1 ? '' : 'flex-1'}>{item}</div>
               ))}

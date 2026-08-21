@@ -992,7 +992,7 @@ const VideoSlidePanel = ({
             (centre de l'écran) pour rester lisibles sans masquer le contenu principal.
             z-index maximal sous les overlays majeurs (description, recherche, etc.) pour
             passer au-dessus de l'ID vidéo temporaire et des cartes POI/business du timeframe. */}
-        {feedLayout && !!feedBadges?.length && feedBadges.length > 1 && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
+        {feedLayout && !!feedBadges?.length && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
           <div className="absolute top-[22%] left-3 right-3 z-[100] flex flex-wrap justify-center gap-1.5 pointer-events-none">
             {feedBadges.slice(0, 6).map((b) => (
@@ -1263,7 +1263,7 @@ const VideoSlidePanel = ({
             </div>
           )}
           <div className={`absolute inset-0 z-30 pointer-events-none ${descOverlayOpen ? "hidden" : ""}`}>
-            <div className="fixed lg:absolute inset-x-0 bottom-[calc(72px+env(safe-area-inset-bottom))] lg:bottom-[4.5rem] z-30 px-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
+            <div className="fixed lg:absolute inset-x-0 bottom-[calc(120px+env(safe-area-inset-bottom))] lg:bottom-[7rem] z-30 px-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
               {compactBusinessHeader && (
                 <YouTubeIcon className="h-16 w-16 text-red-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />
               )}
@@ -1343,9 +1343,8 @@ const VideoSlidePanel = ({
               })()}
               {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer */}
               {feedLayout && (feedInfoTitle || feedInfoTeaser) && (
-                <div className="relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto md:w-[calc(100%-1rem)] md:max-w-[450px] rounded-t-2xl border-x border-b-0 border-white/10 pointer-events-auto before:absolute before:inset-x-0 before:top-0 before:-bottom-[calc(72px+env(safe-area-inset-bottom))] before:rounded-t-2xl before:bg-gradient-to-b before:from-black/25 before:to-black/70 before:backdrop-blur-[3px] before:pointer-events-none">
-                  <div className="relative z-10">
-                    <MediaViewerInfo
+                <div className="relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto md:w-[calc(100%-1rem)] md:max-w-[450px] rounded-t-2xl border-x border-b-0 border-white/10 bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] pointer-events-auto pb-[calc(120px+env(safe-area-inset-bottom))] -mb-[calc(120px+env(safe-area-inset-bottom))] lg:pb-[7rem] lg:-mb-[7rem]">
+                  <MediaViewerInfo
                     name={feedInfoTitle}
                     city={ctaBusiness?.city}
                     neighborhood={(ctaBusiness as any)?.neighborhood}
@@ -1359,8 +1358,7 @@ const VideoSlidePanel = ({
                       if (ctaBusiness?.id) { setDescBusinessId(String(ctaBusiness.id)); return; }
                       if (effectiveDescription) startDescMorph(rect);
                     }}
-                    />
-                  </div>
+                  />
                 </div>
               )}
 
