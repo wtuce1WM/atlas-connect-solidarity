@@ -184,6 +184,39 @@ const Front = () => {
     };
   }, [isPortrait]);
 
+  // progression virtuelle lissée
+  const setTarget = useCallback(
+    (v: number) => {
+      targetRef.current = clamp01(v);
+      if (reduced) {
+        currentRef.current = targetRef.current;
+        setProgress(targetRef.current);
+        return;
+      }
+      if (rafRef.current !== null) return;
+      const tick = () => {
+        currentRef.current += (targetRef.current - currentRef.current) * 0.32;
+        if (Math.abs(targetRef.current - currentRef.current) < 0.001) {
+          currentRef.current = targetRef.current;
+          setProgress(currentRef.current);
+          rafRef.current = null;
+          return;
+        }
+        setProgress(currentRef.current);
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    },
+    [reduced]
+  );
+
+  useEffect(
+    () => () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    },
+    []
+  );
+
   // auto-avance du récit
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
