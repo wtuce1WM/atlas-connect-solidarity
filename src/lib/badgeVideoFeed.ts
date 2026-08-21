@@ -70,6 +70,11 @@ export interface FetchBadgeVideoFeedOptions {
   cityIds?: string[] | null;
 }
 
+// TEMPORAIRE — debug badge #Vlogs : force une vidéo en tête de feed.
+// TODO: retirer dès que le debug est terminé.
+const DEBUG_VLOGS_BADGE_ID = "b1113b87-127a-43e0-be80-d3262934a320";
+const DEBUG_VLOGS_VIDEO_ID = "091bfa7b-6182-4d25-93c2-4d61d48a61ea";
+
 /**
  * Charge une page du feed portrait d'un badge, prête à alimenter
  * `HomeVideoSlidePanel` (donc `BookOnlineSlidePanel`) sans transformation.
@@ -87,7 +92,18 @@ export async function fetchBadgeVideoFeed(
     _city_ids: cityIds && cityIds.length > 0 ? cityIds : null,
   });
   if (error || !data) return [];
-  return (data as any[]).map(mapFeedRow);
+  const items = (data as any[]).map(mapFeedRow);
+
+  // TEMPORAIRE — debug badge #Vlogs
+  if (badgeId === DEBUG_VLOGS_BADGE_ID && offset === 0) {
+    const idx = items.findIndex((i) => i.id === DEBUG_VLOGS_VIDEO_ID);
+    if (idx > 0) {
+      const [forced] = items.splice(idx, 1);
+      items.unshift(forced);
+    }
+  }
+
+  return items;
 }
 
 function mapFeedRow(r: any): BadgeVideoFeedItem {
