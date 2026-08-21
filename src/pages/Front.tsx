@@ -777,34 +777,36 @@ const Front = () => {
                 />
               )}
 
-              <div className="grid grid-cols-1">
-                {STEPS.map((s, i) => {
-                  if (!s.bullet) return null;
-                  const isActive = i === step;
-                  return (
-                    <div
-                      key={i}
-                      aria-hidden={!isActive}
-                      className={`col-start-1 row-start-1 flex items-start gap-3 font-roboto text-base font-normal leading-[1.3] text-[#F4EEE4] md:text-lg md:leading-snug ${
-                        isActive && bulletsVisible ? "opacity-100" : "pointer-events-none opacity-0"
-                      }`}
-                      style={{
-                        animation:
-                          reduced || !isActive || !bulletsVisible
-                            ? undefined
-                            : "owmSlideDown 420ms ease-out both",
-                      }}
-                    >
-                      <img
-                        src={hamsaIcon.url}
-                        alt=""
-                        className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
-                        loading="lazy"
-                      />
-                      <span>{s.render()}</span>
-                    </div>
-                  );
-                })}
+              <div className="flex items-start gap-3 font-roboto text-base font-normal leading-[1.3] text-[#F4EEE4] md:text-lg md:leading-snug">
+                <img
+                  src={hamsaIcon.url}
+                  alt=""
+                  className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
+                  loading="eager"
+                />
+                <div className="grid grid-cols-1">
+                  {STEPS.map((s, i) => {
+                    if (!s.bullet) return null;
+                    const isActive = i === step;
+                    return (
+                      <span
+                        key={i}
+                        aria-hidden={!isActive}
+                        className={`col-start-1 row-start-1 ${
+                          isActive && bulletsVisible ? "opacity-100" : "pointer-events-none opacity-0"
+                        }`}
+                        style={{
+                          animation:
+                            reduced || !isActive || !bulletsVisible
+                              ? undefined
+                              : "owmSlideDown 420ms ease-out both",
+                        }}
+                      >
+                        {s.render()}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Progress bar segmentée — un segment par bullet défilant (2-7) */}
