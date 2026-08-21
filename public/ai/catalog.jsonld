@@ -566,7 +566,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 1356,
+          "reviewCount": 1413,
           "bestRating": 5
         }
       }
@@ -3198,7 +3198,7 @@
         "description": "Essaouira est un terrain de jeu idéal pour les amateurs de glisse. Sa baie protégée et son vent régulier offrent des conditions parfaites pour le surf, le kitesurf, le windsurf ou le wingfoil. Les débutants profitent d’un environnement sûr et doux, tandis que les riders expérimentés s’épanouissent dans des sessions intenses face aux îles de Mogador. En paddle, on découvre la ville sous un autre angle, entre lumière, mer et horizon. Une expérience sportive et apaisante, accessible toute l’année. ",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Boulevard Mohammed V, Plage d'Essaouira",
+          "streetAddress": "Bd Mohammed V",
           "addressLocality": "Plage",
           "addressRegion": "Essaouira",
           "addressCountry": "MA"
@@ -3212,7 +3212,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 106,
+          "reviewCount": 156,
           "bestRating": 5
         }
       }
@@ -11044,7 +11044,7 @@
         "description": "LE RENDEZ-VOUS HÉDONISTE DE LA VILLE OCRE Un décor hors du temps, une ambiance festive, une cuisine internationale aux influences françaises et méditerranéennes, sans oublier un live band d’une énergie débordante, bienvenue à l’Epicurien. Ce restaurant-lounge vous offre des soirées intenses, rythmées par des performances exceptionnelles. \"If You Like Live Music, You Will Love Us” Restaurant lounge du Casino de Marrakech, l’Epicurien se distingue par son atmosphère feutrée et son décor qui allie ",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Rue Ibrahim El Mazini Es Saadi Marrakech Resort, Rue Hafid Ibrahim",
+          "streetAddress": "Es Saadi Marrakech Resort",
           "addressLocality": "Hivernage",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -11058,7 +11058,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 7361,
+          "reviewCount": 8504,
           "bestRating": 5
         }
       }
@@ -24314,7 +24314,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 578,
+          "reviewCount": 677,
           "bestRating": 5
         }
       }
@@ -30692,7 +30692,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 1852,
+          "reviewCount": 1940,
           "bestRating": 5
         }
       }
@@ -31350,7 +31350,7 @@
         "description": "Tout a commencé en 1995, avec un garçon de 12 ans et son frère de 17 ans, Omar et Mohamed. Pour aider leur famille d'origine modeste, le frère aîné a commencé avec un cheval barbe arabe sur la plage d'Essaouira, proposant de courtes promenades aux touristes de passage. Le jeune frère l'aidait après l'école, et ensemble, ils apprenaient à l'école de la vie. Les années passent et en 2003, après 8 ans, ils décident de créer une société SARL avec toutes leurs économies et l'aide d'un ami cher, un éc",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Ranch de Diabat N°6 Douar Diabat",
+          "streetAddress": "N°6 Douar Diabat",
           "addressLocality": "Diabat",
           "addressRegion": "Essaouira",
           "addressCountry": "MA"
@@ -31363,8 +31363,8 @@
         "telephone": "+212666683163",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.7,
-          "reviewCount": 641,
+          "ratingValue": 4.8,
+          "reviewCount": 734,
           "bestRating": 5
         }
       }
@@ -37824,7 +37824,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 1414,
+          "reviewCount": 1450,
           "bestRating": 5
         }
       }
@@ -40874,7 +40874,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 79,
+          "reviewCount": 81,
           "bestRating": 5
         }
       }
@@ -48340,7 +48340,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 68,
+          "reviewCount": 75,
           "bestRating": 5
         }
       }

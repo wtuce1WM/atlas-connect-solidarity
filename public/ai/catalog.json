@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-19T02:53:54.795Z",
+    "generated_at": "2026-08-21T19:36:53.739Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1853
   },
@@ -1298,7 +1298,6 @@
         "Transfert Aéroport",
         "Climatisé",
         "Piscine",
-        "Cadre spectaculaire",
         "Boutique",
         "WiFi",
         "Rooftop",
@@ -1317,7 +1316,7 @@
       "website": "https://2ciels.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/5cbe1e68-8c6d-4a23-a688-20fe3c9d60ce-1776658797245-ibwr8m.webp",
       "google_rating": 4.4,
-      "google_review_count": 1356,
+      "google_review_count": 1413,
       "price_range": "100 à 200€",
       "min_price_mad": 144,
       "languages": [],
@@ -1328,7 +1327,7 @@
       "social": {
         "instagram": "https://instagram.com/2cielshotelmarrakech/",
         "facebook": "https://www.facebook.com/2cielshotelmarrakech/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d10171259-Reviews-2Ciels_Luxury_Boutique_Hotel_Spa-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -8990,7 +8989,8 @@
         "Stand-up paddle",
         "Surf",
         "Windsurf",
-        "Wingfoil"
+        "Wingfoil",
+        "Boutique"
       ],
       "city": "Essaouira",
       "neighborhood": "Plage",
@@ -8998,13 +8998,13 @@
       "country": "MA",
       "latitude": 31.4967217,
       "longitude": -9.7633587,
-      "address": "Boulevard Mohammed V, Plage d'Essaouira",
+      "address": "Bd Mohammed V",
       "phone": "+212618168472",
       "whatsapp": "+212618168472",
       "website": "https://www.oceanvagabond.com/essaouira/base-nautique-salt-water-elements/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/3b41769a-a916-44d4-bebb-dd0ffdcfdfd3-1775634719043-vsua8.jpeg",
       "google_rating": 4.8,
-      "google_review_count": 106,
+      "google_review_count": 156,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -32160,13 +32160,13 @@
       "country": "MA",
       "latitude": 31.6212842,
       "longitude": -8.0049978,
-      "address": "Rue Ibrahim El Mazini Es Saadi Marrakech Resort, Rue Hafid Ibrahim",
+      "address": "Es Saadi Marrakech Resort",
       "phone": "+212663055704",
       "whatsapp": null,
       "website": "https://www.essaadi.com/restaurants-marrakech/restaurants-nuit/epicurien/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/87b6a4ff-269d-42d7-aa9b-a8d58f2979b0-1774091528943-scqbc.jpg",
       "google_rating": 4.6,
-      "google_review_count": 7361,
+      "google_review_count": 8504,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -32229,12 +32229,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.essaadi.com/restaurants-marrakech/restaurants-nuit/epicurien/",
+      "booking_url": null,
       "menu_url": "https://www.theatromarrakech.com/wp-content/uploads/2024/12/MenuTheatro-Juillet2024-576x1024.jpg",
       "social": {
         "instagram": "https://www.instagram.com/epicurien.marrakech",
         "facebook": "https://www.facebook.com/epicurien.marrakech",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d1523360-Reviews-Epicurien-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": "https://fr.linkedin.com/showcase/epicurien-marrakech"
       }
@@ -62270,7 +62270,8 @@
         "Déjeuner",
         "DJ's",
         "Musique Live",
-        "Viande"
+        "Viande",
+        "Poisson"
       ],
       "city": "Marrakech",
       "neighborhood": "Hivernage",
@@ -69758,7 +69759,13 @@
         "Cinéma",
         "Musique"
       ],
-      "services": [],
+      "services": [
+        "Théâtre",
+        "Concert",
+        "Salles",
+        "Cours de guitare",
+        "Cours de piano"
+      ],
       "city": "Marrakech",
       "neighborhood": "Hivernage",
       "region": "Marrakech-Safi",
@@ -69771,7 +69778,7 @@
       "website": "https://meydene.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/9e1c12c2-fa7e-4799-95ae-76508dd2117e-1774624570474-0y36lj.jpg",
       "google_rating": 4.5,
-      "google_review_count": 578,
+      "google_review_count": 677,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -69834,12 +69841,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://meydene.com/",
+      "booking_url": "https://meydene.mapado.com/en",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/meydene.marrakech/?hl=fr",
         "facebook": "https://www.facebook.com/MeydeneOfficiel/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d24188840-Reviews-Meydene_Experience-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": "https://fr.linkedin.com/company/meydene/"
       }
@@ -87942,7 +87949,7 @@
       "website": "https://www.oceanvagabond.com/essaouira/restaurant/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1dc2e2cb-30d9-4431-b9df-bc31f660e508-1782114491191-igv6sf.webp",
       "google_rating": 4.4,
-      "google_review_count": 1852,
+      "google_review_count": 1940,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -90201,7 +90208,7 @@
       "services": [
         "Balades",
         "Randonnée à Cheval",
-        "Balade à dos de chameau"
+        "Centre équestre"
       ],
       "city": "Essaouira",
       "neighborhood": "Diabat",
@@ -90209,24 +90216,24 @@
       "country": "MA",
       "latitude": 31.4817004,
       "longitude": -9.7653187,
-      "address": "Ranch de Diabat N°6 Douar Diabat",
+      "address": "N°6 Douar Diabat",
       "phone": "+212666683163",
       "whatsapp": null,
       "website": "https://ranchdediabat.com/fr",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/8fb36757-7d33-43d8-b3d6-f26607bac1cc-1773112295996-mf7916.jpg",
-      "google_rating": 4.7,
-      "google_review_count": 641,
+      "google_rating": 4.8,
+      "google_review_count": 734,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://ranchdediabat.com/fr",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/ranchdediabat/",
         "facebook": "https://www.facebook.com/ranchdiabat/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g298349-d1072364-Reviews-Ranch_de_Diabat-Essaouira_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -95469,7 +95476,8 @@
         "Villas"
       ],
       "services": [
-        "A louer"
+        "A louer",
+        "Piscine privative"
       ],
       "city": null,
       "neighborhood": null,
@@ -95480,7 +95488,7 @@
       "address": "19bis avenue Foch, Marcq-en-Baroeul 59700 - France",
       "phone": "+212 6 61 74 88 94",
       "whatsapp": "+33643976881",
-      "website": null,
+      "website": "https://www.sejour-maroc.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/364ed7ab-5a44-4266-a707-9868b6374321-1777143766241-stakue.jpg",
       "google_rating": null,
       "google_review_count": null,
@@ -95489,7 +95497,7 @@
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://www.sejour-maroc.com/",
+      "booking_url": "https://www.sejour-maroc.com/demande-de-devis-express/",
       "menu_url": null,
       "social": {
         "instagram": null,
@@ -106867,10 +106875,10 @@
       "address": "Douar Agadir Tassaout, Tahannaout",
       "phone": null,
       "whatsapp": "+212670717161",
-      "website": null,
+      "website": "https://theranch.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/f386b62b-d20e-4cea-86e6-460a802ed1b9-1777378615230-n4pvrr.jpg",
       "google_rating": 4.8,
-      "google_review_count": 1414,
+      "google_review_count": 1450,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -115367,7 +115375,9 @@
         "Foulards",
         "Femme",
         "Cabas",
-        "Sac de voyage"
+        "Sac de voyage",
+        "Abayas",
+        "Kimonos"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -115381,7 +115391,7 @@
       "website": "https://karimbouriad.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/50a71c7a-50d4-4b5b-a705-0ca4c37199ef-1780560757562-ho3vb8.webp",
       "google_rating": 4.5,
-      "google_review_count": 79,
+      "google_review_count": 81,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -115444,7 +115454,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://karimbouriad.com/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/karimbouriad/",
@@ -139822,10 +139832,10 @@
       "address": null,
       "phone": null,
       "whatsapp": "+212650175800",
-      "website": null,
+      "website": "https://www.ranch-berbere-essaouira.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ae3f2835-a231-4267-9c25-676b5fb8c5fb-1780999618458-wp589.jpg",
       "google_rating": 5,
-      "google_review_count": 68,
+      "google_review_count": 75,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -139888,7 +139898,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.ranch-berbere-essaouira.com/",
+      "booking_url": "https://www.ranch-berbere-essaouira.com/activites/",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/ranch_berbere_sidi_kaouki/",
@@ -144704,7 +144714,9 @@
         "Bracelet",
         "Chaîne",
         "Pendentif",
-        "Sautoir"
+        "Sautoir",
+        "Atelier",
+        "Vanneries"
       ],
       "city": "Marrakech",
       "neighborhood": "Tamesloht",
