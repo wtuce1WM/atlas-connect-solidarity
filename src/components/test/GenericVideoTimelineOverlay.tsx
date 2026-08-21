@@ -109,6 +109,13 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
   // Note: this overlay no longer listens to "open-generic-club-popup".
   // That global event is handled by ClubLoginPopup to avoid showing two
   // identical popups when the Profil CTA is clicked.
+  // Le popup « Sauvegardez vos coups de cœur » est désormais ouvert par
+  // l'icône Bookmark du header du viewer (le CTA texte a été supprimé).
+  useEffect(() => {
+    const onOpen = () => setClubOpen(true);
+    window.addEventListener("open-video-timeline-club", onOpen as EventListener);
+    return () => window.removeEventListener("open-video-timeline-club", onOpen as EventListener);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -173,7 +180,15 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
         });
       });
       built.sort((a, b) => a.sort_order - b.sort_order);
-      if (!cancelled) setItems(built);
+      // Dédoublonnage : un même établissement peut être lié à la fois en POI
+      // et en business — on ne garde que la première occurrence (POI prioritaire).
+      const seen = new Set<string>();
+      const deduped = built.filter((it) => {
+        if (seen.has(it.id)) return false;
+        seen.add(it.id);
+        return true;
+      });
+      if (!cancelled) setItems(deduped);
     };
     load();
     return () => {
@@ -331,24 +346,6 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
             })}
           </div>
         </div>
-      )}
-      {reachedItems.length > 0 && (
-        <button
-          type="button"
-          onClick={() => setClubOpen(true)}
-          style={{ backgroundColor: "#194CFF" }}
-          className="absolute top-[calc(22%+5rem)] md:top-[calc(22%+5rem)] left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 rounded-full px-3 py-1 text-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-300 hover:opacity-90 transition-opacity"
-        >
-          <Heart className="h-3.5 w-3.5" />
-          <span className="text-[11px] font-semibold tracking-wide">
-            {t.saveBtn}
-          </span>
-          {isLoggedIn && unsavedCount > 0 && (
-            <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-white text-[10px] font-bold" style={{ color: "#194CFF" }}>
-              {unsavedCount}
-            </span>
-          )}
-        </button>
       )}
       {clubOpen && (
         <div
