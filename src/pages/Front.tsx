@@ -28,13 +28,13 @@ const FIRST_CAROUSEL_DELAY_MS = 5000;
 const MIN_STEP_MS = 2000;
 
 /** Durées affichées de chaque bullet défilant (indices 2-6), en ms.
- *  Base = 3400 ms. Step 5 (solidarité) : +5 s. Step 6 (valeur) : -5 s (plancher 2 s). */
+ *  Base = 3400 ms. Step 5 (solidarité) : +2 s. Step 6 (valeur) : +1,6 s. */
 const CAROUSEL_DURATIONS_MS = [
   STEP_MS,
   STEP_MS,
   STEP_MS,
-  STEP_MS + 5000,
-  Math.max(MIN_STEP_MS, STEP_MS - 5000),
+  STEP_MS + 2000,
+  Math.max(MIN_STEP_MS, 5000),
 ];
 
 type Step = { bullet: boolean; render: () => React.ReactNode };
@@ -179,7 +179,12 @@ const Front = () => {
   // auto-avance du récit
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
-    if (from >= STEPS.length - 1) return;
+    // Fin du récit : on revient au bullet 1 (affiché seul), puis on s'arrête.
+    if (from >= STEPS.length - 1) {
+      const last = CAROUSEL_DURATIONS_MS[CAROUSEL_DURATIONS_MS.length - 1] ?? STEP_MS;
+      timerRef.current = window.setTimeout(() => setStep(PERMANENT_STEP), last);
+      return;
+    }
     const delay =
       from === PERMANENT_STEP
         ? FIRST_CAROUSEL_DELAY_MS
