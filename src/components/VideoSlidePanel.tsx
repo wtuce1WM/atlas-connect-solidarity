@@ -1026,7 +1026,7 @@ const VideoSlidePanel = ({
             passer au-dessus de l'ID vidéo temporaire et des cartes POI/business du timeframe. */}
         {feedLayout && !!feedBadges?.length && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
-          <div className="absolute top-[22%] left-3 right-3 z-[100] flex flex-wrap justify-center gap-1.5 pointer-events-none">
+          <div className="absolute top-16 left-3 right-3 z-[100] flex flex-wrap justify-center gap-1.5 pointer-events-none">
             {feedBadges.slice(0, 6).map((b) => (
               <button
                 key={b.id}
@@ -1344,7 +1344,7 @@ const VideoSlidePanel = ({
                           const url = await buildKpSearchUrl(ownerBusiness.id);
                           navigate(url);
                         }}
-                        className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors disabled:cursor-default disabled:hover:bg-black normal-case tracking-normal"
+                        className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors disabled:cursor-default disabled:hover:bg-black normal-case tracking-normal"
                         aria-label={`Voir la fiche de ${owner.name}`}
                       >
                         <span className="text-xs font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
