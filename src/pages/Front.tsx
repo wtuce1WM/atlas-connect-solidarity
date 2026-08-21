@@ -985,10 +985,21 @@ const Front = () => {
               viewBox="0 0 100 100"
               preserveAspectRatio="xMidYMid meet"
               className="h-full w-auto"
-              fill="currentColor"
+              fill="none"
+              stroke="currentColor"
             >
-              <path d="M55.6 50 L95.6 10 L90 4.4 L50 44.4 L10 4.4 L4.4 10 L44.4 50 L4.4 90 L10 95.6 L50 55.6 L90 95.6 L95.6 90 Z" />
+              <path
+                d="M55.6 50 L95.6 10 L90 4.4 L50 44.4 L10 4.4 L4.4 10 L44.4 50 L4.4 90 L10 95.6 L50 55.6 L90 95.6 L95.6 90 Z"
+                strokeWidth="1.6"
+              />
+              <path
+                d="M55.6 50 L95.6 10 L90 4.4 L50 44.4 L10 4.4 L4.4 10 L44.4 50 L4.4 90 L10 95.6 L50 55.6 L90 95.6 L95.6 90 Z"
+                strokeWidth="1"
+                transform="translate(50 50) scale(0.86) translate(-50 -50)"
+                opacity="0.85"
+              />
             </svg>
+
           </span>
 
           <span className="relative z-10 block">LOCAL</span>
