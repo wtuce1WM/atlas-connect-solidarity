@@ -774,11 +774,12 @@ const Front = () => {
                 />
               )}
 
-              <div className="flex flex-col gap-2.5 md:gap-4">
-                {/* Bullet permanent — hauteur réservée pour éviter tout saut visuel */}
-                <div className="min-h-[4.5rem] md:min-h-[4.5rem]">
-                  {bulletsVisible && (
+              <div className="flex flex-col">
+                {/* Unique slot bullet : bullet 1 permanent, puis le bullet courant du carrousel */}
+                <div className="min-h-[5.25rem] md:min-h-[4.75rem]">
+                  {bulletsVisible && step === PERMANENT_STEP && (
                     <div
+                      key="permanent"
                       className="flex items-start gap-3 font-roboto text-[0.8125rem] font-bold leading-[1.3] text-[#F4EEE4] md:text-base md:leading-snug"
                       style={{
                         animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
@@ -793,10 +794,6 @@ const Front = () => {
                       <span>{STEPS[PERMANENT_STEP].render()}</span>
                     </div>
                   )}
-                </div>
-
-                {/* Bullet courant du carrousel (2-6) — hauteur réservée sur le plus long texte */}
-                <div className="min-h-[5.25rem] md:min-h-[4.75rem]">
                   {bulletsVisible && step >= CAROUSEL_STEPS[0] && (
                     <div
                       key={step}
