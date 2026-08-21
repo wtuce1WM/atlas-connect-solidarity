@@ -27,13 +27,14 @@ const STEP_MS = 3400;
 const FIRST_CAROUSEL_DELAY_MS = 5000;
 const MIN_STEP_MS = 2000;
 
-/** Durées affichées de chaque bullet défilant (indices 2-6), en ms.
- *  Base = 3400 ms. Step 5 (solidarité) : +2 s. Step 6 (valeur) : +1,6 s. */
+/** Durées affichées de chaque bullet défilant (indices 2-7), en ms.
+ *  Base = 3400 ms. Dernier step (valeur) : 5000 ms. */
 const CAROUSEL_DURATIONS_MS = [
   STEP_MS,
   STEP_MS,
   STEP_MS,
-  STEP_MS + 2000,
+  STEP_MS,
+  STEP_MS,
   Math.max(MIN_STEP_MS, 5000),
 ];
 
@@ -67,9 +68,16 @@ const STEPS: Step[] = [
     bullet: true,
     render: () => (
       <>
-        avec un modèle économique direct-to-local, sans commission et solidaire :{" "}
-        <strong className="font-bold text-white">20 %</strong> des abonnements des affiliés
-        sont destinés à des causes humanitaires au Maroc...
+        avec un modèle économique direct-to-local, sans commission et solidaire :
+      </>
+    ),
+  },
+  {
+    bullet: true,
+    render: () => (
+      <>
+        <strong className="font-bold text-white">20 %</strong> des abonnements des
+        affiliés sont destinés à des causes humanitaires au Maroc...
       </>
     ),
   },
@@ -86,8 +94,8 @@ const STEPS: Step[] = [
 
 /** Premier bullet point : toujours visible (le plus important). */
 const PERMANENT_STEP = 1;
-/** Indices des bullets qui défilent dans le carrousel (2-6). */
-const CAROUSEL_STEPS = [2, 3, 4, 5, 6];
+/** Indices des bullets qui défilent dans le carrousel (2-7). */
+const CAROUSEL_STEPS = [2, 3, 4, 5, 6, 7];
 /** Largeur relative de chaque segment, calée sur la durée d'affichage réelle. */
 const BULLET_WEIGHTS = CAROUSEL_DURATIONS_MS.map((d) => d / Math.min(...CAROUSEL_DURATIONS_MS));
 
