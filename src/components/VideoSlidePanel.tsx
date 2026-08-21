@@ -684,6 +684,38 @@ const VideoSlidePanel = ({
     };
   }, [open, videoUrl, videoId, soundOn, setSoundOn]);
 
+  // Pause + mute the background video when the Full Description overlay is open.
+  // Resume (with the user's sound preference) when it closes.
+  useEffect(() => {
+    if (!open) return;
+    if (descBusinessId) {
+      const v = videoRef.current;
+      if (v) {
+        v.pause();
+        v.muted = true;
+      }
+      const iframe = iframeRef.current;
+      if (iframe?.contentWindow) {
+        iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "pauseVideo", args: [] }), "*");
+        iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "mute", args: [] }), "*");
+      }
+    } else {
+      const v = videoRef.current;
+      if (v) {
+        v.muted = !soundOn;
+        v.play().catch(() => {});
+      }
+      const iframe = iframeRef.current;
+      if (iframe?.contentWindow) {
+        iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "playVideo", args: [] }), "*");
+        if (soundOn) {
+          iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "unMute", args: [] }), "*");
+          iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "setVolume", args: [100] }), "*");
+        }
+      }
+    }
+  }, [descBusinessId, open, soundOn]);
+
 
 
   if (!open || !videoUrl) return null;
