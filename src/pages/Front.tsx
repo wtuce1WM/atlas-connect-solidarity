@@ -654,23 +654,14 @@ const Front = () => {
               viewBox="0 0 100 100"
               preserveAspectRatio="xMidYMid meet"
               className="h-full w-auto"
-              fill="none"
-              stroke="currentColor"
+              fill="currentColor"
             >
-              {/* Contour extérieur du × (même logique que les lettres évidées) */}
-              <path
-                d="M55.6 50 L95.6 10 L90 4.4 L50 44.4 L10 4.4 L4.4 10 L44.4 50 L4.4 90 L10 95.6 L50 55.6 L90 95.6 L95.6 90 Z"
-                strokeWidth="1.6"
-              />
-              {/* Tracé intérieur, à l'image du contre-forme du « A » */}
-              <path
-                d="M55.6 50 L95.6 10 L90 4.4 L50 44.4 L10 4.4 L4.4 10 L44.4 50 L4.4 90 L10 95.6 L50 55.6 L90 95.6 L95.6 90 Z"
-                strokeWidth="1"
-                transform="translate(50 50) scale(0.86) translate(-50 -50)"
-                opacity="0.85"
-              />
+              {/* X très bold, très fat, très squarish — quatre losanges autour d’un contre-forme central */}
+              <path d="M50 0 L72 22 L50 44 L28 22 Z" />
+              <path d="M100 50 L78 72 L56 50 L78 28 Z" />
+              <path d="M50 100 L28 78 L50 56 L72 78 Z" />
+              <path d="M0 50 L22 28 L44 50 L22 72 Z" />
             </svg>
-
           </span>
 
           <h1
