@@ -220,14 +220,15 @@ const Front = () => {
   // auto-avance du récit
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
-    // Fin du récit : on revient brièvement au bullet 1, puis bascule vers l'écran 2.
+    // Fin du récit : on revient sur le bullet 1 (affiché ~2.4 s), puis bascule vers l'écran 2.
     if (from >= STEPS.length - 1) {
       timerRef.current = window.setTimeout(() => {
         setStep(PERMANENT_STEP);
-        window.setTimeout(() => setTarget(1), 900);
+        timerRef.current = window.setTimeout(() => setTarget(1), 2400);
       }, 600);
       return;
     }
+
     const delay =
       from === PERMANENT_STEP
         ? FIRST_CAROUSEL_DELAY_MS
