@@ -885,6 +885,12 @@ const VideoSlidePanel = ({
                   <button
                     type="button"
                     onClick={async () => {
+                      // En feed : le Bookmark ouvre le popup « Sauvegardez vos coups de cœur »
+                      // (remplace l'ancien CTA texte Sauvegarder du timeline overlay).
+                      if (feedLayout) {
+                        window.dispatchEvent(new CustomEvent("open-video-timeline-club"));
+                        return;
+                      }
                       if (!isBookmarkLoggedIn) {
                         window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
                         return;
@@ -892,7 +898,7 @@ const VideoSlidePanel = ({
                       if (!ctaBusiness?.id) return;
                       await toggleBookmark();
                     }}
-                    disabled={isBookmarkLoggedIn && !ctaBusiness?.id}
+                    disabled={!feedLayout && isBookmarkLoggedIn && !ctaBusiness?.id}
                     style={{ backgroundColor: "#F1F1F1" }}
                     className={`h-9 w-9 flex items-center justify-center rounded-full text-black shadow-2xl transition-opacity shrink-0 glass-toolbar-btn ${
                       isBookmarkLoggedIn && !ctaBusiness?.id ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
