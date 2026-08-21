@@ -551,6 +551,9 @@ const BookOnlineSlidePanelInner = ({
   // Pills POI / Catégories : menu déroulant sur desktop, overlay plein écran sur mobile
   const isMobileView = useIsMobile();
   const isEmbedMapWidget = embedMode && initialOverlay === "poi";
+  // Panneau ouvert uniquement pour la carte POI (feed vidéo, résultats IA) :
+  // pas de média de fond de la fiche (sinon l'image 1 s'affiche par-dessus la vidéo).
+  const isPoiOnlyPanel = initialOverlay === "poi";
   // En embed, les breakpoints Tailwind se basent sur la largeur de l'iframe (souvent < 1024px)
   // alors que l'hôte est un desktop. On mesure donc la largeur réelle du widget.
   const [embedWideView, setEmbedWideView] = useState(() =>
