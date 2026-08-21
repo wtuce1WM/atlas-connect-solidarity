@@ -1389,7 +1389,7 @@ const VideoSlidePanel = ({
                     bare
                     onOpen={(rect) => {
                       // Vidéo liée à un établissement → Full Description de BookOnlineSlidePanel.
-                      if (ctaBusiness?.id) { setDescBusinessId(String(ctaBusiness.id)); return; }
+                      if (ctaBusiness?.id) { setNestedOverlayKind("description"); setDescBusinessId(String(ctaBusiness.id)); return; }
                       if (effectiveDescription) startDescMorph(rect);
                     }}
                   />
