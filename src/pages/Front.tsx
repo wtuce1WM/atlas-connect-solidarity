@@ -436,7 +436,7 @@ const Front = () => {
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      setTarget(targetRef.current + e.deltaY / 900);
+      setTarget(targetRef.current + e.deltaY / 600);
     };
     const onTouchStart = (e: TouchEvent) => {
       touchYRef.current = e.touches[0]?.clientY ?? null;
@@ -445,7 +445,7 @@ const Front = () => {
       const y = e.touches[0]?.clientY ?? null;
       if (y === null || touchYRef.current === null) return;
       e.preventDefault();
-      setTarget(targetRef.current + (touchYRef.current - y) / 500);
+      setTarget(targetRef.current + (touchYRef.current - y) / 350);
       touchYRef.current = y;
     };
     const onKey = (e: KeyboardEvent) => {
