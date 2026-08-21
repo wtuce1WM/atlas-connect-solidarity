@@ -69,6 +69,7 @@ const clubTranslations = {
 
 interface TimelineItem {
   id: string;
+  kind: "business" | "destination";
   name: string;
   hook: string | null;
   ratingOn20: number | null;
@@ -120,7 +121,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      const [{ data: poiLinks }, { data: bizLinks }] = await Promise.all([
+      const [{ data: poiLinks }, { data: bizLinks }, { data: destLinks }] = await Promise.all([
         supabase
           .from("generic_video_pois" as any)
           .select("poi_id, sort_order, start_time, end_time, timeframe_enabled")
@@ -131,26 +132,44 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
           .select("business_id, sort_order, start_time, end_time, timeframe_enabled")
           .eq("generic_video_id", genericVideoId)
           .eq("timeframe_enabled", true) as any,
+        supabase
+          .from("generic_video_destinations" as any)
+          .select("destination_id, sort_order, start_time, end_time, timeframe_enabled")
+          .eq("generic_video_id", genericVideoId)
+          .eq("timeframe_enabled", true) as any,
       ]);
 
       const ids = [
         ...((poiLinks || []).map((l: any) => l.poi_id)),
         ...((bizLinks || []).map((l: any) => l.business_id)),
       ];
-      if (ids.length === 0) {
+      const destIds = (destLinks || []).map((l: any) => l.destination_id);
+      if (ids.length === 0 && destIds.length === 0) {
         if (!cancelled) setItems([]);
         return;
       }
 
-      const { data: bizs } = await supabase
-        .from("businesses")
-        .select(
-          "id, name, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, avis_verifies_rating, avis_verifies_review_count, trustpilot_rating, trustpilot_review_count, kayak_rating, kayak_review_count, tourradar_rating, tourradar_review_count"
-        )
-        .in("id", ids);
+      const [{ data: bizs }, { data: dests }] = await Promise.all([
+        ids.length
+          ? supabase
+              .from("businesses")
+              .select(
+                "id, name, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, avis_verifies_rating, avis_verifies_review_count, trustpilot_rating, trustpilot_review_count, kayak_rating, kayak_review_count, tourradar_rating, tourradar_review_count"
+              )
+              .in("id", ids)
+          : Promise.resolve({ data: [] as any[] }),
+        destIds.length
+          ? (supabase
+              .from("destinations" as any)
+              .select("id, name_fr, hook_fr")
+              .in("id", destIds) as any)
+          : Promise.resolve({ data: [] as any[] }),
+      ]);
 
       const map = new Map<string, any>();
       (bizs || []).forEach((b: any) => map.set(b.id, b));
+      const destMap = new Map<string, any>();
+      ((dests || []) as any[]).forEach((d: any) => destMap.set(d.id, d));
 
       const built: TimelineItem[] = [];
       (poiLinks || []).forEach((l: any) => {
@@ -158,6 +177,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
         if (!b) return;
         built.push({
           id: l.poi_id,
+          kind: "business",
           name: b.name,
           hook: b.hook_fr ?? null,
           ratingOn20: computeWeightedRatingOn20(collectRatingSources(b)),
@@ -171,6 +191,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
         if (!b) return;
         built.push({
           id: l.business_id,
+          kind: "business",
           name: b.name,
           hook: b.hook_fr ?? null,
           ratingOn20: computeWeightedRatingOn20(collectRatingSources(b)),
@@ -179,16 +200,33 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
           sort_order: l.sort_order ?? 0,
         });
       });
+      (destLinks || []).forEach((l: any) => {
+        const d = destMap.get(l.destination_id);
+        if (!d) return;
+        built.push({
+          id: l.destination_id,
+          kind: "destination",
+          name: d.name_fr,
+          hook: d.hook_fr ?? null,
+          ratingOn20: null,
+          start_time: l.start_time,
+          end_time: l.end_time,
+          sort_order: l.sort_order ?? 0,
+        });
+      });
       built.sort((a, b) => a.sort_order - b.sort_order);
       // Dédoublonnage : un même établissement peut être lié à la fois en POI
       // et en business — on ne garde que la première occurrence (POI prioritaire).
+      // On n'affiche que les liaisons réellement placées sur une timeframe.
       const seen = new Set<string>();
       const deduped = built.filter((it) => {
+        if (it.start_time == null) return false;
         if (seen.has(it.id)) return false;
         seen.add(it.id);
         return true;
       });
       if (!cancelled) setItems(deduped);
+
     };
     load();
     return () => {
@@ -204,7 +242,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
         .from("bookmarks" as any)
         .select("business_id")
         .eq("user_id", userId)
-        .in("business_id", items.map((i) => i.id));
+        .in("business_id", items.filter((i) => i.kind === "business").map((i) => i.id));
       const set = new Set<string>((data || []).map((d: any) => d.business_id));
       setBookmarkedIds(set);
     };
@@ -241,7 +279,10 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
 
   // Items shown inside the Club popup: all items once the video has played
   // through once, otherwise only those reached so far.
-  const popupItems = hasCompletedOnce ? items : reachedItems;
+  // Les destinations ne sont pas sauvegardables en favoris (bookmarks = business).
+  const popupItems = (hasCompletedOnce ? items : reachedItems).filter(
+    (it) => it.kind === "business"
+  );
 
   const activeId = useMemo(() => {
     if (reachedItems.length === 0) return null;
