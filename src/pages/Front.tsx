@@ -300,12 +300,11 @@ const Front = () => {
     setDemoActiveId(items[0].id);
   }, [demoCtx]);
 
-  /** Auto-fit du slogan écran 1 : taille max possible dans l'espace réellement libre
-   *  (conteneur − paddings − bloc inférieur), au lieu d'une taille calculée sur le
-   *  viewport (vh) qui débordait sous la barre de recherche sur iOS. Si 5 lignes ne
-   *  tiennent pas lisiblement, repli automatique en 3 lignes. Mobile uniquement. */
+  /** Auto-fit du slogan écran 1 : taille max possible dans la hauteur de la section
+   *  qui lui est dédiée (1/3 de l'espace entre header et CTA Découvrir). Si 5 lignes
+   *  ne tiennent pas lisiblement, repli automatique en 3 lignes. Mobile uniquement. */
   const narrativeBoxRef = useRef<HTMLDivElement | null>(null);
-  const bottomBlockRef = useRef<HTMLDivElement | null>(null);
+  const sloganSectionRef = useRef<HTMLDivElement | null>(null);
   const [sloganFontPx, setSloganFontPx] = useState<number | null>(null);
   const [sloganCompact, setSloganCompact] = useState(false);
 
@@ -313,20 +312,18 @@ const Front = () => {
     const LEADING = 1.12;
     const MIN_5_LINES_PX = 26;
     const compute = () => {
-      const box = narrativeBoxRef.current;
-      const bottom = bottomBlockRef.current;
-      if (!box || !bottom) return;
+      const section = sloganSectionRef.current;
+      if (!section) return;
       if (window.innerWidth >= 768) {
         setSloganFontPx(null);
         setSloganCompact(false);
         return;
       }
-      const cs = getComputedStyle(box);
+      const cs = getComputedStyle(section);
       const avail =
-        box.clientHeight -
+        section.clientHeight -
         parseFloat(cs.paddingTop) -
-        parseFloat(cs.paddingBottom) -
-        bottom.offsetHeight;
+        parseFloat(cs.paddingBottom);
       if (avail <= 0) {
         setSloganCompact(true);
         setSloganFontPx(16);
@@ -345,8 +342,7 @@ const Front = () => {
     };
     compute();
     const ro = new ResizeObserver(compute);
-    if (narrativeBoxRef.current) ro.observe(narrativeBoxRef.current);
-    if (bottomBlockRef.current) ro.observe(bottomBlockRef.current);
+    if (sloganSectionRef.current) ro.observe(sloganSectionRef.current);
     window.addEventListener("resize", compute);
     window.addEventListener("orientationchange", compute);
     return () => {
@@ -633,10 +629,10 @@ const Front = () => {
         </nav>
       </div>
 
-      {/* Bloc central — slogan centré entre header et recherche, recherche ancrée en bas */}
+      {/* Bloc central — 3 sections égales entre header et CTA Découvrir */}
       <div
         ref={narrativeBoxRef}
-        className="absolute inset-0 z-20 flex flex-col px-5 pt-16 pb-20 md:pt-24 md:px-10 md:pb-20 lg:px-16"
+        className="absolute inset-0 z-20 flex flex-col px-5 pt-16 pb-16 md:px-10 md:pt-24 md:pb-16 lg:px-16"
         style={{
           opacity: narrativeOpacity,
           transform: reduced
@@ -648,14 +644,14 @@ const Front = () => {
         aria-hidden={!narrativeActive}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Slogan — centré verticalement dans l'espace restant au-dessus de la recherche */}
+        {/* Section 1 : Slogan */}
         <div
-          className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden md:justify-start md:pt-10"
+          ref={sloganSectionRef}
+          className="flex flex-1 flex-col items-center justify-center overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
         >
           <h1
-            className={`text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight md:mb-[-1.25rem] md:leading-[0.95] md:-translate-y-6 ${
-              sloganCompact ? "" : "mb-[-0.75rem]"
-            }`}
+            className="text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight"
             style={{
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 900,
@@ -691,14 +687,13 @@ const Front = () => {
           </h1>
         </div>
 
-        {/* Bloc inférieur — recherche + demo + accroche + storybox */}
+        {/* Section 2 : Recherche + CTA Demo */}
         <div
-          ref={bottomBlockRef}
-          className="flex w-full max-w-2xl flex-col items-center gap-2 self-center md:gap-3"
+          className="flex flex-1 flex-col items-center justify-center gap-2 overflow-hidden md:gap-3"
+          onClick={(e) => e.stopPropagation()}
         >
-          {/* Recherche (avec overlay vocal) */}
           <div
-            className="w-full"
+            className="w-full max-w-2xl"
             onClick={(e) => e.stopPropagation()}
             style={{ animation: reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
           >
@@ -715,7 +710,6 @@ const Front = () => {
             />
           </div>
 
-          {/* CTA Demo — liquid glass + shimmer différé */}
           <div
             className="flex flex-col items-center gap-1"
             style={{
@@ -736,14 +730,17 @@ const Front = () => {
               <span className="relative z-10 font-roboto text-base font-semibold uppercase leading-none tracking-wide text-[#F4EEE4] md:text-lg">
                 Demo
               </span>
-
               <span className="demo-shimmer absolute inset-0 -translate-x-full" aria-hidden="true" />
             </button>
-
           </div>
+        </div>
 
-
-          {/* Accroche fixe sous le CTA Demo — apparaît après 1 s, même effet que les bullets */}
+        {/* Section 3 : Animation (accroche + storybox) */}
+        <div
+          className="flex flex-1 flex-col items-center justify-center gap-2 overflow-hidden md:gap-3"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Accroche fixe — apparaît après 1 s */}
           <div className="min-h-[1.5rem] md:min-h-[1.75rem]">
             {accrocheVisible && (
               <p
@@ -760,9 +757,9 @@ const Front = () => {
             )}
           </div>
 
-          {/* Storybox — sous l'accroche, apparaît après 2 s */}
+          {/* Storybox — apparaît après 2 s */}
           <div
-            className="w-full"
+            className="w-full max-w-2xl"
             style={{
               opacity: voiceActive ? 0 : 1,
               pointerEvents: voiceActive || !bulletsVisible ? "none" : "auto",
@@ -781,8 +778,6 @@ const Front = () => {
               )}
 
               <div className="grid grid-cols-1">
-                {/* Tous les bullets sont rendus dans la même celle : hauteur = max du contenu,
-                    seul le bullet actif est visible. */}
                 {STEPS.map((s, i) => {
                   if (!s.bullet) return null;
                   const isActive = i === step;
@@ -812,8 +807,7 @@ const Front = () => {
                 })}
               </div>
 
-
-              {/* Progress bar segmentée — un segment par bullet défilant (2-7), la première barre (bullet 1) est supprimée */}
+              {/* Progress bar segmentée — un segment par bullet défilant (2-7) */}
               <div
                 className="mt-1.5 flex gap-1.5 md:mt-4"
                 onClick={(e) => e.stopPropagation()}
@@ -824,7 +818,7 @@ const Front = () => {
                 }}
                 aria-hidden={!barsVisible}
               >
-              {CAROUSEL_STEPS.map((stepIndex, i) => {
+                {CAROUSEL_STEPS.map((stepIndex, i) => {
                   const done = step > stepIndex;
                   const current = step === stepIndex;
                   const durationMs = CAROUSEL_DURATIONS_MS[i] ?? STEP_MS;
