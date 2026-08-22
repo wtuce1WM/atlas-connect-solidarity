@@ -2,9 +2,9 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-22T08:47:18.844Z",
+    "generated_at": "2026-08-22T10:23:13.915Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
-    "count": 1853
+    "count": 1854
   },
   "businesses": [
     {
@@ -10165,7 +10165,10 @@
       "services": [
         "Verre soufflé",
         "Vases",
-        "Vaisselle"
+        "Vaisselle",
+        "Arts de la table",
+        "Artisanat marocain",
+        "Sur-mesure"
       ],
       "city": "Essaouira",
       "neighborhood": "Medina",
@@ -10179,7 +10182,7 @@
       "website": "https://www.beldichicmaroc.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/6c49448d-bd7f-4600-a872-ed97500e315b-1775531347438-pe6ka2.webp",
       "google_rating": 5,
-      "google_review_count": 4,
+      "google_review_count": 5,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -10242,7 +10245,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": null,
+      "booking_url": "https://www.beldichicmaroc.com/products",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/beldi.chic_maroc",
@@ -55204,8 +55207,8 @@
     },
     {
       "id": "2d40ad81-bfce-490b-adc2-6317ea9f5c75",
-      "slug": "le-menzeh-par-pierre-herme",
-      "url": "https://oneworldmorocco.com/le-menzeh-par-pierre-herme",
+      "slug": "le-menzeh",
+      "url": "https://oneworldmorocco.com/le-menzeh",
       "name": "Le Menzeh par Pierre Hermé",
       "hook": "Le Menzeh par Pierre Hermé à Marrakech.",
       "description": "Moment de douceur au coeur d’une histoire légendaire Le salon de thé le Menzeh par Pierre Hermé propose une sélection des créations de Pierre Hermé : pâtisseries, délices glacés, gâteaux de voyage, macarons, madeleines et autres gourmandises chocolatées. La carte décline également un choix de boissons dont une exquise limonade maison et un étonnant « cola marocain » élaboré à partir d’un sirop de thé Chaï, d’orange et de géranium du jardin. Sans oublier le fameux « goûter Pierre Hermé » dont l’a",
@@ -55221,7 +55224,8 @@
         "Patio",
         "Sélection de thés",
         "Tenue correcte exigée",
-        "Terrasse"
+        "Terrasse",
+        "Smoothies"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -55234,8 +55238,8 @@
       "whatsapp": null,
       "website": "https://mamounia.com/fr/les-salons-de-the/le-menzeh-par-pierre-herme.html",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2d40ad81-bfce-490b-adc2-6317ea9f5c75-1776011210354-nnlsd.jpg",
-      "google_rating": 4.3,
-      "google_review_count": 26,
+      "google_rating": 4.4,
+      "google_review_count": 31,
       "price_range": "$$$",
       "min_price_mad": 678,
       "languages": [],
@@ -55298,12 +55302,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://mamounia.com/fr/les-salons-de-the/le-menzeh-par-pierre-herme.html",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/lamamouniamarrakech/?hl=fr",
         "facebook": "https://www.facebook.com/lamamouniamarrakech/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d24175125-Reviews-Le_Menzeh_Par_Pierre_Herme-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": "https://www.youtube.com/user/LaMamounia1",
         "linkedin": "https://ma.linkedin.com/company/lamamouniamarrakech"
       }
@@ -66463,8 +66467,8 @@
       "whatsapp": null,
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d6ee02a6-37b4-4e23-82dc-cd23138771e1-1774076871630-58qun.webp",
-      "google_rating": 4.4,
-      "google_review_count": 55,
+      "google_rating": 4.3,
+      "google_review_count": 57,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -152258,6 +152262,113 @@
         "tripadvisor": null,
         "youtube": null,
         "linkedin": null
+      }
+    },
+    {
+      "id": "2d40ad81-bfce-490b-adc2-6317ea9f5c75",
+      "slug": "le-menzeh",
+      "url": "https://oneworldmorocco.com/le-menzeh",
+      "name": "Le Menzeh par Pierre Hermé",
+      "hook": "Le Menzeh par Pierre Hermé à Marrakech.",
+      "description": "Moment de douceur au coeur d’une histoire légendaire Le salon de thé le Menzeh par Pierre Hermé propose une sélection des créations de Pierre Hermé : pâtisseries, délices glacés, gâteaux de voyage, macarons, madeleines et autres gourmandises chocolatées. La carte décline également un choix de boissons dont une exquise limonade maison et un étonnant « cola marocain » élaboré à partir d’un sirop de thé Chaï, d’orange et de géranium du jardin. Sans oublier le fameux « goûter Pierre Hermé » dont l’a",
+      "main_category": "Restauration",
+      "categories": [
+        "Salon de thé",
+        "Café"
+      ],
+      "services": [
+        "Glaces",
+        "Jardin",
+        "Jus de fruits",
+        "Patio",
+        "Sélection de thés",
+        "Tenue correcte exigée",
+        "Terrasse",
+        "Smoothies"
+      ],
+      "city": "Marrakech",
+      "neighborhood": "Medina",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.6191845,
+      "longitude": -7.9963903,
+      "address": "Avenue Bad Jdid",
+      "phone": "+212 524 388 600",
+      "whatsapp": null,
+      "website": "https://mamounia.com/fr/les-salons-de-the/le-menzeh-par-pierre-herme.html",
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2d40ad81-bfce-490b-adc2-6317ea9f5c75-1776011210354-nnlsd.jpg",
+      "google_rating": 4.4,
+      "google_review_count": 31,
+      "price_range": "$$$",
+      "min_price_mad": 678,
+      "languages": [],
+      "opening_hours": {
+        "friday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "monday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "sunday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "tuesday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "saturday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "thursday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "wednesday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        }
+      },
+      "is_open_24h": false,
+      "booking_url": null,
+      "menu_url": null,
+      "social": {
+        "instagram": "https://www.instagram.com/lamamouniamarrakech/?hl=fr",
+        "facebook": "https://www.facebook.com/lamamouniamarrakech/",
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d24175125-Reviews-Le_Menzeh_Par_Pierre_Herme-Marrakech_Marrakech_Safi.html?m=66827",
+        "youtube": "https://www.youtube.com/user/LaMamounia1",
+        "linkedin": "https://ma.linkedin.com/company/lamamouniamarrakech"
       }
     },
     {

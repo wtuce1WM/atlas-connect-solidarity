@@ -1370,31 +1370,37 @@ const EmbedAsk = () => {
   // Rendu « à plat » (overlay Full Description) : `?theme=none&bg=transparent`
   // → aucun fond opaque nulle part, y compris badges/suggestions et cartes.
   const flat = noTheme && bgTransparent && !cardColor;
+  const ink = (params.get("ink") || "").toLowerCase();
+  const flatDarkInk = flat && ink === "dark";
   const bg = customBg ? "bg-transparent" : theme === "light" ? "bg-white" : "bg-neutral-950";
   const surface = customBg
-    ? `bg-transparent ${activeBgInk === "dark" ? "text-neutral-900" : "text-neutral-100"}`
-    : theme === "light" ? "bg-white text-neutral-900" : "bg-neutral-950 text-neutral-100";
+    ? `bg-transparent ${flatDarkInk || activeBgInk === "dark" ? "text-black" : "text-white"}`
+    : theme === "light" ? "bg-white text-black" : "bg-neutral-950 text-white";
   const userBubble = flat
-    ? "bg-white/10 text-white border border-white/20"
-    : theme === "light" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900";
+    ? (ink === "dark" ? "bg-white/80 text-black border border-white/50" : "bg-white/10 text-white border border-white/20")
+    : theme === "light" ? "bg-neutral-900 text-white" : "bg-white text-black";
   const asstBubble = flat
-    ? "bg-transparent text-white"
-    : theme === "light" ? "bg-neutral-100 text-neutral-900" : "bg-neutral-800 text-neutral-50";
-  const border = flat ? "border-white/20" : theme === "light" ? "border-neutral-200" : "border-neutral-800";
-  const inputBg = flat ? "bg-white/5" : theme === "light" ? "bg-white" : "bg-neutral-900";
+    ? (ink === "dark" ? "bg-transparent text-black" : "bg-transparent text-white")
+    : theme === "light" ? "bg-neutral-100 text-black" : "bg-neutral-800 text-neutral-50";
+  const border = flat
+    ? (ink === "dark" ? "border-neutral-200" : "border-white/20")
+    : theme === "light" ? "border-neutral-200" : "border-neutral-800";
+  const inputBg = flat
+    ? (ink === "dark" ? "bg-white/10" : "bg-white/5")
+    : theme === "light" ? "bg-white" : "bg-neutral-900";
   const cardBg = flat
-    ? "bg-transparent border border-white/15"
+    ? (ink === "dark" ? "bg-white/80 border border-white/50 text-black" : "bg-transparent border border-white/15 text-white")
     : theme === "light" ? "bg-white border border-neutral-200" : "bg-neutral-900 border border-neutral-800";
   // Encre réellement lisible : avec un fond personnalisé, elle dépend de la couleur du fond.
-  const lightInk = flat ? false : customBg ? activeBgInk === "dark" : theme === "light";
+  const lightInk = flat ? ink === "dark" : customBg ? activeBgInk === "dark" : theme === "light";
   // Sur fond noir / transparent sombre : tous les textes en blanc pur (jamais de gris).
   const whiteInk = lightInk ? "" : "text-white";
   // Puces (suggestions / relances) : contraste explicite, jamais de texte clair sur fond clair.
   const chipBg = flat
-    ? "bg-white/10 border border-white/25 text-white"
+    ? (ink === "dark" ? "bg-white/80 border border-white/50 text-black" : "bg-white/10 border border-white/25 text-white")
     : lightInk
-    ? "bg-neutral-100 border border-neutral-300 text-neutral-900"
-    : "bg-neutral-900 border border-neutral-700 text-neutral-100";
+    ? "bg-neutral-100 border border-neutral-300 text-black"
+    : "bg-neutral-900 border border-neutral-700 text-white";
   // Puces : en mode clair, intérieur « mode sombre » / texte « mode clair ».
   // En mode sombre, l'inverse : intérieur « mode clair » et texte foncé.
   const hasAffiliateColors = !flat && !!(widgetColors.dark && widgetColors.light);
