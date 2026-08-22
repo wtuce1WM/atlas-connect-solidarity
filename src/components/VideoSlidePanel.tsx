@@ -1576,6 +1576,30 @@ const VideoSlidePanel = ({
             </Suspense>
           </div>
         )}
+        {aiOverlayOpen && aiSlug && (
+          <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[240] h-[100dvh] overflow-hidden">
+            {/* Fond assombri : la vidéo reste visible derrière l'assistant (iframe transparente) */}
+            <div
+              className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
+              onClick={() => setAiOverlayOpen(false)}
+            />
+            <button
+              type="button"
+              onClick={() => setAiOverlayOpen(false)}
+              aria-label="Fermer l'assistant IA"
+              className="absolute top-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white border border-white/25 hover:bg-black/70 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <iframe
+              src={`/embed/ask/${aiSlug}?theme=none&bg=transparent&panel=1`}
+              title="Assistant IA"
+              className="relative w-full h-full border-0"
+              style={{ background: "transparent" }}
+              allow="clipboard-write; microphone"
+            />
+          </div>
+        )}
       </div>
     </div>,
     document.body,
