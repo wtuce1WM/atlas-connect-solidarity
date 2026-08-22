@@ -870,8 +870,9 @@ const EmbedAsk = () => {
   }, [businessId]);
 
   // Seed the opener as an assistant UIMessage once we know the business
+  // (ou, en mode plateforme, dès que le contexte ville est prêt).
   useEffect(() => {
-    if (!businessName) return;
+    if (!assistantReady) return;
     if (messages.length > 0) return;
     if (restoredRef.current && initialPersisted?.messages?.length) {
       setMessages(initialPersisted.messages as any);
@@ -881,16 +882,21 @@ const EmbedAsk = () => {
     setMessages([{
       id: "opener",
       role: "assistant",
-      parts: [{ type: "text", text: L.opener(businessName, radiusLabel(radiusKm, lang)) }],
+      parts: [{
+        type: "text",
+        text: isPlatform
+          ? L.platformOpener(platformCity)
+          : L.opener(businessName, radiusLabel(radiusKm, lang)),
+      }],
     } as any]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [businessName, chatKey, radiusKm]);
+  }, [assistantReady, businessName, chatKey, radiusKm, platformCity]);
 
 
   // Persist thread to localStorage on every change (skip while streaming to avoid spam).
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!businessName) return;
+    if (!assistantReady) return;
     if (streaming) return;
     if (messages.length <= 1) return;
     try {
