@@ -35,6 +35,7 @@ type Row = {
   label_ar: string | null;
   sort_order: number;
   is_active: boolean;
+  is_platform_visible: boolean;
   followups: Followup[];
   business_ids: string[];
   destination_ids: string[];
@@ -136,7 +137,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
     const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: svcs }, { data: bdgs }, { data: fups }, { data: posts }, { data: vfeeds }, { data: cats }] = await Promise.all([
       supabase
         .from("ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,service_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,route_override,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids,category,prompt_fr,prompt_en,prompt_ar,fixed_response_fr,fixed_response_en,fixed_response_ar")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,is_platform_visible,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,service_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,route_override,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids,category,prompt_fr,prompt_en,prompt_ar,fixed_response_fr,fixed_response_en,fixed_response_ar")
         .eq("surface", surface)
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
@@ -288,7 +289,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], service_ids: [], badge_ids: [], commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, route_override: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [], category: null, prompt_fr: null, prompt_en: null, prompt_ar: null, fixed_response_fr: null, fixed_response_en: null, fixed_response_ar: null } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), is_platform_visible: false, followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], service_ids: [], badge_ids: [], commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, route_override: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [], category: null, prompt_fr: null, prompt_en: null, prompt_ar: null, fixed_response_fr: null, fixed_response_en: null, fixed_response_ar: null } as Row]);
     setExpanded((prev) => new Set(prev).add((data as any).id));
 
   };
@@ -312,6 +313,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
           label_ar: r.label_ar,
           sort_order: r.sort_order,
           is_active: r.is_active,
+          is_platform_visible: r.is_platform_visible === true,
           followups: r.followups.filter((f) => (f.label_fr || "").trim()),
           business_ids: r.business_ids || [],
           destination_ids: r.destination_ids || [],
@@ -423,6 +425,15 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                       />
                       <span className="text-xs text-muted-foreground">{r.is_active ? "Actif" : "Inactif"}</span>
                     </div>
+                    {surface === "embed" && (
+                      <div className="flex items-center gap-2" title="Afficher cette suggestion dans l'assistant One World Morocco (mode plateforme, sans établissement hôte)">
+                        <Switch
+                          checked={r.is_platform_visible === true}
+                          onCheckedChange={(v) => update(r.id, { is_platform_visible: v })}
+                        />
+                        <span className="text-xs text-muted-foreground">Plateforme 1WM</span>
+                      </div>
+                    )}
                     <Button variant="ghost" size="icon" onClick={() => removeRow(r.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>

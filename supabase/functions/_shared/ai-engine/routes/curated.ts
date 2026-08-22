@@ -868,6 +868,8 @@ export async function matchCuratedByText(
      * La surface courante garde toujours la priorité.
      */
     crossSurface?: boolean;
+    /** Mode plateforme 1WM (sans hôte) : seules les suggestions flaggées `is_platform_visible`. */
+    platformOnly?: boolean;
   },
 ): Promise<CuratedMatch | null> {
   const raw = String(opts.text || "").trim();
@@ -881,6 +883,7 @@ export async function matchCuratedByText(
       .select("id, label_fr, label_en, label_ar, surface")
       .eq("is_active", true);
     if (!opts.crossSurface) q = q.eq("surface", opts.surface);
+    if (opts.platformOnly) q = q.eq("is_platform_visible", true);
     const { data } = await q;
     rows = data || [];
   } catch (e) {
