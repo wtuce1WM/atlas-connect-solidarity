@@ -677,11 +677,11 @@ const EmbedAsk = () => {
         radiusKm: radiusRef.current,
       },
     }),
-  }), [slug, lang]);
+  }), [slug, lang, isPlatform, platformCity]);
 
 
   const { messages, sendMessage, status, setMessages } = useChat({
-    id: `embed-${slug}-${chatKey}`,
+    id: `embed-${isPlatform ? `platform-${ctxSlug || "global"}` : slug}-${chatKey}`,
     transport,
     onError: (e) => setError(e.message),
   });
