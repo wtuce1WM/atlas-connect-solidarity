@@ -36,6 +36,7 @@ import { whatsappUrl } from "@/lib/phoneUtils";
 import { Phone, Heart, Bookmark } from "lucide-react";
 import { useBookmark } from "@/hooks/useBookmark";
 import { useVideoLike } from "@/hooks/useVideoLike";
+import { useRecentlyViewedBusinesses } from "@/hooks/useRecentlyViewedBusinesses";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import { groupImagesWithHeadings } from "@/lib/groupImagesWithHeadings";
 
@@ -196,6 +197,8 @@ const VideoSlidePanel = ({
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
+  const [aiSlug, setAiSlug] = useState<string | null>(null);
+  const { recentBusinesses } = useRecentlyViewedBusinesses();
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
   const [, forceRender] = useState(0);
@@ -702,7 +705,7 @@ const VideoSlidePanel = ({
   // Resume (with the user's sound preference) when it closes.
   useEffect(() => {
     if (!open) return;
-    if (descBusinessId) {
+    if (descBusinessId || aiOverlayOpen) {
       const v = videoRef.current;
       if (v) {
         v.pause();
@@ -728,7 +731,19 @@ const VideoSlidePanel = ({
         }
       }
     }
-  }, [descBusinessId, open, soundOn]);
+  }, [descBusinessId, aiOverlayOpen, open, soundOn]);
+
+  // Fermeture de l'overlay IA depuis l'intérieur de l'iframe (/embed/ask, mode panneau).
+  useEffect(() => {
+    if (!aiOverlayOpen) return;
+    const onMsg = (e: MessageEvent) => {
+      if (e.origin === window.location.origin && (e.data as any)?.type === "owm-embed-close") {
+        setAiOverlayOpen(false);
+      }
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, [aiOverlayOpen]);
 
 
 
@@ -1467,7 +1482,19 @@ const VideoSlidePanel = ({
                 <PanelSearchBar
                   iconVariant="black"
                   onOverlayChange={setSearchOverlayOpen}
-                  onAiClick={() => navigate("/search?tab=ai")}
+                  onAiClick={() => {
+                    // Assistant IA en overlay : business de la vidéo, sinon dernier
+                    // business consulté, sinon fallback sur l'onglet IA de /search.
+                    const slug = ctaBusiness?.slug
+                      || recentBusinesses.find((b) => !b.isYoutubeChannel)?.slug
+                      || null;
+                    if (slug) {
+                      setAiSlug(slug);
+                      setAiOverlayOpen(true);
+                    } else {
+                      navigate("/search?tab=ai");
+                    }
+                  }}
                   onHashtagsOverlayChange={setHashtagsOverlayOpen}
                   onSearch={(params) => {
                     const sp = new URLSearchParams(params);
@@ -1547,6 +1574,30 @@ const VideoSlidePanel = ({
                 onClose={() => { setDescBusinessId(null); setNestedOverlayKind("description"); }}
               />
             </Suspense>
+          </div>
+        )}
+        {aiOverlayOpen && aiSlug && (
+          <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[240] h-[100dvh] overflow-hidden">
+            {/* Fond assombri : la vidéo reste visible derrière l'assistant (iframe transparente) */}
+            <div
+              className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
+              onClick={() => setAiOverlayOpen(false)}
+            />
+            <button
+              type="button"
+              onClick={() => setAiOverlayOpen(false)}
+              aria-label="Fermer l'assistant IA"
+              className="absolute top-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white border border-white/25 hover:bg-black/70 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <iframe
+              src={`/embed/ask/${aiSlug}?theme=none&bg=transparent&panel=1`}
+              title="Assistant IA"
+              className="relative w-full h-full border-0"
+              style={{ background: "transparent" }}
+              allow="clipboard-write; microphone"
+            />
           </div>
         )}
       </div>
