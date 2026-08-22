@@ -952,9 +952,9 @@ const Front = () => {
           ))}
         </div>
 
-        {/* Slogan écran 2 — identique au slogan écran 1, version 5 lignes */}
+        {/* Slogan écran 2 — identique au slogan écran 1 */}
         <p
-          className="relative overflow-hidden text-center text-[clamp(1.5rem,min(6vw,5.5vh),3.75rem)] uppercase leading-[1.12] tracking-tight"
+          className="relative text-center text-[clamp(2rem,min(10vw,6.5vh),4.5rem)] uppercase leading-[1.12] tracking-tight"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
@@ -966,118 +966,11 @@ const Front = () => {
           }}
           aria-hidden={voiceActive}
         >
-          {/* Globe stylisé en fond du slogan, hauteur pleine conteneur */}
-          <span
-            className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-gold/40"
-            aria-hidden="true"
-          >
-            <svg
-              viewBox="0 0 100 100"
-              preserveAspectRatio="xMidYMid meet"
-              className="h-full w-auto"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-            >
-              <circle cx="50" cy="50" r="46" />
-              <ellipse cx="50" cy="50" rx="14" ry="46" />
-              <ellipse cx="50" cy="50" rx="46" ry="18" />
-              <ellipse cx="50" cy="50" rx="46" ry="36" />
-              <line x1="4" y1="50" x2="96" y2="50" />
-            </svg>
-          </span>
-
-
           <span className="relative z-10 block">LOCAL</span>
           <span className="relative z-10 block">DIGITAL</span>
           <span className="relative z-10 block">SOLIDAIRE</span>
         </p>
 
-        {/* Variantes du motif gold — prévisualisation en fin d'écran 2 */}
-        <div
-          className="mt-4 flex w-full max-w-3xl flex-col items-center gap-3 md:mt-6"
-          aria-hidden="true"
-        >
-          <span className="font-roboto text-[10px] font-bold uppercase tracking-[0.18em] text-[rgba(244,238,228,0.55)]">
-            Motifs en cours d’essai
-          </span>
-          <div className="grid grid-cols-4 gap-2 sm:gap-4">
-            {[
-              {
-                id: "globe",
-                label: "Globe",
-                viewBox: "0 0 100 100",
-                paths: [
-                  // Cercle extérieur
-                  <circle key="c1" cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="3" />,
-                  // Méridien central
-                  <ellipse key="e1" cx="50" cy="50" rx="14" ry="46" fill="none" stroke="currentColor" strokeWidth="3" />,
-                  // Parallèles
-                  <ellipse key="e2" cx="50" cy="50" rx="46" ry="18" fill="none" stroke="currentColor" strokeWidth="3" />,
-                  <ellipse key="e3" cx="50" cy="50" rx="46" ry="36" fill="none" stroke="currentColor" strokeWidth="3" />,
-                  // Trait horizontal
-                  <line key="l1" x1="4" y1="50" x2="96" y2="50" stroke="currentColor" strokeWidth="3" />,
-                ],
-              },
-              {
-                id: "x",
-                label: "× bold",
-                viewBox: "0 0 100 100",
-                paths: [
-                  <path key="x1" d="M50 0 L76 24 L50 48 L24 24 Z" fill="currentColor" />,
-                  <path key="x2" d="M100 50 L76 76 L52 50 L76 24 Z" fill="currentColor" />,
-                  <path key="x3" d="M50 100 L24 76 L50 52 L76 76 Z" fill="currentColor" />,
-                  <path key="x4" d="M0 50 L24 24 L48 50 L24 76 Z" fill="currentColor" />,
-                ],
-              },
-              {
-                id: "zellige",
-                label: "Zellige",
-                viewBox: "0 0 100 100",
-                paths: [
-                  // Étoile 8 branches stylisée
-                  <path
-                    key="z1"
-                    d="M50 0 L58 38 L96 32 L64 56 L82 92 L50 70 L18 92 L36 56 L4 32 L42 38 Z"
-                    fill="currentColor"
-                  />,
-                  // Cercle central évidé
-                  <circle key="z2" cx="50" cy="50" r="14" fill="none" stroke="currentColor" strokeWidth="4" />,
-                ],
-              },
-              {
-                id: "network",
-                label: "Réseau",
-                viewBox: "0 0 100 100",
-                paths: [
-                  // 3 nœuds reliés
-                  <circle key="n1" cx="50" cy="18" r="10" fill="currentColor" />,
-                  <circle key="n2" cx="18" cy="78" r="10" fill="currentColor" />,
-                  <circle key="n3" cx="82" cy="78" r="10" fill="currentColor" />,
-                  <line key="nl1" x1="50" y1="28" x2="18" y2="68" stroke="currentColor" strokeWidth="4" />,
-                  <line key="nl2" x1="50" y1="28" x2="82" y2="68" stroke="currentColor" strokeWidth="4" />,
-                  <line key="nl3" x1="28" y1="78" x2="72" y2="78" stroke="currentColor" strokeWidth="4" />,
-                ],
-              },
-            ].map((motif) => (
-              <div
-                key={motif.id}
-                className="flex flex-col items-center gap-1.5 rounded-lg border border-[rgba(244,238,228,0.12)] bg-black/25 p-2 backdrop-blur-sm sm:p-3"
-              >
-                <svg
-                  viewBox={motif.viewBox}
-                  className="h-10 w-10 text-gold/70 sm:h-12 sm:w-12"
-                  aria-hidden="true"
-                >
-                  {motif.paths}
-                </svg>
-                <span className="font-roboto text-[9px] font-bold uppercase tracking-wider text-[rgba(244,238,228,0.65)]">
-                  {motif.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Cue de scroll */}
