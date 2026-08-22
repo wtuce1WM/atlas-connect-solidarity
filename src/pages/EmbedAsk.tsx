@@ -706,6 +706,8 @@ const EmbedAsk = () => {
     .filter((f) => !disabledIds.has(f.id))
     .filter((f) => !fuAllowed || fuAllowed.includes(f.id))
     .filter((f) => !usedFollowupIds.includes(f.id))
+    // Plateforme sans business ctx : masquer les relances dépendant de {businessName}
+    .filter((f) => ![f.label_fr, f.label_en, f.label_ar].some((l) => l?.includes("{businessName}")) || !!businessName)
     .map((f) => ({ id: f.id, label: pickFollowupLabel(f) }))
     .filter((f) => f.label);
 
