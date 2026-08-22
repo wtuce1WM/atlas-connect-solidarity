@@ -814,9 +814,9 @@ const EmbedAsk = () => {
           .eq("is_active", true)
           .maybeSingle();
         if (cancelled) return;
-        // Le nom du business ctx sert uniquement à résoudre le placeholder
-        // {businessName} dans les libellés de suggestions/relances.
-        setBusinessName(((data as any)?.name as string) || null);
+        // Le business `ctx` ne fournit que ville + catégorie. Son nom ne doit
+        // jamais devenir l'ancrage de l'assistant plateforme ni de ses requêtes.
+        setBusinessName("");
         setBusinessCity(((data as any)?.city as string) || null);
         setBusinessMainCategory(((data as any)?.main_category as string) || null);
       }
@@ -971,7 +971,7 @@ const EmbedAsk = () => {
       if (list.length > 0) setDbSuggestions(list);
     })();
     return () => { cancelled = true; };
-  }, [lang, businessId, businessCity, businessMainCategory]);
+  }, [lang, businessId, businessCity, businessMainCategory, isPlatform]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1054,7 +1054,7 @@ const EmbedAsk = () => {
 
   const send = (overrideText?: string, suggestionId?: string, followupId?: string) => {
     const text = (overrideText ?? input).trim();
-    if (!text || streaming || !businessName) return;
+    if (!text || streaming || !assistantReady) return;
     if (!overrideText) setInput("");
     // Commande (tapée ou vocale) de changement de rayon : traitée localement,
     // la valeur reste bornée aux options du champ « Rayon de proximité ».
@@ -1098,7 +1098,7 @@ const EmbedAsk = () => {
    * son libellé — aucune re-interprétation NLP côté moteur.
    */
   const sendDestinationScope = (chip: { id: string; name: string }) => {
-    if (streaming || !businessName) return;
+    if (streaming || !assistantReady) return;
     setError(null);
     lastLocalFilterRef.current = null;
     messageIndexRef.current += 1;
@@ -1110,7 +1110,7 @@ const EmbedAsk = () => {
   };
 
   const sendLocalFilter = (text: string, forcedRoute: string) => {
-    if (streaming || !businessName) return;
+    if (streaming || !assistantReady) return;
     setError(null);
     lastLocalFilterRef.current = { forcedRoute, text };
     messageIndexRef.current += 1;
@@ -1126,7 +1126,7 @@ const EmbedAsk = () => {
    * Chaque badge ne se propose qu'une fois par conversation.
    */
   const sendHostBadge = (key: string, text: string, forcedRoute: string) => {
-    if (streaming || !businessName) return;
+    if (streaming || !assistantReady || isPlatform) return;
     setUsedHostBadges((prev) => (prev.includes(key) ? prev : [...prev, key]));
     sendLocalFilter(text, forcedRoute);
   };
@@ -2547,7 +2547,7 @@ const EmbedAsk = () => {
           </div>
         )}
 
-        {messages.length <= 1 && !streaming && businessName && blogArticles.length > 0 && (
+        {messages.length <= 1 && !streaming && !isPlatform && businessName && blogArticles.length > 0 && (
           <div
             className="flex gap-3 pt-2 overflow-x-auto scrollbar-hide"
             onWheel={(e) => {
@@ -2658,13 +2658,13 @@ const EmbedAsk = () => {
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
               rows={1}
               placeholder={L.placeholder}
-              disabled={streaming || !businessName}
+              disabled={streaming || !assistantReady}
               className={`flex-1 resize-none bg-transparent outline-none text-sm max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white"}`}
             />
           </div>
           <button
             type="submit"
-            disabled={streaming || !input.trim() || !businessName}
+            disabled={streaming || !input.trim() || !assistantReady}
             aria-label="Send"
             className="w-9 h-9 rounded-full bg-[#C24B3F] text-white flex items-center justify-center disabled:opacity-40 shrink-0"
           >
