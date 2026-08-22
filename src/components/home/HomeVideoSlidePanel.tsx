@@ -52,6 +52,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   hideDirections = false,
   hideSecondaryCtas = false,
   onBadgeSelect,
+  aiMode,
 }: Props<T>) {
   const currentIndex = useMemo(
     () => (activeVideo ? activeList.findIndex((v) => v.id === activeVideo.id) : -1),
@@ -103,6 +104,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       price={activeVideo?.price || null}
       feedBadges={activeVideo?.badges ?? null}
       onFeedBadgeSelect={onBadgeSelect}
+      aiMode={aiMode}
     />
   );
 }
