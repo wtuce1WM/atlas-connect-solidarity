@@ -340,7 +340,6 @@ const Front = () => {
 
   useEffect(() => {
     const LEADING = 1.12;
-    const MIN_5_LINES_PX = 26;
     const compute = () => {
       const section = sloganSectionRef.current;
       if (!section) return;
@@ -359,16 +358,12 @@ const Front = () => {
         setSloganFontPx(16);
         return;
       }
-      const cap = Math.min(0.06 * window.innerWidth, 0.055 * window.innerHeight, 60);
+      // Le slogan fait toujours 3 lignes ; on ajuste à la hauteur de section
+      // sans dépasser la largeur utile (mot le plus long : SOLIDAIRE).
+      const cap = Math.min(0.12 * window.innerWidth, 0.09 * window.innerHeight, 70);
       const usable = avail * 0.94;
-      const fit5 = usable / (5 * LEADING);
-      if (fit5 >= MIN_5_LINES_PX) {
-        setSloganCompact(false);
-        setSloganFontPx(Math.min(cap, fit5));
-      } else {
-        setSloganCompact(true);
-        setSloganFontPx(Math.max(16, Math.min(cap, usable / (3 * LEADING))));
-      }
+      setSloganCompact(false);
+      setSloganFontPx(Math.max(16, Math.min(cap, usable / (3 * LEADING))));
     };
     compute();
     const ro = new ResizeObserver(compute);
@@ -649,7 +644,7 @@ const Front = () => {
 
 
           <h1
-            className="relative z-10 text-center text-[clamp(1.5rem,min(5.5vw,5vh),3.25rem)] uppercase leading-[1.12] tracking-tight"
+            className="relative z-10 text-center text-[clamp(2rem,min(10vw,6.5vh),4.5rem)] uppercase leading-[1.12] tracking-tight"
             style={{
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 900,
