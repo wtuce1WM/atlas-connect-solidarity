@@ -914,7 +914,9 @@ const EmbedAsk = () => {
 
 
   useEffect(() => {
-    if (!businessId) return;
+    // Mode plateforme : suggestions chargées sans hôte ; le filtre ville/catégorie
+    // utilise le business `ctx` quand il existe, sinon aucune restriction.
+    if (!isPlatform && !businessId) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
