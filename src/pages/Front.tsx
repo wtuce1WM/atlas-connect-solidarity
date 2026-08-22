@@ -645,30 +645,8 @@ const Front = () => {
           className="relative flex flex-1 flex-col items-center justify-center overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Globe stylisé en fond du slogan, hauteur pleine conteneur */}
-          <span
-            className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-gold/40"
-            aria-hidden="true"
-          >
-            <svg
-              viewBox="0 0 100 100"
-              preserveAspectRatio="xMidYMid meet"
-              className="h-full w-auto"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-            >
-              {/* Cercle extérieur */}
-              <circle cx="50" cy="50" r="46" />
-              {/* Méridien central */}
-              <ellipse cx="50" cy="50" rx="14" ry="46" />
-              {/* Parallèles */}
-              <ellipse cx="50" cy="50" rx="46" ry="18" />
-              <ellipse cx="50" cy="50" rx="46" ry="36" />
-              {/* Trait horizontal */}
-              <line x1="4" y1="50" x2="96" y2="50" />
-            </svg>
-          </span>
+
+
 
           <h1
             className="relative z-10 text-center text-[clamp(1.5rem,min(5.5vw,5vh),3.25rem)] uppercase leading-[1.12] tracking-tight"
