@@ -682,9 +682,17 @@ const Front = () => {
 
         {/* Section 2 : Recherche + CTA Demo */}
         <div
-          className="flex flex-1 flex-col items-center justify-center gap-2 overflow-hidden md:gap-3"
+          className="flex flex-col items-center justify-center gap-2 overflow-hidden md:gap-3"
+          style={{
+            flex: demoIntro ? "0 1 0%" : "1 1 0%",
+            opacity: demoIntro ? 0 : 1,
+            pointerEvents: demoIntro ? "none" : "auto",
+            transition: "flex-grow 700ms cubic-bezier(.22,1,.36,1), flex-basis 700ms cubic-bezier(.22,1,.36,1), opacity 350ms ease-out",
+          }}
+          aria-hidden={demoIntro}
           onClick={(e) => e.stopPropagation()}
         >
+
           <div
             className="w-full max-w-2xl"
             onClick={(e) => e.stopPropagation()}
