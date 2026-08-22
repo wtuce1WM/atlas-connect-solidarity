@@ -392,7 +392,7 @@ const Front = () => {
     };
   }, []);
 
-  // les barres gold horizontales apparaissent avec le bullet 2
+  // les barres gold horizontales apparaissent dès le bullet 1
   const barsVisible = bulletsVisible && step >= CAROUSEL_STEPS[0];
 
 
