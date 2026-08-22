@@ -2547,7 +2547,7 @@ const EmbedAsk = () => {
           </div>
         )}
 
-        {messages.length <= 1 && !streaming && businessName && blogArticles.length > 0 && (
+        {messages.length <= 1 && !streaming && !isPlatform && businessName && blogArticles.length > 0 && (
           <div
             className="flex gap-3 pt-2 overflow-x-auto scrollbar-hide"
             onWheel={(e) => {
@@ -2658,13 +2658,13 @@ const EmbedAsk = () => {
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
               rows={1}
               placeholder={L.placeholder}
-              disabled={streaming || !businessName}
+              disabled={streaming || !assistantReady}
               className={`flex-1 resize-none bg-transparent outline-none text-sm max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white"}`}
             />
           </div>
           <button
             type="submit"
-            disabled={streaming || !input.trim() || !businessName}
+            disabled={streaming || !input.trim() || !assistantReady}
             aria-label="Send"
             className="w-9 h-9 rounded-full bg-[#C24B3F] text-white flex items-center justify-center disabled:opacity-40 shrink-0"
           >
