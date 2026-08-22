@@ -705,7 +705,7 @@ const VideoSlidePanel = ({
   // Resume (with the user's sound preference) when it closes.
   useEffect(() => {
     if (!open) return;
-    if (descBusinessId) {
+    if (descBusinessId || aiOverlayOpen) {
       const v = videoRef.current;
       if (v) {
         v.pause();
@@ -731,7 +731,19 @@ const VideoSlidePanel = ({
         }
       }
     }
-  }, [descBusinessId, open, soundOn]);
+  }, [descBusinessId, aiOverlayOpen, open, soundOn]);
+
+  // Fermeture de l'overlay IA depuis l'intérieur de l'iframe (/embed/ask, mode panneau).
+  useEffect(() => {
+    if (!aiOverlayOpen) return;
+    const onMsg = (e: MessageEvent) => {
+      if (e.origin === window.location.origin && (e.data as any)?.type === "owm-embed-close") {
+        setAiOverlayOpen(false);
+      }
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, [aiOverlayOpen]);
 
 
 
