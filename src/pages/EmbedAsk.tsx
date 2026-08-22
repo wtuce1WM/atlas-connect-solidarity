@@ -582,7 +582,7 @@ const EmbedAsk = () => {
     return () => window.removeEventListener("open-location-picker", h);
   }, []);
 
-  type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null };
+  type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null; is_platform_visible?: boolean };
   type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[] };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
@@ -706,9 +706,11 @@ const EmbedAsk = () => {
     .filter((f) => !disabledIds.has(f.id))
     .filter((f) => !fuAllowed || fuAllowed.includes(f.id))
     .filter((f) => !usedFollowupIds.includes(f.id))
-    // Plateforme : masquer TOUTE relance dépendant de {businessName} (business-centric,
-    // exige un hôte) — même quand le business ctx permettrait de résoudre le libellé.
-    .filter((f) => ![f.label_fr, f.label_en, f.label_ar].some((l) => l?.includes("{businessName}")) || (!isPlatform && !!businessName))
+    // Plateforme 1WM : seules les relances flaggées `is_platform_visible` en back-office.
+    // Mode hôte : une relance dépendant de {businessName} exige un hôte pour résoudre le libellé.
+    .filter((f) => isPlatform
+      ? f.is_platform_visible === true
+      : (![f.label_fr, f.label_en, f.label_ar].some((l) => l?.includes("{businessName}")) || !!businessName))
     .map((f) => ({ id: f.id, label: pickFollowupLabel(f) }))
     .filter((f) => f.label);
 
@@ -975,7 +977,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("ai_followups")
-        .select("id,label_fr,label_en,label_ar")
+        .select("id,label_fr,label_en,label_ar,is_platform_visible")
         .eq("surface", "embed")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });

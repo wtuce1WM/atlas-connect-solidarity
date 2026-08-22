@@ -319,6 +319,21 @@ Deno.serve(async (req) => {
       });
     }
   }
+  // Même garde-fou pour les relances : une relance cliquée en mode plateforme
+  // doit être flaggée, sinon elle peut dépendre d'un établissement hôte.
+  if (platformMode && followupId) {
+    const { data: fu } = await admin
+      .from("ai_followups")
+      .select("is_platform_visible")
+      .eq("id", followupId)
+      .maybeSingle();
+    if (!fu?.is_platform_visible) {
+      console.warn("[embed-ai-chat-v2] platform_followup_blocked", followupId);
+      return new Response(JSON.stringify({ error: "followup not available on platform" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+  }
   if (!uiMessages.length) {
     return new Response(JSON.stringify({ error: "messages required" }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
