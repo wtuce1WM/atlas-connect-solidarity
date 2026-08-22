@@ -10,6 +10,7 @@ import { ChevronDown, ChevronUp, ArrowUpRight, Menu, X } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 import portraitVideoAsset from "@/assets/hero-home-portrait-ios-v2.mp4.asset.json";
@@ -135,6 +136,7 @@ const Front = () => {
 
   const navigate = useNavigate();
   const { language, setLanguage } = useLanguage();
+  const isMobile = useIsMobile();
   const [step, setStep] = useState(1);
   const [progress, setProgress] = useState(0);
   const [showEndCTAs, setShowEndCTAs] = useState(false);
@@ -943,16 +945,16 @@ const Front = () => {
         }}
         aria-hidden={!ctaActive}
       >
-        {/* Titre écran 2 — strictement identique au slogan écran 1 */}
+        {/* Titre écran 2 — légèrement réduit sur mobile */}
         <p
-          className="text-center text-[clamp(2rem,min(10vw,6.5vh),4.5rem)] uppercase leading-[1.12] tracking-tight"
+          className="text-center text-[clamp(1.75rem,min(8.5vw,5.5vh),3.8rem)] md:text-[clamp(2rem,min(10vw,6.5vh),4.5rem)] uppercase leading-[1.12] tracking-tight"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
             color: "transparent",
             WebkitTextStrokeWidth: "2px",
             WebkitTextStrokeColor: "#FFFFFF",
-            ...(sloganFontPx ? { fontSize: `${sloganFontPx}px` } : null),
+            ...(sloganFontPx ? { fontSize: `${isMobile ? Math.round(sloganFontPx * 0.85) : sloganFontPx}px` } : null),
           }}
         >
           <span className="block md:hidden">One</span>
@@ -985,9 +987,9 @@ const Front = () => {
           ))}
         </div>
 
-        {/* Slogan écran 2 — strictement identique au slogan écran 1 */}
+        {/* Slogan écran 2 — légèrement réduit sur mobile */}
         <p
-          className="relative text-center text-[clamp(2rem,min(10vw,6.5vh),4.5rem)] uppercase leading-[1.12] tracking-tight"
+          className="relative text-center text-[clamp(1.75rem,min(8.5vw,5.5vh),3.8rem)] md:text-[clamp(2rem,min(10vw,6.5vh),4.5rem)] uppercase leading-[1.12] tracking-tight"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: 900,
@@ -996,7 +998,7 @@ const Front = () => {
             WebkitTextStrokeColor: "#FFFFFF",
             opacity: voiceActive ? 0 : 1,
             pointerEvents: voiceActive ? "none" : "auto",
-            ...(sloganFontPx ? { fontSize: `${sloganFontPx}px` } : null),
+            ...(sloganFontPx ? { fontSize: `${isMobile ? Math.round(sloganFontPx * 0.85) : sloganFontPx}px` } : null),
           }}
           aria-hidden={voiceActive}
         >
