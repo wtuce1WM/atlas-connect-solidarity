@@ -616,6 +616,7 @@ export type Database = {
           followups: Json | null
           id: string
           is_active: boolean
+          is_platform_visible: boolean
           label_ar: string | null
           label_embedded_at: string | null
           label_embedded_source: string | null
@@ -655,6 +656,7 @@ export type Database = {
           followups?: Json | null
           id?: string
           is_active?: boolean
+          is_platform_visible?: boolean
           label_ar?: string | null
           label_embedded_at?: string | null
           label_embedded_source?: string | null
@@ -694,6 +696,7 @@ export type Database = {
           followups?: Json | null
           id?: string
           is_active?: boolean
+          is_platform_visible?: boolean
           label_ar?: string | null
           label_embedded_at?: string | null
           label_embedded_source?: string | null
