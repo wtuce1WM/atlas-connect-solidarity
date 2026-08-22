@@ -1771,7 +1771,9 @@ const EmbedAsk = () => {
           : []),
       ],
     },
-    {
+    // Mode plateforme : groupe « Autour de l'hôte » masqué — business-centric par
+    // définition (routes poi_nearby / nearby_overview / sur place exigent l'hôte).
+    ...(isPlatform ? [] : [{
       id: "host",
       label: lang === "en" ? "Around the host" : lang === "ar" ? "حول المكان" : "Autour de l'hôte",
       items: [
@@ -2514,9 +2516,9 @@ const EmbedAsk = () => {
         {messages.length <= 1 && !streaming && assistantReady && (
           <div className="flex flex-wrap gap-2 pt-1">
             {suggestions
-              // Plateforme sans business ctx : on masque les chips dont le
-              // libellé dépend de {businessName} (sinon « à proximité de » pendouille).
-              .filter((s) => !s.label.includes("{businessName}") || !!businessName)
+              // Plateforme : on masque TOUTE chip dont le libellé dépend de
+              // {businessName} (business-centric), même si le ctx le résoudrait.
+              .filter((s) => !s.label.includes("{businessName}") || (!isPlatform && !!businessName))
               .map((s) => {
               const label = s.label.replace(/\{businessName\}/g, businessName || "").trim();
               // Cas unique : la suggestion "Le meilleur de YouTube sur le Maroc"
