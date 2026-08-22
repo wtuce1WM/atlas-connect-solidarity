@@ -706,8 +706,9 @@ const EmbedAsk = () => {
     .filter((f) => !disabledIds.has(f.id))
     .filter((f) => !fuAllowed || fuAllowed.includes(f.id))
     .filter((f) => !usedFollowupIds.includes(f.id))
-    // Plateforme sans business ctx : masquer les relances dépendant de {businessName}
-    .filter((f) => ![f.label_fr, f.label_en, f.label_ar].some((l) => l?.includes("{businessName}")) || !!businessName)
+    // Plateforme : masquer TOUTE relance dépendant de {businessName} (business-centric,
+    // exige un hôte) — même quand le business ctx permettrait de résoudre le libellé.
+    .filter((f) => ![f.label_fr, f.label_en, f.label_ar].some((l) => l?.includes("{businessName}")) || (!isPlatform && !!businessName))
     .map((f) => ({ id: f.id, label: pickFollowupLabel(f) }))
     .filter((f) => f.label);
 
@@ -953,6 +954,12 @@ const EmbedAsk = () => {
           if (c && c !== bizCity) return false;
           const cats = Array.isArray(r.main_categories) ? r.main_categories : [];
           if (cats.length > 0 && (!bizCat || !cats.some((x: string) => normCity(x) === bizCat))) return false;
+          // Mode plateforme : aucune suggestion business-centric — elles exigent
+          // un établissement hôte (businessSlug) que la conversation n'a pas.
+          if (isPlatform) {
+            if (Array.isArray(r.business_ids) && r.business_ids.length > 0) return false;
+            if ([r.label_fr, r.label_en, r.label_ar].some((l) => typeof l === "string" && l.includes("{businessName}"))) return false;
+          }
           return true;
         })
         .map((r) => ({
