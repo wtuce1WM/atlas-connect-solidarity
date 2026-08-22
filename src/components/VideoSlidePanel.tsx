@@ -200,6 +200,8 @@ const VideoSlidePanel = ({
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
+  /** L'iframe IA signale sa disponibilité via postMessage("owm-ai-ready"). */
+  const [aiReady, setAiReady] = useState(false);
   const [aiSlug, setAiSlug] = useState<string | null>(null);
   /** Mode plateforme : overlay IA sans hôte ; aiSlug sert alors de contexte `ctx`. */
   const [aiPlatform, setAiPlatform] = useState(false);
@@ -738,17 +740,29 @@ const VideoSlidePanel = ({
     }
   }, [descBusinessId, aiOverlayOpen, open, soundOn]);
 
-  // Fermeture de l'overlay IA depuis l'intérieur de l'iframe (/embed/ask, mode panneau).
+  // Fermeture de l'overlay IA depuis l'intérieur de l'iframe (/embed/ask, mode panneau)
+  // + signal de disponibilité : l'iframe est révélée seulement quand l'assistant
+  // est prêt (contexte chargé + message d'ouverture posé).
   useEffect(() => {
     if (!aiOverlayOpen) return;
+    setAiReady(false);
     const onMsg = (e: MessageEvent) => {
-      if (e.origin === window.location.origin && (e.data as any)?.type === "owm-embed-close") {
-        setAiOverlayOpen(false);
-      }
+      if (e.origin !== window.location.origin) return;
+      const t = (e.data as any)?.type;
+      if (t === "owm-embed-close") setAiOverlayOpen(false);
+      if (t === "owm-ai-ready") setAiReady(true);
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
   }, [aiOverlayOpen]);
+
+  // Filet de sécurité : si l'iframe ne signale jamais sa disponibilité
+  // (erreur réseau, slug inconnu…), on la révèle quand même au bout de 8 s.
+  useEffect(() => {
+    if (!aiOverlayOpen || aiReady) return;
+    const t = setTimeout(() => setAiReady(true), 8000);
+    return () => clearTimeout(t);
+  }, [aiOverlayOpen, aiReady]);
 
 
 
@@ -1603,12 +1617,26 @@ const VideoSlidePanel = ({
             >
               <X className="h-5 w-5" />
             </button>
+            {/* Animation de recherche pendant le chargement de l'assistant :
+                l'iframe reste montée (elle charge) mais masquée jusqu'au signal « prêt ». */}
+            {!aiReady && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 pointer-events-none">
+                <div className="h-14 w-14 rounded-full border-4 border-white/15 border-t-[#D4AF37] animate-spin" />
+                <p className="text-white/90 text-lg font-medium tracking-wide animate-pulse text-center px-8">
+                  {language === "en"
+                    ? "The assistant is searching…"
+                    : language === "ar"
+                    ? "المساعد يبحث…"
+                    : "L'assistant recherche…"}
+                </p>
+              </div>
+            )}
             <iframe
               src={aiPlatform
                 ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform${aiSlug ? `&ctx=${encodeURIComponent(aiSlug)}` : ""}`
                 : `/embed/ask/${aiSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1`}
               title="Assistant IA"
-              className="relative w-full h-full border-0"
+              className={`relative w-full h-full border-0 transition-opacity duration-500 ${aiReady ? "opacity-100" : "opacity-0 pointer-events-none"}`}
               style={{ background: "transparent" }}
               allow="clipboard-write; microphone"
             />

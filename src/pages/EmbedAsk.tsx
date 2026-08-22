@@ -898,6 +898,17 @@ const EmbedAsk = () => {
   }, [assistantReady, businessName, chatKey, radiusKm, platformCity]);
 
 
+  // Signale à la page hôte (overlay vidéo) que l'assistant est réellement prêt à
+  // être affiché : contexte chargé + message d'ouverture posé. L'hôte garde
+  // l'iframe masquée derrière une animation de recherche jusqu'à ce signal.
+  const readyNotifiedRef = useRef(false);
+  useEffect(() => {
+    if (readyNotifiedRef.current) return;
+    if (!assistantReady || messages.length === 0) return;
+    readyNotifiedRef.current = true;
+    try { window.parent?.postMessage({ type: "owm-ai-ready" }, "*"); } catch { /* noop */ }
+  }, [assistantReady, messages.length]);
+
   // Persist thread to localStorage on every change (skip while streaming to avoid spam).
   useEffect(() => {
     if (typeof window === "undefined") return;
