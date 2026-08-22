@@ -250,6 +250,8 @@ const Front = () => {
 
   /* ---- CTA Demo : feed vidéo « découverte » (viewer unifié HomeVideoSlidePanel) ---- */
   const [demoLoading, setDemoLoading] = useState(false);
+  /* Transition « Demo » : ne laisse que le slogan, recentré plein écran */
+  const [demoIntro, setDemoIntro] = useState(false);
   const [demoList, setDemoList] = useState<any[]>([]);
   const [demoCtx, setDemoCtx] = useState<DiscoveryFeedContext | null>(null);
   const [demoActiveId, setDemoActiveId] = useState<string | null>(null);
