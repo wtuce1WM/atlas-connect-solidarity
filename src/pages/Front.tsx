@@ -1017,8 +1017,8 @@ const Front = () => {
           }}
           className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.8)] hover:text-gold"
           style={{
-            opacity: showCue && !demoIntro ? 1 : 0,
-            pointerEvents: showCue && !demoIntro ? "auto" : "none",
+            opacity: showCue && !demoIntro && !demoActiveId ? 1 : 0,
+            pointerEvents: showCue && !demoIntro && !demoActiveId ? "auto" : "none",
             animation: reduced || !showCue ? undefined : "owmSlideDown 420ms ease-out both",
             transition: motion,
           }}
