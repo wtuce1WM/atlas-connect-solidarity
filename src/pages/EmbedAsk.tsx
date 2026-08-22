@@ -706,8 +706,9 @@ const EmbedAsk = () => {
     .filter((f) => !disabledIds.has(f.id))
     .filter((f) => !fuAllowed || fuAllowed.includes(f.id))
     .filter((f) => !usedFollowupIds.includes(f.id))
-    // Plateforme sans business ctx : masquer les relances dépendant de {businessName}
-    .filter((f) => ![f.label_fr, f.label_en, f.label_ar].some((l) => l?.includes("{businessName}")) || !!businessName)
+    // Plateforme : masquer TOUTE relance dépendant de {businessName} (business-centric,
+    // exige un hôte) — même quand le business ctx permettrait de résoudre le libellé.
+    .filter((f) => ![f.label_fr, f.label_en, f.label_ar].some((l) => l?.includes("{businessName}")) || (!isPlatform && !!businessName))
     .map((f) => ({ id: f.id, label: pickFollowupLabel(f) }))
     .filter((f) => f.label);
 
@@ -953,6 +954,12 @@ const EmbedAsk = () => {
           if (c && c !== bizCity) return false;
           const cats = Array.isArray(r.main_categories) ? r.main_categories : [];
           if (cats.length > 0 && (!bizCat || !cats.some((x: string) => normCity(x) === bizCat))) return false;
+          // Mode plateforme : aucune suggestion business-centric — elles exigent
+          // un établissement hôte (businessSlug) que la conversation n'a pas.
+          if (isPlatform) {
+            if (Array.isArray(r.business_ids) && r.business_ids.length > 0) return false;
+            if ([r.label_fr, r.label_en, r.label_ar].some((l) => typeof l === "string" && l.includes("{businessName}"))) return false;
+          }
           return true;
         })
         .map((r) => ({
@@ -1764,7 +1771,9 @@ const EmbedAsk = () => {
           : []),
       ],
     },
-    {
+    // Mode plateforme : groupe « Autour de l'hôte » masqué — business-centric par
+    // définition (routes poi_nearby / nearby_overview / sur place exigent l'hôte).
+    ...(isPlatform ? [] : [{
       id: "host",
       label: lang === "en" ? "Around the host" : lang === "ar" ? "حول المكان" : "Autour de l'hôte",
       items: [
@@ -1805,7 +1814,7 @@ const EmbedAsk = () => {
             }]
           : []),
       ],
-    },
+    }]),
     {
       id: "destinations",
       label: lang === "en" ? "Destinations" : lang === "ar" ? "الوجهات" : "Destinations",
@@ -2507,9 +2516,9 @@ const EmbedAsk = () => {
         {messages.length <= 1 && !streaming && assistantReady && (
           <div className="flex flex-wrap gap-2 pt-1">
             {suggestions
-              // Plateforme sans business ctx : on masque les chips dont le
-              // libellé dépend de {businessName} (sinon « à proximité de » pendouille).
-              .filter((s) => !s.label.includes("{businessName}") || !!businessName)
+              // Plateforme : on masque TOUTE chip dont le libellé dépend de
+              // {businessName} (business-centric), même si le ctx le résoudrait.
+              .filter((s) => !s.label.includes("{businessName}") || (!isPlatform && !!businessName))
               .map((s) => {
               const label = s.label.replace(/\{businessName\}/g, businessName || "").trim();
               // Cas unique : la suggestion "Le meilleur de YouTube sur le Maroc"
