@@ -528,10 +528,10 @@ const Front = () => {
       <div
         className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between px-5 py-4 pt-safe md:px-10 transition-opacity duration-300"
         style={{
-          opacity: ctaActive ? 0 : 1,
-          pointerEvents: ctaActive ? "none" : "auto",
+          opacity: ctaActive || demoIntro ? 0 : 1,
+          pointerEvents: ctaActive || demoIntro ? "none" : "auto",
         }}
-        aria-hidden={ctaActive}
+        aria-hidden={ctaActive || demoIntro}
       >
         <div className="flex items-center gap-3">
           <img src="/images/logo_blanc.webp" alt="One World Morocco" className="h-7 w-7 shrink-0 object-contain" />
