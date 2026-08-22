@@ -408,6 +408,7 @@ const Front = () => {
     (i: number, freeze = false) => {
       const next = Math.min(STEPS.length - 1, Math.max(0, i));
       setStep(next);
+      if (next < STEPS.length - 1) setShowEndCTAs(false);
       if (timerRef.current) window.clearTimeout(timerRef.current);
       if (freeze) {
         setAuto(false);
@@ -417,6 +418,7 @@ const Front = () => {
     },
     [scheduleNext, auto]
   );
+
 
 
   const toggleAuto = useCallback(() => {
