@@ -607,14 +607,14 @@ const Front = () => {
                 aria-label={lang.label}
                 aria-current={language === lang.code}
                 onClick={() => setLanguage(lang.code)}
-                className={`flex flex-col items-center justify-center gap-1.5 rounded-xl border bg-black/35 py-4 backdrop-blur-md transition-all focus-visible:outline-none ${
+                className={`flex flex-col items-center justify-center gap-1 rounded-xl border bg-black/35 py-3 md:py-4 backdrop-blur-md transition-all focus-visible:outline-none ${
                   language === lang.code
                     ? "border-gold/70"
                     : "border-[rgba(244,238,228,0.15)] hover:border-gold/60"
                 }`}
               >
-                <span className="text-3xl leading-none md:text-4xl">{lang.flag}</span>
-                <span className="font-roboto text-xs font-bold uppercase tracking-[0.14em] text-[#F4EEE4]">
+                <span className="text-2xl leading-none md:text-4xl">{lang.flag}</span>
+                <span className="font-roboto text-[10px] md:text-xs font-bold uppercase tracking-[0.14em] text-[#F4EEE4]">
                   {lang.code}
                 </span>
               </button>
@@ -1033,8 +1033,8 @@ const Front = () => {
         </button>
       </div>
 
-      {/* CTA Revenir — symétrique de Découvrir, visible sur écran 2 */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center">
+      {/* CTA Revenir — symétrique de Découvrir, visible sur écran 2 (desktop only) */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 hidden md:flex justify-center">
         <button
           type="button"
           onClick={(e) => {
