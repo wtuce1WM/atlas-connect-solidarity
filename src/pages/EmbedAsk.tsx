@@ -1782,8 +1782,11 @@ const EmbedAsk = () => {
           : `fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""} transition-[right] duration-300 ease-out ${openBusinessId ? "lg:right-1/2" : ""}`
       }
       style={
-        bgTransparent && !activeWidgetBg
-          ? undefined
+        // `?bg=transparent` = le fond de l'hôte doit apparaître : le conteneur
+        // racine n'est JAMAIS peint, même si le business a des couleurs de
+        // widget enregistrées (sinon elles repeignent tout le panneau en clair).
+        bgTransparent
+          ? { colorScheme: theme === "light" ? "light" : "dark" }
           : activeWidgetBg
           ? { background: activeWidgetBg, colorScheme: theme === "light" ? "light" : "dark" }
           : undefined
