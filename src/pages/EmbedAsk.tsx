@@ -561,6 +561,8 @@ const EmbedAsk = () => {
   }, [theme, customBg]);
   const [businessName, setBusinessName] = useState<string>("");
   const [assistantTitle, setAssistantTitle] = useState<string>("");
+  /** Mode plateforme : passe à true une fois le business `ctx` (optionnel) chargé. */
+  const [platformLoaded, setPlatformLoaded] = useState(false);
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [businessCity, setBusinessCity] = useState<string | null>(null);
   const [businessMainCategory, setBusinessMainCategory] = useState<string | null>(null);
@@ -595,6 +597,12 @@ const EmbedAsk = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const L = LANG_LABELS[lang];
+
+  // Mode plateforme : l'assistant est prêt sans business hôte ; le titre est
+  // institutionnel et la ville de référence vient du ctx, de la géoloc, sinon Marrakech.
+  const assistantReady = isPlatform ? platformLoaded : !!businessName;
+  const headerTitle = isPlatform ? L.platformTitle : (assistantNameParam || assistantTitle || businessName);
+  const platformCity = businessCity || geo.detectedCity || "Marrakech";
 
   // --- Persistence (localStorage): survives page reload for ~7 days per slug+lang. ---
   const storageKey = `embed-ask:thread:${slug}:${lang}`;
