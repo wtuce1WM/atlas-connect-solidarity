@@ -938,7 +938,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids")
+        .select("id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible")
         .eq("surface", "embed")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
@@ -954,12 +954,9 @@ const EmbedAsk = () => {
           if (c && c !== bizCity) return false;
           const cats = Array.isArray(r.main_categories) ? r.main_categories : [];
           if (cats.length > 0 && (!bizCat || !cats.some((x: string) => normCity(x) === bizCat))) return false;
-          // Mode plateforme : aucune suggestion business-centric — elles exigent
-          // un établissement hôte (businessSlug) que la conversation n'a pas.
-          if (isPlatform) {
-            if (Array.isArray(r.business_ids) && r.business_ids.length > 0) return false;
-            if ([r.label_fr, r.label_en, r.label_ar].some((l) => typeof l === "string" && l.includes("{businessName}"))) return false;
-          }
+          // Mode plateforme : seules les suggestions explicitement flaggées
+          // « Visible plateforme 1WM » en back-office (ai_suggestions.is_platform_visible).
+          if (isPlatform && r.is_platform_visible !== true) return false;
           return true;
         })
         .map((r) => ({

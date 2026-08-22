@@ -304,6 +304,21 @@ Deno.serve(async (req) => {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
+  // Garde-fou plateforme : une suggestion explicitement cliquée doit être flaggée
+  // « Visible plateforme 1WM » en back-office, sinon elle suppose un hôte.
+  if (platformMode && suggestionId) {
+    const { data: sg } = await admin
+      .from("ai_suggestions")
+      .select("is_platform_visible")
+      .eq("id", suggestionId)
+      .maybeSingle();
+    if (!sg?.is_platform_visible) {
+      console.warn("[embed-ai-chat-v2] platform_curated_blocked", suggestionId);
+      return new Response(JSON.stringify({ error: "suggestion not available on platform" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+  }
   if (!uiMessages.length) {
     return new Response(JSON.stringify({ error: "messages required" }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -665,7 +680,7 @@ Deno.serve(async (req) => {
         // Texte libre : on rapproche d'abord la phrase tapée d'un libellé de
         // suggestion staff (matcher partagé) → taper la phrase == cliquer la suggestion.
         if (!suggestionId && !followupId) {
-          const m = await matchCuratedByText(admin, { text: userMessage, surface, crossSurface: true })
+          const m = await matchCuratedByText(admin, { text: userMessage, surface, crossSurface: true, platformOnly: platformMode })
             .catch(() => null);
           if (m) {
             suggestionId = m.id;

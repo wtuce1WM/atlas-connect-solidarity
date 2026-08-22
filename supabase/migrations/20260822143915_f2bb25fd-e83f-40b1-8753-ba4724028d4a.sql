@@ -1,0 +1,1 @@
+ALTER TABLE public.ai_suggestions ADD COLUMN IF NOT EXISTS is_platform_visible boolean NOT NULL DEFAULT false;
