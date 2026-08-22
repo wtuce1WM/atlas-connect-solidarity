@@ -755,7 +755,7 @@ const Front = () => {
             )}
           </div>
 
-          {/* Storybox — apparaît après 2 s */}
+          {/* Storybox — apparaît après 2 s ; CTAs fin de récit */}
           <div
             className="w-full max-w-2xl"
             style={{
@@ -765,95 +765,115 @@ const Front = () => {
             }}
             aria-hidden={voiceActive || !bulletsVisible}
           >
-            <div className="relative pl-4 md:pl-6">
-              {/* Barre gold verticale — apparaît avec le bullet 2, même effet */}
-              {barsVisible && (
-                <span
-                  aria-hidden="true"
-                  className="absolute left-0 top-0 bottom-0 w-[2px] rounded-full bg-gold/70"
-                  style={{ animation: reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
-                />
-              )}
+            {showEndCTAs ? (
+              <div
+                className="grid w-full grid-cols-1 gap-1.5 sm:grid-cols-2 md:gap-3"
+                style={{ animation: reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
+              >
+                {CTAS.map((cta) => (
+                  <Link
+                    key={cta.to}
+                    to={cta.to}
+                    className="group relative overflow-hidden rounded-xl border border-[rgba(244,238,228,0.15)] bg-black/35 p-3.5 pt-4 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-gold/60 focus-visible:-translate-y-1 focus-visible:border-gold/60 focus-visible:outline-none md:p-5 md:pt-6"
+                  >
+                    <span
+                      className="absolute inset-x-0 top-0 h-[3px]"
+                      style={{
+                        background:
+                          "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--gold)))",
+                      }}
+                      aria-hidden="true"
+                    />
+                    <ArrowUpRight className="absolute right-4 top-5 h-4 w-4 text-[rgba(244,238,228,0.6)] transition-colors group-hover:text-gold" />
+                    <span className="block pr-8 font-roboto text-sm font-bold text-[#F4EEE4] md:text-lg">
+                      {cta.label}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="relative">
+                <div className="flex items-start gap-3 font-roboto text-base font-normal leading-[1.3] text-[#F4EEE4] md:text-lg md:leading-snug">
+                  <img
+                    src={hamsaIcon.url}
+                    alt=""
+                    className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
+                    loading="eager"
+                  />
+                  <div className="grid grid-cols-1">
+                    {STEPS.map((s, i) => {
+                      if (!s.bullet) return null;
+                      const isActive = i === step;
+                      return (
+                        <span
+                          key={i}
+                          aria-hidden={!isActive}
+                          className={`col-start-1 row-start-1 ${
+                            isActive && bulletsVisible ? "opacity-100" : "pointer-events-none opacity-0"
+                          }`}
+                          style={{
+                            animation:
+                              reduced || !isActive || !bulletsVisible
+                                ? undefined
+                                : "owmSlideDown 420ms ease-out both",
+                          }}
+                        >
+                          {s.render()}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
 
-              <div className="flex items-start gap-3 font-roboto text-base font-normal leading-[1.3] text-[#F4EEE4] md:text-lg md:leading-snug">
-                <img
-                  src={hamsaIcon.url}
-                  alt=""
-                  className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
-                  loading="eager"
-                />
-                <div className="grid grid-cols-1">
-                  {STEPS.map((s, i) => {
-                    if (!s.bullet) return null;
-                    const isActive = i === step;
+                {/* Progress bar segmentée — un segment par bullet défilant (2-7) */}
+                <div
+                  className="mt-1.5 flex gap-1.5 md:mt-4"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    opacity: barsVisible ? 1 : 0,
+                    animation: barsVisible && !reduced ? "owmSlideDown 420ms ease-out both" : undefined,
+                    pointerEvents: barsVisible ? "auto" : "none",
+                  }}
+                  aria-hidden={!barsVisible}
+                >
+                  {CAROUSEL_STEPS.map((stepIndex, i) => {
+                    const done = step > stepIndex;
+                    const current = step === stepIndex;
+                    const durationMs = CAROUSEL_DURATIONS_MS[i] ?? STEP_MS;
                     return (
-                      <span
-                        key={i}
-                        aria-hidden={!isActive}
-                        className={`col-start-1 row-start-1 ${
-                          isActive && bulletsVisible ? "opacity-100" : "pointer-events-none opacity-0"
-                        }`}
-                        style={{
-                          animation:
-                            reduced || !isActive || !bulletsVisible
-                              ? undefined
-                              : "owmSlideDown 420ms ease-out both",
+                      <button
+                        key={stepIndex}
+                        type="button"
+                        aria-label={`Bullet ${stepIndex}`}
+                        aria-current={current}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          goToStep(stepIndex, true);
                         }}
+                        style={{ flex: `${BULLET_WEIGHTS[i] ?? 1} 1 0%` }}
+                        className="h-2 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)] py-[3px]"
                       >
-                        {s.render()}
-                      </span>
+                        <span
+                          key={current ? `cur-${step}` : done ? "done" : "todo"}
+                          className="block h-full rounded-full bg-gold"
+                          style={{
+                            width: done ? "100%" : current ? "100%" : "0%",
+                            opacity: done || current ? 1 : 0,
+                            transition:
+                              reduced || !current ? "none" : `width ${durationMs}ms linear`,
+                            ...(current && !reduced && auto
+                              ? { animation: `owmFillBar ${durationMs}ms linear both` }
+                              : null),
+                          }}
+                        />
+                      </button>
                     );
                   })}
                 </div>
               </div>
-
-              {/* Progress bar segmentée — un segment par bullet défilant (2-7) */}
-              <div
-                className="mt-1.5 flex gap-1.5 md:mt-4"
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  opacity: barsVisible ? 1 : 0,
-                  animation: barsVisible && !reduced ? "owmSlideDown 420ms ease-out both" : undefined,
-                  pointerEvents: barsVisible ? "auto" : "none",
-                }}
-                aria-hidden={!barsVisible}
-              >
-                {CAROUSEL_STEPS.map((stepIndex, i) => {
-                  const done = step > stepIndex;
-                  const current = step === stepIndex;
-                  const durationMs = CAROUSEL_DURATIONS_MS[i] ?? STEP_MS;
-                  return (
-                    <button
-                      key={stepIndex}
-                      type="button"
-                      aria-label={`Bullet ${stepIndex}`}
-                      aria-current={current}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        goToStep(stepIndex, true);
-                      }}
-                      style={{ flex: `${BULLET_WEIGHTS[i] ?? 1} 1 0%` }}
-                      className="h-2 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)] py-[3px]"
-                    >
-                      <span
-                        key={current ? `cur-${step}` : done ? "done" : "todo"}
-                        className="block h-full rounded-full bg-gold"
-                        style={{
-                          width: done ? "100%" : current ? "100%" : "0%",
-                          opacity: done || current ? 1 : 0,
-                          transition:
-                            reduced || !current ? "none" : `width ${durationMs}ms linear`,
-                          ...(current && !reduced && auto
-                            ? { animation: `owmFillBar ${durationMs}ms linear both` }
-                            : null),
-                        }}
-                      />
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            )}
           </div>
+
         </div>
       </div>
 
