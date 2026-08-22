@@ -36,6 +36,7 @@ import { whatsappUrl } from "@/lib/phoneUtils";
 import { Phone, Heart, Bookmark } from "lucide-react";
 import { useBookmark } from "@/hooks/useBookmark";
 import { useVideoLike } from "@/hooks/useVideoLike";
+import { useRecentlyViewedBusinesses } from "@/hooks/useRecentlyViewedBusinesses";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import { groupImagesWithHeadings } from "@/lib/groupImagesWithHeadings";
 
@@ -196,6 +197,8 @@ const VideoSlidePanel = ({
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
+  const [aiSlug, setAiSlug] = useState<string | null>(null);
+  const { recentBusinesses } = useRecentlyViewedBusinesses();
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
   const [, forceRender] = useState(0);
