@@ -222,18 +222,13 @@ const Front = () => {
   // auto-avance du récit
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
-    // Fin du récit : laisser la dernière phrase terminer sa durée, revenir sur
-    // le bullet 1 et relancer la boucle. Aucun basculement automatique vers
-    // l'écran 2 (il reste piloté par le scroll / le CTA de l'utilisateur).
+    // Fin du récit : afficher les 6 CTAs horizontaux et stopper la boucle.
+    // L'utilisateur reste sur l'écran 1 et peut cliquer directement sur un CTA.
     if (from >= STEPS.length - 1) {
-      const finalStepDuration =
-        CAROUSEL_DURATIONS_MS[CAROUSEL_STEPS.indexOf(from)] ?? STEP_MS;
-      timerRef.current = window.setTimeout(() => {
-        setStep(PERMANENT_STEP);
-        scheduleNext(PERMANENT_STEP);
-      }, finalStepDuration);
+      setShowEndCTAs(true);
       return;
     }
+
 
     const delay =
       from === PERMANENT_STEP
