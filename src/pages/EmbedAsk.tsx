@@ -797,8 +797,32 @@ const EmbedAsk = () => {
     } catch { /* noop */ }
   }, [inFloatingPanel, theme, activeWidgetBg]);
 
+  // Mode plateforme : pas d'hôte. On ne charge que le business `ctx` (ville +
+  // catégorie) pour filtrer les suggestions — la conversation reste sans ancrage.
+  useEffect(() => {
+    if (!isPlatform) return;
+    let cancelled = false;
+    (async () => {
+      if (ctxSlug) {
+        const { data } = await (supabase as any)
+          .from("businesses")
+          .select("city, main_category")
+          .eq("slug", ctxSlug)
+          .eq("is_active", true)
+          .maybeSingle();
+        if (cancelled) return;
+        setBusinessCity(((data as any)?.city as string) || null);
+        setBusinessMainCategory(((data as any)?.main_category as string) || null);
+      }
+      if (!cancelled) setPlatformLoaded(true);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlatform, ctxSlug]);
+
   // Load host business
   useEffect(() => {
+    if (isPlatform) return;
     let cancelled = false;
     (async () => {
       const { data } = await (supabase as any)
