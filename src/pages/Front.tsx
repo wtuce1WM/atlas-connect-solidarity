@@ -10,6 +10,7 @@ import { ChevronDown, ChevronUp, ArrowUpRight, Menu, X } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 import portraitVideoAsset from "@/assets/hero-home-portrait-ios-v2.mp4.asset.json";
