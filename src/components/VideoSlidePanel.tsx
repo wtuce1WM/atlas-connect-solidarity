@@ -200,6 +200,8 @@ const VideoSlidePanel = ({
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
+  /** L'iframe IA signale sa disponibilité via postMessage("owm-ai-ready"). */
+  const [aiReady, setAiReady] = useState(false);
   const [aiSlug, setAiSlug] = useState<string | null>(null);
   /** Mode plateforme : overlay IA sans hôte ; aiSlug sert alors de contexte `ctx`. */
   const [aiPlatform, setAiPlatform] = useState(false);
