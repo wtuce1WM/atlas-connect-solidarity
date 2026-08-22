@@ -95,8 +95,8 @@ const STEPS: Step[] = [
 
 /** Premier bullet point : toujours visible (le plus important). */
 const PERMANENT_STEP = 1;
-/** Indices des bullets qui défilent dans le carrousel (2-7). */
-const CAROUSEL_STEPS = [2, 3, 4, 5, 6, 7];
+/** Indices des bullets du carrousel (1-7) — bullet 1 inclus, avec son propre segment gold. */
+const CAROUSEL_STEPS = [1, 2, 3, 4, 5, 6, 7];
 /** Largeur relative de chaque segment, calée sur la durée d'affichage réelle. */
 const BULLET_WEIGHTS = CAROUSEL_DURATIONS_MS.map((d) => d / Math.min(...CAROUSEL_DURATIONS_MS));
 
