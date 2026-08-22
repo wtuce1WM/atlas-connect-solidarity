@@ -740,17 +740,29 @@ const VideoSlidePanel = ({
     }
   }, [descBusinessId, aiOverlayOpen, open, soundOn]);
 
-  // Fermeture de l'overlay IA depuis l'intérieur de l'iframe (/embed/ask, mode panneau).
+  // Fermeture de l'overlay IA depuis l'intérieur de l'iframe (/embed/ask, mode panneau)
+  // + signal de disponibilité : l'iframe est révélée seulement quand l'assistant
+  // est prêt (contexte chargé + message d'ouverture posé).
   useEffect(() => {
     if (!aiOverlayOpen) return;
+    setAiReady(false);
     const onMsg = (e: MessageEvent) => {
-      if (e.origin === window.location.origin && (e.data as any)?.type === "owm-embed-close") {
-        setAiOverlayOpen(false);
-      }
+      if (e.origin !== window.location.origin) return;
+      const t = (e.data as any)?.type;
+      if (t === "owm-embed-close") setAiOverlayOpen(false);
+      if (t === "owm-ai-ready") setAiReady(true);
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
   }, [aiOverlayOpen]);
+
+  // Filet de sécurité : si l'iframe ne signale jamais sa disponibilité
+  // (erreur réseau, slug inconnu…), on la révèle quand même au bout de 8 s.
+  useEffect(() => {
+    if (!aiOverlayOpen || aiReady) return;
+    const t = setTimeout(() => setAiReady(true), 8000);
+    return () => clearTimeout(t);
+  }, [aiOverlayOpen, aiReady]);
 
 
 
