@@ -664,7 +664,7 @@ const Front = () => {
               WebkitTextStrokeColor: "#FFFFFF",
               ...(sloganFontPx ? { fontSize: `${sloganFontPx}px` } : null),
               opacity: voiceActive ? 0 : 1,
-              transform: demoIntro && !reduced ? "scale(1.18)" : "scale(1)",
+              transform: demoIntro && !demoActiveId && !reduced ? "scale(1.18)" : "scale(1)",
               animation: reduced || voiceActive || demoIntro ? undefined : "owmSlideDown 420ms ease-out both",
               transition: `transform 700ms cubic-bezier(.22,1,.36,1), ${motion}`,
             }}
