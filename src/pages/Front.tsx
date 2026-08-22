@@ -220,14 +220,15 @@ const Front = () => {
   // auto-avance du récit
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
-    // Fin du récit : laisser la dernière phrase terminer sa durée, revenir
-    // réellement sur le bullet 1, puis seulement basculer vers l'écran 2.
+    // Fin du récit : laisser la dernière phrase terminer sa durée, revenir sur
+    // le bullet 1 et relancer la boucle. Aucun basculement automatique vers
+    // l'écran 2 (il reste piloté par le scroll / le CTA de l'utilisateur).
     if (from >= STEPS.length - 1) {
       const finalStepDuration =
         CAROUSEL_DURATIONS_MS[CAROUSEL_STEPS.indexOf(from)] ?? STEP_MS;
       timerRef.current = window.setTimeout(() => {
         setStep(PERMANENT_STEP);
-        timerRef.current = window.setTimeout(() => setTarget(1), 2400);
+        scheduleNext(PERMANENT_STEP);
       }, finalStepDuration);
       return;
     }
@@ -241,7 +242,8 @@ const Front = () => {
       setStep(next);
       scheduleNext(next);
     }, delay);
-  }, [setTarget]);
+  }, []);
+
 
   useEffect(() => {
     scheduleNext(PERMANENT_STEP);
@@ -645,30 +647,8 @@ const Front = () => {
           className="relative flex flex-1 flex-col items-center justify-center overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Globe stylisé en fond du slogan, hauteur pleine conteneur */}
-          <span
-            className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-gold/40"
-            aria-hidden="true"
-          >
-            <svg
-              viewBox="0 0 100 100"
-              preserveAspectRatio="xMidYMid meet"
-              className="h-full w-auto"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-            >
-              {/* Cercle extérieur */}
-              <circle cx="50" cy="50" r="46" />
-              {/* Méridien central */}
-              <ellipse cx="50" cy="50" rx="14" ry="46" />
-              {/* Parallèles */}
-              <ellipse cx="50" cy="50" rx="46" ry="18" />
-              <ellipse cx="50" cy="50" rx="46" ry="36" />
-              {/* Trait horizontal */}
-              <line x1="4" y1="50" x2="96" y2="50" />
-            </svg>
-          </span>
+
+
 
           <h1
             className="relative z-10 text-center text-[clamp(1.5rem,min(5.5vw,5vh),3.25rem)] uppercase leading-[1.12] tracking-tight"
@@ -973,7 +953,7 @@ const Front = () => {
           }}
           aria-hidden={voiceActive}
         >
-          {/* × gold en fond du slogan, hauteur pleine conteneur */}
+          {/* Globe stylisé en fond du slogan, hauteur pleine conteneur */}
           <span
             className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-gold/40"
             aria-hidden="true"
@@ -982,15 +962,18 @@ const Front = () => {
               viewBox="0 0 100 100"
               preserveAspectRatio="xMidYMid meet"
               className="h-full w-auto"
-              fill="currentColor"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
             >
-              {/* X très bold, très fat, très squarish — quatre losanges autour d’un petit contre-forme central */}
-              <path d="M50 0 L73 23 L50 46 L27 23 Z" />
-              <path d="M100 50 L77 73 L54 50 L77 27 Z" />
-              <path d="M50 100 L27 77 L50 54 L73 77 Z" />
-              <path d="M0 50 L23 27 L46 50 L23 73 Z" />
+              <circle cx="50" cy="50" r="46" />
+              <ellipse cx="50" cy="50" rx="14" ry="46" />
+              <ellipse cx="50" cy="50" rx="46" ry="18" />
+              <ellipse cx="50" cy="50" rx="46" ry="36" />
+              <line x1="4" y1="50" x2="96" y2="50" />
             </svg>
           </span>
+
 
           <span className="relative z-10 block">LOCAL</span>
           <span className="relative z-10 block">DIGITAL</span>
