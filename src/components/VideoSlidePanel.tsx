@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
+import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { buildOgShareUrl } from "@/lib/businessUrl";
 import { formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/homeHelpers";
@@ -1506,7 +1507,6 @@ const VideoSlidePanel = ({
               <div className="relative w-full h-full pointer-events-auto">
                 <PanelSearchBar
                   iconVariant="black"
-                  profileToClub
                   onOverlayChange={setSearchOverlayOpen}
                   onAiClick={() => {
                     // Assistant IA en overlay : business de la vidéo, sinon dernier
@@ -1649,6 +1649,11 @@ const VideoSlidePanel = ({
             />
           </div>
         )}
+        {/* Popup Club — même mécanisme que BookOnlineSlidePanel : il écoute
+            "open-generic-club-popup" (dispatché par le CTA Profil de PanelSearchBar
+            pour les anonymes). Monté DANS panelRef pour que ses clics ne soient
+            pas pris pour un click-outside qui fermerait le viewer. */}
+        <ClubLoginPopup />
       </div>
     </div>,
     document.body,
