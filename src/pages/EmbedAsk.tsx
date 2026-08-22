@@ -605,7 +605,7 @@ const EmbedAsk = () => {
   const platformCity = businessCity || geo.detectedCity || "Marrakech";
 
   // --- Persistence (localStorage): survives page reload for ~7 days per slug+lang. ---
-  const storageKey = `embed-ask:thread:${slug}:${lang}`;
+  const storageKey = `embed-ask:thread:${isPlatform ? `platform:${ctxSlug || "global"}` : slug}:${lang}`;
   const TTL_MS = 7 * 24 * 3600 * 1000;
   type PersistedThread = {
     sessionId: string;
@@ -662,6 +662,10 @@ const EmbedAsk = () => {
       body: {
         messages,
         businessSlug: slug,
+        // Mode plateforme : pas d'hôte — le moteur travaille sur la ville active
+        // (fallback Marrakech côté moteur), surface embed conservée.
+        platform: isPlatform || undefined,
+        activeCity: isPlatform ? platformCity : undefined,
         language: lang,
         sessionId: sessionIdRef.current,
         messageIndex: messageIndexRef.current,
