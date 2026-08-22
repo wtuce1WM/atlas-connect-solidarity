@@ -532,6 +532,12 @@ const EmbedAsk = () => {
   const autoHeight = !fullHeight && !inFloatingPanel && !overlay;
   // Nom personnalisé de l'assistant (champ éditable côté /affiliates/presence).
   const assistantNameParam = (params.get("name") || "").trim().slice(0, 60);
+  // Mode « plateforme » (route /embed/ask SANS slug + ?scope=platform) :
+  // assistant 1WM global, conversation NON liée à un établissement hôte.
+  // `ctx` = slug du business d'origine (vidéo/fiche) : ne sert qu'à filtrer
+  // les suggestions par ville/catégorie côté client — jamais envoyé au moteur.
+  const isPlatform = !slug && /^(1|true|platform)$/i.test(params.get("scope") || "");
+  const ctxSlug = isPlatform ? (params.get("ctx") || "").trim().slice(0, 120) : "";
   // Moteur IA : V2 uniquement (V1 retiré).
   const initialTheme = themeParam
     ? themeParam
