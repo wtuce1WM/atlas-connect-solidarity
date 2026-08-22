@@ -27,9 +27,10 @@ const STEP_MS = 3400;
 const FIRST_CAROUSEL_DELAY_MS = 5000;
 const MIN_STEP_MS = 2000;
 
-/** Durées affichées de chaque bullet défilant (indices 2-7), en ms.
- *  Base = 3400 ms. Dernier step (valeur) : 5000 ms. */
+/** Durées affichées de chaque bullet du carrousel (indices 1-7), en ms.
+ *  Bullet 1 : 5000 ms. Base = 3400 ms. Dernier step (valeur) : 5000 ms. */
 const CAROUSEL_DURATIONS_MS = [
+  Math.max(MIN_STEP_MS, FIRST_CAROUSEL_DELAY_MS),
   STEP_MS,
   STEP_MS,
   STEP_MS,
@@ -94,8 +95,8 @@ const STEPS: Step[] = [
 
 /** Premier bullet point : toujours visible (le plus important). */
 const PERMANENT_STEP = 1;
-/** Indices des bullets qui défilent dans le carrousel (2-7). */
-const CAROUSEL_STEPS = [2, 3, 4, 5, 6, 7];
+/** Indices des bullets du carrousel (1-7) — bullet 1 inclus, avec son propre segment gold. */
+const CAROUSEL_STEPS = [1, 2, 3, 4, 5, 6, 7];
 /** Largeur relative de chaque segment, calée sur la durée d'affichage réelle. */
 const BULLET_WEIGHTS = CAROUSEL_DURATIONS_MS.map((d) => d / Math.min(...CAROUSEL_DURATIONS_MS));
 
@@ -223,10 +224,7 @@ const Front = () => {
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
 
-    const delay =
-      from === PERMANENT_STEP
-        ? FIRST_CAROUSEL_DELAY_MS
-        : CAROUSEL_DURATIONS_MS[CAROUSEL_STEPS.indexOf(from)] ?? STEP_MS;
+    const delay = CAROUSEL_DURATIONS_MS[CAROUSEL_STEPS.indexOf(from)] ?? STEP_MS;
 
     timerRef.current = window.setTimeout(() => {
       // Dernière étape terminée : retour au bullet 1 et la boucle continue.
@@ -394,7 +392,7 @@ const Front = () => {
     };
   }, []);
 
-  // les barres gold horizontales apparaissent avec le bullet 2
+  // les barres gold horizontales apparaissent dès le bullet 1
   const barsVisible = bulletsVisible && step >= CAROUSEL_STEPS[0];
 
 
