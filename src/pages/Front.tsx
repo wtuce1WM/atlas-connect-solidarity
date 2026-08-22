@@ -222,24 +222,20 @@ const Front = () => {
   // auto-avance du récit
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
-    // Fin du récit : afficher les 6 CTAs horizontaux et stopper la boucle.
-    // L'utilisateur reste sur l'écran 1 et peut cliquer directement sur un CTA.
-    if (from >= STEPS.length - 1) {
-      setShowEndCTAs(true);
-      return;
-    }
-
 
     const delay =
       from === PERMANENT_STEP
         ? FIRST_CAROUSEL_DELAY_MS
         : CAROUSEL_DURATIONS_MS[CAROUSEL_STEPS.indexOf(from)] ?? STEP_MS;
+
     timerRef.current = window.setTimeout(() => {
-      const next = Math.min(STEPS.length - 1, from + 1);
+      // Dernière étape terminée : retour au bullet 1 et la boucle continue.
+      const next = from >= STEPS.length - 1 ? CAROUSEL_STEPS[0] : from + 1;
       setStep(next);
       scheduleNext(next);
     }, delay);
   }, []);
+
 
 
   useEffect(() => {
