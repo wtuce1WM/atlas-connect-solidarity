@@ -625,7 +625,7 @@ const Front = () => {
       <div
         ref={narrativeBoxRef}
         className={`absolute z-20 flex flex-col px-5 pt-16 pb-16 md:px-10 md:pt-14 md:pb-10 lg:px-16 ${
-          demoIntro
+          demoActiveId
             ? "inset-0 md:inset-auto md:left-0 md:top-0 md:bottom-0 md:w-1/2"
             : "inset-0"
         }`}
@@ -664,7 +664,7 @@ const Front = () => {
               WebkitTextStrokeColor: "#FFFFFF",
               ...(sloganFontPx ? { fontSize: `${sloganFontPx}px` } : null),
               opacity: voiceActive ? 0 : 1,
-              transform: demoIntro && !reduced ? "scale(1.18)" : "scale(1)",
+              transform: demoIntro && !demoActiveId && !reduced ? "scale(1.18)" : "scale(1)",
               animation: reduced || voiceActive || demoIntro ? undefined : "owmSlideDown 420ms ease-out both",
               transition: `transform 700ms cubic-bezier(.22,1,.36,1), ${motion}`,
             }}
