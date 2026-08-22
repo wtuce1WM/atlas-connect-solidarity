@@ -1025,7 +1025,7 @@ const EmbedAsk = () => {
   }, [businessId, lang]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [messages]);
-  useEffect(() => { inputRef.current?.focus(); }, [businessName]);
+  useEffect(() => { inputRef.current?.focus(); }, [businessName, assistantReady]);
 
   const dir = lang === "ar" ? "rtl" : "ltr";
 
