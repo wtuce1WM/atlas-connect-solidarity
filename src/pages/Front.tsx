@@ -738,9 +738,17 @@ const Front = () => {
 
         {/* Section 3 : Animation (accroche + storybox) */}
         <div
-          className="flex flex-1 flex-col items-center justify-center gap-2 overflow-hidden md:gap-3"
+          className="flex flex-col items-center justify-center gap-2 overflow-hidden md:gap-3"
+          style={{
+            flex: demoIntro ? "0 1 0%" : "1 1 0%",
+            opacity: demoIntro ? 0 : 1,
+            pointerEvents: demoIntro ? "none" : "auto",
+            transition: "flex-grow 700ms cubic-bezier(.22,1,.36,1), flex-basis 700ms cubic-bezier(.22,1,.36,1), opacity 350ms ease-out",
+          }}
+          aria-hidden={demoIntro}
           onClick={(e) => e.stopPropagation()}
         >
+
           {/* Accroche fixe — apparaît après 1 s */}
           <div className="min-h-[1.75rem] md:min-h-[2.25rem]">
             {accrocheVisible && (
