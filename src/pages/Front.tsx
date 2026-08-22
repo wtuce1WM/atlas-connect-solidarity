@@ -951,7 +951,7 @@ const Front = () => {
           }}
           aria-hidden={voiceActive}
         >
-          {/* × gold en fond du slogan, hauteur pleine conteneur */}
+          {/* Globe stylisé en fond du slogan, hauteur pleine conteneur */}
           <span
             className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-gold/40"
             aria-hidden="true"
@@ -960,15 +960,18 @@ const Front = () => {
               viewBox="0 0 100 100"
               preserveAspectRatio="xMidYMid meet"
               className="h-full w-auto"
-              fill="currentColor"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
             >
-              {/* X très bold, très fat, très squarish — quatre losanges autour d’un petit contre-forme central */}
-              <path d="M50 0 L73 23 L50 46 L27 23 Z" />
-              <path d="M100 50 L77 73 L54 50 L77 27 Z" />
-              <path d="M50 100 L27 77 L50 54 L73 77 Z" />
-              <path d="M0 50 L23 27 L46 50 L23 73 Z" />
+              <circle cx="50" cy="50" r="46" />
+              <ellipse cx="50" cy="50" rx="14" ry="46" />
+              <ellipse cx="50" cy="50" rx="46" ry="18" />
+              <ellipse cx="50" cy="50" rx="46" ry="36" />
+              <line x1="4" y1="50" x2="96" y2="50" />
             </svg>
           </span>
+
 
           <span className="relative z-10 block">LOCAL</span>
           <span className="relative z-10 block">DIGITAL</span>
