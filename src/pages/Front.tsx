@@ -136,6 +136,8 @@ const Front = () => {
   const { language, setLanguage } = useLanguage();
   const [step, setStep] = useState(1);
   const [progress, setProgress] = useState(0);
+  const [showEndCTAs, setShowEndCTAs] = useState(false);
+
   const [isPortrait, setIsPortrait] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches
   );
