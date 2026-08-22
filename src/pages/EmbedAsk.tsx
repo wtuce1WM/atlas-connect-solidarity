@@ -806,11 +806,14 @@ const EmbedAsk = () => {
       if (ctxSlug) {
         const { data } = await (supabase as any)
           .from("businesses")
-          .select("city, main_category")
+          .select("name, city, main_category")
           .eq("slug", ctxSlug)
           .eq("is_active", true)
           .maybeSingle();
         if (cancelled) return;
+        // Le nom du business ctx sert uniquement à résoudre le placeholder
+        // {businessName} dans les libellés de suggestions/relances.
+        setBusinessName(((data as any)?.name as string) || null);
         setBusinessCity(((data as any)?.city as string) || null);
         setBusinessMainCategory(((data as any)?.main_category as string) || null);
       }
@@ -2490,7 +2493,11 @@ const EmbedAsk = () => {
 
         {messages.length <= 1 && !streaming && assistantReady && (
           <div className="flex flex-wrap gap-2 pt-1">
-            {suggestions.map((s) => {
+            {suggestions
+              // Plateforme sans business ctx : on masque les chips dont le
+              // libellé dépend de {businessName} (sinon « à proximité de » pendouille).
+              .filter((s) => !s.label.includes("{businessName}") || !!businessName)
+              .map((s) => {
               const label = s.label.replace(/\{businessName\}/g, businessName || "").trim();
               // Cas unique : la suggestion "Le meilleur de YouTube sur le Maroc"
               // ne passe pas par le moteur IA — elle ouvre la page /youtube.
