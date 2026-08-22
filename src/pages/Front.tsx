@@ -224,10 +224,7 @@ const Front = () => {
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
 
-    const delay =
-      from === PERMANENT_STEP
-        ? FIRST_CAROUSEL_DELAY_MS
-        : CAROUSEL_DURATIONS_MS[CAROUSEL_STEPS.indexOf(from)] ?? STEP_MS;
+    const delay = CAROUSEL_DURATIONS_MS[CAROUSEL_STEPS.indexOf(from)] ?? STEP_MS;
 
     timerRef.current = window.setTimeout(() => {
       // Dernière étape terminée : retour au bullet 1 et la boucle continue.
