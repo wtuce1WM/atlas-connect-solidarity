@@ -102,6 +102,8 @@ interface VideoSlidePanelProps {
   onFeedBadgeSelect?: (badge: { id: string; name: string }) => void;
   /** Layout "feed" : pas de badge copyright, pas d'entête business, pas de chevrons (swipe vertical), nom+description au-dessus de la barre de navigation */
   feedLayout?: boolean;
+  /** Variante de l'assistant IA ouvert depuis la barre : business hôte (défaut) ou plateforme 1WM (sans ancrage) */
+  aiMode?: "business" | "platform";
 }
 
 
@@ -169,6 +171,7 @@ const VideoSlidePanel = ({
   feedBadges = null,
   onFeedBadgeSelect,
   feedLayout = false,
+  aiMode = "business",
 }: VideoSlidePanelProps) => {
 
   const navigate = useLocalizedNavigate();
@@ -198,6 +201,8 @@ const VideoSlidePanel = ({
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
   const [aiSlug, setAiSlug] = useState<string | null>(null);
+  /** Mode plateforme : overlay IA sans hôte ; aiSlug sert alors de contexte `ctx`. */
+  const [aiPlatform, setAiPlatform] = useState(false);
   const { recentBusinesses } = useRecentlyViewedBusinesses();
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
