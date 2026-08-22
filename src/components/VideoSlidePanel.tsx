@@ -595,11 +595,13 @@ const VideoSlidePanel = ({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      // LocationPickerDialog (portal Radix hors du panel) gère sa propre fermeture :
+      // Escape ne doit pas fermer le viewer en dessous.
+      if (e.key === "Escape" && !locationDialogOpen) onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open, onClose, locationDialogOpen]);
 
   // Sync file video state
   useEffect(() => {
@@ -796,6 +798,10 @@ const VideoSlidePanel = ({
   return createPortal(
     <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[220] bg-black h-[100dvh]"
       onClick={(e) => {
+        // LocationPickerDialog est rendu dans un portal Radix (document.body) : DOM-ment
+        // hors de panelRef, ses clics passeraient pour un click-outside et fermeraient
+        // le viewer. On neutralise le click-outside tant qu'il est ouvert.
+        if (locationDialogOpen) return;
         if (panelRef.current && !panelRef.current.contains(e.target as Node)) onClose();
       }}
     >
@@ -1500,6 +1506,7 @@ const VideoSlidePanel = ({
               <div className="relative w-full h-full pointer-events-auto">
                 <PanelSearchBar
                   iconVariant="black"
+                  profileToClub
                   onOverlayChange={setSearchOverlayOpen}
                   onAiClick={() => {
                     // Assistant IA en overlay : business de la vidéo, sinon dernier

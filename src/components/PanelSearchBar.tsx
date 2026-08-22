@@ -58,6 +58,10 @@ interface PanelSearchBarProps {
     | { type: "youtube"; iframeRef: RefObject<HTMLIFrameElement>; playing: boolean; muted: boolean; onPlayingChange: (p: boolean) => void; onMutedChange: (m: boolean) => void };
   /** When true, hides the Sparkles (Suggestion IA) button from the floating bar */
   hideAiButton?: boolean;
+  /** When true, the Profil button always navigates to /club (page club avec login intégré)
+   *  instead of dispatching "open-generic-club-popup" for anonymous users — à utiliser
+   *  là où ClubLoginPopup n'est pas monté (ex. viewer vidéo). */
+  profileToClub?: boolean;
   /** Pre-generated AI text from /search Sticky 4 — forwarded to PanelAiOverlay to keep both views in sync */
   aiAnswerText?: string | null;
   /** Businesses pool matching aiAnswerText (for thumbnail resolution) */
@@ -99,7 +103,7 @@ const Cell = ({ icon, label, onClick, ariaLabel, active }: { icon: ReactNode; la
   );
 };
 
-const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, profileToClub = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
   const navigate = useLocalizedNavigate();
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
@@ -117,13 +121,19 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
   }, []);
 
   const handleProfileClick = useCallback(async () => {
+    // Mode « lien direct » : /club affiche son propre écran login/register
+    // pour les visiteurs anonymes — pas besoin du popup club global.
+    if (profileToClub) {
+      navigate("/club");
+      return;
+    }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) {
       window.dispatchEvent(new Event("open-generic-club-popup"));
       return;
     }
     navigate("/club");
-  }, [navigate]);
+  }, [navigate, profileToClub]);
 
   // Notify parent when search overlay opens/closes
   const setOverlay = useCallback((open: boolean) => {
