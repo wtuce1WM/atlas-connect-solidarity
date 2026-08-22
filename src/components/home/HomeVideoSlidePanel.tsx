@@ -31,6 +31,8 @@ interface Props<T extends VideoLike> {
   hideSecondaryCtas?: boolean;
   /** Clic sur une chip badge en haut de la vidéo (relance du feed) */
   onBadgeSelect?: (badge: { id: string; name: string }) => void;
+  /** Variante de l'assistant IA : business hôte (défaut) ou plateforme 1WM */
+  aiMode?: "business" | "platform";
 }
 
 /**
