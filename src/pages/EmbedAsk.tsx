@@ -1814,7 +1814,7 @@ const EmbedAsk = () => {
             }]
           : []),
       ],
-    },
+    }]),
     {
       id: "destinations",
       label: lang === "en" ? "Destinations" : lang === "ar" ? "الوجهات" : "Destinations",
