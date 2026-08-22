@@ -27,9 +27,10 @@ const STEP_MS = 3400;
 const FIRST_CAROUSEL_DELAY_MS = 5000;
 const MIN_STEP_MS = 2000;
 
-/** Durées affichées de chaque bullet défilant (indices 2-7), en ms.
- *  Base = 3400 ms. Dernier step (valeur) : 5000 ms. */
+/** Durées affichées de chaque bullet du carrousel (indices 1-7), en ms.
+ *  Bullet 1 : 5000 ms. Base = 3400 ms. Dernier step (valeur) : 5000 ms. */
 const CAROUSEL_DURATIONS_MS = [
+  Math.max(MIN_STEP_MS, FIRST_CAROUSEL_DELAY_MS),
   STEP_MS,
   STEP_MS,
   STEP_MS,
