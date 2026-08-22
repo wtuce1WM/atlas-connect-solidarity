@@ -220,14 +220,15 @@ const Front = () => {
   // auto-avance du récit
   const scheduleNext = useCallback((from: number) => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
-    // Fin du récit : laisser la dernière phrase terminer sa durée, revenir
-    // réellement sur le bullet 1, puis seulement basculer vers l'écran 2.
+    // Fin du récit : laisser la dernière phrase terminer sa durée, revenir sur
+    // le bullet 1 et relancer la boucle. Aucun basculement automatique vers
+    // l'écran 2 (il reste piloté par le scroll / le CTA de l'utilisateur).
     if (from >= STEPS.length - 1) {
       const finalStepDuration =
         CAROUSEL_DURATIONS_MS[CAROUSEL_STEPS.indexOf(from)] ?? STEP_MS;
       timerRef.current = window.setTimeout(() => {
         setStep(PERMANENT_STEP);
-        timerRef.current = window.setTimeout(() => setTarget(1), 2400);
+        scheduleNext(PERMANENT_STEP);
       }, finalStepDuration);
       return;
     }
@@ -241,7 +242,8 @@ const Front = () => {
       setStep(next);
       scheduleNext(next);
     }, delay);
-  }, [setTarget]);
+  }, []);
+
 
   useEffect(() => {
     scheduleNext(PERMANENT_STEP);
