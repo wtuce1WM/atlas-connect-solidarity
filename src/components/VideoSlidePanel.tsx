@@ -102,6 +102,8 @@ interface VideoSlidePanelProps {
   onFeedBadgeSelect?: (badge: { id: string; name: string }) => void;
   /** Layout "feed" : pas de badge copyright, pas d'entête business, pas de chevrons (swipe vertical), nom+description au-dessus de la barre de navigation */
   feedLayout?: boolean;
+  /** Variante de l'assistant IA ouvert depuis la barre : business hôte (défaut) ou plateforme 1WM (sans ancrage) */
+  aiMode?: "business" | "platform";
 }
 
 
@@ -169,6 +171,7 @@ const VideoSlidePanel = ({
   feedBadges = null,
   onFeedBadgeSelect,
   feedLayout = false,
+  aiMode = "business",
 }: VideoSlidePanelProps) => {
 
   const navigate = useLocalizedNavigate();
@@ -198,6 +201,8 @@ const VideoSlidePanel = ({
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
   const [aiSlug, setAiSlug] = useState<string | null>(null);
+  /** Mode plateforme : overlay IA sans hôte ; aiSlug sert alors de contexte `ctx`. */
+  const [aiPlatform, setAiPlatform] = useState(false);
   const { recentBusinesses } = useRecentlyViewedBusinesses();
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
@@ -1485,10 +1490,17 @@ const VideoSlidePanel = ({
                   onAiClick={() => {
                     // Assistant IA en overlay : business de la vidéo, sinon dernier
                     // business consulté, sinon fallback sur l'onglet IA de /search.
+                    // Mode plateforme : assistant 1WM global (sans hôte), le slug
+                    // trouvé ne sert que de contexte de suggestions (`ctx`).
                     const slug = ctaBusiness?.slug
                       || recentBusinesses.find((b) => !b.isYoutubeChannel)?.slug
                       || null;
-                    if (slug) {
+                    if (aiMode === "platform") {
+                      setAiSlug(slug);
+                      setAiPlatform(true);
+                      setAiOverlayOpen(true);
+                    } else if (slug) {
+                      setAiPlatform(false);
                       setAiSlug(slug);
                       setAiOverlayOpen(true);
                     } else {
@@ -1576,7 +1588,7 @@ const VideoSlidePanel = ({
             </Suspense>
           </div>
         )}
-        {aiOverlayOpen && aiSlug && (
+        {aiOverlayOpen && (aiPlatform || aiSlug) && (
           <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[240] h-[100dvh] overflow-hidden">
             {/* Fond assombri : la vidéo reste visible derrière l'assistant (iframe transparente) */}
             <div
@@ -1592,7 +1604,9 @@ const VideoSlidePanel = ({
               <X className="h-5 w-5" />
             </button>
             <iframe
-              src={`/embed/ask/${aiSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1`}
+              src={aiPlatform
+                ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform${aiSlug ? `&ctx=${encodeURIComponent(aiSlug)}` : ""}`
+                : `/embed/ask/${aiSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1`}
               title="Assistant IA"
               className="relative w-full h-full border-0"
               style={{ background: "transparent" }}

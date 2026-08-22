@@ -295,9 +295,11 @@ Deno.serve(async (req) => {
       ? body.destinationId.trim()
       : null;
 
-  // Seule la surface embed exige un établissement hôte : /search et /club
-  // travaillent sur une ville active, sans fiche d'ancrage.
-  if (!slugOrId && surface === "embed") {
+  // Seule la surface embed exige un établissement hôte — sauf en mode
+  // « plateforme » (assistant 1WM global, sans fiche d'ancrage) : même
+  // comportement hostless que /search et /club, sur ville active ou Marrakech.
+  const platformMode = body.platform === true;
+  if (!slugOrId && surface === "embed" && !platformMode) {
     return new Response(JSON.stringify({ error: "businessSlug required" }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

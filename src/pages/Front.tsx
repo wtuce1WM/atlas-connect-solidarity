@@ -259,6 +259,10 @@ const Front = () => {
   const [demoActiveId, setDemoActiveId] = useState<string | null>(null);
   const [demoTime, setDemoTime] = useState(0);
   const demoLoadingMoreRef = useRef(false);
+  /* Choix temporaire de l'assistant IA pour la démo : business hôte (comportement
+     actuel) ou plateforme 1WM (moteur global, sans ancrage établissement) */
+  const [demoChoiceOpen, setDemoChoiceOpen] = useState(false);
+  const [demoAiMode, setDemoAiMode] = useState<"business" | "platform">("business");
 
   const toPanelVideo = (v: BadgeVideoFeedItem) => ({
     id: v.id,
@@ -295,6 +299,14 @@ const Front = () => {
       setDemoLoading(false);
     }
   }, [demoLoading]);
+
+  /* Lancement de la démo après choix de l'assistant : pré-pan du slogan puis feed */
+  const startDemo = useCallback((mode: "business" | "platform") => {
+    setDemoAiMode(mode);
+    setDemoChoiceOpen(false);
+    setDemoIntro(true);
+    window.setTimeout(() => { void openDemoFeed(); }, reduced ? 0 : 700);
+  }, [openDemoFeed, reduced]);
 
   const maybeLoadMoreDemo = useCallback(async (currentId: string) => {
     const ctx = demoCtx;
@@ -734,8 +746,7 @@ const Front = () => {
               aria-label="Demo — découverte vidéo"
               onClick={(e) => {
                 e.stopPropagation();
-                setDemoIntro(true);
-                window.setTimeout(() => { void openDemoFeed(); }, reduced ? 0 : 700);
+                setDemoChoiceOpen(true);
               }}
               disabled={demoLoading}
               className="demo-cta group relative overflow-hidden rounded-xl border border-white/25 bg-white/[0.08] px-6 py-2.5 backdrop-blur-2xl transition-all duration-300 hover:scale-[1.03] hover:border-white/45 hover:bg-white/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98] disabled:opacity-70"
@@ -1057,6 +1068,50 @@ const Front = () => {
         </button>
       </div>
 
+      {/* Popup temporaire : choix de l'assistant IA avant lancement du feed démo */}
+      {demoChoiceOpen && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center px-6" role="dialog" aria-modal="true" aria-label="Choix de l'assistant IA">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setDemoChoiceOpen(false)} />
+          <div
+            className="relative w-full max-w-md rounded-2xl border border-white/15 bg-neutral-950/90 p-6 shadow-2xl"
+            style={{ animation: reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
+          >
+            <button
+              type="button"
+              onClick={() => setDemoChoiceOpen(false)}
+              aria-label="Fermer"
+              className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <h2 className="font-montserrat text-lg font-black uppercase tracking-wide text-[#F4EEE4]">
+              Quel assistant IA ?
+            </h2>
+            <p className="mt-1 text-xs text-white/55">
+              Choix temporaire — comparaison des deux moteurs pour la démo vidéo.
+            </p>
+            <div className="mt-5 flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={() => startDemo("business")}
+                className="rounded-xl border border-white/20 bg-white/[0.06] px-4 py-3 text-left transition-all hover:border-white/40 hover:bg-white/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+              >
+                <span className="block font-montserrat text-sm font-bold text-[#F4EEE4]">Assistant du commerce</span>
+                <span className="mt-0.5 block text-xs text-white/55">Comportement actuel — l'IA répond au nom du business lié à la vidéo</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => startDemo("platform")}
+                className="rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-left transition-all hover:border-gold/70 hover:bg-gold/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+              >
+                <span className="block font-montserrat text-sm font-bold text-gold">Assistant One World Morocco</span>
+                <span className="mt-0.5 block text-xs text-white/55">Nouveau — moteur IA centré sur toute la base 1WM, sans business hôte</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {demoActiveId && (() => {
         const active = demoList.find((v) => v.id === demoActiveId) || null;
         if (!active) return null;
@@ -1073,6 +1128,7 @@ const Front = () => {
               onTimeUpdate={setDemoTime}
               returnContext={null}
               onBadgeSelect={(b: any) => { void selectDemoBadge(b); }}
+              aiMode={demoAiMode}
             />
           </Suspense>
         );

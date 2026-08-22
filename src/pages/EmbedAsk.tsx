@@ -203,12 +203,15 @@ function parseRadiusCommand(text: string): number | null {
 const YOUTUBE_PAGE_SUGGESTION_ID = "63d6d717-e344-4e1b-9865-850ac1ca9126";
 
 
-const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string, radius: string) => string; radiusLabel: string; radiusChanged: (r: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
+const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string, radius: string) => string; platformTitle: string; platformOpener: (city: string) => string; radiusLabel: string; radiusChanged: (r: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
     placeholder: "Posez votre question…",
     hint: "Assistant IA propulsé par One World Morocco",
     opener: (n, r) =>
       `Bonjour 👋 Je suis l'assistant de **${n}**. Mes recherches de proximité et de distance se calculent dans un rayon de **${r}** autour de **${n}** — vous pouvez changer ce rayon ci-dessous ou à la voix. Comment puis-je vous aider ?`,
+    platformTitle: "Assistant IA One World Morocco",
+    platformOpener: (city) =>
+      `Bonjour 👋 Je suis l'assistant **One World Morocco**. Je puise dans toute la base 1WM — restaurants, riads, sorties, activités, événements, adresses authentiques — à **${city}** et partout au Maroc. Comment puis-je vous aider ?`,
     radiusLabel: "RAYON",
     radiusChanged: (r) => `D'accord 👍 Rayon de proximité réglé sur **${r}**. Les recherches de proximité et de distance utiliseront ce périmètre.`,
     viewMap: "Voir sur la carte",
@@ -226,6 +229,9 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     hint: "AI assistant powered by One World Morocco",
     opener: (n, r) =>
       `Hi 👋 I'm the assistant for **${n}**. Nearby and distance searches are calculated within a **${r}** radius around **${n}** — you can change this radius below or by voice. How can I help?`,
+    platformTitle: "One World Morocco AI Assistant",
+    platformOpener: (city) =>
+      `Hi 👋 I'm the **One World Morocco** assistant. I draw on the whole 1WM database — restaurants, riads, going out, activities, events, authentic addresses — in **${city}** and across Morocco. How can I help?`,
     radiusLabel: "Proximity radius",
     radiusChanged: (r) => `Got it 👍 Proximity radius set to **${r}**. Nearby and distance searches will use this perimeter.`,
     viewMap: "View on map",
@@ -243,6 +249,9 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     hint: "مساعد ذكي بواسطة One World Morocco",
     opener: (n, r) =>
       `مرحبًا 👋 أنا مساعد **${n}**. تُحسب نتائج القرب والمسافات داخل نطاق **${r}** حول **${n}** — يمكنك تغيير هذا النطاق أدناه أو بالصوت. كيف يمكنني مساعدتك؟`,
+    platformTitle: "مساعد One World Morocco الذكي",
+    platformOpener: (city) =>
+      `مرحبًا 👋 أنا مساعد **One World Morocco**. أستقي من قاعدة 1WM بأكملها — مطاعم، رياضات، خروجات، أنشطة، فعاليات، عناوين أصيلة — في **${city}** وفي كل المغرب. كيف يمكنني مساعدتك؟`,
     radiusLabel: "نطاق القرب",
     radiusChanged: (r) => `تم 👍 تم ضبط نطاق القرب على **${r}**.`,
     viewMap: "عرض على الخريطة",
@@ -523,6 +532,12 @@ const EmbedAsk = () => {
   const autoHeight = !fullHeight && !inFloatingPanel && !overlay;
   // Nom personnalisé de l'assistant (champ éditable côté /affiliates/presence).
   const assistantNameParam = (params.get("name") || "").trim().slice(0, 60);
+  // Mode « plateforme » (route /embed/ask SANS slug + ?scope=platform) :
+  // assistant 1WM global, conversation NON liée à un établissement hôte.
+  // `ctx` = slug du business d'origine (vidéo/fiche) : ne sert qu'à filtrer
+  // les suggestions par ville/catégorie côté client — jamais envoyé au moteur.
+  const isPlatform = !slug && /^(1|true|platform)$/i.test(params.get("scope") || "");
+  const ctxSlug = isPlatform ? (params.get("ctx") || "").trim().slice(0, 120) : "";
   // Moteur IA : V2 uniquement (V1 retiré).
   const initialTheme = themeParam
     ? themeParam
@@ -546,6 +561,8 @@ const EmbedAsk = () => {
   }, [theme, customBg]);
   const [businessName, setBusinessName] = useState<string>("");
   const [assistantTitle, setAssistantTitle] = useState<string>("");
+  /** Mode plateforme : passe à true une fois le business `ctx` (optionnel) chargé. */
+  const [platformLoaded, setPlatformLoaded] = useState(false);
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [businessCity, setBusinessCity] = useState<string | null>(null);
   const [businessMainCategory, setBusinessMainCategory] = useState<string | null>(null);
@@ -581,8 +598,14 @@ const EmbedAsk = () => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const L = LANG_LABELS[lang];
 
+  // Mode plateforme : l'assistant est prêt sans business hôte ; le titre est
+  // institutionnel et la ville de référence vient du ctx, de la géoloc, sinon Marrakech.
+  const assistantReady = isPlatform ? platformLoaded : !!businessName;
+  const headerTitle = isPlatform ? L.platformTitle : (assistantNameParam || assistantTitle || businessName);
+  const platformCity = businessCity || geo.detectedCity || "Marrakech";
+
   // --- Persistence (localStorage): survives page reload for ~7 days per slug+lang. ---
-  const storageKey = `embed-ask:thread:${slug}:${lang}`;
+  const storageKey = `embed-ask:thread:${isPlatform ? `platform:${ctxSlug || "global"}` : slug}:${lang}`;
   const TTL_MS = 7 * 24 * 3600 * 1000;
   type PersistedThread = {
     sessionId: string;
@@ -639,6 +662,10 @@ const EmbedAsk = () => {
       body: {
         messages,
         businessSlug: slug,
+        // Mode plateforme : pas d'hôte — le moteur travaille sur la ville active
+        // (fallback Marrakech côté moteur), surface embed conservée.
+        platform: isPlatform || undefined,
+        activeCity: isPlatform ? platformCity : undefined,
         language: lang,
         sessionId: sessionIdRef.current,
         messageIndex: messageIndexRef.current,
@@ -650,11 +677,11 @@ const EmbedAsk = () => {
         radiusKm: radiusRef.current,
       },
     }),
-  }), [slug, lang]);
+  }), [slug, lang, isPlatform, platformCity]);
 
 
   const { messages, sendMessage, status, setMessages } = useChat({
-    id: `embed-${slug}-${chatKey}`,
+    id: `embed-${isPlatform ? `platform-${ctxSlug || "global"}` : slug}-${chatKey}`,
     transport,
     onError: (e) => setError(e.message),
   });
@@ -679,6 +706,8 @@ const EmbedAsk = () => {
     .filter((f) => !disabledIds.has(f.id))
     .filter((f) => !fuAllowed || fuAllowed.includes(f.id))
     .filter((f) => !usedFollowupIds.includes(f.id))
+    // Plateforme sans business ctx : masquer les relances dépendant de {businessName}
+    .filter((f) => ![f.label_fr, f.label_en, f.label_ar].some((l) => l?.includes("{businessName}")) || !!businessName)
     .map((f) => ({ id: f.id, label: pickFollowupLabel(f) }))
     .filter((f) => f.label);
 
@@ -770,8 +799,35 @@ const EmbedAsk = () => {
     } catch { /* noop */ }
   }, [inFloatingPanel, theme, activeWidgetBg]);
 
+  // Mode plateforme : pas d'hôte. On ne charge que le business `ctx` (ville +
+  // catégorie) pour filtrer les suggestions — la conversation reste sans ancrage.
+  useEffect(() => {
+    if (!isPlatform) return;
+    let cancelled = false;
+    (async () => {
+      if (ctxSlug) {
+        const { data } = await (supabase as any)
+          .from("businesses")
+          .select("name, city, main_category")
+          .eq("slug", ctxSlug)
+          .eq("is_active", true)
+          .maybeSingle();
+        if (cancelled) return;
+        // Le nom du business ctx sert uniquement à résoudre le placeholder
+        // {businessName} dans les libellés de suggestions/relances.
+        setBusinessName(((data as any)?.name as string) || null);
+        setBusinessCity(((data as any)?.city as string) || null);
+        setBusinessMainCategory(((data as any)?.main_category as string) || null);
+      }
+      if (!cancelled) setPlatformLoaded(true);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlatform, ctxSlug]);
+
   // Load host business
   useEffect(() => {
+    if (isPlatform) return;
     let cancelled = false;
     (async () => {
       const { data } = await (supabase as any)
@@ -819,8 +875,9 @@ const EmbedAsk = () => {
   }, [businessId]);
 
   // Seed the opener as an assistant UIMessage once we know the business
+  // (ou, en mode plateforme, dès que le contexte ville est prêt).
   useEffect(() => {
-    if (!businessName) return;
+    if (!assistantReady) return;
     if (messages.length > 0) return;
     if (restoredRef.current && initialPersisted?.messages?.length) {
       setMessages(initialPersisted.messages as any);
@@ -830,16 +887,21 @@ const EmbedAsk = () => {
     setMessages([{
       id: "opener",
       role: "assistant",
-      parts: [{ type: "text", text: L.opener(businessName, radiusLabel(radiusKm, lang)) }],
+      parts: [{
+        type: "text",
+        text: isPlatform
+          ? L.platformOpener(platformCity)
+          : L.opener(businessName, radiusLabel(radiusKm, lang)),
+      }],
     } as any]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [businessName, chatKey, radiusKm]);
+  }, [assistantReady, businessName, chatKey, radiusKm, platformCity]);
 
 
   // Persist thread to localStorage on every change (skip while streaming to avoid spam).
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!businessName) return;
+    if (!assistantReady) return;
     if (streaming) return;
     if (messages.length <= 1) return;
     try {
@@ -857,7 +919,9 @@ const EmbedAsk = () => {
 
 
   useEffect(() => {
-    if (!businessId) return;
+    // Mode plateforme : suggestions chargées sans hôte ; le filtre ville/catégorie
+    // utilise le business `ctx` quand il existe, sinon aucune restriction.
+    if (!isPlatform && !businessId) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
@@ -966,7 +1030,7 @@ const EmbedAsk = () => {
   }, [businessId, lang]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [messages]);
-  useEffect(() => { inputRef.current?.focus(); }, [businessName]);
+  useEffect(() => { inputRef.current?.focus(); }, [businessName, assistantReady]);
 
   const dir = lang === "ar" ? "rtl" : "ltr";
 
@@ -1811,10 +1875,10 @@ const EmbedAsk = () => {
         )}
 
         <div className="w-8 h-8 rounded-full bg-[#C24B3F] flex items-center justify-center text-white text-sm font-semibold">
-          {((assistantNameParam || assistantTitle || businessName) || "?").slice(0, 1).toUpperCase()}
+          {(headerTitle || "?").slice(0, 1).toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">
-          <div className={`font-semibold truncate text-sm ${whiteInk}`}>{assistantNameParam || assistantTitle || businessName || "…"}</div>
+          <div className={`font-semibold truncate text-sm ${whiteInk}`}>{headerTitle || "…"}</div>
           <div className={`text-[11px] truncate ${whiteInk || "opacity-60"}`}>{L.hint}</div>
         </div>
         <button
@@ -2429,9 +2493,13 @@ const EmbedAsk = () => {
           </div>
         )}
 
-        {messages.length <= 1 && !streaming && businessName && (
+        {messages.length <= 1 && !streaming && assistantReady && (
           <div className="flex flex-wrap gap-2 pt-1">
-            {suggestions.map((s) => {
+            {suggestions
+              // Plateforme sans business ctx : on masque les chips dont le
+              // libellé dépend de {businessName} (sinon « à proximité de » pendouille).
+              .filter((s) => !s.label.includes("{businessName}") || !!businessName)
+              .map((s) => {
               const label = s.label.replace(/\{businessName\}/g, businessName || "").trim();
               // Cas unique : la suggestion "Le meilleur de YouTube sur le Maroc"
               // ne passe pas par le moteur IA — elle ouvre la page /youtube.
