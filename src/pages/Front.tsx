@@ -250,6 +250,8 @@ const Front = () => {
 
   /* ---- CTA Demo : feed vidéo « découverte » (viewer unifié HomeVideoSlidePanel) ---- */
   const [demoLoading, setDemoLoading] = useState(false);
+  /* Transition « Demo » : ne laisse que le slogan, recentré plein écran */
+  const [demoIntro, setDemoIntro] = useState(false);
   const [demoList, setDemoList] = useState<any[]>([]);
   const [demoCtx, setDemoCtx] = useState<DiscoveryFeedContext | null>(null);
   const [demoActiveId, setDemoActiveId] = useState<string | null>(null);
@@ -281,7 +283,7 @@ const Front = () => {
     try {
       const { fetchDiscoveryVideoFeed } = await import("@/lib/badgeVideoFeed");
       const { items, ctx } = await fetchDiscoveryVideoFeed({ limit: 60, featuredAuthor: "Tarik Belasri" });
-      if (!items.length) return;
+      if (!items.length) { setDemoIntro(false); return; }
       setDemoList(items.map(toPanelVideo));
       setDemoCtx(ctx);
       setDemoTime(0);
@@ -526,10 +528,10 @@ const Front = () => {
       <div
         className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between px-5 py-4 pt-safe md:px-10 transition-opacity duration-300"
         style={{
-          opacity: ctaActive ? 0 : 1,
-          pointerEvents: ctaActive ? "none" : "auto",
+          opacity: ctaActive || demoIntro ? 0 : 1,
+          pointerEvents: ctaActive || demoIntro ? "none" : "auto",
         }}
-        aria-hidden={ctaActive}
+        aria-hidden={ctaActive || demoIntro}
       >
         <div className="flex items-center gap-3">
           <img src="/images/logo_blanc.webp" alt="One World Morocco" className="h-7 w-7 shrink-0 object-contain" />
@@ -637,9 +639,14 @@ const Front = () => {
         {/* Section 1 : Slogan */}
         <div
           ref={sloganSectionRef}
-          className="relative flex flex-1 flex-col items-center justify-center overflow-hidden"
+          className="relative flex flex-col items-center justify-center overflow-hidden"
+          style={{
+            flex: "1 1 0%",
+            transition: "flex-grow 700ms cubic-bezier(.22,1,.36,1)",
+          }}
           onClick={(e) => e.stopPropagation()}
         >
+
 
 
 
@@ -653,8 +660,9 @@ const Front = () => {
               WebkitTextStrokeColor: "#FFFFFF",
               ...(sloganFontPx ? { fontSize: `${sloganFontPx}px` } : null),
               opacity: voiceActive ? 0 : 1,
-              animation: reduced || voiceActive ? undefined : "owmSlideDown 420ms ease-out both",
-              transition: motion,
+              transform: demoIntro && !reduced ? "scale(1.18)" : "scale(1)",
+              animation: reduced || voiceActive || demoIntro ? undefined : "owmSlideDown 420ms ease-out both",
+              transition: `transform 700ms cubic-bezier(.22,1,.36,1), ${motion}`,
             }}
             aria-hidden={voiceActive}
           >
@@ -676,9 +684,17 @@ const Front = () => {
 
         {/* Section 2 : Recherche + CTA Demo */}
         <div
-          className="flex flex-1 flex-col items-center justify-center gap-2 overflow-hidden md:gap-3"
+          className="flex flex-col items-center justify-center gap-2 overflow-hidden md:gap-3"
+          style={{
+            flex: demoIntro ? "0 1 0%" : "1 1 0%",
+            opacity: demoIntro ? 0 : 1,
+            pointerEvents: demoIntro ? "none" : "auto",
+            transition: "flex-grow 700ms cubic-bezier(.22,1,.36,1), flex-basis 700ms cubic-bezier(.22,1,.36,1), opacity 350ms ease-out",
+          }}
+          aria-hidden={demoIntro}
           onClick={(e) => e.stopPropagation()}
         >
+
           <div
             className="w-full max-w-2xl"
             onClick={(e) => e.stopPropagation()}
@@ -710,7 +726,11 @@ const Front = () => {
             <button
               type="button"
               aria-label="Demo — découverte vidéo"
-              onClick={(e) => { e.stopPropagation(); void openDemoFeed(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setDemoIntro(true);
+                window.setTimeout(() => { void openDemoFeed(); }, reduced ? 0 : 700);
+              }}
               disabled={demoLoading}
               className="demo-cta group relative overflow-hidden rounded-xl border border-white/25 bg-white/[0.08] px-6 py-2.5 backdrop-blur-2xl transition-all duration-300 hover:scale-[1.03] hover:border-white/45 hover:bg-white/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98] disabled:opacity-70"
             >
@@ -724,9 +744,17 @@ const Front = () => {
 
         {/* Section 3 : Animation (accroche + storybox) */}
         <div
-          className="flex flex-1 flex-col items-center justify-center gap-2 overflow-hidden md:gap-3"
+          className="flex flex-col items-center justify-center gap-2 overflow-hidden md:gap-3"
+          style={{
+            flex: demoIntro ? "0 1 0%" : "1 1 0%",
+            opacity: demoIntro ? 0 : 1,
+            pointerEvents: demoIntro ? "none" : "auto",
+            transition: "flex-grow 700ms cubic-bezier(.22,1,.36,1), flex-basis 700ms cubic-bezier(.22,1,.36,1), opacity 350ms ease-out",
+          }}
+          aria-hidden={demoIntro}
           onClick={(e) => e.stopPropagation()}
         >
+
           {/* Accroche fixe — apparaît après 1 s */}
           <div className="min-h-[1.75rem] md:min-h-[2.25rem]">
             {accrocheVisible && (
@@ -985,8 +1013,8 @@ const Front = () => {
           }}
           className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.8)] hover:text-gold"
           style={{
-            opacity: showCue ? 1 : 0,
-            pointerEvents: showCue ? "auto" : "none",
+            opacity: showCue && !demoIntro ? 1 : 0,
+            pointerEvents: showCue && !demoIntro ? "auto" : "none",
             animation: reduced || !showCue ? undefined : "owmSlideDown 420ms ease-out both",
             transition: motion,
           }}
@@ -1030,7 +1058,7 @@ const Front = () => {
           <Suspense fallback={null}>
             <HomeVideoSlidePanel
               open
-              onClose={() => setDemoActiveId(null)}
+              onClose={() => { setDemoActiveId(null); setDemoIntro(false); }}
               activeVideo={active as any}
               activeList={demoList as any}
               onActiveVideoChange={(v: any) => { setDemoActiveId(v.id); setDemoTime(0); void maybeLoadMoreDemo(String(v.id)); }}
