@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1853,
+  "numberOfItems": 1854,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -3601,7 +3601,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 4,
+          "reviewCount": 5,
           "bestRating": 5
         }
       }
@@ -19048,12 +19048,12 @@
     {
       "@type": "ListItem",
       "position": 655,
-      "url": "https://oneworldmorocco.com/le-menzeh-par-pierre-herme",
+      "url": "https://oneworldmorocco.com/le-menzeh",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/le-menzeh-par-pierre-herme#business",
+        "@id": "https://oneworldmorocco.com/le-menzeh#business",
         "name": "Le Menzeh par Pierre Hermé",
-        "url": "https://oneworldmorocco.com/le-menzeh-par-pierre-herme",
+        "url": "https://oneworldmorocco.com/le-menzeh",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2d40ad81-bfce-490b-adc2-6317ea9f5c75-1776011210354-nnlsd.jpg",
         "description": "Moment de douceur au coeur d’une histoire légendaire Le salon de thé le Menzeh par Pierre Hermé propose une sélection des créations de Pierre Hermé : pâtisseries, délices glacés, gâteaux de voyage, macarons, madeleines et autres gourmandises chocolatées. La carte décline également un choix de boissons dont une exquise limonade maison et un étonnant « cola marocain » élaboré à partir d’un sirop de thé Chaï, d’orange et de géranium du jardin. Sans oublier le fameux « goûter Pierre Hermé » dont l’a",
         "address": {
@@ -19071,8 +19071,8 @@
         "telephone": "+212 524 388 600",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.3,
-          "reviewCount": 26,
+          "ratingValue": 4.4,
+          "reviewCount": 31,
           "bestRating": 5
         }
       }
@@ -23097,8 +23097,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.4,
-          "reviewCount": 55,
+          "ratingValue": 4.3,
+          "reviewCount": 57,
           "bestRating": 5
         }
       }
@@ -52876,6 +52876,38 @@
     {
       "@type": "ListItem",
       "position": 1845,
+      "url": "https://oneworldmorocco.com/le-menzeh",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/le-menzeh#business",
+        "name": "Le Menzeh par Pierre Hermé",
+        "url": "https://oneworldmorocco.com/le-menzeh",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2d40ad81-bfce-490b-adc2-6317ea9f5c75-1776011210354-nnlsd.jpg",
+        "description": "Moment de douceur au coeur d’une histoire légendaire Le salon de thé le Menzeh par Pierre Hermé propose une sélection des créations de Pierre Hermé : pâtisseries, délices glacés, gâteaux de voyage, macarons, madeleines et autres gourmandises chocolatées. La carte décline également un choix de boissons dont une exquise limonade maison et un étonnant « cola marocain » élaboré à partir d’un sirop de thé Chaï, d’orange et de géranium du jardin. Sans oublier le fameux « goûter Pierre Hermé » dont l’a",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Avenue Bad Jdid",
+          "addressLocality": "Medina",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6191845,
+          "longitude": -7.9963903
+        },
+        "telephone": "+212 524 388 600",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.4,
+          "reviewCount": 31,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1846,
       "url": "https://oneworldmorocco.com/bab-doukkala-1",
       "item": {
         "@type": "LocalBusiness",
@@ -52906,7 +52938,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1846,
+      "position": 1847,
       "url": "https://oneworldmorocco.com/hanout-boutique-1",
       "item": {
         "@type": "LocalBusiness",
@@ -52936,7 +52968,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1847,
+      "position": 1848,
       "url": "https://oneworldmorocco.com/pikala",
       "item": {
         "@type": "LocalBusiness",
@@ -52962,7 +52994,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1848,
+      "position": 1849,
       "url": "https://oneworldmorocco.com/villa-jmajorelle",
       "item": {
         "@type": "LocalBusiness",
@@ -52973,7 +53005,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1849,
+      "position": 1850,
       "url": "https://oneworldmorocco.com/elevate-cycle",
       "item": {
         "@type": "LocalBusiness",
@@ -53004,7 +53036,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1850,
+      "position": 1851,
       "url": "https://oneworldmorocco.com/la-grande-table-marocaine-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -53036,7 +53068,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1851,
+      "position": 1852,
       "url": "https://oneworldmorocco.com/be-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -53067,7 +53099,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1852,
+      "position": 1853,
       "url": "https://oneworldmorocco.com/m-avenue-1",
       "item": {
         "@type": "LocalBusiness",
@@ -53099,7 +53131,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1853,
+      "position": 1854,
       "url": "https://oneworldmorocco.com/pc-gamer-maroc",
       "item": {
         "@type": "LocalBusiness",

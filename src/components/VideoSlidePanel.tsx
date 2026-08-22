@@ -1592,7 +1592,7 @@ const VideoSlidePanel = ({
               <X className="h-5 w-5" />
             </button>
             <iframe
-              src={`/embed/ask/${aiSlug}?theme=none&bg=transparent&panel=1`}
+              src={`/embed/ask/${aiSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&ink=light&panel=1`}
               title="Assistant IA"
               className="relative w-full h-full border-0"
               style={{ background: "transparent" }}
