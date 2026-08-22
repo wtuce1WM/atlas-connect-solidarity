@@ -637,9 +637,14 @@ const Front = () => {
         {/* Section 1 : Slogan */}
         <div
           ref={sloganSectionRef}
-          className="relative flex flex-1 flex-col items-center justify-center overflow-hidden"
+          className="relative flex flex-col items-center justify-center overflow-hidden"
+          style={{
+            flex: "1 1 0%",
+            transition: "flex-grow 700ms cubic-bezier(.22,1,.36,1)",
+          }}
           onClick={(e) => e.stopPropagation()}
         >
+
 
 
 
