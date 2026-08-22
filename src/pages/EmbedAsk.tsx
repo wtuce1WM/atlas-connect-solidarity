@@ -203,12 +203,15 @@ function parseRadiusCommand(text: string): number | null {
 const YOUTUBE_PAGE_SUGGESTION_ID = "63d6d717-e344-4e1b-9865-850ac1ca9126";
 
 
-const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string, radius: string) => string; radiusLabel: string; radiusChanged: (r: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
+const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string, radius: string) => string; platformTitle: string; platformOpener: (city: string) => string; radiusLabel: string; radiusChanged: (r: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
     placeholder: "Posez votre question…",
     hint: "Assistant IA propulsé par One World Morocco",
     opener: (n, r) =>
       `Bonjour 👋 Je suis l'assistant de **${n}**. Mes recherches de proximité et de distance se calculent dans un rayon de **${r}** autour de **${n}** — vous pouvez changer ce rayon ci-dessous ou à la voix. Comment puis-je vous aider ?`,
+    platformTitle: "Assistant IA One World Morocco",
+    platformOpener: (city) =>
+      `Bonjour 👋 Je suis l'assistant **One World Morocco**. Je puise dans toute la base 1WM — restaurants, riads, sorties, activités, événements, adresses authentiques — à **${city}** et partout au Maroc. Comment puis-je vous aider ?`,
     radiusLabel: "RAYON",
     radiusChanged: (r) => `D'accord 👍 Rayon de proximité réglé sur **${r}**. Les recherches de proximité et de distance utiliseront ce périmètre.`,
     viewMap: "Voir sur la carte",
