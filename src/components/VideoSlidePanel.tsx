@@ -1482,7 +1482,19 @@ const VideoSlidePanel = ({
                 <PanelSearchBar
                   iconVariant="black"
                   onOverlayChange={setSearchOverlayOpen}
-                  onAiClick={() => navigate("/search?tab=ai")}
+                  onAiClick={() => {
+                    // Assistant IA en overlay : business de la vidéo, sinon dernier
+                    // business consulté, sinon fallback sur l'onglet IA de /search.
+                    const slug = ctaBusiness?.slug
+                      || recentBusinesses.find((b) => !b.isYoutubeChannel)?.slug
+                      || null;
+                    if (slug) {
+                      setAiSlug(slug);
+                      setAiOverlayOpen(true);
+                    } else {
+                      navigate("/search?tab=ai");
+                    }
+                  }}
                   onHashtagsOverlayChange={setHashtagsOverlayOpen}
                   onSearch={(params) => {
                     const sp = new URLSearchParams(params);
