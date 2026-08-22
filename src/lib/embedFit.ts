@@ -106,7 +106,13 @@ export const applyEmbedBg = (color: string | null | undefined) => {
   // Une iframe réellement transparente ne doit pas demander au navigateur de
   // peindre son canvas natif en mode sombre. Safari/iOS transforme sinon le
   // fond transparent en noir, même si html/body/#root sont bien transparents.
-  document.documentElement.style.setProperty("color-scheme", bg === "transparent" ? "normal" : "light");
+  // EXCEPTION `preset=overlay` (usage interne, hôte sombre de l'app) : index.html
+  // a déjà aligné le color-scheme sur "dark" ; le repasser à "normal" ici ferait
+  // repeindre le canvas transparent de l'iframe en BLANC par Chromium.
+  const isInternalOverlay = /(^|[?&])preset=overlay(&|$)/.test(window.location.search);
+  if (!isInternalOverlay) {
+    document.documentElement.style.setProperty("color-scheme", bg === "transparent" ? "normal" : "light");
+  }
 
 
   return () => {
