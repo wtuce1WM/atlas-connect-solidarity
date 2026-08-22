@@ -136,6 +136,7 @@ const Front = () => {
 
   const navigate = useNavigate();
   const { language, setLanguage } = useLanguage();
+  const isMobile = useIsMobile();
   const [step, setStep] = useState(1);
   const [progress, setProgress] = useState(0);
   const [showEndCTAs, setShowEndCTAs] = useState(false);
