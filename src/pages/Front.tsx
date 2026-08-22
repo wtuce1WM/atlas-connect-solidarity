@@ -283,7 +283,7 @@ const Front = () => {
     try {
       const { fetchDiscoveryVideoFeed } = await import("@/lib/badgeVideoFeed");
       const { items, ctx } = await fetchDiscoveryVideoFeed({ limit: 60, featuredAuthor: "Tarik Belasri" });
-      if (!items.length) return;
+      if (!items.length) { setDemoIntro(false); return; }
       setDemoList(items.map(toPanelVideo));
       setDemoCtx(ctx);
       setDemoTime(0);
