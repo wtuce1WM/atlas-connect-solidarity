@@ -494,6 +494,7 @@ export type Database = {
           destination_ids: string[]
           id: string
           is_active: boolean
+          is_platform_visible: boolean
           label_ar: string | null
           label_en: string | null
           label_fr: string | null
@@ -517,6 +518,7 @@ export type Database = {
           destination_ids?: string[]
           id?: string
           is_active?: boolean
+          is_platform_visible?: boolean
           label_ar?: string | null
           label_en?: string | null
           label_fr?: string | null
@@ -540,6 +542,7 @@ export type Database = {
           destination_ids?: string[]
           id?: string
           is_active?: boolean
+          is_platform_visible?: boolean
           label_ar?: string | null
           label_en?: string | null
           label_fr?: string | null

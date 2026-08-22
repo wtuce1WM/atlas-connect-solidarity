@@ -20,6 +20,7 @@ type Row = {
   label_ar: string | null;
   sort_order: number;
   is_active: boolean;
+  is_platform_visible: boolean;
   radius_km: number | null;
   mode: string | null;
   route_override: string | null;
@@ -52,7 +53,7 @@ const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embe
     const [{ data, error }, { data: subs }, { data: bdgs }] = await Promise.all([
       (supabase as any)
         .from("ai_followups")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,radius_km,mode,route_override,category,city,subcategory_ids,badge_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,is_platform_visible,radius_km,mode,route_override,category,city,subcategory_ids,badge_ids")
         .eq("surface", surface)
         .order("sort_order", { ascending: true }),
       supabase.from("subcategories").select("id,name_fr").order("name_fr", { ascending: true }),
@@ -101,6 +102,7 @@ const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embe
         label_ar: r.label_ar,
         sort_order: r.sort_order,
         is_active: r.is_active,
+        is_platform_visible: r.is_platform_visible === true,
         radius_km: r.radius_km,
         mode: r.mode,
         route_override: r.route_override,
@@ -249,6 +251,12 @@ const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embe
                         <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
                         <span className="text-xs text-muted-foreground">{r.is_active ? "Actif" : "Inactif"}</span>
                       </div>
+                      {surface === "embed" && (
+                        <div className="flex items-center gap-2" title="Afficher cette relance dans l'assistant One World Morocco (mode plateforme, sans établissement hôte)">
+                          <Switch checked={r.is_platform_visible === true} onCheckedChange={(v) => update(r.id, { is_platform_visible: v })} />
+                          <span className="text-xs text-muted-foreground">Plateforme 1WM</span>
+                        </div>
+                      )}
                       <Button variant="ghost" size="icon" onClick={() => remove(r.id)} title="Supprimer">
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
