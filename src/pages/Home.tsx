@@ -2477,6 +2477,7 @@ const Home = () => {
             currentTime={currentTime}
             onTimeUpdate={setCurrentTime}
             returnContext={returnContext}
+            selectedBadgeId={videoBadgeFilter?.badgeId ?? null}
           />
         </Suspense>
       )}
