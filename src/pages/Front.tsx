@@ -713,7 +713,9 @@ const Front = () => {
           style={{
             flex: demoIntro ? "0 1 0%" : "1 1 0%",
             opacity: demoIntro ? 0 : 1,
-            pointerEvents: demoIntro ? "none" : "auto",
+            // Hérite de la narrative box : ne jamais forcer "auto" ici, sinon
+            // la section redevient cliquable (invisible) par-dessus l'écran 2.
+            pointerEvents: demoIntro ? "none" : undefined,
             transition: "flex-grow 700ms cubic-bezier(.22,1,.36,1), flex-basis 700ms cubic-bezier(.22,1,.36,1), opacity 350ms ease-out",
           }}
           aria-hidden={demoIntro}
@@ -742,7 +744,7 @@ const Front = () => {
             className="flex flex-col items-center gap-1"
             style={{
               opacity: voiceActive ? 0 : 1,
-              pointerEvents: voiceActive ? "none" : "auto",
+              pointerEvents: voiceActive ? "none" : undefined,
               animation: reduced || voiceActive ? undefined : "owmSlideDown 420ms ease-out both",
               transition: motion,
             }}
@@ -772,7 +774,7 @@ const Front = () => {
           style={{
             flex: demoIntro ? "0 1 0%" : "1 1 0%",
             opacity: demoIntro ? 0 : 1,
-            pointerEvents: demoIntro ? "none" : "auto",
+            pointerEvents: demoIntro ? "none" : undefined,
             transition: "flex-grow 700ms cubic-bezier(.22,1,.36,1), flex-basis 700ms cubic-bezier(.22,1,.36,1), opacity 350ms ease-out",
           }}
           aria-hidden={demoIntro}
@@ -802,7 +804,7 @@ const Front = () => {
             className="w-full max-w-2xl"
             style={{
               opacity: voiceActive ? 0 : 1,
-              pointerEvents: voiceActive || !bulletsVisible ? "none" : "auto",
+              pointerEvents: voiceActive || !bulletsVisible ? "none" : undefined,
               transition: motion,
             }}
             aria-hidden={voiceActive || !bulletsVisible}
@@ -876,7 +878,7 @@ const Front = () => {
                   style={{
                     opacity: barsVisible ? 1 : 0,
                     animation: barsVisible && !reduced ? "owmSlideDown 420ms ease-out both" : undefined,
-                    pointerEvents: barsVisible ? "auto" : "none",
+                    pointerEvents: barsVisible ? undefined : "none",
                   }}
                   aria-hidden={!barsVisible}
                 >
@@ -1018,7 +1020,7 @@ const Front = () => {
             WebkitTextStrokeWidth: "2px",
             WebkitTextStrokeColor: "#FFFFFF",
             opacity: voiceActive ? 0 : 1,
-            pointerEvents: voiceActive ? "none" : "auto",
+            pointerEvents: voiceActive ? "none" : undefined,
             ...(sloganFontPx ? { fontSize: `${isMobile ? Math.round(sloganFontPx * 0.85) : sloganFontPx}px` } : null),
           }}
           aria-hidden={voiceActive}
