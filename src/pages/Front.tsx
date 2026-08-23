@@ -40,7 +40,7 @@ const CAROUSEL_DURATIONS_MS = [
   Math.max(MIN_STEP_MS, 5000),
 ];
 
-type Step = { bullet: boolean; render: () => React.ReactNode };
+type Step = { bullet: boolean; title?: string; render: () => React.ReactNode };
 
 const STEPS: Step[] = [
   {
@@ -49,31 +49,55 @@ const STEPS: Step[] = [
   },
   {
     bullet: true,
-    render: () => <>Notre App fait ce que font...</>,
+    title: "Notre App fait ce que font...",
+    render: () => (
+      <>
+        TikTok/Instagram/Youtube + Google + Chat GPT + Booking + Google Maps +
+        Tripadvisor + CapCut + un site web professionnel...
+      </>
+    ),
+  },
+  { bullet: true, title: "Où ?", render: () => <>sur une seule interface...</> },
+  {
+    bullet: true,
+    title: "Agent IA personnalisé",
+    render: () => <>avec un Agent IA personnalisé...</>,
   },
   {
     bullet: true,
-    render: () => <>Où ?</>,
+    title: "Comment ?",
+    render: () => (
+      <>sur 3 surfaces : orienté client / entreprise hôte / plateforme 1WM...</>
+    ),
   },
   {
     bullet: true,
-    render: () => <>Agent IA personnalisé</>,
+    title: "Du digital au local",
+    render: () => (
+      <>
+        avec un modèle économique direct-to-local, sans commission et solidaire :
+      </>
+    ),
   },
   {
     bullet: true,
-    render: () => <>Comment ?</>,
+    title: "Du digital au solidaire",
+    render: () => (
+      <>
+        <strong className="font-normal text-white">20 %</strong> des abonnements des
+        affiliés sont destinés à des causes humanitaires au Maroc...
+      </>
+    ),
   },
   {
     bullet: true,
-    render: () => <>Du digital au local</>,
-  },
-  {
-    bullet: true,
-    render: () => <>Du digital au solidaire</>,
-  },
-  {
-    bullet: true,
-    render: () => <>Notre philosophie</>,
+    title: "Notre philosophie",
+    render: () => (
+      <>
+        Parce que créer de la valeur ne devrait pas seulement profiter à ceux qui la
+        créent.
+      </>
+    ),
   },
 ];
 
