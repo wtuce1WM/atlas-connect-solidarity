@@ -1375,7 +1375,9 @@ const VideoSlidePanel = ({
                     />
                   );
                 }
-                if (owner && owner.name && !feedLayout) {
+                // Feed inclus : vidéo interne sans compte social → badge noir
+                // « Nom © » cliquable (fiche business) au-dessus de la barre info.
+                if (owner && owner.name) {
                   return (
                     <div
                       key={`credit-owner-${videoId || videoUrl}`}
