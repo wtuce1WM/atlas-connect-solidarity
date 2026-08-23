@@ -171,11 +171,12 @@ const VideoSlidePanel = ({
   hideLeftCtas = false,
   manualCardLabel = null,
   price = null,
-  feedBadges = null,
-  onFeedBadgeSelect,
-  feedLayout = false,
-  aiMode = "business",
-}: VideoSlidePanelProps) => {
+    feedBadges = null,
+    onFeedBadgeSelect,
+    selectedBadgeId = null,
+    feedLayout = false,
+    aiMode = "business",
+  }: VideoSlidePanelProps) => {
 
   const navigate = useLocalizedNavigate();
   const rawNavigate = useNavigate();
