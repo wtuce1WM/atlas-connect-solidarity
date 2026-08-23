@@ -195,6 +195,7 @@ const Front = () => {
     };
   }, [isPortrait]);
 
+
   // progression virtuelle lissée
   const setTarget = useCallback(
     (v: number) => {
@@ -269,6 +270,18 @@ const Front = () => {
      actuel) ou plateforme 1WM (moteur global, sans ancrage établissement) */
   const [demoChoiceOpen, setDemoChoiceOpen] = useState(false);
   const [demoAiMode, setDemoAiMode] = useState<"business" | "platform">("business");
+
+  // Pause/play de la vidéo de fond synchronisé avec l'ouverture/fermeture du
+  // viewer vidéo de la démo (animation de disparition du Hero).
+  useEffect(() => {
+    const video = backgroundVideoRef.current;
+    if (!video) return;
+    if (demoIntro || demoActiveId) {
+      video.pause();
+    } else {
+      void video.play().catch(() => undefined);
+    }
+  }, [demoIntro, demoActiveId, isPortrait]);
 
   const toPanelVideo = (v: BadgeVideoFeedItem) => ({
     id: v.id,
