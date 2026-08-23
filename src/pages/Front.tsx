@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { BadgeVideoFeedItem, DiscoveryFeedContext } from "@/lib/badgeVideoFeed";
 
 // Lecteur unifié du feed vidéo (même viewer que la route IA `video_feed`).
@@ -374,6 +374,7 @@ const Front = () => {
   const [sloganFontPx, setSloganFontPx] = useState<number | null>(null);
   const [sloganCompact, setSloganCompact] = useState(false);
   const [panelSloganFontPx, setPanelSloganFontPx] = useState<number | null>(null);
+  const sloganFitIterRef = useRef(0);
 
   useEffect(() => {
     const LEADING = 1.12;
