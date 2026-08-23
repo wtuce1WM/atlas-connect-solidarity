@@ -800,7 +800,9 @@ const Front = () => {
                   <img
                     src={hamsaIcon.url}
                     alt=""
-                    className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
+                    className={`mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6 transition-opacity duration-300 ${
+                      bulletsVisible && step >= 1 ? "opacity-100" : "opacity-0"
+                    }`}
                     loading="eager"
                   />
                   <div className="grid grid-cols-1">
