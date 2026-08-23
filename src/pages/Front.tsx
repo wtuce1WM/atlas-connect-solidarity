@@ -258,6 +258,7 @@ const Front = () => {
   const [demoCtx, setDemoCtx] = useState<DiscoveryFeedContext | null>(null);
   const [demoActiveId, setDemoActiveId] = useState<string | null>(null);
   const [demoTime, setDemoTime] = useState(0);
+  const [demoBadgeId, setDemoBadgeId] = useState<string | null>(null);
   const demoLoadingMoreRef = useRef(false);
   /* Choix temporaire de l'assistant IA pour la démo : business hôte (comportement
      actuel) ou plateforme 1WM (moteur global, sans ancrage établissement) */
