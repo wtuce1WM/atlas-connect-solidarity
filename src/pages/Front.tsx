@@ -195,6 +195,18 @@ const Front = () => {
     };
   }, [isPortrait]);
 
+  // Pause/play de la vidéo de fond synchronisé avec l'ouverture/fermeture du
+  // viewer vidéo de la démo (animation de disparition du Hero).
+  useEffect(() => {
+    const video = backgroundVideoRef.current;
+    if (!video) return;
+    if (demoIntro || demoActiveId) {
+      video.pause();
+    } else {
+      void video.play().catch(() => undefined);
+    }
+  }, [demoIntro, demoActiveId, isPortrait]);
+
   // progression virtuelle lissée
   const setTarget = useCallback(
     (v: number) => {
