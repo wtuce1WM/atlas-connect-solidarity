@@ -1119,42 +1119,74 @@ const VideoSlidePanel = ({
           </div>
         )}
 
-        {/* Chips badges (« Activé sur le front ») en haut de la vidéo — feed uniquement.
-            Positionnées sous le badge Sauvegarder (toolbar haute) pour rester lisibles
-            sans masquer le contenu principal. z-index maximal sous les overlays majeurs
-            (description, recherche, etc.) pour passer au-dessus de l'ID vidéo temporaire
-            et des cartes POI/business du timeframe. */}
-        {feedLayout && !!feedBadges?.length && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
+        {/* Tableau de 2 colonnes de chips badges en haut de la vidéo — feed uniquement.
+            Colonne de gauche : menu fixe de 9 filtres (Points d'intérêt, Guide, Famille,
+            Enfants, Annonces, Deals, Day Pass, Avis clients, Agenda).
+            Colonne de droite : badges effectivement liés à la vidéo, les uns au-dessus des autres.
+            Clic sur un chip → relance le feed sur ce badge. */}
+        {feedLayout && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
-          <div className="absolute top-16 left-3 right-3 z-[100] flex flex-col items-center gap-1.5 pointer-events-none">
-            {feedBadges.map((b) => {
-              const isSelected = selectedBadgeId && b.id === selectedBadgeId;
-              return (
-                <button
-                  key={b.id}
-                  type="button"
-                  disabled={!onFeedBadgeSelect}
-                  onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.name })}
-                  className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
-                    isSelected
-                      ? "border-gold bg-gold text-gold-foreground"
-                      : "border-white/25 text-white"
-                  }`}
-                  style={
-                    isSelected
-                      ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
-                      : {
-                          backgroundColor: b.color || "rgba(0,0,0,0.7)",
-                          color: b.text_color || "#FFFFFF",
-                          fontFamily: "'Montserrat',system-ui,sans-serif",
-                        }
-                  }
-                  title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
-                >
-                  {b.name}
-                </button>
-              );
-            })}
+          <div className="absolute top-16 left-3 right-3 z-[100] grid grid-cols-2 gap-2 pointer-events-none">
+            <div className="flex flex-col items-end gap-1.5">
+              {LEFT_COLUMN_BADGES.map((b) => {
+                const isSelected = selectedBadgeId && b.id === selectedBadgeId;
+                return (
+                  <button
+                    key={b.id}
+                    type="button"
+                    disabled={!onFeedBadgeSelect}
+                    onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.label })}
+                    className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
+                      isSelected
+                        ? "border-gold bg-gold text-gold-foreground"
+                        : "border-white/25"
+                    }`}
+                    style={
+                      isSelected
+                        ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
+                        : {
+                            backgroundColor: b.color || "rgba(0,0,0,0.7)",
+                            color: b.textColor || "#FFFFFF",
+                            fontFamily: "'Montserrat',system-ui,sans-serif",
+                          }
+                    }
+                    title={onFeedBadgeSelect ? `Voir les vidéos ${b.label}` : b.label}
+                  >
+                    {b.label}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex flex-col items-start gap-1.5">
+              {feedBadges?.filter((b) => !LEFT_COLUMN_BADGES.some((lb) => lb.id === b.id)).map((b) => {
+                const isSelected = selectedBadgeId && b.id === selectedBadgeId;
+                return (
+                  <button
+                    key={b.id}
+                    type="button"
+                    disabled={!onFeedBadgeSelect}
+                    onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.name })}
+                    className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
+                      isSelected
+                        ? "border-gold bg-gold text-gold-foreground"
+                        : "border-white/25 text-white"
+                    }`}
+                    style={
+                      isSelected
+                        ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
+                        : {
+                            backgroundColor: b.color || "rgba(0,0,0,0.7)",
+                            color: b.text_color || "#FFFFFF",
+                            fontFamily: "'Montserrat',system-ui,sans-serif",
+                          }
+                    }
+                    title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
+                  >
+                    {b.name}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
