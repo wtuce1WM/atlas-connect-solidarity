@@ -229,7 +229,6 @@ const Front = () => {
 
   const [auto, setAuto] = useState(true);
   const [voiceActive, setVoiceActive] = useState(false);
-  const [accrocheVisible, setAccrocheVisible] = useState(false);
   const [bulletsVisible, setBulletsVisible] = useState(false);
 
   /* ---- CTA Demo : feed vidéo « découverte » (viewer unifié HomeVideoSlidePanel) ---- */
