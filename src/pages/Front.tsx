@@ -450,7 +450,7 @@ const Front = () => {
       ctx.font = `900 ${refSize}px 'Montserrat', sans-serif`;
       ctx.letterSpacing = "-0.025em";
       const measured = ctx.measureText(LONGEST).width;
-      const sizeByWidth = (targetW / measured) * refSize;
+      const sizeByWidth = ((targetW / measured) * refSize) * WIDTH_SAFETY;
       const sizeByHeight = targetH / (3 * LEADING);
       const size = Math.max(24, Math.min(sizeByWidth, sizeByHeight));
       setPanelSloganFontPx(size);
