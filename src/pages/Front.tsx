@@ -717,10 +717,10 @@ const Front = () => {
       {/* Bloc central — 3 sections égales entre header et CTA Découvrir */}
       <div
         ref={narrativeBoxRef}
-        className={`absolute z-20 flex flex-col px-5 pt-16 pb-16 md:px-10 md:pt-14 md:pb-10 lg:px-16 ${
+        className={`absolute z-20 flex flex-col px-5 pt-16 pb-16 md:pt-14 md:pb-10 ${
           demoActiveId
-            ? "inset-0 md:inset-auto md:left-0 md:top-0 md:bottom-0 md:w-1/2"
-            : "inset-0"
+            ? "inset-0 md:inset-auto md:left-0 md:top-0 md:bottom-0 md:w-1/2 md:px-3 lg:px-4"
+            : "inset-0 md:px-10 lg:px-16"
         }`}
         style={{
           opacity: narrativeOpacity,
