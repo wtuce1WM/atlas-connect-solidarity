@@ -374,7 +374,6 @@ const Front = () => {
   const [sloganFontPx, setSloganFontPx] = useState<number | null>(null);
   const [sloganCompact, setSloganCompact] = useState(false);
   const [panelSloganFontPx, setPanelSloganFontPx] = useState<number | null>(null);
-  const sloganFitIterRef = useRef(0);
 
   useEffect(() => {
     const LEADING = 1.12;
@@ -416,106 +415,62 @@ const Front = () => {
   }, []);
 
   // Auto-fit du slogan dans le panneau de gauche quand VideoSlidePanel est ouvert
-  // (desktop uniquement). Le mot le plus long (SOLIDAIRE) doit tenir en largeur,
-  // les 3 lignes doivent tenir en hauteur, avec une marge interne confortable.
+  // (desktop uniquement). Sonde DOM : on mesure la largeur RÉELLEMENT rendue du
+  // mot le plus long à 100px (vraie police, vrai letter-spacing), puis on met à
+  // l'échelle. La mesure canvas était fausse (~20 %) selon le chargement des
+  // fontes. Le ResizeObserver recalcule pendant/après la transition d'ouverture
+  // du panneau (la hauteur de section grandit quand les sections 2/3 se replient).
   useEffect(() => {
     if (!demoActiveId || isMobile) {
       setPanelSloganFontPx(null);
       return;
     }
-    sloganFitIterRef.current = 0;
-    const LONGEST = "SOLIDAIRE";
     const LEADING = 1.12;
-    const PAD_X = 48;
-    const PAD_Y = 48;
+    const PAD = 48;
     const STROKE = 4; // marge pour le contour 2px de chaque côté
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
 
-    let cancelled = false;
     const compute = () => {
       const section = sloganSectionRef.current;
-      if (!section) return;
-      const cs = getComputedStyle(section);
-      const availW =
-        section.clientWidth -
-        parseFloat(cs.paddingLeft) -
-        parseFloat(cs.paddingRight);
-      const availH =
-        section.clientHeight -
-        parseFloat(cs.paddingTop) -
-        parseFloat(cs.paddingBottom);
+      const h1 = section?.querySelector("h1") as HTMLElement | null;
+      if (!section || !h1) return;
+      const spans = h1.querySelectorAll("span");
+      if (!spans.length) return;
+      const availW = section.clientWidth - PAD * 2 - STROKE * 2;
+      const availH = section.clientHeight - PAD * 2;
       if (availW <= 0 || availH <= 0) return;
 
-      const targetW = Math.max(1, availW - PAD_X * 2 - STROKE * 2);
-      const targetH = Math.max(1, availH - PAD_Y * 2);
+      // Sonde à 100px, transform neutralisé (la transition scale gonfle la
+      // mesure). Mutations synchrones restaurées avant tout repaint.
+      const prevFs = h1.style.fontSize;
+      const prevTr = h1.style.transform;
+      h1.style.fontSize = "100px";
+      h1.style.transform = "none";
+      const range = document.createRange();
+      let maxW = 0;
+      spans.forEach((s) => {
+        range.selectNodeContents(s);
+        maxW = Math.max(maxW, range.getBoundingClientRect().width);
+      });
+      h1.style.fontSize = prevFs;
+      h1.style.transform = prevTr;
+      if (maxW <= 0) return;
 
-      const refSize = 100;
-      ctx.font = `900 ${refSize}px 'Montserrat', sans-serif`;
-      ctx.letterSpacing = "-0.025em";
-      const measured = ctx.measureText(LONGEST).width;
-      if (measured <= 0) return;
-      const sizeByWidth = (targetW / measured) * refSize;
-      const sizeByHeight = targetH / (3 * LEADING);
-      const size = Math.max(24, Math.min(sizeByWidth, sizeByHeight));
-      setPanelSloganFontPx(size);
+      const size = Math.max(
+        24,
+        Math.min((availW / maxW) * 100, availH / (3 * LEADING)),
+      );
+      setPanelSloganFontPx((prev) =>
+        prev !== null && Math.abs(prev - size) < 0.5 ? prev : size,
+      );
     };
 
-    // Mesurer uniquement une fois Montserrat réellement chargée, sinon le
-    // fallback sans-serif fausse la largeur de référence (slogan trop petit).
-    document.fonts.load("900 100px 'Montserrat'").then(() => {
-      if (!cancelled) compute();
-    });
     compute();
     const ro = new ResizeObserver(compute);
     if (sloganSectionRef.current) ro.observe(sloganSectionRef.current);
-    return () => {
-      cancelled = true;
-      ro.disconnect();
-    };
+    // Recalcul une fois les fontes stabilisées (swap de Montserrat).
+    document.fonts.ready.then(compute);
+    return () => ro.disconnect();
   }, [demoActiveId, isMobile]);
-
-  // Correction au réel : la mesure canvas de Montserrat peut être sous-estimée
-  // (~20 % constaté), ce qui faisait déborder SOLIDAIRE hors du panneau.
-  // Après chaque application de taille, on mesure la largeur RÉELLEMENT rendue
-  // du mot le plus long et on rescale (max 5 itérations, convergence 1,5 %).
-  useLayoutEffect(() => {
-    if (!demoActiveId || isMobile || !panelSloganFontPx) return;
-    const section = sloganSectionRef.current;
-    const h1 = section?.querySelector("h1");
-    if (!section || !h1) return;
-    const spans = h1.querySelectorAll("span");
-    if (!spans.length) return;
-    // Neutraliser le transform pendant la mesure : la transition scale(1.18)→1
-    // gonfle getBoundingClientRect (~15 %) et fausserait le ratio.
-    const prevTransform = h1.style.transform;
-    h1.style.transform = "none";
-    const range = document.createRange();
-    let maxW = 0;
-    spans.forEach((s) => {
-      range.selectNodeContents(s);
-      maxW = Math.max(maxW, range.getBoundingClientRect().width);
-    });
-    const availW = h1.clientWidth - 48 * 2 - 8; // padding 48px ×2 + stroke
-    const availH = section.clientHeight - 48 * 2;
-    h1.style.transform = prevTransform;
-    if (availW <= 0 || availH <= 0 || maxW <= 0) return;
-    const ratio = availW / maxW;
-    const heightCap = availH / (3 * 1.12);
-    if (Math.abs(1 - ratio) < 0.005 && panelSloganFontPx <= heightCap) {
-      sloganFitIterRef.current = 0;
-      return; // convergé
-    }
-    if (sloganFitIterRef.current >= 5) {
-      sloganFitIterRef.current = 0;
-      return;
-    }
-    sloganFitIterRef.current += 1;
-    setPanelSloganFontPx((v) =>
-      v ? Math.max(24, Math.min(v * ratio, heightCap)) : v,
-    );
-  }, [panelSloganFontPx, demoActiveId, isMobile]);
 
   // délai d'apparition des bullets
   useEffect(() => {
