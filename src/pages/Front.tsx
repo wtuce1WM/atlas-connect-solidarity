@@ -421,9 +421,10 @@ const Front = () => {
     if (!demoActiveId || isMobile) return;
     const LONGEST = "SOLIDAIRE";
     const LEADING = 1.12;
-    const PAD_X = 56;
-    const PAD_Y = 56;
+    const PAD_X = 48;
+    const PAD_Y = 48;
     const STROKE = 4; // marge pour le contour 2px de chaque côté
+    const WIDTH_SAFETY = 0.85; // facteur de sécurité pour le letter-spacing/stroke
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
