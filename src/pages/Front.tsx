@@ -1130,6 +1130,7 @@ const Front = () => {
               onTimeUpdate={setDemoTime}
               returnContext={null}
               onBadgeSelect={(b: any) => { void selectDemoBadge(b); }}
+              selectedBadgeId={demoBadgeId}
               aiMode={demoAiMode}
             />
           </Suspense>
