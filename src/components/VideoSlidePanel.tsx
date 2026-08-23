@@ -1595,6 +1595,7 @@ const VideoSlidePanel = ({
                 open
                 businessId={descBusinessId}
                 initialOverlay={nestedOverlayKind}
+                loadingSurface="dark"
                 onClose={() => { setDescBusinessId(null); setNestedOverlayKind("description"); }}
               />
             </Suspense>

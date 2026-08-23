@@ -249,6 +249,8 @@ interface BookOnlineSlidePanelProps {
   aiMode?: "business" | "platform";
   /** Auto-opens an overlay as soon as the data is ready (embed usage) */
   initialOverlay?: "poi" | "reviews" | "description";
+  /** Fond du squelette de chargement : "dark" pour les contextes sombres (viewer vidéo /front) */
+  loadingSurface?: "dark";
   /** Embed mode: hides the internal close/Club affordances of the auto-opened overlay */
   embedMode?: boolean;
   /** Widget only: custom hex base color for the Google map background */
@@ -272,7 +274,7 @@ const BookOnlineSlidePanelInner = ({
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
-  poiOverrideIds, poiOverrideTitle, feedLayout,
+  poiOverrideIds, poiOverrideTitle, feedLayout, loadingSurface,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const rateIframeHeight = useEmbedIframeHeight("owm-rate-height", 380);
@@ -2177,7 +2179,7 @@ const BookOnlineSlidePanelInner = ({
     // Widget carte embarqué : pas de squelette de fiche (on n'affiche jamais l'accueil du Master).
     if (isEmbedMapWidget || isPoiOnlyPanel) return <div className="h-full w-full bg-transparent" />;
     return (
-      <div className="h-full overflow-y-auto bg-background p-6 space-y-6">
+      <div className={`h-full overflow-y-auto p-6 space-y-6 ${loadingSurface === "dark" ? "bg-black" : "bg-background"}`}>
         <Skeleton className="w-full aspect-video rounded-xl" />
         <Skeleton className="h-8 w-3/4" />
         <Skeleton className="h-4 w-full" />
