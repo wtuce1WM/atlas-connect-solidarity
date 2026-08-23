@@ -459,6 +459,7 @@ const Front = () => {
         24,
         Math.min((availW / maxW) * 100, availH / (3 * LEADING)),
       );
+      console.log("[sloganfit]", { cw: section.clientWidth, ch: section.clientHeight, availW, availH, maxW, size });
       setPanelSloganFontPx((prev) =>
         prev !== null && Math.abs(prev - size) < 0.5 ? prev : size,
       );
