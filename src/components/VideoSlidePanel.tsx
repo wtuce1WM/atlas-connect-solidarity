@@ -119,6 +119,7 @@ const LEFT_COLUMN_BADGES = [
   { id: "e042e0e8-e188-4f35-9cdd-282f8ddc5106", label: "Day Pass", color: "#000000", textColor: "#FFFFFF" },
   { id: "651cb1af-63ee-4bc5-88cf-aea10a7d68c8", label: "Avis clients", color: "#000000", textColor: "#FFFFFF" },
   { id: "50472b39-d364-497f-afe7-d2aa46eb92c9", label: "Agenda", color: "#000000", textColor: "#FFFFFF" },
+  { id: "3454814c-df50-414e-b5e1-70fc3976cb30", label: "Recettes", color: "#000000", textColor: "#FFFFFF" },
 ];
 
 
