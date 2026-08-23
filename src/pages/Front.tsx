@@ -421,8 +421,9 @@ const Front = () => {
     if (!demoActiveId || isMobile) return;
     const LONGEST = "SOLIDAIRE";
     const LEADING = 1.12;
-    const PAD_X = 40;
-    const PAD_Y = 48;
+    const PAD_X = 56;
+    const PAD_Y = 56;
+    const STROKE = 4; // marge pour le contour 2px de chaque côté
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -441,11 +442,12 @@ const Front = () => {
         parseFloat(cs.paddingBottom);
       if (availW <= 0 || availH <= 0) return;
 
-      const targetW = Math.max(1, availW - PAD_X * 2);
+      const targetW = Math.max(1, availW - PAD_X * 2 - STROKE * 2);
       const targetH = Math.max(1, availH - PAD_Y * 2);
 
       const refSize = 100;
       ctx.font = `900 ${refSize}px 'Montserrat', sans-serif`;
+      ctx.letterSpacing = "-0.025em";
       const measured = ctx.measureText(LONGEST).width;
       const sizeByWidth = (targetW / measured) * refSize;
       const sizeByHeight = targetH / (3 * LEADING);
