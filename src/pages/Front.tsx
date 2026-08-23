@@ -713,7 +713,9 @@ const Front = () => {
           style={{
             flex: demoIntro ? "0 1 0%" : "1 1 0%",
             opacity: demoIntro ? 0 : 1,
-            pointerEvents: demoIntro ? "none" : "auto",
+            // Hérite de la narrative box : ne jamais forcer "auto" ici, sinon
+            // la section redevient cliquable (invisible) par-dessus l'écran 2.
+            pointerEvents: demoIntro ? "none" : undefined,
             transition: "flex-grow 700ms cubic-bezier(.22,1,.36,1), flex-basis 700ms cubic-bezier(.22,1,.36,1), opacity 350ms ease-out",
           }}
           aria-hidden={demoIntro}
