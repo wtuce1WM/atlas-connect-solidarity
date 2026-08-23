@@ -418,17 +418,20 @@ const Front = () => {
   // (desktop uniquement). Le mot le plus long (SOLIDAIRE) doit tenir en largeur,
   // les 3 lignes doivent tenir en hauteur, avec une marge interne confortable.
   useEffect(() => {
-    if (!demoActiveId || isMobile) return;
+    if (!demoActiveId || isMobile) {
+      setPanelSloganFontPx(null);
+      return;
+    }
     const LONGEST = "SOLIDAIRE";
     const LEADING = 1.12;
     const PAD_X = 48;
     const PAD_Y = 48;
     const STROKE = 4; // marge pour le contour 2px de chaque côté
-    const WIDTH_SAFETY = 0.85; // facteur de sécurité pour le letter-spacing/stroke
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    let cancelled = false;
     const compute = () => {
       const section = sloganSectionRef.current;
       if (!section) return;
@@ -450,16 +453,25 @@ const Front = () => {
       ctx.font = `900 ${refSize}px 'Montserrat', sans-serif`;
       ctx.letterSpacing = "-0.025em";
       const measured = ctx.measureText(LONGEST).width;
-      const sizeByWidth = ((targetW / measured) * refSize) * WIDTH_SAFETY;
+      if (measured <= 0) return;
+      const sizeByWidth = (targetW / measured) * refSize;
       const sizeByHeight = targetH / (3 * LEADING);
       const size = Math.max(24, Math.min(sizeByWidth, sizeByHeight));
       setPanelSloganFontPx(size);
     };
 
+    // Mesurer uniquement une fois Montserrat réellement chargée, sinon le
+    // fallback sans-serif fausse la largeur de référence (slogan trop petit).
+    document.fonts.load("900 100px 'Montserrat'").then(() => {
+      if (!cancelled) compute();
+    });
     compute();
     const ro = new ResizeObserver(compute);
     if (sloganSectionRef.current) ro.observe(sloganSectionRef.current);
-    return () => ro.disconnect();
+    return () => {
+      cancelled = true;
+      ro.disconnect();
+    };
   }, [demoActiveId, isMobile]);
 
   // délai d'apparition des bullets
@@ -705,10 +717,10 @@ const Front = () => {
       {/* Bloc central — 3 sections égales entre header et CTA Découvrir */}
       <div
         ref={narrativeBoxRef}
-        className={`absolute z-20 flex flex-col px-5 pt-16 pb-16 md:px-10 md:pt-14 md:pb-10 lg:px-16 ${
+        className={`absolute z-20 flex flex-col px-5 pt-16 pb-16 md:pt-14 md:pb-10 ${
           demoActiveId
-            ? "inset-0 md:inset-auto md:left-0 md:top-0 md:bottom-0 md:w-1/2"
-            : "inset-0"
+            ? "inset-0 md:inset-auto md:left-0 md:top-0 md:bottom-0 md:w-1/2 md:px-3 lg:px-4"
+            : "inset-0 md:px-10 lg:px-16"
         }`}
         style={{
           opacity: narrativeOpacity,
