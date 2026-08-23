@@ -775,6 +775,16 @@ const VideoSlidePanel = ({
   if (!open || !videoUrl) return null;
 
   const visibleSocial = (showSocialBadge || feedLayout) ? social : null;
+  // Badge « Nom © » = attribution EXTERNE uniquement :
+  //  - vidéo avec compte social → badge « Follow @… » (géré via visibleSocial) ;
+  //  - vidéo dont le propriétaire (owner) est un AUTRE business que
+  //    l'établissement en cours (pageBusinessId) → badge noir cliquable ;
+  //  - JAMAIS pour une vidéo interne de l'établissement en cours
+  //    (owner absent, ou owner.id === pageBusinessId, ou pas de contexte page).
+  // Les vidéos génériques ne sont jamais « internes » : leur owner est une
+  // attribution externe par nature → badge affiché dès qu'il existe.
+  const isOwnInternalVideo =
+    !isGeneric && (!owner?.id || !pageBusinessId || owner.id === pageBusinessId);
   const swipeNavigationEnabled = isMobile && !descOverlayOpen && !descBusinessId && !searchOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !agendaCity;
 
   const resetSwipe = () => {
@@ -1389,9 +1399,10 @@ const VideoSlidePanel = ({
                     />
                   );
                 }
-                // Feed inclus : vidéo interne sans compte social → badge noir
+                // Attribution externe sans compte social → badge noir
                 // « Nom © » cliquable (fiche business) au-dessus de la barre info.
-                if (owner && owner.name) {
+                // Vidéo interne de l'établissement en cours : rien.
+                if (owner && owner.name && !isOwnInternalVideo) {
                   return (
                     <div
                       key={`credit-owner-${videoId || videoUrl}`}
