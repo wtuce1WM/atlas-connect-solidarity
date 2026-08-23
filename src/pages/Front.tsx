@@ -758,23 +758,6 @@ const Front = () => {
           onClick={(e) => e.stopPropagation()}
         >
 
-          {/* Accroche fixe — apparaît après 1 s */}
-          <div className="min-h-[1.75rem] md:min-h-[2.25rem]">
-            {accrocheVisible && (
-              <p
-                className="font-roboto text-xl font-bold leading-snug text-[#F4EEE4] md:text-2xl"
-                style={{
-                  opacity: voiceActive ? 0 : 1,
-                  animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
-                  transition: motion,
-                }}
-                aria-hidden={voiceActive}
-              >
-                Notre App fait ce que font...
-              </p>
-            )}
-          </div>
-
           {/* Storybox — apparaît après 2 s ; CTAs fin de récit */}
           <div
             className="w-full max-w-2xl"
