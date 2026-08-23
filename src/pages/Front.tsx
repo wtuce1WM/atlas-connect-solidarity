@@ -498,7 +498,7 @@ const Front = () => {
     if (availW <= 0 || availH <= 0 || maxW <= 0) return;
     const ratio = availW / maxW;
     const heightCap = availH / (3 * 1.12);
-    if (Math.abs(1 - ratio) < 0.015 && panelSloganFontPx <= heightCap) {
+    if (Math.abs(1 - ratio) < 0.005 && panelSloganFontPx <= heightCap) {
       sloganFitIterRef.current = 0;
       return; // convergé
     }
@@ -508,7 +508,7 @@ const Front = () => {
     }
     sloganFitIterRef.current += 1;
     setPanelSloganFontPx((v) =>
-      v ? Math.max(24, Math.min(v * ratio * 0.99, heightCap)) : v,
+      v ? Math.max(24, Math.min(v * ratio, heightCap)) : v,
     );
   }, [panelSloganFontPx, demoActiveId, isMobile]);
 
