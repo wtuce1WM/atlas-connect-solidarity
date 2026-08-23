@@ -744,7 +744,7 @@ const Front = () => {
             className="flex flex-col items-center gap-1"
             style={{
               opacity: voiceActive ? 0 : 1,
-              pointerEvents: voiceActive ? "none" : "auto",
+              pointerEvents: voiceActive ? "none" : undefined,
               animation: reduced || voiceActive ? undefined : "owmSlideDown 420ms ease-out both",
               transition: motion,
             }}
@@ -804,7 +804,7 @@ const Front = () => {
             className="w-full max-w-2xl"
             style={{
               opacity: voiceActive ? 0 : 1,
-              pointerEvents: voiceActive || !bulletsVisible ? "none" : "auto",
+              pointerEvents: voiceActive || !bulletsVisible ? "none" : undefined,
               transition: motion,
             }}
             aria-hidden={voiceActive || !bulletsVisible}
@@ -878,7 +878,7 @@ const Front = () => {
                   style={{
                     opacity: barsVisible ? 1 : 0,
                     animation: barsVisible && !reduced ? "owmSlideDown 420ms ease-out both" : undefined,
-                    pointerEvents: barsVisible ? "auto" : "none",
+                    pointerEvents: barsVisible ? undefined : "none",
                   }}
                   aria-hidden={!barsVisible}
                 >
