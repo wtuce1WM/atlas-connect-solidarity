@@ -78,6 +78,27 @@ const DEBUG_PINNED_VIDEO_BY_BADGE: Record<string, string> = {
   "8f69db35-fc59-4c59-861e-15f748e829b8": "091bfa7b-6182-4d25-93c2-4d61d48a61ea", // Excursions
 };
 
+// Exception à l'épinglage : une vidéo générique dont les liaisons sont
+// placées sur des timeframes (cartes POI/business/destination minutées dans
+// le viewer) ne doit PAS être épinglée — l'épinglage donnerait une visibilité
+// forcée à ses liaisons timeframes (ex. Riad Dar Najat sur 091bfa7b) sans
+// que la donnée backoffice soit modifiée. Dans ce cas, on ignore le pin et
+// on laisse le mélange standard par seed décider de l'ordre.
+async function pinnedVideoUsesTimeframes(videoId: string): Promise<boolean> {
+  const countQuery = (table: string) =>
+    (supabase as any)
+      .from(table)
+      .select("generic_video_id", { count: "exact", head: true })
+      .eq("generic_video_id", videoId)
+      .eq("timeframe_enabled", true);
+  const [pois, biz, dests] = await Promise.all([
+    countQuery("generic_video_pois"),
+    countQuery("generic_video_businesses"),
+    countQuery("generic_video_destinations"),
+  ]);
+  return ((pois.count ?? 0) + (biz.count ?? 0) + (dests.count ?? 0)) > 0;
+}
+
 /**
  * Charge une page du feed portrait d'un badge, prête à alimenter
  * `HomeVideoSlidePanel` (donc `BookOnlineSlidePanel`) sans transformation.
@@ -89,7 +110,11 @@ export async function fetchBadgeVideoFeed(
   const { seed, limit = 60, offset = 0, cityIds } = options;
   // TEMPORAIRE — debug : on élargit le pool pour s'assurer de récupérer la
   // vidéo épinglée, puis on la force en tête.
-  const pinnedVideoId = offset === 0 ? DEBUG_PINNED_VIDEO_BY_BADGE[badgeId] : undefined;
+  let pinnedVideoId = offset === 0 ? DEBUG_PINNED_VIDEO_BY_BADGE[badgeId] : undefined;
+  // Exception : pas d'épinglage si la vidéo utilise des liaisons en timeframes.
+  if (pinnedVideoId && (await pinnedVideoUsesTimeframes(pinnedVideoId))) {
+    pinnedVideoId = undefined;
+  }
   const rpcLimit = pinnedVideoId ? 300 : limit;
   const { data, error } = await (supabase as any).rpc("get_badge_video_feed", {
     _badge_id: badgeId,
