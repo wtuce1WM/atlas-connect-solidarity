@@ -1159,7 +1159,12 @@ const VideoSlidePanel = ({
               })}
             </div>
             <div className="flex flex-col items-start gap-1.5">
-              {feedBadges?.filter((b) => !LEFT_COLUMN_BADGES.some((lb) => lb.id === b.id)).map((b) => {
+              {feedBadges?.filter((b) => {
+                const left = LEFT_COLUMN_BADGES.find((lb) => lb.id === b.id);
+                if (left) return false;
+                // Exclure aussi les badges dont le nom est identique à un label de gauche (insensible à la casse et aux accents)
+                return !LEFT_COLUMN_BADGES.some((lb) => lb.label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === b.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+              }).map((b) => {
                 const isSelected = selectedBadgeId && b.id === selectedBadgeId;
                 return (
                   <button
