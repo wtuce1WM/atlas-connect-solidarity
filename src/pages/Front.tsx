@@ -414,6 +414,51 @@ const Front = () => {
     };
   }, []);
 
+  // Auto-fit du slogan dans le panneau de gauche quand VideoSlidePanel est ouvert
+  // (desktop uniquement). Le mot le plus long (SOLIDAIRE) doit tenir en largeur,
+  // les 3 lignes doivent tenir en hauteur, avec une marge interne confortable.
+  useEffect(() => {
+    if (!demoActiveId || isMobile) return;
+    const LONGEST = "SOLIDAIRE";
+    const LEADING = 1.12;
+    const PAD_X = 40;
+    const PAD_Y = 48;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const compute = () => {
+      const section = sloganSectionRef.current;
+      if (!section) return;
+      const cs = getComputedStyle(section);
+      const availW =
+        section.clientWidth -
+        parseFloat(cs.paddingLeft) -
+        parseFloat(cs.paddingRight);
+      const availH =
+        section.clientHeight -
+        parseFloat(cs.paddingTop) -
+        parseFloat(cs.paddingBottom);
+      if (availW <= 0 || availH <= 0) return;
+
+      const targetW = Math.max(1, availW - PAD_X * 2);
+      const targetH = Math.max(1, availH - PAD_Y * 2);
+
+      const refSize = 100;
+      ctx.font = `900 ${refSize}px 'Montserrat', sans-serif`;
+      const measured = ctx.measureText(LONGEST).width;
+      const sizeByWidth = (targetW / measured) * refSize;
+      const sizeByHeight = targetH / (3 * LEADING);
+      const size = Math.max(24, Math.min(sizeByWidth, sizeByHeight));
+      setPanelSloganFontPx(size);
+    };
+
+    compute();
+    const ro = new ResizeObserver(compute);
+    if (sloganSectionRef.current) ro.observe(sloganSectionRef.current);
+    return () => ro.disconnect();
+  }, [demoActiveId, isMobile]);
+
   // délai d'apparition des bullets
   useEffect(() => {
     const t = window.setTimeout(() => setBulletsVisible(true), 2000);
