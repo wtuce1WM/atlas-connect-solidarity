@@ -340,6 +340,7 @@ const Front = () => {
     const { fetchDiscoveryVideoFeedForBadge } = await import("@/lib/badgeVideoFeed");
     const { items, ctx: nextCtx } = await fetchDiscoveryVideoFeedForBadge(ctx, badge.id, 60);
     if (!items.length) return;
+    setDemoBadgeId(badge.id);
     setDemoList(items.map(toPanelVideo));
     setDemoCtx(nextCtx);
     setDemoTime(0);
