@@ -45,52 +45,35 @@ type Step = { bullet: boolean; render: () => React.ReactNode };
 const STEPS: Step[] = [
   {
     bullet: false,
-    render: () => (
-      <span className="text-[#F4EEE4]">Notre App fait ce que font...</span>
-    ),
+    render: () => null,
   },
   {
     bullet: true,
-    render: () => (
-      <>
-        TikTok/Instagram/Youtube + Google + Chat GPT + Booking + Google Maps +
-        Tripadvisor + CapCut + un site web professionnel...
-      </>
-    ),
-  },
-  { bullet: true, render: () => <>sur une seule interface...</> },
-  { bullet: true, render: () => <>avec un Agent IA personnalisé...</> },
-  {
-    bullet: true,
-    render: () => (
-      <>sur 3 surfaces : orienté client / entreprise hôte / plateforme 1WM...</>
-    ),
+    render: () => <>Notre App fait ce que font...</>,
   },
   {
     bullet: true,
-    render: () => (
-      <>
-        avec un modèle économique direct-to-local, sans commission et solidaire :
-      </>
-    ),
+    render: () => <>Où ?</>,
   },
   {
     bullet: true,
-    render: () => (
-      <>
-        <strong className="font-normal text-white">20 %</strong> des abonnements des
-        affiliés sont destinés à des causes humanitaires au Maroc...
-      </>
-    ),
+    render: () => <>Agent IA personnalisé</>,
   },
   {
     bullet: true,
-    render: () => (
-      <>
-        Parce que créer de la valeur ne devrait pas seulement profiter à ceux qui la
-        créent.
-      </>
-    ),
+    render: () => <>Comment ?</>,
+  },
+  {
+    bullet: true,
+    render: () => <>Du digital au local</>,
+  },
+  {
+    bullet: true,
+    render: () => <>Du digital au solidaire</>,
+  },
+  {
+    bullet: true,
+    render: () => <>Notre philosophie</>,
   },
 ];
 
