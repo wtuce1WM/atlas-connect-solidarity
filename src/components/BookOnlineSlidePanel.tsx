@@ -249,6 +249,8 @@ interface BookOnlineSlidePanelProps {
   aiMode?: "business" | "platform";
   /** Auto-opens an overlay as soon as the data is ready (embed usage) */
   initialOverlay?: "poi" | "reviews" | "description";
+  /** Fond du squelette de chargement : "dark" pour les contextes sombres (viewer vidéo /front) */
+  loadingSurface?: "dark";
   /** Embed mode: hides the internal close/Club affordances of the auto-opened overlay */
   embedMode?: boolean;
   /** Widget only: custom hex base color for the Google map background */
