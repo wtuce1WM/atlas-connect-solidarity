@@ -45,52 +45,35 @@ type Step = { bullet: boolean; render: () => React.ReactNode };
 const STEPS: Step[] = [
   {
     bullet: false,
-    render: () => (
-      <span className="text-[#F4EEE4]">Notre App fait ce que font...</span>
-    ),
+    render: () => null,
   },
   {
     bullet: true,
-    render: () => (
-      <>
-        TikTok/Instagram/Youtube + Google + Chat GPT + Booking + Google Maps +
-        Tripadvisor + CapCut + un site web professionnel...
-      </>
-    ),
-  },
-  { bullet: true, render: () => <>sur une seule interface...</> },
-  { bullet: true, render: () => <>avec un Agent IA personnalisé...</> },
-  {
-    bullet: true,
-    render: () => (
-      <>sur 3 surfaces : orienté client / entreprise hôte / plateforme 1WM...</>
-    ),
+    render: () => <>Notre App fait ce que font...</>,
   },
   {
     bullet: true,
-    render: () => (
-      <>
-        avec un modèle économique direct-to-local, sans commission et solidaire :
-      </>
-    ),
+    render: () => <>Où ?</>,
   },
   {
     bullet: true,
-    render: () => (
-      <>
-        <strong className="font-normal text-white">20 %</strong> des abonnements des
-        affiliés sont destinés à des causes humanitaires au Maroc...
-      </>
-    ),
+    render: () => <>Agent IA personnalisé</>,
   },
   {
     bullet: true,
-    render: () => (
-      <>
-        Parce que créer de la valeur ne devrait pas seulement profiter à ceux qui la
-        créent.
-      </>
-    ),
+    render: () => <>Comment ?</>,
+  },
+  {
+    bullet: true,
+    render: () => <>Du digital au local</>,
+  },
+  {
+    bullet: true,
+    render: () => <>Du digital au solidaire</>,
+  },
+  {
+    bullet: true,
+    render: () => <>Notre philosophie</>,
   },
 ];
 
@@ -246,7 +229,6 @@ const Front = () => {
 
   const [auto, setAuto] = useState(true);
   const [voiceActive, setVoiceActive] = useState(false);
-  const [accrocheVisible, setAccrocheVisible] = useState(false);
   const [bulletsVisible, setBulletsVisible] = useState(false);
 
   /* ---- CTA Demo : feed vidéo « découverte » (viewer unifié HomeVideoSlidePanel) ---- */
@@ -394,13 +376,11 @@ const Front = () => {
     };
   }, []);
 
-  // délais d'apparition de l'accroche et des bullets
+  // délai d'apparition des bullets
   useEffect(() => {
-    const t1 = window.setTimeout(() => setAccrocheVisible(true), 1000);
-    const t2 = window.setTimeout(() => setBulletsVisible(true), 2000);
+    const t = window.setTimeout(() => setBulletsVisible(true), 2000);
     return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
+      window.clearTimeout(t);
     };
   }, []);
 
@@ -775,23 +755,6 @@ const Front = () => {
           onClick={(e) => e.stopPropagation()}
         >
 
-          {/* Accroche fixe — apparaît après 1 s */}
-          <div className="min-h-[1.75rem] md:min-h-[2.25rem]">
-            {accrocheVisible && (
-              <p
-                className="font-roboto text-xl font-bold leading-snug text-[#F4EEE4] md:text-2xl"
-                style={{
-                  opacity: voiceActive ? 0 : 1,
-                  animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
-                  transition: motion,
-                }}
-                aria-hidden={voiceActive}
-              >
-                Notre App fait ce que font...
-              </p>
-            )}
-          </div>
-
           {/* Storybox — apparaît après 2 s ; CTAs fin de récit */}
           <div
             className="w-full max-w-2xl"
@@ -834,7 +797,9 @@ const Front = () => {
                   <img
                     src={hamsaIcon.url}
                     alt=""
-                    className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
+                    className={`mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6 transition-opacity duration-300 ${
+                      bulletsVisible && step >= 1 ? "opacity-100" : "opacity-0"
+                    }`}
                     loading="eager"
                   />
                   <div className="grid grid-cols-1">
