@@ -277,10 +277,8 @@ const Front = () => {
     const video = backgroundVideoRef.current;
     if (!video) return;
     if (demoIntro || demoActiveId) {
-      console.log("[bg-video] pause", { demoIntro, demoActiveId, paused: video.paused });
       video.pause();
     } else {
-      console.log("[bg-video] play", { demoIntro, demoActiveId, paused: video.paused });
       void video.play().catch(() => undefined);
     }
   }, [demoIntro, demoActiveId, isPortrait]);
