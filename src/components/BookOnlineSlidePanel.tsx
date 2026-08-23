@@ -2846,7 +2846,7 @@ const BookOnlineSlidePanelInner = ({
               })()}
             </div>
           )}
-          {!images[0] && <div className="absolute inset-0 bg-background" />}
+          {!images[0] && <div className="absolute inset-0 bg-black" />}
           {images[0] && (
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-[42%] bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
           )}
