@@ -54,6 +54,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   hideDirections = false,
   hideSecondaryCtas = false,
   onBadgeSelect,
+  selectedBadgeId = null,
   aiMode,
 }: Props<T>) {
   const currentIndex = useMemo(
