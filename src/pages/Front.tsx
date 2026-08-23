@@ -103,13 +103,12 @@ const BULLET_WEIGHTS = CAROUSEL_DURATIONS_MS.map((d) => d / Math.min(...CAROUSEL
 
 
 const CTAS: { label: string; to: string }[] = [
-
   { label: "Installer l'App", to: "/install" },
   { label: "Devenez membre du club OWM", to: "/club" },
-  { label: "Ce que nous faisons", to: "/mission" },
   { label: "Un concept local et solidaire", to: "/corporate" },
   { label: "Ajoutez votre entreprise", to: "/join" },
   { label: "Widgets", to: "/widgets" },
+  { label: "Blog", to: "/blog" },
 ];
 
 const FRONT_LANGS = [
