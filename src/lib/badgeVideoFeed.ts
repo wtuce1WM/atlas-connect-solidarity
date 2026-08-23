@@ -87,10 +87,10 @@ export async function fetchBadgeVideoFeed(
   options: FetchBadgeVideoFeedOptions = {},
 ): Promise<BadgeVideoFeedItem[]> {
   const { seed, limit = 60, offset = 0, cityIds } = options;
-  // TEMPORAIRE — debug badge #Vlogs : on élargit le pool pour s'assurer de
-  // récupérer la vidéo cible, puis on la force en tête.
-  const isDebugVlogs = badgeId === DEBUG_VLOGS_BADGE_ID && offset === 0;
-  const rpcLimit = isDebugVlogs ? 300 : limit;
+  // TEMPORAIRE — debug : on élargit le pool pour s'assurer de récupérer la
+  // vidéo épinglée, puis on la force en tête.
+  const pinnedVideoId = offset === 0 ? DEBUG_PINNED_VIDEO_BY_BADGE[badgeId] : undefined;
+  const rpcLimit = pinnedVideoId ? 300 : limit;
   const { data, error } = await (supabase as any).rpc("get_badge_video_feed", {
     _badge_id: badgeId,
     _seed: seed ?? getBadgeFeedSeed(badgeId),
@@ -101,9 +101,9 @@ export async function fetchBadgeVideoFeed(
   if (error || !data) return [];
   let items = (data as any[]).map(mapFeedRow);
 
-  // TEMPORAIRE — debug badge #Vlogs : force 091bfa7b en première position.
-  if (isDebugVlogs) {
-    const idx = items.findIndex((i) => i.id === DEBUG_VLOGS_VIDEO_ID);
+  // TEMPORAIRE — debug : force la vidéo épinglée en première position.
+  if (pinnedVideoId) {
+    const idx = items.findIndex((i) => i.id === pinnedVideoId);
     if (idx >= 0) {
       const [forced] = items.splice(idx, 1);
       items.unshift(forced);
