@@ -101,6 +101,8 @@ interface VideoSlidePanelProps {
   feedBadges?: { id: string; name: string; color?: string | null; text_color?: string | null }[] | null;
   /** Clic sur une chip badge → relance du feed sur ce badge */
   onFeedBadgeSelect?: (badge: { id: string; name: string }) => void;
+  /** ID du badge actuellement sélectionné (affiché texte noir sur fond gold) */
+  selectedBadgeId?: string | null;
   /** Layout "feed" : pas de badge copyright, pas d'entête business, pas de chevrons (swipe vertical), nom+description au-dessus de la barre de navigation */
   feedLayout?: boolean;
   /** Variante de l'assistant IA ouvert depuis la barre : business hôte (défaut) ou plateforme 1WM (sans ancrage) */
