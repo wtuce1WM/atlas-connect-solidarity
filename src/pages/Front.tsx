@@ -487,6 +487,10 @@ const Front = () => {
     if (!section || !h1) return;
     const spans = h1.querySelectorAll("span");
     if (!spans.length) return;
+    // Neutraliser le transform pendant la mesure : la transition scale(1.18)→1
+    // gonfle getBoundingClientRect (~15 %) et fausserait le ratio.
+    const prevTransform = h1.style.transform;
+    h1.style.transform = "none";
     const range = document.createRange();
     let maxW = 0;
     spans.forEach((s) => {
@@ -495,6 +499,7 @@ const Front = () => {
     });
     const availW = h1.clientWidth - 48 * 2 - 8; // padding 48px ×2 + stroke
     const availH = section.clientHeight - 48 * 2;
+    h1.style.transform = prevTransform;
     if (availW <= 0 || availH <= 0 || maxW <= 0) return;
     const ratio = availW / maxW;
     const heightCap = availH / (3 * 1.12);
