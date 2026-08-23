@@ -70,10 +70,13 @@ export interface FetchBadgeVideoFeedOptions {
   cityIds?: string[] | null;
 }
 
-// TEMPORAIRE — debug badge #Vlogs : force une vidéo en tête de feed.
-// TODO: retirer dès que le debug est terminé.
-const DEBUG_VLOGS_BADGE_ID = "b1113b87-127a-43e0-be80-d3262934a320";
-const DEBUG_VLOGS_VIDEO_ID = "091bfa7b-6182-4d25-93c2-4d61d48a61ea";
+// TEMPORAIRE — debug : force une vidéo en tête de feed pour certains badges.
+// TODO: retirer dès que le debug est terminé (ou le transformer en règle
+// durable pilotée en backoffice si le mécanisme est validé).
+const DEBUG_PINNED_VIDEO_BY_BADGE: Record<string, string> = {
+  "b1113b87-127a-43e0-be80-d3262934a320": "091bfa7b-6182-4d25-93c2-4d61d48a61ea", // #Vlogs
+  "8f69db35-fc59-4c59-861e-15f748e829b8": "091bfa7b-6182-4d25-93c2-4d61d48a61ea", // Excursions
+};
 
 /**
  * Charge une page du feed portrait d'un badge, prête à alimenter
