@@ -746,7 +746,7 @@ const Front = () => {
                 ? {
                     fontSize: `${panelSloganFontPx}px`,
                     width: "100%",
-                    padding: "0 40px",
+                    padding: "0 56px",
                     boxSizing: "border-box",
                   }
                 : sloganFontPx
