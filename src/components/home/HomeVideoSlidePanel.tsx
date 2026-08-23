@@ -107,6 +107,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       price={activeVideo?.price || null}
       feedBadges={activeVideo?.badges ?? null}
       onFeedBadgeSelect={onBadgeSelect}
+      selectedBadgeId={selectedBadgeId}
       aiMode={aiMode}
     />
   );
