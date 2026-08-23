@@ -423,6 +423,7 @@ const Front = () => {
       setPanelSloganFontPx(null);
       return;
     }
+    sloganFitIterRef.current = 0;
     const LONGEST = "SOLIDAIRE";
     const LEADING = 1.12;
     const PAD_X = 48;
