@@ -779,6 +779,24 @@ const Front = () => {
           onClick={(e) => e.stopPropagation()}
         >
 
+          {/* Titre du bullet courant — change à chaque step, masqué sur les CTAs finaux */}
+          <div className="min-h-[1.75rem] md:min-h-[2.25rem]">
+            {bulletsVisible && !showEndCTAs && step >= 1 && STEPS[step]?.title && (
+              <p
+                key={step}
+                className="font-roboto text-xl font-bold leading-snug text-[#F4EEE4] md:text-2xl"
+                style={{
+                  opacity: voiceActive ? 0 : 1,
+                  animation: reduced ? undefined : "owmSlideDown 420ms ease-out both",
+                  transition: motion,
+                }}
+                aria-hidden={voiceActive}
+              >
+                {STEPS[step].title}
+              </p>
+            )}
+          </div>
+
           {/* Storybox — apparaît après 2 s ; CTAs fin de récit */}
           <div
             className="w-full max-w-2xl"
