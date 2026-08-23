@@ -476,6 +476,42 @@ const Front = () => {
     };
   }, [demoActiveId, isMobile]);
 
+  // Correction au réel : la mesure canvas de Montserrat peut être sous-estimée
+  // (~20 % constaté), ce qui faisait déborder SOLIDAIRE hors du panneau.
+  // Après chaque application de taille, on mesure la largeur RÉELLEMENT rendue
+  // du mot le plus long et on rescale (max 5 itérations, convergence 1,5 %).
+  useLayoutEffect(() => {
+    if (!demoActiveId || isMobile || !panelSloganFontPx) return;
+    const section = sloganSectionRef.current;
+    const h1 = section?.querySelector("h1");
+    if (!section || !h1) return;
+    const spans = h1.querySelectorAll("span");
+    if (!spans.length) return;
+    const range = document.createRange();
+    let maxW = 0;
+    spans.forEach((s) => {
+      range.selectNodeContents(s);
+      maxW = Math.max(maxW, range.getBoundingClientRect().width);
+    });
+    const availW = h1.clientWidth - 48 * 2 - 8; // padding 48px ×2 + stroke
+    const availH = section.clientHeight - 48 * 2;
+    if (availW <= 0 || availH <= 0 || maxW <= 0) return;
+    const ratio = availW / maxW;
+    const heightCap = availH / (3 * 1.12);
+    if (Math.abs(1 - ratio) < 0.015 && panelSloganFontPx <= heightCap) {
+      sloganFitIterRef.current = 0;
+      return; // convergé
+    }
+    if (sloganFitIterRef.current >= 5) {
+      sloganFitIterRef.current = 0;
+      return;
+    }
+    sloganFitIterRef.current += 1;
+    setPanelSloganFontPx((v) =>
+      v ? Math.max(24, Math.min(v * ratio * 0.99, heightCap)) : v,
+    );
+  }, [panelSloganFontPx, demoActiveId, isMobile]);
+
   // délai d'apparition des bullets
   useEffect(() => {
     const t = window.setTimeout(() => setBulletsVisible(true), 2000);
