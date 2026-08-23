@@ -376,13 +376,11 @@ const Front = () => {
     };
   }, []);
 
-  // délais d'apparition de l'accroche et des bullets
+  // délai d'apparition des bullets
   useEffect(() => {
-    const t1 = window.setTimeout(() => setAccrocheVisible(true), 1000);
-    const t2 = window.setTimeout(() => setBulletsVisible(true), 2000);
+    const t = window.setTimeout(() => setBulletsVisible(true), 2000);
     return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
+      window.clearTimeout(t);
     };
   }, []);
 
