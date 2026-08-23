@@ -5377,6 +5377,7 @@ export type Database = {
           city: string | null
           created_at: string
           description: string | null
+          duration_seconds: number | null
           id: string
           instagram_account: string | null
           instagram_url: string | null
@@ -5404,6 +5405,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           description?: string | null
+          duration_seconds?: number | null
           id?: string
           instagram_account?: string | null
           instagram_url?: string | null
@@ -5431,6 +5433,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           description?: string | null
+          duration_seconds?: number | null
           id?: string
           instagram_account?: string | null
           instagram_url?: string | null
