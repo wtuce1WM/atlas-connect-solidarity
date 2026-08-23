@@ -439,27 +439,33 @@ const Front = () => {
       const availH = section.clientHeight - PAD * 2;
       if (availW <= 0 || availH <= 0) return;
 
-      // Sonde à 100px, transform neutralisé (la transition scale gonfle la
-      // mesure). Mutations synchrones restaurées avant tout repaint.
+      // Sonde à 100px. offsetWidth est une mesure de LAYOUT : insensible au
+      // transform (la transition scale(1.18)→1 gonflait getBoundingClientRect
+      // de ×1,18). transition:none pour figer toute animation en cours pendant
+      // la mesure. Mutations synchrones restaurées avant tout repaint.
       const prevFs = h1.style.fontSize;
       const prevTr = h1.style.transform;
-      h1.style.fontSize = "100px";
+      const prevTs = h1.style.transition;
+      h1.style.transition = "none";
       h1.style.transform = "none";
-      const range = document.createRange();
+      h1.style.fontSize = "100px";
       let maxW = 0;
       spans.forEach((s) => {
-        range.selectNodeContents(s);
-        maxW = Math.max(maxW, range.getBoundingClientRect().width);
+        const el = s as HTMLElement;
+        const prevDisplay = el.style.display;
+        el.style.display = "inline-block"; // offsetWidth = largeur du mot
+        maxW = Math.max(maxW, el.offsetWidth);
+        el.style.display = prevDisplay;
       });
       h1.style.fontSize = prevFs;
       h1.style.transform = prevTr;
+      h1.style.transition = prevTs;
       if (maxW <= 0) return;
 
       const size = Math.max(
         24,
         Math.min((availW / maxW) * 100, availH / (3 * LEADING)),
       );
-      console.log("[sloganfit]", { cw: section.clientWidth, ch: section.clientHeight, availW, availH, maxW, size });
       setPanelSloganFontPx((prev) =>
         prev !== null && Math.abs(prev - size) < 0.5 ? prev : size,
       );
