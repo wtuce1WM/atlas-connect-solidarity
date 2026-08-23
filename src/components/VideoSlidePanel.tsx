@@ -1105,23 +1105,34 @@ const VideoSlidePanel = ({
         {feedLayout && !!feedBadges?.length && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
           <div className="absolute top-16 left-3 right-3 z-[100] flex flex-col items-center gap-1.5 pointer-events-none">
-            {feedBadges.map((b) => (
-              <button
-                key={b.id}
-                type="button"
-                disabled={!onFeedBadgeSelect}
-                onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.name })}
-                className="pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border border-white/25 px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide shadow-lg backdrop-blur-md transition-transform active:scale-95"
-                style={{
-                  backgroundColor: b.color || "rgba(0,0,0,0.7)",
-                  color: b.text_color || "#FFFFFF",
-                  fontFamily: "'Montserrat',system-ui,sans-serif",
-                }}
-                title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
-              >
-                {b.name}
-              </button>
-            ))}
+            {feedBadges.map((b) => {
+              const isSelected = selectedBadgeId && b.id === selectedBadgeId;
+              return (
+                <button
+                  key={b.id}
+                  type="button"
+                  disabled={!onFeedBadgeSelect}
+                  onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.name })}
+                  className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
+                    isSelected
+                      ? "border-gold bg-gold text-gold-foreground"
+                      : "border-white/25 text-white"
+                  }`}
+                  style={
+                    isSelected
+                      ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
+                      : {
+                          backgroundColor: b.color || "rgba(0,0,0,0.7)",
+                          color: b.text_color || "#FFFFFF",
+                          fontFamily: "'Montserrat',system-ui,sans-serif",
+                        }
+                  }
+                  title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
+                >
+                  {b.name}
+                </button>
+              );
+            })}
           </div>
         )}
 
