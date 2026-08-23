@@ -31,6 +31,8 @@ interface Props<T extends VideoLike> {
   hideSecondaryCtas?: boolean;
   /** Clic sur une chip badge en haut de la vidéo (relance du feed) */
   onBadgeSelect?: (badge: { id: string; name: string }) => void;
+  /** ID du badge actuellement sélectionné (affiché texte noir sur fond gold) */
+  selectedBadgeId?: string | null;
   /** Variante de l'assistant IA : business hôte (défaut) ou plateforme 1WM */
   aiMode?: "business" | "platform";
 }
@@ -52,6 +54,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   hideDirections = false,
   hideSecondaryCtas = false,
   onBadgeSelect,
+  selectedBadgeId = null,
   aiMode,
 }: Props<T>) {
   const currentIndex = useMemo(
@@ -104,6 +107,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       price={activeVideo?.price || null}
       feedBadges={activeVideo?.badges ?? null}
       onFeedBadgeSelect={onBadgeSelect}
+      selectedBadgeId={selectedBadgeId}
       aiMode={aiMode}
     />
   );

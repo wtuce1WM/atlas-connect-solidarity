@@ -258,6 +258,7 @@ const Front = () => {
   const [demoCtx, setDemoCtx] = useState<DiscoveryFeedContext | null>(null);
   const [demoActiveId, setDemoActiveId] = useState<string | null>(null);
   const [demoTime, setDemoTime] = useState(0);
+  const [demoBadgeId, setDemoBadgeId] = useState<string | null>(null);
   const demoLoadingMoreRef = useRef(false);
   /* Choix temporaire de l'assistant IA pour la démo : business hôte (comportement
      actuel) ou plateforme 1WM (moteur global, sans ancrage établissement) */
@@ -339,6 +340,7 @@ const Front = () => {
     const { fetchDiscoveryVideoFeedForBadge } = await import("@/lib/badgeVideoFeed");
     const { items, ctx: nextCtx } = await fetchDiscoveryVideoFeedForBadge(ctx, badge.id, 60);
     if (!items.length) return;
+    setDemoBadgeId(badge.id);
     setDemoList(items.map(toPanelVideo));
     setDemoCtx(nextCtx);
     setDemoTime(0);
@@ -1128,6 +1130,7 @@ const Front = () => {
               onTimeUpdate={setDemoTime}
               returnContext={null}
               onBadgeSelect={(b: any) => { void selectDemoBadge(b); }}
+              selectedBadgeId={demoBadgeId}
               aiMode={demoAiMode}
             />
           </Suspense>
