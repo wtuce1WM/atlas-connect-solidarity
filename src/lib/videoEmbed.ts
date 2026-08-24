@@ -6,10 +6,11 @@ export interface VideoEmbedInfo {
   isVertical: boolean;
 }
 
-export function getVideoEmbed(url: string, origin: string, opts?: { background?: boolean; defaultSoundOn?: boolean; autoplay?: boolean }): VideoEmbedInfo {
+export function getVideoEmbed(url: string, origin: string, opts?: { background?: boolean; defaultSoundOn?: boolean; autoplay?: boolean; controls?: boolean }): VideoEmbedInfo {
   const bg = opts?.background ?? false;
   const defaultSoundOn = opts?.defaultSoundOn ?? true;
   const autoplay = opts?.autoplay ?? true;
+  const showControls = opts?.controls ?? true;
   const ap = autoplay ? 1 : 0;
 
   // Parse start timestamp from URL: supports ?t=90, ?t=90s, ?t=1h2m3s, ?start=90, #t=90
