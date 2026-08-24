@@ -118,6 +118,15 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
     return () => window.removeEventListener("open-video-timeline-club", onOpen as EventListener);
   }, []);
 
+  // Notifie le viewer hôte (chips badges…) pour qu'elles s'effacent pendant
+  // l'affichage du popup bleu — même rôle que "club-popup-state" du ClubLoginPopup.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("video-timeline-club-state", { detail: { open: clubOpen } }));
+    return () => {
+      window.dispatchEvent(new CustomEvent("video-timeline-club-state", { detail: { open: false } }));
+    };
+  }, [clubOpen]);
+
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
