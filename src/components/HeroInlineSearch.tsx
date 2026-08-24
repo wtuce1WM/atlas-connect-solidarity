@@ -17,7 +17,10 @@ interface Props {
   voiceTextClassName?: string;
   /** Masque la barre de recherche pendant l'enregistrement vocal (overlay STT seul). */
   hideBarWhenVoiceActive?: boolean;
+  /** Élément(s) inséré à gauche des boutons Loupe/Micro sur mobile (ex: CTA Demo). */
+  leftActions?: React.ReactNode;
 }
+
 
 const normalize = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
