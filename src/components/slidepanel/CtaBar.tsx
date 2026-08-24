@@ -35,6 +35,8 @@ interface CtaBarProps {
   showGoogleMap: boolean;
   externalVideoInteractiveMode: boolean;
   effectiveMedia: any;
+  /** Hide viewer info / owner badges when an AI overlay is open (readability) */
+  aiOverlayActive?: boolean;
   bookingCta: { fullUrl: string; forceExternal?: boolean } | null;
   shopCta: { fullUrl: string; forceExternal?: boolean } | null;
   url4Cta?: { fullUrl: string; forceExternal?: boolean } | null;
@@ -124,6 +126,7 @@ export function CtaBar({
   hideDirections = false,
   hideSecondaryCtas = false,
   infoSlot,
+  aiOverlayActive = false,
 }: CtaBarProps) {
   const hasBottomActionCtas = (!cardsHidden && (!!bookingCta || (!hideSecondaryCtas && (!!shopCta || !!url4Cta || !!url5Cta)))) || (!cardsHidden && showGoogleMap && !hideDirections && business?.latitude && business?.longitude);
 
@@ -316,7 +319,7 @@ export function CtaBar({
 
 
       {/* Barre info viewer (+ CTAs liquid glass si présents) : fond continu jusqu'au bas du panneau */}
-      {infoSlot ? (
+      {infoSlot && !aiOverlayActive ? (
         <div className={`relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto rounded-t-2xl border-x border-b-0 border-white/10 md:w-[calc(100%-1rem)] md:max-w-[450px] md:mx-auto md:rounded-t-2xl md:border-x md:border-b-0 md:border-white/10 pointer-events-auto bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] ${showSearchBar ? 'pb-[calc(104px+env(safe-area-inset-bottom))] -mb-[calc(104px+env(safe-area-inset-bottom))] md:pb-[103px] md:-mb-[103px]' : 'pb-[40px] -mb-[40px]'}`}>
           {infoSlot}
 
@@ -340,25 +343,29 @@ export function CtaBar({
       )}
 
 
-      {/* Owner logo + badge */}
-      <OwnerLogoOverlay
-        key={`logo-${currentMediaIndex}`}
-        logoBigOverlay={logoBigOverlay}
-        logoBigFadingOut={logoBigFadingOut}
-        cardsHidden={cardsHidden}
-        currentMediaUrl={currentMediaUrl}
-        videoDocs={videoDocs}
-        currentBusinessId={businessId}
-      />
-      <OwnerBadge
-        key={`badge-${currentMediaIndex}`}
-        cardsHidden={cardsHidden}
-        currentMediaKind={currentMediaKind}
-        currentMediaUrl={currentMediaUrl}
-        videoDocs={videoDocs}
-        currentBusinessId={businessId}
-        onNavigateToOwner={setActiveBusinessId}
-      />
+      {/* Owner logo + badge — hidden when AI overlay is open for readability */}
+      {!aiOverlayActive && (
+        <>
+          <OwnerLogoOverlay
+            key={`logo-${currentMediaIndex}`}
+            logoBigOverlay={logoBigOverlay}
+            logoBigFadingOut={logoBigFadingOut}
+            cardsHidden={cardsHidden}
+            currentMediaUrl={currentMediaUrl}
+            videoDocs={videoDocs}
+            currentBusinessId={businessId}
+          />
+          <OwnerBadge
+            key={`badge-${currentMediaIndex}`}
+            cardsHidden={cardsHidden}
+            currentMediaKind={currentMediaKind}
+            currentMediaUrl={currentMediaUrl}
+            videoDocs={videoDocs}
+            currentBusinessId={businessId}
+            onNavigateToOwner={setActiveBusinessId}
+          />
+        </>
+      )}
 
       {/* Round play/mute controls removed — controls now live in the liquidglass CTA bar */}
     </div>
