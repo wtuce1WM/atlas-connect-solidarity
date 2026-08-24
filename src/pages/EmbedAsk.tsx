@@ -833,12 +833,14 @@ const EmbedAsk = () => {
     if (isPlatform) return;
     let cancelled = false;
     (async () => {
-      const { data } = await (supabase as any)
-        .from("businesses")
-        .select("id, name, latitude, longitude, city, main_category, url_6_title, poi_radius_km, map_bg_color")
-        .eq("slug", slug)
-        .eq("is_active", true)
-        .maybeSingle();
+      const data = await embedBusinessQuery(`ask:${slug}`, (client) =>
+        (client as any)
+          .from("businesses")
+          .select("id, name, latitude, longitude, city, main_category, url_6_title, poi_radius_km, map_bg_color")
+          .eq("slug", slug)
+          .eq("is_active", true)
+          .maybeSingle()
+      );
       if (cancelled) return;
       const row = (data || null) as any;
       const name = row?.name || "";

@@ -59,8 +59,10 @@ export default function EmbedRateUs() {
       setError(false);
       try {
         const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
-        const query = supabase.from("businesses").select(FIELDS);
-        const { data } = await (isUuid ? query.eq("id", slug) : query.eq("slug", slug)).maybeSingle();
+        const data = await embedBusinessQuery<Record<string, any>>(`avis:${slug}`, (client) => {
+          const query = client.from("businesses").select(FIELDS);
+          return (isUuid ? query.eq("id", slug) : query.eq("slug", slug)).maybeSingle();
+        });
         if (!alive) return;
         const biz = data as Record<string, any> | null;
         if (!biz) {
