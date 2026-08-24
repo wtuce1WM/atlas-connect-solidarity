@@ -275,6 +275,13 @@ const VideoSlidePanel = ({
     window.addEventListener("club-popup-state", handler);
     return () => window.removeEventListener("club-popup-state", handler);
   }, []);
+  /** Popup Club bleu du timeline overlay (GenericVideoTimelineOverlay) : idem. */
+  const [timelineClubOpen, setTimelineClubOpen] = useState(false);
+  useEffect(() => {
+    const handler = (e: Event) => setTimelineClubOpen(!!(e as CustomEvent).detail?.open);
+    window.addEventListener("video-timeline-club-state", handler);
+    return () => window.removeEventListener("video-timeline-club-state", handler);
+  }, []);
   // Feed : quand la vidéo est liée à un établissement, la barre info ouvre la
   // Full Description de BookOnlineSlidePanel de cet établissement (pas l'overlay local).
   const [descBusinessId, setDescBusinessId] = useState<string | null>(null);
@@ -1133,7 +1140,7 @@ const VideoSlidePanel = ({
             Colonne de droite : badges effectivement liés à la vidéo, les uns au-dessus des autres.
             Clic sur un chip → relance le feed sur ce badge. */}
         {feedLayout && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
-          && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && !clubPopupOpen && (
+          && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && !clubPopupOpen && !timelineClubOpen && (
           <div className="absolute top-16 left-3 right-3 z-[100] grid grid-cols-2 gap-2 pointer-events-none">
             <div className="flex flex-col items-end gap-1.5">
               {LEFT_COLUMN_BADGES.map((b) => {
