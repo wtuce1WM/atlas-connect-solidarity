@@ -296,7 +296,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/atelier-beni-nomad33</loc>
+    <loc>https://oneworldmorocco.com/atelier-beni</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -3941,7 +3941,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/marche-au-poisson-du-port-d-essaouira</loc>
+    <loc>https://oneworldmorocco.com/all-fish-essaouira-garba</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9216,6 +9216,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/atelier-beni</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/nona-s-table</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -9247,6 +9252,11 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/elevate-cycle</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/all-fish-essaouira-garba</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
