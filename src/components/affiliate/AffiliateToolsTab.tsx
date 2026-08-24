@@ -287,11 +287,22 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         title: `Assistant IA — ${businessName}`,
         maxWidth: 420,
         height: embedHeight,
+        mobileHeight: 520,
         radius: 16,
         allow: "clipboard-write; microphone",
       });
     }
-    return `<iframe src="${embedUrl}" style="${fitIframeStyle(fit, { maxWidth: 420, height: embedHeight, radius: 16, extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15)" })}" title="Assistant IA — ${businessName}" loading="lazy" allow="clipboard-write; microphone"></iframe>`;
+    return fitIframeSnippet({
+      fit,
+      url: embedUrl,
+      title: `Assistant IA — ${businessName}`,
+      maxWidth: 420,
+      height: embedHeight,
+      mobileHeight: 520,
+      radius: 16,
+      extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15)",
+      allow: "clipboard-write; microphone",
+    });
   }, [embedUrl, embedHeight, businessName, fits]);
 
   // Panneau flottant : le volet reprend exactement la couleur du widget dans le
