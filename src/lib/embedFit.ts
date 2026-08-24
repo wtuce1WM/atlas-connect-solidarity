@@ -62,6 +62,31 @@ export const fitIframeStyle = (
   return parts.join(";");
 };
 
+/** Génère un snippet `<style>` + `<iframe>` avec une hauteur mobile réduite.
+ *  Utilisé quand le widget fixe une hauteur desktop trop grande pour un écran mobile. */
+export const fitIframeSnippet = (o: {
+  fit: EmbedFit;
+  url: string;
+  title: string;
+  maxWidth?: number;
+  height: number;
+  mobileHeight: number;
+  radius?: number;
+  extra?: string;
+  allow?: string;
+}) => {
+  const id = `owm-frame-${Math.random().toString(36).slice(2, 9)}`;
+  const style = fitIframeStyle(o.fit, {
+    maxWidth: o.maxWidth,
+    height: o.height,
+    radius: o.radius,
+    extra: o.extra,
+  });
+  const allow = o.allow ? ` allow="${o.allow}"` : "";
+  return `<style>@media (max-width: 640px) { #${id} { height: ${o.mobileHeight}px !important; min-height: auto !important; } }</style>
+<iframe id="${id}" src="${o.url}" style="${style}" title="${o.title}" loading="lazy"${allow}></iframe>`;
+};
+
 /** Suffixe d'URL (`&fit=…`) à ajouter aux URLs de widget. */
 export const fitParam = (fit: EmbedFit) => (fit ? `&fit=${fit}` : "");
 
@@ -167,12 +192,16 @@ export const autoHeightSnippet = (o: {
   title: string;
   maxWidth?: number;
   height: number;
+  mobileHeight?: number;
   radius?: number;
   allow?: string;
   /** Style du conteneur (ex. position:fixed pour un bandeau footer sticky). */
   wrapperStyle?: string;
-}) =>
-  `<div style="${o.wrapperStyle ?? `width:100%;${o.maxWidth ? `max-width:${o.maxWidth}px;` : ""}margin:0 auto`}">
+}) => {
+  const mobileStyle = o.mobileHeight
+    ? `<style>@media (max-width: 640px) { #${o.id} { height: ${o.mobileHeight}px !important; max-height: ${o.mobileHeight}px !important; } }</style>`
+    : "";
+  return `${mobileStyle}<div style="${o.wrapperStyle ?? `width:100%;${o.maxWidth ? `max-width:${o.maxWidth}px;` : ""}margin:0 auto`}">
   <iframe id="${o.id}" src="${o.url}" style="width:100%;display:block;height:${o.height}px;border:0;border-radius:${o.radius ?? 20}px;background:transparent" title="${o.title}" loading="lazy"${o.allow ? ` allow="${o.allow}"` : ""}></iframe>
 </div>
 <script>
@@ -181,4 +210,5 @@ export const autoHeightSnippet = (o: {
     var f = document.getElementById("${o.id}");
     if (f) f.style.height = Math.ceil(e.data.height) + "px";
   });
-</script>`
+</script>`;
+};

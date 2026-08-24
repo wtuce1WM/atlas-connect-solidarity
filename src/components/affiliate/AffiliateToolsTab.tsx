@@ -11,7 +11,7 @@ import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExpor
 import HexColorField from "@/components/affiliate/HexColorField";
 import WidgetTester from "@/components/affiliate/WidgetTester";
 import { fetchBusinessWidgetCommon, saveBusinessWidgetSettingsForAll } from "@/lib/widgetSettings";
-import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam,
+import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitIframeSnippet, fitParam,
   cardParam, autoHeightSnippet, SIZE_OPTIONS, sizeMaxWidth, type EmbedFit, type EmbedSize } from "@/lib/embedFit";
 
 
@@ -287,11 +287,22 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         title: `Assistant IA — ${businessName}`,
         maxWidth: 420,
         height: embedHeight,
+        mobileHeight: 520,
         radius: 16,
         allow: "clipboard-write; microphone",
       });
     }
-    return `<iframe src="${embedUrl}" style="${fitIframeStyle(fit, { maxWidth: 420, height: embedHeight, radius: 16, extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15)" })}" title="Assistant IA — ${businessName}" loading="lazy" allow="clipboard-write; microphone"></iframe>`;
+    return fitIframeSnippet({
+      fit,
+      url: embedUrl,
+      title: `Assistant IA — ${businessName}`,
+      maxWidth: 420,
+      height: embedHeight,
+      mobileHeight: 520,
+      radius: 16,
+      extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15)",
+      allow: "clipboard-write; microphone",
+    });
   }, [embedUrl, embedHeight, businessName, fits]);
 
   // Panneau flottant : le volet reprend exactement la couleur du widget dans le
@@ -406,7 +417,16 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const nearbyUrl = `${SITE}/embed/nearby/${slug}?lang=${nearbyLang}${nearbyBgValid ? `&bg=${effectiveNearbyBg.slice(1)}` : ""}${fitParam(fitOf("nearby"))}`;
   const nearbySnippet = useMemo(
     () =>
-      `<iframe src="${nearbyUrl}" style="${fitIframeStyle(fitOf("nearby"), { height: nearbyHeight, radius: 16, extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15)" })}" title="À proximité — ${businessName}" loading="lazy" allow="geolocation"></iframe>`,
+      fitIframeSnippet({
+        fit: fitOf("nearby"),
+        url: nearbyUrl,
+        title: `À proximité — ${businessName}`,
+        height: nearbyHeight,
+        mobileHeight: 580,
+        radius: 16,
+        extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15)",
+        allow: "geolocation",
+      }),
     [nearbyUrl, nearbyHeight, businessName, fits]
   );
 
