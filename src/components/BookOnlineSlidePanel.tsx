@@ -5004,14 +5004,6 @@ const BookOnlineSlidePanelInner = ({
             onClick={() => setAiAssistantOpen(false)}
             aria-hidden="true"
           />
-          <button
-            type="button"
-            onClick={() => setAiAssistantOpen(false)}
-            aria-label="Fermer l'assistant IA"
-            className="absolute top-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white border border-white/25 hover:bg-black/70 transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
           {!aiAssistantReady && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 pointer-events-none">
               <div className="h-14 w-14 rounded-full border-4 border-white/15 border-t-[#D4AF37] animate-spin" />
