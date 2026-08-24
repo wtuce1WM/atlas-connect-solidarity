@@ -835,7 +835,7 @@ const VideoSlidePanel = ({
     swipeHandled.current = false;
   };
 
-  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: soundOn });
+  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: soundOn, controls: false });
   let embedUrl = embed.embedUrl;
   if (embed.type === "youtube") {
     const ytId = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];

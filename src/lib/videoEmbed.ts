@@ -6,10 +6,11 @@ export interface VideoEmbedInfo {
   isVertical: boolean;
 }
 
-export function getVideoEmbed(url: string, origin: string, opts?: { background?: boolean; defaultSoundOn?: boolean; autoplay?: boolean }): VideoEmbedInfo {
+export function getVideoEmbed(url: string, origin: string, opts?: { background?: boolean; defaultSoundOn?: boolean; autoplay?: boolean; controls?: boolean }): VideoEmbedInfo {
   const bg = opts?.background ?? false;
   const defaultSoundOn = opts?.defaultSoundOn ?? true;
   const autoplay = opts?.autoplay ?? true;
+  const showControls = opts?.controls ?? true;
   const ap = autoplay ? 1 : 0;
 
   // Parse start timestamp from URL: supports ?t=90, ?t=90s, ?t=1h2m3s, ?start=90, #t=90
@@ -48,7 +49,7 @@ export function getVideoEmbed(url: string, origin: string, opts?: { background?:
     }
     return {
       type: "youtube",
-      embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=${ap}&mute=${muteVal}&loop=0&rel=0&controls=1&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=0&fs=0&showinfo=0&autohide=1&enablejsapi=1&origin=${encodeURIComponent(origin)}${startParam}`,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=${ap}&mute=${muteVal}&loop=0&rel=0&controls=${showControls ? 1 : 0}&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=0&fs=0&showinfo=0&autohide=1&enablejsapi=1&origin=${encodeURIComponent(origin)}${startParam}`,
       isVertical: isShort,
     };
   }
