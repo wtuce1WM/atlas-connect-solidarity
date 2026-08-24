@@ -90,7 +90,7 @@ export function ToolbarPortals({
 
   const onHeartClick = async () => {
     if (!isLoggedIn) {
-      window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
+      window.dispatchEvent(new CustomEvent("open-panel-club-popup"));
       return;
     }
     if (!likeTarget.id) return;
@@ -207,7 +207,7 @@ export function ToolbarPortals({
             type="button"
             onClick={async () => {
               if (!isBookmarkLoggedIn) {
-                window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
+                window.dispatchEvent(new CustomEvent("open-panel-club-popup"));
                 return;
               }
               await toggleBookmark();
