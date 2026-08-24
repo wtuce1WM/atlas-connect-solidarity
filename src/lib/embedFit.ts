@@ -83,7 +83,7 @@ export const fitIframeSnippet = (o: {
     extra: o.extra,
   });
   const allow = o.allow ? ` allow="${o.allow}"` : "";
-  return `<style>@${o.mobileHeight <= o.height ? "media" : "media"} (max-width: 640px) { #${id} { height: ${o.mobileHeight}px !important; min-height: auto !important; } }</style>
+  return `<style>@media (max-width: 640px) { #${id} { height: ${o.mobileHeight}px !important; min-height: auto !important; } }</style>
 <iframe id="${id}" src="${o.url}" style="${style}" title="${o.title}" loading="lazy"${allow}></iframe>`;
 };
 
