@@ -2341,7 +2341,9 @@ const BookOnlineSlidePanelInner = ({
         activeInternalVideoId={activeInternalVideoLikeId}
       />
 
-      {/* ClubLoginPopup is mounted globally (SearchPage). Avoid duplicate instance here. */}
+      {/* Popup Club monté DANS le panneau : instance unique garantie côté
+          ClubLoginPopup (registre), donc pas de doublon avec SearchPage. */}
+      <ClubLoginPopup />
 
       {/* Full-bleed background — extracted component.
           Widget embarqué "carte" : pas de média de fond (évite l'écran noir + vidéo avant la carte). */}

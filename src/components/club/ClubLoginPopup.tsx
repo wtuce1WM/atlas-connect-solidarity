@@ -10,11 +10,32 @@ const T = {
   ar: { welcome: "مرحباً بكم في", clubName: "نادي OWM", title: "احفظ أماكنك المفضلة", desc: "سجّل الدخول إلى نادي OWM لحفظ أماكنك المفضلة." },
 } as const;
 
+const registry: object[] = [];
+
 const ClubLoginPopup = () => {
   const [open, setOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
   const { language } = useLanguage();
   const t = T[language as keyof typeof T] || T.fr;
+
+  // Une seule instance visible à la fois : plusieurs surfaces montent ce popup
+  // (SearchPage, HomeBottomBar, viewer vidéo…). La dernière montée gagne — c'est
+  // celle du panneau ouvert (slide panel), variante préférée.
+  useEffect(() => {
+    const token = {};
+    registry.push(token);
+    const sync = () => setIsOwner(registry[registry.length - 1] === token);
+    sync();
+    window.dispatchEvent(new Event("club-popup-registry"));
+    window.addEventListener("club-popup-registry", sync);
+    return () => {
+      const i = registry.indexOf(token);
+      if (i >= 0) registry.splice(i, 1);
+      window.removeEventListener("club-popup-registry", sync);
+      window.dispatchEvent(new Event("club-popup-registry"));
+    };
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setUserId(session?.user?.id ?? null));
@@ -31,7 +52,18 @@ const ClubLoginPopup = () => {
     return () => window.removeEventListener("open-generic-club-popup", handler);
   }, []);
 
-  if (!open || userId) return null;
+  const visible = open && !userId && isOwner;
+
+  // Notifie les surfaces hôtes (chips badges du viewer…) pour qu'elles s'effacent.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("club-popup-state", { detail: { open: visible } }));
+    return () => {
+      window.dispatchEvent(new CustomEvent("club-popup-state", { detail: { open: false } }));
+    };
+  }, [visible]);
+
+  if (!visible) return null;
+
 
   return (
     <div
