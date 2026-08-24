@@ -314,9 +314,13 @@ const Front = () => {
       setDemoTime(0);
       demoLoadingMoreRef.current = false;
       setDemoActiveId(items[0].id);
+    } catch (e) {
+      console.error("[front] openDemoFeed failed", e);
+      setDemoIntro(false);
     } finally {
       setDemoLoading(false);
     }
+
   }, [demoLoading]);
 
   /* Lancement de la démo après choix de l'assistant : pré-pan du slogan puis feed */
