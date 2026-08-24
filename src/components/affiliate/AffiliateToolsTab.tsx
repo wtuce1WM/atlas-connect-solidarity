@@ -11,7 +11,7 @@ import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExpor
 import HexColorField from "@/components/affiliate/HexColorField";
 import WidgetTester from "@/components/affiliate/WidgetTester";
 import { fetchBusinessWidgetCommon, saveBusinessWidgetSettingsForAll } from "@/lib/widgetSettings";
-import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam,
+import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitIframeSnippet, fitParam,
   cardParam, autoHeightSnippet, SIZE_OPTIONS, sizeMaxWidth, type EmbedFit, type EmbedSize } from "@/lib/embedFit";
 
 
