@@ -1036,11 +1036,8 @@ const VideoSlidePanel = ({
                     shareUrl={ctaShareUrl}
                   />
                 </div>,
-                rightEl
+                toolbarRightEl
               )}
-            </>
-          );
-        })()}
 
         {/* BusinessHeader: Logo + Nom + Ville + Quartier + Adresse */}
         {!feedLayout && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && ctaBusiness && (
