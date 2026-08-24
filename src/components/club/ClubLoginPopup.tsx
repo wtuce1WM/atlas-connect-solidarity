@@ -10,6 +10,8 @@ const T = {
   ar: { welcome: "مرحباً بكم في", clubName: "نادي OWM", title: "احفظ أماكنك المفضلة", desc: "سجّل الدخول إلى نادي OWM لحفظ أماكنك المفضلة." },
 } as const;
 
+const registry: object[] = [];
+
 const ClubLoginPopup = () => {
   const [open, setOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
