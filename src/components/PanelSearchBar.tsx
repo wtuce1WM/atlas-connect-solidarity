@@ -62,6 +62,10 @@ interface PanelSearchBarProps {
    *  instead of dispatching "open-generic-club-popup" for anonymous users — à utiliser
    *  là où ClubLoginPopup n'est pas monté (ex. viewer vidéo). */
   profileToClub?: boolean;
+  /** When true, anonymous Profil click opens the video timeline Club popup
+   *  ("open-video-timeline-club", popup bleu) au lieu du popup beige global —
+   *  à utiliser dans le viewer vidéo où GenericVideoTimelineOverlay est monté. */
+  profileToTimelineClub?: boolean;
   /** Pre-generated AI text from /search Sticky 4 — forwarded to PanelAiOverlay to keep both views in sync */
   aiAnswerText?: string | null;
   /** Businesses pool matching aiAnswerText (for thumbnail resolution) */
@@ -103,7 +107,7 @@ const Cell = ({ icon, label, onClick, ariaLabel, active }: { icon: ReactNode; la
   );
 };
 
-const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, profileToClub = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, profileToClub = false, profileToTimelineClub = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
   const navigate = useLocalizedNavigate();
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
@@ -129,11 +133,13 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
     }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) {
-      window.dispatchEvent(new Event("open-generic-club-popup"));
+      // Viewer vidéo : même popup bleu (timeline overlay) que le Bookmark du
+      // header — jamais le popup beige centré.
+      window.dispatchEvent(new Event(profileToTimelineClub ? "open-video-timeline-club" : "open-generic-club-popup"));
       return;
     }
     navigate("/club");
-  }, [navigate, profileToClub]);
+  }, [navigate, profileToClub, profileToTimelineClub]);
 
   // Notify parent when search overlay opens/closes
   const setOverlay = useCallback((open: boolean) => {

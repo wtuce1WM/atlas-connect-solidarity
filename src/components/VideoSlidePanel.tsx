@@ -943,7 +943,9 @@ const VideoSlidePanel = ({
                           return;
                         }
                         if (!isVideoLikeLoggedIn) {
-                          window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
+                          // Non connecté : en feed, même popup bleu que le Bookmark
+                          // du header (jamais le popup beige centré).
+                          window.dispatchEvent(new CustomEvent(feedLayout ? "open-video-timeline-club" : "open-generic-club-popup"));
                           return;
                         }
                         if (!videoLikeId) return;
@@ -1589,6 +1591,7 @@ const VideoSlidePanel = ({
               <div className="relative w-full h-full pointer-events-auto">
                 <PanelSearchBar
                   iconVariant="black"
+                  profileToTimelineClub
                   onOverlayChange={setSearchOverlayOpen}
                   onAiClick={() => {
                     // Assistant IA en overlay : business de la vidéo, sinon dernier
