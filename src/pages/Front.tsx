@@ -847,7 +847,7 @@ const Front = () => {
           </div>
 
           <div
-            className="flex flex-col items-center gap-1"
+            className="hidden md:flex md:flex-col items-center gap-1"
             style={{
               opacity: voiceActive ? 0 : 1,
               pointerEvents: voiceActive ? "none" : undefined,
@@ -872,6 +872,7 @@ const Front = () => {
               <span className="demo-shimmer absolute inset-0 -translate-x-full" aria-hidden="true" />
             </button>
           </div>
+
         </div>
 
         {/* Section 3 : Animation (accroche + storybox) */}
