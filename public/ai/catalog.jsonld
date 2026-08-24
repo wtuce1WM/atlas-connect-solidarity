@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1854,
+  "numberOfItems": 1856,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -1724,12 +1724,12 @@
     {
       "@type": "ListItem",
       "position": 60,
-      "url": "https://oneworldmorocco.com/atelier-beni-nomad33",
+      "url": "https://oneworldmorocco.com/atelier-beni",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/atelier-beni-nomad33#business",
+        "@id": "https://oneworldmorocco.com/atelier-beni#business",
         "name": "Atelier Beni - Nomad33",
-        "url": "https://oneworldmorocco.com/atelier-beni-nomad33",
+        "url": "https://oneworldmorocco.com/atelier-beni",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/26152d49-2481-43b6-ab4e-f7201192acec-1773991952228-8zmv3q.jpg",
         "description": "Né au cœur de Marrakech, au sein de l'espace créatif du studio Nomad33, l'Atelier Beni est le lieu où les traditions ancestrales du tissage marocain rencontrent le design moderne. Nous fabriquons chaque tapis marocain avec soin, en préservant des techniques berbères ancestrales. Notre marque internationale allie l'art authentique du tapis berbère à la décoration intérieure contemporaine, apportant luxe intemporel et héritage culturel directement dans votre intérieur. Explorez nos collections pou",
         "address": {
@@ -3402,7 +3402,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 2078,
+          "reviewCount": 2205,
           "bestRating": 5
         }
       }
@@ -10830,7 +10830,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 141,
+          "reviewCount": 150,
           "bestRating": 5
         }
       }
@@ -13512,7 +13512,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 2234,
+          "reviewCount": 2246,
           "bestRating": 5
         }
       }
@@ -15428,7 +15428,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 439,
+          "reviewCount": 466,
           "bestRating": 5
         }
       }
@@ -17067,7 +17067,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 187,
+          "reviewCount": 188,
           "bestRating": 5
         }
       }
@@ -17257,7 +17257,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 2465,
+          "reviewCount": 2588,
           "bestRating": 5
         }
       }
@@ -20699,7 +20699,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 326,
+          "reviewCount": 325,
           "bestRating": 5
         }
       }
@@ -23041,8 +23041,8 @@
         "telephone": "+212 7 00 00 06 44",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 5,
-          "reviewCount": 48,
+          "ratingValue": 4.6,
+          "reviewCount": 14,
           "bestRating": 5
         }
       }
@@ -23082,12 +23082,12 @@
     {
       "@type": "ListItem",
       "position": 789,
-      "url": "https://oneworldmorocco.com/marche-au-poisson-du-port-d-essaouira",
+      "url": "https://oneworldmorocco.com/all-fish-essaouira-garba",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/marche-au-poisson-du-port-d-essaouira#business",
+        "@id": "https://oneworldmorocco.com/all-fish-essaouira-garba#business",
         "name": "Marché au Poisson du Port d'Essaouira",
-        "url": "https://oneworldmorocco.com/marche-au-poisson-du-port-d-essaouira",
+        "url": "https://oneworldmorocco.com/all-fish-essaouira-garba",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d6ee02a6-37b4-4e23-82dc-cd23138771e1-1774076871630-58qun.webp",
         "description": "Situé au cœur du port, le marché au poisson d’Essaouira est l’un des lieux les plus authentiques et vivants de la ville. Ici, pas de mise en scène : tout est brut, direct et profondément local. Dès l’arrivée des bateaux bleus emblématiques, les pêcheurs déchargent leur prise du jour dans une atmosphère animée, rythmée par les cris, les échanges et l’énergie du port. Ce marché est avant tout une immersion dans la vie quotidienne des Souiris. Sardines, dorades, bars, calamars ou langoustes : les é",
         "geo": {
@@ -26108,7 +26108,7 @@
         "description": "location villa de luxe courte durée Marrakech My Private Villa Marrakech vous propose une sélection exclusive de villas de luxe, soigneusement choisies pour offrir confort, raffinement et intimité. Vivez une expérience unique à Marrakech, entre prestations haut de gamme et art de vivre d’exception. Bercés depuis notre plus jeune âge dans le monde hôtelier, il nous semblait donc naturel de partager notre art de recevoir et d’organiser des séjours d’évasions et d’exotisme sur mesure à travers notr",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Rés.e Hivernage Garden",
+          "streetAddress": "Rés. Hivernage Garden",
           "addressLocality": "Hivernage",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -26121,7 +26121,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 33,
+          "reviewCount": 34,
           "bestRating": 5
         }
       }
@@ -33755,8 +33755,8 @@
         "telephone": "+212 622 339 458",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.6,
-          "reviewCount": 45,
+          "ratingValue": 4.7,
+          "reviewCount": 63,
           "bestRating": 5
         }
       }
@@ -35468,7 +35468,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 131,
+          "reviewCount": 133,
           "bestRating": 5
         }
       }
@@ -35767,7 +35767,7 @@
         "description": "Chez Soufiane Zarib , nous sommes spécialisés dans les authentiques tapis Beni, tissés à la main par des artisans berbères talentueux dans les montagnes de l'Atlas marocain. Chaque pièce de notre collection est une œuvre d'art unique, alliant beauté minimaliste et tradition séculaire. Nos tapis Beni Ourain sont confectionnés en laine 100 % naturelle et arborent des motifs géométriques noirs et blancs intemporels, une texture douce et une qualité durable. Que vous optiez pour un intérieur moderne",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "16 rue sidi ali ben hamdouch da el bacha",
+          "streetAddress": "16 rue sidi ali ben hamdouch dar el bacha",
           "addressLocality": "Medina",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -35780,8 +35780,8 @@
         "telephone": "+212 615 285 690",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.4,
-          "reviewCount": 40,
+          "ratingValue": 4.3,
+          "reviewCount": 44,
           "bestRating": 5
         }
       }
@@ -36437,7 +36437,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 9,
+          "reviewCount": 10,
           "bestRating": 5
         }
       }
@@ -36649,7 +36649,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 88,
+          "reviewCount": 89,
           "bestRating": 5
         }
       }
@@ -36769,7 +36769,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 15,
+          "reviewCount": 19,
           "bestRating": 5
         }
       }
@@ -38194,7 +38194,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 109,
+          "reviewCount": 131,
           "bestRating": 5
         }
       }
@@ -38457,7 +38457,7 @@
         "description": "UNO.ma, 1er réseau de Revendeurs Agréés Apple au Maroc. Magasin situé au Menara Mall de Marrakech, proposant l'ensemble des produits Apple : iPhone, iPad, Mac, Apple Watch, AirPods et accessoires. Services de crédit 0% et reprise (Trade In) disponibles.",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Angle Bd Mohammed 6 et, Av. Prince Moulay Rachid, Menara Mall",
+          "streetAddress": "Menara Mall",
           "addressLocality": "Palmeraie",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -38471,7 +38471,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 191,
+          "reviewCount": 212,
           "bestRating": 5
         }
       }
@@ -40035,7 +40035,7 @@
         "description": "Villa Volubilia est un domaine de 90 hectares de vignes et 15 hectares d'oliviers, situé au cœur de la région de Meknès, berceau historique du vin au Maroc. Unique domaine au sein de l'AOC \"Hauts Plateaux de Meknès\", l'appellation la plus restrictive du Maroc. Fondé en 2002, le domaine propose des visites, dégustations et événements culturels sur rendez-vous, 7 jours sur 7. Le terroir se compose de terres argilo-sableuses à plus de 850 mètres d'altitude sur les contreforts de l'Atlas. Cépages : ",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Adresse Commune d'Aït Bourzouine BP63 Boufekrane،",
+          "streetAddress": "Commune d'Aït Bourzouine BP63 Boufekrane،",
           "addressRegion": "Meknès",
           "addressCountry": "MA"
         },
@@ -40818,7 +40818,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 276,
+          "reviewCount": 277,
           "bestRating": 5
         }
       }
@@ -46966,7 +46966,7 @@
         "url": "https://oneworldmorocco.com/flo-marrakech-almazar-mall",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Boutique 124-125, Almazar Mall",
+          "streetAddress": "Almazar Mall",
           "addressLocality": "Route de l’Ourika",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -47702,7 +47702,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 5,
+          "reviewCount": 6,
           "bestRating": 5
         }
       }
@@ -49963,7 +49963,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 88,
+          "reviewCount": 89,
           "bestRating": 5
         }
       }
@@ -52513,7 +52513,7 @@
         "description": "location villa de luxe courte durée Marrakech My Private Villa Marrakech vous propose une sélection exclusive de villas de luxe, soigneusement choisies pour offrir confort, raffinement et intimité. Vivez une expérience unique à Marrakech, entre prestations haut de gamme et art de vivre d’exception. Bercés depuis notre plus jeune âge dans le monde hôtelier, il nous semblait donc naturel de partager notre art de recevoir et d’organiser des séjours d’évasions et d’exotisme sur mesure à travers notr",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Rés.e Hivernage Garden",
+          "streetAddress": "Rés. Hivernage Garden",
           "addressLocality": "Hivernage",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -52526,7 +52526,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 33,
+          "reviewCount": 34,
           "bestRating": 5
         }
       }
@@ -52864,6 +52864,38 @@
     {
       "@type": "ListItem",
       "position": 1844,
+      "url": "https://oneworldmorocco.com/atelier-beni",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/atelier-beni#business",
+        "name": "Atelier Beni - Nomad33",
+        "url": "https://oneworldmorocco.com/atelier-beni",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/26152d49-2481-43b6-ab4e-f7201192acec-1773991952228-8zmv3q.jpg",
+        "description": "Né au cœur de Marrakech, au sein de l'espace créatif du studio Nomad33, l'Atelier Beni est le lieu où les traditions ancestrales du tissage marocain rencontrent le design moderne. Nous fabriquons chaque tapis marocain avec soin, en préservant des techniques berbères ancestrales. Notre marque internationale allie l'art authentique du tapis berbère à la décoration intérieure contemporaine, apportant luxe intemporel et héritage culturel directement dans votre intérieur. Explorez nos collections pou",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Rue Mohamed El Beqal N191 Res Honest Signature.",
+          "addressLocality": "Gueliz",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6331057,
+          "longitude": -8.0149254
+        },
+        "telephone": "+212 660 305536",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 3.9,
+          "reviewCount": 10,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1845,
       "url": "https://oneworldmorocco.com/nona-s-table",
       "item": {
         "@type": "LocalBusiness",
@@ -52875,7 +52907,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1845,
+      "position": 1846,
       "url": "https://oneworldmorocco.com/le-menzeh",
       "item": {
         "@type": "LocalBusiness",
@@ -52907,7 +52939,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1846,
+      "position": 1847,
       "url": "https://oneworldmorocco.com/bab-doukkala-1",
       "item": {
         "@type": "LocalBusiness",
@@ -52938,7 +52970,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1847,
+      "position": 1848,
       "url": "https://oneworldmorocco.com/hanout-boutique-1",
       "item": {
         "@type": "LocalBusiness",
@@ -52968,7 +53000,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1848,
+      "position": 1849,
       "url": "https://oneworldmorocco.com/pikala",
       "item": {
         "@type": "LocalBusiness",
@@ -52994,7 +53026,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1849,
+      "position": 1850,
       "url": "https://oneworldmorocco.com/villa-jmajorelle",
       "item": {
         "@type": "LocalBusiness",
@@ -53005,7 +53037,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1850,
+      "position": 1851,
       "url": "https://oneworldmorocco.com/elevate-cycle",
       "item": {
         "@type": "LocalBusiness",
@@ -53036,7 +53068,31 @@
     },
     {
       "@type": "ListItem",
-      "position": 1851,
+      "position": 1852,
+      "url": "https://oneworldmorocco.com/all-fish-essaouira-garba",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/all-fish-essaouira-garba#business",
+        "name": "Marché au Poisson du Port d'Essaouira",
+        "url": "https://oneworldmorocco.com/all-fish-essaouira-garba",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d6ee02a6-37b4-4e23-82dc-cd23138771e1-1774076871630-58qun.webp",
+        "description": "Situé au cœur du port, le marché au poisson d’Essaouira est l’un des lieux les plus authentiques et vivants de la ville. Ici, pas de mise en scène : tout est brut, direct et profondément local. Dès l’arrivée des bateaux bleus emblématiques, les pêcheurs déchargent leur prise du jour dans une atmosphère animée, rythmée par les cris, les échanges et l’énergie du port. Ce marché est avant tout une immersion dans la vie quotidienne des Souiris. Sardines, dorades, bars, calamars ou langoustes : les é",
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.5091468,
+          "longitude": -9.774873
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.3,
+          "reviewCount": 57,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1853,
       "url": "https://oneworldmorocco.com/la-grande-table-marocaine-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -53068,7 +53124,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1852,
+      "position": 1854,
       "url": "https://oneworldmorocco.com/be-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -53099,7 +53155,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1853,
+      "position": 1855,
       "url": "https://oneworldmorocco.com/m-avenue-1",
       "item": {
         "@type": "LocalBusiness",
@@ -53131,7 +53187,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1854,
+      "position": 1856,
       "url": "https://oneworldmorocco.com/pc-gamer-maroc",
       "item": {
         "@type": "LocalBusiness",

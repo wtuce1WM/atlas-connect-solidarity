@@ -2,9 +2,9 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-22T10:23:13.915Z",
+    "generated_at": "2026-08-24T10:21:18.507Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
-    "count": 1854
+    "count": 1856
   },
   "businesses": [
     {
@@ -4457,8 +4457,8 @@
     },
     {
       "id": "26152d49-2481-43b6-ab4e-f7201192acec",
-      "slug": "atelier-beni-nomad33",
-      "url": "https://oneworldmorocco.com/atelier-beni-nomad33",
+      "slug": "atelier-beni",
+      "url": "https://oneworldmorocco.com/atelier-beni",
       "name": "Atelier Beni - Nomad33",
       "hook": " Tapis marocains authentiques tissés à la main | Livraison gratuite dans le monde entier | Certifiés commerce équitable.",
       "description": "Né au cœur de Marrakech, au sein de l'espace créatif du studio Nomad33, l'Atelier Beni est le lieu où les traditions ancestrales du tissage marocain rencontrent le design moderne. Nous fabriquons chaque tapis marocain avec soin, en préservant des techniques berbères ancestrales. Notre marque internationale allie l'art authentique du tapis berbère à la décoration intérieure contemporaine, apportant luxe intemporel et héritage culturel directement dans votre intérieur. Explorez nos collections pou",
@@ -9590,12 +9590,10 @@
       "main_category": "Restauration",
       "categories": [
         "Restaurant",
-        "Bar",
         "Café"
       ],
       "services": [
         "Cuisine marocaine",
-        "Rooftop",
         "Salades",
         "Déjeuner",
         "Dîner",
@@ -9605,15 +9603,12 @@
         "Caves à vin",
         "Plats végétariens",
         "Plats Vegan",
-        "Cocktails",
         "Glaces / Sorbets",
-        "Cocktails sans alcool",
-        "Glacier",
-        "Smoothies",
         "Glaces",
         "Patio",
         "Snacks",
-        "Vue montagne"
+        "Vue montagne",
+        "Rooftop"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -9627,7 +9622,7 @@
       "website": "https://bazaarcafe.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/5335fdcf-596b-4e42-8727-db49e4ad97dd-1775657345091-izf7rp.jpg",
       "google_rating": 4.5,
-      "google_review_count": 2078,
+      "google_review_count": 2205,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -9690,12 +9685,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://bazaarcafe.ma/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/bazaar_cafe_marrakech/",
         "facebook": "https://www.facebook.com/bazaarcafemarrakech",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d6578048-Reviews-Bazaar_Cafe-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -13328,7 +13323,7 @@
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://boutiquesouk.com/",
+      "booking_url": "https://boutiquesouk.com/contact/",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/boutiquesouk/",
@@ -30379,7 +30374,7 @@
       "address": "El Karia",
       "phone": "+212 702-0197-17",
       "whatsapp": "+212 702-0197-17",
-      "website": null,
+      "website": "https://www.ebikemarrakech.com",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1f41d62d-e89b-4083-a5db-c0bed1740cc2-1775392467579-61y414.jpg",
       "google_rating": 4.9,
       "google_review_count": 72,
@@ -31672,7 +31667,7 @@
       "website": "https://marrakech.boutiquelesdomaines.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/78c897e1-8b59-40b2-9b56-2d656ef6ad9a-1771782192502-50hdtp.jpg",
       "google_rating": 4.2,
-      "google_review_count": 141,
+      "google_review_count": 150,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -31735,7 +31730,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://marrakech.boutiquelesdomaines.ma/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/les_domaines/",
@@ -39266,7 +39261,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/6dc80fcd-f991-489c-a8ea-f55c8d4bbb7c-1777907880801-qr2tu.jpg",
       "google_rating": 4.5,
-      "google_review_count": 2234,
+      "google_review_count": 2246,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -44846,7 +44841,11 @@
         "Hôtel"
       ],
       "services": [
-        "Piscine privative"
+        "Piscine privative",
+        "Pavillons / Villas individuelles",
+        "Jardin",
+        "Parking privé",
+        "Restauration sur place"
       ],
       "city": "Essaouira",
       "neighborhood": "Ida Aguerd",
@@ -44860,18 +44859,18 @@
       "website": "https://jardindesdouars.com/fr/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/be5478f9-b972-4b15-b313-410c4e45f03a-1777367868176-2yfh3en.jpg",
       "google_rating": 4.7,
-      "google_review_count": 439,
+      "google_review_count": 466,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://jardindesdouars.com/fr/",
+      "booking_url": "https://book-directonline.com/properties/lejardindesdouarsdirect",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/jardindesdouars",
         "facebook": "https://www.facebook.com/jardindesdouars",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g298349-d524243-Reviews-Le_Jardin_des_Douars-Essaouira_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -49347,7 +49346,7 @@
       "website": "https://www.hotelksarcharbagh.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/c6bdc70b-94e3-42cd-a3d9-8a27337cdfcc-1775884528214-szsp8y.jpg",
       "google_rating": 4.6,
-      "google_review_count": 187,
+      "google_review_count": 188,
       "price_range": "500 à 1000€",
       "min_price_mad": 600,
       "languages": [],
@@ -49812,7 +49811,8 @@
         "Dîner",
         "Déjeuner",
         "Hamburger",
-        "Vue sur mer"
+        "Vue sur mer",
+        "Plage"
       ],
       "city": "Essaouira",
       "neighborhood": "Plage",
@@ -49826,7 +49826,7 @@
       "website": "https://lacoupole-essaouira.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/eaf22fc6-dc53-4d52-87f5-cb5f2c968b98-1777351230706-eyppn8.jpg",
       "google_rating": 4.5,
-      "google_review_count": 2465,
+      "google_review_count": 2588,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -59690,7 +59690,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1621498d-403b-4ff2-baf3-db45d1e5f41e-1775833242332-12sxln.jpg",
       "google_rating": 4.9,
-      "google_review_count": 326,
+      "google_review_count": 325,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -59725,7 +59725,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://lesnomadesdemarrakech.com/",
+      "booking_url": "https://lesnomadesdemarrakech.com/collections/all",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/lesnomadesde.marrakech/",
@@ -66326,8 +66326,8 @@
       "whatsapp": "+212 7 00 00 06 44",
       "website": "https://www.squaremeter.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ceba5e22-7bf9-4759-9f34-14ce7341e7cb-img-0-1771584011244.jpg",
-      "google_rating": 5,
-      "google_review_count": 48,
+      "google_rating": 4.6,
+      "google_review_count": 14,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -66369,7 +66369,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.squaremeter.ma/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/m2square2/",
@@ -66428,8 +66428,8 @@
     },
     {
       "id": "d6ee02a6-37b4-4e23-82dc-cd23138771e1",
-      "slug": "marche-au-poisson-du-port-d-essaouira",
-      "url": "https://oneworldmorocco.com/marche-au-poisson-du-port-d-essaouira",
+      "slug": "all-fish-essaouira-garba",
+      "url": "https://oneworldmorocco.com/all-fish-essaouira-garba",
       "name": "Marché au Poisson du Port d'Essaouira",
       "hook": "Ultra frais & authentique 🐟🔥 : vivez l’expérience brute du marché au poisson du port d’Essaouira !",
       "description": "Situé au cœur du port, le marché au poisson d’Essaouira est l’un des lieux les plus authentiques et vivants de la ville. Ici, pas de mise en scène : tout est brut, direct et profondément local. Dès l’arrivée des bateaux bleus emblématiques, les pêcheurs déchargent leur prise du jour dans une atmosphère animée, rythmée par les cris, les échanges et l’énergie du port. Ce marché est avant tout une immersion dans la vie quotidienne des Souiris. Sardines, dorades, bars, calamars ou langoustes : les é",
@@ -75262,7 +75262,8 @@
       "services": [
         "Location",
         "Location vacances",
-        "Maison/Villa"
+        "Maison/Villa",
+        "Location de villas"
       ],
       "city": "Marrakech",
       "neighborhood": "Hivernage",
@@ -75270,13 +75271,13 @@
       "country": "MA",
       "latitude": 31.6234568,
       "longitude": -8.015144,
-      "address": "Rés.e Hivernage Garden",
+      "address": "Rés. Hivernage Garden",
       "phone": null,
       "whatsapp": "+212 6 94 20 06 00",
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e076a228-3bf8-45e7-a1ef-2c476072cc03-1782038040245-g03uyk.jpg",
       "google_rating": 4.2,
-      "google_review_count": 33,
+      "google_review_count": 34,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -95059,7 +95060,9 @@
         "Pâtes",
         "Tapas",
         "Glacier",
-        "Glaces"
+        "Glaces",
+        "Déjeuner",
+        "Vue sur la ville"
       ],
       "city": "Essaouira",
       "neighborhood": "Medina",
@@ -95072,8 +95075,8 @@
       "whatsapp": null,
       "website": "https://www.lefishbar-essaouira.com",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/c68f624a-3d57-40e3-bced-fc7f85ba7c72-1774433841409-uwbivu.jpg",
-      "google_rating": 4.6,
-      "google_review_count": 45,
+      "google_rating": 4.7,
+      "google_review_count": 63,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -99949,7 +99952,7 @@
       "website": "https://www.royalmansour.com/marrakech/spa-bien-etre/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/5dc5cb84-fc20-404f-84ac-c212e3dee94b-1781425053430-yh0wlp.jpg",
       "google_rating": 4.7,
-      "google_review_count": 131,
+      "google_review_count": 133,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -99998,7 +100001,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.royalmansour.com/marrakech/spa-bien-etre/",
+      "booking_url": null,
       "menu_url": "https://www.royalmansour.com/marrakech/spa-bien-etre/carte-des-soins/",
       "social": {
         "instagram": "https://www.instagram.com/royalmansourmarrakech/",
@@ -100905,7 +100908,8 @@
       "description": "Chez Soufiane Zarib , nous sommes spécialisés dans les authentiques tapis Beni, tissés à la main par des artisans berbères talentueux dans les montagnes de l'Atlas marocain. Chaque pièce de notre collection est une œuvre d'art unique, alliant beauté minimaliste et tradition séculaire. Nos tapis Beni Ourain sont confectionnés en laine 100 % naturelle et arborent des motifs géométriques noirs et blancs intemporels, une texture douce et une qualité durable. Que vous optiez pour un intérieur moderne",
       "main_category": "Commerce",
       "categories": [
-        "Décoration"
+        "Décoration",
+        "Meubles"
       ],
       "services": [
         "Tapis",
@@ -100918,7 +100922,18 @@
         "Vanneries",
         "Miroirs",
         "Poufs",
-        "Coussins"
+        "Coussins",
+        "Sur-mesure",
+        "Tables",
+        "Tables basses",
+        "Tabourets",
+        "Fauteuils",
+        "Meubles vintage",
+        "Mobilier d'intérieur",
+        "Chaises",
+        "Canapé",
+        "Bibliothèque",
+        "étagères"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -100926,13 +100941,13 @@
       "country": "MA",
       "latitude": 31.6331198,
       "longitude": -7.992317,
-      "address": "16 rue sidi ali ben hamdouch da el bacha",
+      "address": "16 rue sidi ali ben hamdouch dar el bacha",
       "phone": "+212 615 285 690",
       "whatsapp": "+212 615 285 690",
       "website": "https://www.soufiane-zarib.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/9e0a2a43-5fc3-445b-92a8-6ffb9d9f42f2-1775024719362-rjf6u8.jpg",
-      "google_rating": 4.4,
-      "google_review_count": 40,
+      "google_rating": 4.3,
+      "google_review_count": 44,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -100995,12 +101010,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.soufiane-zarib.com/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/soufiane.zarib/",
         "facebook": null,
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d16857607-Reviews-Soufiane_Zarib-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -103174,7 +103189,8 @@
       "description": "Chez Soufiane Zarib , nous sommes spécialisés dans les authentiques tapis Beni, tissés à la main par des artisans berbères talentueux dans les montagnes de l'Atlas marocain. Chaque pièce de notre collection est une œuvre d'art unique, alliant beauté minimaliste et tradition séculaire. Nos tapis Beni Ourain sont confectionnés en laine 100 % naturelle et arborent des motifs géométriques noirs et blancs intemporels, une texture douce et une qualité durable. Que vous optiez pour un intérieur moderne",
       "main_category": "Commerce",
       "categories": [
-        "Décoration"
+        "Décoration",
+        "Meubles"
       ],
       "services": [
         "Tapis",
@@ -103187,7 +103203,18 @@
         "Vanneries",
         "Miroirs",
         "Poufs",
-        "Coussins"
+        "Coussins",
+        "Bibliothèque",
+        "Canapé",
+        "Chaises",
+        "étagères",
+        "Fauteuils",
+        "Meubles vintage",
+        "Mobilier d'intérieur",
+        "Sur-mesure",
+        "Tables",
+        "Tables basses",
+        "Tabourets"
       ],
       "city": "Marrakech",
       "neighborhood": "Sidi Ghanem",
@@ -103201,7 +103228,7 @@
       "website": "https://www.soufiane-zarib.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/9e0a2a43-5fc3-445b-92a8-6ffb9d9f42f2-1775025835056-qc5z1t.jpg",
       "google_rating": 4.6,
-      "google_review_count": 9,
+      "google_review_count": 10,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -103931,7 +103958,7 @@
       "website": "https://farashafarmhouse.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1dc47b3c-028d-482a-b14e-b09dc9c48e4a-1775889425242-x3kwj2.jpg",
       "google_rating": 4.6,
-      "google_review_count": 88,
+      "google_review_count": 89,
       "price_range": "200 à 500€",
       "min_price_mad": 350,
       "languages": [],
@@ -104180,7 +104207,7 @@
       "website": "https://studio-lid.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2dad597d-da8c-4a62-abac-af87c446b361-1775020391149-spnqxf.jpg",
       "google_rating": 4.9,
-      "google_review_count": 15,
+      "google_review_count": 19,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -107740,7 +107767,7 @@
       "website": "https://uno.ma",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/5105ca00-927a-4b8f-8fb0-34a349269899-1775544228027-h8n22n.jpg",
       "google_rating": 4.9,
-      "google_review_count": 109,
+      "google_review_count": 131,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -108383,13 +108410,13 @@
       "country": "MA",
       "latitude": 31.6187186,
       "longitude": -8.0092481,
-      "address": "Angle Bd Mohammed 6 et, Av. Prince Moulay Rachid, Menara Mall",
+      "address": "Menara Mall",
       "phone": "+212808627346",
       "whatsapp": "+212664949997",
       "website": "https://uno.ma",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/6ed6e52a-f882-4b95-a5ac-ba7dc8899123-1775547077789-egvz0v.jpg",
       "google_rating": 4.8,
-      "google_review_count": 191,
+      "google_review_count": 212,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -112641,7 +112668,7 @@
       "country": "MA",
       "latitude": 33.7102036,
       "longitude": -5.461716,
-      "address": "Adresse Commune d'Aït Bourzouine BP63 Boufekrane،",
+      "address": "Commune d'Aït Bourzouine BP63 Boufekrane،",
       "phone": "+212 6610-53568",
       "whatsapp": null,
       "website": "https://www.villa-volubilia.com/",
@@ -115130,7 +115157,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1d626730-9ea7-4e88-aeb3-3547e7169315-1780807298996-7r5x3d.jpg",
       "google_rating": 5,
-      "google_review_count": 276,
+      "google_review_count": 277,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -135058,7 +135085,9 @@
         "Salon de coiffure",
         "Massage",
         "Soins du visage",
-        "Soins de beauté à domicile"
+        "Soins de beauté à domicile",
+        "Homme",
+        "Enfant"
       ],
       "city": "Marrakech",
       "neighborhood": null,
@@ -136109,7 +136138,7 @@
       "country": "MA",
       "latitude": 31.5926844,
       "longitude": -7.9868111,
-      "address": "Boutique 124-125, Almazar Mall",
+      "address": "Almazar Mall",
       "phone": null,
       "whatsapp": "+212524445779",
       "website": "https://www.flo.com.tr/",
@@ -138066,7 +138095,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/254745e5-ca0f-4081-844b-29277c0fa56d-1781021206374-wc6mli.jpg",
       "google_rating": 5,
-      "google_review_count": 5,
+      "google_review_count": 6,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -144039,7 +144068,7 @@
       "website": "https://farashafarmhouse.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1dc47b3c-028d-482a-b14e-b09dc9c48e4a-1775889425242-x3kwj2.jpg",
       "google_rating": 4.6,
-      "google_review_count": 88,
+      "google_review_count": 89,
       "price_range": "200 à 500€",
       "min_price_mad": 350,
       "languages": [],
@@ -151083,7 +151112,8 @@
       "services": [
         "Location",
         "Location vacances",
-        "Maison/Villa"
+        "Maison/Villa",
+        "Location de villas"
       ],
       "city": "Marrakech",
       "neighborhood": "Hivernage",
@@ -151091,13 +151121,13 @@
       "country": "MA",
       "latitude": 31.6234568,
       "longitude": -8.015144,
-      "address": "Rés.e Hivernage Garden",
+      "address": "Rés. Hivernage Garden",
       "phone": null,
       "whatsapp": "+212 6 94 20 06 00",
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e076a228-3bf8-45e7-a1ef-2c476072cc03-1782038040245-g03uyk.jpg",
       "google_rating": 4.2,
-      "google_review_count": 33,
+      "google_review_count": 34,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -152225,6 +152255,108 @@
       }
     },
     {
+      "id": "26152d49-2481-43b6-ab4e-f7201192acec",
+      "slug": "atelier-beni",
+      "url": "https://oneworldmorocco.com/atelier-beni",
+      "name": "Atelier Beni - Nomad33",
+      "hook": " Tapis marocains authentiques tissés à la main | Livraison gratuite dans le monde entier | Certifiés commerce équitable.",
+      "description": "Né au cœur de Marrakech, au sein de l'espace créatif du studio Nomad33, l'Atelier Beni est le lieu où les traditions ancestrales du tissage marocain rencontrent le design moderne. Nous fabriquons chaque tapis marocain avec soin, en préservant des techniques berbères ancestrales. Notre marque internationale allie l'art authentique du tapis berbère à la décoration intérieure contemporaine, apportant luxe intemporel et héritage culturel directement dans votre intérieur. Explorez nos collections pou",
+      "main_category": "Commerce",
+      "categories": [
+        "Décoration"
+      ],
+      "services": [
+        "Artisanat marocain",
+        "Couvertures",
+        "Tapis",
+        "Sur-mesure"
+      ],
+      "city": "Marrakech",
+      "neighborhood": "Gueliz",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.6331057,
+      "longitude": -8.0149254,
+      "address": "Rue Mohamed El Beqal N191 Res Honest Signature.",
+      "phone": "+212 660 305536",
+      "whatsapp": null,
+      "website": "https://atelierbeni.com/fr/",
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/26152d49-2481-43b6-ab4e-f7201192acec-1773991952228-8zmv3q.jpg",
+      "google_rating": 3.9,
+      "google_review_count": 10,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": {
+        "friday": {
+          "open": "10:00",
+          "close": "20:30",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "monday": {
+          "open": "10:00",
+          "close": "20:30",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "sunday": {
+          "open": "10:00",
+          "close": "20:30",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "tuesday": {
+          "open": "10:00",
+          "close": "20:30",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "saturday": {
+          "open": "10:00",
+          "close": "20:30",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "thursday": {
+          "open": "10:00",
+          "close": "20:30",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "wednesday": {
+          "open": "10:00",
+          "close": "20:30",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        }
+      },
+      "is_open_24h": false,
+      "booking_url": null,
+      "menu_url": null,
+      "social": {
+        "instagram": "https://www.instagram.com/beni_rugs/",
+        "facebook": null,
+        "tripadvisor": null,
+        "youtube": null,
+        "linkedin": null
+      }
+    },
+    {
       "id": "2852ac6b-6d6c-4189-9c5d-b281fa8b9974",
       "slug": "nona-s-table",
       "url": "https://oneworldmorocco.com/nona-s-table",
@@ -152753,6 +152885,121 @@
       "social": {
         "instagram": "https://www.instagram.com/elevatecyclemarrakech",
         "facebook": "https://www.facebook.com/people/Elevate-Cycle-Marrakech/61557848156550/",
+        "tripadvisor": null,
+        "youtube": null,
+        "linkedin": null
+      }
+    },
+    {
+      "id": "d6ee02a6-37b4-4e23-82dc-cd23138771e1",
+      "slug": "all-fish-essaouira-garba",
+      "url": "https://oneworldmorocco.com/all-fish-essaouira-garba",
+      "name": "Marché au Poisson du Port d'Essaouira",
+      "hook": "Ultra frais & authentique 🐟🔥 : vivez l’expérience brute du marché au poisson du port d’Essaouira !",
+      "description": "Situé au cœur du port, le marché au poisson d’Essaouira est l’un des lieux les plus authentiques et vivants de la ville. Ici, pas de mise en scène : tout est brut, direct et profondément local. Dès l’arrivée des bateaux bleus emblématiques, les pêcheurs déchargent leur prise du jour dans une atmosphère animée, rythmée par les cris, les échanges et l’énergie du port. Ce marché est avant tout une immersion dans la vie quotidienne des Souiris. Sardines, dorades, bars, calamars ou langoustes : les é",
+      "main_category": "Commerce",
+      "categories": [
+        "Poissonnerie"
+      ],
+      "services": [
+        "Calamars",
+        "Caviar",
+        "Coquillages",
+        "Coquilles Saint Jacques",
+        "Crabe / Araignée de mer",
+        "Crustacés",
+        "Decortiqué / Préparé",
+        "Homard",
+        "Huîtres à emporter",
+        "Langouste",
+        "Loup / Bar",
+        "Mérou",
+        "Moules",
+        "Oursins",
+        "Poisson frais",
+        "Poulpes, seiches",
+        "Consommer sur place"
+      ],
+      "city": "Essaouira",
+      "neighborhood": "Medina",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.5091468,
+      "longitude": -9.774873,
+      "address": null,
+      "phone": null,
+      "whatsapp": null,
+      "website": null,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d6ee02a6-37b4-4e23-82dc-cd23138771e1-1774076871630-58qun.webp",
+      "google_rating": 4.3,
+      "google_review_count": 57,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": {
+        "friday": {
+          "open": "08:00",
+          "close": "23:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "monday": {
+          "open": "08:00",
+          "close": "23:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "sunday": {
+          "open": "08:00",
+          "close": "11:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "tuesday": {
+          "open": "08:00",
+          "close": "23:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "saturday": {
+          "open": "08:00",
+          "close": "23:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "thursday": {
+          "open": "08:00",
+          "close": "23:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "wednesday": {
+          "open": "08:00",
+          "close": "23:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        }
+      },
+      "is_open_24h": false,
+      "booking_url": null,
+      "menu_url": null,
+      "social": {
+        "instagram": null,
+        "facebook": null,
         "tripadvisor": null,
         "youtube": null,
         "linkedin": null

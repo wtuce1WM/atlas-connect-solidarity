@@ -1075,6 +1075,11 @@ const BookOnlineSlidePanelInner = ({
   const [searchOverlayActive, setSearchOverlayActive] = useState(false);
   const [hashtagsOverlayActive, setHashtagsOverlayActive] = useState(false);
   const [aiOverlayActive, setAiOverlayActive] = useState(false);
+  // Overlay assistant IA plein écran (embed/ask) — équivalent VideoSlidePanel
+  const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
+  const [aiAssistantReady, setAiAssistantReady] = useState(false);
+  const [aiAssistantSlug, setAiAssistantSlug] = useState<string | null>(null);
+  const [aiAssistantPlatform, setAiAssistantPlatform] = useState(false);
   const [showAvailabilitySearch, setShowAvailabilitySearch] = useState(false);
   // Réservations embarquées : chargement à la demande (évite tout son/auto-play involontaire)
   
@@ -1496,7 +1501,7 @@ const BookOnlineSlidePanelInner = ({
     showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
     !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
-    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted || showWelcomePopup || showPromosPopup;
+    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || aiAssistantOpen || showDescriptionOverlay || !!forceMuted || showWelcomePopup || showPromosPopup;
 
   // Same as anyOverlayOpen but excluding welcome/promo popups so the background video
   // keeps playing and sound stays on while the popup is visible.
@@ -1504,7 +1509,7 @@ const BookOnlineSlidePanelInner = ({
     showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
     !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
-    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted;
+    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || aiAssistantOpen || showDescriptionOverlay || !!forceMuted;
 
 
   // Expose overlay state to ancestors (e.g. SearchPage wheel/swipe handlers)
@@ -1601,6 +1606,21 @@ const BookOnlineSlidePanelInner = ({
 
   }, [mediaBlockingOverlayOpen, globalSoundOn]);
 
+  // ── Pont iframe IA (embed/ask) : fermeture et ready via postMessage
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      let t: string | null = null;
+      if (typeof e.data === "string") {
+        try { t = JSON.parse(e.data).type; } catch { t = e.data; }
+      } else if (e.data && typeof e.data === "object") {
+        t = e.data.type || null;
+      }
+      if (t === "owm-embed-close") setAiAssistantOpen(false);
+      if (t === "owm-ai-ready") setAiAssistantReady(true);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
 
   // ── External bridge: window events to control Play/Mute from an outer bar
   //   dispatch "book-panel:toggle-play"  → play/pause current media
@@ -2377,6 +2397,11 @@ const BookOnlineSlidePanelInner = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
           )}
 
+          {/* Fond sombre équivalent à VideoSlidePanel quand l'overlay IA est ouvert (fiche business classique) */}
+          {(aiOverlayActive || aiAssistantOpen) && !feedLayout && (
+            <div className="absolute inset-0 z-[1] bg-black/55 backdrop-blur-[2px]" aria-hidden="true" />
+          )}
+
         </div>
       )}
 
@@ -2685,6 +2710,7 @@ const BookOnlineSlidePanelInner = ({
           hideVideoControls={showSearchBar}
           hideDirections={true}
           hideSecondaryCtas={hideSecondaryCtas}
+          aiOverlayActive={!feedLayout && (aiOverlayActive || aiAssistantOpen)}
           infoSlot={business && !business.hide_description ? (
             <MediaViewerInfo
               name={business.name}
@@ -4670,7 +4696,17 @@ const BookOnlineSlidePanelInner = ({
         <div className={`absolute pointer-events-none ${searchOverlayActive ? "inset-0 left-0 translate-x-0 w-full max-w-none z-[90]" : "bottom-0 left-1/2 -translate-x-1/2 w-[96%] sm:w-[94%] max-w-[540px] z-[85]"}`}>
           <div className="relative w-full h-full pointer-events-auto">
             <PanelSearchBar
-              onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
+              onAiClick={() => {
+                // Assistant IA en overlay plein écran (embed/ask) — équivalent VideoSlidePanel
+                const slug = business?.slug || null;
+                if (slug) {
+                  setAiAssistantSlug(slug);
+                  setAiAssistantPlatform(false);
+                  setAiAssistantOpen(true);
+                } else {
+                  window.dispatchEvent(new Event("open-ai-tab"));
+                }
+              }}
               iconVariant="black"
               onSearch={onSearch}
               onBusinessSelect={onSearchBusinessSelect}
@@ -4957,6 +4993,47 @@ const BookOnlineSlidePanelInner = ({
         <OverlayShell zClass="z-[92]" coverToolbar={false}>
           <PanelHashtagsOverlay open={hashtagsOverlayActive} onClose={() => setHashtagsOverlayActive(false)} />
         </OverlayShell>
+      )}
+
+      {/* Overlay assistant IA plein écran (embed/ask) — équivalent VideoSlidePanel */}
+      {aiAssistantOpen && (aiAssistantPlatform || aiAssistantSlug) && (
+        <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[240] h-[100dvh] overflow-hidden">
+          {/* Fond assombri : le média reste visible derrière l'assistant (iframe transparente) */}
+          <div
+            className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
+            onClick={() => setAiAssistantOpen(false)}
+            aria-hidden="true"
+          />
+          <button
+            type="button"
+            onClick={() => setAiAssistantOpen(false)}
+            aria-label="Fermer l'assistant IA"
+            className="absolute top-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white border border-white/25 hover:bg-black/70 transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          {!aiAssistantReady && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 pointer-events-none">
+              <div className="h-14 w-14 rounded-full border-4 border-white/15 border-t-[#D4AF37] animate-spin" />
+              <p className="text-white/90 text-lg font-medium tracking-wide animate-pulse text-center px-8">
+                {language === "en"
+                  ? "The assistant is searching…"
+                  : language === "ar"
+                  ? "المساعد يبحث…"
+                  : "L'assistant recherche…"}
+              </p>
+            </div>
+          )}
+          <iframe
+            src={aiAssistantPlatform
+              ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform${aiAssistantSlug ? `&ctx=${encodeURIComponent(aiAssistantSlug)}` : ""}`
+              : `/embed/ask/${aiAssistantSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1`}
+            title="Assistant IA"
+            className={`relative w-full h-full border-0 transition-opacity duration-500 ${aiAssistantReady ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+            style={{ background: "transparent" }}
+            allow="clipboard-write; microphone"
+          />
+        </div>
       )}
 
       {/* LocationPickerDialog mounted globally on SearchPage — removed here to avoid double overlay */}
