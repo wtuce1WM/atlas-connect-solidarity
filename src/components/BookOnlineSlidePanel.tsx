@@ -2182,7 +2182,12 @@ const BookOnlineSlidePanelInner = ({
 
   if (isLoading) {
     // Widget carte embarqué : pas de squelette de fiche (on n'affiche jamais l'accueil du Master).
-    if (isEmbedMapWidget || isPoiOnlyPanel) return <div className="h-full w-full bg-transparent" />;
+    // Depuis la barre info du viewer, conserver la vidéo visible jusqu'à ce que
+    // la Full Description soit prête : le squelette noir était l'écran furtif
+    // perçu entre le clic et l'ouverture réelle de l'overlay.
+    if (isEmbedMapWidget || isPoiOnlyPanel || initialOverlay === "description") {
+      return <div className="h-full w-full bg-transparent" />;
+    }
     return (
       <div className={`h-full overflow-y-auto p-6 space-y-6 ${loadingSurface === "dark" ? "bg-black" : "bg-background"}`}>
         <Skeleton className="w-full aspect-video rounded-xl" />
