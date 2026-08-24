@@ -62,6 +62,10 @@ interface PanelSearchBarProps {
    *  instead of dispatching "open-generic-club-popup" for anonymous users — à utiliser
    *  là où ClubLoginPopup n'est pas monté (ex. viewer vidéo). */
   profileToClub?: boolean;
+  /** When true, anonymous Profil click opens the video timeline Club popup
+   *  ("open-video-timeline-club", popup bleu) au lieu du popup beige global —
+   *  à utiliser dans le viewer vidéo où GenericVideoTimelineOverlay est monté. */
+  profileToTimelineClub?: boolean;
   /** Pre-generated AI text from /search Sticky 4 — forwarded to PanelAiOverlay to keep both views in sync */
   aiAnswerText?: string | null;
   /** Businesses pool matching aiAnswerText (for thumbnail resolution) */
