@@ -825,11 +825,29 @@ const Front = () => {
                 if (qs) navigate(`/search?${qs}`);
               }}
               onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
+              leftActions={
+                <button
+                  type="button"
+                  aria-label="Demo — découverte vidéo"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDemoChoiceOpen(true);
+                  }}
+                  disabled={demoLoading}
+                  className="demo-cta group relative h-12 overflow-hidden rounded-xl border border-white/25 bg-white/[0.08] px-6 py-2.5 backdrop-blur-2xl transition-all duration-300 hover:scale-[1.03] hover:border-white/45 hover:bg-white/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98] disabled:opacity-70 md:hidden"
+                >
+                  <span className="relative z-10 font-roboto text-base font-semibold uppercase leading-none tracking-wide text-[#F4EEE4]">
+                    Demo
+                  </span>
+                  <span className="demo-shimmer absolute inset-0 -translate-x-full" aria-hidden="true" />
+                </button>
+              }
             />
+
           </div>
 
           <div
-            className="flex flex-col items-center gap-1"
+            className="hidden md:flex md:flex-col items-center gap-1"
             style={{
               opacity: voiceActive ? 0 : 1,
               pointerEvents: voiceActive ? "none" : undefined,
@@ -854,6 +872,7 @@ const Front = () => {
               <span className="demo-shimmer absolute inset-0 -translate-x-full" aria-hidden="true" />
             </button>
           </div>
+
         </div>
 
         {/* Section 3 : Animation (accroche + storybox) */}
