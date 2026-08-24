@@ -82,7 +82,8 @@ import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
 import { translateFrontStructure } from "@/lib/frontStructureTranslations";
 import { withLangPrefix } from "@/lib/localizedPath";
 import { ToolbarPortals } from "@/components/slidepanel/ToolbarPortals";
-import ClubLoginPopup from "@/components/club/ClubLoginPopup";
+import ClubBlueAuthPopup, { clubPopupTranslations } from "@/components/club/ClubBlueAuthPopup";
+import ClubAuthPanel from "@/components/club/ClubAuthPanel";
 import { CtaBar, CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
 import VideoSocialBadge, { getVideoSocial } from "@/components/slidepanel/VideoSocialBadge";
 import { HotelAvailabilityResult } from "@/components/slidepanel/HotelAvailabilityResult";
@@ -1312,43 +1313,24 @@ const BookOnlineSlidePanelInner = ({
     if (cardsHidden) setMatterportPinnedInHiddenMode(true);
   }, [cardsHidden, businessId]);
 
-  // Cascading peek effect on the left CTAs when the panel opens for a business.
-  // If a welcome popup is showing, defer until it closes.
-  const [peekCta, setPeekCta] = useState<boolean[]>([]);
-  const [peekDispo, setPeekDispo] = useState(false);
-  const [peekHoraires, setPeekHoraires] = useState(false);
-  const [peekItin, setPeekItin] = useState(false);
-  const peekPlayedRef = useRef<string | null>(null);
+  // ── Popup Club bleu interne (remplace le popup beige global ClubLoginPopup) ──
+  // Ouvert par les déclencheurs auth du panneau (Bookmark/Heart du header, CTA
+  // Profil de la barre de recherche) via l'événement "open-panel-club-popup".
+  const [clubAuthOpen, setClubAuthOpen] = useState(false);
+  const [clubUserId, setClubUserId] = useState<string | null>(null);
   useEffect(() => {
-    if (!businessId) return;
-    if (showWelcomePopup) return;
-    if (peekPlayedRef.current === businessId) return;
-    peekPlayedRef.current = businessId;
-
-    // Set Horaires and Disponibilités to peek immediately, then close after 5 seconds
-    setPeekDispo(true);
-    setPeekHoraires(true);
-    const mainTimer = window.setTimeout(() => {
-      setPeekDispo(false);
-      setPeekHoraires(false);
-    }, 5000);
-
-    const count = 4;
-    const start = 450;
-    const open = 1500;
-    const stagger = 180;
-    const timers: number[] = [mainTimer];
-    setPeekCta(Array(count).fill(false));
-    for (let i = 0; i < count; i++) {
-      timers.push(window.setTimeout(() => setPeekCta(p => { const n = [...p]; n[i] = true; return n; }), start + i * stagger));
-      timers.push(window.setTimeout(() => setPeekCta(p => { const n = [...p]; n[i] = false; return n; }), start + i * stagger + open));
-    }
-    // Peek the Itinéraire CTA last, after the main rail cascade.
-    timers.push(window.setTimeout(() => setPeekItin(true), start + count * stagger + 120));
-    timers.push(window.setTimeout(() => setPeekItin(false), start + count * stagger + 120 + open));
-    return () => timers.forEach(clearTimeout);
-  }, [businessId, showWelcomePopup]);
-  useEffect(() => { peekPlayedRef.current = null; }, [businessId]);
+    supabase.auth.getSession().then(({ data: { session } }) => setClubUserId(session?.user?.id ?? null));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setClubUserId(session?.user?.id ?? null);
+      if (session?.user?.id) setClubAuthOpen(false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+  useEffect(() => {
+    const handler = () => setClubAuthOpen(true);
+    window.addEventListener("open-panel-club-popup", handler);
+    return () => window.removeEventListener("open-panel-club-popup", handler);
+  }, []);
 
   // Tap-to-reveal label on touch devices for left CTAs: first tap expands, second tap triggers.
   const [tappedCta, setTappedCta] = useState<string | null>(null);
@@ -2369,9 +2351,27 @@ const BookOnlineSlidePanelInner = ({
         activeInternalVideoId={activeInternalVideoLikeId}
       />
 
-      {/* Popup Club monté DANS le panneau : instance unique garantie côté
-          ClubLoginPopup (registre), donc pas de doublon avec SearchPage. */}
-      <ClubLoginPopup />
+      {/* Popup Club bleu interne : remplace le popup beige global pour les
+          déclencheurs du panneau (Bookmark/Heart header, CTA Profil). */}
+      {clubAuthOpen && !clubUserId && (
+        <ClubBlueAuthPopup onClose={() => setClubAuthOpen(false)}>
+          {(() => {
+            const clubT = clubPopupTranslations[language as keyof typeof clubPopupTranslations] || clubPopupTranslations.fr;
+            return (
+              <div className="p-3 sm:p-6 text-stone-900 bg-transparent">
+                <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 !font-sans text-stone-900 text-center">
+                  {clubT.memberTitle}
+                </h3>
+                <p className="text-stone-700 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5 text-center">{clubT.memberDescGeneric}</p>
+                <ClubAuthPanel
+                  redirectPath={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/"}
+                  onSuccess={() => setClubAuthOpen(false)}
+                />
+              </div>
+            );
+          })()}
+        </ClubBlueAuthPopup>
+      )}
 
       {/* Full-bleed background — extracted component.
           Widget embarqué "carte" : pas de média de fond (évite l'écran noir + vidéo avant la carte). */}
@@ -2421,7 +2421,7 @@ const BookOnlineSlidePanelInner = ({
             const currentLang = LANG_OPTIONS.find((opt) => opt.code === language) || LANG_OPTIONS[0];
             const otherLangs = LANG_OPTIONS.filter((opt) => opt.code !== language);
             return (
-              <div className={`group cta-peek ${peekCta[0] ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+              <div className={`group cta-peek relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
                 <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
                 <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{ctaLabel}</span>
                 <span className="flex items-center gap-0 group-hover:gap-1.5 group-hover:ml-2 transition-[margin,gap] duration-300">
@@ -2461,7 +2461,7 @@ const BookOnlineSlidePanelInner = ({
             );
           })()}
           {isHotelWithPrice ? (
-            <div data-cta-tap onClick={handleCtaTap('dispo', () => setShowAvailabilitySearch(true))} className={`group cta-peek ${peekDispo || tappedCta === 'dispo' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+            <div data-cta-tap onClick={handleCtaTap('dispo', () => setShowAvailabilitySearch(true))} className={`group cta-peek ${tappedCta === 'dispo' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "Availability" : language === "ar" ? "التوفر" : "Disponibilité"}</span>
               <BsCalendarDay className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
@@ -2470,7 +2470,7 @@ const BookOnlineSlidePanelInner = ({
             <div
               data-cta-tap
               onClick={handleCtaTap('hours', () => setShowHoursOverlay(true))}
-              className={`group cta-peek ${peekHoraires || tappedCta === 'hours' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4 ${openBadgeInfo?.isOpen ? 'bg-[#25D366] hover:bg-[#1fb958]' : 'backdrop-blur-md bg-black/80 hover:bg-black/90'}`}
+              className={`group cta-peek ${tappedCta === 'hours' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4 ${openBadgeInfo?.isOpen ? 'bg-[#25D366] hover:bg-[#1fb958]' : 'backdrop-blur-md bg-black/80 hover:bg-black/90'}`}
             >
               <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{openBadgeInfo?.isOpen ? (language === "en" ? "Open" : language === "ar" ? "مفتوح" : "Ouvert") : (language === "en" ? "Hours" : language === "ar" ? "المواعيد" : "Horaires")}</span>
@@ -2478,14 +2478,14 @@ const BookOnlineSlidePanelInner = ({
             </div>
           ) : null}
           {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
-            <div data-cta-tap onClick={handleCtaTap('map', () => setShowPoiMapOverlay(true))} className={`group cta-peek ${peekCta[1] || tappedCta === 'map' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+            <div data-cta-tap onClick={handleCtaTap('map', () => setShowPoiMapOverlay(true))} className={`group cta-peek ${tappedCta === 'map' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation"}</span>
               <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
           {hasDestCarousel && (
-            <div data-cta-tap onClick={handleCtaTap('dest', () => { setDescGridSection("dest"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); })} className={`group cta-peek ${peekCta[3] || tappedCta === 'dest' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+            <div data-cta-tap onClick={handleCtaTap('dest', () => { setDescGridSection("dest"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); })} className={`group cta-peek ${tappedCta === 'dest' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "Destinations" : language === "ar" ? "الوجهات" : "Destinations"}</span>
               <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
@@ -2496,7 +2496,7 @@ const BookOnlineSlidePanelInner = ({
             const isFar = Number.isFinite(radiusKm) && radiusKm > 10;
             const ItinIcon = isFar ? BsCarFrontFill : GiWalkingBoot;
             return (
-              <div data-cta-tap onClick={handleCtaTap('itin', () => setShowDirections(true))} className={`group cta-peek ${peekItin || tappedCta === 'itin' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+              <div data-cta-tap onClick={handleCtaTap('itin', () => setShowDirections(true))} className={`group cta-peek ${tappedCta === 'itin' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
                 <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
                 <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "Directions" : language === "ar" ? "طريق" : "Itinéraire"}</span>
                 <ItinIcon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
@@ -4151,7 +4151,7 @@ const BookOnlineSlidePanelInner = ({
               {!embedMode && (
                 <button
                   type="button"
-                  onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                  onClick={() => window.dispatchEvent(new CustomEvent("open-panel-club-popup"))}
                   className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
                   aria-label="Le Club OWM"
                 >
@@ -4696,6 +4696,7 @@ const BookOnlineSlidePanelInner = ({
         <div className={`absolute pointer-events-none ${searchOverlayActive ? "inset-0 left-0 translate-x-0 w-full max-w-none z-[90]" : "bottom-0 left-1/2 -translate-x-1/2 w-[96%] sm:w-[94%] max-w-[540px] z-[85]"}`}>
           <div className="relative w-full h-full pointer-events-auto">
             <PanelSearchBar
+              profileClubEvent="open-panel-club-popup"
               onAiClick={() => {
                 // Assistant IA en overlay plein écran (embed/ask) — équivalent VideoSlidePanel
                 const slug = business?.slug || null;
