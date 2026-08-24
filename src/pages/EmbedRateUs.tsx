@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
 import { supabase } from "@/integrations/supabase/client";
+import { embedBusinessQuery } from "@/lib/embedBusinessQuery";
 import { tripadvisorReviewUrl } from "@/lib/tripadvisorUrl";
 import EmbedRateUsWidget, { type RateTarget, type RateVariant } from "@/components/embed/EmbedRateUsWidget";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";

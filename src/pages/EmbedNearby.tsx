@@ -3,6 +3,7 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { embedBusinessQuery } from "@/lib/embedBusinessQuery";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { applyEmbedBg } from "@/lib/embedFit";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
