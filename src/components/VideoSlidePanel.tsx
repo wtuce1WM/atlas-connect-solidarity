@@ -268,6 +268,13 @@ const VideoSlidePanel = ({
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
+  /** Popup Club ouvert (ClubLoginPopup) : on masque les chips badges qui passeraient au-dessus. */
+  const [clubPopupOpen, setClubPopupOpen] = useState(false);
+  useEffect(() => {
+    const handler = (e: Event) => setClubPopupOpen(!!(e as CustomEvent).detail?.open);
+    window.addEventListener("club-popup-state", handler);
+    return () => window.removeEventListener("club-popup-state", handler);
+  }, []);
   // Feed : quand la vidéo est liée à un établissement, la barre info ouvre la
   // Full Description de BookOnlineSlidePanel de cet établissement (pas l'overlay local).
   const [descBusinessId, setDescBusinessId] = useState<string | null>(null);
