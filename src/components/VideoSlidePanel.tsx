@@ -937,13 +937,7 @@ const VideoSlidePanel = ({
             </div>
           </>
         )}
-        {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !compactBusinessHeader && typeof document !== "undefined" && (() => {
-          const _trigger = toolbarMounted;
-          const rightEl = document.getElementById("slide-panel-home-toolbar-right");
-          return (
-            <>
-
-              {rightEl && createPortal(
+        {headerVisible && toolbarRightEl && createPortal(
                 <div className="flex items-center gap-2 shrink-0">
                   {/* Like vidéo */}
                   <div className="relative flex flex-col items-center">
