@@ -620,6 +620,21 @@ const VideoSlidePanel = ({
       return () => clearTimeout(t);
     }
   }, [open, videoId]);
+
+  // Cible du portal toolbar-right, lue APRÈS commit (jamais getElementById
+  // pendant le render). Sans ça, à la fermeture d'un overlay qui masque le
+  // header (assistant IA, recherche…), le getElementById en cours de render
+  // renvoyait null (DOM pas encore re-commité) et le contenu portalé du
+  // header (Like / Bookmark / Partage) ne réapparaissait jamais.
+  const headerVisible = !descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !compactBusinessHeader;
+  const [toolbarRightEl, setToolbarRightEl] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!open || !headerVisible) {
+      setToolbarRightEl(null);
+      return;
+    }
+    setToolbarRightEl(document.getElementById("slide-panel-home-toolbar-right"));
+  }, [open, headerVisible, toolbarMounted]);
   useEffect(() => { if (!open) { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); } }, [open]);
   useEffect(() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); }, [pageBusinessId]);
 
