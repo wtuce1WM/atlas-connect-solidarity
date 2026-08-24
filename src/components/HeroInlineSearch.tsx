@@ -25,7 +25,7 @@ interface Props {
 const normalize = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick, onVoiceActiveChange, voiceTextClassName, hideBarWhenVoiceActive }: Props) => {
+const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick, onVoiceActiveChange, voiceTextClassName, hideBarWhenVoiceActive, leftActions }: Props) => {
 
 
   const [query, setQuery] = useState("");
