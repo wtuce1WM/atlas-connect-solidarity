@@ -1133,7 +1133,7 @@ const VideoSlidePanel = ({
             Colonne de droite : badges effectivement liés à la vidéo, les uns au-dessus des autres.
             Clic sur un chip → relance le feed sur ce badge. */}
         {feedLayout && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
-          && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
+          && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && !clubPopupOpen && (
           <div className="absolute top-16 left-3 right-3 z-[100] grid grid-cols-2 gap-2 pointer-events-none">
             <div className="flex flex-col items-end gap-1.5">
               {LEFT_COLUMN_BADGES.map((b) => {
