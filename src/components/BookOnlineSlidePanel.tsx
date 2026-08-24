@@ -786,7 +786,10 @@ const BookOnlineSlidePanelInner = ({
 
 
   
-  const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
+  // Ouvert immédiatement quand le panneau est monté pour la Full Description
+  // (feed vidéo, barre info viewer) : évite une frame du panneau business avant
+  // l'overlay (même pattern que initialOverlay === "poi", cf. showPoiMapOverlay).
+  const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(initialOverlay === "description");
   useEffect(() => {
     descOverlayOpenRef.current = showDescriptionOverlay;
     if (showDescriptionOverlay) {
@@ -1402,7 +1405,7 @@ const BookOnlineSlidePanelInner = ({
     setVideoOverlayClosing(false);
     setShowPoiMapOverlay(initialOverlay === "poi");
 
-    setShowDescriptionOverlay(false);
+    setShowDescriptionOverlay(initialOverlay === "description");
     setShowAvailabilitySearch(false);
     setDescGridSection(null);
     setDescOverlayContent(null);
