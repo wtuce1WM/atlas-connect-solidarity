@@ -11,6 +11,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus, Bed, Utensils, Wine, Coffee, ShoppingBag, Sparkles, Landmark, Camera, Play, Pause, Volume2, VolumeX, Mic, MicOff, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { embedBusinessQuery } from "@/lib/embedBusinessQuery";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
 import EventsSlidePanel from "@/components/club/EventsSlidePanel";
@@ -833,12 +834,14 @@ const EmbedAsk = () => {
     if (isPlatform) return;
     let cancelled = false;
     (async () => {
-      const { data } = await (supabase as any)
-        .from("businesses")
-        .select("id, name, latitude, longitude, city, main_category, url_6_title, poi_radius_km, map_bg_color")
-        .eq("slug", slug)
-        .eq("is_active", true)
-        .maybeSingle();
+      const data = await embedBusinessQuery(`ask:${slug}`, (client) =>
+        (client as any)
+          .from("businesses")
+          .select("id, name, latitude, longitude, city, main_category, url_6_title, poi_radius_km, map_bg_color")
+          .eq("slug", slug)
+          .eq("is_active", true)
+          .maybeSingle()
+      );
       if (cancelled) return;
       const row = (data || null) as any;
       const name = row?.name || "";

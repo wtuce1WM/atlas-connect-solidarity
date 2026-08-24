@@ -2,7 +2,7 @@
 // Réutilise l'overlay POI de BookOnlineSlidePanel (aucun fork de logique).
 import { Suspense, lazy, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { embedBusinessQuery } from "@/lib/embedBusinessQuery";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { applyEmbedBg } from "@/lib/embedFit";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
@@ -72,8 +72,10 @@ const EmbedNearby = () => {
       // Pas de filtre is_active : la fiche de référence peut être désactivée
       // (ex. Délégation Régionale Du Tourisme Marrakech) — elle ne sert que de
       // point de départ de la carte.
-      const query = supabase.from("businesses").select("id");
-      const { data } = await (isUuid ? query.eq("id", slug) : query.eq("slug", slug)).maybeSingle();
+      const data = await embedBusinessQuery<{ id: string }>(`nearby:${slug}`, (client) => {
+        const query = client.from("businesses").select("id");
+        return (isUuid ? query.eq("id", slug) : query.eq("slug", slug)).maybeSingle();
+      });
       if (cancelled) return;
       if (data?.id) setBusinessId(data.id);
       else setNotFound(true);
