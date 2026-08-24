@@ -1450,7 +1450,7 @@ const VideoSlidePanel = ({
               </button>
             </div>
           )}
-          <div className={`absolute inset-0 z-30 pointer-events-none ${descOverlayOpen ? "hidden" : ""}`}>
+          <div className={`absolute inset-0 z-30 pointer-events-none ${descOverlayOpen || aiOverlayOpen ? "hidden" : ""}`}>
             <div className="fixed lg:absolute inset-x-0 bottom-[calc(120px+env(safe-area-inset-bottom))] lg:bottom-[7rem] z-30 px-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
               {compactBusinessHeader && (
                 <YouTubeIcon className="h-16 w-16 text-red-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />
