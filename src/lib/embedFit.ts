@@ -192,12 +192,16 @@ export const autoHeightSnippet = (o: {
   title: string;
   maxWidth?: number;
   height: number;
+  mobileHeight?: number;
   radius?: number;
   allow?: string;
   /** Style du conteneur (ex. position:fixed pour un bandeau footer sticky). */
   wrapperStyle?: string;
-}) =>
-  `<div style="${o.wrapperStyle ?? `width:100%;${o.maxWidth ? `max-width:${o.maxWidth}px;` : ""}margin:0 auto`}">
+}) => {
+  const mobileStyle = o.mobileHeight
+    ? `<style>@media (max-width: 640px) { #${o.id} { height: ${o.mobileHeight}px !important; max-height: ${o.mobileHeight}px !important; } }</style>`
+    : "";
+  return `${mobileStyle}<div style="${o.wrapperStyle ?? `width:100%;${o.maxWidth ? `max-width:${o.maxWidth}px;` : ""}margin:0 auto`}">
   <iframe id="${o.id}" src="${o.url}" style="width:100%;display:block;height:${o.height}px;border:0;border-radius:${o.radius ?? 20}px;background:transparent" title="${o.title}" loading="lazy"${o.allow ? ` allow="${o.allow}"` : ""}></iframe>
 </div>
 <script>
@@ -206,4 +210,5 @@ export const autoHeightSnippet = (o: {
     var f = document.getElementById("${o.id}");
     if (f) f.style.height = Math.ceil(e.data.height) + "px";
   });
-</script>`
+</script>`;
+};
