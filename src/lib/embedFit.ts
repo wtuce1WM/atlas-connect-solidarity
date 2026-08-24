@@ -62,6 +62,31 @@ export const fitIframeStyle = (
   return parts.join(";");
 };
 
+/** Génère un snippet `<style>` + `<iframe>` avec une hauteur mobile réduite.
+ *  Utilisé quand le widget fixe une hauteur desktop trop grande pour un écran mobile. */
+export const fitIframeSnippet = (o: {
+  fit: EmbedFit;
+  url: string;
+  title: string;
+  maxWidth?: number;
+  height: number;
+  mobileHeight: number;
+  radius?: number;
+  extra?: string;
+  allow?: string;
+}) => {
+  const id = `owm-frame-${Math.random().toString(36).slice(2, 9)}`;
+  const style = fitIframeStyle(o.fit, {
+    maxWidth: o.maxWidth,
+    height: o.height,
+    radius: o.radius,
+    extra: o.extra,
+  });
+  const allow = o.allow ? ` allow="${o.allow}"` : "";
+  return `<style>@${o.mobileHeight <= o.height ? "media" : "media"} (max-width: 640px) { #${id} { height: ${o.mobileHeight}px !important; min-height: auto !important; } }</style>
+<iframe id="${id}" src="${o.url}" style="${style}" title="${o.title}" loading="lazy"${allow}></iframe>`;
+};
+
 /** Suffixe d'URL (`&fit=…`) à ajouter aux URLs de widget. */
 export const fitParam = (fit: EmbedFit) => (fit ? `&fit=${fit}` : "");
 
