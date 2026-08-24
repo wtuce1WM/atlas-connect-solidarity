@@ -238,6 +238,35 @@ const VideoSlidePanel = ({
     return () => { document.documentElement.classList.remove('hide-scrollbar-panel-open'); };
   }, [open]);
 
+  // Neutralise le geste « retour » d'iOS Safari (swipe horizontal depuis le bord
+  // gauche de l'écran) : geste système impossible à bloquer via touch-action.
+  // On empile une entrée d'historique (même URL) à l'ouverture ; le swipe la
+  // consomme et déclenche popstate → on ferme le viewer au lieu de quitter la
+  // page (ex. retour intempestif vers Home sur iPhone).
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+  useEffect(() => {
+    if (!open) return;
+    const url = window.location.pathname + window.location.search + window.location.hash;
+    rawNavigate(url, { state: { __videoSlidePanel: true } });
+    let active = true;
+    const onPop = () => {
+      if (!active) return;
+      active = false;
+      onCloseRef.current();
+    };
+    window.addEventListener("popstate", onPop);
+    return () => {
+      window.removeEventListener("popstate", onPop);
+      // Fermeture via l'UI (croix, clic extérieur) : consommer l'entrée empilée,
+      // sauf si une navigation vers une autre page l'a déjà recouverte.
+      if (active && window.history.state?.usr?.__videoSlidePanel) {
+        active = false;
+        rawNavigate(-1);
+      }
+    };
+  }, [open, rawNavigate]);
+
   // Description source (video text is ALWAYS prioritary):
   // - If the video has its own description, use it.
   // - Otherwise, fall back to the consulted fiche (pageBusinessId) or the owner's description.
