@@ -141,6 +141,7 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick, onVoiceA
         </div>
 
         <div className="flex items-center justify-center gap-2 md:contents">
+        {leftActions}
         <button
           type="button"
           onClick={() => submit(query)}
@@ -149,6 +150,7 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick, onVoiceA
         >
           <Search className="h-5 w-5 text-primary-foreground" />
         </button>
+
 
         <div className="relative flex items-center justify-center shrink-0">
           <span className="hero-search-ripple absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
