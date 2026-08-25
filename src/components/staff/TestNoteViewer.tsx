@@ -132,6 +132,141 @@ const TestNoteViewer = () => {
     return err;
   };
 
+  /** Applique le même jeu de badges à tous les video_id d'un même fichier. */
+  const saveBadgesGroup = async (members: VideoDoc[], draft: Set<string>) => {
+    for (const m of members) {
+      const err = await saveBadges(m, draft, new Set(m.badge_ids));
+      if (err) return err;
+    }
+    return null;
+  };
+
+  const GroupCard = ({ g }: { g: VideoGroup }) => {
+    const v = g.primary;
+    const selected = selectedKey === g.key;
+    const names = Array.from(new Set(g.members.map(m => m.business_name)));
+    const allCities = Array.from(new Set(g.members.flatMap(m => m.cities)));
+    return (
+      <div
+        onClick={() => setSelectedKey(g.key)}
+        className={`flex flex-col rounded-lg border bg-background p-1.5 cursor-pointer transition-colors ${selected ? "border-primary ring-2 ring-primary" : "hover:border-muted-foreground/30"}`}
+      >
+        <button
+          className="relative bg-black rounded overflow-hidden group flex-shrink-0 w-full"
+          style={{ height: 110 }}
+          onClick={(e) => { e.stopPropagation(); setLightboxUrl(v.url); }}
+        >
+          {v.thumbnail_url ? (
+            <img src={v.thumbnail_url} alt="" className="w-full h-full object-cover" />
+          ) : v.url.includes("supabase.co/storage") ? (
+            <video src={v.url} className="w-full h-full object-cover" muted preload="metadata" />
+          ) : (
+            <div className="w-full h-full bg-muted" />
+          )}
+          {g.members.length > 1 && (
+            <span className="absolute top-1 right-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
+              ×{g.members.length}
+            </span>
+          )}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="w-8 h-8 rounded-full bg-primary/80 flex items-center justify-center">
+              <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground ml-0.5" />
+            </div>
+          </div>
+        </button>
+        <div className="mt-1.5">
+          <p className="text-sm font-medium leading-tight">{names.slice(0, 2).join(", ")}{names.length > 2 ? ` +${names.length - 2}` : ""}</p>
+          {g.members.length > 1 && (
+            <p className="text-[11px] font-semibold text-primary leading-tight">
+              Même fichier sur {g.members.length} fiches — badge appliqué à toutes
+            </p>
+          )}
+          {(v.subcategory_name || v.service_name) && (
+            <p className="text-base font-semibold text-foreground leading-tight mt-0.5">
+              {[v.subcategory_name, v.service_name].filter(Boolean).join(" · ")}
+            </p>
+          )}
+          {(allCities.length > 0 || v.neighborhood) && (
+            <p className="text-[11px] text-muted-foreground/70 truncate">
+              {[allCities.join(", "), v.neighborhood].filter(Boolean).join(" · ")}
+            </p>
+          )}
+          {v.name && <p className="text-[11px] text-muted-foreground/70 truncate">{v.name}</p>}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              const ids = g.members.map(m => m.id).join("\n");
+              navigator.clipboard.writeText(ids);
+              toast.success(g.members.length > 1 ? `${g.members.length} IDs copiés` : `ID copié : ${v.id.slice(0, 8)}…`);
+            }}
+            className="mt-1 inline-flex items-center gap-1 font-mono text-[10px] text-muted-foreground/60 hover:text-primary transition-colors text-left"
+            title="Copier tous les IDs du fichier"
+          >
+            <Copy className="h-3 w-3 flex-shrink-0" />
+            {v.id}{g.members.length > 1 ? ` +${g.members.length - 1}` : ""}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const BadgePanel = ({ members, deselectAfterSave }: { members: VideoDoc[]; deselectAfterSave?: boolean }) => {
+    const original = new Set(members.flatMap(m => m.badge_ids));
+    const draft = new Set(draftBadgeIds);
+    const dirty = original.size !== draft.size || [...draft].some(id => !original.has(id));
+    return (
+      <>
+        <div className="flex items-center justify-between mb-3 gap-2">
+          <p className="text-xs font-medium text-foreground">
+            Badges {members.length > 1 && <span className="text-primary">({members.length} IDs)</span>}
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setSelectedKey(null)}
+              className="text-xs px-2 py-1 rounded hover:bg-accent text-muted-foreground"
+            >
+              Fermer
+            </button>
+            <button
+              disabled={!dirty || assigning || members.length === 0}
+              onClick={async () => {
+                setAssigning(true);
+                const err = await saveBadgesGroup(members, draft);
+                setAssigning(false);
+                if (err) { toast.error("Erreur : " + err.message); return; }
+                const ids = new Set(members.map(m => m.id));
+                setVideos(prev => prev.map(v => ids.has(v.id) ? { ...v, badge_ids: [...draft] } : v));
+                if (deselectAfterSave) setSelectedKey(null);
+                toast.success(members.length > 1 ? `Badges enregistrés sur ${members.length} IDs` : "Badges enregistrés");
+              }}
+              className="text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40"
+            >
+              {assigning ? "..." : "Enregistrer"}
+            </button>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-1">
+          {badges.map(b => {
+            const isSelected = draft.has(b.id);
+            return (
+              <button
+                key={b.id}
+                type="button"
+                className={`text-xs px-2 py-1 rounded-full border transition-colors ${isSelected ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:border-primary/50"}`}
+                onClick={() => setDraftBadgeIds(prev => isSelected ? prev.filter(id => id !== b.id) : [...prev, b.id])}
+              >
+                {b.name_fr}
+              </button>
+            );
+          })}
+        </div>
+      </>
+    );
+  };
+
+
+
   // Light fetch: only the note (cheap) on mount
   useEffect(() => {
     (async () => {
