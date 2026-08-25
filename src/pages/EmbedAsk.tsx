@@ -1848,6 +1848,7 @@ const EmbedAsk = () => {
       })),
     },
   ];
+  const filterCount = filterGroups.flatMap((g) => g.items).length;
   const [mainEl, setMainEl] = useState<HTMLDivElement | null>(null);
   // Redimensionne l'iframe hôte pour qu'elle épouse la hauteur du contenu du widget
   // et éviter tout scroll vertical interne superflu en mode widget standard.
