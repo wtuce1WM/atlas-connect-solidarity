@@ -2,9 +2,9 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-24T11:37:27.087Z",
+    "generated_at": "2026-08-25T04:49:07.420Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
-    "count": 1856
+    "count": 1857
   },
   "businesses": [
     {
@@ -1040,14 +1040,18 @@
       "description": "Nos villas de luxe ouvertes sur le golf trouvent leur inspiration dans l’architecture, les matériaux et l’art de vivre traditionnel marocain. Elles sont bâties sur des terrains de 300 m2 à 3000 m2 et proposent de 2 à 4 chambres pour des superficies totales allant de 332 m2 à 700 m2 habitables. Chacune vous offre un jardin, une piscine privée et des équipements haut de gamme. Villa Standard Une villa de 2 chambres luxueuse, spacieuse et lumineuse, d’une superficie de 332 m2 à 424 m2. Son vaste es",
       "main_category": "Hôtellerie",
       "categories": [
-        "Villas"
+        "Villas",
+        "Hôtel"
       ],
       "services": [
         "Golf",
         "Piscine privative",
         "Spa / Hammam",
         "Restauration sur place",
-        "Wifi"
+        "Wifi",
+        "Complexe hôtelier",
+        "Vue montagne",
+        "Hammam et soins"
       ],
       "city": "Marrakech",
       "neighborhood": "Route de Ouarzazate",
@@ -1061,7 +1065,7 @@
       "website": "https://almaadenvillahotel.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/4824acbc-fa03-4164-840f-70cad982778c-1774941534964-phccd.jpg",
       "google_rating": 4.3,
-      "google_review_count": 403,
+      "google_review_count": 465,
       "price_range": "500 à 1000€",
       "min_price_mad": 557,
       "languages": [],
@@ -1072,7 +1076,7 @@
       "social": {
         "instagram": "https://www.instagram.com/almaadengolfofficial/",
         "facebook": "https://www.facebook.com/almaadenvilla/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d2400103-Reviews-Al_Maaden_Villa_Hotel_Spa-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -27627,7 +27631,8 @@
       "description": "Le Dar JL à Marrakech est idéal pour des vacances relaxantes et inoubliables, mais aussi pour des mariages spectaculaires dans un cadre exceptionnel. Nous vous promettons un séjour unique dans nos villas de luxe, qui sera sans aucun doute le point d'orgue de votre voyage au Maroc. Le Dar JL, composé de quatre villas de luxe, a été construit il y a quelques années comme résidence privée pour un couple suédois passionné de design. Au fil des ans, ils ont accueilli d'innombrables célébrités interna",
       "main_category": "Hôtellerie",
       "categories": [
-        "Villas"
+        "Villas",
+        "Hôtel"
       ],
       "services": [
         "Cours de cuisine",
@@ -27644,7 +27649,9 @@
         "Excursions en 4×4",
         "Spectacles",
         "Golf",
-        "Restauration sur place"
+        "Restauration sur place",
+        "Pavillons / Villas individuelles",
+        "Vue montagne"
       ],
       "city": "Marrakech",
       "neighborhood": "Palmeraie",
@@ -27652,7 +27659,7 @@
       "country": "MA",
       "latitude": 31.6503245,
       "longitude": -7.9770223,
-      "address": "Arset Sdiguia Talaint Annakhil Nord Palmeraie BP",
+      "address": "Arset Sdiguia Talaint Annakhil Nord",
       "phone": "+212 6 61 21 05 49",
       "whatsapp": null,
       "website": "https://www.darjl.com",
@@ -27664,12 +27671,12 @@
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://www.darjl.com",
+      "booking_url": null,
       "menu_url": null,
       "social": {
-        "instagram": "https://www.instagram.com/darjlmarrakech/",
+        "instagram": null,
         "facebook": "https://www.facebook.com/darjlmarrakech",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d2022039-Reviews-Dar_JL-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -28952,14 +28959,15 @@
     },
     {
       "id": "b0470314-7266-4316-a534-2eda6622dec3",
-      "slug": "dav-mahal-eco-lodge",
-      "url": "https://oneworldmorocco.com/dav-mahal-eco-lodge",
+      "slug": "davmahal",
+      "url": "https://oneworldmorocco.com/davmahal",
       "name": "Dav Mahal Eco Lodge",
       "hook": "Retraite de Yoga face à l'océan à Essaouira.",
       "description": "Olivier acquit ce terrain composé de sable et de roches en 2011, laissant ensuite six années derrière lui pour bien s'imprégner du lieu. Il tomba immédiatement amoureux de la vue imprenable sur l'océan que lui offrait le village de Ouassen, perché sur un cap (le fameux Cap \"Sim\" bien connu des surfeurs) et balayé par les vents atlantiques. Il est vrai que le climat maritime et ensoleillé (320 jours par an...) d'Essaouira offre des températures exceptionnelles comprises entre 18 et 25 degrés tout",
       "main_category": "Hôtellerie",
       "categories": [
-        "Écolodge"
+        "Écolodge",
+        "Hôtel"
       ],
       "services": [
         "Yoga",
@@ -28967,7 +28975,9 @@
         "Balades à dos de chameau",
         "Balades à pied",
         "Bungalows / Lodges individuels",
-        "Parking"
+        "Parking",
+        "Surf house",
+        "Retraite Yoga"
       ],
       "city": "Essaouira",
       "neighborhood": "Sidi Kaouki",
@@ -28975,13 +28985,13 @@
       "country": "MA",
       "latitude": 31.3869228,
       "longitude": -9.8136873,
-      "address": "Dav Mahal - Ouassen - Cap Sim",
+      "address": "Ouassen - Cap Sim",
       "phone": "+212 670251419",
       "whatsapp": null,
       "website": "https://www.davmahal.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b0470314-7266-4316-a534-2eda6622dec3-1774081671730-0e54jt.jpg",
-      "google_rating": 4.6,
-      "google_review_count": 144,
+      "google_rating": 4.5,
+      "google_review_count": 153,
       "price_range": "100 à 200€",
       "min_price_mad": 140,
       "languages": [],
@@ -28992,7 +29002,7 @@
       "social": {
         "instagram": "https://www.instagram.com/dav.mahal/?hl=fr",
         "facebook": null,
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g17606565-d14024983-Reviews-Dav_Mahal_Eco_Lodge-Ouassane_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -31349,8 +31359,8 @@
       "slug": "fairmont-spa",
       "url": "https://oneworldmorocco.com/fairmont-spa",
       "name": "Fairmont Spa",
-      "hook": null,
-      "description": "Détendez-vous au Fairmont Spa, où le luxe rencontre la sérénité. Détendez-vous au Fairmont Spa, où le luxe rencontre la sérénité. Choisissez parmi une large gamme de massages ressourçants, de soins du visage revitalisants et de soins holistiques, avec pour incroyable toile de fond les montagnes de l’Atlas. Choisissez parmi une large gamme de massages ressourçants, de soins du visage revitalisants et de soins holistiques, avec pour incroyable toile de fond les montagnes de l’Atlas. Profitez de la",
+      "hook": "Détendez-vous au Fairmont Spa, où le luxe rencontre la sérénité. La retraite idéale pour votre corps et votre esprit.",
+      "description": "Choisissez parmi une large gamme de massages ressourçants, de soins du visage revitalisants et de soins holistiques, avec pour incroyable toile de fond les montagnes de l’Atlas. Profitez de la sérénité de notre paisible oasis. Afin de garantir un environnement paisible et sûr à tous nos clients, l’accès à la piscine intérieure du spa est réservé aux adultes. Plongez dans le bien-être avec nos soins apaisants, réalisés par des professionnels qualifiés qui adaptent chaque service afin de vous appo",
       "main_category": "Bien-être",
       "categories": [
         "Spa / Hammam",
@@ -31396,7 +31406,6 @@
         "Masque à l'argile verte",
         "Masque d'algues aux sels de mer",
         "Masque de Ghassoul",
-        "Massage à domicile",
         "Massage à quatre mains",
         "Massage anti-stress",
         "Massage aux pierres chaudes",
@@ -31436,8 +31445,8 @@
       "whatsapp": null,
       "website": "https://www.fairmont.com/fr/hotels/marrakech/fairmont-royal-palm-marrakech/wellness/spa.html",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/77232f98-9da5-41d5-b899-64fcd9b32af5-1775285932440-1bptol.jpg",
-      "google_rating": 4.2,
-      "google_review_count": 72,
+      "google_rating": null,
+      "google_review_count": null,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -32352,7 +32361,20 @@
         "Jardin",
         "Terrasse",
         "Service de transport",
-        "Parking privé"
+        "Parking privé",
+        "Complexe hôtelier",
+        "Golf",
+        "Billard",
+        "Boutique",
+        "Bar",
+        "Balcons privatifs",
+        "Ascenseur",
+        "Room service",
+        "Salle de Billard",
+        "Piscine privative",
+        "Massage",
+        "Sauna",
+        "Transfert Aéroport"
       ],
       "city": "Marrakech",
       "neighborhood": "Route d'Amizmiz",
@@ -32363,10 +32385,10 @@
       "address": "Km 12",
       "phone": "+212 524487800",
       "whatsapp": null,
-      "website": "https://www.fairmont.com/en/hotels/marrakech/fairmont-royal-palm-marrakech/",
+      "website": " https://permalink.fairmont.com/booking/search?lengthOfStayValue=1&client=aem.fairmont&product%5B0%5D%5BadultNumber%5D=2&languageCode=en&hotelCodes=B147",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/8bb40757-0437-4060-8ea3-28b4e17e714c-1775283766540-hbj3qk.jpg",
       "google_rating": 4.7,
-      "google_review_count": 1598,
+      "google_review_count": 1602,
       "price_range": "200 à 500€",
       "min_price_mad": 415,
       "languages": [],
@@ -32730,8 +32752,8 @@
       "whatsapp": null,
       "website": "https://royalpalmtennismarrakech.com/yoga/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/77232f98-9da5-41d5-b899-64fcd9b32af5-1775285933259-e39n1i.jpg",
-      "google_rating": 4.2,
-      "google_review_count": 72,
+      "google_rating": null,
+      "google_review_count": null,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -32794,7 +32816,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://royalpalmtennismarrakech.com/yoga/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/fairmontmarrakech/",
@@ -57426,7 +57448,7 @@
       "slug": "le-sabra-clubhouse-royal-palm-golf",
       "url": "https://oneworldmorocco.com/le-sabra-clubhouse-royal-palm-golf",
       "name": "Le Sabra Clubhouse Royal Palm Golf",
-      "hook": null,
+      "hook": "Au cœur du Country Club du Fairmont, cuisine raffinée,  terrasse à l'ombre des oliviers et vue sur l'Atlas.",
       "description": "La cuisine raffinée, empreinte de fraîcheur, est élaborée à partir d’ingrédients de saison pour une expérience gastronomique inoubliable. Élégamment décoré et situé au cœur du Country Club de l'hôtel, le restaurant Le Sabra offre un cadre élégant et confortable avec vue sur le parcours de golf et les majestueuses montagnes de l'Atlas, ainsi qu'une terrasse pour déjeuner à l'ombre des oliviers. Que ce soit pour vous détendre après une partie de golf, assister à un match de football ou savourer un",
       "main_category": "Restauration",
       "categories": [
@@ -57452,8 +57474,8 @@
       "whatsapp": null,
       "website": "https://www.fairmont.com/en/hotels/marrakech/fairmont-royal-palm-marrakech/dining/le-sabra.restaurant.html",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/36bbdad6-b2e9-4f3b-8ba6-be06a62fd7af-1774946188138-ipvmnf.jpg",
-      "google_rating": null,
-      "google_review_count": null,
+      "google_rating": 4.5,
+      "google_review_count": 297,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -57516,12 +57538,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": null,
+      "booking_url": "https://booking.resdiary.com/widget/Standard/LESABRA/53122",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/lesabramarrakech/",
         "facebook": "https://www.facebook.com/FairmontRoyalPalmMarrakech",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d13444943-Reviews-LE_SABRA-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": "https://www.youtube.com/channel/UC_2q5xyUNNjQ1Zi9Edar_hg",
         "linkedin": "https://www.linkedin.com/company/fairmont-royal-palm-marrakech/"
       }
@@ -67894,15 +67916,16 @@
       "name": "Marrakech Golf Location",
       "hook": "Location villas et appartements sur golf à Marrakech.",
       "description": "Marrakech Golf Location , spécialiste de la location de villas et d'appartements pour vos vacances ou longs séjours sur golf à Marrakech. En appartement ou en villa, vous bénéficierez d'un service exclusif et personnalisé selon vos envies. Nous mettrons à votre disposition notre professionnalisme et notre expérience à la réussite de votre séjour à Marrakech . Passionnés de golf depuis de nombreuses années,nous avons créé Marrakech-golf-location pour vous faire découvrir Marrakech et ses golfs da",
-      "main_category": "Services",
+      "main_category": "Hôtellerie",
       "categories": [
-        "Agences immobilières"
+        "Agences immobilières",
+        "Villas"
       ],
       "services": [
         "Location",
-        "Location longue durée",
         "Location vacances",
-        "Vente"
+        "Golf",
+        "Piscine privative"
       ],
       "city": "Marrakech",
       "neighborhood": "Gueliz",
@@ -75746,7 +75769,6 @@
       "main_category": "Sport & Loisirs",
       "categories": [
         "Fitness",
-        "Danse",
         "Yoga"
       ],
       "services": [
@@ -95518,13 +95540,12 @@
       "id": "36bbdad6-b2e9-4f3b-8ba6-be06a62fd7af",
       "slug": "royal-palm-golf-country-club-fairmont-marrakech",
       "url": "https://oneworldmorocco.com/royal-palm-golf-country-club-fairmont-marrakech",
-      "name": "Royal Palm Golf & Country Club - Fairmont Marrakech",
+      "name": "Royal Palm Golf & Country Club",
       "hook": "Un parcours de golf d'exception au pied de l'Atlas. Accès réservé.",
-      "description": "Niché au cœur de Marrakech, le Royal Palm Golf Course offre un cadre exceptionnel, alliant beauté naturelle et design de renommée mondiale. Encadré par les majestueuses montagnes de l'Atlas, ce chef-d'œuvre de 18 trous, conçu par Cabell B. Robinson, combine fairways luxuriants et paysages préservés. Chaque trou présente un défi unique, harmonisant à la perfection précision technique et panoramas à couper le souffle. L e parcours bénéficie d'une conception de championnat et d'installations de pre",
+      "description": "Niché au cœur de Marrakech, le Royal Palm Golf Course offre un cadre exceptionnel, alliant beauté naturelle et design de renommée mondiale. Encadré par les majestueuses montagnes de l'Atlas, ce chef-d'œuvre de 18 trous, conçu par Cabell B. Robinson, combine fairways luxuriants et paysages préservés. Chaque trou présente un défi unique, harmonisant à la perfection précision technique et panoramas à couper le souffle. Le parcours bénéficie d'une conception de championnat et d'installations de prem",
       "main_category": "Sport & Loisirs",
       "categories": [
         "Golf",
-        "Hôtel",
         "Restaurant"
       ],
       "services": [
@@ -95532,21 +95553,17 @@
         "Cours de golf",
         "18 trous",
         "Restaurant",
-        "Ouvert à tous",
         "Vue montagne",
-        "Piscine",
         "Jardin",
         "Terrasse",
-        "Pavillons / Villas individuelles",
-        "Bar",
-        "Room service",
-        "Hammam et soins",
         "Dîner",
         "Déjeuner",
         "Viande",
         "Poisson",
         "Plats végétariens",
-        "Salades"
+        "Salades",
+        "Golf",
+        "Piscine"
       ],
       "city": "Marrakech",
       "neighborhood": "Route d'Amizmiz",
@@ -141326,9 +141343,15 @@
         "Boutique",
         "Vue montagne",
         "Terrasse",
-        "Glaces",
         "Climatisation",
-        "Cave à vin d'exception"
+        "Cave à vin d'exception",
+        "Jardin",
+        "Massage",
+        "Transfert Aéroport",
+        "Service de transport",
+        "Salle de sport",
+        "Salle de Billard",
+        "Complexe hôtelier"
       ],
       "city": "Marrakech",
       "neighborhood": "Route de l’Ourika",
@@ -152746,6 +152769,56 @@
         "instagram": "https://www.instagram.com/pikalabikes_marrakech",
         "facebook": "https://www.facebook.com/pikalabikes",
         "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d12206006-Reviews-Pikala_Bikes-Marrakech_Marrakech_Safi.html?m=66827",
+        "youtube": null,
+        "linkedin": null
+      }
+    },
+    {
+      "id": "b0470314-7266-4316-a534-2eda6622dec3",
+      "slug": "davmahal",
+      "url": "https://oneworldmorocco.com/davmahal",
+      "name": "Dav Mahal Eco Lodge",
+      "hook": "Retraite de Yoga face à l'océan à Essaouira.",
+      "description": "Olivier acquit ce terrain composé de sable et de roches en 2011, laissant ensuite six années derrière lui pour bien s'imprégner du lieu. Il tomba immédiatement amoureux de la vue imprenable sur l'océan que lui offrait le village de Ouassen, perché sur un cap (le fameux Cap \"Sim\" bien connu des surfeurs) et balayé par les vents atlantiques. Il est vrai que le climat maritime et ensoleillé (320 jours par an...) d'Essaouira offre des températures exceptionnelles comprises entre 18 et 25 degrés tout",
+      "main_category": "Hôtellerie",
+      "categories": [
+        "Écolodge",
+        "Hôtel"
+      ],
+      "services": [
+        "Yoga",
+        "Vue sur mer",
+        "Balades à dos de chameau",
+        "Balades à pied",
+        "Bungalows / Lodges individuels",
+        "Parking",
+        "Surf house",
+        "Retraite Yoga"
+      ],
+      "city": "Essaouira",
+      "neighborhood": "Sidi Kaouki",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.3869228,
+      "longitude": -9.8136873,
+      "address": "Ouassen - Cap Sim",
+      "phone": "+212 670251419",
+      "whatsapp": null,
+      "website": "https://www.davmahal.com/",
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b0470314-7266-4316-a534-2eda6622dec3-1774081671730-0e54jt.jpg",
+      "google_rating": 4.5,
+      "google_review_count": 153,
+      "price_range": "100 à 200€",
+      "min_price_mad": 140,
+      "languages": [],
+      "opening_hours": null,
+      "is_open_24h": false,
+      "booking_url": "https://dav-mahal-1.hotelrunner.com/bv3/search",
+      "menu_url": null,
+      "social": {
+        "instagram": "https://www.instagram.com/dav.mahal/?hl=fr",
+        "facebook": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g17606565-d14024983-Reviews-Dav_Mahal_Eco_Lodge-Ouassane_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
