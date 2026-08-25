@@ -33,7 +33,7 @@ const YouTubeChannelsTabContent = lazy(() => import("@/pages/search/YouTubeChann
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 import AiBusinessResultCards from "@/components/ai/AiBusinessResultCards";
 import { AI_NAME_FONT } from "@/lib/aiTypography";
-import { Maximize2, X, Navigation, Clock, Star, Building2, Compass, CloudSun, MapPinned, Footprints } from "lucide-react";
+import { Maximize2, X, Navigation, Clock, Star, Building2, Compass, CloudSun, MapPinned, Footprints, SlidersHorizontal } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import AiTidesWidget from "@/components/embed/AiTidesWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -745,6 +745,7 @@ const EmbedAsk = () => {
   const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
   const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string>("");
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
 
@@ -1847,6 +1848,7 @@ const EmbedAsk = () => {
       })),
     },
   ];
+  const filterCount = filterGroups.flatMap((g) => g.items).length;
   const [mainEl, setMainEl] = useState<HTMLDivElement | null>(null);
   // Redimensionne l'iframe hôte pour qu'elle épouse la hauteur du contenu du widget
   // et éviter tout scroll vertical interne superflu en mode widget standard.
@@ -2614,49 +2616,90 @@ const EmbedAsk = () => {
 
       <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`relative p-3 border-t ${border} ${bg}`}>
         {messages.length > 1 && !streaming && !competitorGuardActive && (
-          <EmbedFilterDrawer
-            groups={filterGroups}
-            panelClass={`${cardBg} ${border} ${cardInk}`}
-            /* Overlay Full Description : tout est transparent autour → fond clair 1WM
-               imposé derrière les badges, la poignée et le tiroir. */
-            surfaceStyle={
-              overlay
-                ? { background: OVERLAY_MAP_COLOR, color: "#1A1A1A", borderColor: "rgba(0,0,0,0.12)" }
-                : undefined
-            }
-            labelClass={overlay || theme === "light" ? "text-neutral-500" : "text-white/60"}
-            fontStyle={AI_NAME_FONT}
-            handleLabel={lang === "en" ? "Filters" : lang === "ar" ? "تصفية" : "Filtres"}
-          />
+          <>
+            {/* Ligne des 4 actions rapides au-dessus du composer */}
+            <div className="flex items-center gap-2 pb-2 overflow-x-auto scrollbar-hide">
+              {mapReplayTarget && poolInfo.hasGeo && (
+                <button
+                  type="button"
+                  onClick={() => setOpenMap(mapReplayTarget)}
+                  style={{ ...AI_NAME_FONT, ...mapBadgeStyle }}
+                  className="text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-bold hover:opacity-90 shrink-0 transition-opacity"
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  {lang === "en" ? "On a map" : lang === "ar" ? "على الخريطة" : "Sur une carte"}
+                </button>
+              )}
+              {poolRemaining > 0 && (
+                <button
+                  type="button"
+                  onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
+                  style={{ ...AI_NAME_FONT, ...moreBadgeStyle }}
+                  className="text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-bold hover:opacity-90 shrink-0 transition-opacity"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={startNewConversation}
+                disabled={streaming}
+                style={{ ...AI_NAME_FONT, ...newConvStyle }}
+                className="text-xs px-3 py-1.5 rounded-full border transition-opacity font-bold hover:opacity-90 disabled:opacity-40 shrink-0"
+              >
+                {SCOPE_LABELS[lang]?.newConversation ?? SCOPE_LABELS.fr.newConversation}
+              </button>
+              <button
+                type="button"
+                onClick={() => setFiltersOpen(true)}
+                style={AI_NAME_FONT}
+                className={`text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-semibold hover:opacity-90 shrink-0 transition-opacity ${chipBg}`}
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                {lang === "en" ? "Filters" : lang === "ar" ? "تصفية" : "Filtres"}
+                {filterCount > 0 && ` · ${filterCount}`}
+              </button>
+            </div>
+
+            <EmbedFilterDrawer
+              groups={filterGroups}
+              panelClass={`${cardBg} ${border} ${cardInk}`}
+              /* Overlay Full Description : fond blanc opaque pour la lisibilité. */
+              surfaceStyle={
+                overlay
+                  ? { background: "#FFFFFF", color: "#1A1A1A", borderColor: "rgba(0,0,0,0.12)" }
+                  : undefined
+              }
+              labelClass={overlay || theme === "light" ? "text-neutral-500" : "text-white/60"}
+              fontStyle={AI_NAME_FONT}
+              handleLabel={lang === "en" ? "Filters" : lang === "ar" ? "تصفية" : "Filtres"}
+              open={filtersOpen}
+              onOpenChange={setFiltersOpen}
+              hidePeek
+              header={
+                <div className="flex items-center gap-2 py-2">
+                  <label
+                    htmlFor="owm-embed-radius"
+                    className="text-[11px] shrink-0 text-neutral-500"
+                  >
+                    {L.radiusLabel}
+                  </label>
+                  <select
+                    id="owm-embed-radius"
+                    value={String(radiusKm)}
+                    onChange={(e) => applyRadius(Number(e.target.value))}
+                    className="text-[11px] rounded-full border px-2 py-1 outline-none bg-white text-neutral-800 border-neutral-200"
+                  >
+                    {RADIUS_OPTIONS.map((r) => (
+                      <option key={r} value={String(r)}>{radiusLabel(r, lang)}</option>
+                    ))}
+                  </select>
+                </div>
+              }
+            />
+          </>
         )}
-        {/* Barre fixe : nouvelle conversation + rayon (hauteur constante) */}
-        <div className="flex items-center gap-2 pb-2">
-          <button
-            type="button"
-            onClick={startNewConversation}
-            disabled={streaming}
-            style={{ ...AI_NAME_FONT, ...newConvStyle }}
-            className="text-xs px-3 py-1 rounded-full border transition-opacity font-bold hover:opacity-90 disabled:opacity-40 shrink-0"
-          >
-            {SCOPE_LABELS[lang]?.newConversation ?? SCOPE_LABELS.fr.newConversation}
-          </button>
-          <label
-            htmlFor="owm-embed-radius"
-            className={`text-[11px] shrink-0 ${theme === "light" ? "text-neutral-500" : "text-white/70"}`}
-          >
-            {L.radiusLabel}
-          </label>
-          <select
-            id="owm-embed-radius"
-            value={String(radiusKm)}
-            onChange={(e) => applyRadius(Number(e.target.value))}
-            className={`text-[11px] rounded-full border px-2 py-1 outline-none ${border} ${inputBg} ${theme === "light" ? "text-neutral-800" : "text-white"}`}
-          >
-            {RADIUS_OPTIONS.map((r) => (
-              <option key={r} value={String(r)}>{radiusLabel(r, lang)}</option>
-            ))}
-          </select>
-        </div>
 
         <div className="flex items-end gap-2">
           <div className={`flex-1 flex items-end rounded-2xl border ${border} ${inputBg} px-3 py-2`}>

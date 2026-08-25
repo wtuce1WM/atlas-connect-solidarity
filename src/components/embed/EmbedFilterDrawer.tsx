@@ -37,6 +37,13 @@ type Props = {
   closeOnPick?: boolean;
   fontStyle?: React.CSSProperties;
   handleLabel: string;
+  /** Contrôle externe de l'ouverture. Si absent, le composant gère son propre état. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Contenu affiché en haut du tiroir ouvert (ex. sélecteur de rayon). */
+  header?: React.ReactNode;
+  /** Masque la ligne « peek » + poignée (utile quand un déclencheur externe pilote l'overlay). */
+  hidePeek?: boolean;
 };
 
 /**
@@ -55,8 +62,19 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
   closeOnPick = true,
   fontStyle,
   handleLabel,
+  open: controlledOpen,
+  onOpenChange,
+  header,
+  hidePeek,
 }) => {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = useCallback((value: boolean) => {
+    if (!isControlled) setInternalOpen(value);
+    onOpenChange?.(value);
+  }, [isControlled, onOpenChange]);
+
   const [drag, setDrag] = useState(0);
   const startY = useRef<number | null>(null);
   const [maxH, setMaxH] = useState(360);
@@ -82,7 +100,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
   // Reset quand la liste disparaît (nouvelle conversation, competitor guard…)
   useEffect(() => {
     if (count === 0) setOpen(false);
-  }, [count]);
+  }, [count, setOpen]);
 
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
@@ -175,6 +193,11 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
           >
             <span className="w-10 h-1.5 rounded-full bg-current opacity-25" />
           </div>
+          {header && (
+            <div className="px-3 pb-2 border-b border-black/10">
+              {header}
+            </div>
+          )}
           <div className="px-3 pb-3 space-y-3">
             {groups
               .filter((g) => g.items.length > 0)
@@ -191,29 +214,31 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
       </div>
 
       {/* Ligne peek + poignée (repliée) */}
-      <div
-        ref={rootRef}
-        className="relative z-30 flex items-center gap-2 pb-2"
-        style={surfaceStyle ? { ...surfaceStyle, borderRadius: 12, padding: 6, marginBottom: 8 } : undefined}
-      >
-
-        <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide">
-          {peek.map(pill)}
-        </div>
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          aria-expanded={open}
-          style={{ ...fontStyle, ...surfaceStyle }}
-          className={`shrink-0 text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-semibold hover:opacity-90 touch-none ${surfaceStyle ? "" : panelClass}`}
+      {!hidePeek && (
+        <div
+          ref={rootRef}
+          className="relative z-30 flex items-center gap-2 pb-2"
+          style={surfaceStyle ? { ...surfaceStyle, borderRadius: 12, padding: 6, marginBottom: 8 } : undefined}
         >
-          <ChevronUp className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
-          {handleLabel} · {count}
-        </button>
-      </div>
+
+          <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide">
+            {peek.map(pill)}
+          </div>
+          <button
+            type="button"
+            onClick={() => setOpen(!open)}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            aria-expanded={open}
+            style={{ ...fontStyle, ...surfaceStyle }}
+            className={`shrink-0 text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-semibold hover:opacity-90 touch-none ${surfaceStyle ? "" : panelClass}`}
+          >
+            <ChevronUp className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+            {handleLabel} · {count}
+          </button>
+        </div>
+      )}
     </>
   );
 };
