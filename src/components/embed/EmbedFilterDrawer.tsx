@@ -72,6 +72,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
   onOpenChange,
   header,
   hidePeek,
+  expandToFit,
 }) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
