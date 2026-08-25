@@ -114,6 +114,22 @@ const StaffVideos = () => {
               <Film className="h-4 w-4" />
               Dernières vidéos
             </TabsTrigger>
+            <TabsTrigger value="country-videos" className="gap-2">
+              <Play className="h-4 w-4" />
+              Vidéos
+            </TabsTrigger>
+            <TabsTrigger value="youtube" className="gap-2">
+              <Youtube className="h-4 w-4" />
+              YouTube
+            </TabsTrigger>
+            <TabsTrigger value="video-id" className="gap-2">
+              <Video className="h-4 w-4" />
+              Vidéo ID
+            </TabsTrigger>
+            <TabsTrigger value="badged" className="gap-2">
+              <FlaskConical className="h-4 w-4" />
+              Badgées
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="dashboard">
             <VideoDashboardPanel />
@@ -127,6 +143,77 @@ const StaffVideos = () => {
           <TabsContent value="latest">
             <LatestVideosPanel />
           </TabsContent>
+
+          <TabsContent value="country-videos">
+            <Tabs defaultValue="">
+              <TabsList className="flex flex-wrap h-auto gap-1">
+                <TabsTrigger value="front-videos">Homepage</TabsTrigger>
+                <TabsTrigger value="fs-videos">Structure du front</TabsTrigger>
+                <TabsTrigger value="sub-videos">Avec sous-catégorie</TabsTrigger>
+                <TabsTrigger value="no-sub-videos">Sans sous-catégorie</TabsTrigger>
+                <TabsTrigger value="service-videos">Services</TabsTrigger>
+                <TabsTrigger value="poi-videos">POI</TabsTrigger>
+                <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
+                <TabsTrigger value="pois-videos">POIS</TabsTrigger>
+                <TabsTrigger value="generic-videos">Génériques</TabsTrigger>
+                <TabsTrigger value="db-structure">Toutes</TabsTrigger>
+              </TabsList>
+              <TabsContent value="front-videos">
+                <Tabs defaultValue="marrakech">
+                  <TabsList className="mb-4">
+                    <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
+                    <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="marrakech">
+                    <DestinationVideosPanel cityName="Marrakech" />
+                  </TabsContent>
+                  <TabsContent value="essaouira">
+                    <DestinationVideosPanel cityName="Essaouira" />
+                  </TabsContent>
+                </Tabs>
+              </TabsContent>
+              <TabsContent value="sub-videos">
+                <CountryVideosPanel withSubcategory={true} />
+              </TabsContent>
+              <TabsContent value="no-sub-videos">
+                <CountryVideosPanel withSubcategory={false} />
+              </TabsContent>
+              <TabsContent value="service-videos">
+                <ServiceVideosPanel />
+              </TabsContent>
+              <TabsContent value="poi-videos">
+                <PoiVideosPanel />
+              </TabsContent>
+              <TabsContent value="dest-videos">
+                <DestinationVideosPanelTab />
+              </TabsContent>
+              <TabsContent value="pois-videos">
+                <VideoPoiAssignmentPanel />
+              </TabsContent>
+              <TabsContent value="generic-videos">
+                <GenericVideosPanel />
+              </TabsContent>
+              <TabsContent value="fs-videos">
+                <FrontStructureVideosPanel />
+              </TabsContent>
+              <TabsContent value="db-structure">
+                <VideoDbStructurePanel />
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+
+          <TabsContent value="youtube">
+            <YouTubeBackofficePanel />
+          </TabsContent>
+
+          <TabsContent value="video-id">
+            <VideoThumbnailLocker />
+          </TabsContent>
+
+          <TabsContent value="badged">
+            <TestNoteViewer />
+          </TabsContent>
+
 
         </Tabs>
 
