@@ -246,8 +246,14 @@ const AiBusinessResultCards = ({
                         className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold"
                         style={
                           hours.isOpen
-                            ? { background: "rgba(37,211,102,0.15)", color: "#1E9E52" }
-                            : { background: "rgba(194,75,63,0.15)", color: "#C24B3F" }
+                            ? {
+                                background: "rgba(37,211,102,0.15)",
+                                color: light ? "#FFFFFF" : "#1E9E52",
+                              }
+                            : {
+                                background: "rgba(194,75,63,0.15)",
+                                color: light ? "#FFFFFF" : "#C24B3F",
+                              }
                         }
                       >
                         <Clock className="w-2.5 h-2.5" /> {statusLabel}
