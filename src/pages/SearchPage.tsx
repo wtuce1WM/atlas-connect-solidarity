@@ -1881,12 +1881,19 @@ const SearchPage = () => {
           }
 
           if (!isOverPanel) return;
+          // Geste franchement horizontal (trackpad) : ne rien capter, laisser passer.
+          // IMPORTANT : ce test doit rester AVANT preventDefault, sinon les
+          // trackpads de précision Windows (deltaX parasite quasi égal à deltaY
+          // sur un scroll vertical) voyaient leur scroll annulé sans être rejoué
+          // → défilement vertical totalement mort dans le panneau.
+          const deltaXNorm = e.deltaMode === 1 ? e.deltaX * 16 : e.deltaMode === 2 ? e.deltaX * window.innerWidth : e.deltaX;
+          if (Math.abs(deltaXNorm) > Math.abs(deltaY) * 1.5) return;
+          if (Math.abs(deltaY) < 0.5) return;
           e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
 
 
-          if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
           const dir = deltaY > 0 ? 1 : -1;
           const scrollable = getScrollable(e.target);
           if (scrollable) {
