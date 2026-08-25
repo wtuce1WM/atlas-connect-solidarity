@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1856,
+  "numberOfItems": 1857,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -440,7 +440,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.3,
-          "reviewCount": 403,
+          "reviewCount": 465,
           "bestRating": 5
         }
       }
@@ -9270,7 +9270,7 @@
         "description": "Le Dar JL à Marrakech est idéal pour des vacances relaxantes et inoubliables, mais aussi pour des mariages spectaculaires dans un cadre exceptionnel. Nous vous promettons un séjour unique dans nos villas de luxe, qui sera sans aucun doute le point d'orgue de votre voyage au Maroc. Le Dar JL, composé de quatre villas de luxe, a été construit il y a quelques années comme résidence privée pour un couple suédois passionné de design. Au fil des ans, ils ont accueilli d'innombrables célébrités interna",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Arset Sdiguia Talaint Annakhil Nord Palmeraie BP",
+          "streetAddress": "Arset Sdiguia Talaint Annakhil Nord",
           "addressLocality": "Palmeraie",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -9777,17 +9777,17 @@
     {
       "@type": "ListItem",
       "position": 338,
-      "url": "https://oneworldmorocco.com/dav-mahal-eco-lodge",
+      "url": "https://oneworldmorocco.com/davmahal",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/dav-mahal-eco-lodge#business",
+        "@id": "https://oneworldmorocco.com/davmahal#business",
         "name": "Dav Mahal Eco Lodge",
-        "url": "https://oneworldmorocco.com/dav-mahal-eco-lodge",
+        "url": "https://oneworldmorocco.com/davmahal",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b0470314-7266-4316-a534-2eda6622dec3-1774081671730-0e54jt.jpg",
         "description": "Olivier acquit ce terrain composé de sable et de roches en 2011, laissant ensuite six années derrière lui pour bien s'imprégner du lieu. Il tomba immédiatement amoureux de la vue imprenable sur l'océan que lui offrait le village de Ouassen, perché sur un cap (le fameux Cap \"Sim\" bien connu des surfeurs) et balayé par les vents atlantiques. Il est vrai que le climat maritime et ensoleillé (320 jours par an...) d'Essaouira offre des températures exceptionnelles comprises entre 18 et 25 degrés tout",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Dav Mahal - Ouassen - Cap Sim",
+          "streetAddress": "Ouassen - Cap Sim",
           "addressLocality": "Sidi Kaouki",
           "addressRegion": "Essaouira",
           "addressCountry": "MA"
@@ -9800,8 +9800,8 @@
         "telephone": "+212 670251419",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.6,
-          "reviewCount": 144,
+          "ratingValue": 4.5,
+          "reviewCount": 153,
           "bestRating": 5
         }
       }
@@ -10781,7 +10781,7 @@
         "name": "Fairmont Spa",
         "url": "https://oneworldmorocco.com/fairmont-spa",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/77232f98-9da5-41d5-b899-64fcd9b32af5-1775285932440-1bptol.jpg",
-        "description": "Détendez-vous au Fairmont Spa, où le luxe rencontre la sérénité. Détendez-vous au Fairmont Spa, où le luxe rencontre la sérénité. Choisissez parmi une large gamme de massages ressourçants, de soins du visage revitalisants et de soins holistiques, avec pour incroyable toile de fond les montagnes de l’Atlas. Choisissez parmi une large gamme de massages ressourçants, de soins du visage revitalisants et de soins holistiques, avec pour incroyable toile de fond les montagnes de l’Atlas. Profitez de la",
+        "description": "Choisissez parmi une large gamme de massages ressourçants, de soins du visage revitalisants et de soins holistiques, avec pour incroyable toile de fond les montagnes de l’Atlas. Profitez de la sérénité de notre paisible oasis. Afin de garantir un environnement paisible et sûr à tous nos clients, l’accès à la piscine intérieure du spa est réservé aux adultes. Plongez dans le bien-être avec nos soins apaisants, réalisés par des professionnels qualifiés qui adaptent chaque service afin de vous appo",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Km 12",
@@ -10794,13 +10794,7 @@
           "latitude": 31.5222756,
           "longitude": -8.0573194
         },
-        "telephone": "+212 5 24 48 79 03",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.2,
-          "reviewCount": 72,
-          "bestRating": 5
-        }
+        "telephone": "+212 5 24 48 79 03"
       }
     },
     {
@@ -11153,7 +11147,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 1598,
+          "reviewCount": 1602,
           "bestRating": 5
         }
       }
@@ -11300,13 +11294,7 @@
           "latitude": 31.5222756,
           "longitude": -8.0573194
         },
-        "telephone": "+212 5 24 48 79 03",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.2,
-          "reviewCount": 72,
-          "bestRating": 5
-        }
+        "telephone": "+212 5 24 48 79 03"
       }
     },
     {
@@ -19866,7 +19854,13 @@
           "latitude": 31.5222756,
           "longitude": -8.0573194
         },
-        "telephone": "+212524487919"
+        "telephone": "+212524487919",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.5,
+          "reviewCount": 297,
+          "bestRating": 5
+        }
       }
     },
     {
@@ -33880,10 +33874,10 @@
       "item": {
         "@type": "LocalBusiness",
         "@id": "https://oneworldmorocco.com/royal-palm-golf-country-club-fairmont-marrakech#business",
-        "name": "Royal Palm Golf & Country Club - Fairmont Marrakech",
+        "name": "Royal Palm Golf & Country Club",
         "url": "https://oneworldmorocco.com/royal-palm-golf-country-club-fairmont-marrakech",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/36bbdad6-b2e9-4f3b-8ba6-be06a62fd7af-1774946784900-lwhl.jpg",
-        "description": "Niché au cœur de Marrakech, le Royal Palm Golf Course offre un cadre exceptionnel, alliant beauté naturelle et design de renommée mondiale. Encadré par les majestueuses montagnes de l'Atlas, ce chef-d'œuvre de 18 trous, conçu par Cabell B. Robinson, combine fairways luxuriants et paysages préservés. Chaque trou présente un défi unique, harmonisant à la perfection précision technique et panoramas à couper le souffle. L e parcours bénéficie d'une conception de championnat et d'installations de pre",
+        "description": "Niché au cœur de Marrakech, le Royal Palm Golf Course offre un cadre exceptionnel, alliant beauté naturelle et design de renommée mondiale. Encadré par les majestueuses montagnes de l'Atlas, ce chef-d'œuvre de 18 trous, conçu par Cabell B. Robinson, combine fairways luxuriants et paysages préservés. Chaque trou présente un défi unique, harmonisant à la perfection précision technique et panoramas à couper le souffle. Le parcours bénéficie d'une conception de championnat et d'installations de prem",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Km 12",
@@ -53027,6 +53021,38 @@
     {
       "@type": "ListItem",
       "position": 1850,
+      "url": "https://oneworldmorocco.com/davmahal",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/davmahal#business",
+        "name": "Dav Mahal Eco Lodge",
+        "url": "https://oneworldmorocco.com/davmahal",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b0470314-7266-4316-a534-2eda6622dec3-1774081671730-0e54jt.jpg",
+        "description": "Olivier acquit ce terrain composé de sable et de roches en 2011, laissant ensuite six années derrière lui pour bien s'imprégner du lieu. Il tomba immédiatement amoureux de la vue imprenable sur l'océan que lui offrait le village de Ouassen, perché sur un cap (le fameux Cap \"Sim\" bien connu des surfeurs) et balayé par les vents atlantiques. Il est vrai que le climat maritime et ensoleillé (320 jours par an...) d'Essaouira offre des températures exceptionnelles comprises entre 18 et 25 degrés tout",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Ouassen - Cap Sim",
+          "addressLocality": "Sidi Kaouki",
+          "addressRegion": "Essaouira",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.3869228,
+          "longitude": -9.8136873
+        },
+        "telephone": "+212 670251419",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.5,
+          "reviewCount": 153,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1851,
       "url": "https://oneworldmorocco.com/villa-jmajorelle",
       "item": {
         "@type": "LocalBusiness",
@@ -53037,7 +53063,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1851,
+      "position": 1852,
       "url": "https://oneworldmorocco.com/elevate-cycle",
       "item": {
         "@type": "LocalBusiness",
@@ -53068,7 +53094,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1852,
+      "position": 1853,
       "url": "https://oneworldmorocco.com/all-fish-essaouira-garba",
       "item": {
         "@type": "LocalBusiness",
@@ -53092,7 +53118,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1853,
+      "position": 1854,
       "url": "https://oneworldmorocco.com/la-grande-table-marocaine-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -53124,7 +53150,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1854,
+      "position": 1855,
       "url": "https://oneworldmorocco.com/be-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -53155,7 +53181,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1855,
+      "position": 1856,
       "url": "https://oneworldmorocco.com/m-avenue-1",
       "item": {
         "@type": "LocalBusiness",
@@ -53187,7 +53213,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1856,
+      "position": 1857,
       "url": "https://oneworldmorocco.com/pc-gamer-maroc",
       "item": {
         "@type": "LocalBusiness",

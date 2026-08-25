@@ -236,7 +236,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/al-maaden-villahotel-spa</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2510,7 +2510,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/dar-jl</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2594,7 +2594,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/davmahal</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -3254,25 +3254,25 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/fairmont-fitness-center</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/fairmont-royal-palm-marrakech</loc>
-    <lastmod>2026-08-14</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/fairmont-spa</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/fairmont-yoga-center</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -5606,7 +5606,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/le-sabra-clubhouse-royal-palm-golf</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -5780,7 +5780,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/les-gourmandises-de-loubna</loc>
-    <lastmod>2026-08-19</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -6482,7 +6482,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/marrakech-golf-location</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -7304,7 +7304,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/nobu-fitness-center</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -7874,7 +7874,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/park-hyatt-marrakech</loc>
-    <lastmod>2026-08-16</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -8198,7 +8198,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/piscines-du-fairmont-royal-palm-marrakech</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9194,13 +9194,13 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/royal-palm-golf-country-club-fairmont-marrakech</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/royal-palm-tennis-padel-academy</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9956,7 +9956,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/tarik-belasri</loc>
-    <lastmod>2026-08-22</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -11429,11 +11429,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/category/Tourisme</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://oneworldmorocco.com/category/Services</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -11475,6 +11470,11 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/category/%C3%89ducation</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/category/Tourisme</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

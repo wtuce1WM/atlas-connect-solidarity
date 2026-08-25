@@ -1686,7 +1686,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/dav-mahal-eco-lodge</loc>
+    <loc>https://oneworldmorocco.com/davmahal</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9242,6 +9242,11 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/pikala</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/davmahal</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
