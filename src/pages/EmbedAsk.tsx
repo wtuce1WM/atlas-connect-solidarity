@@ -1503,6 +1503,8 @@ const EmbedAsk = () => {
       : undefined;
   // Intérieur des cartes : blanc uniquement si la carte n'a pas un fond clair affilié.
   const cardInk = cardStyle ? "" : whiteInk;
+  // Couleur des liens cités : terracotta sur fond clair, blanc sur fond sombre/transparent.
+  const linkInkClass = lightInk ? "text-[#C24B3F]" : "text-white";
 
   // Badges spéciaux : couleurs de marque explicites, inversées en dark mode.
   const mapBadgeStyle: React.CSSProperties =
@@ -1648,7 +1650,7 @@ const EmbedAsk = () => {
           type="button"
           onClick={() => setOpenEvents({ list: evHit.list, index: evHit.index })}
           style={AI_NAME_FONT}
-          className="text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-white cursor-pointer"
+          className={`text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid ${linkInkClass} cursor-pointer`}
         >
           {children}
         </button>
@@ -1661,7 +1663,7 @@ const EmbedAsk = () => {
           type="button"
           onClick={() => setOpenDestinationId(dest.id)}
           style={AI_NAME_FONT}
-          className="text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-white cursor-pointer"
+          className={`text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid ${linkInkClass} cursor-pointer`}
         >
           {children}
         </button>
@@ -1683,7 +1685,7 @@ const EmbedAsk = () => {
           setOpenBusinessId(meta.id);
         }}
         style={AI_NAME_FONT}
-        className="text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-white cursor-pointer"
+        className={`text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid ${linkInkClass} cursor-pointer`}
       >
         {children}
       </button>
