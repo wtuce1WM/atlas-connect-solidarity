@@ -3,12 +3,25 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LogOut, LayoutDashboard, Rocket, Clapperboard, Film } from "lucide-react";
+import { ArrowLeft, LogOut, LayoutDashboard, Rocket, Clapperboard, Film, Play, Youtube, Video, FlaskConical } from "lucide-react";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import VideoDashboardPanel from "@/components/staff/VideoDashboardPanel";
 import LatestVideosPanel from "@/components/staff/LatestVideosPanel";
 import VideoGeneratePanel from "@/components/staff/VideoGeneratePanel";
 import VideoStoryboardPanel from "@/components/staff/VideoStoryboardPanel";
+import YouTubeBackofficePanel from "@/components/staff/YouTubeBackofficePanel";
+import VideoThumbnailLocker from "@/components/staff/VideoThumbnailLocker";
+import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
+import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
+import ServiceVideosPanel from "@/components/staff/ServiceVideosPanel";
+import PoiVideosPanel from "@/components/staff/PoiVideosPanel";
+import DestinationVideosPanelTab from "@/components/staff/DestinationVideosPanelTab";
+import VideoPoiAssignmentPanel from "@/components/staff/VideoPoiAssignmentPanel";
+import GenericVideosPanel from "@/components/staff/GenericVideosPanel";
+import FrontStructureVideosPanel from "@/components/staff/FrontStructureVideosPanel";
+import VideoDbStructurePanel from "@/components/staff/VideoDbStructurePanel";
+import TestNoteViewer from "@/components/staff/TestNoteViewer";
+
 
 
 
