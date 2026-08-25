@@ -37,6 +37,13 @@ type Props = {
   closeOnPick?: boolean;
   fontStyle?: React.CSSProperties;
   handleLabel: string;
+  /** Contrôle externe de l'ouverture. Si absent, le composant gère son propre état. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Contenu affiché en haut du tiroir ouvert (ex. sélecteur de rayon). */
+  header?: React.ReactNode;
+  /** Masque la ligne « peek » + poignée (utile quand un déclencheur externe pilote l'overlay). */
+  hidePeek?: boolean;
 };
 
 /**
