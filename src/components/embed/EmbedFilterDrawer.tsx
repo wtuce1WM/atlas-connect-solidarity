@@ -44,6 +44,12 @@ type Props = {
   header?: React.ReactNode;
   /** Masque la ligne « peek » + poignée (utile quand un déclencheur externe pilote l'overlay). */
   hidePeek?: boolean;
+  /**
+   * Déploie le tiroir sur toute la hauteur du viewport et laisse le contenu
+   * déterminer sa hauteur. Évite le scroll interne inutile quand la liste de
+   * filtres est courte.
+   */
+  expandToFit?: boolean;
 };
 
 /**
@@ -66,6 +72,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
   onOpenChange,
   header,
   hidePeek,
+  expandToFit,
 }) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
@@ -87,6 +94,11 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
   useEffect(() => {
     const compute = () => {
       const h = window.innerHeight || 640;
+      if (expandToFit) {
+        // Le tiroir occupe tout le viewport ; le contenu détermine la hauteur réelle.
+        setMaxH(h);
+        return;
+      }
       const ratio = h < 600 ? Math.min(maxRatio, 0.6) : maxRatio;
       // Feuille ancrée au bas du viewport : borne = ratio du viewport
       setMaxH(Math.max(180, Math.round(h * ratio)));
@@ -94,7 +106,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
     compute();
     window.addEventListener("resize", compute);
     return () => window.removeEventListener("resize", compute);
-  }, [maxRatio, open, count]);
+  }, [maxRatio, open, count, expandToFit]);
 
 
   // Reset quand la liste disparaît (nouvelle conversation, competitor guard…)
@@ -179,8 +191,13 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
         aria-hidden={!open}
       >
         <div
-          className={`rounded-t-2xl border-t border-x shadow-[0_-8px_32px_rgba(0,0,0,0.25)] ${panelClass}`}
-          style={{ maxHeight: maxH, overflowY: "auto", ...surfaceStyle }}
+          className={`rounded-t-2xl border-t border-x shadow-[0_-8px_32px_rgba(0,0,0,0.25)] ${panelClass} ${expandToFit ? "flex flex-col" : ""}`}
+          style={{
+            maxHeight: expandToFit ? "100vh" : maxH,
+            minHeight: expandToFit ? "100vh" : undefined,
+            overflowY: "auto",
+            ...surfaceStyle,
+          }}
         >
 
           <div
@@ -198,7 +215,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
               {header}
             </div>
           )}
-          <div className="px-3 pb-3 space-y-3">
+          <div className={`px-3 pb-3 space-y-3 ${expandToFit ? "flex-1" : ""}`}>
             {groups
               .filter((g) => g.items.length > 0)
               .map((g) => (
