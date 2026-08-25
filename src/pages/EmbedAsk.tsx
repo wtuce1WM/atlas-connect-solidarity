@@ -478,25 +478,28 @@ const MarkdownLink = ({
   href,
   children,
   openBooking,
+  lightInk,
 }: {
   href?: string;
   children?: React.ReactNode;
   openBooking: (url: string, label: string) => void;
+  lightInk?: boolean;
 }) => {
+  const linkClass = lightInk ? "text-[#C24B3F]" : "text-white";
   const label = String(Array.isArray(children) ? children.join("") : children ?? "").trim();
   if (href && /^https?:\/\//.test(href) && isBookingLabel(label)) {
     return (
       <button
         type="button"
         onClick={() => openBooking(href, label)}
-        className="inline-flex items-center gap-1 font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid text-white cursor-pointer"
+        className={`inline-flex items-center gap-1 font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid ${linkClass} cursor-pointer`}
       >
         {children}
       </button>
     );
   }
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="underline decoration-dotted underline-offset-2 hover:decoration-solid text-white">
+    <a href={href} target="_blank" rel="noopener noreferrer" className={`underline decoration-dotted underline-offset-2 hover:decoration-solid ${linkClass}`}>
       {children}
     </a>
   );
