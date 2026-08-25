@@ -44,6 +44,12 @@ type Props = {
   header?: React.ReactNode;
   /** Masque la ligne « peek » + poignée (utile quand un déclencheur externe pilote l'overlay). */
   hidePeek?: boolean;
+  /**
+   * Déploie le tiroir sur toute la hauteur du viewport et laisse le contenu
+   * déterminer sa hauteur. Évite le scroll interne inutile quand la liste de
+   * filtres est courte.
+   */
+  expandToFit?: boolean;
 };
 
 /**
