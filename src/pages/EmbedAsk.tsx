@@ -478,25 +478,28 @@ const MarkdownLink = ({
   href,
   children,
   openBooking,
+  lightInk,
 }: {
   href?: string;
   children?: React.ReactNode;
   openBooking: (url: string, label: string) => void;
+  lightInk?: boolean;
 }) => {
+  const linkClass = lightInk ? "text-[#C24B3F]" : "text-white";
   const label = String(Array.isArray(children) ? children.join("") : children ?? "").trim();
   if (href && /^https?:\/\//.test(href) && isBookingLabel(label)) {
     return (
       <button
         type="button"
         onClick={() => openBooking(href, label)}
-        className="inline-flex items-center gap-1 font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid text-white cursor-pointer"
+        className={`inline-flex items-center gap-1 font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid ${linkClass} cursor-pointer`}
       >
         {children}
       </button>
     );
   }
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="underline decoration-dotted underline-offset-2 hover:decoration-solid text-white">
+    <a href={href} target="_blank" rel="noopener noreferrer" className={`underline decoration-dotted underline-offset-2 hover:decoration-solid ${linkClass}`}>
       {children}
     </a>
   );
@@ -1500,6 +1503,8 @@ const EmbedAsk = () => {
       : undefined;
   // Intérieur des cartes : blanc uniquement si la carte n'a pas un fond clair affilié.
   const cardInk = cardStyle ? "" : whiteInk;
+  // Couleur des liens cités : terracotta sur fond clair, blanc sur fond sombre/transparent.
+  const linkInkClass = lightInk ? "text-[#C24B3F]" : "text-white";
 
   // Badges spéciaux : couleurs de marque explicites, inversées en dark mode.
   const mapBadgeStyle: React.CSSProperties =
@@ -1645,7 +1650,7 @@ const EmbedAsk = () => {
           type="button"
           onClick={() => setOpenEvents({ list: evHit.list, index: evHit.index })}
           style={AI_NAME_FONT}
-          className="text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-white cursor-pointer"
+          className={`text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid ${linkInkClass} cursor-pointer`}
         >
           {children}
         </button>
@@ -1658,7 +1663,7 @@ const EmbedAsk = () => {
           type="button"
           onClick={() => setOpenDestinationId(dest.id)}
           style={AI_NAME_FONT}
-          className="text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-white cursor-pointer"
+          className={`text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid ${linkInkClass} cursor-pointer`}
         >
           {children}
         </button>
@@ -1680,7 +1685,7 @@ const EmbedAsk = () => {
           setOpenBusinessId(meta.id);
         }}
         style={AI_NAME_FONT}
-        className="text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-white cursor-pointer"
+        className={`text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid ${linkInkClass} cursor-pointer`}
       >
         {children}
       </button>
@@ -2103,7 +2108,7 @@ const EmbedAsk = () => {
                         h3: (({ children }: any) => (
                           <h3 className="text-base md:text-lg font-bold mt-1 mb-2 font-[Montserrat]">{children}</h3>
                         )) as any,
-                        a: ((props: any) => <MarkdownLink href={props.href} openBooking={openBookingOverlay}>{props.children}</MarkdownLink>) as any,
+                        a: ((props: any) => <MarkdownLink href={props.href} openBooking={openBookingOverlay} lightInk={lightInk}>{props.children}</MarkdownLink>) as any,
                         ...(articleCard?.inline
                           ? {
                               blockquote: (({ children }: any) => (
@@ -2184,7 +2189,7 @@ const EmbedAsk = () => {
                             <button
                               type="button"
                               onClick={() => { setOpenSiblings([p.id]); setOpenBusinessId(p.id); }}
-                              className="text-left font-bold text-[15px] leading-tight hover:underline decoration-dotted underline-offset-2 text-white break-words"
+                              className={`text-left font-bold text-[15px] leading-tight hover:underline decoration-dotted underline-offset-2 ${linkInkClass} break-words`}
                             >
                               {p.name}
                             </button>
@@ -2270,7 +2275,7 @@ const EmbedAsk = () => {
                           type="button"
                           onClick={() => setOpenDestMap({ title: destinationsPayload.title || null, destinations: destinationsPayload.destinations })}
                           style={AI_NAME_FONT}
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-white hover:underline"
+                          className={`inline-flex items-center gap-1.5 text-xs font-medium ${linkInkClass} hover:underline`}
                         >
                           <MapPin className="w-3.5 h-3.5" />
                           {lang === "en" ? "Destinations on the map" : lang === "ar" ? "الوجهات على الخريطة" : "Les destinations sur la carte"}
@@ -2344,7 +2349,7 @@ const EmbedAsk = () => {
                       tabIndex={0}
                       onClick={(e) => { e.stopPropagation(); setOpenSiblings([bizId]); setOpenBusinessId(bizId); }}
                       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setOpenSiblings([bizId]); setOpenBusinessId(bizId); } }}
-                      className="text-[11px] font-semibold text-white/95 underline underline-offset-2 hover:text-[#D4AF37] cursor-pointer break-words"
+                      className={`text-[11px] font-semibold ${lightInk ? "text-[#C24B3F]" : "text-white/95"} underline underline-offset-2 hover:text-[#D4AF37] cursor-pointer break-words`}
                     >
                       {bizName}
                     </span>
@@ -2389,7 +2394,7 @@ const EmbedAsk = () => {
                         <button
                           type="button"
                           onClick={() => setOpenEvents({ list: eventsPayload.events, index: 0 })}
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-white hover:underline"
+                          className={`inline-flex items-center gap-1.5 text-xs font-medium ${linkInkClass} hover:underline`}
                         >
                           <CalendarIcon className="w-3.5 h-3.5" /> {L.events} · {eventsPayload.events.length}
                         </button>
@@ -2398,7 +2403,7 @@ const EmbedAsk = () => {
                             type="button"
                             onClick={() => setOpenMap({ title: eventsPayload.title || null, businesses: eventBiz } as MapPayload)}
                             style={AI_NAME_FONT}
-                            className="inline-flex items-center gap-1.5 text-xs font-medium text-white hover:underline"
+                            className={`inline-flex items-center gap-1.5 text-xs font-medium ${linkInkClass} hover:underline`}
                           >
                             <MapPin className="w-3.5 h-3.5" /> {L.viewMap}
                           </button>
