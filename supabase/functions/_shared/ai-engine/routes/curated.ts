@@ -803,9 +803,10 @@ export async function buildFilteredAnswer(
 
 
   const inCity = effCity ? (lang === "en" ? ` in ${effCity}` : lang === "ar" ? ` في ${effCity}` : ` à ${effCity}`) : "";
-  const heading = opts.label
-    ? `### **${opts.label}**`
-    : (lang === "en" ? `Matching addresses${inCity}:` : lang === "ar" ? `عناوين مطابقة${inCity}:` : `Les adresses qui correspondent${inCity} :`);
+  // Toujours le titre générique : le libellé de la suggestion/relance est déjà
+  // visible dans la bulle utilisateur juste au-dessus — le répéter en ### serait
+  // redondant.
+  const heading = lang === "en" ? `Matching addresses${inCity}:` : lang === "ar" ? `عناوين مطابقة${inCity}:` : `Les adresses qui correspondent${inCity} :`;
   const rest = total - shownIds.length;
   // Les horaires, statuts et liens de réservation sont déjà portés par les cartes
   // résultat IA : ne reste que l'option d'afficher le lot suivant.
