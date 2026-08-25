@@ -382,7 +382,12 @@ const TestNoteViewer = () => {
                 <SelectContent>
                   <SelectItem value="none">Aucun</SelectItem>
                   {availableBadges.map(b => (
-                    <SelectItem key={b.id} value={b.id}>{b.name_fr}</SelectItem>
+                    <SelectItem key={b.id} value={b.id}>
+                      <span className="flex items-center justify-between w-full gap-3">
+                        <span>{b.name_fr}</span>
+                        <span className="text-xs text-muted-foreground">{badgeCounts.get(b.id) || 0}</span>
+                      </span>
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
