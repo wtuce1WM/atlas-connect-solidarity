@@ -2351,7 +2351,7 @@ const EmbedAsk = () => {
                       tabIndex={0}
                       onClick={(e) => { e.stopPropagation(); setOpenSiblings([bizId]); setOpenBusinessId(bizId); }}
                       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setOpenSiblings([bizId]); setOpenBusinessId(bizId); } }}
-                      className={`text-[11px] font-semibold ${lightInk ? "text-[#C24B3F]" : "text-white/95"} underline underline-offset-2 hover:text-[#D4AF37] cursor-pointer break-words`}
+                      className={`text-[11px] font-semibold ${lightInk || cardStyle ? "text-[#C24B3F]" : "text-white/95"} underline underline-offset-2 hover:text-[#D4AF37] cursor-pointer break-words`}
                     >
                       {bizName}
                     </span>
