@@ -2108,7 +2108,7 @@ const EmbedAsk = () => {
                         h3: (({ children }: any) => (
                           <h3 className="text-base md:text-lg font-bold mt-1 mb-2 font-[Montserrat]">{children}</h3>
                         )) as any,
-                        a: ((props: any) => <MarkdownLink href={props.href} openBooking={openBookingOverlay}>{props.children}</MarkdownLink>) as any,
+                        a: ((props: any) => <MarkdownLink href={props.href} openBooking={openBookingOverlay} lightInk={lightInk}>{props.children}</MarkdownLink>) as any,
                         ...(articleCard?.inline
                           ? {
                               blockquote: (({ children }: any) => (
@@ -2189,7 +2189,7 @@ const EmbedAsk = () => {
                             <button
                               type="button"
                               onClick={() => { setOpenSiblings([p.id]); setOpenBusinessId(p.id); }}
-                              className="text-left font-bold text-[15px] leading-tight hover:underline decoration-dotted underline-offset-2 text-white break-words"
+                              className={`text-left font-bold text-[15px] leading-tight hover:underline decoration-dotted underline-offset-2 ${linkInkClass} break-words`}
                             >
                               {p.name}
                             </button>
@@ -2275,7 +2275,7 @@ const EmbedAsk = () => {
                           type="button"
                           onClick={() => setOpenDestMap({ title: destinationsPayload.title || null, destinations: destinationsPayload.destinations })}
                           style={AI_NAME_FONT}
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-white hover:underline"
+                          className={`inline-flex items-center gap-1.5 text-xs font-medium ${linkInkClass} hover:underline`}
                         >
                           <MapPin className="w-3.5 h-3.5" />
                           {lang === "en" ? "Destinations on the map" : lang === "ar" ? "الوجهات على الخريطة" : "Les destinations sur la carte"}
@@ -2349,7 +2349,7 @@ const EmbedAsk = () => {
                       tabIndex={0}
                       onClick={(e) => { e.stopPropagation(); setOpenSiblings([bizId]); setOpenBusinessId(bizId); }}
                       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setOpenSiblings([bizId]); setOpenBusinessId(bizId); } }}
-                      className="text-[11px] font-semibold text-white/95 underline underline-offset-2 hover:text-[#D4AF37] cursor-pointer break-words"
+                      className={`text-[11px] font-semibold ${lightInk ? "text-[#C24B3F]" : "text-white/95"} underline underline-offset-2 hover:text-[#D4AF37] cursor-pointer break-words`}
                     >
                       {bizName}
                     </span>
@@ -2394,7 +2394,7 @@ const EmbedAsk = () => {
                         <button
                           type="button"
                           onClick={() => setOpenEvents({ list: eventsPayload.events, index: 0 })}
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-white hover:underline"
+                          className={`inline-flex items-center gap-1.5 text-xs font-medium ${linkInkClass} hover:underline`}
                         >
                           <CalendarIcon className="w-3.5 h-3.5" /> {L.events} · {eventsPayload.events.length}
                         </button>
@@ -2403,7 +2403,7 @@ const EmbedAsk = () => {
                             type="button"
                             onClick={() => setOpenMap({ title: eventsPayload.title || null, businesses: eventBiz } as MapPayload)}
                             style={AI_NAME_FONT}
-                            className="inline-flex items-center gap-1.5 text-xs font-medium text-white hover:underline"
+                            className={`inline-flex items-center gap-1.5 text-xs font-medium ${linkInkClass} hover:underline`}
                           >
                             <MapPin className="w-3.5 h-3.5" /> {L.viewMap}
                           </button>
