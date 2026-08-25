@@ -149,6 +149,7 @@ const TestNoteViewer = () => {
   // Heavy fetch: only when entering a sub-tab that needs videos
   useEffect(() => {
     if (videosLoaded || videosLoading) return;
+    if (activeTab === "badgees" && city === "none") return;
     if (activeTab !== "badgees" && activeTab !== "tobadge") return;
 
     (async () => {
@@ -285,7 +286,7 @@ const TestNoteViewer = () => {
         setVideosLoading(false);
       }
     })();
-  }, [activeTab, videosLoaded, videosLoading]);
+  }, [activeTab, city, videosLoaded, videosLoading]);
 
   const matchesCity = (v: VideoDoc) =>
     city === "none" ? false :
@@ -383,10 +384,7 @@ const TestNoteViewer = () => {
                   <SelectItem value="none">Aucun</SelectItem>
                   {availableBadges.map(b => (
                     <SelectItem key={b.id} value={b.id}>
-                      <span className="flex items-center justify-between w-full gap-3">
-                        <span>{b.name_fr}</span>
-                        <span className="text-xs text-muted-foreground">{badgeCounts.get(b.id) || 0}</span>
-                      </span>
+                      {b.name_fr} ({badgeCounts.get(b.id) || 0})
                     </SelectItem>
                   ))}
                 </SelectContent>
