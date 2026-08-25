@@ -102,7 +102,7 @@ const MediaViewerInfo = ({
 
         /* text-transform/letter-spacing forcés en inline : index.css impose uppercase sur [role="button"] */
         style={{ textTransform: "none", letterSpacing: "normal" }}
-        className={`group w-full mx-auto cursor-pointer select-none px-3 pt-2.5 pb-1 md:px-4 md:pt-3 md:pb-1 text-left ${bare ? "" : "rounded-2xl bg-gradient-to-b from-black/35 to-black/65 backdrop-blur-[8px] border border-white/10 transition-colors hover:from-black/45 hover:to-black/75"}`}
+        className={`group w-full mx-auto cursor-pointer select-none px-3 pt-2.5 pb-1 md:px-4 md:pt-3 md:pb-1 text-left ${bare ? "" : "rounded-2xl bg-gradient-to-b from-black/55 to-black/85 backdrop-blur-[14px] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.45)] transition-colors hover:from-black/60 hover:to-black/90"}`}
       >
         <div
           className="text-[15px] md:text-lg !font-bold text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.6)] truncate"
