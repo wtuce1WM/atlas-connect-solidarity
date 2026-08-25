@@ -215,7 +215,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
               {header}
             </div>
           )}
-          <div className="px-3 pb-3 space-y-3">
+          <div className={`px-3 pb-3 space-y-3 ${expandToFit ? "flex-1" : ""}`}>
             {groups
               .filter((g) => g.items.length > 0)
               .map((g) => (
