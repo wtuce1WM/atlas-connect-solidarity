@@ -3,11 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, ArrowUp, ArrowDown, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned, FlaskConical, Youtube, MessageSquare, ImageDown } from "lucide-react";
+import { ArrowLeft, ArrowUp, ArrowDown, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned, MessageSquare, ImageDown } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import VideoLightbox from "@/components/staff/VideoLightbox";
-import YouTubeBackofficePanel from "@/components/staff/YouTubeBackofficePanel";
-import VideoThumbnailLocker from "@/components/staff/VideoThumbnailLocker";
 import ImageCompressionPanel from "@/components/staff/ImageCompressionPanel";
 
 interface FrontVideo {
@@ -310,23 +308,13 @@ const PopupPanel = () => {
 
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
-import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
 import RegenerateHomepageSnapshotButton from "@/components/staff/RegenerateHomepageSnapshotButton";
 import HomepageFrontStructurePreview from "@/components/staff/HomepageFrontStructurePreview";
 import HomepageCardsFront from "@/components/HomepageCardsFront";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import DisplayPanel from "@/components/staff/DisplayPanel";
-import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
-import ServiceVideosPanel from "@/components/staff/ServiceVideosPanel";
-import PoiVideosPanel from "@/components/staff/PoiVideosPanel";
-import DestinationVideosPanelTab from "@/components/staff/DestinationVideosPanelTab";
 import BlogManagement from "@/components/staff/BlogManagement";
 import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
-import VideoPoiAssignmentPanel from "@/components/staff/VideoPoiAssignmentPanel";
-import GenericVideosPanel from "@/components/staff/GenericVideosPanel";
-import FrontStructureVideosPanel from "@/components/staff/FrontStructureVideosPanel";
-import VideoDbStructurePanel from "@/components/staff/VideoDbStructurePanel";
-import TestNoteViewer from "@/components/staff/TestNoteViewer";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import { PAGE_META } from "@/seo/pageMeta";
 import PageMetaDescriptionEditor from "@/components/staff/PageMetaDescriptionEditor";
