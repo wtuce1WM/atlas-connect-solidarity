@@ -193,6 +193,11 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
           >
             <span className="w-10 h-1.5 rounded-full bg-current opacity-25" />
           </div>
+          {header && (
+            <div className="px-3 pb-2 border-b border-black/10">
+              {header}
+            </div>
+          )}
           <div className="px-3 pb-3 space-y-3">
             {groups
               .filter((g) => g.items.length > 0)
@@ -209,29 +214,31 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
       </div>
 
       {/* Ligne peek + poignée (repliée) */}
-      <div
-        ref={rootRef}
-        className="relative z-30 flex items-center gap-2 pb-2"
-        style={surfaceStyle ? { ...surfaceStyle, borderRadius: 12, padding: 6, marginBottom: 8 } : undefined}
-      >
-
-        <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide">
-          {peek.map(pill)}
-        </div>
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          aria-expanded={open}
-          style={{ ...fontStyle, ...surfaceStyle }}
-          className={`shrink-0 text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-semibold hover:opacity-90 touch-none ${surfaceStyle ? "" : panelClass}`}
+      {!hidePeek && (
+        <div
+          ref={rootRef}
+          className="relative z-30 flex items-center gap-2 pb-2"
+          style={surfaceStyle ? { ...surfaceStyle, borderRadius: 12, padding: 6, marginBottom: 8 } : undefined}
         >
-          <ChevronUp className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
-          {handleLabel} · {count}
-        </button>
-      </div>
+
+          <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide">
+            {peek.map(pill)}
+          </div>
+          <button
+            type="button"
+            onClick={() => setOpen(!open)}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            aria-expanded={open}
+            style={{ ...fontStyle, ...surfaceStyle }}
+            className={`shrink-0 text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-semibold hover:opacity-90 touch-none ${surfaceStyle ? "" : panelClass}`}
+          >
+            <ChevronUp className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+            {handleLabel} · {count}
+          </button>
+        </div>
+      )}
     </>
   );
 };
