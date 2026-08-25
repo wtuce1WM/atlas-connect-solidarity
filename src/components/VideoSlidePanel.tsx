@@ -687,21 +687,57 @@ const VideoSlidePanel = ({
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
+    let disposed = false;
     // Apply the user's persisted sound preference to this new video element
     v.muted = !soundOn;
-    const tryPlay = v.play();
-    if (tryPlay && typeof tryPlay.catch === "function") {
-      tryPlay.catch(() => {
-        v.muted = true;
-        v.play().catch(() => {});
-      });
-    }
-    const onPlay = () => setFilePaused(false);
+    // Drapeau : un mute technique (autoplay bloqué / lecture interrompue par un
+    // swipe) ne doit JAMAIS être persisté comme un choix utilisateur.
+    let autoMute = false;
+    const attemptPlay = () => {
+      const p = v.play();
+      if (p && typeof p.catch === "function") {
+        p.catch((err: unknown) => {
+          if (disposed) return;
+          const name = (err as { name?: string })?.name;
+          // AbortError : la lecture a été interrompue par un nouveau chargement
+          // (swipe rapide). Ce n'est PAS un blocage autoplay : on retente sans muter.
+          if (name === "AbortError") {
+            window.setTimeout(() => { if (!disposed) attemptPlay(); }, 120);
+            return;
+          }
+          // Vrai blocage navigateur : on mute pour démarrer, puis on rétablit
+          // le son dès le premier geste utilisateur.
+          autoMute = true;
+          v.muted = true;
+          v.play().catch(() => {});
+          if (!soundOn) return;
+          const tryUnmute = () => {
+            if (disposed || !v.muted) return;
+            autoMute = false;
+            v.muted = false;
+            v.play().catch(() => {});
+          };
+          const opts: AddEventListenerOptions = { once: true, capture: true };
+          document.addEventListener("pointerdown", tryUnmute, opts);
+          document.addEventListener("touchstart", tryUnmute, opts);
+        });
+      }
+    };
+    attemptPlay();
+    const onPlay = () => {
+      setFilePaused(false);
+      // Si la lecture démarre alors que le son est demandé mais que l'élément est
+      // resté muté (mute technique), on rétablit le son.
+      if (soundOn && v.muted && autoMute) {
+        autoMute = false;
+        v.muted = false;
+      }
+    };
     const onPause = () => setFilePaused(true);
     const onVol = () => {
       setFileMuted(v.muted);
       // Persist user's choice so subsequent videos respect it
-      setSoundOn(!v.muted);
+      if (!autoMute) setSoundOn(!v.muted);
     };
     v.addEventListener("play", onPlay);
     v.addEventListener("pause", onPause);
@@ -709,11 +745,13 @@ const VideoSlidePanel = ({
     setFilePaused(v.paused);
     setFileMuted(v.muted);
     return () => {
+      disposed = true;
       v.removeEventListener("play", onPlay);
       v.removeEventListener("pause", onPause);
       v.removeEventListener("volumechange", onVol);
     };
   }, [videoUrl, videoId, soundOn, setSoundOn]);
+
 
   // L'URL d'embed force toujours mute=1 pour que l'autoplay démarre.
   // Le toggle son reflète cet état de départ à chaque changement de vidéo.
