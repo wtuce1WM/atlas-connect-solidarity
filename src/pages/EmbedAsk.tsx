@@ -33,7 +33,7 @@ const YouTubeChannelsTabContent = lazy(() => import("@/pages/search/YouTubeChann
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 import AiBusinessResultCards from "@/components/ai/AiBusinessResultCards";
 import { AI_NAME_FONT } from "@/lib/aiTypography";
-import { Maximize2, X, Navigation, Clock, Star, Building2, Compass, CloudSun, MapPinned, Footprints } from "lucide-react";
+import { Maximize2, X, Navigation, Clock, Star, Building2, Compass, CloudSun, MapPinned, Footprints, SlidersHorizontal } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import AiTidesWidget from "@/components/embed/AiTidesWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
