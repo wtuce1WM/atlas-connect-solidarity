@@ -191,9 +191,10 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
         aria-hidden={!open}
       >
         <div
-          className={`rounded-t-2xl border-t border-x shadow-[0_-8px_32px_rgba(0,0,0,0.25)] ${panelClass}`}
+          className={`rounded-t-2xl border-t border-x shadow-[0_-8px_32px_rgba(0,0,0,0.25)] ${panelClass} ${expandToFit ? "flex flex-col" : ""}`}
           style={{
             maxHeight: expandToFit ? "100vh" : maxH,
+            minHeight: expandToFit ? "100vh" : undefined,
             overflowY: "auto",
             ...surfaceStyle,
           }}
