@@ -1511,9 +1511,7 @@ const EmbedAsk = () => {
 
   // Badges spéciaux : couleurs de marque explicites, inversées en dark mode.
   const mapBadgeStyle: React.CSSProperties =
-    theme === "light"
-      ? { background: "#C04F17", color: "#FFFFFF", borderColor: "#C04F17" }
-      : { background: "#E08A5E", color: "#000000", borderColor: "#E08A5E" };
+    { background: "#C04F17", color: "#FFFFFF", borderColor: "#C04F17" };
   const moreBadgeStyle: React.CSSProperties =
     theme === "light"
       ? { background: "#D4AF37", color: "#000000", borderColor: "#D4AF37" }
