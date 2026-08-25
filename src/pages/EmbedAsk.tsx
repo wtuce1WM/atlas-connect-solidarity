@@ -1504,7 +1504,9 @@ const EmbedAsk = () => {
   // Intérieur des cartes : blanc uniquement si la carte n'a pas un fond clair affilié.
   const cardInk = cardStyle ? "" : whiteInk;
   // Couleur des liens cités : terracotta sur fond clair, blanc sur fond sombre/transparent.
-  const linkInkClass = lightInk ? "text-[#C24B3F]" : "text-white";
+  // En dark mode affilié, la bulle de réponse porte `cardStyle` (fond clair affilié)
+  // → ses liens doivent suivre le fond de la bulle, pas le thème de la page.
+  const linkInkClass = lightInk || cardStyle ? "text-[#C24B3F]" : "text-white";
 
   // Badges spéciaux : couleurs de marque explicites, inversées en dark mode.
   const mapBadgeStyle: React.CSSProperties =
@@ -1627,7 +1629,7 @@ const EmbedAsk = () => {
         origin={hostLocation ? { lat: hostLocation.lat, lng: hostLocation.lng } : null}
         lang={lang}
         rankOrder={rankOrder ?? null}
-        ink={(bgInk ?? (theme === "dark" ? "light" : "dark")) === "light" ? "light" : "dark"}
+        ink={lightInk ? "dark" : "light"}
         onOpen={(id, sib) => openOne(id, sib, null)}
         onOpenReviews={(id, sib) => openOne(id, sib, "reviews")}
         onOpenBooking={openBookingOverlay}
@@ -2349,7 +2351,7 @@ const EmbedAsk = () => {
                       tabIndex={0}
                       onClick={(e) => { e.stopPropagation(); setOpenSiblings([bizId]); setOpenBusinessId(bizId); }}
                       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setOpenSiblings([bizId]); setOpenBusinessId(bizId); } }}
-                      className={`text-[11px] font-semibold ${lightInk ? "text-[#C24B3F]" : "text-white/95"} underline underline-offset-2 hover:text-[#D4AF37] cursor-pointer break-words`}
+                      className={`text-[11px] font-semibold ${lightInk || cardStyle ? "text-[#C24B3F]" : "text-white/95"} underline underline-offset-2 hover:text-[#D4AF37] cursor-pointer break-words`}
                     >
                       {bizName}
                     </span>
