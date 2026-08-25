@@ -1629,7 +1629,7 @@ const EmbedAsk = () => {
         origin={hostLocation ? { lat: hostLocation.lat, lng: hostLocation.lng } : null}
         lang={lang}
         rankOrder={rankOrder ?? null}
-        ink={(bgInk ?? (theme === "dark" ? "light" : "dark")) === "light" ? "light" : "dark"}
+        ink={lightInk ? "dark" : "light"}
         onOpen={(id, sib) => openOne(id, sib, null)}
         onOpenReviews={(id, sib) => openOne(id, sib, "reviews")}
         onOpenBooking={openBookingOverlay}
