@@ -10,6 +10,36 @@ import { isInternalVideoUrl } from "@/lib/videoSourceFilter";
 
 const NOTE_ID = "919622ac-3bfe-4e3e-ab64-0dfeb3bd1696";
 
+/**
+ * Récupère toutes les lignes d'une requête paginée (PostgREST plafonne à 1000 lignes),
+ * en lançant plusieurs pages en parallèle pour éviter les longues chaînes séquentielles.
+ */
+const fetchAllPaged = async (
+  build: (from: number, to: number) => any,
+  page = 1000,
+  parallel = 5,
+): Promise<any[]> => {
+  const out: any[] = [];
+  let offset = 0;
+  for (;;) {
+    const results = await Promise.all(
+      Array.from({ length: parallel }, (_, i) =>
+        build(offset + i * page, offset + (i + 1) * page - 1),
+      ),
+    );
+    let done = false;
+    for (const r of results) {
+      if (r.error) throw r.error;
+      const rows = (r.data || []) as any[];
+      out.push(...rows);
+      if (rows.length < page) done = true;
+    }
+    if (done) break;
+    offset += parallel * page;
+  }
+  return out;
+};
+
 interface VideoDoc {
   id: string;
   url: string;
@@ -86,41 +116,33 @@ const TestNoteViewer = () => {
     })();
   }, []);
 
-  // Refresh badge links (cheap) when switching to a video sub-tab
+  // Refresh badge links when switching to a video sub-tab
   useEffect(() => {
     if (!videosLoaded) return;
     if (activeTab !== "badgees" && activeTab !== "tobadge") return;
     (async () => {
-      const bizIds = videos.filter(v => v.source === "business").map(v => v.id);
-      const genIds = videos.filter(v => v.source === "generic").map(v => v.id);
-      const bizLinks: any[] = [];
-      const genLinks: any[] = [];
-      for (let i = 0; i < bizIds.length; i += 200) {
-        const { data } = await supabase
-          .from("business_document_badges")
-          .select("document_id, badge_id")
-          .in("document_id", bizIds.slice(i, i + 200));
-        if (data) bizLinks.push(...data);
+      try {
+        const [bizLinks, genLinks] = await Promise.all([
+          fetchAllPaged((f, t) =>
+            supabase.from("business_document_badges").select("document_id, badge_id").order("document_id").range(f, t)),
+          fetchAllPaged((f, t) =>
+            (supabase.from("generic_video_badges" as any) as any).select("generic_video_id, badge_id").order("generic_video_id").range(f, t)),
+        ]);
+        const badgeMap = new Map<string, string[]>();
+        bizLinks.forEach((l: any) => {
+          const arr = badgeMap.get(l.document_id) || [];
+          arr.push(l.badge_id);
+          badgeMap.set(l.document_id, arr);
+        });
+        genLinks.forEach((l: any) => {
+          const arr = badgeMap.get(l.generic_video_id) || [];
+          arr.push(l.badge_id);
+          badgeMap.set(l.generic_video_id, arr);
+        });
+        setVideos(prev => prev.map(v => ({ ...v, badge_ids: badgeMap.get(v.id) || [] })));
+      } catch (e: any) {
+        toast.error("Erreur de rafraîchissement des badges : " + (e?.message || e));
       }
-      for (let i = 0; i < genIds.length; i += 200) {
-        const { data } = await supabase
-          .from("generic_video_badges" as any)
-          .select("generic_video_id, badge_id")
-          .in("generic_video_id", genIds.slice(i, i + 200));
-        if (data) genLinks.push(...data);
-      }
-      const badgeMap = new Map<string, string[]>();
-      bizLinks.forEach((l: any) => {
-        const arr = badgeMap.get(l.document_id) || [];
-        arr.push(l.badge_id);
-        badgeMap.set(l.document_id, arr);
-      });
-      genLinks.forEach((l: any) => {
-        const arr = badgeMap.get(l.generic_video_id) || [];
-        arr.push(l.badge_id);
-        badgeMap.set(l.generic_video_id, arr);
-      });
-      setVideos(prev => prev.map(v => ({ ...v, badge_ids: badgeMap.get(v.id) || [] })));
     })();
   }, [activeTab, videosLoaded]);
 
@@ -131,168 +153,137 @@ const TestNoteViewer = () => {
 
     (async () => {
       setVideosLoading(true);
+      try {
+        const [
+          rawDocs,
+          genericRows,
+          badgesRes,
+          subsRes,
+          servicesRes,
+          citiesRes,
+          docCityRows,
+          genCityRows,
+          bizLinkRows,
+          genLinkRows,
+          businessRows,
+        ] = await Promise.all([
+          fetchAllPaged((f, t) =>
+            supabase
+              .from("business_documents")
+              .select("id, url, name, thumbnail_url, city, neighborhood, business_id, subcategory_id, service_id")
+              .eq("type", "video")
+              .order("id")
+              .range(f, t)),
+          fetchAllPaged((f, t) =>
+            (supabase.from("generic_videos" as any) as any)
+              .select("id, url, name, thumbnail_url, city, neighborhood, instagram_account, tiktok_account, youtube_account")
+              .order("id")
+              .range(f, t)),
+          supabase.from("badges").select("id, name_fr"),
+          supabase.from("subcategories").select("id, name_fr"),
+          supabase.from("services").select("id, name_fr"),
+          supabase.from("cities").select("id, name_fr"),
+          fetchAllPaged((f, t) =>
+            supabase.from("business_document_cities").select("document_id, city_id").order("document_id").range(f, t)),
+          fetchAllPaged((f, t) =>
+            (supabase.from("generic_video_cities" as any) as any).select("generic_video_id, city_id").order("generic_video_id").range(f, t)),
+          fetchAllPaged((f, t) =>
+            supabase.from("business_document_badges").select("document_id, badge_id").order("document_id").range(f, t)),
+          fetchAllPaged((f, t) =>
+            (supabase.from("generic_video_badges" as any) as any).select("generic_video_id, badge_id").order("generic_video_id").range(f, t)),
+          fetchAllPaged((f, t) => supabase.from("businesses").select("id, name").order("id").range(f, t)),
+        ]);
 
-      // Business videos
-      const allDocs: any[] = [];
-      let offset = 0;
-      const PAGE = 1000;
-      while (true) {
-        const { data } = await supabase
-          .from("business_documents")
-          .select("id, url, name, thumbnail_url, city, neighborhood, business_id, subcategory_id, service_id")
-          .eq("type", "video")
-          .order("id")
-          .range(offset, offset + PAGE - 1);
-        if (!data || data.length === 0) break;
-        allDocs.push(...data.filter((d: any) => isInternalVideoUrl(d.url)));
-        if (data.length < PAGE) break;
-        offset += PAGE;
-      }
+        const allDocs = rawDocs.filter((d: any) => isInternalVideoUrl(d.url));
+        const genericDocs = genericRows.filter((g: any) => isInternalVideoUrl(g.url));
 
-      // Generic videos
-      const { data: genericRows } = await supabase
-        .from("generic_videos" as any)
-        .select("id, url, name, thumbnail_url, city, neighborhood, instagram_account, tiktok_account, youtube_account")
-        .order("sort_order");
-      const genericDocs = ((genericRows as any[]) || []).filter(g => isInternalVideoUrl(g.url));
+        const cityNameMap = new Map<string, string>(((citiesRes.data as any[]) || []).map(c => [c.id, c.name_fr]));
 
-      const [badgesRes, subsRes, servicesRes, citiesRes] = await Promise.all([
-        supabase.from("badges").select("id, name_fr"),
-        supabase.from("subcategories").select("id, name_fr"),
-        supabase.from("services").select("id, name_fr"),
-        supabase.from("cities").select("id, name_fr"),
-      ]);
-      const cityNameMap = new Map<string, string>(((citiesRes.data as any[]) || []).map(c => [c.id, c.name_fr]));
+        const docCityMap = new Map<string, string[]>();
+        docCityRows.forEach((row: any) => {
+          const name = cityNameMap.get(row.city_id);
+          if (!name) return;
+          const arr = docCityMap.get(row.document_id) || [];
+          if (!arr.includes(name)) arr.push(name);
+          docCityMap.set(row.document_id, arr);
+        });
 
-      // Multi-city associations for business video documents
-      const docCityMap = new Map<string, string[]>();
-      const docIdsForCities = allDocs.map(d => d.id);
-      for (let i = 0; i < docIdsForCities.length; i += 200) {
-        const { data } = await supabase
-          .from("business_document_cities")
-          .select("document_id, city_id")
-          .in("document_id", docIdsForCities.slice(i, i + 200));
-        if (data) {
-          (data as any[]).forEach(row => {
-            const name = cityNameMap.get(row.city_id);
-            if (!name) return;
-            const arr = docCityMap.get(row.document_id) || [];
-            if (!arr.includes(name)) arr.push(name);
-            docCityMap.set(row.document_id, arr);
-          });
+        const genericCityMap = new Map<string, string[]>();
+        genCityRows.forEach((row: any) => {
+          const name = cityNameMap.get(row.city_id);
+          if (!name) return;
+          const arr = genericCityMap.get(row.generic_video_id) || [];
+          if (!arr.includes(name)) arr.push(name);
+          genericCityMap.set(row.generic_video_id, arr);
+        });
+
+        if (badgesRes.data) {
+          setBadges([...badgesRes.data].sort((a, b) => a.name_fr.localeCompare(b.name_fr, "fr")));
         }
+
+        const subMap = new Map<string, string>((subsRes.data || []).map((s: any) => [s.id, s.name_fr]));
+        const svcMap = new Map<string, string>((servicesRes.data || []).map((s: any) => [s.id, s.name_fr]));
+        const bizMap = new Map<string, string>(businessRows.map((b: any) => [b.id, b.name]));
+
+        const badgeMap = new Map<string, string[]>();
+        bizLinkRows.forEach((l: any) => {
+          const arr = badgeMap.get(l.document_id) || [];
+          arr.push(l.badge_id);
+          badgeMap.set(l.document_id, arr);
+        });
+        genLinkRows.forEach((l: any) => {
+          const arr = badgeMap.get(l.generic_video_id) || [];
+          arr.push(l.badge_id);
+          badgeMap.set(l.generic_video_id, arr);
+        });
+
+        const businessVideos: VideoDoc[] = allDocs.map((d: any) => {
+          const multi = docCityMap.get(d.id) || [];
+          const cities = multi.length > 0 ? multi : (d.city ? [d.city] : []);
+          return {
+            id: d.id,
+            url: d.url,
+            name: d.name,
+            thumbnail_url: d.thumbnail_url,
+            city: d.city,
+            cities,
+            neighborhood: d.neighborhood,
+            business_id: d.business_id,
+            business_name: bizMap.get(d.business_id) || "—",
+            badge_ids: badgeMap.get(d.id) || [],
+            subcategory_name: d.subcategory_id ? subMap.get(d.subcategory_id) || null : null,
+            service_name: d.service_id ? svcMap.get(d.service_id) || null : null,
+            source: "business",
+          };
+        });
+
+        const genericVideos: VideoDoc[] = genericDocs.map((g: any) => {
+          const multi = genericCityMap.get(g.id) || [];
+          const cities = multi.length > 0 ? multi : (g.city ? [g.city] : []);
+          return {
+            id: g.id,
+            url: g.url,
+            name: g.name,
+            thumbnail_url: g.thumbnail_url,
+            city: g.city,
+            cities,
+            neighborhood: g.neighborhood,
+            business_id: null,
+            business_name: g.instagram_account || g.tiktok_account || g.youtube_account || "— Générique —",
+            badge_ids: badgeMap.get(g.id) || [],
+            subcategory_name: null,
+            service_name: null,
+            source: "generic",
+          };
+        });
+
+        setVideos([...businessVideos, ...genericVideos]);
+        setVideosLoaded(true);
+      } catch (e: any) {
+        toast.error("Erreur de chargement des vidéos : " + (e?.message || e));
+      } finally {
+        setVideosLoading(false);
       }
-
-      // Multi-city associations for generic videos
-      const genericCityMap = new Map<string, string[]>();
-      const genericIdsForCities = genericDocs.map(g => g.id);
-      for (let i = 0; i < genericIdsForCities.length; i += 200) {
-        const { data } = await supabase
-          .from("generic_video_cities" as any)
-          .select("generic_video_id, city_id")
-          .in("generic_video_id", genericIdsForCities.slice(i, i + 200));
-        if (data) {
-          (data as any[]).forEach(row => {
-            const name = cityNameMap.get(row.city_id);
-            if (!name) return;
-            const arr = genericCityMap.get(row.generic_video_id) || [];
-            if (!arr.includes(name)) arr.push(name);
-            genericCityMap.set(row.generic_video_id, arr);
-          });
-        }
-      }
-
-      // Badge links - business
-      const allLinks: any[] = [];
-      const docIds = allDocs.map(d => d.id);
-      for (let i = 0; i < docIds.length; i += 200) {
-        const { data } = await supabase
-          .from("business_document_badges")
-          .select("document_id, badge_id")
-          .in("document_id", docIds.slice(i, i + 200));
-        if (data) allLinks.push(...data);
-      }
-
-      // Badge links - generic
-      const genLinks: any[] = [];
-      const genIds = genericDocs.map(g => g.id);
-      for (let i = 0; i < genIds.length; i += 200) {
-        const { data } = await supabase
-          .from("generic_video_badges" as any)
-          .select("generic_video_id, badge_id")
-          .in("generic_video_id", genIds.slice(i, i + 200));
-        if (data) genLinks.push(...data);
-      }
-
-      if (badgesRes.data) {
-        setBadges([...badgesRes.data].sort((a, b) => a.name_fr.localeCompare(b.name_fr, "fr")));
-      }
-
-      const subMap = new Map<string, string>((subsRes.data || []).map((s: any) => [s.id, s.name_fr]));
-      const svcMap = new Map<string, string>((servicesRes.data || []).map((s: any) => [s.id, s.name_fr]));
-
-      const bizIds = [...new Set(allDocs.map(d => d.business_id))];
-      const bizMap = new Map<string, string>();
-      for (let i = 0; i < bizIds.length; i += 200) {
-        const { data } = await supabase.from("businesses").select("id, name").in("id", bizIds.slice(i, i + 200));
-        if (data) data.forEach(b => bizMap.set(b.id, b.name));
-      }
-
-      const badgeMap = new Map<string, string[]>();
-      allLinks.forEach((l: any) => {
-        const arr = badgeMap.get(l.document_id) || [];
-        arr.push(l.badge_id);
-        badgeMap.set(l.document_id, arr);
-      });
-      genLinks.forEach((l: any) => {
-        const arr = badgeMap.get(l.generic_video_id) || [];
-        arr.push(l.badge_id);
-        badgeMap.set(l.generic_video_id, arr);
-      });
-
-      const businessVideos: VideoDoc[] = allDocs.map(d => {
-        const multi = docCityMap.get(d.id) || [];
-        const cities = multi.length > 0 ? multi : (d.city ? [d.city] : []);
-        return {
-          id: d.id,
-          url: d.url,
-          name: d.name,
-          thumbnail_url: d.thumbnail_url,
-          city: d.city,
-          cities,
-          neighborhood: d.neighborhood,
-          business_id: d.business_id,
-          business_name: bizMap.get(d.business_id) || "—",
-          badge_ids: badgeMap.get(d.id) || [],
-          subcategory_name: d.subcategory_id ? subMap.get(d.subcategory_id) || null : null,
-          service_name: d.service_id ? svcMap.get(d.service_id) || null : null,
-          source: "business",
-        };
-      });
-
-      const genericVideos: VideoDoc[] = genericDocs.map(g => {
-        const multi = genericCityMap.get(g.id) || [];
-        const cities = multi.length > 0 ? multi : (g.city ? [g.city] : []);
-        return {
-          id: g.id,
-          url: g.url,
-          name: g.name,
-          thumbnail_url: g.thumbnail_url,
-          city: g.city,
-          cities,
-          neighborhood: g.neighborhood,
-          business_id: null,
-          business_name: g.instagram_account || g.tiktok_account || g.youtube_account || "— Générique —",
-          badge_ids: badgeMap.get(g.id) || [],
-          subcategory_name: null,
-          service_name: null,
-          source: "generic",
-        };
-      });
-
-      setVideos([...businessVideos, ...genericVideos]);
-      setVideosLoading(false);
-      setVideosLoaded(true);
     })();
   }, [activeTab, videosLoaded, videosLoading]);
 
