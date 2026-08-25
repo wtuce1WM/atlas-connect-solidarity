@@ -401,22 +401,6 @@ const StaffFront = () => {
               <Image className="h-4 w-4" />
               Popup
             </TabsTrigger>
-            <TabsTrigger value="country-videos" className="gap-2">
-              <Play className="h-4 w-4" />
-              Vidéos
-            </TabsTrigger>
-            <TabsTrigger value="youtube" className="gap-2">
-              <Youtube className="h-4 w-4" />
-              YouTube
-            </TabsTrigger>
-            <TabsTrigger value="video-id" className="gap-2">
-              <Video className="h-4 w-4" />
-              Vidéo ID
-            </TabsTrigger>
-            <TabsTrigger value="test" className="gap-2">
-              <FlaskConical className="h-4 w-4" />
-              Badgées
-            </TabsTrigger>
             <TabsTrigger value="preview-mobile" className="gap-2">
               <Smartphone className="h-4 w-4" />
               Structure DB
