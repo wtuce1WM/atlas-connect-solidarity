@@ -3,11 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, ArrowUp, ArrowDown, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned, FlaskConical, Youtube, MessageSquare, ImageDown } from "lucide-react";
+import { ArrowLeft, ArrowUp, ArrowDown, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned, MessageSquare, ImageDown } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import VideoLightbox from "@/components/staff/VideoLightbox";
-import YouTubeBackofficePanel from "@/components/staff/YouTubeBackofficePanel";
-import VideoThumbnailLocker from "@/components/staff/VideoThumbnailLocker";
 import ImageCompressionPanel from "@/components/staff/ImageCompressionPanel";
 
 interface FrontVideo {
@@ -310,23 +308,13 @@ const PopupPanel = () => {
 
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
-import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
 import RegenerateHomepageSnapshotButton from "@/components/staff/RegenerateHomepageSnapshotButton";
 import HomepageFrontStructurePreview from "@/components/staff/HomepageFrontStructurePreview";
 import HomepageCardsFront from "@/components/HomepageCardsFront";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import DisplayPanel from "@/components/staff/DisplayPanel";
-import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
-import ServiceVideosPanel from "@/components/staff/ServiceVideosPanel";
-import PoiVideosPanel from "@/components/staff/PoiVideosPanel";
-import DestinationVideosPanelTab from "@/components/staff/DestinationVideosPanelTab";
 import BlogManagement from "@/components/staff/BlogManagement";
 import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
-import VideoPoiAssignmentPanel from "@/components/staff/VideoPoiAssignmentPanel";
-import GenericVideosPanel from "@/components/staff/GenericVideosPanel";
-import FrontStructureVideosPanel from "@/components/staff/FrontStructureVideosPanel";
-import VideoDbStructurePanel from "@/components/staff/VideoDbStructurePanel";
-import TestNoteViewer from "@/components/staff/TestNoteViewer";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import { PAGE_META } from "@/seo/pageMeta";
 import PageMetaDescriptionEditor from "@/components/staff/PageMetaDescriptionEditor";
@@ -401,22 +389,6 @@ const StaffFront = () => {
               <Image className="h-4 w-4" />
               Popup
             </TabsTrigger>
-            <TabsTrigger value="country-videos" className="gap-2">
-              <Play className="h-4 w-4" />
-              Vidéos
-            </TabsTrigger>
-            <TabsTrigger value="youtube" className="gap-2">
-              <Youtube className="h-4 w-4" />
-              YouTube
-            </TabsTrigger>
-            <TabsTrigger value="video-id" className="gap-2">
-              <Video className="h-4 w-4" />
-              Vidéo ID
-            </TabsTrigger>
-            <TabsTrigger value="test" className="gap-2">
-              <FlaskConical className="h-4 w-4" />
-              Badgées
-            </TabsTrigger>
             <TabsTrigger value="preview-mobile" className="gap-2">
               <Smartphone className="h-4 w-4" />
               Structure DB
@@ -478,75 +450,8 @@ const StaffFront = () => {
             <PopupPanel />
           </TabsContent>
 
-          <TabsContent value="country-videos">
-            <Tabs defaultValue="">
-              <TabsList className="flex flex-wrap h-auto gap-1">
-                <TabsTrigger value="front-videos">Homepage</TabsTrigger>
-                <TabsTrigger value="fs-videos">Structure du front</TabsTrigger>
-                <TabsTrigger value="sub-videos">Avec sous-catégorie</TabsTrigger>
-                <TabsTrigger value="no-sub-videos">Sans sous-catégorie</TabsTrigger>
-                <TabsTrigger value="service-videos">Services</TabsTrigger>
-                <TabsTrigger value="poi-videos">POI</TabsTrigger>
-                <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
-                <TabsTrigger value="pois-videos">POIS</TabsTrigger>
-                <TabsTrigger value="generic-videos">Génériques</TabsTrigger>
-                <TabsTrigger value="db-structure">Toutes</TabsTrigger>
-              </TabsList>
-              <TabsContent value="front-videos">
-                <Tabs defaultValue="marrakech">
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
-                    <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="marrakech">
-                    <DestinationVideosPanel cityName="Marrakech" />
-                  </TabsContent>
-                  <TabsContent value="essaouira">
-                    <DestinationVideosPanel cityName="Essaouira" />
-                  </TabsContent>
-                </Tabs>
-              </TabsContent>
-              <TabsContent value="sub-videos">
-                <CountryVideosPanel withSubcategory={true} />
-              </TabsContent>
-              <TabsContent value="no-sub-videos">
-                <CountryVideosPanel withSubcategory={false} />
-              </TabsContent>
-              <TabsContent value="service-videos">
-                <ServiceVideosPanel />
-              </TabsContent>
-              <TabsContent value="poi-videos">
-                <PoiVideosPanel />
-              </TabsContent>
-              <TabsContent value="dest-videos">
-                <DestinationVideosPanelTab />
-              </TabsContent>
-              <TabsContent value="pois-videos">
-                <VideoPoiAssignmentPanel />
-              </TabsContent>
-              <TabsContent value="generic-videos">
-                <GenericVideosPanel />
-              </TabsContent>
-              <TabsContent value="fs-videos">
-                <FrontStructureVideosPanel />
-              </TabsContent>
-              <TabsContent value="db-structure">
-                <VideoDbStructurePanel />
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
 
-          <TabsContent value="youtube">
-            <YouTubeBackofficePanel />
-          </TabsContent>
 
-          <TabsContent value="video-id">
-            <VideoThumbnailLocker />
-          </TabsContent>
-
-          <TabsContent value="test">
-            <TestNoteViewer />
-          </TabsContent>
 
           <TabsContent value="preview-mobile">
             <div className="grid grid-cols-2 gap-6 w-full">
