@@ -1645,7 +1645,7 @@ const EmbedAsk = () => {
           type="button"
           onClick={() => setOpenEvents({ list: evHit.list, index: evHit.index })}
           style={AI_NAME_FONT}
-          className="text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C24B3F] cursor-pointer"
+          className="text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-white cursor-pointer"
         >
           {children}
         </button>
@@ -1658,7 +1658,7 @@ const EmbedAsk = () => {
           type="button"
           onClick={() => setOpenDestinationId(dest.id)}
           style={AI_NAME_FONT}
-          className="text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C24B3F] cursor-pointer"
+          className="text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-white cursor-pointer"
         >
           {children}
         </button>
@@ -1680,7 +1680,7 @@ const EmbedAsk = () => {
           setOpenBusinessId(meta.id);
         }}
         style={AI_NAME_FONT}
-        className="text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C24B3F] cursor-pointer"
+        className="text-left font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-white cursor-pointer"
       >
         {children}
       </button>
@@ -2184,7 +2184,7 @@ const EmbedAsk = () => {
                             <button
                               type="button"
                               onClick={() => { setOpenSiblings([p.id]); setOpenBusinessId(p.id); }}
-                              className="text-left font-bold text-[15px] leading-tight hover:underline decoration-dotted underline-offset-2 text-[#C24B3F] break-words"
+                              className="text-left font-bold text-[15px] leading-tight hover:underline decoration-dotted underline-offset-2 text-white break-words"
                             >
                               {p.name}
                             </button>
@@ -2270,7 +2270,7 @@ const EmbedAsk = () => {
                           type="button"
                           onClick={() => setOpenDestMap({ title: destinationsPayload.title || null, destinations: destinationsPayload.destinations })}
                           style={AI_NAME_FONT}
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-white hover:underline"
                         >
                           <MapPin className="w-3.5 h-3.5" />
                           {lang === "en" ? "Destinations on the map" : lang === "ar" ? "الوجهات على الخريطة" : "Les destinations sur la carte"}
@@ -2389,7 +2389,7 @@ const EmbedAsk = () => {
                         <button
                           type="button"
                           onClick={() => setOpenEvents({ list: eventsPayload.events, index: 0 })}
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-white hover:underline"
                         >
                           <CalendarIcon className="w-3.5 h-3.5" /> {L.events} · {eventsPayload.events.length}
                         </button>
@@ -2398,7 +2398,7 @@ const EmbedAsk = () => {
                             type="button"
                             onClick={() => setOpenMap({ title: eventsPayload.title || null, businesses: eventBiz } as MapPayload)}
                             style={AI_NAME_FONT}
-                            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-white hover:underline"
                           >
                             <MapPin className="w-3.5 h-3.5" /> {L.viewMap}
                           </button>
