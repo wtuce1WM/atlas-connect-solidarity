@@ -558,8 +558,12 @@ const TestNoteViewer = () => {
 
           {city !== "none" && badge !== "none" && (
             <div>
-              <p className="text-sm text-muted-foreground mb-2">{filteredVideos.length} vidéo{filteredVideos.length !== 1 ? "s" : ""}</p>
-              {filteredVideos.length === 0 ? (
+              <p className="text-sm text-muted-foreground mb-2">
+                {filteredGroups.length} vidéo{filteredGroups.length !== 1 ? "s" : ""} (fichiers distincts)
+                {" · "}
+                {filteredGroups.reduce((n, g) => n + g.members.length, 0)} ID{filteredGroups.reduce((n, g) => n + g.members.length, 0) !== 1 ? "s" : ""}
+              </p>
+              {filteredGroups.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-4">Aucune vidéo pour cette sélection.</p>
               ) : (
                 <div
@@ -567,117 +571,19 @@ const TestNoteViewer = () => {
                   style={{ gridTemplateColumns: "minmax(0, 60%) minmax(0, 40%)" }}
                 >
                   <div className="grid min-w-0 grid-cols-4 gap-2">
-                    {filteredVideos.map(v => {
-                      const selected = selectedVideoId === v.id;
-                      return (
-                        <div
-                          key={v.id}
-                          onClick={() => setSelectedVideoId(v.id)}
-                          className={`flex flex-col rounded-lg border bg-background p-1.5 cursor-pointer transition-colors ${selected ? "border-primary ring-2 ring-primary" : "hover:border-muted-foreground/30"}`}
-                        >
-                          <button
-                            className="relative bg-black rounded overflow-hidden group flex-shrink-0 w-full"
-                            style={{ height: 110 }}
-                            onClick={(e) => { e.stopPropagation(); setLightboxUrl(v.url); }}
-                          >
-                            {v.thumbnail_url ? (
-                              <img src={v.thumbnail_url} alt="" className="w-full h-full object-cover" />
-                            ) : v.url.includes("supabase.co/storage") ? (
-                              <video src={v.url} className="w-full h-full object-cover" muted preload="metadata" />
-                            ) : (
-                              <div className="w-full h-full bg-muted" />
-                            )}
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                              <div className="w-8 h-8 rounded-full bg-primary/80 flex items-center justify-center">
-                                <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground ml-0.5" />
-                              </div>
-                            </div>
-                          </button>
-                          <div className="mt-1.5">
-                            <p className="text-sm font-medium leading-tight">{v.business_name}</p>
-                            {(v.subcategory_name || v.service_name) && (
-                              <p className="text-base font-semibold text-foreground leading-tight mt-0.5">
-                                {[v.subcategory_name, v.service_name].filter(Boolean).join(" · ")}
-                              </p>
-                            )}
-                            {(v.cities.length > 0 || v.neighborhood) && (
-                              <p className="text-[11px] text-muted-foreground/70 truncate">
-                                {[v.cities.join(", "), v.neighborhood].filter(Boolean).join(" · ")}
-                              </p>
-                            )}
-                            {v.name && <p className="text-[11px] text-muted-foreground/70 truncate">{v.name}</p>}
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(v.id); toast.success(`ID copié : ${v.id.slice(0, 8)}…`); }}
-                              className="mt-1 inline-flex items-center gap-1 font-mono text-[10px] text-muted-foreground/60 hover:text-primary transition-colors"
-                              title="Copier l'ID complet"
-                            >
-                              <Copy className="h-3 w-3" />
-                              {v.id}
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
+                    {filteredGroups.map(g => <GroupCard key={g.key} g={g} />)}
                   </div>
                   <aside className="min-w-0 rounded-lg border bg-muted/20 p-3 h-[78vh] overflow-y-auto sticky top-2">
-                    {!selectedVideoId ? (
+                    {!selectedKey ? (
                       <p className="text-xs text-muted-foreground">Sélectionnez une vidéo pour modifier ses badges.</p>
-                    ) : (() => {
-                      const selectedVideo = videos.find(v => v.id === selectedVideoId);
-                      const original = new Set(selectedVideo?.badge_ids || []);
-                      const draft = new Set(draftBadgeIds);
-                      const dirty = original.size !== draft.size || [...draft].some(id => !original.has(id));
-                      return (
-                        <>
-                          <div className="flex items-center justify-between mb-3 gap-2">
-                            <p className="text-xs font-medium text-foreground">Badges</p>
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => setSelectedVideoId(null)}
-                                className="text-xs px-2 py-1 rounded hover:bg-accent text-muted-foreground"
-                              >
-                                Fermer
-                              </button>
-                              <button
-                                disabled={!dirty || assigning}
-                                onClick={async () => {
-                                  if (!selectedVideo) return;
-                                  setAssigning(true);
-                                  const err = await saveBadges(selectedVideo, draft, original);
-                                  setAssigning(false);
-                                  if (err) { toast.error("Erreur : " + err.message); return; }
-                                  setVideos(prev => prev.map(v => v.id === selectedVideo.id ? { ...v, badge_ids: [...draft] } : v));
-                                  toast.success("Badges enregistrés");
-                                }}
-                                className="text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40"
-                              >
-                                {assigning ? "..." : "Enregistrer"}
-                              </button>
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap gap-1">
-                            {badges.map(b => {
-                              const isSelected = draft.has(b.id);
-                              return (
-                                <button
-                                  key={b.id}
-                                  type="button"
-                                  className={`text-xs px-2 py-1 rounded-full border transition-colors ${isSelected ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:border-primary/50"}`}
-                                  onClick={() => setDraftBadgeIds(prev => isSelected ? prev.filter(id => id !== b.id) : [...prev, b.id])}
-                                >
-                                  {b.name_fr}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </>
-                      );
-                    })()}
+                    ) : (
+                      <BadgePanel members={videos.filter(v => v.url === selectedKey)} />
+                    )}
                   </aside>
                 </div>
               )}
             </div>
+
           )}
         </TabsContent>
 
