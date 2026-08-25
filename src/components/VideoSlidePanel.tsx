@@ -1522,7 +1522,7 @@ const VideoSlidePanel = ({
             </div>
           )}
           <div className={`absolute inset-0 z-30 pointer-events-none ${descOverlayOpen || aiOverlayOpen ? "hidden" : ""}`}>
-            <div className="fixed lg:absolute inset-x-0 bottom-[calc(120px+env(safe-area-inset-bottom))] lg:bottom-[7rem] z-30 px-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
+            <div className="fixed lg:absolute inset-x-0 bottom-[calc(96px+env(safe-area-inset-bottom))] lg:bottom-[5.5rem] z-30 px-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
               {compactBusinessHeader && (
                 <YouTubeIcon className="h-16 w-16 text-red-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />
               )}
@@ -1605,7 +1605,7 @@ const VideoSlidePanel = ({
               })()}
               {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer */}
               {feedLayout && (feedInfoTitle || feedInfoTeaser) && (
-                <div className="relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto md:w-[calc(100%-1rem)] md:max-w-[450px] rounded-t-2xl border-x border-b-0 border-white/10 bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] pointer-events-auto pb-[calc(120px+env(safe-area-inset-bottom))] -mb-[calc(120px+env(safe-area-inset-bottom))] lg:pb-[7rem] lg:-mb-[7rem]">
+                <div className="relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto md:w-[calc(100%-1rem)] md:max-w-[450px] rounded-t-2xl border-x border-b-0 border-white/10 bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] pointer-events-auto pb-[calc(96px+env(safe-area-inset-bottom))] -mb-[calc(96px+env(safe-area-inset-bottom))] lg:pb-[5.5rem] lg:-mb-[5.5rem]">
                   <MediaViewerInfo
                     name={feedInfoTitle}
                     city={ctaBusiness?.city}
