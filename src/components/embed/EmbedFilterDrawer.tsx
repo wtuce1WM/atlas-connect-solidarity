@@ -62,8 +62,19 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
   closeOnPick = true,
   fontStyle,
   handleLabel,
+  open: controlledOpen,
+  onOpenChange,
+  header,
+  hidePeek,
 }) => {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = useCallback((value: boolean) => {
+    if (!isControlled) setInternalOpen(value);
+    onOpenChange?.(value);
+  }, [isControlled, onOpenChange]);
+
   const [drag, setDrag] = useState(0);
   const startY = useRef<number | null>(null);
   const [maxH, setMaxH] = useState(360);
@@ -89,7 +100,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
   // Reset quand la liste disparaît (nouvelle conversation, competitor guard…)
   useEffect(() => {
     if (count === 0) setOpen(false);
-  }, [count]);
+  }, [count, setOpen]);
 
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
