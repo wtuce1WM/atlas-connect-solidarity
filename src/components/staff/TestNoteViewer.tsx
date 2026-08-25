@@ -301,6 +301,18 @@ const TestNoteViewer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [badges, videos, city]);
 
+  const badgeCounts = useMemo(() => {
+    if (city === "none") return new Map<string, number>();
+    const counts = new Map<string, number>();
+    videos.filter(matchesCity).forEach(v => {
+      v.badge_ids.forEach(id => {
+        counts.set(id, (counts.get(id) || 0) + 1);
+      });
+    });
+    return counts;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videos, city]);
+
   useEffect(() => {
     if (badge !== "none" && !availableBadges.some(b => b.id === badge)) {
       setBadge("none");
