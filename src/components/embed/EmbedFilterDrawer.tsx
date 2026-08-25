@@ -99,7 +99,8 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
         setMaxH(h);
         return;
       }
-      const ratio = h < 600 ? Math.min(maxRatio, 0.6) : maxRatio;
+      // Respecte explicitement le ratio demandé (ex. 70 %) quel que soit le viewport.
+      const ratio = maxRatio;
       // Feuille ancrée au bas du viewport : borne = ratio du viewport
       setMaxH(Math.max(180, Math.round(h * ratio)));
     };
