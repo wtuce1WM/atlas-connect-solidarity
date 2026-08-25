@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo, Suspense } from "react";
-import MediaViewerInfo from "@/components/slidepanel/MediaViewerInfo";
+import MediaViewerInfo, { buildFallbackTeaser } from "@/components/slidepanel/MediaViewerInfo";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { toast } from "sonner";
 
@@ -476,11 +476,16 @@ const VideoSlidePanel = ({
   const feedInfoTitle = (description && description.trim())
     ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
     : (ctaBusiness?.name || businessName || "");
-  const feedInfoTeaser = (effectiveDescription || "")
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\s+/g, " ")
-    .trim() || null;
+  const feedInfoTeaser = useMemo(() => {
+    const plain = (effectiveDescription || "")
+      .replace(/<[^>]*>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (plain) return plain;
+    if (feedInfoTitle) return buildFallbackTeaser(feedInfoTitle, language);
+    return null;
+  }, [effectiveDescription, feedInfoTitle, language]);
 
   // Navigation verticale à la molette / trackpad (desktop) — même effet que le swipe.
   const wheelNav = useRef({ enabled: false, onPrev, onNext, hasPrev, hasNext });
