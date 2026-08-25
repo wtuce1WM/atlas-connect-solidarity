@@ -745,6 +745,7 @@ const EmbedAsk = () => {
   const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
   const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string>("");
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
 
