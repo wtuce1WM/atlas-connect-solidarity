@@ -483,11 +483,12 @@ const TestNoteViewer = () => {
     }
   }, [availableBadges, badge]);
 
-  const filteredVideos = useMemo(() => {
+  const filteredGroups = useMemo(() => {
     if (city === "none" || badge === "none") return [];
-    return videos.filter(v => matchesCity(v) && v.badge_ids.includes(badge));
+    return groupByUrl(videos.filter(v => matchesCity(v) && v.badge_ids.includes(badge)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videos, city, badge]);
+
 
   if (noteLoading) {
     return (
