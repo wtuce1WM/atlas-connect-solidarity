@@ -94,6 +94,11 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
   useEffect(() => {
     const compute = () => {
       const h = window.innerHeight || 640;
+      if (expandToFit) {
+        // Le tiroir occupe tout le viewport ; le contenu détermine la hauteur réelle.
+        setMaxH(h);
+        return;
+      }
       const ratio = h < 600 ? Math.min(maxRatio, 0.6) : maxRatio;
       // Feuille ancrée au bas du viewport : borne = ratio du viewport
       setMaxH(Math.max(180, Math.round(h * ratio)));
@@ -101,7 +106,7 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
     compute();
     window.addEventListener("resize", compute);
     return () => window.removeEventListener("resize", compute);
-  }, [maxRatio, open, count]);
+  }, [maxRatio, open, count, expandToFit]);
 
 
   // Reset quand la liste disparaît (nouvelle conversation, competitor guard…)
