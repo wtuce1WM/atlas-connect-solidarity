@@ -56,6 +56,33 @@ interface VideoDoc {
   source: "business" | "generic";
 }
 
+/**
+ * Un même fichier vidéo peut être rattaché à plusieurs fiches (donc plusieurs
+ * video_id distincts en base). On regroupe par URL de fichier : une carte =
+ * un fichier, et un badge s'applique à TOUS les video_id du groupe.
+ */
+interface VideoGroup {
+  key: string;
+  primary: VideoDoc;
+  members: VideoDoc[];
+  badge_ids: string[];
+}
+
+const groupByUrl = (list: VideoDoc[]): VideoGroup[] => {
+  const map = new Map<string, VideoDoc[]>();
+  for (const v of list) {
+    const arr = map.get(v.url) || [];
+    arr.push(v);
+    map.set(v.url, arr);
+  }
+  return [...map.entries()].map(([key, members]) => ({
+    key,
+    primary: members[0],
+    members,
+    badge_ids: Array.from(new Set(members.flatMap(m => m.badge_ids))),
+  }));
+};
+
 const TestNoteViewer = () => {
   const [activeTab, setActiveTab] = useState<string>("note");
   const [title, setTitle] = useState<string>("");
@@ -68,17 +95,18 @@ const TestNoteViewer = () => {
   const [badges, setBadges] = useState<{ id: string; name_fr: string }[]>([]);
   const [videos, setVideos] = useState<VideoDoc[]>([]);
   const [toBadgeCity, setToBadgeCity] = useState<string>("all");
-  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [assigning, setAssigning] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [draftBadgeIds, setDraftBadgeIds] = useState<string[]>([]);
 
-  // Sync draft when selecting a video
+  // Sync draft when selecting a video group (union des badges de tous les IDs)
   useEffect(() => {
-    if (!selectedVideoId) { setDraftBadgeIds([]); return; }
-    const v = videos.find(x => x.id === selectedVideoId);
-    setDraftBadgeIds(v?.badge_ids || []);
-  }, [selectedVideoId, videos]);
+    if (!selectedKey) { setDraftBadgeIds([]); return; }
+    const members = videos.filter(v => v.url === selectedKey);
+    setDraftBadgeIds(Array.from(new Set(members.flatMap(m => m.badge_ids))));
+  }, [selectedKey, videos]);
+
 
   const saveBadges = async (video: VideoDoc, draft: Set<string>, original: Set<string>) => {
     const toAdd = [...draft].filter(id => !original.has(id));
