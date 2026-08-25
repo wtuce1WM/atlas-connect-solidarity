@@ -2679,6 +2679,7 @@ const EmbedAsk = () => {
               open={filtersOpen}
               onOpenChange={setFiltersOpen}
               hidePeek
+              expandToFit
               header={
                 <div className="flex items-center gap-2 py-2">
                   <label
