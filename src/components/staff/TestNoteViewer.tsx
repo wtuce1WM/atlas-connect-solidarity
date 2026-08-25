@@ -10,6 +10,36 @@ import { isInternalVideoUrl } from "@/lib/videoSourceFilter";
 
 const NOTE_ID = "919622ac-3bfe-4e3e-ab64-0dfeb3bd1696";
 
+/**
+ * Récupère toutes les lignes d'une requête paginée (PostgREST plafonne à 1000 lignes),
+ * en lançant plusieurs pages en parallèle pour éviter les longues chaînes séquentielles.
+ */
+const fetchAllPaged = async (
+  build: (from: number, to: number) => any,
+  page = 1000,
+  parallel = 5,
+): Promise<any[]> => {
+  const out: any[] = [];
+  let offset = 0;
+  for (;;) {
+    const results = await Promise.all(
+      Array.from({ length: parallel }, (_, i) =>
+        build(offset + i * page, offset + (i + 1) * page - 1),
+      ),
+    );
+    let done = false;
+    for (const r of results) {
+      if (r.error) throw r.error;
+      const rows = (r.data || []) as any[];
+      out.push(...rows);
+      if (rows.length < page) done = true;
+    }
+    if (done) break;
+    offset += parallel * page;
+  }
+  return out;
+};
+
 interface VideoDoc {
   id: string;
   url: string;
