@@ -210,7 +210,7 @@ const AiBusinessResultCards = ({
                   <button
                     type="button"
                     onClick={() => onOpen(b.id, siblings)}
-                    className="text-left font-bold text-[14px] leading-tight text-[#C24B3F] underline decoration-dotted underline-offset-2 hover:decoration-solid break-words"
+                    className={`text-left font-bold text-[14px] leading-tight ${ink === "light" ? "text-white" : "text-[#C24B3F]"} underline decoration-dotted underline-offset-2 hover:decoration-solid break-words`}
                     style={AI_NAME_FONT}
                   >
                     {b.name}
