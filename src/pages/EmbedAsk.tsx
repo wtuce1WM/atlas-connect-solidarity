@@ -489,14 +489,14 @@ const MarkdownLink = ({
       <button
         type="button"
         onClick={() => openBooking(href, label)}
-        className="inline-flex items-center gap-1 font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C04F17] cursor-pointer"
+        className="inline-flex items-center gap-1 font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid text-white cursor-pointer"
       >
         {children}
       </button>
     );
   }
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C04F17]">
+    <a href={href} target="_blank" rel="noopener noreferrer" className="underline decoration-dotted underline-offset-2 hover:decoration-solid text-white">
       {children}
     </a>
   );
