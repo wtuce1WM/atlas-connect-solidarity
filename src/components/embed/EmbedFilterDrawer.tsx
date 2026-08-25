@@ -192,7 +192,11 @@ export const EmbedFilterDrawer: React.FC<Props> = ({
       >
         <div
           className={`rounded-t-2xl border-t border-x shadow-[0_-8px_32px_rgba(0,0,0,0.25)] ${panelClass}`}
-          style={{ maxHeight: maxH, overflowY: "auto", ...surfaceStyle }}
+          style={{
+            maxHeight: expandToFit ? "100vh" : maxH,
+            overflowY: "auto",
+            ...surfaceStyle,
+          }}
         >
 
           <div
