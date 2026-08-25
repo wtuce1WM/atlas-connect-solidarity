@@ -2654,11 +2654,15 @@ const EmbedAsk = () => {
                 type="button"
                 onClick={() => setFiltersOpen(true)}
                 style={AI_NAME_FONT}
-                className={`text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-semibold hover:opacity-90 shrink-0 transition-opacity ${chipBg}`}
+                className="group text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-semibold shrink-0 transition-all bg-card text-card-foreground border-border shadow-sm hover:shadow-md hover:border-primary/30 active:scale-95"
               >
-                <SlidersHorizontal className="w-3.5 h-3.5" />
+                <SlidersHorizontal className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
                 {lang === "en" ? "Filters" : lang === "ar" ? "تصفية" : "Filtres"}
-                {filterCount > 0 && ` · ${filterCount}`}
+                {filterCount > 0 && (
+                  <span className="inline-flex items-center justify-center bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 text-[10px] min-w-[18px] group-hover:bg-primary/10 group-hover:text-foreground transition-colors">
+                    {filterCount}
+                  </span>
+                )}
               </button>
             </div>
 
