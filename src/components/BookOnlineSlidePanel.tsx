@@ -96,7 +96,7 @@ import { useMediaItems, useVideoInfo } from "@/hooks/useMediaItems";
 import { useVimeoOEmbedThumbnails } from "@/hooks/useVimeoOEmbedThumbnails";
 import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
-import MediaViewerInfo from "@/components/slidepanel/MediaViewerInfo";
+import MediaViewerInfo, { buildFallbackTeaser } from "@/components/slidepanel/MediaViewerInfo";
 import BusinessPromotionsList from "@/components/slidepanel/BusinessPromotionsList";
 import ImageGallerySection from "@/components/slidepanel/ImageGallerySection";
 import { useBusinessPromotions } from "@/hooks/useBusinessPromotions";
@@ -1990,7 +1990,7 @@ const BookOnlineSlidePanelInner = ({
     return raw?.trim() || null;
   }, [business, language]);
 
-  // Teaser de la zone viewer : hook, sinon début de la description en texte brut
+  // Teaser de la zone viewer : hook, sinon début de la description, sinon fallback IA
   const viewerTeaser = useMemo(() => {
     if (hookText) return hookText;
     const plain = (woDescription || "")
@@ -1999,8 +1999,10 @@ const BookOnlineSlidePanelInner = ({
       .replace(/&amp;/g, "&")
       .replace(/\s+/g, " ")
       .trim();
-    return plain ? plain.slice(0, 300) : null;
-  }, [hookText, woDescription]);
+    if (plain) return plain.slice(0, 300);
+    if (business?.name) return buildFallbackTeaser(business.name, language);
+    return null;
+  }, [hookText, woDescription, business?.name, language]);
 
 
   useEffect(() => {
@@ -2872,7 +2874,7 @@ const BookOnlineSlidePanelInner = ({
       )}
 
       {/* Full Description Overlay */}
-      {showDescriptionOverlay && (woDescription || hasHighlights || descGridSection || descOverlayContent || !!hookText || (avgOn20 != null && totalReviewCount > 0) || images.length > 0 || (nonExternalVideoDocs.length + externalVideoDocs.length) > 0) && (
+      {showDescriptionOverlay && (woDescription || hasHighlights || descGridSection || descOverlayContent || !!viewerTeaser || (avgOn20 != null && totalReviewCount > 0) || images.length > 0 || (nonExternalVideoDocs.length + externalVideoDocs.length) > 0) && (
         <OverlayShell zClass="z-[80]" animClass={descMorphRect ? "owm-desc-morph" : (descMorphDone ? "" : "animate-zoom-out-center")} outerRef={applyDescMorph} className="flex flex-col" data-owm-video-overlay>
           {images[0] && (
             <div

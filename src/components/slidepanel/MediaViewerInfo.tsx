@@ -21,7 +21,22 @@ interface MediaViewerInfoProps {
   flagsSlot?: React.ReactNode;
   /** Sans fond/bordure : le fond est fourni par le conteneur parent */
   bare?: boolean;
+  /**
+   * Texte de remplacement affiché quand aucun hook/description n'est disponible.
+   * S'il est vide, un fallback générique localisé est généré à partir du nom.
+   */
+  fallbackTeaser?: string | null;
 }
+
+export const buildFallbackTeaser = (name: string, language = "fr") => {
+  const templates: Record<string, string> = {
+    fr: "Cliquez ici ou sur le lien de notre assistant IA ci-dessous pour en savoir plus sur {{name}}",
+    en: "Click here or on our AI assistant link below to learn more about {{name}}",
+    ar: "انقر هنا أو على رابط مساعد الذكاء الاصطناعي أدناه لمعرفة المزيد عن {{name}}",
+  };
+  const key = language in templates ? language : "fr";
+  return templates[key].replace("{{name}}", name);
+};
 
 
 const MORE: Record<string, string> = { fr: "plus", en: "more", ar: "المزيد" };
@@ -43,8 +58,10 @@ const MediaViewerInfo = ({
   onOpen,
   flagsSlot,
   bare = false,
+  fallbackTeaser,
 }: MediaViewerInfoProps) => {
   const lang = (language in MORE ? language : "fr") as keyof typeof MORE;
+  const effectiveTeaser = teaser?.trim() || fallbackTeaser?.trim() || buildFallbackTeaser(name, language);
   const place = [city, neighborhood].filter(Boolean).join(", ");
   // Tap = ouvrir ; swipe vertical = laissé au panneau (aucun stopPropagation)
   const touchStart = React.useRef<{ x: number; y: number } | null>(null);
@@ -117,7 +134,7 @@ const MediaViewerInfo = ({
           </div>
         )}
 
-        {teaser && (
+        {effectiveTeaser && (
           <div className="relative mt-1.5">
             <p
               className="text-xs md:text-sm text-white/95 leading-relaxed line-clamp-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.45)]"
@@ -127,7 +144,7 @@ const MediaViewerInfo = ({
                 WebkitMaskImage: "linear-gradient(to bottom, #000 45%, rgba(0,0,0,0.15) 100%)",
               }}
             >
-              {teaser}
+              {effectiveTeaser}
             </p>
             <span className="inline-block text-[11px] md:text-xs font-semibold text-white/70 group-hover:text-white transition-colors">
               … {MORE[lang]}
