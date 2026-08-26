@@ -226,6 +226,7 @@ async function fetchDiscoveryPage(
   seed: string,
   limit: number,
   offset: number,
+  includeNoCity = true,
 ): Promise<{ items: BadgeVideoFeedItem[]; total: number }> {
   const { data, error } = await (supabase as any).rpc("get_badges_video_feed", {
     _badge_ids: scope.badgeIds,
@@ -233,8 +234,9 @@ async function fetchDiscoveryPage(
     _limit: limit,
     _offset: offset,
     _city_ids: scope.cityIds.length ? scope.cityIds : null,
-    _include_no_city: true,
+    _include_no_city: includeNoCity,
   });
+
   if (error || !data) return { items: [], total: 0 };
   const rows = data as any[];
   return {
