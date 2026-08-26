@@ -162,7 +162,13 @@ const TestNoteViewer = () => {
         <button
           className="relative bg-black rounded overflow-hidden group flex-shrink-0 w-full"
           style={{ height: 110 }}
-          onClick={(e) => { e.stopPropagation(); setLightboxUrl(v.url); }}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            (e.currentTarget as HTMLButtonElement).blur();
+            setLightboxUrl(v.url);
+          }}
         >
           {v.thumbnail_url ? (
             <img src={v.thumbnail_url} alt="" className="w-full h-full object-cover" />
