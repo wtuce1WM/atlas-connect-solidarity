@@ -13,7 +13,7 @@ const VideoLightbox = ({ url, onClose, restoreScrollY }: VideoLightboxProps) => 
   const isEmbed = embed.type !== "file";
   const mediaRef = useRef<HTMLVideoElement | HTMLIFrameElement | null>(null);
 
-  // Verrouille le scroll dès la première paint pour éviter le saut du formulaire derrière.
+  // Verrouille le scroll dès la première paint et restaure la position pour éviter le saut du formulaire derrière.
   useLayoutEffect(() => {
     const prevOverflow = document.body.style.overflow;
     const prevPaddingRight = document.body.style.paddingRight;
@@ -21,6 +21,9 @@ const VideoLightbox = ({ url, onClose, restoreScrollY }: VideoLightboxProps) => 
     document.body.style.overflow = "hidden";
     if (scrollbarWidth > 0) {
       document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    if (typeof restoreScrollY === "number") {
+      window.scrollTo({ top: restoreScrollY, behavior: "auto" });
     }
     return () => {
       document.body.style.overflow = prevOverflow;
