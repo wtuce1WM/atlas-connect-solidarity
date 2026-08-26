@@ -14,6 +14,7 @@ import { InstagramIcon, YouTubeIcon } from "@/components/staff/SocialMediaIcons"
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 import { createPortal } from "react-dom";
 import { getVideoEmbed } from "@/lib/videoEmbed";
+import { fetchVideoCity } from "@/lib/fetchVideoCities";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import VideoControls from "@/components/VideoControls";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
