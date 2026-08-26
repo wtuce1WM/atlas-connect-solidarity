@@ -283,7 +283,9 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       // Don't return — continue to re-fetch fresh data in background
     }
 
-    const fetchData = async () => {
+    let authRetried = false;
+    const fetchData = async (): Promise<void> => {
+
       // Only show loading skeleton & reset state when there's no cache (avoids flicker)
       if (!cached) {
         setIsLoading(true);
