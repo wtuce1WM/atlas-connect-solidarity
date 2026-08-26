@@ -902,28 +902,17 @@ const VideoSlidePanel = ({
   }, [aiOverlayOpen, aiPlatform, aiSessionKey]);
 
   // Filet de sécurité hôte seulement en mode business.
-  // Mode plateforme : le message plein écran reste visible tant que les vraies
-  // suggestions ne sont pas chargées, pour éviter un panneau vide.
   useEffect(() => {
     if (!aiOverlayOpen || aiReady || aiPlatform) return;
     const t = setTimeout(() => setAiReady(true), 8000);
     return () => clearTimeout(t);
   }, [aiOverlayOpen, aiReady, aiPlatform]);
 
+  // Mode plateforme : aucune séquence d'intro côté parent.
   useEffect(() => {
-    if (!aiOverlayOpen || !aiPlatform) {
-      setAiPlatformIntroPhase("done");
-      return;
-    }
-    setAiPlatformIntroPhase("full");
-    if (!aiReady) return;
-    const t1 = window.setTimeout(() => setAiPlatformIntroPhase("exit"), 50);
-    const t2 = window.setTimeout(() => setAiPlatformIntroPhase("done"), 570);
-    return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-    };
-  }, [aiOverlayOpen, aiPlatform, aiSessionKey, aiReady]);
+    setAiPlatformIntroPhase("done");
+  }, [aiOverlayOpen, aiPlatform, aiSessionKey]);
+
 
 
 
