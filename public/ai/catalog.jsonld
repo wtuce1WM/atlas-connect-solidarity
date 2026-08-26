@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1857,
+  "numberOfItems": 1858,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -4959,12 +4959,12 @@
     {
       "@type": "ListItem",
       "position": 172,
-      "url": "https://oneworldmorocco.com/cafe-majorelle",
+      "url": "https://oneworldmorocco.com/cafe-bousafsaf",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/cafe-majorelle#business",
+        "@id": "https://oneworldmorocco.com/cafe-bousafsaf#business",
         "name": "Café Majorelle",
-        "url": "https://oneworldmorocco.com/cafe-majorelle",
+        "url": "https://oneworldmorocco.com/cafe-bousafsaf",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1770534707858-vgu7ib.jpg",
         "description": "Entrez au cœur du Jardin Majorelle, où chaque gorgée et chaque bouchée vous transporte dans un voyage sensoriel au milieu de couleurs vivantes, de parfums délicieux et des saveurs inoubliables du Maroc. Abrité au milieu de la végétation luxuriante du jardin et de son architecture bleu cobalt légendaire, le Café Bousafsaf a été soigneusement repensé, en s’inspirant du style éclectique et raffiné de Bill Willis : ses motifs clés, les formes en arches, le travail sophistiqué des zellij et l'harmoni",
         "address": {
@@ -4983,7 +4983,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 3.4,
-          "reviewCount": 602,
+          "reviewCount": 626,
           "bestRating": 5
         }
       }
@@ -14713,7 +14713,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 559,
+          "reviewCount": 560,
           "bestRating": 5
         }
       }
@@ -19619,8 +19619,8 @@
         "telephone": "+2125 24 47 58 28",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.1,
-          "reviewCount": 211,
+          "ratingValue": 4,
+          "reviewCount": 227,
           "bestRating": 5
         }
       }
@@ -19684,7 +19684,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 12848,
+          "reviewCount": 12916,
           "bestRating": 5
         }
       }
@@ -47447,7 +47447,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 88,
+          "reviewCount": 89,
           "bestRating": 5
         }
       }
@@ -52995,6 +52995,38 @@
     {
       "@type": "ListItem",
       "position": 1849,
+      "url": "https://oneworldmorocco.com/cafe-bousafsaf",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/cafe-bousafsaf#business",
+        "name": "Café Majorelle",
+        "url": "https://oneworldmorocco.com/cafe-bousafsaf",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1770534707858-vgu7ib.jpg",
+        "description": "Entrez au cœur du Jardin Majorelle, où chaque gorgée et chaque bouchée vous transporte dans un voyage sensoriel au milieu de couleurs vivantes, de parfums délicieux et des saveurs inoubliables du Maroc. Abrité au milieu de la végétation luxuriante du jardin et de son architecture bleu cobalt légendaire, le Café Bousafsaf a été soigneusement repensé, en s’inspirant du style éclectique et raffiné de Bill Willis : ses motifs clés, les formes en arches, le travail sophistiqué des zellij et l'harmoni",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Rue Yves Saint Laurent",
+          "addressLocality": "Gueliz",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6418603,
+          "longitude": -8.0027175
+        },
+        "telephone": "+212 5243-13047",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 3.4,
+          "reviewCount": 626,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1850,
       "url": "https://oneworldmorocco.com/pikala",
       "item": {
         "@type": "LocalBusiness",
@@ -53020,7 +53052,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1850,
+      "position": 1851,
       "url": "https://oneworldmorocco.com/davmahal",
       "item": {
         "@type": "LocalBusiness",
@@ -53052,7 +53084,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1851,
+      "position": 1852,
       "url": "https://oneworldmorocco.com/villa-jmajorelle",
       "item": {
         "@type": "LocalBusiness",
@@ -53063,7 +53095,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1852,
+      "position": 1853,
       "url": "https://oneworldmorocco.com/elevate-cycle",
       "item": {
         "@type": "LocalBusiness",
@@ -53094,7 +53126,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1853,
+      "position": 1854,
       "url": "https://oneworldmorocco.com/all-fish-essaouira-garba",
       "item": {
         "@type": "LocalBusiness",
@@ -53118,7 +53150,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1854,
+      "position": 1855,
       "url": "https://oneworldmorocco.com/la-grande-table-marocaine-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -53150,7 +53182,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1855,
+      "position": 1856,
       "url": "https://oneworldmorocco.com/be-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -53181,7 +53213,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1856,
+      "position": 1857,
       "url": "https://oneworldmorocco.com/m-avenue-1",
       "item": {
         "@type": "LocalBusiness",
@@ -53213,7 +53245,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1857,
+      "position": 1858,
       "url": "https://oneworldmorocco.com/pc-gamer-maroc",
       "item": {
         "@type": "LocalBusiness",
