@@ -713,7 +713,7 @@ const TestNoteViewer = () => {
         </TabsContent>
       </Tabs>
 
-      {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
+      {lightboxUrl && <VideoLightbox url={lightboxUrl} restoreScrollY={lightboxUrl ? window.scrollY : undefined} onClose={() => setLightboxUrl(null)} />}
     </div>
   );
 };
