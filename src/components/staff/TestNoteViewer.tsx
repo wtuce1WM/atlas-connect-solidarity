@@ -540,7 +540,8 @@ const TestNoteViewer = () => {
 
   const filteredGroups = useMemo(() => {
     if (city === "none" || badge === "none") return [];
-    return groupByUrl(videos.filter(v => matchesCity(v) && v.badge_ids.includes(badge)));
+    return groupByUrl(videos.filter(v => matchesCity(v) && v.badge_ids.includes(badge)))
+      .sort((a, b) => (a.file_size ?? Infinity) - (b.file_size ?? Infinity));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videos, city, badge]);
 
