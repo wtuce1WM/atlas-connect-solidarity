@@ -577,6 +577,21 @@ const BookOnlineSlidePanelInner = ({
   const embedHalfSheet = isEmbedMapWidget && embedWideView;
   const usePillDropdown = embedMode || !isMobileView;
 
+  // Fiche ouverte DEPUIS l'assistant IA (iframe /embed/ask) : seule surface qui combine
+  // embedMode + barre liquid glass. L'assistant est déjà monté derrière (colonne gauche
+  // en desktop lg, plein écran en dessous) → le CTA IA ne doit pas en rouvrir un second.
+  const isAiOriginFiche = !!embedMode && !!showSearchBar;
+  const [isDesktopSplit, setIsDesktopSplit] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth >= 1024 : false
+  );
+  useEffect(() => {
+    if (!isAiOriginFiche) return;
+    const onResize = () => setIsDesktopSplit(window.innerWidth >= 1024);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [isAiOriginFiche]);
+
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
   const [poiShowAll, setPoiShowAll] = useState(false);
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
