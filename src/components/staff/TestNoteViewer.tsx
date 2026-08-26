@@ -27,14 +27,16 @@ const fetchAllPaged = async (
         build(offset + i * page, offset + (i + 1) * page - 1),
       ),
     );
-    let done = false;
+    let lastFull = true;
     for (const r of results) {
       if (r.error) throw r.error;
       const rows = (r.data || []) as any[];
       out.push(...rows);
-      if (rows.length < page) done = true;
+      lastFull = rows.length === page;
     }
-    if (done) break;
+    // On ne s'arrête que si la DERNIÈRE page du lot est incomplète : une page
+    // intermédiaire courte ne doit jamais interrompre les lots suivants.
+    if (!lastFull) break;
     offset += parallel * page;
   }
   return out;
