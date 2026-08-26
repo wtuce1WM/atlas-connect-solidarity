@@ -1859,7 +1859,7 @@ const VideoSlidePanel = ({
             />
             {/* Animation de recherche pendant le chargement de l'assistant :
                 l'iframe reste montée (elle charge) mais masquée jusqu'au signal « prêt ». */}
-            {!aiReady && (
+            {!aiPlatform && !aiReady && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 pointer-events-none">
                 <div className="h-14 w-14 rounded-full border-4 border-white/15 border-t-[#D4AF37] animate-spin" />
                 <p className="text-white/90 text-lg font-medium tracking-wide animate-pulse text-center px-8">
@@ -1877,7 +1877,7 @@ const VideoSlidePanel = ({
                 ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform&open=${aiSessionKey}${aiSlug ? `&ctx=${encodeURIComponent(aiSlug)}` : ""}`
                 : `/embed/ask/${aiSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&open=${aiSessionKey}`}
               title="Assistant IA"
-              className={`relative w-full h-full border-0 transition-opacity duration-500 ${aiReady ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+              className={`relative w-full h-full border-0 transition-opacity duration-500 ${(aiPlatform || aiReady) ? "opacity-100" : "opacity-0 pointer-events-none"}`}
               style={{ background: "transparent" }}
               allow="clipboard-write; microphone"
             />
