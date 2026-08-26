@@ -2,9 +2,9 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-25T04:49:07.420Z",
+    "generated_at": "2026-08-26T17:08:54.537Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
-    "count": 1857
+    "count": 1858
   },
   "businesses": [
     {
@@ -14235,8 +14235,8 @@
     },
     {
       "id": "5acb7e72-f6ce-4739-81e1-d7657b1451a3",
-      "slug": "cafe-majorelle",
-      "url": "https://oneworldmorocco.com/cafe-majorelle",
+      "slug": "cafe-bousafsaf",
+      "url": "https://oneworldmorocco.com/cafe-bousafsaf",
       "name": "Café Majorelle",
       "hook": "Délicieusement ombragé dans l’enceinte du Jardin Majorelle. Réservé aux visiteurs du Jardin",
       "description": "Entrez au cœur du Jardin Majorelle, où chaque gorgée et chaque bouchée vous transporte dans un voyage sensoriel au milieu de couleurs vivantes, de parfums délicieux et des saveurs inoubliables du Maroc. Abrité au milieu de la végétation luxuriante du jardin et de son architecture bleu cobalt légendaire, le Café Bousafsaf a été soigneusement repensé, en s’inspirant du style éclectique et raffiné de Bill Willis : ses motifs clés, les formes en arches, le travail sophistiqué des zellij et l'harmoni",
@@ -14272,7 +14272,7 @@
       "website": "https://www.jardinmajorelle.com/cafe-majorelle/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1770534707858-vgu7ib.jpg",
       "google_rating": 3.4,
-      "google_review_count": 602,
+      "google_review_count": 626,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -14314,12 +14314,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.jardinmajorelle.com/cafe-majorelle/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/cafe.bousafsaf/",
         "facebook": "https://www.facebook.com/jardinmajorelleofficiel",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d1947785-Reviews-Cafe_Jardin_Majorelle_Marrakech-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -42834,7 +42834,7 @@
       "website": "https://www.virginlimitededition.com/kasbah-tamadot",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/3b29ce70-646a-41a4-b79e-e7784b4f25a4-1775826321900-kej6rb.jpg",
       "google_rating": 4.7,
-      "google_review_count": 559,
+      "google_review_count": 560,
       "price_range": "500 à 1000€",
       "min_price_mad": 917,
       "languages": [],
@@ -56830,8 +56830,8 @@
       "whatsapp": "+2127 00 15 59 86",
       "website": "https://www.mechouarplaza.com/fr",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/61fe745d-bede-4f07-9fe7-b5534a60002b-1777646092904-zr3xh.jpg",
-      "google_rating": 4.1,
-      "google_review_count": 211,
+      "google_rating": 4,
+      "google_review_count": 227,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -56971,10 +56971,10 @@
       "address": "121 Rue Mouassine",
       "phone": "+212524390040",
       "whatsapp": "+212667813868",
-      "website": "https://www.lejardinsecretmarrakech.com/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/68d45bf5-c9c5-444a-bbf3-f88533b8b798-img-0-1771767663496.webp",
       "google_rating": 4.2,
-      "google_review_count": 12848,
+      "google_review_count": 12916,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -88437,7 +88437,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.secure-hotel-booking.com/d-edge/Villa-des-Orangers/JK4J/fr-FR/DateSelection",
+      "booking_url": null,
       "menu_url": "https://www.villadesorangers.com/fr/restaurant.html",
       "social": {
         "instagram": "https://www.instagram.com/lavilladesorangers/?hl=fr",
@@ -137515,7 +137515,7 @@
       "website": "https://riadbrummell.brummellprojects.com/fr/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1773a156-b282-4d02-bfd6-7239db7a5bee-1780966582201-8grngb.jpg",
       "google_rating": 4.6,
-      "google_review_count": 88,
+      "google_review_count": 89,
       "price_range": "200 à 500€",
       "min_price_mad": 407,
       "languages": [],
@@ -152665,6 +152665,97 @@
         "instagram": "https://www.instagram.com/hanoutboutique/",
         "facebook": null,
         "tripadvisor": null,
+        "youtube": null,
+        "linkedin": null
+      }
+    },
+    {
+      "id": "5acb7e72-f6ce-4739-81e1-d7657b1451a3",
+      "slug": "cafe-bousafsaf",
+      "url": "https://oneworldmorocco.com/cafe-bousafsaf",
+      "name": "Café Majorelle",
+      "hook": "Délicieusement ombragé dans l’enceinte du Jardin Majorelle. Réservé aux visiteurs du Jardin",
+      "description": "Entrez au cœur du Jardin Majorelle, où chaque gorgée et chaque bouchée vous transporte dans un voyage sensoriel au milieu de couleurs vivantes, de parfums délicieux et des saveurs inoubliables du Maroc. Abrité au milieu de la végétation luxuriante du jardin et de son architecture bleu cobalt légendaire, le Café Bousafsaf a été soigneusement repensé, en s’inspirant du style éclectique et raffiné de Bill Willis : ses motifs clés, les formes en arches, le travail sophistiqué des zellij et l'harmoni",
+      "main_category": "Restauration",
+      "categories": [
+        "Café",
+        "Restaurant"
+      ],
+      "services": [
+        "Terrasse",
+        "Jardin",
+        "Jus de fruits",
+        "Glaces",
+        "Formules petit déjeuner",
+        "Art Déco",
+        "Omelette",
+        "Pancakes",
+        "Uniquement accessible aux visiteurs du musée",
+        "Cuisine marocaine",
+        "Déjeuner",
+        "Petit déjeuner",
+        "Salades"
+      ],
+      "city": "Marrakech",
+      "neighborhood": "Gueliz",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.6418603,
+      "longitude": -8.0027175,
+      "address": "Rue Yves Saint Laurent",
+      "phone": "+212 5243-13047",
+      "whatsapp": null,
+      "website": "https://www.jardinmajorelle.com/cafe-majorelle/",
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1770534707858-vgu7ib.jpg",
+      "google_rating": 3.4,
+      "google_review_count": 626,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": {
+        "friday": {
+          "open": "08:30",
+          "close": "17:00",
+          "closed": false
+        },
+        "monday": {
+          "open": "08:30",
+          "close": "17:00",
+          "closed": false
+        },
+        "sunday": {
+          "open": "08:30",
+          "close": "17:00",
+          "closed": false
+        },
+        "tuesday": {
+          "open": "08:30",
+          "close": "17:00",
+          "closed": false
+        },
+        "saturday": {
+          "open": "08:30",
+          "close": "17:00",
+          "closed": false
+        },
+        "thursday": {
+          "open": "08:30",
+          "close": "17:00",
+          "closed": false
+        },
+        "wednesday": {
+          "open": "08:30",
+          "close": "17:00",
+          "closed": false
+        }
+      },
+      "is_open_24h": false,
+      "booking_url": null,
+      "menu_url": null,
+      "social": {
+        "instagram": "https://www.instagram.com/cafe.bousafsaf/",
+        "facebook": "https://www.facebook.com/jardinmajorelleofficiel",
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d1947785-Reviews-Cafe_Jardin_Majorelle_Marrakech-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }

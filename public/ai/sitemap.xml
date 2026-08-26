@@ -856,7 +856,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/cafe-majorelle</loc>
+    <loc>https://oneworldmorocco.com/cafe-bousafsaf</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9237,6 +9237,11 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/hanout-boutique-1</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/cafe-bousafsaf</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

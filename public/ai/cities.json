@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/cities.json",
-    "generated_at": "2026-08-25T04:49:07.516Z",
+    "generated_at": "2026-08-26T17:08:54.602Z",
     "count": 32
   },
   "cities": [
@@ -599,7 +599,7 @@
         "Agafay",
         "Medina"
       ],
-      "businesses_count": 1189
+      "businesses_count": 1190
     }
   ]
 }
