@@ -1026,7 +1026,7 @@ const EmbedAsk = () => {
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlatform, assistantReady, suggestions.length, splashPhase]);
+  }, [isPlatform, assistantReady, suggestions.length, splashPhase, readyTimedOut]);
 
 
 
