@@ -1608,28 +1608,17 @@ const BookOnlineSlidePanelInner = ({
   }, []);
 
   // Filet de sécurité seulement en mode business.
-  // Mode plateforme : le message plein écran reste visible tant que les vraies
-  // suggestions ne sont pas chargées, pour éviter un panneau vide.
   useEffect(() => {
     if (!aiAssistantOpen || aiAssistantReady || aiAssistantPlatform) return;
     const t = setTimeout(() => setAiAssistantReady(true), 8000);
     return () => clearTimeout(t);
   }, [aiAssistantOpen, aiAssistantReady, aiAssistantPlatform]);
 
+  // Mode plateforme : aucune séquence d'intro côté parent.
   useEffect(() => {
-    if (!aiAssistantOpen || !aiAssistantPlatform) {
-      setAiAssistantPlatformIntroPhase("done");
-      return;
-    }
-    setAiAssistantPlatformIntroPhase("full");
-    if (!aiAssistantReady) return;
-    const t1 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("exit"), 50);
-    const t2 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("done"), 570);
-    return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-    };
-  }, [aiAssistantOpen, aiAssistantPlatform, aiAssistantSessionKey, aiAssistantReady]);
+    setAiAssistantPlatformIntroPhase("done");
+  }, [aiAssistantOpen, aiAssistantPlatform, aiAssistantSessionKey]);
+
 
   // ── External bridge: window events to control Play/Mute from an outer bar
   //   dispatch "book-panel:toggle-play"  → play/pause current media
