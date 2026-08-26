@@ -8,10 +8,10 @@ export const VLOGS_ID = "__vlogs__";
 
 /**
  * Cities considered as belonging to a parent city for the homepage scope.
- * Agafay is a desert area near Marrakech and should appear under Marrakech.
+ * Agafay, Asni and Imlil are areas near Marrakech and should appear under Marrakech.
  */
 const CITY_ALIASES: Record<string, string[]> = {
-  Marrakech: ["Marrakech", "Agafay"],
+  Marrakech: ["Marrakech", "Agafay", "Asni", "Imlil"],
   Essaouira: ["Essaouira"],
 };
 
