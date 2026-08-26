@@ -3,21 +3,25 @@ import { supabase } from "@/integrations/supabase/client";
 export type CityMap = Map<string, string[]>; // id -> ["Marrakech", "Essaouira", ...]
 
 /**
- * Fetch multi-city associations for business_documents and/or generic_videos
- * and return Maps of doc/video id -> array of city names (sorted alphabetically).
+ * Fetch multi-city associations for business_documents, generic_videos and/or
+ * business_youtube_videos and return Maps of video id -> array of city names
+ * (sorted alphabetically).
  *
  * Source of truth:
  *  - business_documents → business_document_cities (city_id)
  *  - generic_videos → generic_video_cities (city_id)
+ *  - business_youtube_videos → business_youtube_video_cities (city_id)
  *
  * Pass null/undefined arrays to skip that source.
  */
 export async function fetchVideoCities(opts: {
   businessDocumentIds?: string[] | null;
   genericVideoIds?: string[] | null;
-}): Promise<{ businessDocCities: CityMap; genericVideoCities: CityMap }> {
+  youtubeVideoIds?: string[] | null;
+}): Promise<{ businessDocCities: CityMap; genericVideoCities: CityMap; youtubeVideoCities: CityMap }> {
   const businessDocCities: CityMap = new Map();
   const genericVideoCities: CityMap = new Map();
+  const youtubeVideoCities: CityMap = new Map();
 
   // Load id -> name map once
   const { data: citiesData } = await supabase
@@ -72,9 +76,48 @@ export async function fetchVideoCities(opts: {
     }
   }
 
+  const ytIds = (opts.youtubeVideoIds || []).filter(Boolean);
+  if (ytIds.length > 0) {
+    const rows = await chunked(ytIds, async (chunk) => {
+      const { data } = await (supabase as any)
+        .from("business_youtube_video_cities")
+        .select("youtube_video_id, city_id")
+        .in("youtube_video_id", chunk);
+      return (data || []) as { youtube_video_id: string; city_id: string }[];
+    });
+    for (const r of rows) {
+      const name = cityNameMap.get(r.city_id);
+      if (!name) continue;
+      const arr = youtubeVideoCities.get(r.youtube_video_id) || [];
+      if (!arr.includes(name)) arr.push(name);
+      youtubeVideoCities.set(r.youtube_video_id, arr);
+    }
+  }
+
   // Sort each city list
   for (const arr of businessDocCities.values()) arr.sort((a, b) => a.localeCompare(b, "fr"));
   for (const arr of genericVideoCities.values()) arr.sort((a, b) => a.localeCompare(b, "fr"));
+  for (const arr of youtubeVideoCities.values()) arr.sort((a, b) => a.localeCompare(b, "fr"));
 
-  return { businessDocCities, genericVideoCities };
+  return { businessDocCities, genericVideoCities, youtubeVideoCities };
+}
+
+/**
+ * Récupère une seule ville liée à une vidéo, quelle que soit sa source
+ * (business_document, generic_video, youtube_video). Si plusieurs villes sont
+ * liées, seule la première (triée alphabétiquement) est retournée.
+ */
+export async function fetchVideoCity(videoId: string): Promise<string | null> {
+  if (!videoId) return null;
+  const { businessDocCities, genericVideoCities, youtubeVideoCities } = await fetchVideoCities({
+    businessDocumentIds: [videoId],
+    genericVideoIds: [videoId],
+    youtubeVideoIds: [videoId],
+  });
+  const all = [
+    ...(businessDocCities.get(videoId) || []),
+    ...(genericVideoCities.get(videoId) || []),
+    ...(youtubeVideoCities.get(videoId) || []),
+  ];
+  return all[0] || null;
 }

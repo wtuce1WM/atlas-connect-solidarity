@@ -14,6 +14,7 @@ import { InstagramIcon, YouTubeIcon } from "@/components/staff/SocialMediaIcons"
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 import { createPortal } from "react-dom";
 import { getVideoEmbed } from "@/lib/videoEmbed";
+import { fetchVideoCity } from "@/lib/fetchVideoCities";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import VideoControls from "@/components/VideoControls";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
@@ -225,6 +226,7 @@ const VideoSlidePanel = ({
   const { recentBusinesses } = useRecentlyViewedBusinesses();
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
+  const [videoCity, setVideoCity] = useState<string | null>(null);
   const [, forceRender] = useState(0);
   useEffect(() => { if (open) forceRender((n) => n + 1); }, [open]);
 
@@ -294,6 +296,17 @@ const VideoSlidePanel = ({
       });
     return () => { cancelled = true; };
   }, [open, owner?.id, pageBusinessId, description, language]);
+
+  // Ville liée à la vidéo (affichée en chip dans la colonne de badges dynamiques).
+  // On interroge les 3 sources possibles et on ne retient qu'une seule ville.
+  useEffect(() => {
+    if (!open || !videoId) { setVideoCity(null); return; }
+    let cancelled = false;
+    fetchVideoCity(videoId).then((city) => {
+      if (!cancelled) setVideoCity(city);
+    });
+    return () => { cancelled = true; };
+  }, [open, videoId]);
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
@@ -1284,39 +1297,56 @@ const VideoSlidePanel = ({
               })}
             </div>
             <div className="flex flex-col items-start gap-1.5">
-              {feedBadges?.filter((b) => {
-                const left = LEFT_COLUMN_BADGES.find((lb) => lb.id === b.id);
-                if (left) return false;
-                // Exclure aussi les badges dont le nom est identique à un label de gauche (insensible à la casse et aux accents)
-                return !LEFT_COLUMN_BADGES.some((lb) => lb.label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === b.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
-              }).map((b) => {
-                const isSelected = selectedBadgeId && b.id === selectedBadgeId;
+              {(() => {
+                const dynamicBadges = feedBadges?.filter((b) => {
+                  const left = LEFT_COLUMN_BADGES.find((lb) => lb.id === b.id);
+                  if (left) return false;
+                  // Exclure aussi les badges dont le nom est identique à un label de gauche (insensible à la casse et aux accents)
+                  return !LEFT_COLUMN_BADGES.some((lb) => lb.label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === b.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+                }) ?? [];
                 return (
-                  <button
-                    key={b.id}
-                    type="button"
-                    disabled={!onFeedBadgeSelect}
-                    onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.name })}
-                    className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
-                      isSelected
-                        ? "border-gold bg-gold text-gold-foreground"
-                        : "border-white/25 text-white"
-                    }`}
-                    style={
-                      isSelected
-                        ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
-                        : {
-                            backgroundColor: b.color || "rgba(0,0,0,0.7)",
-                            color: b.text_color || "#FFFFFF",
-                            fontFamily: "'Montserrat',system-ui,sans-serif",
+                  <>
+                    {dynamicBadges.map((b) => {
+                      const isSelected = selectedBadgeId && b.id === selectedBadgeId;
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          disabled={!onFeedBadgeSelect}
+                          onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.name })}
+                          className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
+                            isSelected
+                              ? "border-gold bg-gold text-gold-foreground"
+                              : "border-white/25 text-white"
+                          }`}
+                          style={
+                            isSelected
+                              ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
+                              : {
+                                  backgroundColor: b.color || "rgba(0,0,0,0.7)",
+                                  color: b.text_color || "#FFFFFF",
+                                  fontFamily: "'Montserrat',system-ui,sans-serif",
+                                }
                           }
-                    }
-                    title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
-                  >
-                    {b.name}
-                  </button>
+                          title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
+                        >
+                          {b.name}
+                        </button>
+                      );
+                    })}
+                    {videoCity && (
+                      <span
+                        className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide text-white shadow-lg backdrop-blur-md"
+                        style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
+                        title={videoCity}
+                      >
+                        <MapPin className="h-3 w-3 shrink-0" />
+                        {videoCity}
+                      </span>
+                    )}
+                  </>
                 );
-              })}
+              })()}
             </div>
           </div>
         )}
