@@ -844,7 +844,12 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       ]);
     };
 
-    void fetchData();
+    // Filet de sécurité : sans catch, une seule requête en échec laissait
+    // isLoading à true → squelette infini dans le panneau (fiche jamais rendue).
+    void fetchData().catch((err) => {
+      console.error("[useBookOnlineData] fetch failed", err);
+      if (!isCancelled) setIsLoading(false);
+    });
 
     return () => {
       isCancelled = true;
