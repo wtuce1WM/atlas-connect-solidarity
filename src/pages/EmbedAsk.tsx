@@ -940,10 +940,12 @@ const EmbedAsk = () => {
 
 
   useEffect(() => {
-    // Mode plateforme : suggestions chargées sans hôte ; le filtre ville/catégorie
-    // utilise le business `ctx` quand il existe, sinon aucune restriction.
-    if (!isPlatform && !businessId) return;
+    // Suggestions back-office : toujours chargées, même sans hôte résolu
+    // (ex. overlay IA d'un feed vidéo dont le slug n'est pas un business actif).
+    // Sans cela on retombait sur la liste de secours codée en dur (4 puces).
+    // Le filtre ville/catégorie n'est appliqué que si un contexte existe.
     let cancelled = false;
+
     (async () => {
       const { data } = await supabase
         .from("ai_suggestions")
