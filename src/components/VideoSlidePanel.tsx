@@ -1907,23 +1907,9 @@ const VideoSlidePanel = ({
               style={{ background: "transparent" }}
               allow="clipboard-write; microphone"
             />
-            {aiPlatform && aiPlatformIntroPhase !== "done" && (
-              <div
-                className="absolute inset-0 z-10 flex items-center justify-center px-8 pointer-events-none bg-black/95 backdrop-blur-md transition-all duration-500 ease-out"
-                style={{
-                  opacity: aiPlatformIntroPhase === "exit" ? 0 : 1,
-                  transform: aiPlatformIntroPhase === "exit" ? "scale(0.62) translateY(-14%)" : "scale(1)",
-                  transformOrigin: "top center",
-                }}
-              >
-                <p
-                  className="text-center text-white font-semibold leading-snug"
-                  style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(18px, 3.4vw, 30px)", maxWidth: "34ch" }}
-                >
-                  Bonjour 👋 Je suis l'assistant One World Morocco. Je puise dans toute la base 1WM — restaurants, riads, sorties, activités, événements, adresses authentiques — à Marrakech et partout au Maroc. Comment puis-je vous aider ?
-                </p>
-              </div>
-            )}
+            {/* Mode plateforme : le message d'accueil est géré à l'intérieur de
+                l'iframe (/embed/ask), jamais par le panneau parent. */}
+
           </div>
         )}
         {/* Popup Club — même mécanisme que BookOnlineSlidePanel : il écoute
