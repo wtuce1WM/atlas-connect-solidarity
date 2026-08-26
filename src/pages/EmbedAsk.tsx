@@ -945,8 +945,9 @@ const EmbedAsk = () => {
   }, [businessId]);
 
   const openerText = isPlatform
-    ? L.platformOpener(platformCity)
+    ? L.platformOpener()
     : L.opener(businessName, radiusLabel(radiusKm, lang));
+
 
   // Seed the opener as an assistant UIMessage once we know the business
   // (ou, en mode plateforme, dès que le contexte ville est prêt).
@@ -2071,7 +2072,8 @@ const EmbedAsk = () => {
                 maxWidth: "34ch",
               }}
             >
-              {(isPlatform ? L.platformOpener(platformCity) : "").replace(/\*\*/g, "")}
+              {(isPlatform ? L.platformOpener() : "").replace(/\*\*/g, "")}
+
             </p>
           </div>
         )}
