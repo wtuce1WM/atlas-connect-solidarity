@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { purgeLocalSession } from "@/hooks/useAuthSession";
+import { getEmbedAnonClient } from "@/lib/embedBusinessQuery";
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { haversineKm } from "@/lib/haversine";
@@ -238,6 +238,9 @@ function setCacheEntry(id: string, data: CachedBusinessData) {
 export function useBookOnlineData(businessId: string, allowInactive = false) {
   const { language } = useLanguage();
   const { brokenUrls: brokenLinksSet, loaded: brokenLinksLoaded } = useBrokenLinks();
+  // Les widgets publics ne doivent jamais dépendre de la session brokerée de la
+  // preview. Ce client sans stockage garantit qu'aucun JWT périmé n'est envoyé.
+  const db = allowInactive ? getEmbedAnonClient() : supabase;
 
   const [business, setBusiness] = useState<BookOnlineBusiness | null>(null);
   const [woDescription, setWoDescription] = useState<string | null>(null);
@@ -285,7 +288,6 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       // Don't return — continue to re-fetch fresh data in background
     }
 
-    let authRetried = false;
     const fetchData = async (): Promise<void> => {
 
       // Only show loading skeleton & reset state when there's no cache (avoids flicker)
@@ -309,22 +311,22 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       }
 
       const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes, videoDocsRes] = await Promise.all([
-        supabase
+        db
          .from("businesses")
           .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, poi_radius_km, website, website_cta, website_presentation_mode, whatsapp, online_shop_url, online_shop_cta, online_shop_presentation_mode, reserve_now_url, reserve_now_cta, booking_url, airbnb_url, hotels_com_url, trivago_url, other_booking_url, other_booking_name, glovo_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, show_videos, default_sound_on, prioritize_images, google_rating, google_review_count, google_reviews_url, google_review_url, google_place_id, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, computed_rating, total_review_count, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, description_fr, description_en, description_ar, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, snapchat_url, menu_url, menu_name, menu_language, video_1_url, kp_regroupement, kp_regroupement_2, kp_active, is_master, main_category, categories, presentation_mode, url_4, url_4_cta, url_4_force_external, url_4_presentation_mode, url_5, url_5_cta, url_5_force_external, url_5_presentation_mode, min_price, gamme_id, manual_price_range, default_service, matterport_url, carousel_badge, show_youtube_tab, hide_description, spotify_url, soundcloud_url, substack_url, popup_image_url, engagements")
           .eq("id", businessId)
           .in("is_active", allowInactive ? [true, false] : [true])
           .maybeSingle(),
-        supabase
+        db
           .from("business_web_only")
           .select("description")
           .eq("business_id", businessId)
           .maybeSingle(),
-        supabase
+        db
           .from("business_destinations")
           .select("destination_id")
           .eq("business_id", businessId),
-        supabase
+        db
           .from("reviews" as any)
           .select("source, author_name, rating, text, language, text_fr, text_en, text_ar, is_default, is_hidden, highlight")
           .eq("business_id", businessId)
@@ -333,24 +335,24 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           .order("is_default", { ascending: false })
           .order("rating", { ascending: false, nullsFirst: false })
           .limit(5),
-        supabase
+        db
           .from("business_documents")
           .select("id, name, url, icon, description")
           .eq("business_id", businessId)
           .eq("type", "external_link")
           .order("sort_order"),
-        supabase
+        db
           .from("business_menu_summaries")
           .select("id, title, content, price_details, avg_price_range")
           .eq("business_id", businessId)
           .order("sort_order"),
-        supabase
+        db
           .from("business_documents")
           .select("id, name, url, language, icon, type")
           .eq("business_id", businessId)
           .in("type", ["menu", "flipbook"])
           .order("sort_order"),
-        supabase
+        db
           .from("business_documents")
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("business_id", businessId)
@@ -360,20 +362,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
 
       if (isCancelled) return;
 
-      // Session locale rejetée par le serveur (401 / JWT expiré) : dans une iframe de
-      // preview le stockage brokeré peut renvoyer un token périmé. On purge et on
-      // relance une fois en anonyme, sinon la fiche reste bloquée sur le squelette.
       const err: any = bizRes.error;
-      const isAuthError =
-        !!err && (err.code === "PGRST301" || err.status === 401 || /jwt|token/i.test(String(err.message || "")));
-      if (isAuthError && !authRetried) {
-        authRetried = true;
-        console.warn("[useBookOnlineData] session rejetée (401), purge + relance anonyme", err?.message);
-        await purgeLocalSession();
-        if (isCancelled) return;
-        void fetchData();
-        return;
-      }
       if (err) console.error("[useBookOnlineData] businesses fetch failed", err);
 
       const biz = bizRes.data as BookOnlineBusiness | null;
@@ -419,21 +408,21 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       // Pre-fetch linked / POI / generic videos in parallel so the initial render
       // already has all videos sorted (own → linked → external) before showing media.
       const [linkedVidsRes, poiVidsRes, gvLinksRes] = await Promise.all([
-        supabase
+        db
           .from("business_documents")
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("linked_business_id", businessId)
           .eq("type", "video")
           .eq("business_is_active", true)
           .order("front_sort_order"),
-        supabase
+        db
           .from("business_documents")
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("poi_id", businessId)
           .eq("type", "video")
           .eq("business_is_active", true)
           .order("front_sort_order"),
-        supabase
+        db
           .from("generic_video_pois" as any)
           .select("generic_video_id, sort_order")
           .eq("poi_id", businessId)
@@ -449,10 +438,10 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       const gvIds = ((gvLinksRes.data || []) as any[]).map((l: any) => l.generic_video_id);
       const [ownersRes, gvDataRes] = await Promise.all([
         ownerIds.size > 0
-          ? supabase.from("businesses").select("id, name, logo_url, instagram_url, is_active").in("id", [...ownerIds])
+          ? db.from("businesses").select("id, name, logo_url, instagram_url, is_active").in("id", [...ownerIds])
           : Promise.resolve({ data: [] as any[] }),
         gvIds.length > 0
-          ? supabase.from("generic_videos").select("id, url, name, thumbnail_url, instagram_account, tiktok_account, youtube_account").in("id", gvIds)
+          ? db.from("generic_videos").select("id, url, name, thumbnail_url, instagram_account, tiktok_account, youtube_account").in("id", gvIds)
           : Promise.resolve({ data: [] as any[] }),
       ]);
       if (isCancelled) return;
@@ -519,11 +508,11 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           if (!isCancelled) { setCategoryIcon(null); setShowGoogleMap(true); }
           return;
         }
-        const catPromise = supabase.from("categories").select("icon").eq("name_fr", mainCat).maybeSingle();
+        const catPromise = db.from("categories").select("icon").eq("name_fr", mainCat).maybeSingle();
         
         // Check show_google_map from subcategories matching the business's categories array
         const subNames = bizCategories?.length ? bizCategories : [mainCat];
-        const subPromise = supabase.from("subcategories").select("show_google_map").in("name_fr", subNames);
+        const subPromise = db.from("subcategories").select("show_google_map").in("name_fr", subNames);
         
         const [catRes, subRes] = await Promise.all([catPromise, subPromise]);
         if (!isCancelled) {
@@ -540,7 +529,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           if (!isCancelled) setDestinations([]);
           return;
         }
-        const { data: destData } = await supabase
+        const { data: destData } = await db
           .from("destinations")
           .select("id, name_fr, name_en, image_url, images, latitude, longitude")
           .in("id", destIds);
@@ -564,7 +553,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
         const latDelta = POOL_RADIUS_KM / 111;
         const lngDelta = POOL_RADIUS_KM / (111 * Math.cos((lat * Math.PI) / 180) || 1);
 
-        const { data: poiData } = await supabase
+        const { data: poiData } = await db
           .from("businesses")
           .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, computed_rating, total_review_count")
           .eq("is_active", true)
@@ -607,7 +596,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
 
         if (kp1Val) {
           // Parallel fetch KP1 and KP2 (if both exist)
-          const kp1Promise = supabase
+          const kp1Promise = db
             .from("businesses")
             .select("id, name, slug, logo_url, images, is_master, computed_rating")
             .eq("kp_regroupement", kp1Val)
@@ -615,7 +604,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
             .neq("id", businessId);
 
           const kp2Promise = kp2Val
-            ? supabase
+            ? db
                 .from("businesses")
                 .select("id, name, slug, logo_url, images, is_master, computed_rating")
                 .eq("kp_regroupement_2", kp2Val)
@@ -647,7 +636,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           }
         } else if (kp2Val) {
           // No KP1 — fetch all KP2 members
-          const { data: kp2Data } = await supabase
+          const { data: kp2Data } = await db
             .from("businesses")
             .select("id, name, slug, logo_url, images, is_master, computed_rating")
             .eq("kp_regroupement_2", kp2Val)
@@ -683,7 +672,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       };
 
       const fetchLinkedVideos = async () => {
-        const { data: linkedVids } = await supabase
+        const { data: linkedVids } = await db
           .from("business_documents")
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("linked_business_id", businessId)
@@ -696,7 +685,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           // Fetch owner info in parallel (single query)
           const ownerMap = new Map<string, { name: string; logo_url: string | null; instagram_url: string | null }>();
           if (ownerIds.length > 0) {
-            const { data: owners } = await supabase
+            const { data: owners } = await db
               .from("businesses")
               .select("id, name, logo_url, instagram_url, is_active")
               .in("id", ownerIds);
@@ -737,7 +726,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       };
 
       const fetchPoiLinkedVideos = async () => {
-        const { data: poiVids } = await supabase
+        const { data: poiVids } = await db
           .from("business_documents")
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("poi_id", businessId)
@@ -749,7 +738,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           const ownerIds = [...new Set((poiVids as any[]).map(v => v.business_id).filter(Boolean))];
           const ownerMap = new Map<string, { name: string; logo_url: string | null; instagram_url: string | null }>();
           if (ownerIds.length > 0) {
-            const { data: owners } = await supabase
+            const { data: owners } = await db
               .from("businesses")
               .select("id, name, logo_url, instagram_url, is_active")
               .in("id", ownerIds);
@@ -796,14 +785,14 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       };
 
       const fetchGenericVideosForPoi = async () => {
-        const { data: gvLinks } = await supabase
+        const { data: gvLinks } = await db
           .from("generic_video_pois" as any)
           .select("generic_video_id, sort_order")
           .eq("poi_id", businessId)
           .order("sort_order", { ascending: true }) as any;
         if (isCancelled || !gvLinks?.length) return;
         const gvIds = (gvLinks as any[]).map((l: any) => l.generic_video_id);
-        const { data: gvData } = await supabase
+        const { data: gvData } = await db
           .from("generic_videos")
           .select("id, url, name, thumbnail_url, instagram_account, tiktok_account, youtube_account")
           .in("id", gvIds);
@@ -836,7 +825,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       };
 
       const fetchLiteApiMapping = async () => {
-        const { data: mappings } = await (supabase as any)
+        const { data: mappings } = await (db as any)
           .rpc("get_hotel_mapping_for_business", { _business_id: businessId });
         const mapping = (mappings as any[] | null)?.[0] ?? null;
 
@@ -844,7 +833,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       };
 
       const fetchSerpApiMapping = async () => {
-        const { data: mapping } = await supabase
+        const { data: mapping } = await db
           .from("hotel_mappings")
           .select("serp_hotel_name, city")
           .eq("business_id", businessId)
