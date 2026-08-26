@@ -929,13 +929,19 @@ const EmbedAsk = () => {
   // En mode plateforme, attendre les vraies suggestions visibles : sinon le panneau
   // parent termine son intro sur le seul message d'accueil, sans chips.
   const readyNotifiedRef = useRef(false);
+  const [readyTimedOut, setReadyTimedOut] = useState(false);
+  useEffect(() => {
+    if (!isPlatform) return;
+    const t = window.setTimeout(() => setReadyTimedOut(true), 5000);
+    return () => window.clearTimeout(t);
+  }, [isPlatform, chatKey]);
   useEffect(() => {
     if (readyNotifiedRef.current) return;
     if (!assistantReady || messages.length === 0) return;
-    if (isPlatform && suggestions.length === 0) return;
+    if (isPlatform && suggestions.length === 0 && !readyTimedOut) return;
     readyNotifiedRef.current = true;
     try { window.parent?.postMessage({ type: "owm-ai-ready" }, "*"); } catch { /* noop */ }
-  }, [assistantReady, messages.length, isPlatform, suggestions.length]);
+  }, [assistantReady, messages.length, isPlatform, suggestions.length, readyTimedOut]);
 
   // Persist thread to localStorage on every change (skip while streaming to avoid spam).
   useEffect(() => {
@@ -1012,7 +1018,7 @@ const EmbedAsk = () => {
   useEffect(() => {
     if (!isPlatform) { setSplashPhase("done"); return; }
     if (splashPhase !== "full") return;
-    const ready = assistantReady && suggestions.length > 0;
+    const ready = assistantReady && (suggestions.length > 0 || readyTimedOut);
     if (!ready) return;
     const delay = 120;
     const t1 = window.setTimeout(() => setSplashPhase("exit"), delay);
@@ -1020,7 +1026,7 @@ const EmbedAsk = () => {
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlatform, assistantReady, suggestions.length, splashPhase]);
+  }, [isPlatform, assistantReady, suggestions.length, splashPhase, readyTimedOut]);
 
 
 

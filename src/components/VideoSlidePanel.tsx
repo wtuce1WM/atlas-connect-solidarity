@@ -897,11 +897,12 @@ const VideoSlidePanel = ({
     return () => window.removeEventListener("message", onMsg);
   }, [aiOverlayOpen]);
 
-  // Filet de sécurité hôte uniquement : en mode plateforme, le message plein écran
-  // doit rester tant que les suggestions ne sont pas réellement prêtes.
+  // Filet de sécurité hôte : on n'attend jamais indéfiniment le signal de l'iframe.
+  // Mode business : 8 s. Mode plateforme : 6 s (le message plein écran doit céder
+  // la place même si les suggestions tardent ou échouent).
   useEffect(() => {
-    if (!aiOverlayOpen || aiReady || aiPlatform) return;
-    const t = setTimeout(() => setAiReady(true), 8000);
+    if (!aiOverlayOpen || aiReady) return;
+    const t = setTimeout(() => setAiReady(true), aiPlatform ? 6000 : 8000);
     return () => clearTimeout(t);
   }, [aiOverlayOpen, aiReady, aiPlatform]);
 

@@ -1607,6 +1607,14 @@ const BookOnlineSlidePanelInner = ({
     return () => window.removeEventListener("message", onMessage);
   }, []);
 
+  // Filet de sécurité : ne jamais rester bloqué sur le message plein écran
+  // si l'iframe ne signale pas sa disponibilité.
+  useEffect(() => {
+    if (!aiAssistantOpen || aiAssistantReady) return;
+    const t = setTimeout(() => setAiAssistantReady(true), aiAssistantPlatform ? 6000 : 8000);
+    return () => clearTimeout(t);
+  }, [aiAssistantOpen, aiAssistantReady, aiAssistantPlatform]);
+
   useEffect(() => {
     if (!aiAssistantOpen || !aiAssistantPlatform) {
       setAiAssistantPlatformIntroPhase("done");
