@@ -1961,7 +1961,9 @@ const EmbedAsk = () => {
           <div
             className="absolute inset-0 z-30 flex items-center justify-center px-6 pointer-events-none"
             style={{
-              background: theme === "light" ? "rgba(255,255,255,0.97)" : "rgba(8,8,8,0.94)",
+              background: theme === "light" ? "rgb(255,255,255)" : "rgb(10,10,10)",
+              backdropFilter: "blur(16px)",
+
               transform: splashPhase === "exit" ? "scale(0.62) translateY(-14%)" : "scale(1)",
               opacity: splashPhase === "exit" ? 0 : 1,
               transformOrigin: "top center",
