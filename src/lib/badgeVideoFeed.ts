@@ -243,7 +243,11 @@ async function fetchDiscoveryPage(
   };
 }
 
-/** Vidéo YouTube aléatoire d'un établissement donné, mise en tête du feed. */
+/**
+ * Vidéo YouTube aléatoire d'un établissement donné, mise en tête du feed.
+ * Uniquement des Shorts : le feed découverte doit rester portrait sur ses
+ * premiers résultats (les vidéos longues sont en 16:9).
+ */
 async function fetchRandomYoutubeVideoOf(
   businessName: string,
   badgeIds: string[],
@@ -259,9 +263,11 @@ async function fetchRandomYoutubeVideoOf(
     .from("business_youtube_videos")
     .select("id, video_id, title, is_short, thumbnail, custom_thumbnail_url, business_youtube_video_badges!inner(badge_id)")
     .eq("business_id", biz.id)
+    .eq("is_short", true)
     .in("business_youtube_video_badges.badge_id", badgeIds)
     .not("video_id", "is", null);
   const rows = ((data as any[]) || []).filter((r) => r.video_id);
+
   if (!rows.length) return null;
   const r = rows[Math.floor(Math.random() * rows.length)];
   // Badges « Activé sur le front » de la vidéo injectée (chips du viewer).
