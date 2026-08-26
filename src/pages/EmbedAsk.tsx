@@ -1954,6 +1954,30 @@ const EmbedAsk = () => {
       </header>
 
       <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto"} px-4 py-4 space-y-3 ${bg} relative`}>
+        {isPlatform && splashPhase !== "done" && messages.length <= 1 && (
+          <div
+            className="absolute inset-0 z-30 flex items-center justify-center px-6 pointer-events-none"
+            style={{
+              background: theme === "light" ? "rgba(255,255,255,0.97)" : "rgba(8,8,8,0.94)",
+              transform: splashPhase === "exit" ? "scale(0.62) translateY(-14%)" : "scale(1)",
+              opacity: splashPhase === "exit" ? 0 : 1,
+              transformOrigin: "top center",
+              transition: "transform 640ms cubic-bezier(0.22,0.9,0.24,1), opacity 640ms ease",
+            }}
+          >
+            <p
+              className={`text-center font-semibold leading-snug ${theme === "light" ? "" : "text-white"}`}
+              style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontSize: "clamp(18px, 3.4vw, 30px)",
+                maxWidth: "34ch",
+              }}
+            >
+              {(isPlatform ? L.platformOpener(platformCity) : "").replace(/\*\*/g, "")}
+            </p>
+          </div>
+        )}
+
         {(() => {
           // Sticky pill : reprend la dernière question de l'utilisateur pour rester
           // visible en haut à droite pendant qu'on lit la réponse / la relance.
