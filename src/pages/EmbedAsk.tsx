@@ -926,16 +926,16 @@ const EmbedAsk = () => {
 
 
   // Signale à la page hôte (overlay vidéo) que l'assistant est réellement prêt.
-  // En mode plateforme, attendre aussi les suggestions : sinon le panneau parent
-  // termine son intro sur une zone vide ou sur le fallback local à 4 puces.
+  // En mode plateforme, attendre les vraies suggestions visibles : sinon le panneau
+  // parent termine son intro sur le seul message d'accueil, sans chips.
   const readyNotifiedRef = useRef(false);
   useEffect(() => {
     if (readyNotifiedRef.current) return;
     if (!assistantReady || messages.length === 0) return;
-    if (isPlatform && dbSuggestions === null) return;
+    if (isPlatform && suggestions.length === 0) return;
     readyNotifiedRef.current = true;
     try { window.parent?.postMessage({ type: "owm-ai-ready" }, "*"); } catch { /* noop */ }
-  }, [assistantReady, messages.length, isPlatform, dbSuggestions]);
+  }, [assistantReady, messages.length, isPlatform, suggestions.length]);
 
   // Persist thread to localStorage on every change (skip while streaming to avoid spam).
   useEffect(() => {
@@ -1012,15 +1012,15 @@ const EmbedAsk = () => {
   useEffect(() => {
     if (!isPlatform) { setSplashPhase("done"); return; }
     if (splashPhase !== "full") return;
-    const ready = assistantReady && dbSuggestions !== null;
-    // Failsafe : si la requête suggestions échoue, on ne bloque pas l'overlay.
-    const delay = ready ? 1800 : 3500;
+    const ready = assistantReady && suggestions.length > 0;
+    if (!ready) return;
+    const delay = 120;
     const t1 = window.setTimeout(() => setSplashPhase("exit"), delay);
     const t2 = window.setTimeout(() => setSplashPhase("done"), delay + 700);
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlatform, assistantReady, dbSuggestions, splashPhase]);
+  }, [isPlatform, assistantReady, suggestions.length, splashPhase]);
 
 
 

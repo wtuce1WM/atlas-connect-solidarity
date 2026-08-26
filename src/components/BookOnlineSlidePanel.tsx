@@ -1614,8 +1614,8 @@ const BookOnlineSlidePanelInner = ({
     }
     setAiAssistantPlatformIntroPhase("full");
     if (!aiAssistantReady) return;
-    const t1 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("exit"), 1800);
-    const t2 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("done"), 2440);
+    const t1 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("exit"), 120);
+    const t2 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("done"), 820);
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
