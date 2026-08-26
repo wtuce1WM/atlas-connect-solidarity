@@ -207,9 +207,8 @@ export interface DiscoveryFeedContext {
   cityIds: string[];
   seed: string;
   total: number;
-  /** false quand le feed est restreint à une ville précise (chip ville du viewer). */
-  includeNoCity?: boolean;
 }
+
 
 /** Badges activés sur le front + villes de découverte. */
 async function loadDiscoveryScope(): Promise<{ badgeIds: string[]; cityIds: string[] }> {
