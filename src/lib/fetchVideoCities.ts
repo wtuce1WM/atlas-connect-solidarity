@@ -107,17 +107,22 @@ export async function fetchVideoCities(opts: {
  * (business_document, generic_video, youtube_video). Si plusieurs villes sont
  * liées, seule la première (triée alphabétiquement) est retournée.
  */
-export async function fetchVideoCity(videoId: string): Promise<string | null> {
+export async function fetchVideoCity(videoId: string): Promise<{ id: string; name: string } | null> {
   if (!videoId) return null;
-  const { businessDocCities, genericVideoCities, youtubeVideoCities } = await fetchVideoCities({
-    businessDocumentIds: [videoId],
-    genericVideoIds: [videoId],
-    youtubeVideoIds: [videoId],
-  });
-  const all = [
-    ...(businessDocCities.get(videoId) || []),
-    ...(genericVideoCities.get(videoId) || []),
-    ...(youtubeVideoCities.get(videoId) || []),
-  ];
-  return all[0] || null;
+  const [docRes, genRes, ytRes] = await Promise.all([
+    supabase.from("business_document_cities").select("city_id").eq("document_id", videoId),
+    (supabase as any).from("generic_video_cities").select("city_id").eq("generic_video_id", videoId),
+    (supabase as any).from("business_youtube_video_cities").select("city_id").eq("youtube_video_id", videoId),
+  ]);
+  const ids = [
+    ...(((docRes as any)?.data as any[]) || []),
+    ...(((genRes as any)?.data as any[]) || []),
+    ...(((ytRes as any)?.data as any[]) || []),
+  ].map((r) => String(r.city_id)).filter(Boolean);
+  if (!ids.length) return null;
+  const { data } = await supabase.from("cities").select("id, name_fr").in("id", [...new Set(ids)]);
+  const rows = ((data as any[]) || []).filter((c) => c?.name_fr);
+  if (!rows.length) return null;
+  rows.sort((a, b) => String(a.name_fr).localeCompare(String(b.name_fr), "fr"));
+  return { id: String(rows[0].id), name: String(rows[0].name_fr) };
 }

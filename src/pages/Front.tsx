@@ -367,6 +367,21 @@ const Front = () => {
     setDemoActiveId(items[0].id);
   }, [demoCtx]);
 
+  /** Clic sur la chip ville dans le viewer → relance du feed sur cette ville. */
+  const selectDemoCity = useCallback(async (city: { id: string; name: string }) => {
+    const ctx = demoCtx;
+    if (!ctx) return;
+    const { fetchDiscoveryVideoFeedForCity } = await import("@/lib/badgeVideoFeed");
+    const { items, ctx: nextCtx } = await fetchDiscoveryVideoFeedForCity(ctx, city.id, 60);
+    if (!items.length) return;
+    setDemoBadgeId(null);
+    setDemoList(items.map(toPanelVideo));
+    setDemoCtx(nextCtx);
+    setDemoTime(0);
+    demoLoadingMoreRef.current = false;
+    setDemoActiveId(items[0].id);
+  }, [demoCtx]);
+
   /** Auto-fit du slogan écran 1 : taille max possible dans la hauteur de la section
    *  qui lui est dédiée (1/3 de l'espace entre header et CTA Découvrir). Si 5 lignes
    *  ne tiennent pas lisiblement, repli automatique en 3 lignes. Mobile uniquement. */
@@ -1204,6 +1219,7 @@ const Front = () => {
               onTimeUpdate={setDemoTime}
               returnContext={null}
               onBadgeSelect={(b: any) => { void selectDemoBadge(b); }}
+              onCitySelect={(c: any) => { void selectDemoCity(c); }}
               selectedBadgeId={demoBadgeId}
               aiMode={demoAiMode}
             />

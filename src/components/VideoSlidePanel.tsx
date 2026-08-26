@@ -102,6 +102,8 @@ interface VideoSlidePanelProps {
   feedBadges?: { id: string; name: string; color?: string | null; text_color?: string | null }[] | null;
   /** Clic sur une chip badge → relance du feed sur ce badge */
   onFeedBadgeSelect?: (badge: { id: string; name: string }) => void;
+  /** Clic sur la chip ville → relance du feed sur cette ville. */
+  onFeedCitySelect?: (city: { id: string; name: string }) => void;
   /** ID du badge actuellement sélectionné (affiché texte noir sur fond gold) */
   selectedBadgeId?: string | null;
   /** Layout "feed" : pas de badge copyright, pas d'entête business, pas de chevrons (swipe vertical), nom+description au-dessus de la barre de navigation */
@@ -187,6 +189,7 @@ const VideoSlidePanel = ({
   price = null,
     feedBadges = null,
     onFeedBadgeSelect,
+    onFeedCitySelect,
     selectedBadgeId = null,
     feedLayout = false,
     aiMode = "business",
@@ -226,7 +229,7 @@ const VideoSlidePanel = ({
   const { recentBusinesses } = useRecentlyViewedBusinesses();
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
-  const [videoCity, setVideoCity] = useState<string | null>(null);
+  const [videoCity, setVideoCity] = useState<{ id: string; name: string } | null>(null);
   const [, forceRender] = useState(0);
   useEffect(() => { if (open) forceRender((n) => n + 1); }, [open]);
 
@@ -1335,14 +1338,17 @@ const VideoSlidePanel = ({
                       );
                     })}
                     {videoCity && (
-                      <span
-                        className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide text-white shadow-lg backdrop-blur-md"
+                      <button
+                        type="button"
+                        disabled={!onFeedCitySelect}
+                        onClick={() => onFeedCitySelect?.(videoCity)}
+                        className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
                         style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
-                        title={videoCity}
+                        title={onFeedCitySelect ? `Voir les vidéos à ${videoCity.name}` : videoCity.name}
                       >
                         <MapPin className="h-3 w-3 shrink-0" />
-                        {videoCity}
-                      </span>
+                        {videoCity.name}
+                      </button>
                     )}
                   </>
                 );
