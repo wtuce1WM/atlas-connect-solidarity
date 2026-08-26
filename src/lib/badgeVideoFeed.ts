@@ -343,14 +343,13 @@ export async function fetchDiscoveryVideoFeedPage(
     ctx.seed,
     limit,
     offset,
-    ctx.includeNoCity !== false,
   );
   return items;
 }
 
 /**
  * Relance du feed découverte sur un seul badge (clic sur une chip du viewer).
- * Même périmètre géographique (Marrakech / Essaouira / sans ville), nouveau seed.
+ * Même périmètre géographique, nouveau seed.
  */
 export async function fetchDiscoveryVideoFeedForBadge(
   ctx: DiscoveryFeedContext,
@@ -359,8 +358,8 @@ export async function fetchDiscoveryVideoFeedForBadge(
 ): Promise<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext }> {
   const seed = randomSeed();
   const scope = { badgeIds: [badgeId], cityIds: ctx.cityIds };
-  const { items, total } = await fetchDiscoveryPage(scope, seed, limit, 0, ctx.includeNoCity !== false);
-  return { items, ctx: { ...scope, seed, total, includeNoCity: ctx.includeNoCity !== false } };
+  const { items, total } = await fetchDiscoveryPage(scope, seed, limit, 0);
+  return { items, ctx: { ...scope, seed, total } };
 }
 
 /**
@@ -376,6 +375,7 @@ export async function fetchDiscoveryVideoFeedForCity(
   const seed = randomSeed();
   const full = await loadDiscoveryScope();
   const scope = { badgeIds: full.badgeIds, cityIds: [cityId] };
-  const { items, total } = await fetchDiscoveryPage(scope, seed, limit, 0, false);
-  return { items, ctx: { ...scope, seed, total, includeNoCity: false } };
+  const { items, total } = await fetchDiscoveryPage(scope, seed, limit, 0);
+  return { items, ctx: { ...scope, seed, total } };
 }
+
