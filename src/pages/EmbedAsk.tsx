@@ -711,6 +711,16 @@ const EmbedAsk = () => {
     : filteredDbSuggestions && filteredDbSuggestions.length > 0
     ? filteredDbSuggestions
     : fallbackSuggestions;
+  const visibleSuggestions = suggestions
+    // Plateforme : on masque TOUTE chip dont le libellé dépend de
+    // {businessName} (business-centric), même si le ctx le résoudrait.
+    .filter((s) => !s.label.includes("{businessName}") || (!isPlatform && !!businessName))
+    .map((s) => ({
+      ...s,
+      label: s.label.replace(/\{businessName\}/g, businessName || "").trim(),
+    }))
+    .filter((s) => s.label);
+  const hasUserMessages = messages.some((m) => m.role === "user");
   const pickFollowupLabel = (f: FollowupRow): string => {
     const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
     return raw.replace(/\{businessName\}/g, businessName || "").trim();
@@ -2609,14 +2619,10 @@ const EmbedAsk = () => {
           </div>
         )}
 
-        {messages.length <= 1 && !streaming && assistantReady && (
+        {!hasUserMessages && !streaming && assistantReady && (
           <div className="flex flex-wrap gap-2 pt-1">
-            {suggestions
-              // Plateforme : on masque TOUTE chip dont le libellé dépend de
-              // {businessName} (business-centric), même si le ctx le résoudrait.
-              .filter((s) => !s.label.includes("{businessName}") || (!isPlatform && !!businessName))
-              .map((s) => {
-              const label = s.label.replace(/\{businessName\}/g, businessName || "").trim();
+            {visibleSuggestions.map((s) => {
+              const label = s.label;
               // Cas unique : la suggestion "Le meilleur de YouTube sur le Maroc"
               // ne passe pas par le moteur IA — elle ouvre la page /youtube.
               const isYoutubePage =
@@ -2639,6 +2645,19 @@ const EmbedAsk = () => {
                 </button>
               );
             })}
+
+            {isPlatform && dbSuggestions === null && (
+              <span className={`inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full ${chipBg}`} style={chipStyle}>
+                <Loader2 className="w-3 h-3 animate-spin" />
+                {lang === "en" ? "Loading suggestions…" : lang === "ar" ? "جارٍ تحميل الاقتراحات…" : "Chargement des suggestions…"}
+              </span>
+            )}
+
+            {isPlatform && dbSuggestions !== null && visibleSuggestions.length === 0 && (
+              <span className={`text-xs px-3 py-1.5 rounded-full ${chipBg}`} style={chipStyle}>
+                {lang === "en" ? "Suggestions unavailable for now." : lang === "ar" ? "الاقتراحات غير متاحة حالياً." : "Suggestions indisponibles pour le moment."}
+              </span>
+            )}
 
           </div>
         )}
