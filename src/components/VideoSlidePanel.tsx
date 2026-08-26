@@ -911,13 +911,14 @@ const VideoSlidePanel = ({
       return;
     }
     setAiPlatformIntroPhase("full");
+    if (!aiReady) return;
     const t1 = window.setTimeout(() => setAiPlatformIntroPhase("exit"), 1800);
     const t2 = window.setTimeout(() => setAiPlatformIntroPhase("done"), 2440);
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
     };
-  }, [aiOverlayOpen, aiPlatform, aiSessionKey]);
+  }, [aiOverlayOpen, aiPlatform, aiSessionKey, aiReady]);
 
 
 

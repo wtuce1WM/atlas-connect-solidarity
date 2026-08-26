@@ -704,7 +704,9 @@ const EmbedAsk = () => {
     ? dbSuggestions.filter((s) => suggAllowed.includes(s.id))
     : dbSuggestions;
   const fallbackSuggestions = L.suggestions.map((s, i) => ({ id: `default-${i}`, label: s }));
-  const suggestions: SuggestionRow[] = filteredDbSuggestions && filteredDbSuggestions.length > 0
+  const suggestions: SuggestionRow[] = isPlatform
+    ? (filteredDbSuggestions ?? [])
+    : filteredDbSuggestions && filteredDbSuggestions.length > 0
     ? filteredDbSuggestions
     : fallbackSuggestions;
   const pickFollowupLabel = (f: FollowupRow): string => {
@@ -923,16 +925,17 @@ const EmbedAsk = () => {
   }, [assistantReady, chatKey, openerText, isPlatform]);
 
 
-  // Signale à la page hôte (overlay vidéo) que l'assistant est réellement prêt à
-  // être affiché : contexte chargé + message d'ouverture posé. L'hôte garde
-  // l'iframe masquée derrière une animation de recherche jusqu'à ce signal.
+  // Signale à la page hôte (overlay vidéo) que l'assistant est réellement prêt.
+  // En mode plateforme, attendre aussi les suggestions : sinon le panneau parent
+  // termine son intro sur une zone vide ou sur le fallback local à 4 puces.
   const readyNotifiedRef = useRef(false);
   useEffect(() => {
     if (readyNotifiedRef.current) return;
     if (!assistantReady || messages.length === 0) return;
+    if (isPlatform && dbSuggestions === null) return;
     readyNotifiedRef.current = true;
     try { window.parent?.postMessage({ type: "owm-ai-ready" }, "*"); } catch { /* noop */ }
-  }, [assistantReady, messages.length]);
+  }, [assistantReady, messages.length, isPlatform, dbSuggestions]);
 
   // Persist thread to localStorage on every change (skip while streaming to avoid spam).
   useEffect(() => {
@@ -1977,7 +1980,7 @@ const EmbedAsk = () => {
       </header>
 
       <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto"} px-4 py-4 space-y-3 ${bg} relative`}>
-        {isPlatform && splashPhase !== "done" && messages.length <= 1 && (
+        {isPlatform && !inFloatingPanel && splashPhase !== "done" && messages.length <= 1 && (
           <div
             className="absolute inset-0 z-30 flex items-center justify-center px-6 pointer-events-none"
             style={{

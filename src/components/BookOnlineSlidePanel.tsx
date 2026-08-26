@@ -1613,13 +1613,14 @@ const BookOnlineSlidePanelInner = ({
       return;
     }
     setAiAssistantPlatformIntroPhase("full");
+    if (!aiAssistantReady) return;
     const t1 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("exit"), 1800);
     const t2 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("done"), 2440);
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
     };
-  }, [aiAssistantOpen, aiAssistantPlatform, aiAssistantSessionKey]);
+  }, [aiAssistantOpen, aiAssistantPlatform, aiAssistantSessionKey, aiAssistantReady]);
 
   // ── External bridge: window events to control Play/Mute from an outer bar
   //   dispatch "book-panel:toggle-play"  → play/pause current media
@@ -4721,7 +4722,11 @@ const BookOnlineSlidePanelInner = ({
                 const slug = business?.slug || null;
                 setAiAssistantReady(false);
                 setAiAssistantSessionKey((k) => k + 1);
-                if (slug) {
+                if (aiMode === "platform") {
+                  setAiAssistantSlug(slug);
+                  setAiAssistantPlatform(true);
+                  setAiAssistantOpen(true);
+                } else if (slug) {
                   setAiAssistantSlug(slug);
                   setAiAssistantPlatform(false);
                   setAiAssistantOpen(true);
