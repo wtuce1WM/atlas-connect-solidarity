@@ -27,14 +27,16 @@ const fetchAllPaged = async (
         build(offset + i * page, offset + (i + 1) * page - 1),
       ),
     );
-    let done = false;
+    let lastFull = true;
     for (const r of results) {
       if (r.error) throw r.error;
       const rows = (r.data || []) as any[];
       out.push(...rows);
-      if (rows.length < page) done = true;
+      lastFull = rows.length === page;
     }
-    if (done) break;
+    // On ne s'arrête que si la DERNIÈRE page du lot est incomplète : une page
+    // intermédiaire courte ne doit jamais interrompre les lots suivants.
+    if (!lastFull) break;
     offset += parallel * page;
   }
   return out;
@@ -323,9 +325,9 @@ const TestNoteViewer = () => {
       try {
         const [bizLinks, genLinks] = await Promise.all([
           fetchAllPaged((f, t) =>
-            supabase.from("business_document_badges").select("document_id, badge_id").order("document_id").range(f, t)),
+            supabase.from("business_document_badges").select("document_id, badge_id").order("document_id").order("badge_id").range(f, t)),
           fetchAllPaged((f, t) =>
-            (supabase.from("generic_video_badges" as any) as any).select("generic_video_id, badge_id").order("generic_video_id").range(f, t)),
+            (supabase.from("generic_video_badges" as any) as any).select("generic_video_id, badge_id").order("generic_video_id").order("badge_id").range(f, t)),
         ]);
         const badgeMap = new Map<string, string[]>();
         bizLinks.forEach((l: any) => {
@@ -384,13 +386,13 @@ const TestNoteViewer = () => {
           supabase.from("services").select("id, name_fr"),
           supabase.from("cities").select("id, name_fr"),
           fetchAllPaged((f, t) =>
-            supabase.from("business_document_cities").select("document_id, city_id").order("document_id").range(f, t)),
+            supabase.from("business_document_cities").select("document_id, city_id").order("document_id").order("city_id").range(f, t)),
           fetchAllPaged((f, t) =>
-            (supabase.from("generic_video_cities" as any) as any).select("generic_video_id, city_id").order("generic_video_id").range(f, t)),
+            (supabase.from("generic_video_cities" as any) as any).select("generic_video_id, city_id").order("generic_video_id").order("city_id").range(f, t)),
           fetchAllPaged((f, t) =>
-            supabase.from("business_document_badges").select("document_id, badge_id").order("document_id").range(f, t)),
+            supabase.from("business_document_badges").select("document_id, badge_id").order("document_id").order("badge_id").range(f, t)),
           fetchAllPaged((f, t) =>
-            (supabase.from("generic_video_badges" as any) as any).select("generic_video_id, badge_id").order("generic_video_id").range(f, t)),
+            (supabase.from("generic_video_badges" as any) as any).select("generic_video_id, badge_id").order("generic_video_id").order("badge_id").range(f, t)),
           fetchAllPaged((f, t) => supabase.from("businesses").select("id, name").order("id").range(f, t)),
         ]);
 
