@@ -235,7 +235,7 @@ const PLATFORM_FALLBACK_SUGGESTIONS_FR = [
 ];
 
 
-const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string, radius: string) => string; platformTitle: string; platformOpener: (city: string) => string; radiusLabel: string; radiusChanged: (r: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
+const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string, radius: string) => string; platformTitle: string; platformOpener: () => string; radiusLabel: string; radiusChanged: (r: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
     placeholder: "Posez votre question…",
     hint: "Assistant IA propulsé par One World Morocco",
