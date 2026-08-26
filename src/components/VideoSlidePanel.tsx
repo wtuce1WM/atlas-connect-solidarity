@@ -897,13 +897,13 @@ const VideoSlidePanel = ({
     return () => window.removeEventListener("message", onMsg);
   }, [aiOverlayOpen]);
 
-  // Filet de sécurité : si l'iframe ne signale jamais sa disponibilité
-  // (erreur réseau, slug inconnu…), on la révèle quand même au bout de 8 s.
+  // Filet de sécurité hôte uniquement : en mode plateforme, le message plein écran
+  // doit rester tant que les suggestions ne sont pas réellement prêtes.
   useEffect(() => {
-    if (!aiOverlayOpen || aiReady) return;
+    if (!aiOverlayOpen || aiReady || aiPlatform) return;
     const t = setTimeout(() => setAiReady(true), 8000);
     return () => clearTimeout(t);
-  }, [aiOverlayOpen, aiReady]);
+  }, [aiOverlayOpen, aiReady, aiPlatform]);
 
   useEffect(() => {
     if (!aiOverlayOpen || !aiPlatform) {
@@ -912,8 +912,8 @@ const VideoSlidePanel = ({
     }
     setAiPlatformIntroPhase("full");
     if (!aiReady) return;
-    const t1 = window.setTimeout(() => setAiPlatformIntroPhase("exit"), 1800);
-    const t2 = window.setTimeout(() => setAiPlatformIntroPhase("done"), 2440);
+    const t1 = window.setTimeout(() => setAiPlatformIntroPhase("exit"), 120);
+    const t2 = window.setTimeout(() => setAiPlatformIntroPhase("done"), 820);
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
