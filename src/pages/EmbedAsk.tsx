@@ -963,7 +963,9 @@ const EmbedAsk = () => {
       if (initialPersisted.activeSuggestionId) setActiveSuggestionId(initialPersisted.activeSuggestionId);
       return;
     }
-    if (isPlatform) setSplashPhase("full");
+    // Le grand message d'accueil ne s'affiche qu'au premier montage de
+    // l'assistant plateforme, jamais après un clic sur « Nouvelle conversation ».
+    if (isPlatform && chatKey === 0) setSplashPhase("full");
     setMessages([{
       id: "opener",
       role: "assistant",
@@ -974,6 +976,7 @@ const EmbedAsk = () => {
     } as any]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assistantReady, chatKey, openerText, isPlatform]);
+
 
 
   // Signale à la page hôte (overlay vidéo) que l'assistant est réellement prêt.
@@ -1553,12 +1556,12 @@ const EmbedAsk = () => {
     setActiveSuggestionId(null);
     setUsedFollowupIds([]);
     setUsedHostBadges([]);
-    if (isPlatform) setSplashPhase("full");
     pendingSendRef.current = pending || null;
 
     setChatKey((k) => k + 1); // resets useChat id → clears message list
     setTimeout(() => inputRef.current?.focus(), 0);
   };
+
 
   // After a "Nouvelle conversation" reset, if the user had typed a question,
   // send it as the first message of the new thread.
