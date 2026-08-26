@@ -1870,7 +1870,7 @@ const VideoSlidePanel = ({
         )}
         {(aiOverlayOpen || shouldPreloadPlatformAi) && (aiPlatform || aiSlug || shouldPreloadPlatformAi) && (
           <div
-            className={`fixed inset-y-0 right-0 w-full lg:w-1/2 h-[100dvh] overflow-hidden ${aiOverlayOpen ? "z-[240]" : "-z-10 pointer-events-none opacity-0"}`}
+            className={`fixed inset-y-0 right-0 w-full h-[100dvh] overflow-hidden ${aiOverlayOpen ? "z-[240] animate-slide-in-right" : "-z-10 pointer-events-none opacity-0"}`}
             aria-hidden={!aiOverlayOpen}
           >
             {/* Fond assombri : la vidéo reste visible derrière l'assistant (iframe transparente) */}
