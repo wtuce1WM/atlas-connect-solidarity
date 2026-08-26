@@ -677,12 +677,15 @@ const VideoSlidePanel = ({
   // renvoyait null (DOM pas encore re-commité) et le contenu portalé du
   // header (Like / Bookmark / Partage) ne réapparaissait jamais.
   const headerVisible = !descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !compactBusinessHeader;
+  const [toolbarCenterEl, setToolbarCenterEl] = useState<HTMLElement | null>(null);
   const [toolbarRightEl, setToolbarRightEl] = useState<HTMLElement | null>(null);
   useEffect(() => {
     if (!open || !headerVisible) {
+      setToolbarCenterEl(null);
       setToolbarRightEl(null);
       return;
     }
+    setToolbarCenterEl(document.getElementById("slide-panel-home-toolbar-center"));
     setToolbarRightEl(document.getElementById("slide-panel-home-toolbar-right"));
   }, [open, headerVisible, toolbarMounted]);
   useEffect(() => { if (!open) { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); } }, [open]);
@@ -998,7 +1001,7 @@ const VideoSlidePanel = ({
           />
         )}
         {/* Center header CTA : Tel / WhatsApp (identique à BookOnlineSlidePanel) */}
-        {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !compactBusinessHeader && ctaBusiness && (ctaBusiness.whatsapp || ctaBusiness.phone) && createPortal(
+        {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !compactBusinessHeader && toolbarCenterEl && ctaBusiness && (ctaBusiness.whatsapp || ctaBusiness.phone) && createPortal(
           <div className="flex items-center gap-6 relative z-[90] md:z-auto">
             {ctaBusiness.whatsapp ? (
               <a href={whatsappUrl(ctaBusiness.whatsapp)} target="_blank" rel="noopener noreferrer" className="relative flex items-center justify-center hover:opacity-90 transition-opacity">
@@ -1026,7 +1029,7 @@ const VideoSlidePanel = ({
               </a>
             )}
           </div>,
-          document.getElementById("slide-panel-home-toolbar-center")!
+          toolbarCenterEl
         )}
         {compactBusinessHeader && !searchOverlayOpen && !descOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && (
           <>

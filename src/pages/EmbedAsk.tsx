@@ -614,6 +614,9 @@ const EmbedAsk = () => {
 
   // --- Persistence (localStorage): survives page reload for ~7 days per slug+lang. ---
   const storageKey = `embed-ask:thread:${isPlatform ? `platform:${ctxSlug || "global"}` : slug}:${lang}`;
+  // L'assistant plateforme ouvert dans un panneau vidéo doit toujours repartir
+  // sur l'accueil + les suggestions back-office, même après refresh/re-ouverture.
+  const shouldPersistThread = !(isPlatform && inFloatingPanel);
   const TTL_MS = 7 * 24 * 3600 * 1000;
   type PersistedThread = {
     sessionId: string;
@@ -636,7 +639,7 @@ const EmbedAsk = () => {
       return parsed;
     } catch { return null; }
   };
-  const initialPersisted = useMemo(readPersisted, [storageKey]);
+  const initialPersisted = useMemo(() => shouldPersistThread ? readPersisted() : null, [storageKey, shouldPersistThread]);
 
   const newSessionId = () =>
     typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -700,9 +703,10 @@ const EmbedAsk = () => {
   const filteredDbSuggestions = dbSuggestions && suggAllowed
     ? dbSuggestions.filter((s) => suggAllowed.includes(s.id))
     : dbSuggestions;
-  const suggestions: SuggestionRow[] = filteredDbSuggestions && filteredDbSuggestions.length > 0
+  const fallbackSuggestions = L.suggestions.map((s, i) => ({ id: `default-${i}`, label: s }));
+  const suggestions: SuggestionRow[] = filteredDbSuggestions !== null
     ? filteredDbSuggestions
-    : L.suggestions.map((s, i) => ({ id: `default-${i}`, label: s }));
+    : fallbackSuggestions;
   const pickFollowupLabel = (f: FollowupRow): string => {
     const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
     return raw.replace(/\{businessName\}/g, businessName || "").trim();
@@ -926,6 +930,7 @@ const EmbedAsk = () => {
   // Persist thread to localStorage on every change (skip while streaming to avoid spam).
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (!shouldPersistThread) return;
     if (!assistantReady) return;
     if (streaming) return;
     if (messages.length <= 1) return;
@@ -940,7 +945,7 @@ const EmbedAsk = () => {
       window.localStorage.setItem(storageKey, JSON.stringify(payload));
     } catch { /* quota or serialization noop */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages, streaming, businessName, activeSuggestionId]);
+  }, [messages, streaming, businessName, activeSuggestionId, shouldPersistThread]);
 
 
   useEffect(() => {
@@ -957,7 +962,8 @@ const EmbedAsk = () => {
         .eq("surface", "embed")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
-      if (cancelled || !data) return;
+      if (cancelled) return;
+      if (!data) { setDbSuggestions([]); return; }
       const col = lang === "en" ? "label_en" : lang === "ar" ? "label_ar" : "label_fr";
       const normCity = (s: string | null | undefined) =>
         (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
@@ -982,7 +988,7 @@ const EmbedAsk = () => {
           disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
         }))
         .filter((r) => r.label);
-      if (list.length > 0) setDbSuggestions(list);
+      setDbSuggestions(list);
     })();
     return () => { cancelled = true; };
   }, [lang, businessId, businessCity, businessMainCategory, isPlatform]);
