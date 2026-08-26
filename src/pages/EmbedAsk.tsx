@@ -1185,14 +1185,22 @@ const EmbedAsk = () => {
         return;
       }
     }
-    if (suggestionId && !suggestionId.startsWith("default-")) setActiveSuggestionId(suggestionId);
+    // Les chips de secours (locales, pas en base) portent un id synthétique :
+    // il ne doit JAMAIS partir au serveur, sinon le garde-fou plateforme rejette
+    // la requête (« suggestion not available on platform »).
+    const isSyntheticId = (id?: string | null) =>
+      !!id && (id.startsWith("default-") || id.startsWith("platform-fallback-"));
+    const realSuggestionId = isSyntheticId(suggestionId) ? null : suggestionId || null;
+    if (realSuggestionId) setActiveSuggestionId(realSuggestionId);
     // Une recherche libre doit toujours être résolue depuis son propre texte.
     // L'ancienne suggestion active ne sert que de contexte à une relance explicite.
     if (!suggestionId && !followupId) setActiveSuggestionId(null);
     setError(null);
     lastLocalFilterRef.current = null;
     messageIndexRef.current += 1;
-    const effectiveSuggestionId: string | null = suggestionId || (followupId ? activeSuggestionId : null) || null;
+    const contextSuggestionId = isSyntheticId(activeSuggestionId) ? null : activeSuggestionId;
+    const effectiveSuggestionId: string | null =
+      realSuggestionId || (followupId ? contextSuggestionId : null) || null;
     sendMessage(
       { text },
       { body: { suggestionId: effectiveSuggestionId, followupId: followupId || null, scope: null } },
