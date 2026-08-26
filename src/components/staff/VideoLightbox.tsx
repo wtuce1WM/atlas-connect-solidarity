@@ -1,69 +1,89 @@
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 
 interface VideoLightboxProps {
   url: string;
   onClose: () => void;
-  restoreScrollY?: number;
 }
 
-const VideoLightbox = ({ url, onClose, restoreScrollY }: VideoLightboxProps) => {
+const VideoLightbox = ({ url, onClose }: VideoLightboxProps) => {
   const embed = getVideoEmbed(url, window.location.origin);
   const isEmbed = embed.type !== "file";
-  const mediaRef = useRef<HTMLVideoElement | HTMLIFrameElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // Restaure la position de scroll dès la première paint pour éviter le saut du formulaire derrière.
-  useLayoutEffect(() => {
-    if (typeof restoreScrollY === "number") {
-      window.scrollTo({ top: restoreScrollY, behavior: "auto" });
-    }
-  }, []);
+  // Verrouille le scroll du body sans déplacer la position de défilement du formulaire derrière.
+  useEffect(() => {
+    const body = document.body;
+    const html = document.documentElement;
+    const scrollY = window.scrollY;
+    const prevBodyPosition = body.style.position;
+    const prevBodyTop = body.style.top;
+    const prevBodyWidth = body.style.width;
+    const prevBodyOverflow = body.style.overflow;
+    const prevHtmlOverflow = html.style.overflow;
 
-  // Empêche le focus automatique de faire défiler la page jusqu'à l'élément média.
-  useLayoutEffect(() => {
-    const el = mediaRef.current;
-    if (!el) return;
-    const preventScroll = (e: Event) => {
-      e.preventDefault?.();
-      window.scrollTo({ top: window.scrollY });
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+    html.style.overflow = "hidden";
+
+    return () => {
+      body.style.position = prevBodyPosition;
+      body.style.top = prevBodyTop;
+      body.style.width = prevBodyWidth;
+      body.style.overflow = prevBodyOverflow;
+      html.style.overflow = prevHtmlOverflow;
+      window.scrollTo({ top: scrollY, behavior: "auto" });
     };
-    el.addEventListener("focus", preventScroll, { passive: false } as EventListenerOptions);
-    return () => el.removeEventListener("focus", preventScroll);
   }, []);
 
-  return (
+  // Lecture automatique des fichiers vidéo internes.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.play().catch(() => {});
+  }, []);
+
+  const content = (
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
+      className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center"
       onClick={onClose}
     >
-      <button className="absolute top-4 right-4 text-white hover:text-white/80 z-10" onClick={onClose}>
+      <button
+        type="button"
+        className="absolute top-4 right-4 text-white hover:text-white/80 z-10"
+        onClick={onClose}
+      >
         <X className="h-8 w-8" />
       </button>
       <div className="w-full max-w-4xl aspect-video" onClick={(e) => e.stopPropagation()}>
         {isEmbed ? (
           <iframe
-            ref={mediaRef as React.RefObject<HTMLIFrameElement>}
             src={embed.embedUrl}
             className="w-full h-full rounded-lg"
-            allow="fullscreen; encrypted-media"
+            allow="autoplay; fullscreen; encrypted-media"
             allowFullScreen
-            tabIndex={-1}
+            title="Lecteur vidéo"
           />
         ) : (
           <video
-            ref={mediaRef as React.RefObject<HTMLVideoElement>}
+            ref={videoRef}
             src={url}
             controls
-            tabIndex={-1}
+            autoPlay
             className="w-full h-full object-contain rounded-lg"
           />
         )}
       </div>
     </div>
   );
+
+  return createPortal(content, document.body);
 };
 
 export default VideoLightbox;
