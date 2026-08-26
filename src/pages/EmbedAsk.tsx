@@ -589,6 +589,10 @@ const EmbedAsk = () => {
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null; is_platform_visible?: boolean };
   type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[] };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
+  // Splash d'accueil plateforme : le message d'ouverture occupe tout l'overlay,
+  // puis zoom-out vers le haut dès que les suggestions back-office sont prêtes.
+  const [splashPhase, setSplashPhase] = useState<"full" | "exit" | "done">("full");
+
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
   // Sélection de l'affilié (onglet Agent IA de /affiliates/presence). null = tout activé.
   const [agentPrefs, setAgentPrefs] = useState<{ sugg: string[] | null; fu: string[] | null }>({ sugg: null, fu: null });
