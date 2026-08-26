@@ -195,8 +195,8 @@ export async function fetchBadgesVideoFeed(
  * seed + round-robin par établissement/auteur. Différences :
  *  - le pool est l'ensemble des badges « Activé sur le front »
  *    (`badges.is_active_on_front`), donc aucune vidéo non badgée ;
- *  - villes autorisées : Marrakech, Essaouira, ou aucune ville
- *    (`_include_no_city`) ;
+ *  - villes autorisées : Marrakech, Essaouira ;
+
  *  - le seed est tiré à chaque ouverture (découverte aléatoire).
  */
 
