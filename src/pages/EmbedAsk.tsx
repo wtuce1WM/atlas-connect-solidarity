@@ -1011,7 +1011,7 @@ const EmbedAsk = () => {
     if (splashPhase !== "full") return;
     const ready = assistantReady && dbSuggestions !== null;
     // Failsafe : si la requête suggestions échoue, on ne bloque pas l'overlay.
-    const delay = ready ? 700 : 3500;
+    const delay = ready ? 1800 : 3500;
     const t1 = window.setTimeout(() => setSplashPhase("exit"), delay);
     const t2 = window.setTimeout(() => setSplashPhase("done"), delay + 700);
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
