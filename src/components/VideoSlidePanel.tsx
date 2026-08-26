@@ -1333,7 +1333,11 @@ const VideoSlidePanel = ({
                           }
                           title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
                         >
-                          {b.name}
+                          {b.name === "Rooftop Restaurant & Bars" ? (
+                            <>Rooftop<br />Restaurant & Bars</>
+                          ) : (
+                            b.name
+                          )}
                         </button>
                       );
                     })}
