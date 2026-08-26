@@ -704,7 +704,7 @@ const EmbedAsk = () => {
     ? dbSuggestions.filter((s) => suggAllowed.includes(s.id))
     : dbSuggestions;
   const fallbackSuggestions = L.suggestions.map((s, i) => ({ id: `default-${i}`, label: s }));
-  const suggestions: SuggestionRow[] = filteredDbSuggestions !== null
+  const suggestions: SuggestionRow[] = filteredDbSuggestions && filteredDbSuggestions.length > 0
     ? filteredDbSuggestions
     : fallbackSuggestions;
   const pickFollowupLabel = (f: FollowupRow): string => {
@@ -892,28 +892,35 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
   }, [businessId]);
 
+  const openerText = isPlatform
+    ? L.platformOpener(platformCity)
+    : L.opener(businessName, radiusLabel(radiusKm, lang));
+
   // Seed the opener as an assistant UIMessage once we know the business
   // (ou, en mode plateforme, dès que le contexte ville est prêt).
+  // En panneau flottant plateforme, on force un accueil frais à chaque mount/reset :
+  // pas de conservation d'un ancien état vide ou déjà consommé par le hook de chat.
+  const seededChatKeyRef = useRef<number | null>(null);
   useEffect(() => {
     if (!assistantReady) return;
-    if (messages.length > 0) return;
+    if (seededChatKeyRef.current === chatKey) return;
+    seededChatKeyRef.current = chatKey;
     if (restoredRef.current && initialPersisted?.messages?.length) {
       setMessages(initialPersisted.messages as any);
       if (initialPersisted.activeSuggestionId) setActiveSuggestionId(initialPersisted.activeSuggestionId);
       return;
     }
+    if (isPlatform) setSplashPhase("full");
     setMessages([{
       id: "opener",
       role: "assistant",
       parts: [{
         type: "text",
-        text: isPlatform
-          ? L.platformOpener(platformCity)
-          : L.opener(businessName, radiusLabel(radiusKm, lang)),
+        text: openerText,
       }],
     } as any]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assistantReady, businessName, chatKey, radiusKm, platformCity]);
+  }, [assistantReady, chatKey, openerText, isPlatform]);
 
 
   // Signale à la page hôte (overlay vidéo) que l'assistant est réellement prêt à
@@ -954,15 +961,20 @@ const EmbedAsk = () => {
     // Sans cela on retombait sur la liste de secours codée en dur (4 puces).
     // Le filtre ville/catégorie n'est appliqué que si un contexte existe.
     let cancelled = false;
+    setDbSuggestions(null);
 
     (async () => {
-      const { data } = await supabase
+      const { data, error: suggestionsError } = await supabase
         .from("ai_suggestions")
         .select("id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible")
         .eq("surface", "embed")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled) return;
+      if (suggestionsError) {
+        setDbSuggestions(null);
+        return;
+      }
       if (!data) { setDbSuggestions([]); return; }
       const col = lang === "en" ? "label_en" : lang === "ar" ? "label_ar" : "label_fr";
       const normCity = (s: string | null | undefined) =>
@@ -999,7 +1011,7 @@ const EmbedAsk = () => {
     if (splashPhase !== "full") return;
     const ready = assistantReady && dbSuggestions !== null;
     // Failsafe : si la requête suggestions échoue, on ne bloque pas l'overlay.
-    const delay = ready ? 700 : 3500;
+    const delay = ready ? 1800 : 3500;
     const t1 = window.setTimeout(() => setSplashPhase("exit"), delay);
     const t2 = window.setTimeout(() => setSplashPhase("done"), delay + 700);
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
@@ -1456,6 +1468,7 @@ const EmbedAsk = () => {
     const pending = input.trim();
     try { window.localStorage.removeItem(storageKey); } catch { /* noop */ }
     restoredRef.current = false;
+    seededChatKeyRef.current = null;
     sessionIdRef.current = newSessionId();
     messageIndexRef.current = 0;
     setInput("");
@@ -1466,6 +1479,7 @@ const EmbedAsk = () => {
     setActiveSuggestionId(null);
     setUsedFollowupIds([]);
     setUsedHostBadges([]);
+    if (isPlatform) setSplashPhase("full");
     pendingSendRef.current = pending || null;
 
     setChatKey((k) => k + 1); // resets useChat id → clears message list

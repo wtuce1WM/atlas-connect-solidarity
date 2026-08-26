@@ -223,6 +223,8 @@ const VideoSlidePanel = ({
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
   /** L'iframe IA signale sa disponibilité via postMessage("owm-ai-ready"). */
   const [aiReady, setAiReady] = useState(false);
+  const [aiSessionKey, setAiSessionKey] = useState(0);
+  const [aiPlatformIntroPhase, setAiPlatformIntroPhase] = useState<"full" | "exit" | "done">("done");
   const [aiSlug, setAiSlug] = useState<string | null>(null);
   /** Mode plateforme : overlay IA sans hôte ; aiSlug sert alors de contexte `ctx`. */
   const [aiPlatform, setAiPlatform] = useState(false);
@@ -902,6 +904,20 @@ const VideoSlidePanel = ({
     const t = setTimeout(() => setAiReady(true), 8000);
     return () => clearTimeout(t);
   }, [aiOverlayOpen, aiReady]);
+
+  useEffect(() => {
+    if (!aiOverlayOpen || !aiPlatform) {
+      setAiPlatformIntroPhase("done");
+      return;
+    }
+    setAiPlatformIntroPhase("full");
+    const t1 = window.setTimeout(() => setAiPlatformIntroPhase("exit"), 1800);
+    const t2 = window.setTimeout(() => setAiPlatformIntroPhase("done"), 2440);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [aiOverlayOpen, aiPlatform, aiSessionKey]);
 
 
 
@@ -1753,6 +1769,8 @@ const VideoSlidePanel = ({
                     const slug = ctaBusiness?.slug
                       || recentBusinesses.find((b) => !b.isYoutubeChannel)?.slug
                       || null;
+                    setAiReady(false);
+                    setAiSessionKey((k) => k + 1);
                     if (aiMode === "platform") {
                       setAiSlug(slug);
                       setAiPlatform(true);
@@ -1856,7 +1874,7 @@ const VideoSlidePanel = ({
             />
             {/* Animation de recherche pendant le chargement de l'assistant :
                 l'iframe reste montée (elle charge) mais masquée jusqu'au signal « prêt ». */}
-            {!aiReady && (
+            {!aiPlatform && !aiReady && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 pointer-events-none">
                 <div className="h-14 w-14 rounded-full border-4 border-white/15 border-t-[#D4AF37] animate-spin" />
                 <p className="text-white/90 text-lg font-medium tracking-wide animate-pulse text-center px-8">
@@ -1869,14 +1887,32 @@ const VideoSlidePanel = ({
               </div>
             )}
             <iframe
+              key={aiSessionKey}
               src={aiPlatform
-                ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform${aiSlug ? `&ctx=${encodeURIComponent(aiSlug)}` : ""}`
-                : `/embed/ask/${aiSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1`}
+                ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform&open=${aiSessionKey}${aiSlug ? `&ctx=${encodeURIComponent(aiSlug)}` : ""}`
+                : `/embed/ask/${aiSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&open=${aiSessionKey}`}
               title="Assistant IA"
-              className={`relative w-full h-full border-0 transition-opacity duration-500 ${aiReady ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+              className={`relative w-full h-full border-0 transition-opacity duration-500 ${(aiPlatform || aiReady) ? "opacity-100" : "opacity-0 pointer-events-none"}`}
               style={{ background: "transparent" }}
               allow="clipboard-write; microphone"
             />
+            {aiPlatform && aiPlatformIntroPhase !== "done" && (
+              <div
+                className="absolute inset-0 z-10 flex items-center justify-center px-8 pointer-events-none bg-black/95 backdrop-blur-md transition-all duration-700 ease-out"
+                style={{
+                  opacity: aiPlatformIntroPhase === "exit" ? 0 : 1,
+                  transform: aiPlatformIntroPhase === "exit" ? "scale(0.62) translateY(-14%)" : "scale(1)",
+                  transformOrigin: "top center",
+                }}
+              >
+                <p
+                  className="text-center text-white font-semibold leading-snug"
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(18px, 3.4vw, 30px)", maxWidth: "34ch" }}
+                >
+                  Bonjour 👋 Je suis l'assistant One World Morocco. Je puise dans toute la base 1WM — restaurants, riads, sorties, activités, événements, adresses authentiques — à Marrakech et partout au Maroc. Comment puis-je vous aider ?
+                </p>
+              </div>
+            )}
           </div>
         )}
         {/* Popup Club — même mécanisme que BookOnlineSlidePanel : il écoute

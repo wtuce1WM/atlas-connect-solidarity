@@ -1080,6 +1080,8 @@ const BookOnlineSlidePanelInner = ({
   // Overlay assistant IA plein écran (embed/ask) — équivalent VideoSlidePanel
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
   const [aiAssistantReady, setAiAssistantReady] = useState(false);
+  const [aiAssistantSessionKey, setAiAssistantSessionKey] = useState(0);
+  const [aiAssistantPlatformIntroPhase, setAiAssistantPlatformIntroPhase] = useState<"full" | "exit" | "done">("done");
   const [aiAssistantSlug, setAiAssistantSlug] = useState<string | null>(null);
   const [aiAssistantPlatform, setAiAssistantPlatform] = useState(false);
   const [showAvailabilitySearch, setShowAvailabilitySearch] = useState(false);
@@ -1604,6 +1606,20 @@ const BookOnlineSlidePanelInner = ({
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
   }, []);
+
+  useEffect(() => {
+    if (!aiAssistantOpen || !aiAssistantPlatform) {
+      setAiAssistantPlatformIntroPhase("done");
+      return;
+    }
+    setAiAssistantPlatformIntroPhase("full");
+    const t1 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("exit"), 1800);
+    const t2 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("done"), 2440);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [aiAssistantOpen, aiAssistantPlatform, aiAssistantSessionKey]);
 
   // ── External bridge: window events to control Play/Mute from an outer bar
   //   dispatch "book-panel:toggle-play"  → play/pause current media
@@ -4703,6 +4719,8 @@ const BookOnlineSlidePanelInner = ({
               onAiClick={() => {
                 // Assistant IA en overlay plein écran (embed/ask) — équivalent VideoSlidePanel
                 const slug = business?.slug || null;
+                setAiAssistantReady(false);
+                setAiAssistantSessionKey((k) => k + 1);
                 if (slug) {
                   setAiAssistantSlug(slug);
                   setAiAssistantPlatform(false);
@@ -5008,7 +5026,7 @@ const BookOnlineSlidePanelInner = ({
             onClick={() => setAiAssistantOpen(false)}
             aria-hidden="true"
           />
-          {!aiAssistantReady && (
+          {!aiAssistantPlatform && !aiAssistantReady && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 pointer-events-none">
               <div className="h-14 w-14 rounded-full border-4 border-white/15 border-t-[#D4AF37] animate-spin" />
               <p className="text-white/90 text-lg font-medium tracking-wide animate-pulse text-center px-8">
@@ -5021,14 +5039,32 @@ const BookOnlineSlidePanelInner = ({
             </div>
           )}
           <iframe
+            key={aiAssistantSessionKey}
             src={aiAssistantPlatform
-              ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform${aiAssistantSlug ? `&ctx=${encodeURIComponent(aiAssistantSlug)}` : ""}`
-              : `/embed/ask/${aiAssistantSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1`}
+              ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform&open=${aiAssistantSessionKey}${aiAssistantSlug ? `&ctx=${encodeURIComponent(aiAssistantSlug)}` : ""}`
+              : `/embed/ask/${aiAssistantSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&open=${aiAssistantSessionKey}`}
             title="Assistant IA"
-            className={`relative w-full h-full border-0 transition-opacity duration-500 ${aiAssistantReady ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+            className={`relative w-full h-full border-0 transition-opacity duration-500 ${(aiAssistantPlatform || aiAssistantReady) ? "opacity-100" : "opacity-0 pointer-events-none"}`}
             style={{ background: "transparent" }}
             allow="clipboard-write; microphone"
           />
+          {aiAssistantPlatform && aiAssistantPlatformIntroPhase !== "done" && (
+            <div
+              className="absolute inset-0 z-10 flex items-center justify-center px-8 pointer-events-none bg-black/95 backdrop-blur-md transition-all duration-700 ease-out"
+              style={{
+                opacity: aiAssistantPlatformIntroPhase === "exit" ? 0 : 1,
+                transform: aiAssistantPlatformIntroPhase === "exit" ? "scale(0.62) translateY(-14%)" : "scale(1)",
+                transformOrigin: "top center",
+              }}
+            >
+              <p
+                className="text-center text-white font-semibold leading-snug"
+                style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(18px, 3.4vw, 30px)", maxWidth: "34ch" }}
+              >
+                Bonjour 👋 Je suis l'assistant One World Morocco. Je puise dans toute la base 1WM — restaurants, riads, sorties, activités, événements, adresses authentiques — à Marrakech et partout au Maroc. Comment puis-je vous aider ?
+              </p>
+            </div>
+          )}
         </div>
       )}
 
