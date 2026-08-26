@@ -297,6 +297,17 @@ const VideoSlidePanel = ({
     return () => { cancelled = true; };
   }, [open, owner?.id, pageBusinessId, description, language]);
 
+  // Ville liée à la vidéo (affichée en chip dans la colonne de badges dynamiques).
+  // On interroge les 3 sources possibles et on ne retient qu'une seule ville.
+  useEffect(() => {
+    if (!open || !videoId) { setVideoCity(null); return; }
+    let cancelled = false;
+    fetchVideoCity(videoId).then((city) => {
+      if (!cancelled) setVideoCity(city);
+    });
+    return () => { cancelled = true; };
+  }, [open, videoId]);
+
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
   /** Popup Club ouvert (ClubLoginPopup) : on masque les chips badges qui passeraient au-dessus. */
