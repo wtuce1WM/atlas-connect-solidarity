@@ -473,6 +473,31 @@ const TestNoteViewer = () => {
 
         setVideos([...businessVideos, ...genericVideos]);
         setVideosLoaded(true);
+
+        // Récupération asynchrone des tailles de fichiers pour tri par poids
+        (async () => {
+          try {
+            const { data: sizes, error: sizesErr } = await supabase.rpc("get_all_storage_sizes", {
+              bucket_name: "business-videos",
+            });
+            if (sizesErr) {
+              console.warn("Impossible de charger les tailles de fichiers :", sizesErr);
+              return;
+            }
+            const sizeMap = new Map<string, number>();
+            (sizes || []).forEach((row: any) => {
+              if (row.path && row.size_bytes != null) {
+                sizeMap.set(row.path, Number(row.size_bytes));
+              }
+            });
+            setVideos(prev => prev.map(v => {
+              const path = parseStoragePath(v.url);
+              return path && sizeMap.has(path) ? { ...v, file_size: sizeMap.get(path) } : v;
+            }));
+          } catch (e) {
+            console.warn("Erreur récupération tailles :", e);
+          }
+        })();
       } catch (e: any) {
         toast.error("Erreur de chargement des vidéos : " + (e?.message || e));
       } finally {
