@@ -223,6 +223,7 @@ const VideoSlidePanel = ({
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
   /** L'iframe IA signale sa disponibilité via postMessage("owm-ai-ready"). */
   const [aiReady, setAiReady] = useState(false);
+  const [aiSessionKey, setAiSessionKey] = useState(0);
   const [aiSlug, setAiSlug] = useState<string | null>(null);
   /** Mode plateforme : overlay IA sans hôte ; aiSlug sert alors de contexte `ctx`. */
   const [aiPlatform, setAiPlatform] = useState(false);
@@ -1753,6 +1754,8 @@ const VideoSlidePanel = ({
                     const slug = ctaBusiness?.slug
                       || recentBusinesses.find((b) => !b.isYoutubeChannel)?.slug
                       || null;
+                    setAiReady(false);
+                    setAiSessionKey((k) => k + 1);
                     if (aiMode === "platform") {
                       setAiSlug(slug);
                       setAiPlatform(true);
@@ -1869,9 +1872,10 @@ const VideoSlidePanel = ({
               </div>
             )}
             <iframe
+              key={aiSessionKey}
               src={aiPlatform
-                ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform${aiSlug ? `&ctx=${encodeURIComponent(aiSlug)}` : ""}`
-                : `/embed/ask/${aiSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1`}
+                ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform&open=${aiSessionKey}${aiSlug ? `&ctx=${encodeURIComponent(aiSlug)}` : ""}`
+                : `/embed/ask/${aiSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&open=${aiSessionKey}`}
               title="Assistant IA"
               className={`relative w-full h-full border-0 transition-opacity duration-500 ${aiReady ? "opacity-100" : "opacity-0 pointer-events-none"}`}
               style={{ background: "transparent" }}

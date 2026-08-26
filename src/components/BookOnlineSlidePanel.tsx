@@ -1080,6 +1080,7 @@ const BookOnlineSlidePanelInner = ({
   // Overlay assistant IA plein écran (embed/ask) — équivalent VideoSlidePanel
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
   const [aiAssistantReady, setAiAssistantReady] = useState(false);
+  const [aiAssistantSessionKey, setAiAssistantSessionKey] = useState(0);
   const [aiAssistantSlug, setAiAssistantSlug] = useState<string | null>(null);
   const [aiAssistantPlatform, setAiAssistantPlatform] = useState(false);
   const [showAvailabilitySearch, setShowAvailabilitySearch] = useState(false);
@@ -4703,6 +4704,8 @@ const BookOnlineSlidePanelInner = ({
               onAiClick={() => {
                 // Assistant IA en overlay plein écran (embed/ask) — équivalent VideoSlidePanel
                 const slug = business?.slug || null;
+                setAiAssistantReady(false);
+                setAiAssistantSessionKey((k) => k + 1);
                 if (slug) {
                   setAiAssistantSlug(slug);
                   setAiAssistantPlatform(false);
@@ -5021,9 +5024,10 @@ const BookOnlineSlidePanelInner = ({
             </div>
           )}
           <iframe
+            key={aiAssistantSessionKey}
             src={aiAssistantPlatform
-              ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform${aiAssistantSlug ? `&ctx=${encodeURIComponent(aiAssistantSlug)}` : ""}`
-              : `/embed/ask/${aiAssistantSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1`}
+              ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform&open=${aiAssistantSessionKey}${aiAssistantSlug ? `&ctx=${encodeURIComponent(aiAssistantSlug)}` : ""}`
+              : `/embed/ask/${aiAssistantSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&open=${aiAssistantSessionKey}`}
             title="Assistant IA"
             className={`relative w-full h-full border-0 transition-opacity duration-500 ${aiAssistantReady ? "opacity-100" : "opacity-0 pointer-events-none"}`}
             style={{ background: "transparent" }}
