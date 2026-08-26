@@ -987,6 +987,19 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
   }, [lang, businessId, businessCity, businessMainCategory, isPlatform]);
 
+  // Séquence du splash plateforme : plein écran → zoom-out → contenu normal.
+  useEffect(() => {
+    if (!isPlatform) { setSplashPhase("done"); return; }
+    if (splashPhase !== "full") return;
+    if (!assistantReady || dbSuggestions === null) return;
+    const t1 = window.setTimeout(() => setSplashPhase("exit"), 700);
+    const t2 = window.setTimeout(() => setSplashPhase("done"), 1400);
+    return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlatform, assistantReady, dbSuggestions, splashPhase]);
+
+
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
