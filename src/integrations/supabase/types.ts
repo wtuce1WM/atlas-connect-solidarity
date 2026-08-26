@@ -9261,6 +9261,13 @@ export type Database = {
         Returns: number
       }
       generate_slug: { Args: { input_text: string }; Returns: string }
+      get_all_storage_sizes: {
+        Args: { bucket_name: string }
+        Returns: {
+          path: string
+          size_bytes: number
+        }[]
+      }
       get_badge_video_feed: {
         Args: {
           _badge_id: string
