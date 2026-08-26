@@ -195,8 +195,8 @@ export async function fetchBadgesVideoFeed(
  * seed + round-robin par établissement/auteur. Différences :
  *  - le pool est l'ensemble des badges « Activé sur le front »
  *    (`badges.is_active_on_front`), donc aucune vidéo non badgée ;
- *  - villes autorisées : Marrakech, Essaouira, ou aucune ville
- *    (`_include_no_city`) ;
+ *  - villes autorisées : Marrakech, Essaouira ;
+
  *  - le seed est tiré à chaque ouverture (découverte aléatoire).
  */
 
@@ -207,9 +207,8 @@ export interface DiscoveryFeedContext {
   cityIds: string[];
   seed: string;
   total: number;
-  /** false quand le feed est restreint à une ville précise (chip ville du viewer). */
-  includeNoCity?: boolean;
 }
+
 
 /** Badges activés sur le front + villes de découverte. */
 async function loadDiscoveryScope(): Promise<{ badgeIds: string[]; cityIds: string[] }> {
@@ -228,7 +227,6 @@ async function fetchDiscoveryPage(
   seed: string,
   limit: number,
   offset: number,
-  includeNoCity = true,
 ): Promise<{ items: BadgeVideoFeedItem[]; total: number }> {
   const { data, error } = await (supabase as any).rpc("get_badges_video_feed", {
     _badge_ids: scope.badgeIds,
@@ -236,8 +234,8 @@ async function fetchDiscoveryPage(
     _limit: limit,
     _offset: offset,
     _city_ids: scope.cityIds.length ? scope.cityIds : null,
-    _include_no_city: includeNoCity,
   });
+
 
   if (error || !data) return { items: [], total: 0 };
   const rows = data as any[];
@@ -345,14 +343,13 @@ export async function fetchDiscoveryVideoFeedPage(
     ctx.seed,
     limit,
     offset,
-    ctx.includeNoCity !== false,
   );
   return items;
 }
 
 /**
  * Relance du feed découverte sur un seul badge (clic sur une chip du viewer).
- * Même périmètre géographique (Marrakech / Essaouira / sans ville), nouveau seed.
+ * Même périmètre géographique, nouveau seed.
  */
 export async function fetchDiscoveryVideoFeedForBadge(
   ctx: DiscoveryFeedContext,
@@ -361,8 +358,8 @@ export async function fetchDiscoveryVideoFeedForBadge(
 ): Promise<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext }> {
   const seed = randomSeed();
   const scope = { badgeIds: [badgeId], cityIds: ctx.cityIds };
-  const { items, total } = await fetchDiscoveryPage(scope, seed, limit, 0, ctx.includeNoCity !== false);
-  return { items, ctx: { ...scope, seed, total, includeNoCity: ctx.includeNoCity !== false } };
+  const { items, total } = await fetchDiscoveryPage(scope, seed, limit, 0);
+  return { items, ctx: { ...scope, seed, total } };
 }
 
 /**
@@ -378,6 +375,7 @@ export async function fetchDiscoveryVideoFeedForCity(
   const seed = randomSeed();
   const full = await loadDiscoveryScope();
   const scope = { badgeIds: full.badgeIds, cityIds: [cityId] };
-  const { items, total } = await fetchDiscoveryPage(scope, seed, limit, 0, false);
-  return { items, ctx: { ...scope, seed, total, includeNoCity: false } };
+  const { items, total } = await fetchDiscoveryPage(scope, seed, limit, 0);
+  return { items, ctx: { ...scope, seed, total } };
 }
+
