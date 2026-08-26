@@ -54,6 +54,7 @@ interface VideoDoc {
   subcategory_name: string | null;
   service_name: string | null;
   source: "business" | "generic";
+  file_size?: number;
 }
 
 /**
@@ -66,7 +67,13 @@ interface VideoGroup {
   primary: VideoDoc;
   members: VideoDoc[];
   badge_ids: string[];
+  file_size?: number;
 }
+
+const parseStoragePath = (url: string): string | null => {
+  const match = url.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
+  return match ? match[2] : null;
+};
 
 const groupByUrl = (list: VideoDoc[]): VideoGroup[] => {
   const map = new Map<string, VideoDoc[]>();
@@ -80,6 +87,7 @@ const groupByUrl = (list: VideoDoc[]): VideoGroup[] => {
     primary: members[0],
     members,
     badge_ids: Array.from(new Set(members.flatMap(m => m.badge_ids))),
+    file_size: members[0].file_size,
   }));
 };
 
@@ -465,6 +473,31 @@ const TestNoteViewer = () => {
 
         setVideos([...businessVideos, ...genericVideos]);
         setVideosLoaded(true);
+
+        // Récupération asynchrone des tailles de fichiers pour tri par poids
+        (async () => {
+          try {
+            const { data: sizes, error: sizesErr } = await (supabase.rpc as any)("get_all_storage_sizes", {
+              bucket_name: "business-videos",
+            });
+            if (sizesErr) {
+              console.warn("Impossible de charger les tailles de fichiers :", sizesErr);
+              return;
+            }
+            const sizeMap = new Map<string, number>();
+            ((sizes as any[]) || []).forEach((row: any) => {
+              if (row.path && row.size_bytes != null) {
+                sizeMap.set(row.path, Number(row.size_bytes));
+              }
+            });
+            setVideos(prev => prev.map(v => {
+              const path = parseStoragePath(v.url);
+              return path && sizeMap.has(path) ? { ...v, file_size: sizeMap.get(path) } : v;
+            }));
+          } catch (e) {
+            console.warn("Erreur récupération tailles :", e);
+          }
+        })();
       } catch (e: any) {
         toast.error("Erreur de chargement des vidéos : " + (e?.message || e));
       } finally {
@@ -507,7 +540,8 @@ const TestNoteViewer = () => {
 
   const filteredGroups = useMemo(() => {
     if (city === "none" || badge === "none") return [];
-    return groupByUrl(videos.filter(v => matchesCity(v) && v.badge_ids.includes(badge)));
+    return groupByUrl(videos.filter(v => matchesCity(v) && v.badge_ids.includes(badge)))
+      .sort((a, b) => (a.file_size ?? Infinity) - (b.file_size ?? Infinity));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videos, city, badge]);
 
