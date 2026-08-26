@@ -1297,39 +1297,56 @@ const VideoSlidePanel = ({
               })}
             </div>
             <div className="flex flex-col items-start gap-1.5">
-              {feedBadges?.filter((b) => {
-                const left = LEFT_COLUMN_BADGES.find((lb) => lb.id === b.id);
-                if (left) return false;
-                // Exclure aussi les badges dont le nom est identique à un label de gauche (insensible à la casse et aux accents)
-                return !LEFT_COLUMN_BADGES.some((lb) => lb.label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === b.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
-              }).map((b) => {
-                const isSelected = selectedBadgeId && b.id === selectedBadgeId;
+              {(() => {
+                const dynamicBadges = feedBadges?.filter((b) => {
+                  const left = LEFT_COLUMN_BADGES.find((lb) => lb.id === b.id);
+                  if (left) return false;
+                  // Exclure aussi les badges dont le nom est identique à un label de gauche (insensible à la casse et aux accents)
+                  return !LEFT_COLUMN_BADGES.some((lb) => lb.label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === b.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+                }) ?? [];
                 return (
-                  <button
-                    key={b.id}
-                    type="button"
-                    disabled={!onFeedBadgeSelect}
-                    onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.name })}
-                    className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
-                      isSelected
-                        ? "border-gold bg-gold text-gold-foreground"
-                        : "border-white/25 text-white"
-                    }`}
-                    style={
-                      isSelected
-                        ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
-                        : {
-                            backgroundColor: b.color || "rgba(0,0,0,0.7)",
-                            color: b.text_color || "#FFFFFF",
-                            fontFamily: "'Montserrat',system-ui,sans-serif",
+                  <>
+                    {dynamicBadges.map((b) => {
+                      const isSelected = selectedBadgeId && b.id === selectedBadgeId;
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          disabled={!onFeedBadgeSelect}
+                          onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.name })}
+                          className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
+                            isSelected
+                              ? "border-gold bg-gold text-gold-foreground"
+                              : "border-white/25 text-white"
+                          }`}
+                          style={
+                            isSelected
+                              ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
+                              : {
+                                  backgroundColor: b.color || "rgba(0,0,0,0.7)",
+                                  color: b.text_color || "#FFFFFF",
+                                  fontFamily: "'Montserrat',system-ui,sans-serif",
+                                }
                           }
-                    }
-                    title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
-                  >
-                    {b.name}
-                  </button>
+                          title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
+                        >
+                          {b.name}
+                        </button>
+                      );
+                    })}
+                    {videoCity && (
+                      <span
+                        className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide text-white shadow-lg backdrop-blur-md"
+                        style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
+                        title={videoCity}
+                      >
+                        <MapPin className="h-3 w-3 shrink-0" />
+                        {videoCity}
+                      </span>
+                    )}
+                  </>
                 );
-              })}
+              })()}
             </div>
           </div>
         )}
