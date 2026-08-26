@@ -5,9 +5,10 @@ import { getVideoEmbed } from "@/lib/videoEmbed";
 interface VideoLightboxProps {
   url: string;
   onClose: () => void;
+  restoreScrollY?: number;
 }
 
-const VideoLightbox = ({ url, onClose }: VideoLightboxProps) => {
+const VideoLightbox = ({ url, onClose, restoreScrollY }: VideoLightboxProps) => {
   const embed = getVideoEmbed(url, window.location.origin);
   const isEmbed = embed.type !== "file";
   const mediaRef = useRef<HTMLVideoElement | HTMLIFrameElement | null>(null);
