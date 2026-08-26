@@ -1994,7 +1994,7 @@ const EmbedAsk = () => {
       </header>
 
       <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto"} px-4 py-4 space-y-3 ${bg} relative`}>
-        {isPlatform && !inFloatingPanel && splashPhase !== "done" && messages.length <= 1 && (
+        {isPlatform && splashPhase !== "done" && messages.length <= 1 && (
           <div
             className="absolute inset-0 z-30 flex items-center justify-center px-6 pointer-events-none"
             style={{
