@@ -54,6 +54,7 @@ interface VideoDoc {
   subcategory_name: string | null;
   service_name: string | null;
   source: "business" | "generic";
+  file_size?: number;
 }
 
 /**
@@ -66,7 +67,13 @@ interface VideoGroup {
   primary: VideoDoc;
   members: VideoDoc[];
   badge_ids: string[];
+  file_size?: number;
 }
+
+const parseStoragePath = (url: string): string | null => {
+  const match = url.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
+  return match ? match[2] : null;
+};
 
 const groupByUrl = (list: VideoDoc[]): VideoGroup[] => {
   const map = new Map<string, VideoDoc[]>();
@@ -80,6 +87,7 @@ const groupByUrl = (list: VideoDoc[]): VideoGroup[] => {
     primary: members[0],
     members,
     badge_ids: Array.from(new Set(members.flatMap(m => m.badge_ids))),
+    file_size: members[0].file_size,
   }));
 };
 
