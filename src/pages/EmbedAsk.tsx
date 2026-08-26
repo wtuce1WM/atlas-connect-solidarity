@@ -242,8 +242,9 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     opener: (n, r) =>
       `Bonjour 👋 Je suis l'assistant de **${n}**. Mes recherches de proximité et de distance se calculent dans un rayon de **${r}** autour de **${n}** — vous pouvez changer ce rayon ci-dessous ou à la voix. Comment puis-je vous aider ?`,
     platformTitle: "Assistant IA One World Morocco",
-    platformOpener: (city) =>
-      `Bonjour 👋 Je suis l'assistant **One World Morocco**. Je puise dans toute la base 1WM — restaurants, riads, sorties, activités, événements, adresses authentiques — à **${city}** et partout au Maroc. Comment puis-je vous aider ?`,
+    platformOpener: () =>
+      `Bonjour 👋 Je suis l'assistant One World Morocco. Je puise dans toute la base 1WM — restaurants, riads, sorties, activités, événements, adresses authentiques — à Marrakech, Essaouira et bientôt partout au Maroc. Comment puis-je vous aider ?`,
+
     radiusLabel: "RAYON",
     radiusChanged: (r) => `D'accord 👍 Rayon de proximité réglé sur **${r}**. Les recherches de proximité et de distance utiliseront ce périmètre.`,
     viewMap: "Voir sur la carte",
@@ -262,8 +263,9 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     opener: (n, r) =>
       `Hi 👋 I'm the assistant for **${n}**. Nearby and distance searches are calculated within a **${r}** radius around **${n}** — you can change this radius below or by voice. How can I help?`,
     platformTitle: "One World Morocco AI Assistant",
-    platformOpener: (city) =>
-      `Hi 👋 I'm the **One World Morocco** assistant. I draw on the whole 1WM database — restaurants, riads, going out, activities, events, authentic addresses — in **${city}** and across Morocco. How can I help?`,
+    platformOpener: () =>
+      `Hi 👋 I'm the One World Morocco assistant. I draw on the whole 1WM database — restaurants, riads, going out, activities, events, authentic addresses — in Marrakech, Essaouira and soon across Morocco. How can I help?`,
+
     radiusLabel: "Proximity radius",
     radiusChanged: (r) => `Got it 👍 Proximity radius set to **${r}**. Nearby and distance searches will use this perimeter.`,
     viewMap: "View on map",
@@ -282,8 +284,9 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     opener: (n, r) =>
       `مرحبًا 👋 أنا مساعد **${n}**. تُحسب نتائج القرب والمسافات داخل نطاق **${r}** حول **${n}** — يمكنك تغيير هذا النطاق أدناه أو بالصوت. كيف يمكنني مساعدتك؟`,
     platformTitle: "مساعد One World Morocco الذكي",
-    platformOpener: (city) =>
-      `مرحبًا 👋 أنا مساعد **One World Morocco**. أستقي من قاعدة 1WM بأكملها — مطاعم، رياضات، خروجات، أنشطة، فعاليات، عناوين أصيلة — في **${city}** وفي كل المغرب. كيف يمكنني مساعدتك؟`,
+    platformOpener: () =>
+      `مرحبًا 👋 أنا مساعد One World Morocco. أستقي من قاعدة 1WM بأكملها — مطاعم، رياضات، خروجات، أنشطة، فعاليات، عناوين أصيلة — في مراكش، الصويرة وقريبًا في كل المغرب. كيف يمكنني مساعدتك؟`,
+
     radiusLabel: "نطاق القرب",
     radiusChanged: (r) => `تم 👍 تم ضبط نطاق القرب على **${r}**.`,
     viewMap: "عرض على الخريطة",
