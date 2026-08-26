@@ -991,10 +991,13 @@ const EmbedAsk = () => {
   useEffect(() => {
     if (!isPlatform) { setSplashPhase("done"); return; }
     if (splashPhase !== "full") return;
-    if (!assistantReady || dbSuggestions === null) return;
-    const t1 = window.setTimeout(() => setSplashPhase("exit"), 700);
-    const t2 = window.setTimeout(() => setSplashPhase("done"), 1400);
+    const ready = assistantReady && dbSuggestions !== null;
+    // Failsafe : si la requête suggestions échoue, on ne bloque pas l'overlay.
+    const delay = ready ? 700 : 3500;
+    const t1 = window.setTimeout(() => setSplashPhase("exit"), delay);
+    const t2 = window.setTimeout(() => setSplashPhase("done"), delay + 700);
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlatform, assistantReady, dbSuggestions, splashPhase]);
 
