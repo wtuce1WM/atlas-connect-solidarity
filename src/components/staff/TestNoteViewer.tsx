@@ -215,9 +215,31 @@ const TestNoteViewer = () => {
     const original = new Set(members.flatMap(m => m.badge_ids));
     const draft = new Set(draftBadgeIds);
     const dirty = original.size !== draft.size || [...draft].some(id => !original.has(id));
+
+    const handleSave = async () => {
+      setAssigning(true);
+      const err = await saveBadgesGroup(members, draft);
+      setAssigning(false);
+      if (err) { toast.error("Erreur : " + err.message); return; }
+      const ids = new Set(members.map(m => m.id));
+      setVideos(prev => prev.map(v => ids.has(v.id) ? { ...v, badge_ids: [...draft] } : v));
+      if (deselectAfterSave) setSelectedKey(null);
+      toast.success(members.length > 1 ? `Badges enregistrés sur ${members.length} IDs` : "Badges enregistrés");
+    };
+
+    const SaveButton = ({ className = "" }: { className?: string }) => (
+      <button
+        disabled={!dirty || assigning || members.length === 0}
+        onClick={handleSave}
+        className={`text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40 ${className}`}
+      >
+        {assigning ? "..." : "Enregistrer"}
+      </button>
+    );
+
     return (
-      <>
-        <div className="flex items-center justify-between mb-3 gap-2">
+      <div className="flex flex-col h-full -m-3 p-3">
+        <div className="shrink-0 flex items-center justify-between pb-2 gap-2 sticky top-0 z-10 bg-muted/20">
           <p className="text-xs font-medium text-foreground">
             Badges {members.length > 1 && <span className="text-primary">({members.length} IDs)</span>}
           </p>
@@ -228,40 +250,40 @@ const TestNoteViewer = () => {
             >
               Fermer
             </button>
-            <button
-              disabled={!dirty || assigning || members.length === 0}
-              onClick={async () => {
-                setAssigning(true);
-                const err = await saveBadgesGroup(members, draft);
-                setAssigning(false);
-                if (err) { toast.error("Erreur : " + err.message); return; }
-                const ids = new Set(members.map(m => m.id));
-                setVideos(prev => prev.map(v => ids.has(v.id) ? { ...v, badge_ids: [...draft] } : v));
-                if (deselectAfterSave) setSelectedKey(null);
-                toast.success(members.length > 1 ? `Badges enregistrés sur ${members.length} IDs` : "Badges enregistrés");
-              }}
-              className="text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40"
-            >
-              {assigning ? "..." : "Enregistrer"}
-            </button>
+            <SaveButton />
           </div>
         </div>
-        <div className="flex flex-wrap gap-1">
-          {badges.map(b => {
-            const isSelected = draft.has(b.id);
-            return (
-              <button
-                key={b.id}
-                type="button"
-                className={`text-xs px-2 py-1 rounded-full border transition-colors ${isSelected ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:border-primary/50"}`}
-                onClick={() => setDraftBadgeIds(prev => isSelected ? prev.filter(id => id !== b.id) : [...prev, b.id])}
-              >
-                {b.name_fr}
-              </button>
-            );
-          })}
+
+        <div className="flex-1 overflow-y-auto min-h-0 py-2">
+          <div className="flex flex-wrap gap-1">
+            {badges.map(b => {
+              const isSelected = draft.has(b.id);
+              return (
+                <button
+                  key={b.id}
+                  type="button"
+                  className={`text-xs px-2 py-1 rounded-full border transition-colors ${isSelected ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:border-primary/50"}`}
+                  onClick={() => setDraftBadgeIds(prev => isSelected ? prev.filter(id => id !== b.id) : [...prev, b.id])}
+                >
+                  {b.name_fr}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </>
+
+        <div className="shrink-0 flex items-center justify-between gap-2 sticky bottom-0 z-10 bg-muted/20 pt-2">
+          <button
+            type="button"
+            disabled={draft.size === 0}
+            onClick={() => setDraftBadgeIds([])}
+            className="text-xs px-3 py-1 rounded border border-border bg-background hover:border-primary/50 disabled:opacity-40 text-muted-foreground"
+          >
+            Tout désélectionner
+          </button>
+          <SaveButton />
+        </div>
+      </div>
     );
   };
 
