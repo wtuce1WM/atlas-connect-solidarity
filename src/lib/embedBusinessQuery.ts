@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 let anonClient: SupabaseClient | null = null;
 
-const anon = (): SupabaseClient => {
+export const getEmbedAnonClient = (): SupabaseClient => {
   if (!anonClient) {
     anonClient = createClient(
       import.meta.env.VITE_SUPABASE_URL,
@@ -43,7 +43,7 @@ export async function embedBusinessQuery<T>(
     first.error || undefined,
   );
   try {
-    const second = (await run(anon())) as QueryResult<T>;
+    const second = (await run(getEmbedAnonClient())) as QueryResult<T>;
     if (second.error) {
       console.warn(`[embedBusinessQuery] ${label}: retry anonyme en erreur`, second.error);
       return null;
