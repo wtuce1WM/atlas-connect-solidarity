@@ -211,11 +211,12 @@ export interface DiscoveryFeedContext {
 }
 
 
-/** Badges activés sur le front + villes de découverte. */
+/** Badges activés sur le front + villes de découverte (alias inclus : Agafay, Asni, Imlil…). */
 async function loadDiscoveryScope(): Promise<{ badgeIds: string[]; cityIds: string[] }> {
+  const aliasNames = DISCOVERY_CITIES.flatMap((city) => getCityAliases(city));
   const [badgesRes, citiesRes] = await Promise.all([
     (supabase as any).from("badges").select("id").eq("is_active_on_front", true),
-    (supabase as any).from("cities").select("id").in("name_fr", DISCOVERY_CITIES),
+    (supabase as any).from("cities").select("id").in("name_fr", aliasNames),
   ]);
   return {
     badgeIds: ((badgesRes?.data as any[]) || []).map((b) => String(b.id)),
