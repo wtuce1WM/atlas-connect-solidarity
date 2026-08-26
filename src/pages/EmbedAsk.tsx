@@ -1021,18 +1021,20 @@ const EmbedAsk = () => {
   }, [lang, isPlatform, suggestionFilterCity, suggestionFilterCategory]);
 
   // Séquence du splash plateforme : plein écran → zoom-out → contenu normal.
+  // Non bloquant : la sortie se déclenche dès que la requête suggestions est
+  // retombée (succès OU erreur), avec un filet de sécurité de 2,5 s.
   useEffect(() => {
     if (!isPlatform) { setSplashPhase("done"); return; }
     if (splashPhase !== "full") return;
-    const ready = assistantReady && suggestions.length > 0;
-    if (!ready) return;
-    const delay = 120;
+    const settled = dbSuggestions !== null;
+    const delay = settled ? 120 : 2500;
     const t1 = window.setTimeout(() => setSplashPhase("exit"), delay);
     const t2 = window.setTimeout(() => setSplashPhase("done"), delay + 700);
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlatform, assistantReady, suggestions.length, splashPhase]);
+  }, [isPlatform, dbSuggestions, splashPhase]);
+
 
 
 
