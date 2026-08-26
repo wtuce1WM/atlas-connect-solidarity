@@ -58,6 +58,8 @@ interface PanelSearchBarProps {
     | { type: "youtube"; iframeRef: RefObject<HTMLIFrameElement>; playing: boolean; muted: boolean; onPlayingChange: (p: boolean) => void; onMutedChange: (m: boolean) => void };
   /** When true, hides the Sparkles (Suggestion IA) button from the floating bar */
   hideAiButton?: boolean;
+  /** Rend le bouton IA visuellement actif (assistant déjà ouvert derrière la fiche) */
+  aiButtonActive?: boolean;
   /** When true, the Profil button always navigates to /club (page club avec login intégré)
    *  instead of dispatching "open-generic-club-popup" for anonymous users — à utiliser
    *  là où ClubLoginPopup n'est pas monté (ex. viewer vidéo). */
@@ -111,7 +113,7 @@ const Cell = ({ icon, label, onClick, ariaLabel, active }: { icon: ReactNode; la
   );
 };
 
-const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, profileToClub = false, profileToTimelineClub = false, profileClubEvent, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiButtonActive = false, profileToClub = false, profileToTimelineClub = false, profileClubEvent, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
   const navigate = useLocalizedNavigate();
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
@@ -295,6 +297,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
               icon={<Sparkles className="h-5 w-5" />}
               label="IA"
               ariaLabel="Suggestion IA"
+              active={aiButtonActive}
               onClick={() => { if (onAiClick) onAiClick(); else setAiOverlayOpen(true); }}
             />
           )}
