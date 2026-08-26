@@ -203,6 +203,37 @@ function parseRadiusCommand(text: string): number | null {
 /** Cas unique : suggestion embed "Le meilleur de YouTube sur le Maroc" → page /youtube. */
 const YOUTUBE_PAGE_SUGGESTION_ID = "63d6d717-e344-4e1b-9865-850ac1ca9126";
 
+const PLATFORM_FALLBACK_SUGGESTIONS_FR = [
+  "Que faire à proximité ?",
+  "Où prendre un thé à la menthe ?",
+  "Que faire ce week-end ?",
+  "Activités pour les enfants",
+  "Quelle météo les 3 prochains jours ?",
+  "Quelles excursions d'une journée proposes tu ?",
+  "Une activité insolite",
+  "Vie pratique",
+  "Beach-clubs",
+  "Suivez le guide",
+  "Une piscine ou un beach-club à côté d'un golf",
+  "Journée surf & cheval à Essaouira",
+  "Visite guidée",
+  "Balade à vélo",
+  "Réserver un jet privé",
+  "#Vlogs",
+  "Acheter des babouches",
+  "Une idée cadeau originale",
+  "Le meilleur de youtube sur le Maroc",
+  "Les adresses avec vue sur l'Atlas",
+  "Magasins avec livraison internationale",
+  "Golf",
+  "Equitation",
+  "L'heure des marées",
+  "Où faire la fête ?",
+  "Les adresses avec vue sur mer",
+  "Artistes",
+  "Souvenirs",
+];
+
 
 const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string, radius: string) => string; platformTitle: string; platformOpener: (city: string) => string; radiusLabel: string; radiusChanged: (r: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
@@ -706,8 +737,12 @@ const EmbedAsk = () => {
     ? dbSuggestions.filter((s) => suggAllowed.includes(s.id))
     : dbSuggestions;
   const fallbackSuggestions = L.suggestions.map((s, i) => ({ id: `default-${i}`, label: s }));
+  const platformFallbackSuggestions: SuggestionRow[] = PLATFORM_FALLBACK_SUGGESTIONS_FR.map((label, i) => ({
+    id: label === "Le meilleur de youtube sur le Maroc" ? YOUTUBE_PAGE_SUGGESTION_ID : `platform-fallback-${i}`,
+    label,
+  }));
   const suggestions: SuggestionRow[] = isPlatform
-    ? (filteredDbSuggestions ?? [])
+    ? (filteredDbSuggestions && filteredDbSuggestions.length > 0 ? filteredDbSuggestions : platformFallbackSuggestions)
     : filteredDbSuggestions && filteredDbSuggestions.length > 0
     ? filteredDbSuggestions
     : fallbackSuggestions;
@@ -2646,7 +2681,7 @@ const EmbedAsk = () => {
               );
             })}
 
-            {isPlatform && dbSuggestions === null && (
+            {isPlatform && dbSuggestions === null && visibleSuggestions.length === 0 && (
               <span className={`inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full ${chipBg}`} style={chipStyle}>
                 <Loader2 className="w-3 h-3 animate-spin" />
                 {lang === "en" ? "Loading suggestions…" : lang === "ar" ? "جارٍ تحميل الاقتراحات…" : "Chargement des suggestions…"}
