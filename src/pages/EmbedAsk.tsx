@@ -151,6 +151,7 @@ const EmbedBookPanelWrapper = ({
         <Suspense fallback={null}>
           <BookOnlineSlidePanel
             businessId={businessId}
+            embedMode
             initialOverlay={initialOverlay}
             onClose={onClose}
             onPrev={onPrev}
