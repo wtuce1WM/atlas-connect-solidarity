@@ -936,11 +936,18 @@ const EmbedAsk = () => {
   }, [chatKey, isPlatform]);
   useEffect(() => {
     if (readyNotifiedRef.current) return;
+    // Plus aucun gating sur les suggestions : l'iframe pilote seule son message
+    // d'accueil. Le parent ne doit jamais pouvoir rester bloqué.
+    if (isPlatform) {
+      readyNotifiedRef.current = true;
+      try { window.parent?.postMessage({ type: "owm-ai-ready" }, "*"); } catch { /* noop */ }
+      return;
+    }
     if (!assistantReady || messages.length === 0) return;
-    if (isPlatform && suggestions.length === 0) return;
     readyNotifiedRef.current = true;
     try { window.parent?.postMessage({ type: "owm-ai-ready" }, "*"); } catch { /* noop */ }
-  }, [assistantReady, messages.length, isPlatform, suggestions.length]);
+  }, [assistantReady, messages.length, isPlatform]);
+
 
   // Persist thread to localStorage on every change (skip while streaming to avoid spam).
   useEffect(() => {
