@@ -577,6 +577,21 @@ const BookOnlineSlidePanelInner = ({
   const embedHalfSheet = isEmbedMapWidget && embedWideView;
   const usePillDropdown = embedMode || !isMobileView;
 
+  // Fiche ouverte DEPUIS l'assistant IA (iframe /embed/ask) : seule surface qui combine
+  // embedMode + barre liquid glass. L'assistant est déjà monté derrière (colonne gauche
+  // en desktop lg, plein écran en dessous) → le CTA IA ne doit pas en rouvrir un second.
+  const isAiOriginFiche = !!embedMode && !!showSearchBar;
+  const [isDesktopSplit, setIsDesktopSplit] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth >= 1024 : false
+  );
+  useEffect(() => {
+    if (!isAiOriginFiche) return;
+    const onResize = () => setIsDesktopSplit(window.innerWidth >= 1024);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [isAiOriginFiche]);
+
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
   const [poiShowAll, setPoiShowAll] = useState(false);
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
@@ -4715,7 +4730,15 @@ const BookOnlineSlidePanelInner = ({
           <div className="relative w-full h-full pointer-events-auto">
             <PanelSearchBar
               profileClubEvent="open-panel-club-popup"
+              aiButtonActive={isAiOriginFiche && isDesktopSplit}
               onAiClick={() => {
+                // Fiche ouverte depuis l'assistant IA : pas de second assistant.
+                // Desktop (>=1024) : l'assistant est visible à gauche → aucune action.
+                // Mobile/tablette : on ferme la fiche pour revenir à l'assistant (conversation intacte).
+                if (isAiOriginFiche) {
+                  if (window.innerWidth < 1024) onClose?.();
+                  return;
+                }
                 // Assistant IA en overlay plein écran (embed/ask) — équivalent VideoSlidePanel
                 const slug = business?.slug || null;
                 if (aiMode === "platform") {
