@@ -12,6 +12,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import type { BlogArticleVideo } from "@/components/blog/BlogArticleTemplate";
+import { getCityAliases } from "@/lib/homeHelpers";
 
 const SEED_PREFIX = "owm_badge_feed_seed:";
 
