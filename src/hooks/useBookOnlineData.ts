@@ -356,8 +356,25 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
 
       if (isCancelled) return;
 
+      // Session locale rejetée par le serveur (401 / JWT expiré) : dans une iframe de
+      // preview le stockage brokeré peut renvoyer un token périmé. On purge et on
+      // relance une fois en anonyme, sinon la fiche reste bloquée sur le squelette.
+      const err: any = bizRes.error;
+      const isAuthError =
+        !!err && (err.code === "PGRST301" || err.status === 401 || /jwt|token/i.test(String(err.message || "")));
+      if (isAuthError && !authRetried) {
+        authRetried = true;
+        console.warn("[useBookOnlineData] session rejetée (401), purge + relance anonyme", err?.message);
+        await purgeLocalSession();
+        if (isCancelled) return;
+        void fetchData();
+        return;
+      }
+      if (err) console.error("[useBookOnlineData] businesses fetch failed", err);
+
       const biz = bizRes.data as BookOnlineBusiness | null;
       setBusiness(biz);
+
 
       if (biz?.hide_description) {
         setWoDescription(null);
