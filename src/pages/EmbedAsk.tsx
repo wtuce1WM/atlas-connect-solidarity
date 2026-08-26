@@ -961,15 +961,17 @@ const EmbedAsk = () => {
       const bizCat = normCity(businessMainCategory);
       const list: SuggestionRow[] = (data as any[])
         .filter((r) => {
+          // Mode plateforme 1WM : le périmètre est la base entière. Seul le flag
+          // « Visible plateforme 1WM » décide — aucun filtre ville/catégorie
+          // hérité du business `ctx` (sinon la liste tombait à 4 puces).
+          if (isPlatform) return r.is_platform_visible === true;
           const c = normCity(r.city);
           if (c && c !== bizCity) return false;
           const cats = Array.isArray(r.main_categories) ? r.main_categories : [];
           if (cats.length > 0 && (!bizCat || !cats.some((x: string) => normCity(x) === bizCat))) return false;
-          // Mode plateforme : seules les suggestions explicitement flaggées
-          // « Visible plateforme 1WM » en back-office (ai_suggestions.is_platform_visible).
-          if (isPlatform && r.is_platform_visible !== true) return false;
           return true;
         })
+
         .map((r) => ({
           id: r.id as string,
           label: ((r[col] || r.label_fr || "") as string).trim(),
