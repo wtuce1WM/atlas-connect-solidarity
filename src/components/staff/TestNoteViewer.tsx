@@ -477,7 +477,7 @@ const TestNoteViewer = () => {
         // Récupération asynchrone des tailles de fichiers pour tri par poids
         (async () => {
           try {
-            const { data: sizes, error: sizesErr } = await supabase.rpc("get_all_storage_sizes", {
+            const { data: sizes, error: sizesErr } = await (supabase.rpc as any)("get_all_storage_sizes", {
               bucket_name: "business-videos",
             });
             if (sizesErr) {
@@ -485,7 +485,7 @@ const TestNoteViewer = () => {
               return;
             }
             const sizeMap = new Map<string, number>();
-            (sizes || []).forEach((row: any) => {
+            ((sizes as any[]) || []).forEach((row: any) => {
               if (row.path && row.size_bytes != null) {
                 sizeMap.set(row.path, Number(row.size_bytes));
               }
