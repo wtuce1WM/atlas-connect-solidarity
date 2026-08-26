@@ -1018,7 +1018,7 @@ const EmbedAsk = () => {
   useEffect(() => {
     if (!isPlatform) { setSplashPhase("done"); return; }
     if (splashPhase !== "full") return;
-    const ready = assistantReady && suggestions.length > 0;
+    const ready = assistantReady && (suggestions.length > 0 || readyTimedOut);
     if (!ready) return;
     const delay = 120;
     const t1 = window.setTimeout(() => setSplashPhase("exit"), delay);
