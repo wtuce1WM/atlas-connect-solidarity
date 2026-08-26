@@ -4730,7 +4730,15 @@ const BookOnlineSlidePanelInner = ({
           <div className="relative w-full h-full pointer-events-auto">
             <PanelSearchBar
               profileClubEvent="open-panel-club-popup"
+              aiButtonActive={isAiOriginFiche && isDesktopSplit}
               onAiClick={() => {
+                // Fiche ouverte depuis l'assistant IA : pas de second assistant.
+                // Desktop (>=1024) : l'assistant est visible à gauche → aucune action.
+                // Mobile/tablette : on ferme la fiche pour revenir à l'assistant (conversation intacte).
+                if (isAiOriginFiche) {
+                  if (window.innerWidth < 1024) onClose?.();
+                  return;
+                }
                 // Assistant IA en overlay plein écran (embed/ask) — équivalent VideoSlidePanel
                 const slug = business?.slug || null;
                 if (aiMode === "platform") {
