@@ -659,7 +659,7 @@ const TestNoteViewer = () => {
                             <div className="grid min-w-0 grid-cols-4 gap-2">
                               {toBadgeGroups.map(g => <GroupCard key={g.key} g={g} />)}
                             </div>
-                            <aside className="min-w-0 rounded-lg border bg-muted/20 p-3 h-[78vh] overflow-y-auto sticky top-2">
+                            <aside className="min-w-0 rounded-lg border bg-muted/20 p-3 h-[78vh] overflow-hidden sticky top-2">
                               {!selectedKey ? (
                                 <p className="text-xs text-muted-foreground">Sélectionnez une vidéo pour lui affecter des badges.</p>
                               ) : (
