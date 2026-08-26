@@ -589,6 +589,10 @@ const EmbedAsk = () => {
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null; is_platform_visible?: boolean };
   type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[] };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
+  // Splash d'accueil plateforme : le message d'ouverture occupe tout l'overlay,
+  // puis zoom-out vers le haut dès que les suggestions back-office sont prêtes.
+  const [splashPhase, setSplashPhase] = useState<"full" | "exit" | "done">("full");
+
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
   // Sélection de l'affilié (onglet Agent IA de /affiliates/presence). null = tout activé.
   const [agentPrefs, setAgentPrefs] = useState<{ sugg: string[] | null; fu: string[] | null }>({ sugg: null, fu: null });
@@ -961,15 +965,17 @@ const EmbedAsk = () => {
       const bizCat = normCity(businessMainCategory);
       const list: SuggestionRow[] = (data as any[])
         .filter((r) => {
+          // Mode plateforme 1WM : le périmètre est la base entière. Seul le flag
+          // « Visible plateforme 1WM » décide — aucun filtre ville/catégorie
+          // hérité du business `ctx` (sinon la liste tombait à 4 puces).
+          if (isPlatform) return r.is_platform_visible === true;
           const c = normCity(r.city);
           if (c && c !== bizCity) return false;
           const cats = Array.isArray(r.main_categories) ? r.main_categories : [];
           if (cats.length > 0 && (!bizCat || !cats.some((x: string) => normCity(x) === bizCat))) return false;
-          // Mode plateforme : seules les suggestions explicitement flaggées
-          // « Visible plateforme 1WM » en back-office (ai_suggestions.is_platform_visible).
-          if (isPlatform && r.is_platform_visible !== true) return false;
           return true;
         })
+
         .map((r) => ({
           id: r.id as string,
           label: ((r[col] || r.label_fr || "") as string).trim(),
@@ -980,6 +986,22 @@ const EmbedAsk = () => {
     })();
     return () => { cancelled = true; };
   }, [lang, businessId, businessCity, businessMainCategory, isPlatform]);
+
+  // Séquence du splash plateforme : plein écran → zoom-out → contenu normal.
+  useEffect(() => {
+    if (!isPlatform) { setSplashPhase("done"); return; }
+    if (splashPhase !== "full") return;
+    const ready = assistantReady && dbSuggestions !== null;
+    // Failsafe : si la requête suggestions échoue, on ne bloque pas l'overlay.
+    const delay = ready ? 700 : 3500;
+    const t1 = window.setTimeout(() => setSplashPhase("exit"), delay);
+    const t2 = window.setTimeout(() => setSplashPhase("done"), delay + 700);
+    return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlatform, assistantReady, dbSuggestions, splashPhase]);
+
+
 
   useEffect(() => {
     let cancelled = false;
@@ -1935,6 +1957,32 @@ const EmbedAsk = () => {
       </header>
 
       <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto"} px-4 py-4 space-y-3 ${bg} relative`}>
+        {isPlatform && splashPhase !== "done" && messages.length <= 1 && (
+          <div
+            className="absolute inset-0 z-30 flex items-center justify-center px-6 pointer-events-none"
+            style={{
+              background: theme === "light" ? "rgb(255,255,255)" : "rgb(10,10,10)",
+              backdropFilter: "blur(16px)",
+
+              transform: splashPhase === "exit" ? "scale(0.62) translateY(-14%)" : "scale(1)",
+              opacity: splashPhase === "exit" ? 0 : 1,
+              transformOrigin: "top center",
+              transition: "transform 640ms cubic-bezier(0.22,0.9,0.24,1), opacity 640ms ease",
+            }}
+          >
+            <p
+              className={`text-center font-semibold leading-snug ${theme === "light" ? "" : "text-white"}`}
+              style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontSize: "clamp(18px, 3.4vw, 30px)",
+                maxWidth: "34ch",
+              }}
+            >
+              {(isPlatform ? L.platformOpener(platformCity) : "").replace(/\*\*/g, "")}
+            </p>
+          </div>
+        )}
+
         {(() => {
           // Sticky pill : reprend la dernière question de l'utilisateur pour rester
           // visible en haut à droite pendant qu'on lit la réponse / la relance.
