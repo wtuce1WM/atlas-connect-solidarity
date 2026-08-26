@@ -611,6 +611,8 @@ const EmbedAsk = () => {
   const assistantReady = isPlatform ? platformLoaded : !!businessName;
   const headerTitle = isPlatform ? L.platformTitle : (assistantNameParam || assistantTitle || businessName);
   const platformCity = businessCity || geo.detectedCity || "Marrakech";
+  const suggestionFilterCity = isPlatform ? null : businessCity;
+  const suggestionFilterCategory = isPlatform ? null : businessMainCategory;
 
   // --- Persistence (localStorage): survives page reload for ~7 days per slug+lang. ---
   const storageKey = `embed-ask:thread:${isPlatform ? `platform:${ctxSlug || "global"}` : slug}:${lang}`;
@@ -929,19 +931,16 @@ const EmbedAsk = () => {
   // En mode plateforme, attendre les vraies suggestions visibles : sinon le panneau
   // parent termine son intro sur le seul message d'accueil, sans chips.
   const readyNotifiedRef = useRef(false);
-  const [readyTimedOut, setReadyTimedOut] = useState(false);
   useEffect(() => {
-    if (!isPlatform) return;
-    const t = window.setTimeout(() => setReadyTimedOut(true), 5000);
-    return () => window.clearTimeout(t);
-  }, [isPlatform, chatKey]);
+    readyNotifiedRef.current = false;
+  }, [chatKey, isPlatform]);
   useEffect(() => {
     if (readyNotifiedRef.current) return;
     if (!assistantReady || messages.length === 0) return;
-    if (isPlatform && suggestions.length === 0 && !readyTimedOut) return;
+    if (isPlatform && suggestions.length === 0) return;
     readyNotifiedRef.current = true;
     try { window.parent?.postMessage({ type: "owm-ai-ready" }, "*"); } catch { /* noop */ }
-  }, [assistantReady, messages.length, isPlatform, suggestions.length, readyTimedOut]);
+  }, [assistantReady, messages.length, isPlatform, suggestions.length]);
 
   // Persist thread to localStorage on every change (skip while streaming to avoid spam).
   useEffect(() => {
@@ -988,8 +987,8 @@ const EmbedAsk = () => {
       const col = lang === "en" ? "label_en" : lang === "ar" ? "label_ar" : "label_fr";
       const normCity = (s: string | null | undefined) =>
         (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-      const bizCity = normCity(businessCity);
-      const bizCat = normCity(businessMainCategory);
+      const bizCity = normCity(suggestionFilterCity);
+      const bizCat = normCity(suggestionFilterCategory);
       const list: SuggestionRow[] = (data as any[])
         .filter((r) => {
           // Mode plateforme 1WM : le périmètre est la base entière. Seul le flag
@@ -1012,13 +1011,13 @@ const EmbedAsk = () => {
       setDbSuggestions(list);
     })();
     return () => { cancelled = true; };
-  }, [lang, businessId, businessCity, businessMainCategory, isPlatform]);
+  }, [lang, isPlatform, suggestionFilterCity, suggestionFilterCategory]);
 
   // Séquence du splash plateforme : plein écran → zoom-out → contenu normal.
   useEffect(() => {
     if (!isPlatform) { setSplashPhase("done"); return; }
     if (splashPhase !== "full") return;
-    const ready = assistantReady && (suggestions.length > 0 || readyTimedOut);
+    const ready = assistantReady && suggestions.length > 0;
     if (!ready) return;
     const delay = 120;
     const t1 = window.setTimeout(() => setSplashPhase("exit"), delay);
@@ -1026,7 +1025,7 @@ const EmbedAsk = () => {
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlatform, assistantReady, suggestions.length, splashPhase, readyTimedOut]);
+  }, [isPlatform, assistantReady, suggestions.length, splashPhase]);
 
 
 

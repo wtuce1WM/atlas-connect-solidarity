@@ -1607,11 +1607,12 @@ const BookOnlineSlidePanelInner = ({
     return () => window.removeEventListener("message", onMessage);
   }, []);
 
-  // Filet de sécurité : ne jamais rester bloqué sur le message plein écran
-  // si l'iframe ne signale pas sa disponibilité.
+  // Filet de sécurité seulement en mode business.
+  // Mode plateforme : le message plein écran reste visible tant que les vraies
+  // suggestions ne sont pas chargées, pour éviter un panneau vide.
   useEffect(() => {
-    if (!aiAssistantOpen || aiAssistantReady) return;
-    const t = setTimeout(() => setAiAssistantReady(true), aiAssistantPlatform ? 6000 : 8000);
+    if (!aiAssistantOpen || aiAssistantReady || aiAssistantPlatform) return;
+    const t = setTimeout(() => setAiAssistantReady(true), 8000);
     return () => clearTimeout(t);
   }, [aiAssistantOpen, aiAssistantReady, aiAssistantPlatform]);
 
@@ -1622,8 +1623,8 @@ const BookOnlineSlidePanelInner = ({
     }
     setAiAssistantPlatformIntroPhase("full");
     if (!aiAssistantReady) return;
-    const t1 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("exit"), 120);
-    const t2 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("done"), 820);
+    const t1 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("exit"), 50);
+    const t2 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("done"), 570);
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
@@ -4728,13 +4729,13 @@ const BookOnlineSlidePanelInner = ({
               onAiClick={() => {
                 // Assistant IA en overlay plein écran (embed/ask) — équivalent VideoSlidePanel
                 const slug = business?.slug || null;
-                setAiAssistantReady(false);
-                setAiAssistantSessionKey((k) => k + 1);
                 if (aiMode === "platform") {
-                  setAiAssistantSlug(slug);
+                  setAiAssistantSlug(null);
                   setAiAssistantPlatform(true);
                   setAiAssistantOpen(true);
                 } else if (slug) {
+                  setAiAssistantReady(false);
+                  setAiAssistantSessionKey((k) => k + 1);
                   setAiAssistantSlug(slug);
                   setAiAssistantPlatform(false);
                   setAiAssistantOpen(true);
@@ -5031,14 +5032,19 @@ const BookOnlineSlidePanelInner = ({
       )}
 
       {/* Overlay assistant IA plein écran (embed/ask) — équivalent VideoSlidePanel */}
-      {aiAssistantOpen && (aiAssistantPlatform || aiAssistantSlug) && (
-        <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[240] h-[100dvh] overflow-hidden">
+      {(aiAssistantOpen || aiMode === "platform") && (aiAssistantPlatform || aiAssistantSlug || aiMode === "platform") && (
+        <div
+          className={`fixed inset-y-0 right-0 w-full lg:w-1/2 h-[100dvh] overflow-hidden ${aiAssistantOpen ? "z-[240]" : "-z-10 pointer-events-none opacity-0"}`}
+          aria-hidden={!aiAssistantOpen}
+        >
           {/* Fond assombri : le média reste visible derrière l'assistant (iframe transparente) */}
-          <div
-            className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
-            onClick={() => setAiAssistantOpen(false)}
-            aria-hidden="true"
-          />
+          {aiAssistantOpen && (
+            <div
+              className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
+              onClick={() => setAiAssistantOpen(false)}
+              aria-hidden="true"
+            />
+          )}
           {!aiAssistantPlatform && !aiAssistantReady && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 pointer-events-none">
               <div className="h-14 w-14 rounded-full border-4 border-white/15 border-t-[#D4AF37] animate-spin" />
@@ -5053,17 +5059,17 @@ const BookOnlineSlidePanelInner = ({
           )}
           <iframe
             key={aiAssistantSessionKey}
-            src={aiAssistantPlatform
-              ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform&open=${aiAssistantSessionKey}${aiAssistantSlug ? `&ctx=${encodeURIComponent(aiAssistantSlug)}` : ""}`
+            src={(aiAssistantPlatform || aiMode === "platform")
+              ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform&open=${aiAssistantSessionKey}`
               : `/embed/ask/${aiAssistantSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&open=${aiAssistantSessionKey}`}
             title="Assistant IA"
-            className={`relative w-full h-full border-0 transition-opacity duration-500 ${(aiAssistantPlatform || aiAssistantReady) ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+            className={`relative w-full h-full border-0 transition-opacity duration-500 ${aiAssistantOpen && (aiAssistantPlatform || aiAssistantReady) ? "opacity-100" : "opacity-0 pointer-events-none"}`}
             style={{ background: "transparent" }}
             allow="clipboard-write; microphone"
           />
           {aiAssistantPlatform && aiAssistantPlatformIntroPhase !== "done" && (
             <div
-              className="absolute inset-0 z-10 flex items-center justify-center px-8 pointer-events-none bg-black/95 backdrop-blur-md transition-all duration-700 ease-out"
+              className="absolute inset-0 z-10 flex items-center justify-center px-8 pointer-events-none bg-black/95 backdrop-blur-md transition-all duration-500 ease-out"
               style={{
                 opacity: aiAssistantPlatformIntroPhase === "exit" ? 0 : 1,
                 transform: aiAssistantPlatformIntroPhase === "exit" ? "scale(0.62) translateY(-14%)" : "scale(1)",

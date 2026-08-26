@@ -467,6 +467,8 @@ const VideoSlidePanel = ({
   }, [open, eventId, isGeneric, pageBusinessId, feedLayout]);
 
   const ctaBusiness = eventBusiness || pageBusiness || ownerBusiness;
+  const shouldPreloadPlatformAi = aiMode === "platform";
+  const platformAiSrc = `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform&open=${aiSessionKey}`;
 
   // Feed layout : note /20 + nombre d'avis clients sous le nom (comme BookOnlineSlidePanel)
   const [ratingRow, setRatingRow] = useState<any | null>(null);
@@ -882,11 +884,9 @@ const VideoSlidePanel = ({
   }, [descBusinessId, aiOverlayOpen, open, soundOn]);
 
   // Fermeture de l'overlay IA depuis l'intérieur de l'iframe (/embed/ask, mode panneau)
-  // + signal de disponibilité : l'iframe est révélée seulement quand l'assistant
-  // est prêt (contexte chargé + message d'ouverture posé).
+  // + signal de disponibilité. En mode plateforme, l'iframe peut être préchargée
+  // avant le clic CTA : on écoute donc le signal même overlay fermé.
   useEffect(() => {
-    if (!aiOverlayOpen) return;
-    setAiReady(false);
     const onMsg = (e: MessageEvent) => {
       if (e.origin !== window.location.origin) return;
       const t = (e.data as any)?.type;
@@ -895,14 +895,18 @@ const VideoSlidePanel = ({
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [aiOverlayOpen]);
+  }, []);
 
-  // Filet de sécurité hôte : on n'attend jamais indéfiniment le signal de l'iframe.
-  // Mode business : 8 s. Mode plateforme : 6 s (le message plein écran doit céder
-  // la place même si les suggestions tardent ou échouent).
   useEffect(() => {
-    if (!aiOverlayOpen || aiReady) return;
-    const t = setTimeout(() => setAiReady(true), aiPlatform ? 6000 : 8000);
+    if (aiOverlayOpen && !aiPlatform) setAiReady(false);
+  }, [aiOverlayOpen, aiPlatform, aiSessionKey]);
+
+  // Filet de sécurité hôte seulement en mode business.
+  // Mode plateforme : le message plein écran reste visible tant que les vraies
+  // suggestions ne sont pas chargées, pour éviter un panneau vide.
+  useEffect(() => {
+    if (!aiOverlayOpen || aiReady || aiPlatform) return;
+    const t = setTimeout(() => setAiReady(true), 8000);
     return () => clearTimeout(t);
   }, [aiOverlayOpen, aiReady, aiPlatform]);
 
@@ -913,8 +917,8 @@ const VideoSlidePanel = ({
     }
     setAiPlatformIntroPhase("full");
     if (!aiReady) return;
-    const t1 = window.setTimeout(() => setAiPlatformIntroPhase("exit"), 120);
-    const t2 = window.setTimeout(() => setAiPlatformIntroPhase("done"), 820);
+    const t1 = window.setTimeout(() => setAiPlatformIntroPhase("exit"), 50);
+    const t2 = window.setTimeout(() => setAiPlatformIntroPhase("done"), 570);
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
@@ -1771,13 +1775,13 @@ const VideoSlidePanel = ({
                     const slug = ctaBusiness?.slug
                       || recentBusinesses.find((b) => !b.isYoutubeChannel)?.slug
                       || null;
-                    setAiReady(false);
-                    setAiSessionKey((k) => k + 1);
                     if (aiMode === "platform") {
-                      setAiSlug(slug);
+                      setAiSlug(null);
                       setAiPlatform(true);
                       setAiOverlayOpen(true);
                     } else if (slug) {
+                      setAiReady(false);
+                      setAiSessionKey((k) => k + 1);
                       setAiPlatform(false);
                       setAiSlug(slug);
                       setAiOverlayOpen(true);
@@ -1867,13 +1871,18 @@ const VideoSlidePanel = ({
             </Suspense>
           </div>
         )}
-        {aiOverlayOpen && (aiPlatform || aiSlug) && (
-          <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[240] h-[100dvh] overflow-hidden">
+        {(aiOverlayOpen || shouldPreloadPlatformAi) && (aiPlatform || aiSlug || shouldPreloadPlatformAi) && (
+          <div
+            className={`fixed inset-y-0 right-0 w-full lg:w-1/2 h-[100dvh] overflow-hidden ${aiOverlayOpen ? "z-[240]" : "-z-10 pointer-events-none opacity-0"}`}
+            aria-hidden={!aiOverlayOpen}
+          >
             {/* Fond assombri : la vidéo reste visible derrière l'assistant (iframe transparente) */}
-            <div
-              className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
-              onClick={() => setAiOverlayOpen(false)}
-            />
+            {aiOverlayOpen && (
+              <div
+                className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
+                onClick={() => setAiOverlayOpen(false)}
+              />
+            )}
             {/* Animation de recherche pendant le chargement de l'assistant :
                 l'iframe reste montée (elle charge) mais masquée jusqu'au signal « prêt ». */}
             {!aiPlatform && !aiReady && (
@@ -1890,17 +1899,17 @@ const VideoSlidePanel = ({
             )}
             <iframe
               key={aiSessionKey}
-              src={aiPlatform
-                ? `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform&open=${aiSessionKey}${aiSlug ? `&ctx=${encodeURIComponent(aiSlug)}` : ""}`
+              src={(aiPlatform || shouldPreloadPlatformAi)
+                ? platformAiSrc
                 : `/embed/ask/${aiSlug}?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&open=${aiSessionKey}`}
               title="Assistant IA"
-              className={`relative w-full h-full border-0 transition-opacity duration-500 ${(aiPlatform || aiReady) ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+              className={`relative w-full h-full border-0 transition-opacity duration-500 ${aiOverlayOpen && (aiPlatform || aiReady) ? "opacity-100" : "opacity-0 pointer-events-none"}`}
               style={{ background: "transparent" }}
               allow="clipboard-write; microphone"
             />
             {aiPlatform && aiPlatformIntroPhase !== "done" && (
               <div
-                className="absolute inset-0 z-10 flex items-center justify-center px-8 pointer-events-none bg-black/95 backdrop-blur-md transition-all duration-700 ease-out"
+                className="absolute inset-0 z-10 flex items-center justify-center px-8 pointer-events-none bg-black/95 backdrop-blur-md transition-all duration-500 ease-out"
                 style={{
                   opacity: aiPlatformIntroPhase === "exit" ? 0 : 1,
                   transform: aiPlatformIntroPhase === "exit" ? "scale(0.62) translateY(-14%)" : "scale(1)",
