@@ -45,6 +45,7 @@ const VideoControls = (props: VideoControlsProps) => {
         </button>
         <button
           type="button"
+          data-sound-toggle="true"
           onClick={() => {
             if (videoRef.current) {
               const nextMuted = !videoRef.current.muted;

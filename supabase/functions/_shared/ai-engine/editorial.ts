@@ -183,10 +183,10 @@ export async function loadImagePopupTexts(
     const { data } = await admin
       .from("business_image_titles")
       .select(
-        "business_id, title, description, title_fr, title_en, title_ar, description_fr, description_en, description_ar, sort_order",
+        "business_id, title, description, title_fr, title_en, title_ar, description_fr, description_en, description_ar, created_at",
       )
       .in("business_id", ids)
-      .order("sort_order", { ascending: true });
+      .order("created_at", { ascending: true });
 
     const out: EditorialItem[] = [];
     for (const row of (data || []) as any[]) {

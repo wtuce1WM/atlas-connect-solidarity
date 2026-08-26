@@ -734,7 +734,15 @@ const VideoSlidePanel = ({
           v.muted = true;
           v.play().catch(() => {});
           if (!soundOn) return;
-          const tryUnmute = () => {
+          const tryUnmute = (ev: Event) => {
+            // Si le geste vise le bouton son lui-même, on laisse son handler décider
+            // (sinon on dé-mute ici et le clic re-mute juste après).
+            const target = ev.target as HTMLElement | null;
+            if (target?.closest?.('[data-sound-toggle="true"]')) {
+              document.addEventListener("pointerdown", tryUnmute, opts);
+              document.addEventListener("touchstart", tryUnmute, opts);
+              return;
+            }
             if (disposed || !v.muted) return;
             autoMute = false;
             v.muted = false;
