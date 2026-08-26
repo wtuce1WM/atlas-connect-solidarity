@@ -15,7 +15,7 @@ const CITY_ALIASES: Record<string, string[]> = {
   Essaouira: ["Essaouira"],
 };
 
-/** Return the city plus its homepage aliases (e.g. Marrakech → [Marrakech, Agafay]). */
+/** Return the city plus its homepage aliases (e.g. Marrakech → [Marrakech, Agafay, Asni, Imlil]). */
 export function getCityAliases(city: string): string[] {
   return CITY_ALIASES[city] || [city];
 }
