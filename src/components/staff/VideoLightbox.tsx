@@ -59,7 +59,7 @@ const VideoLightbox = ({ url, onClose, restoreScrollY }: VideoLightboxProps) => 
             ref={mediaRef as React.RefObject<HTMLIFrameElement>}
             src={embed.embedUrl}
             className="w-full h-full rounded-lg"
-            allow="autoplay; fullscreen; encrypted-media"
+            allow="fullscreen; encrypted-media"
             allowFullScreen
             tabIndex={-1}
           />
@@ -68,7 +68,6 @@ const VideoLightbox = ({ url, onClose, restoreScrollY }: VideoLightboxProps) => 
             ref={mediaRef as React.RefObject<HTMLVideoElement>}
             src={url}
             controls
-            autoPlay
             tabIndex={-1}
             className="w-full h-full object-contain rounded-lg"
           />
