@@ -1608,28 +1608,17 @@ const BookOnlineSlidePanelInner = ({
   }, []);
 
   // Filet de sécurité seulement en mode business.
-  // Mode plateforme : le message plein écran reste visible tant que les vraies
-  // suggestions ne sont pas chargées, pour éviter un panneau vide.
   useEffect(() => {
     if (!aiAssistantOpen || aiAssistantReady || aiAssistantPlatform) return;
     const t = setTimeout(() => setAiAssistantReady(true), 8000);
     return () => clearTimeout(t);
   }, [aiAssistantOpen, aiAssistantReady, aiAssistantPlatform]);
 
+  // Mode plateforme : aucune séquence d'intro côté parent.
   useEffect(() => {
-    if (!aiAssistantOpen || !aiAssistantPlatform) {
-      setAiAssistantPlatformIntroPhase("done");
-      return;
-    }
-    setAiAssistantPlatformIntroPhase("full");
-    if (!aiAssistantReady) return;
-    const t1 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("exit"), 50);
-    const t2 = window.setTimeout(() => setAiAssistantPlatformIntroPhase("done"), 570);
-    return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-    };
-  }, [aiAssistantOpen, aiAssistantPlatform, aiAssistantSessionKey, aiAssistantReady]);
+    setAiAssistantPlatformIntroPhase("done");
+  }, [aiAssistantOpen, aiAssistantPlatform, aiAssistantSessionKey]);
+
 
   // ── External bridge: window events to control Play/Mute from an outer bar
   //   dispatch "book-panel:toggle-play"  → play/pause current media
@@ -5067,23 +5056,8 @@ const BookOnlineSlidePanelInner = ({
             style={{ background: "transparent" }}
             allow="clipboard-write; microphone"
           />
-          {aiAssistantPlatform && aiAssistantPlatformIntroPhase !== "done" && (
-            <div
-              className="absolute inset-0 z-10 flex items-center justify-center px-8 pointer-events-none bg-black/95 backdrop-blur-md transition-all duration-500 ease-out"
-              style={{
-                opacity: aiAssistantPlatformIntroPhase === "exit" ? 0 : 1,
-                transform: aiAssistantPlatformIntroPhase === "exit" ? "scale(0.62) translateY(-14%)" : "scale(1)",
-                transformOrigin: "top center",
-              }}
-            >
-              <p
-                className="text-center text-white font-semibold leading-snug"
-                style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(18px, 3.4vw, 30px)", maxWidth: "34ch" }}
-              >
-                Bonjour 👋 Je suis l'assistant One World Morocco. Je puise dans toute la base 1WM — restaurants, riads, sorties, activités, événements, adresses authentiques — à Marrakech et partout au Maroc. Comment puis-je vous aider ?
-              </p>
-            </div>
-          )}
+          {/* Mode plateforme : message d'accueil géré dans l'iframe /embed/ask. */}
+
         </div>
       )}
 

@@ -936,11 +936,18 @@ const EmbedAsk = () => {
   }, [chatKey, isPlatform]);
   useEffect(() => {
     if (readyNotifiedRef.current) return;
+    // Plus aucun gating sur les suggestions : l'iframe pilote seule son message
+    // d'accueil. Le parent ne doit jamais pouvoir rester bloqué.
+    if (isPlatform) {
+      readyNotifiedRef.current = true;
+      try { window.parent?.postMessage({ type: "owm-ai-ready" }, "*"); } catch { /* noop */ }
+      return;
+    }
     if (!assistantReady || messages.length === 0) return;
-    if (isPlatform && suggestions.length === 0) return;
     readyNotifiedRef.current = true;
     try { window.parent?.postMessage({ type: "owm-ai-ready" }, "*"); } catch { /* noop */ }
-  }, [assistantReady, messages.length, isPlatform, suggestions.length]);
+  }, [assistantReady, messages.length, isPlatform]);
+
 
   // Persist thread to localStorage on every change (skip while streaming to avoid spam).
   useEffect(() => {
@@ -1014,18 +1021,20 @@ const EmbedAsk = () => {
   }, [lang, isPlatform, suggestionFilterCity, suggestionFilterCategory]);
 
   // Séquence du splash plateforme : plein écran → zoom-out → contenu normal.
+  // Non bloquant : la sortie se déclenche dès que la requête suggestions est
+  // retombée (succès OU erreur), avec un filet de sécurité de 2,5 s.
   useEffect(() => {
     if (!isPlatform) { setSplashPhase("done"); return; }
     if (splashPhase !== "full") return;
-    const ready = assistantReady && suggestions.length > 0;
-    if (!ready) return;
-    const delay = 120;
+    const settled = dbSuggestions !== null;
+    const delay = settled ? 120 : 2500;
     const t1 = window.setTimeout(() => setSplashPhase("exit"), delay);
     const t2 = window.setTimeout(() => setSplashPhase("done"), delay + 700);
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlatform, assistantReady, suggestions.length, splashPhase]);
+  }, [isPlatform, dbSuggestions, splashPhase]);
+
 
 
 
@@ -1985,7 +1994,7 @@ const EmbedAsk = () => {
       </header>
 
       <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto"} px-4 py-4 space-y-3 ${bg} relative`}>
-        {isPlatform && !inFloatingPanel && splashPhase !== "done" && messages.length <= 1 && (
+        {isPlatform && splashPhase !== "done" && messages.length <= 1 && (
           <div
             className="absolute inset-0 z-30 flex items-center justify-center px-6 pointer-events-none"
             style={{
