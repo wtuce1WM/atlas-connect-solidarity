@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { purgeLocalSession } from "@/hooks/useAuthSession";
+
 import { useLanguage } from "@/contexts/LanguageContext";
 import { haversineKm } from "@/lib/haversine";
 import { useBrokenLinks } from "@/hooks/useBrokenLinks";
