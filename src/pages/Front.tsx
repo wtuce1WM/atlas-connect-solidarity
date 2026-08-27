@@ -1082,6 +1082,11 @@ const Front = () => {
             activeCardKey={demoCardKey}
             fullWidth={!demoActiveId && demoCardsOnly}
             onSelectCard={(card) => { void selectDemoCard(card); }}
+            onClose={() => {
+              setDemoCardsOnly(false);
+              setDemoActiveId(null);
+              setDemoIntro(false);
+            }}
           />
         </Suspense>
       )}

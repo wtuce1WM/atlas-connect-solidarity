@@ -31,12 +31,15 @@ const FrontDemoCardsPanel = ({
   onSelectCard,
   activeCardKey,
   fullWidth = false,
+  onClose,
 }: {
   open: boolean;
   onSelectCard: (card: FrontDemoCard) => void;
   activeCardKey?: string | null;
   /** Panneau étendu à 100% de la largeur (viewer fermé) */
   fullWidth?: boolean;
+  /** Retour à l'écran 1 du header /front. */
+  onClose?: () => void;
 }) => {
   const { language } = useLanguage();
   const [cards, setCards] = useState<FrontDemoCard[]>([]);
@@ -119,7 +122,7 @@ const FrontDemoCardsPanel = ({
           Fond noir opaque pour masquer la grille qui scroll en dessous. */}
       {fullWidth && (
         <div className="fixed inset-x-0 top-0 z-50 bg-black">
-          <FrontHeader visible />
+          <FrontHeader visible onLogoClick={onClose} />
         </div>
       )}
 
