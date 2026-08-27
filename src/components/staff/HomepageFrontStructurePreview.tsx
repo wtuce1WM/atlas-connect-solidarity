@@ -146,7 +146,8 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
         const label =
           t.kind === "entry"
             ? t.label
-            : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" + ") || "Carte libre";
+            : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" + ") || t.label;
+
         if (!doc) {
           return {
             key: cardKey(t.kind, t.id),
