@@ -136,17 +136,10 @@ async function buildSnapshot(supabase: any, city: string) {
       .eq("city", city),
   ]);
 
-  const aliasCityIds = ((cityRowsRes.data as any[]) || []).map((r) => r.id);
-  const [linkedDocRes, linkedGenRes] = await Promise.all([
-    aliasCityIds.length > 0
-      ? supabase.from("business_document_cities").select("document_id").in("city_id", aliasCityIds)
-      : Promise.resolve({ data: [] as any[] }),
-    aliasCityIds.length > 0
-      ? supabase.from("generic_video_cities").select("generic_video_id").in("city_id", aliasCityIds)
-      : Promise.resolve({ data: [] as any[] }),
-  ]);
-  const cityDocIds = new Set<string>(((linkedDocRes.data as any[]) || []).map((r) => r.document_id));
-  const cityGenericIds = new Set<string>(((linkedGenRes.data as any[]) || []).map((r) => r.generic_video_id));
+  // Plus de restriction géographique : /front ne filtre plus par ville.
+  const cityDocIds = new Set<string>();
+  const cityGenericIds = new Set<string>();
+
 
   const badgeMap = new Map<string, string>(((badgesRes.data as any[]) || []).map((b) => [b.id, b.name_fr]));
 
