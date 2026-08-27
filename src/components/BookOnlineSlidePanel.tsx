@@ -4174,10 +4174,10 @@ const BookOnlineSlidePanelInner = ({
             {(!embedMode || overridePool) && (
               <button
                 onClick={() => { if (embedMode || initialOverlay === "poi") { onClose?.(); return; } setShowPoiMapOverlay(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
-                className="absolute top-[calc(3.3rem+0.75rem)] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/90 transition-opacity"
+                className="absolute top-[calc(3.3rem+0.75rem)] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-opacity"
                 aria-label="Fermer"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" strokeWidth={2.5} />
               </button>
             )}
             <div className="absolute top-[calc(3.3rem+0.75rem)] right-3 z-[15] flex items-center gap-2">
