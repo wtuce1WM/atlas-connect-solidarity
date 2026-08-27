@@ -491,7 +491,7 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
                         <div className="text-sm font-semibold">
                           Badges{" "}
                           {assigned.length > 0 && (
-                            <span className="text-primary">({assigned.length} — cumul ET)</span>
+                            <span className="text-primary">({assigned.length} — cumul OU)</span>
                           )}
                         </div>
                         {assigned.length > 0 ? (
