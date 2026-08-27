@@ -33,11 +33,9 @@ export function deriveThumbnail(url: string): string | null {
   return null;
 }
 
-const intersect = (a: string[], b: Set<string>) => a.filter((id) => b.has(id));
-
 /**
  * Resolves the video of a homepage card from its badges.
- * AND semantics: the video must carry EVERY selected badge.
+ * OR semantics: the video is eligible if it carries AT LEAST ONE selected badge.
  * Restricted to the city when `cityDocIds` / `cityGenericIds` are provided.
  */
 export async function resolveVideoByBadges(
@@ -48,18 +46,15 @@ export async function resolveVideoByBadges(
   if (badgeIds.length === 0) return null;
 
   // ---- internal videos (business_documents) ----
-  let docIds: string[] | null = null;
+  const docIdSet = new Set<string>();
   for (const badgeId of badgeIds) {
     const { data } = await supabase
       .from("business_document_badges")
       .select("document_id")
       .eq("badge_id", badgeId);
-    const ids = ((data as any[]) || []).map((r) => r.document_id as string);
-    if (docIds === null) docIds = ids;
-    else docIds = intersect(docIds, new Set(ids));
-    if (docIds.length === 0) break;
+    ((data as any[]) || []).forEach((r) => docIdSet.add(r.document_id as string));
   }
-  let candidates = docIds || [];
+  let candidates = [...docIdSet];
   if (cityDocIds) candidates = candidates.filter((id) => cityDocIds.has(id));
   if (candidates.length > 0) {
     let best: any = null;
@@ -78,18 +73,18 @@ export async function resolveVideoByBadges(
   }
 
   // ---- generic videos ----
-  let genIds: string[] | null = null;
+  const genIdSet = new Set<string>();
   for (const badgeId of badgeIds) {
     const { data } = await (supabase as any)
       .from("generic_video_badges")
       .select("generic_video_id")
       .eq("badge_id", badgeId);
-    const ids = ((data as any[]) || []).map((r) => r.generic_video_id as string).filter(Boolean);
-    if (genIds === null) genIds = ids;
-    else genIds = intersect(genIds, new Set(ids));
-    if (genIds.length === 0) break;
+    ((data as any[]) || []).forEach((r) => {
+      const id = r.generic_video_id as string;
+      if (id) genIdSet.add(id);
+    });
   }
-  let genCandidates = genIds || [];
+  let genCandidates = [...genIdSet];
   if (cityGenericIds) genCandidates = genCandidates.filter((id) => cityGenericIds.has(id));
   if (genCandidates.length === 0) return null;
   const { data: gvs } = await (supabase as any)

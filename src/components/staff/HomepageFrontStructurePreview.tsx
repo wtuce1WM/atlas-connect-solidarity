@@ -146,7 +146,7 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
         const label =
           t.kind === "entry"
             ? t.label
-            : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" + ") || t.label;
+            : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" / ") || t.label;
 
         if (!doc) {
           return {
@@ -491,7 +491,7 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
                         <div className="text-sm font-semibold">
                           Badges{" "}
                           {assigned.length > 0 && (
-                            <span className="text-primary">({assigned.length} — cumul ET)</span>
+                            <span className="text-primary">({assigned.length} — cumul OU)</span>
                           )}
                         </div>
                         {assigned.length > 0 ? (
