@@ -1277,7 +1277,7 @@ Deno.serve(async (req) => {
         // / service). Dans ce cas le badge fait loi et le corpus est COMPLET :
         // tous les établissements du badge, y compris ceux qui ne le portent
         // que via une VIDÉO badgée (internes / YouTube / génériques).
-        if (!curated && !hasResolvedIntent) {
+        if (!hasResolvedIntent) {
           const namedBadge = await matchFrontBadgeInMessage(admin, userMessage, lang as any).catch(() => null);
           const multiWord = !!namedBadge && namedBadge.name.trim().split(/\s+/).length >= 2;
           if (namedBadge && multiWord) {
