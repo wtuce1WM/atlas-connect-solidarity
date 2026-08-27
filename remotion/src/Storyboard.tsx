@@ -911,16 +911,40 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
   const many = Array.isArray(cfg.assetUrls)
     ? (cfg.assetUrls as unknown[]).filter((v): v is string => typeof v === "string" && !!v.trim())
     : [];
+  /**
+   * Repli « Médias du montage » : si l'étape n'a aucun média propagé, on utilise
+   * la liste globale du storyboard (sinon la scène rendait un cadre noir).
+   */
+  const globalItems = React.useMemo(
+    () =>
+      (Array.isArray(p.global_media) ? p.global_media : []).filter(
+        (m) => m && typeof m.url === "string" && !!m.url.trim(),
+      ),
+    [p.global_media],
+  );
+  const globalVideos = globalItems.filter((m) => isVideoAsset(m.url));
+  const globalPool = (globalVideos.length ? globalVideos : globalItems).map((m) => m.url);
   const single = str(cfg, "assetUrl") ?? str(cfg, "videoUrl") ?? p.videoUrl ?? null;
-  const clips = (many.length ? many : single ? [single] : []).slice(0, 30);
+  const clips = (many.length ? many : globalPool.length ? globalPool : single ? [single] : []).slice(0, 30);
   const title = str(cfg, "title");
   const duck = React.useContext(VoiceDuckContext);
   const muted = !cfg.sound;
   /** Bornes de lecture par URL, saisies dans « Médias du montage ». */
-  const trims = (cfg.assetTrims && typeof cfg.assetTrims === "object" ? cfg.assetTrims : {}) as Record<
+  const cfgTrims = (cfg.assetTrims && typeof cfg.assetTrims === "object" ? cfg.assetTrims : {}) as Record<
     string,
     { start?: number; end?: number }
   >;
+  const trims = React.useMemo(() => {
+    const out: Record<string, { start?: number; end?: number }> = { ...cfgTrims };
+    for (const m of globalItems) {
+      if (out[m.url]) continue;
+      const s = typeof m.start === "number" && m.start > 0 ? m.start : undefined;
+      const e = typeof m.end === "number" && m.end > 0 ? m.end : undefined;
+      if (s != null || e != null) out[m.url] = { start: s, end: e };
+    }
+    return out;
+  }, [cfg.assetTrims, globalItems]);
+
   const { fps } = useVideoConfig();
 
   /**
