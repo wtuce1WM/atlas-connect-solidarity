@@ -3,6 +3,9 @@ import type { BadgeVideoFeedItem, DiscoveryFeedContext } from "@/lib/badgeVideoF
 
 // Lecteur unifié du feed vidéo (même viewer que la route IA `video_feed`).
 const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
+// Panneau blanc (50% gauche) listant les cartes du snapshot homepage pendant la démo.
+const FrontDemoCardsPanel = lazy(() => import("@/components/front/FrontDemoCardsPanel"));
+type FrontDemoCard = import("@/components/front/FrontDemoCardsPanel").FrontDemoCard;
 
 
 import { Link, useNavigate } from "react-router-dom";
