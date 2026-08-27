@@ -121,12 +121,14 @@ const FrontDemoCardsPanel = ({
       {/* Header /front (logo + hamburger) uniquement en mode grille plein écran */}
       {fullWidth && <FrontHeader fixed visible />}
 
-      {fullWidth && onClose && (
+      {/* Croix de fermeture uniquement quand le viewer vidéo est ouvert (panneau 50%).
+          En mode pleine largeur (viewer fermé) on reste sur /front, pas de croix. */}
+      {!fullWidth && onClose && (
         <button
           type="button"
           onClick={onClose}
           aria-label="Fermer"
-          className="absolute left-4 top-14 z-40 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-lg md:h-11 md:w-11 md:left-auto md:right-4"
+          className="absolute left-4 top-4 z-40 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-lg md:h-11 md:w-11 md:left-auto md:right-4"
         >
           <X className="h-5 w-5 md:h-6 md:w-6" />
         </button>
