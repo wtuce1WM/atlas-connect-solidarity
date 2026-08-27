@@ -14,6 +14,8 @@ import { stripText } from "./nearby.ts";
 import { CTA_SELECT_FIELDS, ctaFieldsOf } from "./shared.ts";
 import { buildImmersiveLines, buildImmersiveBlock, type ImmersiveCtx } from "./immersive.ts";
 import type { CompetitorGuard } from "./competitors.ts";
+import { resolveBadgeBusinessIds } from "./badgeVideoBusinesses.ts";
+
 
 export type Lang = "fr" | "en" | "ar";
 
@@ -643,17 +645,26 @@ export async function buildFilteredAnswer(
       return null;
     }
   } else if (badgeIds.length) {
-    // Badges curatés : filtre DUR en base (business_badges), jamais via
-    // `business-search` — celui-ci n'applique `badgeIds` que si `city` est fourni.
+    // Badges curatés : filtre DUR en base, jamais via `business-search`.
+    // Source de vérité ÉLARGIE : un badge est majoritairement porté par les
+    // VIDÉOS (internes / YouTube / génériques) et pas par la fiche — on croise
+    // donc `business_badges` ET les 3 tables de badges vidéo (pont partagé).
     try {
+      const videoBizIds = await resolveBadgeBusinessIds(admin, badgeIds, null, 500);
       const { data: links, error: linkErr } = await admin
         .from("business_badges")
         .select("business_id")
         .in("badge_id", badgeIds)
         .limit(2000);
       if (linkErr) throw linkErr;
-      const bizIds = [...new Set((links || []).map((l: any) => l.business_id).filter(Boolean))];
+      const bizIds = [
+        ...new Set([
+          ...(links || []).map((l: any) => l.business_id).filter(Boolean).map(String),
+          ...videoBizIds,
+        ]),
+      ];
       if (!bizIds.length) return null;
+
       let q = admin
         .from("businesses")
         .select("id, is_featured, computed_rating, total_review_count")
