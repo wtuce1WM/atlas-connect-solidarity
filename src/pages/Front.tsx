@@ -283,10 +283,13 @@ const Front = () => {
   // Pause/play de la vidéo de fond synchronisé avec l'ouverture/fermeture du
   // viewer vidéo de la démo (animation de disparition du Hero).
   useEffect(() => {
+    const demoOpen = !!(demoIntro || demoActiveId || demoCardsOnly);
+    demoOpenRef.current = demoOpen;
     const video = backgroundVideoRef.current;
     if (!video) return;
-    if (demoIntro || demoActiveId || demoCardsOnly) {
+    if (demoOpen) {
       video.pause();
+      video.muted = true;
     } else {
       void video.play().catch(() => undefined);
     }
