@@ -308,9 +308,13 @@ async function fetchRandomYoutubeVideoOf(
   } as BadgeVideoFeedItem;
 }
 
+/** Taille du 1er pool du feed dans lequel la vidéo éditoriale est injectée. */
+const FEATURED_POOL_SIZE = 30;
+
 /**
- * Premier lot du feed découverte, avec injection éditoriale d'une vidéo
- * YouTube aléatoire de `featuredAuthor` en tête (si elle n'est pas déjà là).
+ * Premier lot du feed découverte, avec injection éditoriale d'un Short YouTube
+ * aléatoire de `featuredAuthor` à une position aléatoire du 1er pool
+ * (30 premières vidéos) — plus de forçage en position 1.
  */
 export async function fetchDiscoveryVideoFeed(options: {
   limit?: number;
@@ -329,7 +333,12 @@ export async function fetchDiscoveryVideoFeed(options: {
 
   let list = items;
   if (featured) {
-    list = [featured, ...items.filter((it) => it.id !== featured.id)];
+    const rest = items.filter((it) => it.id !== featured.id);
+    // Position aléatoire dans le 1er pool (jamais l'index 0 si le pool le permet,
+    // pour ne plus imposer la vidéo en ouverture du feed).
+    const poolMax = Math.min(FEATURED_POOL_SIZE, rest.length);
+    const pos = poolMax > 1 ? 1 + Math.floor(Math.random() * (poolMax - 1)) : 0;
+    list = [...rest.slice(0, pos), featured, ...rest.slice(pos)];
   }
   return { items: list, ctx: { ...scope, seed, total } };
 }
