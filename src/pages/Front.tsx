@@ -188,7 +188,7 @@ const Front = () => {
     const retryPlayback = () => {
       const video = backgroundVideoRef.current;
       // Ne pas relancer la vidéo de fond si la démo (viewer / cartes) est ouverte.
-      if (document.querySelector('[data-front-demo-open="true"]')) return;
+      if (demoOpenRef.current) return;
       if (video?.paused) void video.play().catch(() => undefined);
     };
     retryPlayback();
