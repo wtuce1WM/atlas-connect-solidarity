@@ -5,7 +5,7 @@ import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import { translateVignetteLabel } from "@/lib/vignetteLabels";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { countDiscoveryVideosForCard } from "@/lib/badgeVideoFeed";
-import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import FrontHeader from "@/components/front/FrontHeader";
 
 export interface FrontDemoCard {
   key: string;
@@ -119,7 +119,7 @@ const FrontDemoCardsPanel = ({
       `}</style>
 
       {/* Header /front (logo + hamburger) uniquement en mode grille plein écran */}
-      {fullWidth && <HomeMindtripHeader alwaysWhite forceHamburger />}
+      {fullWidth && <FrontHeader fixed visible />}
 
       {fullWidth && onClose && (
         <button
