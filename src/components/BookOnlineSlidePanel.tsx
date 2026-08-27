@@ -3531,7 +3531,7 @@ const BookOnlineSlidePanelInner = ({
                   )}
 
                   {/* Widget Assistant IA du Master — sous les blocs highlights */}
-                  {!descOverlayContent && business?.slug && (
+                  {!descOverlayContent && isPoiMasterBusiness && business?.slug && (
                     <div className="mt-8 pt-6 border-t border-white/10">
                       <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">
                         {language === "en" ? "AI Assistant" : language === "ar" ? "المساعد الذكي" : "Assistant IA"}
