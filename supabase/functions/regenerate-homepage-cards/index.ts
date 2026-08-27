@@ -169,9 +169,10 @@ async function buildSnapshot(supabase: any, city: string) {
     ...extraRows.map((c) => ({
       kind: "extra" as const,
       id: c.id,
-      label: null as string | null,
+      label: (badgeMap.get(c.badge_id) as string | undefined) || null,
       forcedImage: c.image_url || null,
     })),
+
   ];
 
   const docs = await Promise.all(
