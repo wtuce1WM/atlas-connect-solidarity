@@ -27,8 +27,10 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 interface Props {
-  city: string;
+  /** Clé de stockage unique du JSON (plus de toggle de ville sur /front). */
+  city?: string;
 }
+
 
 interface BadgeLite {
   id: string;
