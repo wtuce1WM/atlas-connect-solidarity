@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { Loader2, Maximize2, Minimize2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import { isInMoroccoBounds } from "@/lib/geoBounds";
 
 interface MapBusiness {
   id: string;

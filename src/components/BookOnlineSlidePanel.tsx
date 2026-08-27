@@ -13,6 +13,7 @@ import ShareButton from "@/components/ShareButton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { haversineKm } from "@/lib/haversine";
+import { isInMoroccoBounds } from "@/lib/geoBounds";
 import { AirbnbIcon, BookingIcon, FacebookIcon, InstagramIcon, TikTokIcon, TripAdvisorIcon, YouTubeIcon, TwitterIcon, LinkedInIcon, PinterestIcon, VimeoIcon, SnapchatIcon } from "@/components/staff/SocialMediaIcons";
 import DynamicIcon from "@/components/DynamicIcon";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
@@ -683,7 +684,11 @@ const BookOnlineSlidePanelInner = ({
         .in("id", ids)
         .eq("is_active", true);
       if (cancelled) return;
-      const byId = new Map(((data || []) as any[]).map((r) => [r.id, r]));
+      const byId = new Map(
+        ((data || []) as any[])
+          .filter((r) => isInMoroccoBounds(r.latitude, r.longitude))
+          .map((r) => [r.id, r])
+      );
       setPoiOverrideRows(ids.map((id) => byId.get(id)).filter(Boolean) as PoiBusiness[]);
     })();
     return () => { cancelled = true; };
