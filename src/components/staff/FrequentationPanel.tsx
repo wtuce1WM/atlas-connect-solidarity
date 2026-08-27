@@ -33,6 +33,7 @@ const KNOWN_PREFIXES: Record<string, CatKey> = {
   affiliates: "affiliates",
   staff: "staff",
   studio: "staff",
+  front: "home",
   auth: "other",
   install: "other",
   tv: "other",
