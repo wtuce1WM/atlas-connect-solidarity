@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Play, X } from "lucide-react";
+import { Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import { translateVignetteLabel } from "@/lib/vignetteLabels";
