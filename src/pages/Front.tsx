@@ -385,6 +385,26 @@ const Front = () => {
     setDemoActiveId(items[0].id);
   }, [demoCtx]);
 
+  /** Clic sur une carte du panneau gauche → feed correspondant (sans filtre ville). */
+  const [demoCardKey, setDemoCardKey] = useState<string | null>(null);
+  const selectDemoCard = useCallback(async (card: FrontDemoCard) => {
+    const { fetchDiscoveryVideoFeedForCard } = await import("@/lib/badgeVideoFeed");
+    const { items, ctx: nextCtx } = await fetchDiscoveryVideoFeedForCard(
+      { badgeId: card.badgeId, businessId: card.businessId, videoId: card.videoId },
+      60,
+    );
+    if (!items.length) return;
+    setDemoCardKey(card.key);
+    setDemoBadgeId(card.badgeId ?? null);
+    setDemoList(items.map(toPanelVideo));
+    setDemoCtx(nextCtx);
+    setDemoTime(0);
+    demoLoadingMoreRef.current = false;
+    setDemoActiveId(items[0].id);
+  }, []);
+
+
+
   /** Auto-fit du slogan écran 1 : taille max possible dans la hauteur de la section
    *  qui lui est dédiée (1/3 de l'espace entre header et CTA Découvrir). Si 5 lignes
    *  ne tiennent pas lisiblement, repli automatique en 3 lignes. Mobile uniquement. */
