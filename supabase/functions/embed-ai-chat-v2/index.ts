@@ -96,7 +96,7 @@ const HOST_FIELDS =
 
 const CARD_FIELDS =
   "id, name, slug, city, neighborhood, main_category, hook_fr, hook_en, hook_ar, latitude, longitude, " +
-  "min_price, manual_price_range, logo_url, images, google_rating, google_review_count, " +
+  "min_price, manual_price_range, avg_price_range, logo_url, images, google_rating, google_review_count, " +
   "tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count, glovo_url";
 
 
@@ -235,16 +235,17 @@ function resultsContext(list: any[], lang: Lang): string {
     const hook = lang === "en" ? b.hook_en : lang === "ar" ? b.hook_ar : b.hook_fr;
     const rating = b.computed_rating || b.google_rating || b.tripadvisor_rating;
     const reviews = b.google_review_count || b.tripadvisor_review_count || null;
-    const standing = b.standing || b.stars || null;
+
     // Prix : donnée partielle (hôtellerie surtout) — on ne l'affiche que si elle existe.
     const price = b.min_price
       ? `à partir de ${b.min_price}`
       : b.manual_price_range
         ? String(b.manual_price_range)
-        : "";
+        : b.avg_price_range
+          ? String(b.avg_price_range)
+          : "";
     const bits = [
       `${b.main_category || ""} ${b.neighborhood || b.city || ""}`.trim(),
-      standing ? `standing ${standing}` : "",
       rating ? `note ${rating}${reviews ? ` (${reviews} avis)` : ""}` : "",
       price ? `prix ${price}` : "",
       hook ? String(hook).slice(0, 160) : "",
