@@ -522,6 +522,18 @@ export async function buildPinnedAnswer(
     immersive?: ImmersiveCtx;
     /** Plafond de cartes rendues (défaut 20). */
     maxCards?: number;
+    /**
+     * Émission anticipée : appelé dès que l'en-tête et les cartes sont prêts
+     * (déterministe, ~1 s), AVANT la réécriture immersive. Quand ce callback est
+     * fourni, `text` ne contient plus l'en-tête (déjà émis) : uniquement le bloc
+     * immersif et l'outro.
+     */
+    onCards?: (early: {
+      heading: string;
+      knownBusinesses: Array<{ id: string; slug: string | null; name: string }>;
+      mapPayload: any;
+    }) => void | Promise<void>;
+
   },
 ): Promise<CuratedAnswer | null> {
 
@@ -556,8 +568,21 @@ export async function buildPinnedAnswer(
       ? `📍 هذه هي القائمة المختارة كاملة${host?.city ? ` في ${host.city}` : ""} — تريد الخريطة أو أوقات العمل أو روابط الحجز؟`
       : `📍 C'est la sélection curatée complète${host?.city ? ` à ${host.city}` : ""} — tu veux la carte, les horaires, ou les liens de réservation ?`);
 
-  // Texte immersif inséré AVANT les cartes résultat : version enrichie (corpus
-  // éditorial étendu + réécriture par lot) si un contexte est fourni, sinon zéro token.
+  const knownBusinesses = ordered.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name }));
+  const mapPayload = { title: label || null, businesses: mapBusinessesOf(ordered) };
+
+  // Émission anticipée : l'utilisateur voit l'en-tête et les cartes tout de suite,
+  // la réécriture immersive (plusieurs secondes) arrive ensuite dans le même flux.
+  if (overrides?.onCards) {
+    try {
+      await overrides.onCards({ heading, knownBusinesses, mapPayload });
+    } catch (e) {
+      console.error("[curated] early_emit_failed", String(e));
+    }
+  }
+
+  // Bloc immersif : version enrichie (corpus éditorial étendu + réécriture par
+  // lot) si un contexte est fourni, sinon zéro token.
   const immersive = overrides?.immersive
     ? await buildImmersiveBlock(ordered, lang, overrides.immersive).catch((e) => {
       console.error("[curated] immersive_rich_failed", String(e));
@@ -566,10 +591,12 @@ export async function buildPinnedAnswer(
     : buildImmersiveLines(ordered, lang);
 
   return {
-    text: [heading, immersive, outro].filter((p) => p && String(p).trim()).join("\n\n"),
+    text: (overrides?.onCards ? [immersive, outro] : [heading, immersive, outro])
+      .filter((p) => p && String(p).trim()).join("\n\n"),
 
-    knownBusinesses: ordered.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })),
-    mapPayload: { title: label || null, businesses: mapBusinessesOf(ordered) },
+    knownBusinesses,
+    mapPayload,
+
     shown: ordered.length,
     total: overrides?.total ?? ordered.length,
     route: overrides?.route ?? "curated_pinned",
