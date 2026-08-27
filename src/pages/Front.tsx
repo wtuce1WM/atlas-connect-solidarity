@@ -723,7 +723,7 @@ const Front = () => {
           pointerEvents: demoActiveId || demoCardsOnly ? "none" : (narrativeActive ? "auto" : "none"),
           transition: motion,
         }}
-        aria-hidden={demoActiveId || demoCardsOnly || !narrativeActive}
+        aria-hidden={!!(demoActiveId || demoCardsOnly || !narrativeActive)}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Section 1 : Slogan */}
