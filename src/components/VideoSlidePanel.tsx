@@ -1358,7 +1358,7 @@ const VideoSlidePanel = ({
                           {b.name === "Rooftop Restaurant & Bars" ? (
                             <>Rooftop<br />Restaurant & Bars</>
                           ) : (
-                            b.name
+                            capFirstBadgeLabel(b.name)
                           )}
                         </button>
                       );
