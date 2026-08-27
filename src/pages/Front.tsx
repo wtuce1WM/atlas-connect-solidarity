@@ -1227,12 +1227,15 @@ const Front = () => {
         </button>
       </div>
 
-      {/* Panneau blanc gauche (desktop) : cartes du snapshot homepage */}
-      {demoActiveId && (
+      {/* Panneau blanc gauche (desktop) : cartes du snapshot homepage.
+          Reste ouvert en pleine largeur quand le viewer est fermé. */}
+      {(demoActiveId || demoCardsOnly) && (
         <Suspense fallback={null}>
           <FrontDemoCardsPanel
             open
             activeCardKey={demoCardKey}
+            fullWidth={!demoActiveId && demoCardsOnly}
+            onClose={() => { setDemoCardsOnly(false); setDemoIntro(false); setDemoCardKey(null); }}
             onSelectCard={(card) => { void selectDemoCard(card); }}
           />
         </Suspense>
@@ -1246,7 +1249,7 @@ const Front = () => {
           <Suspense fallback={null}>
             <HomeVideoSlidePanel
               open
-              onClose={() => { setDemoActiveId(null); setDemoIntro(false); setDemoCardKey(null); }}
+              onClose={() => { setDemoActiveId(null); setDemoCardsOnly(true); }}
               activeVideo={active as any}
               activeList={demoList as any}
               onActiveVideoChange={(v: any) => { setDemoActiveId(v.id); setDemoTime(0); void maybeLoadMoreDemo(String(v.id)); }}
