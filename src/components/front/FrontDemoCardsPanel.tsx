@@ -5,6 +5,7 @@ import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import { translateVignetteLabel } from "@/lib/vignetteLabels";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { countDiscoveryVideosForCard } from "@/lib/badgeVideoFeed";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 
 export interface FrontDemoCard {
   key: string;
