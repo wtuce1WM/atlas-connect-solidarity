@@ -752,16 +752,7 @@ const Front = () => {
               color: "transparent",
               WebkitTextStrokeWidth: "2px",
               WebkitTextStrokeColor: "#FFFFFF",
-              ...(panelSloganFontPx
-                ? {
-                    fontSize: `${panelSloganFontPx}px`,
-                    width: "100%",
-                    padding: "0 48px",
-                    boxSizing: "border-box",
-                  }
-                : sloganFontPx
-                  ? { fontSize: `${sloganFontPx}px` }
-                  : null),
+              ...(sloganFontPx ? { fontSize: `${sloganFontPx}px` } : null),
               opacity: voiceActive ? 0 : 1,
               // Pas de pré-zoom sur mobile : la taille auto-fit est déjà au max de
               // la largeur utile, un scale(1.18) ferait déborder le slogan des côtés.
