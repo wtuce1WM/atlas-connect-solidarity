@@ -430,21 +430,10 @@ const StaffFront = () => {
 
 
           <TabsContent value="homepage">
-            <Tabs defaultValue="marrakech">
-              <TabsList className="mb-4">
-                <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
-                <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
-              </TabsList>
-              <TabsContent value="marrakech">
-                <RegenerateHomepageSnapshotButton cityName="Marrakech" />
-                <HomepageFrontStructurePreview city="Marrakech" />
-              </TabsContent>
-              <TabsContent value="essaouira">
-                <RegenerateHomepageSnapshotButton cityName="Essaouira" />
-                <HomepageFrontStructurePreview city="Essaouira" />
-              </TabsContent>
-            </Tabs>
+            <RegenerateHomepageSnapshotButton cityName="Marrakech" />
+            <HomepageFrontStructurePreview />
           </TabsContent>
+
 
           <TabsContent value="popup">
             <PopupPanel />

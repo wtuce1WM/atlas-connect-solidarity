@@ -117,7 +117,7 @@ async function buildSnapshot(supabase: any, city: string) {
     supabase.from("badges").select("id, name_fr"),
     supabase
       .from("front_structure_homepage_extra_cards")
-      .select("id, city, image_url, sort_order")
+      .select("id, city, image_url, sort_order, badge_id")
       .eq("city", city)
       .order("sort_order", { ascending: true }),
     supabase
@@ -136,17 +136,10 @@ async function buildSnapshot(supabase: any, city: string) {
       .eq("city", city),
   ]);
 
-  const aliasCityIds = ((cityRowsRes.data as any[]) || []).map((r) => r.id);
-  const [linkedDocRes, linkedGenRes] = await Promise.all([
-    aliasCityIds.length > 0
-      ? supabase.from("business_document_cities").select("document_id").in("city_id", aliasCityIds)
-      : Promise.resolve({ data: [] as any[] }),
-    aliasCityIds.length > 0
-      ? supabase.from("generic_video_cities").select("generic_video_id").in("city_id", aliasCityIds)
-      : Promise.resolve({ data: [] as any[] }),
-  ]);
-  const cityDocIds = new Set<string>(((linkedDocRes.data as any[]) || []).map((r) => r.document_id));
-  const cityGenericIds = new Set<string>(((linkedGenRes.data as any[]) || []).map((r) => r.generic_video_id));
+  // Plus de restriction géographique : /front ne filtre plus par ville.
+  const cityDocIds = new Set<string>();
+  const cityGenericIds = new Set<string>();
+
 
   const badgeMap = new Map<string, string>(((badgesRes.data as any[]) || []).map((b) => [b.id, b.name_fr]));
 
@@ -176,9 +169,10 @@ async function buildSnapshot(supabase: any, city: string) {
     ...extraRows.map((c) => ({
       kind: "extra" as const,
       id: c.id,
-      label: null as string | null,
+      label: (badgeMap.get(c.badge_id) as string | undefined) || null,
       forcedImage: c.image_url || null,
     })),
+
   ];
 
   const docs = await Promise.all(
@@ -215,7 +209,8 @@ async function buildSnapshot(supabase: any, city: string) {
     const label =
       t.kind === "entry"
         ? t.label
-        : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" + ") || null;
+        : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" + ") || t.label;
+
     const primaryBadgeId = assigned[0] || null;
     const target = t.kind === "extra" && primaryBadgeId ? { type: "badge", id: primaryBadgeId } : null;
 

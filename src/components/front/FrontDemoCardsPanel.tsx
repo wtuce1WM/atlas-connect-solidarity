@@ -17,8 +17,9 @@ export interface FrontDemoCard {
   businessId: string | null;
 }
 
-/** Villes sources du JSON de cartes géré dans /staff/front (onglet Homepage). */
-const CARD_CITIES = ["Marrakech", "Essaouira"];
+/** Source unique du JSON de cartes géré dans /staff/front (onglet Homepage). */
+const CARD_CITIES = ["Marrakech"];
+
 
 /**
  * Panneau blanc slide-in depuis la gauche (50% du viewport, desktop) affiché

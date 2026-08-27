@@ -27,8 +27,10 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 interface Props {
-  city: string;
+  /** Clé de stockage unique du JSON (plus de toggle de ville sur /front). */
+  city?: string;
 }
+
 
 interface BadgeLite {
   id: string;
@@ -51,7 +53,7 @@ interface CardPreview {
   imageUrl: string | null;
 }
 
-const HomepageFrontStructurePreview = ({ city }: Props) => {
+const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
   const [cards, setCards] = useState<CardPreview[]>([]);
   const [order, setOrder] = useState<string[]>([]);
   const [badgesByCard, setBadgesByCard] = useState<Record<string, string[]>>({});
@@ -68,32 +70,19 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     const load = async () => {
       if (isFirstLoad.current) setLoading(true);
 
-      const { data: cityRow } = await supabase
-        .from("cities")
-        .select("id")
-        .eq("name_fr", city)
-        .maybeSingle();
-      const cityRowId = (cityRow as any)?.id || null;
-
-      let cityDocIds: Set<string> | null = null;
-      let cityGenericIds: Set<string> | null = null;
-      if (cityRowId) {
-        const [{ data: docCities }, { data: genCities }] = await Promise.all([
-          supabase.from("business_document_cities").select("document_id").eq("city_id", cityRowId),
-          (supabase as any).from("generic_video_cities").select("generic_video_id").eq("city_id", cityRowId),
-        ]);
-        cityDocIds = new Set(((docCities as any[]) || []).map((r) => r.document_id));
-        cityGenericIds = new Set(((genCities as any[]) || []).map((r) => r.generic_video_id));
-      }
+      // Plus de restriction géographique : /front ne tient plus compte de la ville.
+      const cityDocIds: Set<string> | null = null;
+      const cityGenericIds: Set<string> | null = null;
 
       const [entriesRes, badgesRes, extraRes, orderRes] = await Promise.all([
         supabase.from("front_structure").select("id, name, sort_order, show_in_menu").order("sort_order"),
         supabase.from("badges").select("id, name_fr").order("name_fr"),
         (supabase as any)
           .from("front_structure_homepage_extra_cards")
-          .select("id, image_url, sort_order")
+          .select("id, image_url, sort_order, badge_id")
           .eq("city", city)
           .order("sort_order", { ascending: true }),
+
         (supabase as any)
           .from("front_structure_homepage_order")
           .select("item_type, item_id, sort_order")
@@ -119,7 +108,13 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
 
       const targets: Array<{ kind: "entry" | "extra"; id: string; label: string; imageUrl: string | null }> = [
         ...entries.map((e) => ({ kind: "entry" as const, id: e.id, label: e.name, imageUrl: entryImageById[e.id] || null })),
-        ...extras.map((c) => ({ kind: "extra" as const, id: c.id, label: "Carte libre", imageUrl: c.image_url || null })),
+        ...extras.map((c) => ({
+          kind: "extra" as const,
+          id: c.id,
+          label: badgeMap.get(c.badge_id) || "Carte libre",
+          imageUrl: c.image_url || null,
+        })),
+
       ];
 
       const docs = await Promise.all(
@@ -151,7 +146,8 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         const label =
           t.kind === "entry"
             ? t.label
-            : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" + ") || "Carte libre";
+            : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" + ") || t.label;
+
         if (!doc) {
           return {
             key: cardKey(t.kind, t.id),
