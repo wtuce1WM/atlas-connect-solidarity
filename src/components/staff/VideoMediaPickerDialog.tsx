@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,8 +12,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Copy, Film, Image as ImageIcon, Loader2, Maximize2, Play, Pause, Trash2, Upload, X } from "lucide-react";
+import { Check, Copy, Film, Image as ImageIcon, Loader2, Maximize2, Pencil, Play, Pause, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+
 
 
 /**
@@ -140,6 +142,17 @@ const fmtDur = (s?: number | null) => {
   return m > 0 ? `${m}:${String(r).padStart(2, "0")}` : `${r}s`;
 };
 
+/** Poids d'un fichier en Ko / Mo. */
+const fmtSize = (b: number) => (b >= 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} Mo` : `${Math.max(1, Math.round(b / 1024))} Ko`);
+
+/** Chemin d'un média dans le stockage, clé de la table des poids : `bucket/chemin`. */
+const storageKey = (url: string): { bucket: string; path: string } | null => {
+  const m = url.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
+  return m ? { bucket: m[1], path: decodeURIComponent(m[2].split("?")[0]) } : null;
+};
+
+
+
 const SOURCE_LABEL: Record<PickerMedia["source"] | "library_global" | "library_business", string> = {
   fiche: "Fiche",
   generic: "Badge Générique",
@@ -164,9 +177,11 @@ function Tile({
   badge,
   expectedOrientation,
   gridCell = false,
+  sizeBytes,
   onSelect,
   onDelete,
   onOrientation,
+  onRename,
 }: {
   item: PickerMedia;
   selected: boolean;
@@ -174,13 +189,19 @@ function Tile({
   expectedOrientation?: "landscape" | "portrait";
   /** true = la tuile remplit une cellule de grille (4 colonnes) au lieu de son ratio natif. */
   gridCell?: boolean;
+  /** Poids réel du fichier dans le stockage (octets), si connu. */
+  sizeBytes?: number | null;
   onSelect: () => void;
   onDelete?: () => void;
   onOrientation?: (o: "landscape" | "portrait" | "square") => void;
+  /** Renommage du média en base (titre / nom du fichier). */
+  onRename?: (title: string) => Promise<void> | void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [full, setFull] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(item.title ?? "");
   const [orientation, setOrientation] = useState<"landscape" | "portrait" | "square" | null>(
     item.orientation ?? null,
   );
@@ -188,6 +209,17 @@ function Tile({
     item.orientation === "portrait" ? 9 / 16 : item.orientation === "square" ? 1 : 16 / 9,
   );
   const [duration, setDuration] = useState<number | null>(item.duration ?? null);
+
+  const commitRename = async () => {
+    const next = draft.trim();
+    if (!onRename || next === (item.title ?? "").trim()) {
+      setEditing(false);
+      return;
+    }
+    await onRename(next);
+    setEditing(false);
+  };
+
 
   const isVideoTile = item.kind === "video";
   // En grille (4 colonnes) la tuile remplit sa cellule ; sinon ratio natif demi-taille.
@@ -348,6 +380,13 @@ function Tile({
           </span>
         )}
 
+        {sizeBytes != null && (
+          <span className="absolute top-6 left-1 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold tabular-nums">
+            {fmtSize(sizeBytes)}
+          </span>
+        )}
+
+
         {selected && (
           <span className="absolute top-1 right-1 rounded-full bg-primary text-primary-foreground text-[11px] font-bold w-6 h-6 flex items-center justify-center">
             {badge ?? "✓"}
@@ -355,46 +394,49 @@ function Tile({
         )}
       </button>
 
-      {full && (
-        <div
-          className="fixed inset-0 z-[120] bg-black/90 flex items-center justify-center p-4"
-          onClick={(e) => {
-            e.stopPropagation();
-            setFull(false);
-          }}
-        >
-          <Button
-            type="button"
-            size="icon"
-            variant="secondary"
-            className="absolute top-4 right-4 h-9 w-9 rounded-full"
-            onClick={(e) => {
-              e.stopPropagation();
-              setFull(false);
-            }}
-            aria-label="Fermer"
+      {full &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[200] bg-black flex items-center justify-center"
+            onClick={() => setFull(false)}
           >
-            <X className="h-4 w-4" />
-          </Button>
-          {item.kind === "video" && isInternalVideoUrl(item.url) ? (
-            <video
-              src={item.url}
-              controls
-              autoPlay
-              playsInline
-              className="max-h-full max-w-full"
-              onClick={(e) => e.stopPropagation()}
-            />
-          ) : (
-            <img
-              src={item.kind === "video" ? item.thumbnail || "" : item.url}
-              alt={item.title || ""}
-              className="max-h-full max-w-full object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
-          )}
-        </div>
-      )}
+            <button
+              type="button"
+              className="absolute top-4 left-4 z-10 h-10 w-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:bg-white/90"
+              onClick={(e) => {
+                e.stopPropagation();
+                setFull(false);
+              }}
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            {item.kind === "video" && isInternalVideoUrl(item.url) ? (
+              <video
+                src={item.url}
+                controls
+                autoPlay
+                playsInline
+                className="max-h-[92vh] max-w-[92vw] object-contain bg-black"
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <img
+                src={item.kind === "video" ? item.thumbnail || "" : item.url}
+                alt={item.title || ""}
+                className="max-h-[92vh] max-w-[92vw] object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
+            {item.title && (
+              <span className="absolute bottom-4 left-1/2 -translate-x-1/2 max-w-[80vw] truncate rounded-full bg-white/10 px-3 py-1 text-xs text-white">
+                {item.title}
+              </span>
+            )}
+          </div>,
+          document.body,
+        )}
+
 
       {!!item.badges?.length && (
         <div className="mt-1 flex flex-wrap gap-1">
@@ -410,11 +452,60 @@ function Tile({
       )}
 
 
-      {item.title && (
-        <p className="mt-1 text-[10px] text-muted-foreground truncate" title={item.title}>
-          {item.title}
-        </p>
+      {onRename ? (
+        editing ? (
+          <div className="mt-1 flex items-center gap-1">
+            <Input
+              value={draft}
+              autoFocus
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void commitRename();
+                }
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  setEditing(false);
+                }
+              }}
+              className="h-7 text-[11px]"
+              placeholder="Nom du fichier"
+            />
+            <Button
+              type="button"
+              size="icon"
+              variant="secondary"
+              className="h-7 w-7 shrink-0"
+              onClick={() => void commitRename()}
+              aria-label="Enregistrer le nom"
+            >
+              <Check className="h-3 w-3" />
+            </Button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setDraft(item.title ?? "");
+              setEditing(true);
+            }}
+            title="Renommer le fichier"
+            className="mt-1 flex w-full min-w-0 items-center gap-1 text-left text-[10px] text-muted-foreground hover:text-foreground"
+          >
+            <Pencil className="h-2.5 w-2.5 shrink-0" />
+            <span className="truncate">{item.title || "Sans nom"}</span>
+          </button>
+        )
+      ) : (
+        item.title && (
+          <p className="mt-1 text-[10px] text-muted-foreground truncate" title={item.title}>
+            {item.title}
+          </p>
+        )
       )}
+
 
       {item.ownerName && (
         <p className="text-[10px] font-semibold truncate" title={item.ownerName}>
@@ -1142,16 +1233,67 @@ export function VideoMediaPickerDialog({
     [sourceScoped, formatFilter, badgeFilter],
   );
 
+  /** Poids réels des fichiers du stockage, par `bucket/chemin`. */
+  const [sizes, setSizes] = useState<Record<string, number>>({});
+  const loadedBuckets = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const todo = new Set<string>();
+    for (const m of filtered) {
+      const k = storageKey(m.url);
+      if (k && !loadedBuckets.current.has(k.bucket)) todo.add(k.bucket);
+    }
+    if (todo.size === 0) return;
+    todo.forEach((b) => loadedBuckets.current.add(b));
+    void (async () => {
+      for (const bucket of todo) {
+        const { data, error } = await (supabase.rpc as any)("get_all_storage_sizes", { bucket_name: bucket });
+        if (error) {
+          console.warn("Tailles indisponibles pour", bucket, error.message);
+          continue;
+        }
+        const next: Record<string, number> = {};
+        ((data as any[]) ?? []).forEach((r: any) => {
+          if (r?.path && r.size_bytes != null) next[`${bucket}/${r.path}`] = Number(r.size_bytes);
+        });
+        setSizes((prev) => ({ ...prev, ...next }));
+      }
+    })();
+  }, [filtered]);
+
+  const sizeOf = useCallback(
+    (url: string): number | null => {
+      const k = storageKey(url);
+      if (!k) return null;
+      return sizes[`${k.bucket}/${k.path}`] ?? null;
+    },
+    [sizes],
+  );
+
+  /** Classement du plus léger au plus lourd (poids inconnu en fin de liste). */
+  const sorted = useMemo(
+    () =>
+      filtered.slice().sort((a, b) => {
+        const sa = sizeOf(a.url);
+        const sb = sizeOf(b.url);
+        if (sa == null && sb == null) return 0;
+        if (sa == null) return 1;
+        if (sb == null) return -1;
+        return sa - sb;
+      }),
+    [filtered, sizeOf],
+  );
+
   const PAGE_SIZE = 32;
   const [page, setPage] = useState(0);
   useEffect(() => {
     setPage(0);
   }, [sourceFilter, typeFilter, search, otherSlug, open, formatFilter, badgeFilter]);
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const pageItems = useMemo(
-    () => filtered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE),
-    [filtered, page],
+    () => sorted.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE),
+    [sorted, page],
   );
+
 
   const toggle = (m: PickerMedia) => {
     if (!multiple) {
@@ -1258,6 +1400,29 @@ export function VideoMediaPickerDialog({
     if (!m.libraryId || m.orientation) return;
     await supabase.from("video_media_library").update({ orientation: o }).eq("id", m.libraryId);
   };
+
+  /** Renomme le média dans sa table d'origine (bibliothèque staff, vidéo générique, document de fiche). */
+  const renameMedia = async (m: PickerMedia, title: string) => {
+    const next = title.trim() || null;
+    let error: any = null;
+    if (m.source === "library" && m.libraryId) {
+      ({ error } = await supabase.from("video_media_library").update({ title: next }).eq("id", m.libraryId));
+    } else if (m.source === "generic_video" && m.mediaId) {
+      ({ error } = await supabase.from("generic_videos").update({ name: next }).eq("id", m.mediaId));
+    } else if (m.mediaId) {
+      ({ error } = await supabase.from("business_documents").update({ name: next }).eq("id", m.mediaId));
+    } else {
+      toast.error("Ce média n'a pas d'enregistrement en base : renommage impossible.");
+      return;
+    }
+    if (error) {
+      toast.error(`Renommage impossible : ${error.message}`);
+      return;
+    }
+    setItems((prev) => prev.map((it) => (it.url === m.url ? { ...it, title: next } : it)));
+    toast.success("Nom mis à jour");
+  };
+
 
   // Compteurs alignés sur les filtres réellement appliqués (type + allow)
   const counts = useMemo(
@@ -1598,13 +1763,16 @@ export function VideoMediaPickerDialog({
                     badge={multiple ? value.indexOf(m.url) + 1 || null : null}
                     expectedOrientation={format}
                     gridCell={gridCell}
+                    sizeBytes={sizeOf(m.url)}
                     onSelect={() => toggle(m)}
                     onDelete={m.source === "library" ? () => void removeFromLibrary(m) : undefined}
+                    onRename={(t) => renameMedia(m, t)}
                     onOrientation={(o) => {
                       noteOrientation(m, o);
                       void setOrientationOnce(m, o);
                     }}
                   />
+
                 );
                 const vids = pageItems.filter((m) => m.kind === "video");
                 const imgs = pageItems.filter((m) => m.kind === "image");
