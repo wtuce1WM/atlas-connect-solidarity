@@ -80,6 +80,12 @@ const FrontDemoCardsPanel = ({
       }
       setCards(list);
       setLoading(false);
+      // Comptage réel des vidéos par carte (même périmètre que le feed lancé au clic).
+      const counts = await Promise.all(
+        list.map(async (c) => [c.key, await countDiscoveryVideosForCard(c)] as const),
+      );
+      if (cancelled) return;
+      setVideoCounts(Object.fromEntries(counts));
     })();
     return () => {
       cancelled = true;
@@ -88,9 +94,8 @@ const FrontDemoCardsPanel = ({
 
   if (!open) return null;
 
-  const gridClass = fullWidth
-    ? "grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-6"
-    : "grid grid-cols-2 gap-3 lg:grid-cols-3";
+  // Mêmes paramètres responsive que la grille de résultats de /search.
+  const gridClass = "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
 
   return (
     <div
