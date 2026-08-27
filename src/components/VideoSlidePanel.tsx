@@ -1300,7 +1300,7 @@ const VideoSlidePanel = ({
                     type="button"
                     disabled={!onFeedBadgeSelect}
                     onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.label })}
-                    className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
+                    className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
                       isSelected
                         ? "border-gold bg-gold text-gold-foreground"
                         : "border-white/25"
@@ -1339,7 +1339,7 @@ const VideoSlidePanel = ({
                           type="button"
                           disabled={!onFeedBadgeSelect}
                           onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.name })}
-                          className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
+                          className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
                             isSelected
                               ? "border-gold bg-gold text-gold-foreground"
                               : "border-white/25 text-white"
@@ -1368,7 +1368,7 @@ const VideoSlidePanel = ({
                         type="button"
                         disabled={!onFeedCitySelect}
                         onClick={() => onFeedCitySelect?.(videoCity)}
-                        className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase tracking-wide text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
+                        className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
                         style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
                         title={onFeedCitySelect ? `Voir les vidéos à ${videoCity.name}` : videoCity.name}
                       >
