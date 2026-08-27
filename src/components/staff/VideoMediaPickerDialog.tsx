@@ -1283,7 +1283,7 @@ export function VideoMediaPickerDialog({
     [filtered, sizeOf],
   );
 
-  const PAGE_SIZE = 32;
+  const PAGE_SIZE = 35;
   const [page, setPage] = useState(0);
   useEffect(() => {
     setPage(0);
