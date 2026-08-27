@@ -369,6 +369,13 @@ function Tile({
           </span>
         )}
 
+        {sizeBytes != null && (
+          <span className="absolute top-6 left-1 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold tabular-nums">
+            {fmtSize(sizeBytes)}
+          </span>
+        )}
+
+
         {selected && (
           <span className="absolute top-1 right-1 rounded-full bg-primary text-primary-foreground text-[11px] font-bold w-6 h-6 flex items-center justify-center">
             {badge ?? "✓"}
