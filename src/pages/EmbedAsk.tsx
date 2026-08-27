@@ -627,6 +627,9 @@ const EmbedAsk = () => {
   // Splash d'accueil plateforme : le message d'ouverture occupe tout l'overlay,
   // puis zoom-out vers le haut dès que les suggestions back-office sont prêtes.
   const [splashPhase, setSplashPhase] = useState<"full" | "exit" | "done">("full");
+  /** Accueil IA : n'affiche que 5 chips, le CTA déplie toutes les suggestions. */
+  const [showAllSuggestions, setShowAllSuggestions] = useState(false);
+
 
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
   // Sélection de l'affilié (onglet Agent IA de /affiliates/presence). null = tout activé.
@@ -760,6 +763,8 @@ const EmbedAsk = () => {
     }))
     .filter((s) => s.label);
   const hasUserMessages = messages.some((m) => m.role === "user");
+  /** Option B : accueil IA plein écran (logo + champ central + chips) vs conversation. */
+  const homeState = isPlatform && !hasUserMessages && !streaming && assistantReady && splashPhase === "done";
   const pickFollowupLabel = (f: FollowupRow): string => {
     const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
     return raw.replace(/\{businessName\}/g, businessName || "").trim();
@@ -2082,6 +2087,109 @@ const EmbedAsk = () => {
           </div>
         )}
 
+        {/* Option B : état « accueil IA » — logo, titre, champ central très visible,
+            5 chips de suggestions + CTA pour voir toutes les suggestions. */}
+        {homeState && (
+          <div className="flex flex-col items-center justify-center gap-6 px-1 py-8" style={{ minHeight: "min(100%, 640px)" }}>
+            <div className="flex flex-col items-center gap-3 text-center">
+              <div className="w-16 h-16 rounded-full bg-[#C24B3F] flex items-center justify-center text-white shadow-lg">
+                <Sparkles className="w-8 h-8" />
+              </div>
+              <h2
+                className={`font-bold leading-snug ${whiteInk}`}
+                style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(18px, 2.6vw, 26px)" }}
+              >
+                {headerTitle || L.platformTitle}
+              </h2>
+              <p className={`text-sm max-w-[34ch] ${whiteInk || "opacity-70"}`} style={{ opacity: 0.8 }}>
+                {L.platformOpener().replace(/\*\*/g, "")}
+              </p>
+            </div>
+
+            <form
+              onSubmit={(e) => { e.preventDefault(); send(); }}
+              className="w-full max-w-xl"
+            >
+              <div className={`flex items-end gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-3 shadow-2xl`}>
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+                  rows={2}
+                  placeholder={L.placeholder}
+                  disabled={streaming || !assistantReady}
+                  className={`flex-1 resize-none bg-transparent outline-none text-base leading-snug max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white/70"}`}
+                />
+                <button
+                  type="button"
+                  onClick={voice.toggleRecording}
+                  aria-label={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
+                  title={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
+                  className={`w-12 h-12 rounded-full text-white flex items-center justify-center shrink-0 shadow-lg transition-colors ${
+                    voice.status === "recording" ? "bg-red-500 animate-pulse" : "bg-[#194CFF] hover:bg-[#194CFF]/90"
+                  }`}
+                >
+                  {voice.status === "processing" ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : voice.status === "recording" ? (
+                    <MicOff className="w-5 h-5" />
+                  ) : (
+                    <Mic className="w-5 h-5" />
+                  )}
+                </button>
+                <button
+                  type="submit"
+                  disabled={streaming || !input.trim() || !assistantReady}
+                  aria-label="Send"
+                  className="w-12 h-12 rounded-full bg-[#C24B3F] text-white flex items-center justify-center disabled:opacity-40 shrink-0 shadow-lg"
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+              </div>
+            </form>
+
+            <div className="w-full max-w-xl flex flex-wrap items-center justify-center gap-2">
+              {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 5)).map((s) => {
+                const label = s.label;
+                const isYoutubePage = s.id === YOUTUBE_PAGE_SUGGESTION_ID || /youtube/i.test(label);
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => { if (isYoutubePage) { setYoutubeOpen(true); return; } send(label, s.id); }}
+                    className={`text-[13px] px-4 py-2 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
+                    style={{ ...chipStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+
+              {visibleSuggestions.length > 5 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllSuggestions((v) => !v)}
+                  className={`text-[13px] px-4 py-2 rounded-full border ${border} underline underline-offset-2 ${whiteInk}`}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                >
+                  {showAllSuggestions
+                    ? (lang === "en" ? "Show less" : lang === "ar" ? "عرض أقل" : "Voir moins")
+                    : (lang === "en" ? `See all suggestions (${visibleSuggestions.length})` : lang === "ar" ? `كل الاقتراحات (${visibleSuggestions.length})` : `Voir toutes les suggestions (${visibleSuggestions.length})`)}
+                </button>
+              )}
+
+              {isPlatform && dbSuggestions === null && visibleSuggestions.length === 0 && (
+                <span className={`inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full ${chipBg}`} style={chipStyle}>
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  {lang === "en" ? "Loading suggestions…" : lang === "ar" ? "جارٍ تحميل الاقتراحات…" : "Chargement des suggestions…"}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+
         {(() => {
           // Sticky pill : reprend la dernière question de l'utilisateur pour rester
           // visible en haut à droite pendant qu'on lit la réponse / la relance.
@@ -2107,7 +2215,7 @@ const EmbedAsk = () => {
             </div>
           );
         })()}
-        {messages.map((m, i) => {
+        {!homeState && messages.map((m, i) => {
           if (m.role === "user") {
             return (
               <div key={m.id || i} className="flex justify-end">
@@ -2671,7 +2779,7 @@ const EmbedAsk = () => {
           </div>
         )}
 
-        {!hasUserMessages && !streaming && assistantReady && (
+        {!homeState && !hasUserMessages && !streaming && assistantReady && (
           <div className="flex flex-wrap gap-2 pt-1">
             {visibleSuggestions.map((s) => {
               const label = s.label;
@@ -2770,7 +2878,7 @@ const EmbedAsk = () => {
         onFinish={() => voice.finishRecording()}
       />
 
-      <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`relative p-3 border-t ${border} ${bg}`}>
+      <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`relative p-3 border-t ${border} ${bg} ${homeState ? "hidden" : ""}`}>
         {messages.length > 1 && !streaming && !competitorGuardActive && (
           <>
             {/* Ligne des 4 actions rapides au-dessus du composer */}
