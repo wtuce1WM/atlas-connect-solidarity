@@ -81,6 +81,7 @@ const FrontDemoCardsPanel = ({
 
   return (
     <div
+      data-front-demo-panel
       className="absolute left-0 top-0 bottom-0 z-30 hidden w-1/2 flex-col bg-white shadow-[8px_0_40px_rgba(0,0,0,0.35)] md:flex"
       style={{ animation: "owmFrontCardsSlideIn 420ms cubic-bezier(.22,1,.36,1) both" }}
       onClick={(e) => e.stopPropagation()}
