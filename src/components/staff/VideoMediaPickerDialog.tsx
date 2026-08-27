@@ -412,11 +412,60 @@ function Tile({
       )}
 
 
-      {item.title && (
-        <p className="mt-1 text-[10px] text-muted-foreground truncate" title={item.title}>
-          {item.title}
-        </p>
+      {onRename ? (
+        editing ? (
+          <div className="mt-1 flex items-center gap-1">
+            <Input
+              value={draft}
+              autoFocus
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void commitRename();
+                }
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  setEditing(false);
+                }
+              }}
+              className="h-7 text-[11px]"
+              placeholder="Nom du fichier"
+            />
+            <Button
+              type="button"
+              size="icon"
+              variant="secondary"
+              className="h-7 w-7 shrink-0"
+              onClick={() => void commitRename()}
+              aria-label="Enregistrer le nom"
+            >
+              <Check className="h-3 w-3" />
+            </Button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setDraft(item.title ?? "");
+              setEditing(true);
+            }}
+            title="Renommer le fichier"
+            className="mt-1 flex w-full min-w-0 items-center gap-1 text-left text-[10px] text-muted-foreground hover:text-foreground"
+          >
+            <Pencil className="h-2.5 w-2.5 shrink-0" />
+            <span className="truncate">{item.title || "Sans nom"}</span>
+          </button>
+        )
+      ) : (
+        item.title && (
+          <p className="mt-1 text-[10px] text-muted-foreground truncate" title={item.title}>
+            {item.title}
+          </p>
+        )
       )}
+
 
       {item.ownerName && (
         <p className="text-[10px] font-semibold truncate" title={item.ownerName}>
