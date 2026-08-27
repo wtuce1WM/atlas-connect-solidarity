@@ -20,6 +20,11 @@ function norm(v: unknown): string {
     .trim();
 }
 
+/** Dé-pluralise grossièrement (exporté : sert aux comparaisons badge ↔ cible résolue). */
+export function badgeLabelKey(v: string): string {
+  return depluralize(v);
+}
+
 /** Dé-pluralise grossièrement chaque mot (« complexes hôteliers » ⇢ « complexe hotelier »). */
 function depluralize(v: string): string {
   return norm(v)
