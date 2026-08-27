@@ -234,7 +234,22 @@ function resultsContext(list: any[], lang: Lang): string {
   return list.map((b, i) => {
     const hook = lang === "en" ? b.hook_en : lang === "ar" ? b.hook_ar : b.hook_fr;
     const rating = b.computed_rating || b.google_rating || b.tripadvisor_rating;
-    return `${i + 1}. ${b.name} — ${b.main_category || ""} ${b.neighborhood || b.city || ""}${rating ? ` — note ${rating}` : ""}${hook ? ` — ${String(hook).slice(0, 160)}` : ""}`;
+    const reviews = b.google_review_count || b.tripadvisor_review_count || null;
+    const standing = b.standing || b.stars || null;
+    // Prix : donnée partielle (hôtellerie surtout) — on ne l'affiche que si elle existe.
+    const price = b.min_price
+      ? `à partir de ${b.min_price}`
+      : b.manual_price_range
+        ? String(b.manual_price_range)
+        : "";
+    const bits = [
+      `${b.main_category || ""} ${b.neighborhood || b.city || ""}`.trim(),
+      standing ? `standing ${standing}` : "",
+      rating ? `note ${rating}${reviews ? ` (${reviews} avis)` : ""}` : "",
+      price ? `prix ${price}` : "",
+      hook ? String(hook).slice(0, 160) : "",
+    ].filter(Boolean);
+    return `${i + 1}. ${b.name} — ${bits.join(" — ")}`;
   }).join("\n");
 }
 
@@ -1883,6 +1898,9 @@ Deno.serve(async (req) => {
         }
 
 
+        // Question comparative : plusieurs adresses à mettre en regard.
+        const comparativeMode = (results.length >= 4) || (!results.length && priorFull.length >= 4);
+
         // Contexte éditorial partagé (TXT IA + popups d'images + offres) — même
         // module que /search et /club pour éviter toute divergence de richesse.
         let editorialCtx = "";
@@ -1897,10 +1915,13 @@ Deno.serve(async (req) => {
             if (host?.id) nameById[String(host.id)] = host.name || "";
             for (const b of results as any[]) if (b?.id) nameById[String(b.id)] = b.name || "";
             for (const b of priorFull as any[]) if (b?.id) nameById[String(b.id)] = b.name || "";
+            // Mode comparatif (≥4 adresses) : on triple le contexte éditorial pour
+            // permettre des réponses détaillées et comparatives.
             const bundle = await loadEditorialBundle(admin, {
               businessIds: [...new Set(editorialIds)],
-              perBusiness: 5,
-              limit: 12,
+              perBusiness: comparativeMode ? 8 : 5,
+              limit: comparativeMode ? 60 : 12,
+              maxChars: comparativeMode ? 1400 : 600,
               lang,
             });
             editorialCtx = formatEditorialBundle(bundle, nameById);
@@ -1921,7 +1942,7 @@ Deno.serve(async (req) => {
             ? `Résultats trouvés (${results.length} sur ${totalFound}) — ce sont les seules adresses à présenter, présente-les toutes :\n${resultsContext(results, lang)}`
             : "",
           editorialCtx
-            ? `CONTEXTE ÉDITORIAL ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [SERVICE] services, [OFFRE] offres et promotions, [TXT IA] textes rédigés par l'établissement/affilié ; intègre-les naturellement, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n${editorialCtx}`
+            ? `CONTEXTE ÉDITORIAL ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [SERVICE] services, [OFFRE] offres et promotions, [VIDÉO] titres et textes des vidéos liées, [TXT IA] textes rédigés par l'établissement/affilié ; intègre-les naturellement, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n${editorialCtx}`
             : "",
           !results.length && priorFull.length
             ? `${contextualFollowUp ? `RELANCE CONTEXTUELLE — la question affine la sélection précédente. Le corpus ci-dessous contient la TOTALITÉ des ${priorFull.length} adresses trouvées au tour précédent (pas seulement celles affichées) : filtre dedans et présente toutes celles qui correspondent, sans proposer aucune adresse extérieure et sans lancer de nouvelle recherche.\n` : ""}Corpus des résultats trouvés dans la conversation :\n${resultsContext(priorFull as any[], lang)}`
@@ -1937,7 +1958,9 @@ ${results.length
   : "Termine par une seule question de relance courte, ancrée uniquement dans le contexte fourni (une précision, une alternative ou une étape suivante concrète : réserver, horaires, proximité). Deux options maximum dans la question, jamais d'invention."}
 
 ${contextualFollowUp ? "Cette réponse est une relance contextuelle : appuie-toi à fond sur le CONTEXTE ÉDITORIAL (services, offres, textes de photos, description) pour détailler concrètement ce que l'on peut faire dans chaque établissement déjà présenté (activités, piscine, repas, expériences), sans rien inventer.\n" : ""}
-Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}, ${contextualFollowUp ? "220" : "120"} mots maximum (relance incluse), sans liste brute si tu peux faire des phrases.`;
+Les faits chiffrés (capacité, âges, équipements, prix, notes) doivent provenir UNIQUEMENT du contexte fourni. La donnée de prix n'est disponible que sur une partie du catalogue (essentiellement l'hôtellerie, ~60 %) : ne mentionne un prix que s'il figure explicitement dans le contexte, et ne dis jamais qu'un établissement est plus/moins cher quand le prix est absent.
+${comparativeMode ? `Question comparative : structure ta réponse en un court paragraphe d'intro, puis une ligne par établissement (nom en gras + 1-2 phrases concrètes appuyées sur le contexte éditorial), puis un tableau markdown de synthèse (colonnes utiles uniquement, ex. Établissement | Quartier | Points forts | Prix si connu).
+` : ""}Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}, ${comparativeMode ? "450" : contextualFollowUp ? "220" : "120"} mots maximum (relance incluse)${comparativeMode ? "" : ", sans liste brute si tu peux faire des phrases"}.`;
 
         const history = uiMessages
           .filter((m: any) => m?.role === "user" || m?.role === "assistant")
