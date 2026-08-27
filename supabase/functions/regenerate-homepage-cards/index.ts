@@ -209,7 +209,8 @@ async function buildSnapshot(supabase: any, city: string) {
     const label =
       t.kind === "entry"
         ? t.label
-        : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" + ") || null;
+        : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" + ") || t.label;
+
     const primaryBadgeId = assigned[0] || null;
     const target = t.kind === "extra" && primaryBadgeId ? { type: "badge", id: primaryBadgeId } : null;
 
