@@ -82,9 +82,9 @@ export async function resolveVideoByBadges(
   for (const badgeId of badgeIds) {
     const { data } = await (supabase as any)
       .from("generic_video_badges")
-      .select("video_id, generic_video_id")
+      .select("generic_video_id")
       .eq("badge_id", badgeId);
-    const ids = ((data as any[]) || []).map((r) => (r.generic_video_id || r.video_id) as string).filter(Boolean);
+    const ids = ((data as any[]) || []).map((r) => r.generic_video_id as string).filter(Boolean);
     if (genIds === null) genIds = ids;
     else genIds = intersect(genIds, new Set(ids));
     if (genIds.length === 0) break;
