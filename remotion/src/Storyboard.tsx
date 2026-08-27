@@ -949,9 +949,10 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
 
   /**
    * Répartition des clips : quand des bornes (start/end) sont définies, chaque
-   * clip occupe exactement sa durée utile (end - start) au lieu d'une part
-   * égale — sinon un clip court laissait du noir dans son créneau.
-   * Si la somme dépasse la durée de la section, tout est réduit au prorata.
+   * clip occupe sa durée utile (end - start) au lieu d'une part égale — sinon un
+   * clip court laissait du noir dans son créneau. La somme est ensuite ramenée
+   * à la durée exacte de la section, à la hausse comme à la baisse : sans ça,
+   * des clips plus courts que la section laissaient un trou noir à la fin.
    */
   const slots = React.useMemo(() => {
     const n = clips.length;
@@ -964,19 +965,37 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
       return e > s ? Math.max(1, Math.round((e - s) * fps)) : equal;
     });
     const total = weights.reduce((a, b) => a + b, 0);
-    const scale = total > durationInFrames ? durationInFrames / total : 1;
+    const scale = total > 0 ? durationInFrames / total : 1;
     const acc: { from: number; frames: number }[] = [];
     let cursor = 0;
     weights.forEach((w, i) => {
       const isLast = i === n - 1;
       let frames = Math.max(1, Math.round(w * scale));
       if (cursor + frames > durationInFrames) frames = Math.max(1, durationInFrames - cursor);
-      if (isLast && scale < 1) frames = Math.max(1, durationInFrames - cursor);
+      // Le dernier clip absorbe l'arrondi : la section est toujours couverte
+      // intégralement (aucune seconde noire en fin de scène).
+      if (isLast) frames = Math.max(1, durationInFrames - cursor);
       acc.push({ from: cursor, frames });
       cursor += frames;
     });
     return acc;
   }, [clips, trims, durationInFrames, fps]);
+
+  /** Quand les clips sont plus courts que la section, on relâche les bornes de
+   * fin (endAt) : mieux vaut lire un peu au-delà du trim que du noir. */
+  const relaxEnd = React.useMemo(() => {
+    const n = clips.length;
+    if (n === 0) return false;
+    const equal = Math.max(1, Math.floor(durationInFrames / n));
+    const total = clips.reduce((sum, raw) => {
+      const t = trims[raw] ?? {};
+      const s = t.start && t.start > 0 ? t.start : 0;
+      const e = t.end && t.end > s ? t.end : 0;
+      return sum + (e > s ? Math.max(1, Math.round((e - s) * fps)) : equal);
+    }, 0);
+    return total < durationInFrames;
+  }, [clips, trims, durationInFrames, fps]);
+
 
   return (
     <SceneBackdrop>
