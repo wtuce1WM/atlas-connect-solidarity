@@ -452,7 +452,7 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
     <div className="space-y-4">
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={order} strategy={rectSortingStrategy}>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {order.map((key) => {
               const card = cardsByKey.get(key);
               if (!card) return null;
@@ -463,58 +463,94 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
                 : allBadges;
               return (
                 <SortableCell key={key} id={key}>
-                  <div className="flex items-center justify-between gap-1">
-                    <p
-                      className={`text-xs font-semibold uppercase tracking-wider line-clamp-1 ${
-                        card.kind === "entry" ? "text-muted-foreground" : "text-primary"
-                      }`}
-                    >
-                      {card.label}
-                    </p>
-                    {card.kind === "extra" && (
-                      <button type="button" onClick={() => deleteExtraCard(card.id)} title="Supprimer cette carte">
-                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                      </button>
-                    )}
-                  </div>
-                  {renderThumbBox(card)}
-                  <div>
-                    <label className="text-[9px] text-muted-foreground">
-                      Badges {assigned.length > 0 && <span className="text-primary">({assigned.length} — ET)</span>}
-                    </label>
-                    <Input
-                      value={badgeFilter[key] || ""}
-                      onChange={(e) => setBadgeFilter((p) => ({ ...p, [key]: e.target.value }))}
-                      placeholder="Filtrer les badges…"
-                      className="h-5 px-1 text-[9px] mb-1"
-                    />
-                    <div className="max-h-32 overflow-auto border rounded-md bg-background divide-y">
-                      {visibleBadges.map((b) => {
-                        const on = assigned.includes(b.id);
-                        return (
-                          <button
-                            key={b.id}
-                            type="button"
-                            onClick={() => toggleBadge(card, b.id)}
-                            className={`w-full text-left px-1.5 py-0.5 text-[9px] truncate hover:bg-accent ${
-                              on ? "bg-primary/15 text-primary font-semibold" : ""
-                            }`}
-                          >
-                            {on ? "✓ " : ""}
-                            {b.name_fr}
-                          </button>
-                        );
-                      })}
-                      {visibleBadges.length === 0 && (
-                        <div className="px-1.5 py-1 text-[9px] text-muted-foreground">Aucun badge</div>
+                  <div className="rounded-xl border bg-card p-3 space-y-3">
+                    <div className="flex items-center justify-between gap-2 pl-6">
+                      <p
+                        className={`text-base font-bold uppercase tracking-wide line-clamp-1 ${
+                          card.kind === "entry" ? "text-foreground" : "text-primary"
+                        }`}
+                      >
+                        {card.label}
+                      </p>
+                      {card.kind === "extra" && (
+                        <button
+                          type="button"
+                          onClick={() => deleteExtraCard(card.id)}
+                          title="Supprimer cette carte"
+                          className="shrink-0"
+                        >
+                          <X className="h-5 w-5 text-muted-foreground hover:text-destructive" />
+                        </button>
                       )}
                     </div>
-                  </div>
-                  <div>
-                    <label className="text-[9px] text-muted-foreground">
-                      Image forcée {card.imageUrl && <span className="text-primary">(prioritaire)</span>}
-                    </label>
-                    <div className="flex items-center gap-1">
+
+                    <div className="flex gap-3">
+                      <div className="w-[38%] shrink-0">{renderThumbBox(card)}</div>
+
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <div className="text-sm font-semibold">
+                          Badges{" "}
+                          {assigned.length > 0 && (
+                            <span className="text-primary">({assigned.length} — cumul ET)</span>
+                          )}
+                        </div>
+                        {assigned.length > 0 ? (
+                          <div className="flex flex-wrap gap-1.5">
+                            {assigned.map((id) => {
+                              const b = allBadges.find((x) => x.id === id);
+                              if (!b) return null;
+                              return (
+                                <button
+                                  key={id}
+                                  type="button"
+                                  onClick={() => toggleBadge(card, id)}
+                                  title="Retirer ce badge"
+                                  className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-2.5 py-1 text-sm font-semibold"
+                                >
+                                  {b.name_fr}
+                                  <X className="h-3.5 w-3.5" />
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">Aucun badge affecté</p>
+                        )}
+
+                        <Input
+                          value={badgeFilter[key] || ""}
+                          onChange={(e) => setBadgeFilter((p) => ({ ...p, [key]: e.target.value }))}
+                          placeholder="Rechercher un badge…"
+                          className="h-9 text-sm"
+                        />
+                        <div className="max-h-56 overflow-auto border rounded-md bg-background divide-y">
+                          {visibleBadges.map((b) => {
+                            const on = assigned.includes(b.id);
+                            return (
+                              <button
+                                key={b.id}
+                                type="button"
+                                onClick={() => toggleBadge(card, b.id)}
+                                className={`w-full text-left px-2.5 py-2 text-sm truncate hover:bg-accent ${
+                                  on ? "bg-primary/20 text-primary font-bold" : ""
+                                }`}
+                              >
+                                {on ? "✓ " : ""}
+                                {b.name_fr}
+                              </button>
+                            );
+                          })}
+                          {visibleBadges.length === 0 && (
+                            <div className="px-2.5 py-2 text-sm text-muted-foreground">Aucun badge</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm text-muted-foreground shrink-0">
+                        Image forcée {card.imageUrl && <span className="text-primary font-semibold">(active)</span>}
+                      </label>
                       <input
                         type="file"
                         accept="image/*"
@@ -524,7 +560,7 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
                           await uploadImage(card, file);
                           e.target.value = "";
                         }}
-                        className="h-5 text-[9px] flex-1"
+                        className="text-xs flex-1 min-w-0"
                       />
                       {card.imageUrl && (
                         <button
@@ -535,7 +571,7 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
                           }
                           title="Retirer l'image"
                         >
-                          <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+                          <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                         </button>
                       )}
                     </div>
@@ -544,6 +580,7 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
               );
             })}
           </div>
+
         </SortableContext>
       </DndContext>
 
