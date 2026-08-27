@@ -53,7 +53,7 @@ interface CardPreview {
   imageUrl: string | null;
 }
 
-const HomepageFrontStructurePreview = ({ city }: Props) => {
+const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
   const [cards, setCards] = useState<CardPreview[]>([]);
   const [order, setOrder] = useState<string[]>([]);
   const [badgesByCard, setBadgesByCard] = useState<Record<string, string[]>>({});
