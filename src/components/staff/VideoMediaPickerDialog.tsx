@@ -166,9 +166,11 @@ function Tile({
   badge,
   expectedOrientation,
   gridCell = false,
+  sizeBytes,
   onSelect,
   onDelete,
   onOrientation,
+  onRename,
 }: {
   item: PickerMedia;
   selected: boolean;
@@ -176,13 +178,19 @@ function Tile({
   expectedOrientation?: "landscape" | "portrait";
   /** true = la tuile remplit une cellule de grille (4 colonnes) au lieu de son ratio natif. */
   gridCell?: boolean;
+  /** Poids réel du fichier dans le stockage (octets), si connu. */
+  sizeBytes?: number | null;
   onSelect: () => void;
   onDelete?: () => void;
   onOrientation?: (o: "landscape" | "portrait" | "square") => void;
+  /** Renommage du média en base (titre / nom du fichier). */
+  onRename?: (title: string) => Promise<void> | void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [full, setFull] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(item.title ?? "");
   const [orientation, setOrientation] = useState<"landscape" | "portrait" | "square" | null>(
     item.orientation ?? null,
   );
@@ -190,6 +198,17 @@ function Tile({
     item.orientation === "portrait" ? 9 / 16 : item.orientation === "square" ? 1 : 16 / 9,
   );
   const [duration, setDuration] = useState<number | null>(item.duration ?? null);
+
+  const commitRename = async () => {
+    const next = draft.trim();
+    if (!onRename || next === (item.title ?? "").trim()) {
+      setEditing(false);
+      return;
+    }
+    await onRename(next);
+    setEditing(false);
+  };
+
 
   const isVideoTile = item.kind === "video";
   // En grille (4 colonnes) la tuile remplit sa cellule ; sinon ratio natif demi-taille.
