@@ -1023,7 +1023,7 @@ const VideoSlidePanel = ({
             toolbarLeftId="slide-panel-home-toolbar-left"
             toolbarCenterId="slide-panel-home-toolbar-center"
             toolbarRightId="slide-panel-home-toolbar-right"
-            closeButtonContainerClassName={shouldShowOwnerLogoInHeader && ctaBusiness ? "md:ml-10" : ""}
+            closeButtonContainerClassName={!feedLayout && shouldShowOwnerLogoInHeader && ctaBusiness ? "md:ml-10" : ""}
           />
         )}
         {/* Center header CTA : Tel / WhatsApp (identique à BookOnlineSlidePanel) */}
