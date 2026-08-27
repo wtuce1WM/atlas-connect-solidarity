@@ -5052,7 +5052,7 @@ const BookOnlineSlidePanelInner = ({
           {/* Fond assombri : le média reste visible derrière l'assistant (iframe transparente) */}
           {aiAssistantOpen && (
             <div
-              className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
+              className="absolute inset-0 bg-black/85 backdrop-blur-[6px]"
               onClick={() => setAiAssistantOpen(false)}
               aria-hidden="true"
             />
