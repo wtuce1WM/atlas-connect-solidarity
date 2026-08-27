@@ -266,6 +266,8 @@ const Front = () => {
   const [demoList, setDemoList] = useState<any[]>([]);
   const [demoCtx, setDemoCtx] = useState<DiscoveryFeedContext | null>(null);
   const [demoActiveId, setDemoActiveId] = useState<string | null>(null);
+  /** Viewer fermé mais panneau blanc conservé en pleine largeur. */
+  const [demoCardsOnly, setDemoCardsOnly] = useState(false);
   const [demoTime, setDemoTime] = useState(0);
   const [demoBadgeId, setDemoBadgeId] = useState<string | null>(null);
   const demoLoadingMoreRef = useRef(false);
@@ -387,8 +389,6 @@ const Front = () => {
 
   /** Clic sur une carte du panneau gauche → feed correspondant (sans filtre ville). */
   const [demoCardKey, setDemoCardKey] = useState<string | null>(null);
-  /** Viewer fermé mais panneau blanc conservé en pleine largeur. */
-  const [demoCardsOnly, setDemoCardsOnly] = useState(false);
   const selectDemoCard = useCallback(async (card: FrontDemoCard) => {
     const { fetchDiscoveryVideoFeedForCard } = await import("@/lib/badgeVideoFeed");
     const { items, ctx: nextCtx } = await fetchDiscoveryVideoFeedForCard(
