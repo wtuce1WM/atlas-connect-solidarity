@@ -415,7 +415,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const appleDirFlag = directionsMode === "walking" ? "w" : "d";
 
   return (
-    <div className="absolute inset-0 z-[100] bg-white flex flex-col">
+    <div className="absolute inset-0 z-[100] bg-white flex flex-col animate-in slide-in-from-bottom duration-200">
       <div className="shrink-0 flex items-center px-4 py-2 border-b bg-white">
         <button
           onClick={onClose}
