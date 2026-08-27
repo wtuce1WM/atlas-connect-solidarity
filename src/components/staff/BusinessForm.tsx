@@ -4179,17 +4179,21 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="telegram_top" className="flex items-center gap-2">
-                <span className="text-[#26A5E4] font-bold text-sm">✈</span>
-                Telegram
+              <Label htmlFor="default_poi_is_master_top" className="flex items-center gap-2">
+                📍 POI master
               </Label>
-              <Input
-                id="telegram_top"
-                value={(formData as any).telegram || ""}
-                onChange={(e) => handleChange("telegram", e.target.value)}
-                placeholder=""
-              />
+              <div className="flex items-center gap-3 h-10">
+                <Switch
+                  id="default_poi_is_master_top"
+                  checked={!!(formData as any).default_poi_is_master}
+                  onCheckedChange={(v) => handleChange("default_poi_is_master" as any, v as any)}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {(formData as any).default_poi_is_master ? "Actif" : "Inactif"}
+                </span>
+              </div>
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="skype_top" className="flex items-center gap-2">
                 <SkypeIcon className="text-[#00AFF0]" />
