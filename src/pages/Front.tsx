@@ -1226,7 +1226,19 @@ const Front = () => {
         </button>
       </div>
 
+      {/* Panneau blanc gauche (desktop) : cartes du snapshot homepage */}
+      {demoActiveId && (
+        <Suspense fallback={null}>
+          <FrontDemoCardsPanel
+            open
+            activeCardKey={demoCardKey}
+            onSelectCard={(card) => { void selectDemoCard(card); }}
+          />
+        </Suspense>
+      )}
+
       {demoActiveId && (() => {
+
         const active = demoList.find((v) => v.id === demoActiveId) || null;
         if (!active) return null;
         return (
