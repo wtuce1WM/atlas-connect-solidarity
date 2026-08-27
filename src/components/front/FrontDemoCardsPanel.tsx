@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Play } from "lucide-react";
+import { Play, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import { translateVignetteLabel } from "@/lib/vignetteLabels";
@@ -28,10 +28,16 @@ const FrontDemoCardsPanel = ({
   open,
   onSelectCard,
   activeCardKey,
+  fullWidth = false,
+  onClose,
 }: {
   open: boolean;
   onSelectCard: (card: FrontDemoCard) => void;
   activeCardKey?: string | null;
+  /** Panneau étendu à 100% de la largeur (viewer fermé) */
+  fullWidth?: boolean;
+  /** Fermeture du panneau (retour à /front) */
+  onClose?: () => void;
 }) => {
   const { language } = useLanguage();
   const [cards, setCards] = useState<FrontDemoCard[]>([]);
@@ -79,10 +85,16 @@ const FrontDemoCardsPanel = ({
 
   if (!open) return null;
 
+  const gridClass = fullWidth
+    ? "grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+    : "grid grid-cols-2 gap-3 lg:grid-cols-3";
+
   return (
     <div
       data-front-demo-panel
-      className="absolute left-0 top-0 bottom-0 z-30 hidden w-1/2 flex-col bg-white shadow-[8px_0_40px_rgba(0,0,0,0.35)] md:flex"
+      className={`absolute left-0 top-0 bottom-0 z-30 flex flex-col bg-white transition-[width] duration-500 ${
+        fullWidth ? "w-full" : "hidden w-1/2 shadow-[8px_0_40px_rgba(0,0,0,0.35)] md:flex"
+      }`}
       style={{ animation: "owmFrontCardsSlideIn 420ms cubic-bezier(.22,1,.36,1) both" }}
       onClick={(e) => e.stopPropagation()}
     >
@@ -93,15 +105,26 @@ const FrontDemoCardsPanel = ({
         }
       `}</style>
 
+      {fullWidth && onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Fermer"
+          className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-black text-white shadow-lg"
+        >
+          <X className="h-6 w-6" />
+        </button>
+      )}
+
       <div className="flex-1 overflow-y-auto px-5 py-6">
         {loading ? (
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+          <div className={gridClass}>
             {Array.from({ length: 9 }).map((_, i) => (
               <div key={i} className="aspect-[9/16] animate-pulse rounded-lg bg-black/5" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+          <div className={gridClass}>
             {cards.map((c) => {
               const thumb = optimizeSupabaseImage(c.thumbnail, { width: 400 }) || c.thumbnail;
               const isActive = activeCardKey === c.key;

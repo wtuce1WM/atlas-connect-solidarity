@@ -266,6 +266,8 @@ const Front = () => {
   const [demoList, setDemoList] = useState<any[]>([]);
   const [demoCtx, setDemoCtx] = useState<DiscoveryFeedContext | null>(null);
   const [demoActiveId, setDemoActiveId] = useState<string | null>(null);
+  /** Viewer fermé mais panneau blanc conservé en pleine largeur. */
+  const [demoCardsOnly, setDemoCardsOnly] = useState(false);
   const [demoTime, setDemoTime] = useState(0);
   const [demoBadgeId, setDemoBadgeId] = useState<string | null>(null);
   const demoLoadingMoreRef = useRef(false);
@@ -277,12 +279,12 @@ const Front = () => {
   useEffect(() => {
     const video = backgroundVideoRef.current;
     if (!video) return;
-    if (demoIntro || demoActiveId) {
+    if (demoIntro || demoActiveId || demoCardsOnly) {
       video.pause();
     } else {
       void video.play().catch(() => undefined);
     }
-  }, [demoIntro, demoActiveId, isPortrait]);
+  }, [demoIntro, demoActiveId, demoCardsOnly, isPortrait]);
 
   const toPanelVideo = (v: BadgeVideoFeedItem) => ({
     id: v.id,
@@ -1227,12 +1229,15 @@ const Front = () => {
         </button>
       </div>
 
-      {/* Panneau blanc gauche (desktop) : cartes du snapshot homepage */}
-      {demoActiveId && (
+      {/* Panneau blanc gauche (desktop) : cartes du snapshot homepage.
+          Reste ouvert en pleine largeur quand le viewer est fermé. */}
+      {(demoActiveId || demoCardsOnly) && (
         <Suspense fallback={null}>
           <FrontDemoCardsPanel
             open
             activeCardKey={demoCardKey}
+            fullWidth={!demoActiveId && demoCardsOnly}
+            onClose={() => { setDemoCardsOnly(false); setDemoIntro(false); setDemoCardKey(null); }}
             onSelectCard={(card) => { void selectDemoCard(card); }}
           />
         </Suspense>
@@ -1246,7 +1251,7 @@ const Front = () => {
           <Suspense fallback={null}>
             <HomeVideoSlidePanel
               open
-              onClose={() => { setDemoActiveId(null); setDemoIntro(false); setDemoCardKey(null); }}
+              onClose={() => { setDemoActiveId(null); setDemoCardsOnly(true); }}
               activeVideo={active as any}
               activeList={demoList as any}
               onActiveVideoChange={(v: any) => { setDemoActiveId(v.id); setDemoTime(0); void maybeLoadMoreDemo(String(v.id)); }}
