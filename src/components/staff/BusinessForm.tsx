@@ -2342,6 +2342,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       tiktok_url: formData.tiktok_url || null,
       whatsapp: formData.whatsapp || null,
       telegram: (formData as any).telegram || null,
+      default_poi_is_master: (formData as any).default_poi_is_master ?? false,
       tripadvisor_url: formData.tripadvisor_url || null,
       booking_url: formData.booking_url || null,
       account_type: formData.account_type || null,
