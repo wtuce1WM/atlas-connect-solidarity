@@ -1306,6 +1306,7 @@ Deno.serve(async (req) => {
               badge: namedBadge.name, city: scopeCity, found: badgeBizIds.length,
             }));
             if (badgeBizIds.length >= 3) {
+              let earlyEmitted = false;
               const built = await buildPinnedAnswer(
                 admin, badgeBizIds, host, lang, namedBadge.name,
                 {
@@ -1314,6 +1315,15 @@ Deno.serve(async (req) => {
                   maxCards: 30,
                   poolIds: badgeBizIds,
                   immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY },
+                  // Cartes + en-tête tout de suite : le texte immersif suit dans le flux.
+                  onCards: ({ heading, knownBusinesses, mapPayload }) => {
+                    earlyEmitted = true;
+                    emit(heading);
+                    if (mapPayload?.businesses?.length) {
+                      emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(mapPayload)}-->`);
+                    }
+                    emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(knownBusinesses)}-->`);
+                  },
                 },
               ).catch((e) => {
                 console.error("[embed-ai-chat-v2] badge_named_cards_failed", String(e));
@@ -1322,16 +1332,19 @@ Deno.serve(async (req) => {
               if (built) {
                 route = built.route;
                 resultsCount = built.shown;
-                emit(built.text);
-                if (built.mapPayload?.businesses?.length) {
-                  emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
+                emit(built.text.startsWith("\n") ? built.text : `\n\n${built.text}`);
+                if (!earlyEmitted) {
+                  if (built.mapPayload?.businesses?.length) {
+                    emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
+                  }
+                  emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
                 }
-                emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
                 emit("\n\n" + await poolMarker(admin, badgeBizIds, scopeCity));
                 await emitDestChips(badgeBizIds);
                 await finish(true);
                 return;
               }
+
             }
           }
         }
