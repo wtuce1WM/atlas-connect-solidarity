@@ -1763,13 +1763,16 @@ export function VideoMediaPickerDialog({
                     badge={multiple ? value.indexOf(m.url) + 1 || null : null}
                     expectedOrientation={format}
                     gridCell={gridCell}
+                    sizeBytes={sizeOf(m.url)}
                     onSelect={() => toggle(m)}
                     onDelete={m.source === "library" ? () => void removeFromLibrary(m) : undefined}
+                    onRename={(t) => renameMedia(m, t)}
                     onOrientation={(o) => {
                       noteOrientation(m, o);
                       void setOrientationOnce(m, o);
                     }}
                   />
+
                 );
                 const vids = pageItems.filter((m) => m.kind === "video");
                 const imgs = pageItems.filter((m) => m.kind === "image");
