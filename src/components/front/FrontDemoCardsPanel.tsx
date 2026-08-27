@@ -169,6 +169,15 @@ const FrontDemoCardsPanel = ({
                       </span>
                     </span>
                   )}
+                  {(videoCounts[c.key] ?? 0) > 0 && (
+                    <span className="pointer-events-none absolute inset-x-0 bottom-2 z-[2] flex justify-center px-2">
+                      <span className="rounded-full bg-black/70 px-2.5 py-1 text-center text-[10px] font-semibold text-white shadow">
+                        {language === "en"
+                          ? `Browse ${videoCounts[c.key]} video${videoCounts[c.key] > 1 ? "s" : ""}`
+                          : `Naviguez parmi ${videoCounts[c.key]} vidéo${videoCounts[c.key] > 1 ? "s" : ""}`}
+                      </span>
+                    </span>
+                  )}
                 </button>
               );
             })}
