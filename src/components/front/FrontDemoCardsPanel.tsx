@@ -118,8 +118,13 @@ const FrontDemoCardsPanel = ({
         }
       `}</style>
 
-      {/* Header /front (logo + hamburger) uniquement en mode grille plein écran */}
-      {fullWidth && <FrontHeader fixed visible />}
+      {/* Header /front (logo + hamburger) uniquement en mode grille plein écran.
+          Fond noir opaque pour masquer la grille qui scroll en dessous. */}
+      {fullWidth && (
+        <div className="fixed inset-x-0 top-0 z-50 bg-black">
+          <FrontHeader visible />
+        </div>
+      )}
 
       {/* Croix de fermeture uniquement quand le viewer vidéo est ouvert (panneau 50%).
           En mode pleine largeur (viewer fermé) on reste sur /front, pas de croix. */}
@@ -134,7 +139,7 @@ const FrontDemoCardsPanel = ({
         </button>
       )}
 
-      <div className={`flex-1 overflow-y-auto overscroll-contain px-5 scrollbar-hide ${fullWidth ? "pb-6 pt-24" : "py-6"}`}
+      <div className={`flex-1 overflow-y-auto overscroll-contain px-5 scrollbar-hide ${fullWidth ? "pb-6 pt-[72px] md:pt-20" : "py-6"}`}
         style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch" }}>
         {loading ? (
           <div className={gridClass}>
