@@ -967,12 +967,16 @@ const VideoSlidePanel = ({
   return createPortal(
     <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[220] bg-black h-[100dvh]"
       onClick={(e) => {
-        // LocationPickerDialog est rendu dans un portal Radix (document.body) : DOM-ment
-        // hors de panelRef, ses clics passeraient pour un click-outside et fermeraient
-        // le viewer. On neutralise le click-outside tant qu'il est ouvert.
+        // Les contenus Radix (LocationPickerDialog, DropdownMenu des chips de la
+        // carte POI, etc.) sont rendus dans un portal sur document.body : DOM-ment
+        // hors de panelRef, mais React fait remonter leurs clics jusqu'ici.
+        // On ne ferme donc QUE si le clic vise réellement ce conteneur (zone vide
+        // à côté du panneau), jamais un descendant portalisé.
         if (locationDialogOpen) return;
-        if (panelRef.current && !panelRef.current.contains(e.target as Node)) onClose();
+        if (e.target !== e.currentTarget) return;
+        onClose();
       }}
+
     >
       <div
         ref={panelRef}
