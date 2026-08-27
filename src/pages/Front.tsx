@@ -587,15 +587,21 @@ const Front = () => {
       setTarget(targetRef.current + e.deltaY / 600);
     };
     const onTouchStart = (e: TouchEvent) => {
+      if ((e.target as HTMLElement).closest("[data-front-demo-panel]")) {
+        touchYRef.current = null;
+        return;
+      }
       touchYRef.current = e.touches[0]?.clientY ?? null;
     };
     const onTouchMove = (e: TouchEvent) => {
+      if ((e.target as HTMLElement).closest("[data-front-demo-panel]")) return;
       const y = e.touches[0]?.clientY ?? null;
       if (y === null || touchYRef.current === null) return;
       e.preventDefault();
       setTarget(targetRef.current + (touchYRef.current - y) / 350);
       touchYRef.current = y;
     };
+
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown" || e.key === "PageDown") {
         e.preventDefault();
