@@ -3,6 +3,9 @@ import type { BadgeVideoFeedItem, DiscoveryFeedContext } from "@/lib/badgeVideoF
 
 // Lecteur unifié du feed vidéo (même viewer que la route IA `video_feed`).
 const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
+// Panneau blanc (50% gauche) listant les cartes du snapshot homepage pendant la démo.
+const FrontDemoCardsPanel = lazy(() => import("@/components/front/FrontDemoCardsPanel"));
+type FrontDemoCard = import("@/components/front/FrontDemoCardsPanel").FrontDemoCard;
 
 
 import { Link, useNavigate } from "react-router-dom";
@@ -381,6 +384,26 @@ const Front = () => {
     demoLoadingMoreRef.current = false;
     setDemoActiveId(items[0].id);
   }, [demoCtx]);
+
+  /** Clic sur une carte du panneau gauche → feed correspondant (sans filtre ville). */
+  const [demoCardKey, setDemoCardKey] = useState<string | null>(null);
+  const selectDemoCard = useCallback(async (card: FrontDemoCard) => {
+    const { fetchDiscoveryVideoFeedForCard } = await import("@/lib/badgeVideoFeed");
+    const { items, ctx: nextCtx } = await fetchDiscoveryVideoFeedForCard(
+      { badgeId: card.badgeId, businessId: card.businessId, videoId: card.videoId },
+      60,
+    );
+    if (!items.length) return;
+    setDemoCardKey(card.key);
+    setDemoBadgeId(card.badgeId ?? null);
+    setDemoList(items.map(toPanelVideo));
+    setDemoCtx(nextCtx);
+    setDemoTime(0);
+    demoLoadingMoreRef.current = false;
+    setDemoActiveId(items[0].id);
+  }, []);
+
+
 
   /** Auto-fit du slogan écran 1 : taille max possible dans la hauteur de la section
    *  qui lui est dédiée (1/3 de l'espace entre header et CTA Découvrir). Si 5 lignes
@@ -1203,14 +1226,26 @@ const Front = () => {
         </button>
       </div>
 
+      {/* Panneau blanc gauche (desktop) : cartes du snapshot homepage */}
+      {demoActiveId && (
+        <Suspense fallback={null}>
+          <FrontDemoCardsPanel
+            open
+            activeCardKey={demoCardKey}
+            onSelectCard={(card) => { void selectDemoCard(card); }}
+          />
+        </Suspense>
+      )}
+
       {demoActiveId && (() => {
+
         const active = demoList.find((v) => v.id === demoActiveId) || null;
         if (!active) return null;
         return (
           <Suspense fallback={null}>
             <HomeVideoSlidePanel
               open
-              onClose={() => { setDemoActiveId(null); setDemoIntro(false); }}
+              onClose={() => { setDemoActiveId(null); setDemoIntro(false); setDemoCardKey(null); }}
               activeVideo={active as any}
               activeList={demoList as any}
               onActiveVideoChange={(v: any) => { setDemoActiveId(v.id); setDemoTime(0); void maybeLoadMoreDemo(String(v.id)); }}
