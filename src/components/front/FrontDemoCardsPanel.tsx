@@ -116,7 +116,7 @@ const FrontDemoCardsPanel = ({
         </button>
       )}
 
-      <div className="flex-1 overflow-y-auto px-5 py-6">
+      <div className="flex-1 overflow-y-auto px-5 py-6 scrollbar-hide">
         {loading ? (
           <div className={gridClass}>
             {Array.from({ length: 9 }).map((_, i) => (
