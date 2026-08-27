@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Play, X } from "lucide-react";
+import { Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import { translateVignetteLabel } from "@/lib/vignetteLabels";
@@ -31,15 +31,12 @@ const FrontDemoCardsPanel = ({
   onSelectCard,
   activeCardKey,
   fullWidth = false,
-  onClose,
 }: {
   open: boolean;
   onSelectCard: (card: FrontDemoCard) => void;
   activeCardKey?: string | null;
   /** Panneau étendu à 100% de la largeur (viewer fermé) */
   fullWidth?: boolean;
-  /** Fermeture du panneau (retour à /front) */
-  onClose?: () => void;
 }) => {
   const { language } = useLanguage();
   const [cards, setCards] = useState<FrontDemoCard[]>([]);
@@ -126,18 +123,6 @@ const FrontDemoCardsPanel = ({
         </div>
       )}
 
-      {/* Croix de fermeture uniquement quand le viewer vidéo est ouvert (panneau 50%).
-          En mode pleine largeur (viewer fermé) on reste sur /front, pas de croix. */}
-      {!fullWidth && onClose && (
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Fermer"
-          className="absolute left-4 top-4 z-40 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-lg md:h-11 md:w-11 md:left-auto md:right-4"
-        >
-          <X className="h-5 w-5 md:h-6 md:w-6" />
-        </button>
-      )}
 
       <div className={`flex-1 overflow-y-auto overscroll-contain px-5 scrollbar-hide ${fullWidth ? "pb-6 pt-[72px] md:pt-20" : "py-6"}`}
         style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch" }}>
