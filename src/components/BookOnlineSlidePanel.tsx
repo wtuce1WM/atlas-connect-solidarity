@@ -1718,8 +1718,10 @@ const BookOnlineSlidePanelInner = ({
      Si l'établissement a coché "Marqueur par défaut sur la Map" sur son Lieu
      d'intérêt par défaut, c'est ce POI qui devient le marqueur master. */
   const [poiMasterOverride, setPoiMasterOverride] = useState<any | null>(null);
+  const [isPoiMasterBusiness, setIsPoiMasterBusiness] = useState(false);
   useEffect(() => {
     setPoiMasterOverride(null);
+    setIsPoiMasterBusiness(false);
     if (!businessId) return;
     let cancelled = false;
     (async () => {
@@ -1728,7 +1730,10 @@ const BookOnlineSlidePanelInner = ({
         .select("default_poi_business_id,default_poi_is_master")
         .eq("id", businessId)
         .maybeSingle();
-      if (cancelled || !b?.default_poi_is_master || !b?.default_poi_business_id) return;
+      if (cancelled) return;
+      if (b?.default_poi_is_master) setIsPoiMasterBusiness(true);
+      if (!b?.default_poi_is_master || !b?.default_poi_business_id) return;
+
       const { data: poi } = await (supabase as any)
         .from("businesses")
         .select("id,name,city,neighborhood,latitude,longitude,images,computed_rating,total_review_count")
@@ -3526,7 +3531,7 @@ const BookOnlineSlidePanelInner = ({
                   )}
 
                   {/* Widget Assistant IA du Master — sous les blocs highlights */}
-                  {!descOverlayContent && business?.slug && (
+                  {!descOverlayContent && isPoiMasterBusiness && business?.slug && (
                     <div className="mt-8 pt-6 border-t border-white/10">
                       <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">
                         {language === "en" ? "AI Assistant" : language === "ar" ? "المساعد الذكي" : "Assistant IA"}
