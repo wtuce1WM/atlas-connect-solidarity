@@ -394,46 +394,49 @@ function Tile({
         )}
       </button>
 
-      {full && (
-        <div
-          className="fixed inset-0 z-[120] bg-black/90 flex items-center justify-center p-4"
-          onClick={(e) => {
-            e.stopPropagation();
-            setFull(false);
-          }}
-        >
-          <Button
-            type="button"
-            size="icon"
-            variant="secondary"
-            className="absolute top-4 right-4 h-9 w-9 rounded-full"
-            onClick={(e) => {
-              e.stopPropagation();
-              setFull(false);
-            }}
-            aria-label="Fermer"
+      {full &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[200] bg-black flex items-center justify-center"
+            onClick={() => setFull(false)}
           >
-            <X className="h-4 w-4" />
-          </Button>
-          {item.kind === "video" && isInternalVideoUrl(item.url) ? (
-            <video
-              src={item.url}
-              controls
-              autoPlay
-              playsInline
-              className="max-h-full max-w-full"
-              onClick={(e) => e.stopPropagation()}
-            />
-          ) : (
-            <img
-              src={item.kind === "video" ? item.thumbnail || "" : item.url}
-              alt={item.title || ""}
-              className="max-h-full max-w-full object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
-          )}
-        </div>
-      )}
+            <button
+              type="button"
+              className="absolute top-4 left-4 z-10 h-10 w-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:bg-white/90"
+              onClick={(e) => {
+                e.stopPropagation();
+                setFull(false);
+              }}
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            {item.kind === "video" && isInternalVideoUrl(item.url) ? (
+              <video
+                src={item.url}
+                controls
+                autoPlay
+                playsInline
+                className="max-h-[92vh] max-w-[92vw] object-contain bg-black"
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <img
+                src={item.kind === "video" ? item.thumbnail || "" : item.url}
+                alt={item.title || ""}
+                className="max-h-[92vh] max-w-[92vw] object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
+            {item.title && (
+              <span className="absolute bottom-4 left-1/2 -translate-x-1/2 max-w-[80vw] truncate rounded-full bg-white/10 px-3 py-1 text-xs text-white">
+                {item.title}
+              </span>
+            )}
+          </div>,
+          document.body,
+        )}
+
 
       {!!item.badges?.length && (
         <div className="mt-1 flex flex-wrap gap-1">
