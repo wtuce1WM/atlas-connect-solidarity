@@ -94,8 +94,11 @@ const FrontDemoCardsPanel = ({
 
   if (!open) return null;
 
-  // 4 colonnes sur desktop, 2 sur tablette, 1 sur mobile.
-  const gridClass = "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4";
+  // 4 colonnes sur desktop quand le viewer est fermé (panneau 100%),
+  // 2 colonnes quand le viewer est ouvert (panneau 50%).
+  const gridClass = fullWidth
+    ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
+    : "grid grid-cols-1 gap-4 md:grid-cols-2";
 
   return (
     <div
