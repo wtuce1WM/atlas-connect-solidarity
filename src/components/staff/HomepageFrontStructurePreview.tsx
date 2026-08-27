@@ -108,7 +108,13 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
 
       const targets: Array<{ kind: "entry" | "extra"; id: string; label: string; imageUrl: string | null }> = [
         ...entries.map((e) => ({ kind: "entry" as const, id: e.id, label: e.name, imageUrl: entryImageById[e.id] || null })),
-        ...extras.map((c) => ({ kind: "extra" as const, id: c.id, label: "Carte libre", imageUrl: c.image_url || null })),
+        ...extras.map((c) => ({
+          kind: "extra" as const,
+          id: c.id,
+          label: badgeMap.get(c.badge_id) || "Carte libre",
+          imageUrl: c.image_url || null,
+        })),
+
       ];
 
       const docs = await Promise.all(
