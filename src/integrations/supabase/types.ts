@@ -4797,6 +4797,44 @@ export type Database = {
           },
         ]
       }
+      front_structure_homepage_card_badges: {
+        Row: {
+          badge_id: string
+          city: string
+          created_at: string
+          id: string
+          item_id: string
+          item_type: string
+          sort_order: number
+        }
+        Insert: {
+          badge_id: string
+          city: string
+          created_at?: string
+          id?: string
+          item_id: string
+          item_type: string
+          sort_order?: number
+        }
+        Update: {
+          badge_id?: string
+          city?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          item_type?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "front_structure_homepage_card_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       front_structure_homepage_extra_cards: {
         Row: {
           badge_id: string | null
