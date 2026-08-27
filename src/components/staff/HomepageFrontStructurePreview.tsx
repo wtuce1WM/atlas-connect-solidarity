@@ -70,32 +70,19 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
     const load = async () => {
       if (isFirstLoad.current) setLoading(true);
 
-      const { data: cityRow } = await supabase
-        .from("cities")
-        .select("id")
-        .eq("name_fr", city)
-        .maybeSingle();
-      const cityRowId = (cityRow as any)?.id || null;
-
-      let cityDocIds: Set<string> | null = null;
-      let cityGenericIds: Set<string> | null = null;
-      if (cityRowId) {
-        const [{ data: docCities }, { data: genCities }] = await Promise.all([
-          supabase.from("business_document_cities").select("document_id").eq("city_id", cityRowId),
-          (supabase as any).from("generic_video_cities").select("generic_video_id").eq("city_id", cityRowId),
-        ]);
-        cityDocIds = new Set(((docCities as any[]) || []).map((r) => r.document_id));
-        cityGenericIds = new Set(((genCities as any[]) || []).map((r) => r.generic_video_id));
-      }
+      // Plus de restriction géographique : /front ne tient plus compte de la ville.
+      const cityDocIds: Set<string> | null = null;
+      const cityGenericIds: Set<string> | null = null;
 
       const [entriesRes, badgesRes, extraRes, orderRes] = await Promise.all([
         supabase.from("front_structure").select("id, name, sort_order, show_in_menu").order("sort_order"),
         supabase.from("badges").select("id, name_fr").order("name_fr"),
         (supabase as any)
           .from("front_structure_homepage_extra_cards")
-          .select("id, image_url, sort_order")
+          .select("id, image_url, sort_order, badge_id")
           .eq("city", city)
           .order("sort_order", { ascending: true }),
+
         (supabase as any)
           .from("front_structure_homepage_order")
           .select("item_type, item_id, sort_order")
