@@ -92,12 +92,13 @@ const FrontDemoCardsPanel = ({
   return (
     <div
       data-front-demo-panel
-      className={`absolute left-0 top-0 bottom-0 z-30 flex flex-col bg-white transition-[width] duration-500 ${
+      className={`absolute left-0 top-0 bottom-0 z-30 flex flex-col bg-black transition-[width] duration-500 ${
         fullWidth ? "w-full" : "hidden w-1/2 shadow-[8px_0_40px_rgba(0,0,0,0.35)] md:flex"
       }`}
       style={{ animation: "owmFrontCardsSlideIn 420ms cubic-bezier(.22,1,.36,1) both" }}
       onClick={(e) => e.stopPropagation()}
     >
+
       <style>{`
         @keyframes owmFrontCardsSlideIn {
           from { transform: translateX(-100%); opacity: 0; }
@@ -110,17 +111,18 @@ const FrontDemoCardsPanel = ({
           type="button"
           onClick={onClose}
           aria-label="Fermer"
-          className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-black text-white shadow-lg"
+          className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-lg"
         >
           <X className="h-6 w-6" />
         </button>
       )}
 
-      <div className="flex-1 overflow-y-auto px-5 py-6 scrollbar-hide">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-6 scrollbar-hide"
+        style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch" }}>
         {loading ? (
           <div className={gridClass}>
             {Array.from({ length: 9 }).map((_, i) => (
-              <div key={i} className="aspect-[9/16] animate-pulse rounded-lg bg-black/5" />
+              <div key={i} className="aspect-square animate-pulse rounded-lg bg-white/10" />
             ))}
           </div>
         ) : (
@@ -133,7 +135,7 @@ const FrontDemoCardsPanel = ({
                   key={c.key}
                   type="button"
                   onClick={() => onSelectCard(c)}
-                  className={`group relative aspect-[9/16] overflow-hidden rounded-lg bg-black/5 text-left transition-transform hover:scale-[1.02] ${
+                  className={`group relative aspect-square overflow-hidden rounded-lg bg-white/10 text-left transition-transform hover:scale-[1.02] ${
                     isActive ? "ring-2 ring-primary" : ""
                   }`}
                   aria-label={c.label || c.businessName || "Voir les vidéos"}
@@ -147,7 +149,7 @@ const FrontDemoCardsPanel = ({
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
-                      <Play className="h-7 w-7 text-black/30" />
+                      <Play className="h-7 w-7 text-white/40" />
                     </div>
                   )}
                   <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/60 to-transparent" />
