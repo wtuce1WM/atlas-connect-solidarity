@@ -381,3 +381,69 @@ export async function fetchDiscoveryVideoFeedForCity(
   return { items, ctx: { ...scope, seed, total } };
 }
 
+/**
+ * Feed lancé depuis une carte de la homepage (`homepage_cards_snapshots`),
+ * affichée dans le panneau gauche de la démo `/front`.
+ *
+ * Résolution du pool de badges :
+ *  1. `badgeId` de la carte s'il existe ;
+ *  2. sinon les badges de la vidéo de la carte (interne / générique / YouTube) ;
+ *  3. sinon les badges de l'établissement de la carte.
+ *
+ * Aucune limitation de ville (`cityIds` vide → `_city_ids = null`).
+ * La vidéo de la carte est remontée en tête si elle est présente dans le lot.
+ */
+export async function fetchDiscoveryVideoFeedForCard(
+  card: { badgeId?: string | null; businessId?: string | null; videoId?: string | null },
+  limit = 60,
+): Promise<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext }> {
+  const seed = randomSeed();
+  let badgeIds: string[] = card.badgeId ? [String(card.badgeId)] : [];
+
+  if (!badgeIds.length && card.videoId) {
+    const vid = String(card.videoId);
+    const [docs, generics, yts] = await Promise.all([
+      (supabase as any).from("business_document_badges").select("badge_id").eq("document_id", vid),
+      (supabase as any).from("generic_video_badges").select("badge_id").eq("generic_video_id", vid),
+      (supabase as any).from("business_youtube_video_badges").select("badge_id").eq("youtube_video_id", vid),
+    ]);
+    badgeIds = Array.from(
+      new Set(
+        [...(docs?.data || []), ...(generics?.data || []), ...(yts?.data || [])]
+          .map((r: any) => String(r.badge_id))
+          .filter(Boolean),
+      ),
+    );
+  }
+
+  if (!badgeIds.length && card.businessId) {
+    const { data } = await (supabase as any)
+      .from("business_badges")
+      .select("badge_id")
+      .eq("business_id", String(card.businessId));
+    badgeIds = Array.from(new Set(((data as any[]) || []).map((r) => String(r.badge_id)).filter(Boolean)));
+  }
+
+  // Repli : périmètre complet des badges activés sur le front.
+  if (!badgeIds.length) {
+    const full = await loadDiscoveryScope();
+    badgeIds = full.badgeIds;
+  }
+  if (!badgeIds.length) return { items: [], ctx: { badgeIds: [], cityIds: [], seed, total: 0 } };
+
+  const scope = { badgeIds, cityIds: [] as string[] };
+  const { items, total } = await fetchDiscoveryPage(scope, seed, limit, 0);
+
+  let list = items;
+  if (card.videoId) {
+    const idx = list.findIndex((i) => i.id === String(card.videoId));
+    if (idx > 0) {
+      const copy = [...list];
+      const [hit] = copy.splice(idx, 1);
+      list = [hit, ...copy];
+    }
+  }
+  return { items: list, ctx: { ...scope, seed, total } };
+}
+
+
