@@ -760,6 +760,8 @@ const EmbedAsk = () => {
     }))
     .filter((s) => s.label);
   const hasUserMessages = messages.some((m) => m.role === "user");
+  /** Option B : accueil IA plein écran (logo + champ central + chips) vs conversation. */
+  const homeState = isPlatform && !hasUserMessages && !streaming && assistantReady && splashPhase === "done";
   const pickFollowupLabel = (f: FollowupRow): string => {
     const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
     return raw.replace(/\{businessName\}/g, businessName || "").trim();
