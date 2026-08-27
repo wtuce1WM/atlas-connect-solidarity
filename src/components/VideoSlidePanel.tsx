@@ -57,6 +57,9 @@ interface SocialInfo {
   url: string | null;
 }
 
+/** Libellé de badge affiché avec une majuscule initiale (le reste inchangé : #tags, sigles…). */
+const capFirstBadgeLabel = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+
 interface VideoSlidePanelProps {
   open: boolean;
   onClose: () => void;
