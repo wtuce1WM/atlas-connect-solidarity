@@ -62,6 +62,9 @@ export type StoryboardSection = {
   config?: Record<string, unknown> | null;
 };
 
+/** Média affecté globalement au montage (« Médias du montage » en back-office). */
+export type StoryboardGlobalMedia = { url: string; start?: number | null; end?: number | null };
+
 export type StoryboardProps = {
   format: "portrait" | "landscape";
   /** Logo 1WM (transparent) utilisé par les scènes de marque. */
@@ -76,6 +79,11 @@ export type StoryboardProps = {
   videoUrl?: string | null;
   /** Effets de motion design du montage (grade global). Absent = aucun effet. */
   effects?: FeedEffectsConfig | null;
+  /**
+   * Médias affectés à tout le montage : repli des scènes `video` quand la
+   * configuration d'étape n'a pas (ou plus) de `assetUrls` propagés.
+   */
+  global_media?: StoryboardGlobalMedia[] | null;
   sections: StoryboardSection[];
 };
 
@@ -89,8 +97,10 @@ export const storyboardDefaults: StoryboardProps = {
   photos: null,
   videoUrl: null,
   effects: null,
+  global_media: null,
   sections: [{ step_type: "logo_merge", duration_sec: 6, config: {} }],
 };
+
 
 
 const clampSec = (v: unknown, fallback = 6) => {
