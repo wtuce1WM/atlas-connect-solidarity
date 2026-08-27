@@ -571,7 +571,12 @@ const Front = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative h-[100dvh] min-h-[560px] w-full overflow-hidden bg-[hsl(0_0%_4%)] touch-none"
+      /* `touch-none` (touch-action:none) est levé dès que la démo est ouverte :
+         un ancêtre en touch-action:none bloque le pan tactile du panneau de
+         cartes (scroll vertical impossible sur mobile/tablette). */
+      className={`relative h-[100dvh] min-h-[560px] w-full overflow-hidden bg-[hsl(0_0%_4%)] ${
+        demoActiveId || demoCardsOnly ? "" : "touch-none"
+      }`}
       onClick={() => {
         if (narrativeActive && step < STEPS.length - 1) goToStep(step + 1);
       }}
