@@ -139,7 +139,7 @@ const FrontDemoCardsPanel = ({
         </button>
       )}
 
-      <div className={`flex-1 overflow-y-auto overscroll-contain px-5 scrollbar-hide ${fullWidth ? "pb-6 pt-24" : "py-6"}`}
+      <div className={`flex-1 overflow-y-auto overscroll-contain px-5 scrollbar-hide ${fullWidth ? "pb-6 pt-[72px] md:pt-20" : "py-6"}`}
         style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch" }}>
         {loading ? (
           <div className={gridClass}>
