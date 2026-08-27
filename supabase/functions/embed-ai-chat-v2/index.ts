@@ -39,6 +39,8 @@ import {
 
 } from "../_shared/ai-engine/routes/curated.ts";
 import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
+import { matchFrontBadgeInMessage, resolveBadgeBusinessIds } from "../_shared/ai-engine/routes/badgeVideoBusinesses.ts";
+
 import { buildDestinationsBlock } from "../_shared/ai-engine/routes/destinations.ts";
 import { buildImmersiveLines, buildImmersiveBlock } from "../_shared/ai-engine/routes/immersive.ts";
 import { buildEventsWeekendAnswer, buildEventsFilteredAnswer, fetchAgendaEvents, weekendWindow, eventsSnapshotMarker, priorEventsSnapshot } from "../_shared/ai-engine/routes/events.ts";
@@ -1268,7 +1270,54 @@ Deno.serve(async (req) => {
           fallbackReason = "no_results";
         }
 
-
+        // ── Route déterministe « badge nommé » (zéro token) ──────────────────
+        // La question nomme littéralement un badge actif sur le front dont le
+        // libellé est composé (≥ 2 mots, ex. « complexes hôteliers ») et qui
+        // n'est pas déjà une cible taxonomique forte (catégorie / sous-catégorie
+        // / service). Dans ce cas le badge fait loi et le corpus est COMPLET :
+        // tous les établissements du badge, y compris ceux qui ne le portent
+        // que via une VIDÉO badgée (internes / YouTube / génériques).
+        if (!curated && !hasResolvedIntent) {
+          const namedBadge = await matchFrontBadgeInMessage(admin, userMessage, lang as any).catch(() => null);
+          const multiWord = !!namedBadge && namedBadge.name.trim().split(/\s+/).length >= 2;
+          if (namedBadge && multiWord) {
+            const badgeBizIds = await resolveBadgeBusinessIds(admin, [namedBadge.id], scopeCity, 60).catch((e) => {
+              console.error("[embed-ai-chat-v2] badge_video_route_failed", String(e));
+              return [] as string[];
+            });
+            console.log("[embed-ai-chat-v2] badge_named_route", JSON.stringify({
+              badge: namedBadge.name, city: scopeCity, found: badgeBizIds.length,
+            }));
+            if (badgeBizIds.length >= 3) {
+              const built = await buildPinnedAnswer(
+                admin, badgeBizIds, host, lang, namedBadge.name,
+                {
+                  route: "badge_named",
+                  competitorGuard,
+                  maxCards: 30,
+                  poolIds: badgeBizIds,
+                  immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY },
+                },
+              ).catch((e) => {
+                console.error("[embed-ai-chat-v2] badge_named_cards_failed", String(e));
+                return null;
+              });
+              if (built) {
+                route = built.route;
+                resultsCount = built.shown;
+                emit(built.text);
+                if (built.mapPayload?.businesses?.length) {
+                  emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
+                }
+                emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
+                emit("\n\n" + await poolMarker(admin, badgeBizIds, scopeCity));
+                await emitDestChips(badgeBizIds);
+                await finish(true);
+                return;
+              }
+            }
+          }
+        }
 
 
         // ── Classe B — classifieur, puis recherche déterministe ─────────────
