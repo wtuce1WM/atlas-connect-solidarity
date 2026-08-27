@@ -1877,7 +1877,12 @@ const VideoSlidePanel = ({
         )}
         {(aiOverlayOpen || shouldPreloadPlatformAi) && (aiPlatform || aiSlug || shouldPreloadPlatformAi) && (
           <div
-            className={`fixed inset-y-0 right-0 w-full h-[100dvh] overflow-hidden ${aiOverlayOpen ? "z-[240] animate-slide-in-right" : "-z-10 pointer-events-none opacity-0"}`}
+            /* Préchargement (overlay fermé) : `invisible` + décalage hors écran.
+               iOS Safari peint le fond blanc opaque d'une iframe malgré
+               `opacity-0`/`-z-10` → flash blanc à l'ouverture de la démo /front.
+               `visibility:hidden` supprime toute peinture sans annuler le
+               chargement de l'iframe. */
+            className={`fixed inset-y-0 right-0 w-full h-[100dvh] overflow-hidden ${aiOverlayOpen ? "z-[240] animate-slide-in-right" : "-z-10 pointer-events-none opacity-0 invisible translate-x-full"}`}
             aria-hidden={!aiOverlayOpen}
           >
             {/* Fond assombri : la vidéo reste visible derrière l'assistant (iframe transparente) */}
