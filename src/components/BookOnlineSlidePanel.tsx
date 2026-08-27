@@ -4169,7 +4169,7 @@ const BookOnlineSlidePanelInner = ({
         }
         const activeProx = proxOpts.find((o) => o.km === poiProximityKm) || null;
         return (
-        <OverlayShell zClass="z-[80]" desktopOnly={false} animClass={isEmbedMapWidget ? "animate-slide-in-right" : "animate-slide-up-from-bottom"} bg={isEmbedMapWidget ? "bg-background" : ""}>
+        <OverlayShell zClass="z-[80]" desktopOnly={false} animClass={isEmbedMapWidget ? "animate-slide-in-right" : "animate-slide-up-from-bottom"} bg="bg-[#ECD6B8]">
           <div dir="ltr" className="absolute inset-0">
             {(!embedMode || overridePool) && (
               <button
