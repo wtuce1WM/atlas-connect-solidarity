@@ -423,7 +423,6 @@ const Front = () => {
   const sloganSectionRef = useRef<HTMLDivElement | null>(null);
   const [sloganFontPx, setSloganFontPx] = useState<number | null>(null);
   const [sloganCompact, setSloganCompact] = useState(false);
-  const [panelSloganFontPx, setPanelSloganFontPx] = useState<number | null>(null);
 
   useEffect(() => {
     const LEADING = 1.12;
