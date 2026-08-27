@@ -627,6 +627,9 @@ const EmbedAsk = () => {
   // Splash d'accueil plateforme : le message d'ouverture occupe tout l'overlay,
   // puis zoom-out vers le haut dès que les suggestions back-office sont prêtes.
   const [splashPhase, setSplashPhase] = useState<"full" | "exit" | "done">("full");
+  /** Accueil IA : n'affiche que 5 chips, le CTA déplie toutes les suggestions. */
+  const [showAllSuggestions, setShowAllSuggestions] = useState(false);
+
 
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
   // Sélection de l'affilié (onglet Agent IA de /affiliates/presence). null = tout activé.
