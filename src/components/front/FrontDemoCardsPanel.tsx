@@ -118,8 +118,13 @@ const FrontDemoCardsPanel = ({
         }
       `}</style>
 
-      {/* Header /front (logo + hamburger) uniquement en mode grille plein écran */}
-      {fullWidth && <FrontHeader fixed visible />}
+      {/* Header /front (logo + hamburger) uniquement en mode grille plein écran.
+          Fond noir opaque pour masquer la grille qui scroll en dessous. */}
+      {fullWidth && (
+        <div className="fixed inset-x-0 top-0 z-50 bg-black">
+          <FrontHeader visible />
+        </div>
+      )}
 
       {/* Croix de fermeture uniquement quand le viewer vidéo est ouvert (panneau 50%).
           En mode pleine largeur (viewer fermé) on reste sur /front, pas de croix. */}
