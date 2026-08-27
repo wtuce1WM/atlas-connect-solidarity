@@ -6,6 +6,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { haversineKm } from "@/lib/haversine";
 import { mapLabel } from "@/lib/mapLabels";
+import { isInMoroccoBounds } from "@/lib/geoBounds";
 import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import {
   DropdownMenu,
@@ -138,6 +139,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
     () =>
       businesses
         .filter((b) => b.latitude != null && b.longitude != null)
+        .filter((b) => isInMoroccoBounds(b.latitude, b.longitude))
         .filter((b) => {
           const engs: string[] = b.engagements || [];
           return !engs.some((e) => {

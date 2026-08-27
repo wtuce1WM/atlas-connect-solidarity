@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { Loader2, Maximize2, Minimize2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import { isInMoroccoBounds } from "@/lib/geoBounds";
 
 interface MapBusiness {
   id: string;
@@ -230,7 +231,7 @@ const BusinessMap = ({
     const withCoordinates = businesses.filter((b) => {
       if (b.latitude == null || b.longitude == null) return false;
       // Only show markers within Morocco's bounding box
-      if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
+      if (!isInMoroccoBounds(b.latitude, b.longitude)) return false;
       // When a neighborhood center is known, use tight 1km radius
       if (neighborhoodCenter) {
         const dist = haversineKm(neighborhoodCenter.lat, neighborhoodCenter.lng, b.latitude, b.longitude);
