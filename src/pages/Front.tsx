@@ -9,7 +9,7 @@ type FrontDemoCard = import("@/components/front/FrontDemoCardsPanel").FrontDemoC
 
 
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronUp, ArrowUpRight, Menu, X } from "lucide-react";
+import { ChevronDown, ChevronUp, ArrowUpRight } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -18,6 +18,7 @@ import HeroInlineSearch from "@/components/HeroInlineSearch";
 import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 import portraitVideoAsset from "@/assets/hero-home-portrait-ios-v2.mp4.asset.json";
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster.jpg.asset.json";
+import FrontHeader from "@/components/front/FrontHeader";
 
 /** Vidéo de fond ré-encodée pour iOS Safari (yuv420p / Main / faststart).
  *  Servie par le CDN avec le MIME video/mp4 requis par Safari iOS. */
@@ -121,11 +122,6 @@ const CTAS: { label: string; to: string }[] = [
   { label: "Blog", to: "/blog" },
 ];
 
-const FRONT_LANGS = [
-  { code: "fr", flag: "🇫🇷", label: "Français" },
-  { code: "en", flag: "🇬🇧", label: "English" },
-  { code: "ar", flag: "🇲🇦", label: "العربية" },
-] as const;
 
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -158,7 +154,7 @@ const Front = () => {
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
-  const [menuOpen, setMenuOpen] = useState(false);
+  
 
   const targetRef = useRef(0);
   const currentRef = useRef(0);
