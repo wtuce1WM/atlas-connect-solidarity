@@ -142,6 +142,17 @@ const fmtDur = (s?: number | null) => {
   return m > 0 ? `${m}:${String(r).padStart(2, "0")}` : `${r}s`;
 };
 
+/** Poids d'un fichier en Ko / Mo. */
+const fmtSize = (b: number) => (b >= 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} Mo` : `${Math.max(1, Math.round(b / 1024))} Ko`);
+
+/** Chemin d'un média dans le stockage, clé de la table des poids : `bucket/chemin`. */
+const storageKey = (url: string): { bucket: string; path: string } | null => {
+  const m = url.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
+  return m ? { bucket: m[1], path: decodeURIComponent(m[2].split("?")[0]) } : null;
+};
+
+
+
 const SOURCE_LABEL: Record<PickerMedia["source"] | "library_global" | "library_business", string> = {
   fiche: "Fiche",
   generic: "Badge Générique",
