@@ -520,10 +520,13 @@ export async function buildPinnedAnswer(
      * par lot orientée question). Absent → version déterministe simple.
      */
     immersive?: ImmersiveCtx;
+    /** Plafond de cartes rendues (défaut 20). */
+    maxCards?: number;
   },
 ): Promise<CuratedAnswer | null> {
 
-  const wanted = ids.filter(Boolean).slice(0, 20);
+  const wanted = ids.filter(Boolean).slice(0, Math.max(1, overrides?.maxCards ?? 20));
+
   if (!wanted.length) return null;
   const { data } = await admin
     .from("businesses").select(BIZ_FIELDS)
