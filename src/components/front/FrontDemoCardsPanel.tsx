@@ -28,10 +28,16 @@ const FrontDemoCardsPanel = ({
   open,
   onSelectCard,
   activeCardKey,
+  fullWidth = false,
+  onClose,
 }: {
   open: boolean;
   onSelectCard: (card: FrontDemoCard) => void;
   activeCardKey?: string | null;
+  /** Panneau étendu à 100% de la largeur (viewer fermé) */
+  fullWidth?: boolean;
+  /** Fermeture du panneau (retour à /front) */
+  onClose?: () => void;
 }) => {
   const { language } = useLanguage();
   const [cards, setCards] = useState<FrontDemoCard[]>([]);
