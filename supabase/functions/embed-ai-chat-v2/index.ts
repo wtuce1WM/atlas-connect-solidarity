@@ -1399,16 +1399,24 @@ Deno.serve(async (req) => {
             if (requiredServices.length && kept.length) {
               const ids = kept.map((b: any) => b.id);
               const { data: rows } = await admin.from("businesses").select("id, services").in("id", ids);
-              const wanted = new Set(requiredServices.map((s) => normalize(s)));
+              const wanted = requiredServices.map((s) => normalize(s)).filter(Boolean);
+              // Correspondance tolérante : « Piscine privative » satisfait « Piscine »
+              // (inclusion de tokens dans un sens ou dans l'autre), plus d'égalité stricte.
+              const matches = (svc: string) => {
+                const s = normalize(svc);
+                if (!s) return false;
+                return wanted.some((w) => s === w || s.includes(w) || w.includes(s));
+              };
               const okIds = new Set(
                 (rows ?? [])
-                  .filter((r: any) => (r.services ?? []).some((s: string) => wanted.has(normalize(s))))
+                  .filter((r: any) => (r.services ?? []).some((s: string) => matches(s)))
                   .map((r: any) => r.id),
               );
               const before = kept.length;
               kept = kept.filter((b: any) => okIds.has(b.id));
               console.log("[embed-ai-chat-v2] service_hard_filter", JSON.stringify({ requiredServices, before, after: kept.length }));
             }
+
 
 
 
