@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,8 +12,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Copy, Film, Image as ImageIcon, Loader2, Maximize2, Play, Pause, Trash2, Upload, X } from "lucide-react";
+import { Check, Copy, Film, Image as ImageIcon, Loader2, Maximize2, Pencil, Play, Pause, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+
 
 
 /**
