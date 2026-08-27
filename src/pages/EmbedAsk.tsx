@@ -2907,14 +2907,15 @@ const EmbedAsk = () => {
       </form>
       </div>
 
-      {openMap && businessId ? (
+      {openMap && (businessId || (openMap.businesses || []).some((b) => b.id)) ? (
         // Overlay POI du slidepanel réutilisé tel quel (carte + rail de cartes + pastilles + clic marqueur → fiche),
         // en corpus fermé : uniquement les établissements de la réponse, dans l'ordre donné.
+        // Mode plateforme (pas d'hôte) : l'ancre est le 1er résultat, le corpus reste inchangé.
         <div className="fixed inset-0 z-[220]">
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
               key={(openMap.businesses || []).map((b) => b.id).join(",")}
-              businessId={businessId}
+              businessId={businessId || (openMap.businesses || []).find((b) => b.id)!.id}
               initialOverlay="poi"
               embedMode
               hideDirections
