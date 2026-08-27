@@ -277,12 +277,12 @@ const Front = () => {
   useEffect(() => {
     const video = backgroundVideoRef.current;
     if (!video) return;
-    if (demoIntro || demoActiveId) {
+    if (demoIntro || demoActiveId || demoCardsOnly) {
       video.pause();
     } else {
       void video.play().catch(() => undefined);
     }
-  }, [demoIntro, demoActiveId, isPortrait]);
+  }, [demoIntro, demoActiveId, demoCardsOnly, isPortrait]);
 
   const toPanelVideo = (v: BadgeVideoFeedItem) => ({
     id: v.id,
