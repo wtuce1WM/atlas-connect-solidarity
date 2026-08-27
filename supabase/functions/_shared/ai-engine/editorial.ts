@@ -10,7 +10,8 @@
 // 4. Services    (businesses.services)
 // 5. Offres      (affiliate_business_promotions)
 // 6. TXT IA      (business_ai_texts) — dernier recours, textes générés moins prioritaires
-const PRIORITY_ORDER = ["description", "hook", "popup", "service", "offer", "text"] as const;
+// 3bis. Vidéos    (business_documents type=video, business_youtube_videos, generic_videos)
+const PRIORITY_ORDER = ["description", "hook", "popup", "video", "service", "offer", "text"] as const;
 type EditorialType = typeof PRIORITY_ORDER[number];
 const PRIORITY_RANK: Record<EditorialType, number> = Object.fromEntries(
   PRIORITY_ORDER.map((t, i) => [t, i + 1]),
@@ -243,6 +244,58 @@ export async function loadOffers(
   }
 }
 
+/** Titres et textes des vidéos liées (internes, YouTube, génériques). */
+export async function loadVideoTexts(
+  admin: any,
+  { businessIds, maxChars = 400 }: Pick<LoadOptions, "businessIds" | "maxChars">,
+): Promise<EditorialItem[]> {
+  const ids = [...new Set((businessIds || []).filter(Boolean))];
+  if (ids.length === 0) return [];
+  try {
+    const [internal, yt, generic] = await Promise.all([
+      admin
+        .from("business_documents")
+        .select("business_id, name, description, sort_order")
+        .in("business_id", ids)
+        .eq("type", "video")
+        .order("sort_order", { ascending: true })
+        .limit(ids.length * 8),
+      admin
+        .from("business_youtube_videos")
+        .select("business_id, title, sort_order")
+        .in("business_id", ids)
+        .eq("is_visible", true)
+        .not("title", "is", null)
+        .order("sort_order", { ascending: true })
+        .limit(ids.length * 8),
+      admin
+        .from("generic_video_businesses")
+        .select("business_id, generic_videos(title, name, description)")
+        .in("business_id", ids)
+        .limit(ids.length * 8),
+    ]);
+
+    const out: EditorialItem[] = [];
+    const push = (bid: any, title: string, content: string) => {
+      const t = String(title || "").trim();
+      const c = truncate(stripHtml(String(content || "")), maxChars);
+      if (!t && !c) return;
+      out.push({ business_id: String(bid), type: "video", title: t, content: c });
+    };
+    for (const row of (internal?.data || []) as any[]) push(row.business_id, row.name, row.description);
+    for (const row of (yt?.data || []) as any[]) push(row.business_id, row.title, "");
+    for (const row of (generic?.data || []) as any[]) {
+      const g = row?.generic_videos;
+      if (!g) continue;
+      push(row.business_id, g.title || g.name, g.description);
+    }
+    return out;
+  } catch (e) {
+    console.error("[editorial] video_error", String(e));
+    return [];
+  }
+}
+
 /** Applique la priorité globale et les limites par établissement / globale. */
 function applyPriorityLimits(
   items: EditorialItem[],
@@ -277,23 +330,24 @@ export async function loadEditorialBundle(
   // toute la place par les descriptions (rang 1) dès 6 établissements, si bien que
   // Services / Offres n'atteignaient JAMAIS le prompt. On réserve donc perBusiness
   // slots par établissement, borné à 30 éléments pour maîtriser les tokens.
-  const limit = Math.min(Math.max(opts.limit ?? 12, ids.length * perBusiness), 30);
+  const limit = Math.min(Math.max(opts.limit ?? 12, ids.length * perBusiness), Math.max(30, opts.limit ?? 30));
   if (ids.length === 0) return { items: [] };
 
-  const [descriptions, hooks, popups, offers, services, texts] = await Promise.all([
+  const [descriptions, hooks, popups, videos, offers, services, texts] = await Promise.all([
     loadDescriptions(admin, { businessIds: ids, maxChars }),
     loadHooks(admin, { businessIds: ids, lang, maxChars: 300 }),
     loadImagePopupTexts(admin, { businessIds: ids, lang, maxChars }),
+    loadVideoTexts(admin, { businessIds: ids, maxChars: Math.min(maxChars, 500) }),
     loadOffers(admin, { businessIds: ids, lang, maxChars }),
     loadBusinessServices(admin, { businessIds: ids }),
     loadEditorialTexts(admin, { businessIds: ids, maxChars }),
   ]);
 
-  const all = [...descriptions, ...hooks, ...popups, ...offers, ...services, ...texts];
+  const all = [...descriptions, ...hooks, ...popups, ...videos, ...offers, ...services, ...texts];
   const items = applyPriorityLimits(all, ids, perBusiness, limit);
 
   console.log(
-    `[editorial] bundle: ${descriptions.length} desc, ${hooks.length} hooks, ${popups.length} popups, ${offers.length} offers, ${services.length} services, ${texts.length} txtia → ${items.length} retenus (perBusiness=${perBusiness}, limit=${limit})`,
+    `[editorial] bundle: ${descriptions.length} desc, ${hooks.length} hooks, ${popups.length} popups, ${videos.length} vidéos, ${offers.length} offers, ${services.length} services, ${texts.length} txtia → ${items.length} retenus (perBusiness=${perBusiness}, limit=${limit})`,
   );
 
   return { items };
@@ -303,6 +357,7 @@ const LABEL_BY_TYPE: Record<EditorialType, string> = {
   description: "[DESCRIPTION]",
   hook: "[HOOK]",
   popup: "[IMAGE POPUP]",
+  video: "[VIDÉO]",
   offer: "[OFFRE]",
   service: "[SERVICE]",
   text: "[TXT IA]",
