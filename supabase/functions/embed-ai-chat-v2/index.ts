@@ -1779,15 +1779,18 @@ Deno.serve(async (req) => {
           const weakResolution =
             (!strongTerms.length && !classifierCategoryValid) ||
             (purchaseIntent && strongAreServicesOnly);
-          const baseQuery = weakResolution
-            ? userMessage.slice(0, 200)
-            : ([...coreTerms, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
-              || userMessage.slice(0, 200));
-          if (weakResolution) {
-            console.log("[embed-ai-chat-v2] weak_resolution_raw_query", JSON.stringify({
-              message: userMessage.slice(0, 120), strongTerms, expansionTerms, purchaseIntent,
-            }));
-          }
+          /**
+           * PARITÉ /search : la requête envoyée à `business-search` est TOUJOURS le
+           * message brut de l'utilisateur. La reformulation taxonomique du classifieur
+           * (« location villa piscine essaouira » → « Piscine Location Maison/Villa »)
+           * changeait le poids des termes et faisait remonter des hôtels au lieu des
+           * villas. Le classifieur ne sert plus qu'aux filtres structurels : ville,
+           * exclusions, services requis, quartier, vues.
+           */
+          const baseQuery = userMessage.slice(0, 200);
+          console.log("[embed-ai-chat-v2] raw_query_parity", JSON.stringify({
+            message: baseQuery.slice(0, 120), coreTerms, hintParts, weakResolution, purchaseIntent,
+          }));
           // Services qualifiés forts → filtre dur (l'expansion par mot reste du ranking).
           // Neutralisé en résolution faible : le filtre dur « Alcool » écarterait justement
           // les points de vente qu'on cherche.
