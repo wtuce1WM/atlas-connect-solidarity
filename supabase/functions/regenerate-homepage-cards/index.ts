@@ -117,7 +117,7 @@ async function buildSnapshot(supabase: any, city: string) {
     supabase.from("badges").select("id, name_fr"),
     supabase
       .from("front_structure_homepage_extra_cards")
-      .select("id, city, image_url, sort_order")
+      .select("id, city, image_url, sort_order, badge_id")
       .eq("city", city)
       .order("sort_order", { ascending: true }),
     supabase
