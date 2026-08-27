@@ -25,19 +25,57 @@ interface Props {
   visible?: boolean;
   /** Callback fermeture du menu (optionnel). */
   onMenuToggle?: (open: boolean) => void;
+  /** Callback clic sur le logo / nom (retour écran 1). */
+  onLogoClick?: () => void;
 }
 
 /**
  * Header et menu hamburger spécifique à la page `/front`.
  * Réutilisable dans `Front.tsx` et dans `FrontDemoCardsPanel`.
  */
-const FrontHeader = ({ fixed = false, visible = true, onMenuToggle }: Props) => {
+const LogoBlock = ({
+  onClick,
+}: {
+  onClick?: () => void;
+}) => {
+  const content = (
+    <>
+      <img
+        src="/images/logo_blanc.webp"
+        alt="One World Morocco"
+        className="h-7 w-7 shrink-0 object-contain"
+      />
+      <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
+        One World Morocco
+      </span>
+    </>
+  );
+  if (!onClick) {
+    return <div className="flex items-center gap-3">{content}</div>;
+  }
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-3 cursor-pointer transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-sm"
+    >
+      {content}
+    </button>
+  );
+};
+
+const FrontHeader = ({ fixed = false, visible = true, onMenuToggle, onLogoClick }: Props) => {
   const { language, setLanguage } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const setOpen = (open: boolean) => {
     setMenuOpen(open);
     onMenuToggle?.(open);
+  };
+
+  const handleLogoClick = () => {
+    if (menuOpen) setOpen(false);
+    onLogoClick?.();
   };
 
   const wrapperClass = fixed
@@ -52,16 +90,7 @@ const FrontHeader = ({ fixed = false, visible = true, onMenuToggle }: Props) => 
         }`}
         aria-hidden={!visible}
       >
-        <div className="flex items-center gap-3">
-          <img
-            src="/images/logo_blanc.webp"
-            alt="One World Morocco"
-            className="h-7 w-7 shrink-0 object-contain"
-          />
-          <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
-            One World Morocco
-          </span>
-        </div>
+        <LogoBlock onClick={handleLogoClick} />
         <button
           type="button"
           aria-label="Ouvrir le menu"
@@ -81,16 +110,7 @@ const FrontHeader = ({ fixed = false, visible = true, onMenuToggle }: Props) => 
         aria-hidden={!menuOpen}
       >
         <div className="flex items-center justify-between px-5 py-4 pt-safe md:px-10">
-          <div className="flex items-center gap-3">
-            <img
-              src="/images/logo_blanc.webp"
-              alt="One World Morocco"
-              className="h-7 w-7 shrink-0 object-contain"
-            />
-            <span className="font-josefin text-xs font-black uppercase tracking-[0.2em] text-[#F4EEE4] md:text-sm">
-              One World Morocco
-            </span>
-          </div>
+          <LogoBlock onClick={handleLogoClick} />
           <button
             type="button"
             aria-label="Fermer le menu"
