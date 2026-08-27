@@ -67,7 +67,7 @@ const FrontHeader = ({ fixed = false, visible = true, onMenuToggle }: Props) => 
           aria-label="Ouvrir le menu"
           aria-expanded={menuOpen}
           onClick={() => setOpen(true)}
-          className="mt-2 rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+          className="rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
         >
           <Menu className="h-5 w-5" />
         </button>
