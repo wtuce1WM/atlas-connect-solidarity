@@ -522,6 +522,18 @@ export async function buildPinnedAnswer(
     immersive?: ImmersiveCtx;
     /** Plafond de cartes rendues (défaut 20). */
     maxCards?: number;
+    /**
+     * Émission anticipée : appelé dès que l'en-tête et les cartes sont prêts
+     * (déterministe, ~1 s), AVANT la réécriture immersive. Quand ce callback est
+     * fourni, `text` ne contient plus l'en-tête (déjà émis) : uniquement le bloc
+     * immersif et l'outro.
+     */
+    onCards?: (early: {
+      heading: string;
+      knownBusinesses: Array<{ id: string; slug: string | null; name: string }>;
+      mapPayload: any;
+    }) => void | Promise<void>;
+
   },
 ): Promise<CuratedAnswer | null> {
 
