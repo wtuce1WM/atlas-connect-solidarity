@@ -117,18 +117,21 @@ const FrontDemoCardsPanel = ({
         }
       `}</style>
 
+      {/* Header /front (logo + hamburger) uniquement en mode grille plein écran */}
+      {fullWidth && <HomeMindtripHeader alwaysWhite forceHamburger />}
+
       {fullWidth && onClose && (
         <button
           type="button"
           onClick={onClose}
           aria-label="Fermer"
-          className="absolute left-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-lg md:h-11 md:w-11 md:left-auto md:right-4"
+          className="absolute left-4 top-14 z-40 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-lg md:h-11 md:w-11 md:left-auto md:right-4"
         >
           <X className="h-5 w-5 md:h-6 md:w-6" />
         </button>
       )}
 
-      <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-6 scrollbar-hide"
+      <div className={`flex-1 overflow-y-auto overscroll-contain px-5 scrollbar-hide ${fullWidth ? "pb-6 pt-24" : "py-6"}`}
         style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch" }}>
         {loading ? (
           <div className={gridClass}>
