@@ -1482,7 +1482,7 @@ const VideoSlidePanel = ({
                 playsInline
                 autoPlay
                 muted={!soundOn}
-                className="w-full h-full bg-black object-cover md:object-contain md:scale-[1.15]"
+                className="w-full h-full bg-black object-cover"
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />
             ) : (
