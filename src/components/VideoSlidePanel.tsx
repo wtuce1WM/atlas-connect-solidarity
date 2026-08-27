@@ -1883,7 +1883,7 @@ const VideoSlidePanel = ({
             {/* Fond assombri : la vidéo reste visible derrière l'assistant (iframe transparente) */}
             {aiOverlayOpen && (
               <div
-                className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
+                className="absolute inset-0 bg-black/85 backdrop-blur-[6px]"
                 onClick={() => setAiOverlayOpen(false)}
               />
             )}

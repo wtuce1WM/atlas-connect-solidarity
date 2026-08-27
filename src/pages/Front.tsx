@@ -182,11 +182,17 @@ const Front = () => {
     };
   }, []);
 
+  // Vrai dès que la démo (viewer vidéo / cartes) est ouverte : bloque toute
+  // relance de la vidéo de fond du Hero.
+  const demoOpenRef = useRef(false);
+
   // Safari iOS peut différer l'autoplay malgré muted + playsInline.
   // Une interaction utilisateur permet alors de relancer la lecture.
   useEffect(() => {
     const retryPlayback = () => {
       const video = backgroundVideoRef.current;
+      // Ne pas relancer la vidéo de fond si la démo (viewer / cartes) est ouverte.
+      if (demoOpenRef.current) return;
       if (video?.paused) void video.play().catch(() => undefined);
     };
     retryPlayback();
@@ -277,10 +283,13 @@ const Front = () => {
   // Pause/play de la vidéo de fond synchronisé avec l'ouverture/fermeture du
   // viewer vidéo de la démo (animation de disparition du Hero).
   useEffect(() => {
+    const demoOpen = !!(demoIntro || demoActiveId || demoCardsOnly);
+    demoOpenRef.current = demoOpen;
     const video = backgroundVideoRef.current;
     if (!video) return;
-    if (demoIntro || demoActiveId || demoCardsOnly) {
+    if (demoOpen) {
       video.pause();
+      video.muted = true;
     } else {
       void video.play().catch(() => undefined);
     }

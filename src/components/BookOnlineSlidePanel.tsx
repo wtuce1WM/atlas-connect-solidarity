@@ -2442,7 +2442,7 @@ const BookOnlineSlidePanelInner = ({
 
 
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
-      {!cardsHidden && !(embedMode && initialOverlay === "poi") && (
+      {!cardsHidden && !showPoiMapOverlay && !showDirections && !(embedMode && initialOverlay === "poi") && (
         <div data-owm-video-rail="true" dir="ltr" className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
           {(() => {
             const LANG_OPTIONS = [
@@ -5052,7 +5052,7 @@ const BookOnlineSlidePanelInner = ({
           {/* Fond assombri : le média reste visible derrière l'assistant (iframe transparente) */}
           {aiAssistantOpen && (
             <div
-              className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
+              className="absolute inset-0 bg-black/85 backdrop-blur-[6px]"
               onClick={() => setAiAssistantOpen(false)}
               aria-hidden="true"
             />
