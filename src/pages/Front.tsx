@@ -423,7 +423,6 @@ const Front = () => {
   const sloganSectionRef = useRef<HTMLDivElement | null>(null);
   const [sloganFontPx, setSloganFontPx] = useState<number | null>(null);
   const [sloganCompact, setSloganCompact] = useState(false);
-  const [panelSloganFontPx, setPanelSloganFontPx] = useState<number | null>(null);
 
   useEffect(() => {
     const LEADING = 1.12;
@@ -464,70 +463,6 @@ const Front = () => {
     };
   }, []);
 
-  // Auto-fit du slogan dans le panneau de gauche quand VideoSlidePanel est ouvert
-  // (desktop uniquement). Sonde DOM : on mesure la largeur RÉELLEMENT rendue du
-  // mot le plus long à 100px (vraie police, vrai letter-spacing), puis on met à
-  // l'échelle. La mesure canvas était fausse (~20 %) selon le chargement des
-  // fontes. Le ResizeObserver recalcule pendant/après la transition d'ouverture
-  // du panneau (la hauteur de section grandit quand les sections 2/3 se replient).
-  useEffect(() => {
-    if (!demoActiveId || isMobile) {
-      setPanelSloganFontPx(null);
-      return;
-    }
-    const LEADING = 1.12;
-    const PAD = 48;
-    const STROKE = 4; // marge pour le contour 2px de chaque côté
-
-    const compute = () => {
-      const section = sloganSectionRef.current;
-      const h1 = section?.querySelector("h1") as HTMLElement | null;
-      if (!section || !h1) return;
-      const spans = h1.querySelectorAll("span");
-      if (!spans.length) return;
-      const availW = section.clientWidth - PAD * 2 - STROKE * 2;
-      const availH = section.clientHeight - PAD * 2;
-      if (availW <= 0 || availH <= 0) return;
-
-      // Sonde à 100px. offsetWidth est une mesure de LAYOUT : insensible au
-      // transform (la transition scale(1.18)→1 gonflait getBoundingClientRect
-      // de ×1,18). transition:none pour figer toute animation en cours pendant
-      // la mesure. Mutations synchrones restaurées avant tout repaint.
-      const prevFs = h1.style.fontSize;
-      const prevTr = h1.style.transform;
-      const prevTs = h1.style.transition;
-      h1.style.transition = "none";
-      h1.style.transform = "none";
-      h1.style.fontSize = "100px";
-      let maxW = 0;
-      spans.forEach((s) => {
-        const el = s as HTMLElement;
-        const prevDisplay = el.style.display;
-        el.style.display = "inline-block"; // offsetWidth = largeur du mot
-        maxW = Math.max(maxW, el.offsetWidth);
-        el.style.display = prevDisplay;
-      });
-      h1.style.fontSize = prevFs;
-      h1.style.transform = prevTr;
-      h1.style.transition = prevTs;
-      if (maxW <= 0) return;
-
-      const size = Math.max(
-        24,
-        Math.min((availW / maxW) * 100, availH / (3 * LEADING)),
-      );
-      setPanelSloganFontPx((prev) =>
-        prev !== null && Math.abs(prev - size) < 0.5 ? prev : size,
-      );
-    };
-
-    compute();
-    const ro = new ResizeObserver(compute);
-    if (sloganSectionRef.current) ro.observe(sloganSectionRef.current);
-    // Recalcul une fois les fontes stabilisées (swap de Montserrat).
-    document.fonts.ready.then(compute);
-    return () => ro.disconnect();
-  }, [demoActiveId, isMobile]);
 
   // délai d'apparition des bullets
   useEffect(() => {
@@ -779,20 +714,16 @@ const Front = () => {
       {/* Bloc central — 3 sections égales entre header et CTA Découvrir */}
       <div
         ref={narrativeBoxRef}
-        className={`absolute z-20 flex flex-col px-5 pt-16 pb-16 md:pt-14 md:pb-10 ${
-          demoActiveId
-            ? "inset-0 md:inset-auto md:left-0 md:top-0 md:bottom-0 md:w-1/2 md:px-3 lg:px-4"
-            : "inset-0 md:px-10 lg:px-16"
-        }`}
+        className="absolute inset-0 z-20 flex flex-col px-5 pt-16 pb-16 md:px-10 md:pt-14 md:pb-10 lg:px-16"
         style={{
-          opacity: narrativeOpacity,
+          opacity: demoActiveId || demoCardsOnly ? 0 : narrativeOpacity,
           transform: reduced
             ? undefined
             : `translateY(${-range(progress, 0, 0.35) * 40}px)`,
-          pointerEvents: narrativeActive ? "auto" : "none",
+          pointerEvents: demoActiveId || demoCardsOnly ? "none" : (narrativeActive ? "auto" : "none"),
           transition: motion,
         }}
-        aria-hidden={!narrativeActive}
+        aria-hidden={!!(demoActiveId || demoCardsOnly || !narrativeActive)}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Section 1 : Slogan */}
@@ -817,16 +748,7 @@ const Front = () => {
               color: "transparent",
               WebkitTextStrokeWidth: "2px",
               WebkitTextStrokeColor: "#FFFFFF",
-              ...(panelSloganFontPx
-                ? {
-                    fontSize: `${panelSloganFontPx}px`,
-                    width: "100%",
-                    padding: "0 48px",
-                    boxSizing: "border-box",
-                  }
-                : sloganFontPx
-                  ? { fontSize: `${sloganFontPx}px` }
-                  : null),
+              ...(sloganFontPx ? { fontSize: `${sloganFontPx}px` } : null),
               opacity: voiceActive ? 0 : 1,
               // Pas de pré-zoom sur mobile : la taille auto-fit est déjà au max de
               // la largeur utile, un scale(1.18) ferait déborder le slogan des côtés.
