@@ -94,8 +94,8 @@ const FrontDemoCardsPanel = ({
 
   if (!open) return null;
 
-  // Mêmes paramètres responsive que la grille de résultats de /search.
-  const gridClass = "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+  // 4 colonnes sur desktop, 2 sur tablette, 1 sur mobile.
+  const gridClass = "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4";
 
   return (
     <div
