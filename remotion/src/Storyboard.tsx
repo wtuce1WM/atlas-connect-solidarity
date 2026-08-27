@@ -1006,7 +1006,7 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
           if (!src || !slot) return null;
           const t = trims[raw] ?? {};
           const startFrom = t.start && t.start > 0 ? Math.round(t.start * fps) : undefined;
-          const endAtRaw = t.end && t.end > 0 ? Math.round(t.end * fps) : undefined;
+          const endAtRaw = !relaxEnd && t.end && t.end > 0 ? Math.round(t.end * fps) : undefined;
           const endAt = endAtRaw != null && endAtRaw > (startFrom ?? 0) + 1 ? endAtRaw : undefined;
           return (
             <Sequence key={`${raw}-${i}`} from={slot.from} durationInFrames={slot.frames} layout="none">
