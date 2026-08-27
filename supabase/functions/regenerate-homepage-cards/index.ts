@@ -23,8 +23,8 @@ const getCityAliases = (c: string): string[] => CITY_ALIASES[c] || [c];
 
 /**
  * Homepage cards are driven EXCLUSIVELY by badge assignments
- * (front_structure_homepage_card_badges), with AND semantics:
- * a video is eligible only if it carries EVERY badge assigned to the card.
+ * (front_structure_homepage_card_badges), with OR semantics:
+ * a video is eligible if it carries AT LEAST ONE badge assigned to the card.
  * The only other accepted parameter is the forced image.
  */
 async function resolveVideoByBadges(
@@ -36,21 +36,15 @@ async function resolveVideoByBadges(
   if (badgeIds.length === 0) return null;
 
   // ---- internal videos ----
-  let docIds: string[] | null = null;
+  const docIdSet = new Set<string>();
   for (const badgeId of badgeIds) {
     const { data } = await supabase
       .from("business_document_badges")
       .select("document_id")
       .eq("badge_id", badgeId);
-    const ids = ((data as any[]) || []).map((r) => r.document_id as string);
-    if (docIds === null) docIds = ids;
-    else {
-      const set = new Set(ids);
-      docIds = docIds.filter((id) => set.has(id));
-    }
-    if (docIds.length === 0) break;
+    ((data as any[]) || []).forEach((r) => docIdSet.add(r.document_id as string));
   }
-  let candidates = (docIds || []).filter((id) => cityDocIds.size === 0 || cityDocIds.has(id));
+  const candidates = [...docIdSet].filter((id) => cityDocIds.size === 0 || cityDocIds.has(id));
   if (candidates.length > 0) {
     const chunks: Promise<any>[] = [];
     for (let i = 0; i < candidates.length; i += 300) {
@@ -75,21 +69,18 @@ async function resolveVideoByBadges(
   }
 
   // ---- generic videos ----
-  let genIds: string[] | null = null;
+  const genIdSet = new Set<string>();
   for (const badgeId of badgeIds) {
     const { data } = await supabase
       .from("generic_video_badges")
       .select("generic_video_id")
       .eq("badge_id", badgeId);
-    const ids = ((data as any[]) || []).map((r) => r.generic_video_id as string);
-    if (genIds === null) genIds = ids;
-    else {
-      const set = new Set(ids);
-      genIds = genIds.filter((id) => set.has(id));
-    }
-    if (genIds.length === 0) break;
+    ((data as any[]) || []).forEach((r) => {
+      const id = r.generic_video_id as string;
+      if (id) genIdSet.add(id);
+    });
   }
-  const genCandidates = (genIds || []).filter((id) => cityGenericIds.size === 0 || cityGenericIds.has(id));
+  const genCandidates = [...genIdSet].filter((id) => cityGenericIds.size === 0 || cityGenericIds.has(id));
   if (genCandidates.length === 0) return null;
   const { data: gvs } = await supabase
     .from("generic_videos")
