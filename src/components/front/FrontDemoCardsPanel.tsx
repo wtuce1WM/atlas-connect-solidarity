@@ -111,7 +111,7 @@ const FrontDemoCardsPanel = ({
           type="button"
           onClick={onClose}
           aria-label="Fermer"
-          className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-lg"
+          className="absolute left-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-lg md:left-auto md:right-4"
         >
           <X className="h-6 w-6" />
         </button>
