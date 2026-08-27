@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import { translateVignetteLabel } from "@/lib/vignetteLabels";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { countDiscoveryVideosForCard } from "@/lib/badgeVideoFeed";
 
 export interface FrontDemoCard {
   key: string;
@@ -42,6 +43,8 @@ const FrontDemoCardsPanel = ({
   const { language } = useLanguage();
   const [cards, setCards] = useState<FrontDemoCard[]>([]);
   const [loading, setLoading] = useState(true);
+  /** Nombre réel de vidéos du feed de chaque carte (clé = card.key). */
+  const [videoCounts, setVideoCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (!open) return;
@@ -77,6 +80,12 @@ const FrontDemoCardsPanel = ({
       }
       setCards(list);
       setLoading(false);
+      // Comptage réel des vidéos par carte (même périmètre que le feed lancé au clic).
+      const counts = await Promise.all(
+        list.map(async (c) => [c.key, await countDiscoveryVideosForCard(c)] as const),
+      );
+      if (cancelled) return;
+      setVideoCounts(Object.fromEntries(counts));
     })();
     return () => {
       cancelled = true;
@@ -85,9 +94,8 @@ const FrontDemoCardsPanel = ({
 
   if (!open) return null;
 
-  const gridClass = fullWidth
-    ? "grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-6"
-    : "grid grid-cols-2 gap-3 lg:grid-cols-3";
+  // Mêmes paramètres responsive que la grille de résultats de /search.
+  const gridClass = "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
 
   return (
     <div
@@ -158,6 +166,15 @@ const FrontDemoCardsPanel = ({
                     <span className="pointer-events-none absolute inset-x-0 top-[10%] z-[2] flex justify-center px-2">
                       <span className="rounded-md border-2 border-black bg-white px-2 py-1 text-center text-[10px] font-bold uppercase tracking-wide text-black shadow-lg line-clamp-2">
                         {translateVignetteLabel(c.label, language as any)}
+                      </span>
+                    </span>
+                  )}
+                  {(videoCounts[c.key] ?? 0) > 0 && (
+                    <span className="pointer-events-none absolute inset-x-0 bottom-2 z-[2] flex justify-center px-2">
+                      <span className="rounded-full bg-black/70 px-2.5 py-1 text-center text-[10px] font-semibold text-white shadow">
+                        {language === "en"
+                          ? `Browse ${videoCounts[c.key]} video${videoCounts[c.key] > 1 ? "s" : ""}`
+                          : `Naviguez parmi ${videoCounts[c.key]} vidéo${videoCounts[c.key] > 1 ? "s" : ""}`}
                       </span>
                     </span>
                   )}

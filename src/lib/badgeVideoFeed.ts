@@ -393,11 +393,10 @@ export async function fetchDiscoveryVideoFeedForCity(
  * Aucune limitation de ville (`cityIds` vide → `_city_ids = null`).
  * La vidéo de la carte est remontée en tête si elle est présente dans le lot.
  */
-export async function fetchDiscoveryVideoFeedForCard(
+/** Résolution du pool de badges d'une carte homepage (partagée feed/comptage). */
+async function resolveCardBadgeIds(
   card: { badgeId?: string | null; businessId?: string | null; videoId?: string | null },
-  limit = 60,
-): Promise<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext }> {
-  const seed = randomSeed();
+): Promise<string[]> {
   let badgeIds: string[] = card.badgeId ? [String(card.badgeId)] : [];
 
   if (!badgeIds.length && card.videoId) {
@@ -429,6 +428,29 @@ export async function fetchDiscoveryVideoFeedForCard(
     const full = await loadDiscoveryScope();
     badgeIds = full.badgeIds;
   }
+  return badgeIds;
+}
+
+/**
+ * Nombre réel de vidéos du feed d'une carte homepage (même périmètre que
+ * `fetchDiscoveryVideoFeedForCard` : mêmes badges, aucune limite de ville).
+ * Requête minimale (limit 1) : seul `total_count` est exploité.
+ */
+export async function countDiscoveryVideosForCard(
+  card: { badgeId?: string | null; businessId?: string | null; videoId?: string | null },
+): Promise<number> {
+  const badgeIds = await resolveCardBadgeIds(card);
+  if (!badgeIds.length) return 0;
+  const { total } = await fetchDiscoveryPage({ badgeIds, cityIds: [] }, randomSeed(), 1, 0);
+  return total;
+}
+
+export async function fetchDiscoveryVideoFeedForCard(
+  card: { badgeId?: string | null; businessId?: string | null; videoId?: string | null },
+  limit = 60,
+): Promise<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext }> {
+  const seed = randomSeed();
+  const badgeIds = await resolveCardBadgeIds(card);
   if (!badgeIds.length) return { items: [], ctx: { badgeIds: [], cityIds: [], seed, total: 0 } };
 
   const scope = { badgeIds, cityIds: [] as string[] };
