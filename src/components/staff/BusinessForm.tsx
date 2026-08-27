@@ -1350,6 +1350,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     tiktok_url: (business as any)?.tiktok_url || "",
     whatsapp: (business as any)?.whatsapp || "",
     telegram: (business as any)?.telegram || "",
+    default_poi_is_master: (business as any)?.default_poi_is_master ?? false,
     tripadvisor_url: (business as any)?.tripadvisor_url || "",
     booking_url: (business as any)?.booking_url || "",
     account_type: (business as any)?.account_type || "",
