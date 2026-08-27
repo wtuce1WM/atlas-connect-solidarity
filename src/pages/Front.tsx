@@ -571,6 +571,7 @@ const Front = () => {
     if (!el) return;
 
     const onWheel = (e: WheelEvent) => {
+      if ((e.target as HTMLElement).closest("[data-front-demo-panel]")) return;
       e.preventDefault();
       setTarget(targetRef.current + e.deltaY / 600);
     };
