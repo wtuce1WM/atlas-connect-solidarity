@@ -39,7 +39,7 @@ import {
 
 } from "../_shared/ai-engine/routes/curated.ts";
 import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
-import { matchFrontBadgeInMessage, resolveBadgeBusinessIds } from "../_shared/ai-engine/routes/badgeVideoBusinesses.ts";
+import { matchFrontBadgeInMessage, resolveBadgeBusinessIds, badgeLabelKey } from "../_shared/ai-engine/routes/badgeVideoBusinesses.ts";
 
 import { buildDestinationsBlock } from "../_shared/ai-engine/routes/destinations.ts";
 import { buildImmersiveLines, buildImmersiveBlock } from "../_shared/ai-engine/routes/immersive.ts";
@@ -1272,15 +1272,21 @@ Deno.serve(async (req) => {
 
         // ── Route déterministe « badge nommé » (zéro token) ──────────────────
         // La question nomme littéralement un badge actif sur le front dont le
-        // libellé est composé (≥ 2 mots, ex. « complexes hôteliers ») et qui
-        // n'est pas déjà une cible taxonomique forte (catégorie / sous-catégorie
-        // / service). Dans ce cas le badge fait loi et le corpus est COMPLET :
-        // tous les établissements du badge, y compris ceux qui ne le portent
-        // que via une VIDÉO badgée (internes / YouTube / génériques).
-        if (!hasResolvedIntent) {
+        // libellé est composé (≥ 2 mots, ex. « complexes hôteliers »). Le badge
+        // fait loi et le corpus est COMPLET : tous les établissements du badge,
+        // y compris ceux qui ne le portent que via une VIDÉO badgée (internes /
+        // YouTube / génériques) — un badge est rarement posé sur la fiche.
+        // Garde-fou : soit aucune cible taxonomique forte, soit la cible résolue
+        // désigne le MÊME concept que le badge (« Complexe hôtelier » ⇔ badge
+        // « Complexes hôteliers ») — sinon la recherche sémantique reste maître.
+        {
           const namedBadge = await matchFrontBadgeInMessage(admin, userMessage, lang as any).catch(() => null);
           const multiWord = !!namedBadge && namedBadge.name.trim().split(/\s+/).length >= 2;
-          if (namedBadge && multiWord) {
+          const sameConcept = !!namedBadge && !!resolution && resolution.targets.some(
+            (t) => badgeLabelKey(t.value) === badgeLabelKey(namedBadge.name),
+          );
+          if (namedBadge && multiWord && (!hasResolvedIntent || sameConcept)) {
+
             const badgeBizIds = await resolveBadgeBusinessIds(admin, [namedBadge.id], scopeCity, 60).catch((e) => {
               console.error("[embed-ai-chat-v2] badge_video_route_failed", String(e));
               return [] as string[];
