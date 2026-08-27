@@ -1233,16 +1233,67 @@ export function VideoMediaPickerDialog({
     [sourceScoped, formatFilter, badgeFilter],
   );
 
+  /** Poids réels des fichiers du stockage, par `bucket/chemin`. */
+  const [sizes, setSizes] = useState<Record<string, number>>({});
+  const loadedBuckets = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const todo = new Set<string>();
+    for (const m of filtered) {
+      const k = storageKey(m.url);
+      if (k && !loadedBuckets.current.has(k.bucket)) todo.add(k.bucket);
+    }
+    if (todo.size === 0) return;
+    todo.forEach((b) => loadedBuckets.current.add(b));
+    void (async () => {
+      for (const bucket of todo) {
+        const { data, error } = await (supabase.rpc as any)("get_all_storage_sizes", { bucket_name: bucket });
+        if (error) {
+          console.warn("Tailles indisponibles pour", bucket, error.message);
+          continue;
+        }
+        const next: Record<string, number> = {};
+        ((data as any[]) ?? []).forEach((r: any) => {
+          if (r?.path && r.size_bytes != null) next[`${bucket}/${r.path}`] = Number(r.size_bytes);
+        });
+        setSizes((prev) => ({ ...prev, ...next }));
+      }
+    })();
+  }, [filtered]);
+
+  const sizeOf = useCallback(
+    (url: string): number | null => {
+      const k = storageKey(url);
+      if (!k) return null;
+      return sizes[`${k.bucket}/${k.path}`] ?? null;
+    },
+    [sizes],
+  );
+
+  /** Classement du plus léger au plus lourd (poids inconnu en fin de liste). */
+  const sorted = useMemo(
+    () =>
+      filtered.slice().sort((a, b) => {
+        const sa = sizeOf(a.url);
+        const sb = sizeOf(b.url);
+        if (sa == null && sb == null) return 0;
+        if (sa == null) return 1;
+        if (sb == null) return -1;
+        return sa - sb;
+      }),
+    [filtered, sizeOf],
+  );
+
   const PAGE_SIZE = 32;
   const [page, setPage] = useState(0);
   useEffect(() => {
     setPage(0);
   }, [sourceFilter, typeFilter, search, otherSlug, open, formatFilter, badgeFilter]);
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const pageItems = useMemo(
-    () => filtered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE),
-    [filtered, page],
+    () => sorted.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE),
+    [sorted, page],
   );
+
 
   const toggle = (m: PickerMedia) => {
     if (!multiple) {
