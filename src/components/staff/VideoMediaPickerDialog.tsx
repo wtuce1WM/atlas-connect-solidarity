@@ -1401,6 +1401,29 @@ export function VideoMediaPickerDialog({
     await supabase.from("video_media_library").update({ orientation: o }).eq("id", m.libraryId);
   };
 
+  /** Renomme le média dans sa table d'origine (bibliothèque staff, vidéo générique, document de fiche). */
+  const renameMedia = async (m: PickerMedia, title: string) => {
+    const next = title.trim() || null;
+    let error: any = null;
+    if (m.source === "library" && m.libraryId) {
+      ({ error } = await supabase.from("video_media_library").update({ title: next }).eq("id", m.libraryId));
+    } else if (m.source === "generic_video" && m.mediaId) {
+      ({ error } = await supabase.from("generic_videos").update({ name: next }).eq("id", m.mediaId));
+    } else if (m.mediaId) {
+      ({ error } = await supabase.from("business_documents").update({ name: next }).eq("id", m.mediaId));
+    } else {
+      toast.error("Ce média n'a pas d'enregistrement en base : renommage impossible.");
+      return;
+    }
+    if (error) {
+      toast.error(`Renommage impossible : ${error.message}`);
+      return;
+    }
+    setItems((prev) => prev.map((it) => (it.url === m.url ? { ...it, title: next } : it)));
+    toast.success("Nom mis à jour");
+  };
+
+
   // Compteurs alignés sur les filtres réellement appliqués (type + allow)
   const counts = useMemo(
     () => ({
