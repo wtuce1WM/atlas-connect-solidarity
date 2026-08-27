@@ -437,6 +437,17 @@ Deno.serve(async (req) => {
         if (articleTeaser) { emit(articleTeaser); articleTeaser = null; }
         end();
 
+        // Mesure bout-en-bout côté serveur (hors rendu client).
+        console.log("[embed-ai-chat-v2] timing", JSON.stringify({
+          total_ms: Date.now() - t0,
+          first_token_ms: firstTokenAt ? firstTokenAt - t0 : null,
+          route,
+          ai_class: aiClass,
+          results: resultsCount,
+          stream_completed: streamCompleted,
+        }));
+
+
         try {
           const { error: logErr } = await admin.from("ai_conversation_turns").insert({
             chat_id: chatId,
