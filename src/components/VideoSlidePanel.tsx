@@ -1482,7 +1482,7 @@ const VideoSlidePanel = ({
                 playsInline
                 autoPlay
                 muted={!soundOn}
-                className="w-full h-full bg-black object-cover md:object-contain md:scale-[1.15]"
+                className="w-full h-full bg-black object-cover"
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />
             ) : (
@@ -1503,7 +1503,7 @@ const VideoSlidePanel = ({
                       className={
                         embed.type === "youtube"
                           ? embed.isVertical
-                            ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none md:scale-[0.92]"
+                            ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                             : "w-full h-full pointer-events-none"
                           : "w-full h-full pointer-events-none"
                       }
