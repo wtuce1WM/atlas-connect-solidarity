@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import { translateVignetteLabel } from "@/lib/vignetteLabels";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { countDiscoveryVideosForCard } from "@/lib/badgeVideoFeed";
 
 export interface FrontDemoCard {
   key: string;
@@ -42,6 +43,8 @@ const FrontDemoCardsPanel = ({
   const { language } = useLanguage();
   const [cards, setCards] = useState<FrontDemoCard[]>([]);
   const [loading, setLoading] = useState(true);
+  /** Nombre réel de vidéos du feed de chaque carte (clé = card.key). */
+  const [videoCounts, setVideoCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (!open) return;
