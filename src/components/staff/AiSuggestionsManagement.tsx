@@ -446,6 +446,8 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                     <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-amber-500/15 text-amber-700">📅 search_events</span>
                   ) : r.mode === "video_feed" ? (
                     <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-fuchsia-500/15 text-fuchsia-700">🎬 video_feed</span>
+                  ) : r.mode === "booking" ? (
+                    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-emerald-500/15 text-emerald-700">🛏 booking</span>
                   ) : r.mode === "structure_front" || r.subcategory_ids.length > 0 || r.badge_ids.length > 0 ? (
                     <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-primary/15 text-primary">🔍 search_businesses</span>
                   ) : r.mode === "direct_viewer" ? (
@@ -624,6 +626,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                           <option value="structure_front">🧭 Structure du Front (search_businesses + sous-catégories/badges)</option>
                           <option value="direct_viewer">📌 Direct viewer (carousel figé des business_ids)</option>
                           <option value="video_feed">🎬 Feed vidéo (vidéos internes + génériques des badges)</option>
+                          <option value="booking">🛏 Disponibilité hôtelière (widget dates + recherche SerpAPI ville)</option>
                         </select>
                         <p className="text-[11px] text-muted-foreground mt-1">
                           <b>Auto</b> : le runtime choisit la route (météo, événements, proximité, carte, recherche…) à partir du libellé FR et du message utilisateur.<br />
