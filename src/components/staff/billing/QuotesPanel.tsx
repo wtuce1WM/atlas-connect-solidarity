@@ -27,7 +27,6 @@ type Quote = {
   total_ttc: number;
   expires_at: string | null;
   refusal_reason: string | null;
-  internal_notes: string | null;
   created_at: string;
 };
 
@@ -95,6 +94,7 @@ const QuotesPanel = () => {
   const [editing, setEditing] = useState<Quote | null>(null);
   const [lines, setLines] = useState<Line[]>([]);
   const [saving, setSaving] = useState(false);
+  const [internalNote, setInternalNote] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -106,7 +106,7 @@ const QuotesPanel = () => {
         .select("id, service_id, unit_price, currency, recurrence, is_active, billing_services(name_fr)")
         .eq("is_active", true),
     ]);
-    setQuotes((q as Quote[]) ?? []);
+    setQuotes((q as unknown as Quote[]) ?? []);
     setAffiliates((a as typeof affiliates) ?? []);
     setGridRows((g as unknown as GridRow[]) ?? []);
     setLoading(false);
@@ -128,9 +128,9 @@ const QuotesPanel = () => {
       total_ttc: 0,
       expires_at: null,
       refusal_reason: null,
-      internal_notes: null,
       created_at: new Date().toISOString(),
     });
+    setInternalNote("");
     setLines([emptyLine(0)]);
   };
 
@@ -140,6 +140,12 @@ const QuotesPanel = () => {
       .select("*")
       .eq("quote_id", q.id)
       .order("sort_order");
+    const { data: noteRow } = await supabase
+      .from("quote_internal_notes")
+      .select("notes")
+      .eq("quote_id", q.id)
+      .maybeSingle();
+    setInternalNote((noteRow as { notes: string | null } | null)?.notes ?? "");
     setEditing(q);
     setLines(((data as unknown as Line[]) ?? []).map((l) => ({ ...l })));
   };
@@ -190,7 +196,6 @@ const QuotesPanel = () => {
       prospect_name: editing.prospect_name,
       currency: editing.currency,
       expires_at: editing.expires_at || null,
-      internal_notes: editing.internal_notes,
       subtotal_ht: totals.ht,
       total_vat: totals.vat,
       total_ttc: totals.ttc,
@@ -233,6 +238,12 @@ const QuotesPanel = () => {
       };
     });
     const { error: e2 } = await supabase.from("quote_items").insert(rows);
+    if (!e2) {
+      const { error: e3 } = await supabase
+        .from("quote_internal_notes")
+        .upsert({ quote_id: quoteId, notes: internalNote || null }, { onConflict: "quote_id" });
+      if (e3) toast.error(e3.message);
+    }
     setSaving(false);
     if (e2) return toast.error(e2.message);
     toast.success("Devis enregistré");
@@ -567,8 +578,8 @@ const QuotesPanel = () => {
               <Textarea
                 rows={2}
                 placeholder="Notes internes (non visibles par le client)"
-                value={editing.internal_notes ?? ""}
-                onChange={(e) => setEditing({ ...editing, internal_notes: e.target.value })}
+                value={internalNote}
+                onChange={(e) => setInternalNote(e.target.value)}
               />
             </div>
           )}
