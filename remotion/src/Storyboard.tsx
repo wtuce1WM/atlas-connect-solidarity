@@ -979,7 +979,7 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
       acc.push({ from: cursor, frames, relaxEnd: false });
       cursor += frames;
     }
-    // Reliquat éventuel : rallonge le dernier clot placé (bornes relâchées).
+    // Reliquat éventuel : rallonge le dernier clip placé (bornes relâchées).
     if (acc.length > 0 && cursor < durationInFrames) {
       const last = acc[acc.length - 1];
       const extended = durationInFrames - last.from;
