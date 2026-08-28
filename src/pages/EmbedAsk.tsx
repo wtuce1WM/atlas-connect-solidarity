@@ -19,6 +19,7 @@ import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
+import { parseBookingIntent } from "@/lib/parseBookingIntent";
 import EmbedFilterDrawer, { type EmbedFilterGroup } from "@/components/embed/EmbedFilterDrawer";
 
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
@@ -320,6 +321,8 @@ const COMPETITOR_GUARD_RE = /<!--COMPETITOR_GUARD_ACTIVE-->/;
 const DEST_CHIPS_RE = /<!--DESTINATION_CHIPS:([\s\S]*?)-->/g;
 /** Widget de disponibilité hôtelière (suggestion back-office en mode `booking`). */
 const HOTEL_BOOKING_RE = /<!--HOTEL_BOOKING:([\s\S]*?)-->/g;
+/** Payload du widget de disponibilité : ville + dates/voyageurs éventuellement pré-remplis. */
+type BookingPayload = { city: string; checkIn: string | null; checkOut: string | null; adults: number | null };
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[]; order?: string | null };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
@@ -357,7 +360,7 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: string[]; competitorGuard: boolean; destChips: ScopeChip[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: BookingPayload[]; competitorGuard: boolean; destChips: ScopeChip[] } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
@@ -367,7 +370,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   const weather: WeatherPayload[] = [];
   const videoFeeds: VideoFeedPayload[] = [];
   const tides: string[] = [];
-  const bookings: string[] = [];
+  const bookings: BookingPayload[] = [];
   const destChips: ScopeChip[] = [];
   const competitorGuard = COMPETITOR_GUARD_RE.test(text);
   if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips };
@@ -435,7 +438,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   }).replace(HOTEL_BOOKING_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
-      if (p && p.city) bookings.push(String(p.city));
+      if (p && p.city) bookings.push({ city: String(p.city), checkIn: p.checkIn || null, checkOut: p.checkOut || null, adults: typeof p.adults === "number" ? p.adults : null });
     } catch { /* */ }
     return "";
   });
@@ -1232,30 +1235,48 @@ const EmbedAsk = () => {
       // ou vocal) → on reste sur le widget de disponibilité, jamais sur le modèle.
       suggestions.find((s) => s.mode === "booking" && normLabel(s.label) === normLabel(text)) ||
       null;
+    // Texte libre explicitement hôtelier (« une chambre d'hôtel pour 2 adultes
+    // du 27 septembre au 2 octobre ») → widget de disponibilité + SerpAPI,
+    // jamais une liste d'adresses toutes catégories produite par le modèle.
+    const freeBookingIntent = !suggestionId && !followupId ? parseBookingIntent(text) : null;
     const isBookingRequest =
       suggestionId === "8150af31-304b-40af-a638-fe10535a2e15" ||
       isBookingLabel ||
-      !!bookingSuggestion;
+      !!bookingSuggestion ||
+      !!freeBookingIntent;
     if (isBookingRequest) {
       setError(null);
       setActiveSuggestionId(bookingSuggestion?.id || suggestionId || null);
       const city = platformCity || businessCity || "Marrakech";
+      const checkIn = freeBookingIntent?.checkIn || null;
+      const checkOut = freeBookingIntent?.checkOut || null;
+      const adults = freeBookingIntent?.adults || null;
+      const hasDates = !!checkIn && !!checkOut;
+      const msgId = `a-booking-${Date.now()}`;
       setMessages((prev) => [
         ...prev,
         { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
         {
-          id: `a-booking-${Date.now()}`,
+          id: msgId,
           role: "assistant",
           parts: [{
             type: "text",
-            text: `${lang === "en"
-              ? `Choose your dates and number of guests — I'll check live availability in ${city}.`
-              : lang === "ar"
-              ? `اختر التواريخ وعدد المسافرين — سأتحقق من التوفر في ${city}.`
-              : `Choisissez vos dates et le nombre de voyageurs — je vérifie les disponibilités à ${city}.`}\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city })}-->`,
+            text: `${hasDates
+              ? (lang === "en"
+                  ? `Checking live availability in ${city} for your dates.`
+                  : lang === "ar"
+                  ? `أتحقق من التوفر في ${city} في هذه التواريخ.`
+                  : `Je vérifie les disponibilités à ${city} pour ces dates.`)
+              : (lang === "en"
+                  ? `Choose your dates and number of guests — I'll check live availability in ${city}.`
+                  : lang === "ar"
+                  ? `اختر التواريخ وعدد المسافرين — سأتحقق من التوفر في ${city}.`
+                  : `Choisissez vos dates et le nombre de voyageurs — je vérifie les disponibilités à ${city}.`)}\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city, checkIn, checkOut, adults })}-->`,
           }],
         } as any,
       ]);
+      // Dates complètes détectées → interrogation SerpAPI immédiate.
+      if (hasDates) runCityHotelSearch(msgId, city, checkIn as string, checkOut as string, adults || 2);
       return;
     }
     // Commande (tapée ou vocale) de changement de rayon : traitée localement,
@@ -2171,6 +2192,9 @@ const EmbedAsk = () => {
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
           <div className="flex flex-col items-center justify-center gap-6 px-1 py-8" style={{ minHeight: "min(100%, 640px)" }}>
+            {/* Conteneur de hauteur fixe : le passage de l'accueil au panneau STT,
+                et un transcript qui passe sur 2 lignes, ne décalent plus la mise en page. */}
+            <div className="w-full flex items-center justify-center overflow-hidden" style={{ height: 200 }}>
             {voiceActive ? (
               /* Mode STT inline : animation micro bleue + texte blanc à la place
                  de l'icône IA + texte d'accueil (pas d'overlay fullscreen). */
@@ -2198,6 +2222,9 @@ const EmbedAsk = () => {
               </p>
             </div>
             )}
+            </div>
+
+
 
             <form
               onSubmit={(e) => { e.preventDefault(); send(); }}
@@ -2329,7 +2356,8 @@ const EmbedAsk = () => {
           const weatherPayload = weather[weather.length - 1] || null;
           const videoFeedPayload = videoFeeds[videoFeeds.length - 1] || null;
           const tidesCity = tides[tides.length - 1] || null;
-          const bookingCity = bookings[bookings.length - 1] || null;
+          const bookingPayload = bookings[bookings.length - 1] || null;
+          const bookingCity = bookingPayload?.city || null;
           const msgKey = String(m.id || i);
           const bookingResult = hotelResults[msgKey] || null;
           const isLast = i === messages.length - 1;
@@ -2516,9 +2544,9 @@ const EmbedAsk = () => {
                     inline
                     language={lang}
                     isSearching={hotelSearchingMsgId === msgKey}
-                    initialCheckIn={bookingResult?.checkIn}
-                    initialCheckOut={bookingResult?.checkOut}
-                    initialAdults={bookingResult?.adults}
+                    initialCheckIn={bookingResult?.checkIn ?? bookingPayload?.checkIn ?? undefined}
+                    initialCheckOut={bookingResult?.checkOut ?? bookingPayload?.checkOut ?? undefined}
+                    initialAdults={bookingResult?.adults ?? bookingPayload?.adults ?? undefined}
                     onSearch={(checkIn, checkOut, adults) => {
                       runCityHotelSearch(msgKey, bookingCity, checkIn, checkOut, adults);
                     }}
