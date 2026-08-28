@@ -17,6 +17,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 import portraitVideoAsset from "@/assets/hero-home-portrait-ios-v2.mp4.asset.json";
+import landscapeVideoAsset from "@/assets/hero-home-landscape-42.mp4.asset.json";
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster.jpg.asset.json";
 import FrontHeader from "@/components/front/FrontHeader";
 
@@ -24,8 +25,7 @@ import FrontHeader from "@/components/front/FrontHeader";
  *  Servie par le CDN avec le MIME video/mp4 requis par Safari iOS. */
 const PORTRAIT_VIDEO_URL = portraitVideoAsset.url;
 
-const LANDSCAPE_VIDEO_URL =
-  "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/studio-videos/1wm_montage_storyboard-home-portrait-20_vertical_20260818-1320_3376434b.mp4";
+const LANDSCAPE_VIDEO_URL = landscapeVideoAsset.url;
 
 
 const STEP_MS = 3400;
