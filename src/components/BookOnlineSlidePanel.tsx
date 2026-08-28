@@ -741,7 +741,9 @@ const BookOnlineSlidePanelInner = ({
   // uniquement si la géoloc est réellement active (pas de coords résiduelles).
   const showUserMarker = !embedMode && geo.isEnabled;
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
-  const { tabs: frontTabs } = useFrontStructureTabs(business?.city || null);
+  // Corpus ville imposé : les onglets/catégories viennent de la 1ère ville du corpus
+  // (le Master d'ancrage peut ne pas avoir de structure front exploitable).
+  const { tabs: frontTabs } = useFrontStructureTabs((poiCityCorpus && poiCityCorpus[0]) || business?.city || null);
   const { translateSubcategory } = useTaxonomyTranslations();
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
 
@@ -4084,9 +4086,11 @@ const BookOnlineSlidePanelInner = ({
           ? frontTabs.filter((ft) => !ft.subcategoryNames.has(masterDefaultSubcat))
           : frontTabs;
         // Origine unique des distances : l'établissement Master (fallback géoloc)
+        // Fallback : centre de la carte (POI master, ex. Koutoubia) quand le Master
+        // d'ancrage n'a pas de coordonnées — sinon le Pill Rayon disparaît.
         const proxOrigin = (business?.latitude != null && business?.longitude != null
           ? { lat: business.latitude, lng: business.longitude }
-          : userCoords) ?? null;
+          : (poiMasterCenter ?? userCoords)) ?? null;
         const distOf = (p: { latitude: number | null; longitude: number | null }) =>
           proxOrigin && p.latitude != null && p.longitude != null
             ? haversineKm(proxOrigin.lat, proxOrigin.lng, p.latitude, p.longitude)
@@ -4544,7 +4548,7 @@ const BookOnlineSlidePanelInner = ({
                   ]
                 : [
                     ...(poiMasterItem ? [poiMasterItem] : []),
-                    ...(displayedPoi
+                    ...((overridePool ? afterProx : displayedPoi)
                       .filter(p => p.id !== poiMasterOverride?.id)
                       .map(p => ({
                         id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
@@ -4570,10 +4574,10 @@ const BookOnlineSlidePanelInner = ({
                   setSelectedKpBusinessId(poiId);
                 }
               }}
-              fitToMarkers={(!!overridePois && widgetFitKm == null) || !!overridePool}
+              fitToMarkers={(!!overridePois && widgetFitKm == null) || (!!overridePool && poiProximityKm == null)}
               centerAtBottomRatio={0.5}
               mapTypeId={poiMapTypeId}
-              fitRadiusKm={overridePois ? widgetFitKm : (poiMapMode === "destinations" || overridePool ? null : poiProximityKm)}
+              fitRadiusKm={overridePois ? widgetFitKm : (poiMapMode === "destinations" ? null : poiProximityKm)}
               connector={widgetConnector}
               baseColor={mapBaseColor || undefined}
               onReady={onMapReady}
