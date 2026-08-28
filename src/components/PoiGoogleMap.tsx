@@ -892,13 +892,14 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           ${distHtml}
         </div>`;
         infoWindowRef.current?.setContent(html);
-        // Ancrage dynamique de l'infobulle : au-dessus par défaut, en dessous si le POI
-        // est près du haut, et décalage horizontal si elle dépasse d'un bord (padding 12px).
+        // Ancrage dynamique de l'infobulle : vers le BAS par défaut
+        // (la vignette s'ouvre sous le marqueur), et on ne remonte au-dessus
+        // que si le POI est trop près du bas de l'écran pour laisser la place.
         const IW_W = 268;
         const IW_H = img ? 200 : 90;
         const PAD = 12;
         let offX = 0;
-        let offY = -50;
+        let offY = IW_H + 6;
         try {
           const proj = map.getProjection();
           const c = map.getCenter();
@@ -910,10 +911,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             const wc = proj.fromLatLngToPoint(c);
             const px = (wp.x - wc.x) * scale + cw / 2;
             const py = (wp.y - wc.y) * scale + ch / 2;
-            // Vertical : bascule en dessous si pas la place au-dessus.
-            // Le marqueur est dessiné au-dessus de son point d'ancrage (translate -100%),
-            // donc la miniature se colle juste sous le bas du marqueur (petit gap de 6px).
-            if (py - IW_H - 50 < PAD) offY = IW_H + 6;
+            // Vertical : par défaut en dessous. On ne bascule au-dessus que s'il
+            // n'y a pas assez de place en bas.
+            if (py + IW_H + 6 > ch - PAD) offY = -50;
 
             // Horizontal : recentrage dans les bords.
             const left = px - IW_W / 2;
