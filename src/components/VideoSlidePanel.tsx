@@ -663,6 +663,10 @@ const VideoSlidePanel = ({
   const [ytMuted, setYtMuted] = useState(!soundOn);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
+  const isYouTubeUrl = useMemo(
+    () => /(?:youtube\.com|youtu\.be|youtube-nocookie\.com)/i.test(videoUrl || ""),
+    [videoUrl],
+  );
   const [toolbarMounted, setToolbarMounted] = useState(false);
   useEffect(() => {
     if (open) {
@@ -1326,7 +1330,7 @@ const VideoSlidePanel = ({
                 );
               })}
             </div>
-            <div className="flex flex-col items-start gap-1.5">
+            <div className="flex flex-col items-center gap-1.5">
               {(() => {
                 const firstVideoBadge = feedBadges?.[0];
                 const dynamicBadges = feedBadges?.slice(1).filter((b) => {
@@ -1390,6 +1394,21 @@ const VideoSlidePanel = ({
                         </button>
                       );
                     })}
+                    {isYouTubeUrl && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          navigate("/youtube");
+                        }}
+                        className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
+                        style={{ backgroundColor: "#FF0000", fontFamily: "'Montserrat',system-ui,sans-serif" }}
+                        title="Voir le feed YouTube"
+                      >
+                        <YouTubeIcon className="h-3 w-3 shrink-0" />
+                        YouTube
+                      </button>
+                    )}
                   </>
                 );
               })()}
@@ -1632,24 +1651,6 @@ const VideoSlidePanel = ({
                 key={`desc-plus-${videoId || videoUrl}`}
                 onOpen={() => setDescOverlayOpen(true)}
               />
-            </div>
-          )}
-          {/* TEMPORAIRE (debug) : ID de la vidéo au centre, clic = copie */}
-          {feedLayout && videoId && !descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && (
-            <div className="absolute inset-0 z-[45] flex flex-col items-center justify-center gap-2 pointer-events-none">
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard?.writeText(String(videoId)).then(
-                    () => toast.success(`ID copié : ${videoId}`),
-                    () => {},
-                  );
-                }}
-                className="pointer-events-auto rounded-full bg-black/60 border border-white/20 px-3 py-1.5 font-mono text-[11px] text-white backdrop-blur-sm hover:bg-black/80 transition-colors"
-                title="Copier l'ID de la vidéo"
-              >
-                {videoId}
-              </button>
             </div>
           )}
           <div className={`absolute inset-0 z-30 pointer-events-none ${descOverlayOpen || aiOverlayOpen ? "hidden" : ""}`}>
