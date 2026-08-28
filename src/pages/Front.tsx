@@ -392,6 +392,21 @@ const Front = () => {
     setDemoActiveId(items[0].id);
   }, [demoCtx]);
 
+  /** Clic sur la chip YouTube dans le viewer → feed des seules vidéos YouTube. */
+  const selectDemoYouTube = useCallback(async () => {
+    const ctx = demoCtx;
+    if (!ctx) return;
+    const { fetchDiscoveryVideoFeedForYouTube } = await import("@/lib/badgeVideoFeed");
+    const { items, ctx: nextCtx } = await fetchDiscoveryVideoFeedForYouTube(ctx, 60);
+    if (!items.length) return;
+    setDemoBadgeId(null);
+    setDemoList(items.map(toPanelVideo));
+    setDemoCtx(nextCtx);
+    setDemoTime(0);
+    demoLoadingMoreRef.current = false;
+    setDemoActiveId(items[0].id);
+  }, [demoCtx]);
+
   /** Clic sur une carte du panneau gauche → feed correspondant (sans filtre ville). */
   const [demoCardKey, setDemoCardKey] = useState<string | null>(null);
   const selectDemoCard = useCallback(async (card: FrontDemoCard) => {
@@ -1109,6 +1124,7 @@ const Front = () => {
               returnContext={null}
               onBadgeSelect={(b: any) => { void selectDemoBadge(b); }}
               onCitySelect={(c: any) => { void selectDemoCity(c); }}
+              onYouTubeSelect={() => { void selectDemoYouTube(); }}
               selectedBadgeId={demoBadgeId}
               aiMode={demoAiMode}
             />
