@@ -12,7 +12,30 @@ export type BookingIntent = {
   checkIn: string | null;
   checkOut: string | null;
   adults: number | null;
+  /** Ville nommée dans la question (null si absente → la ville du widget est conservée). */
+  city: string | null;
 };
+
+/**
+ * Villes couvertes par la recherche de disponibilité, avec leurs alias/quartiers.
+ * Les clés sont normalisées (sans accent, minuscules).
+ */
+const CITY_PATTERNS: { city: string; aliases: string[] }[] = [
+  { city: "Essaouira", aliases: ["essaouira", "mogador", "sidi kaouki", "الصويرة"] },
+  { city: "Marrakech", aliases: ["marrakech", "marrakesh", "agafay", "asni", "imlil", "ourika", "مراكش"] },
+];
+
+/** Détecte la première ville nommée dans le texte (ordre d'apparition). */
+function extractCity(text: string): string | null {
+  let best: { idx: number; city: string } | null = null;
+  for (const { city, aliases } of CITY_PATTERNS) {
+    for (const alias of aliases) {
+      const idx = text.indexOf(alias);
+      if (idx >= 0 && (!best || idx < best.idx)) best = { idx, city };
+    }
+  }
+  return best?.city ?? null;
+}
 
 const norm = (s: string) =>
   s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -115,5 +138,5 @@ export function parseBookingIntent(raw: string, now: Date = new Date()): Booking
   const checkIn = dates[0] || null;
   let checkOut = dates[1] || null;
   if (checkIn && checkOut && checkOut <= checkIn) checkOut = null;
-  return { checkIn, checkOut, adults: extractAdults(text) };
+  return { checkIn, checkOut, adults: extractAdults(text), city: extractCity(text) };
 }
