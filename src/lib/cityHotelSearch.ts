@@ -100,7 +100,8 @@ export async function searchCityHotels(params: CityHotelSearchParams): Promise<C
 
   // Tri : prix SerpAPI croissant quand connu, puis note.
   const price = (h: any) => {
-    const n = parseFloat(String(h.serpPrice ?? "").replace(/[^\d.]/g, ""));
+    const raw = h.serpPrice && typeof h.serpPrice === "object" ? h.serpPrice.amount : h.serpPrice;
+    const n = parseFloat(String(raw ?? "").replace(/[^\d.]/g, ""));
     return Number.isFinite(n) && n > 0 ? n : Number.POSITIVE_INFINITY;
   };
   hotels.sort((a, b) => price(a) - price(b) || (b.dbGoogleRating || 0) - (a.dbGoogleRating || 0));
