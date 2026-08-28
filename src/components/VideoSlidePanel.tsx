@@ -310,16 +310,6 @@ const VideoSlidePanel = ({
     return () => { cancelled = true; };
   }, [open, owner?.id, pageBusinessId, description, language]);
 
-  // Villes liées à la vidéo (un chip par ville active, colonne de badges dynamiques).
-  useEffect(() => {
-    if (!open || !videoId) { setVideoCities([]); return; }
-    let cancelled = false;
-    fetchVideoCityList(videoId).then((cities) => {
-      if (!cancelled) setVideoCities(cities);
-    });
-    return () => { cancelled = true; };
-  }, [open, videoId]);
-
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
