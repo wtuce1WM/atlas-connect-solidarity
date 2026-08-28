@@ -1025,9 +1025,7 @@ const EmbedAsk = () => {
       if (initialPersisted.activeSuggestionId) setActiveSuggestionId(initialPersisted.activeSuggestionId);
       return;
     }
-    // Le grand message d'accueil ne s'affiche qu'au premier montage de
-    // l'assistant plateforme, jamais après un clic sur « Nouvelle conversation ».
-    if (isPlatform && chatKey === 0) setSplashPhase("full");
+    // (splash d'accueil supprimé)
     setMessages([{
       id: "opener",
       role: "assistant",
