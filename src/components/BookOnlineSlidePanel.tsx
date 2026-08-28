@@ -609,7 +609,7 @@ const BookOnlineSlidePanelInner = ({
     const bid = (business as any)?.id;
     if (!bid || poiProximityInitRef.current === bid) return;
     poiProximityInitRef.current = bid;
-    if ((poiOverrideIds || []).length) { setPoiProximityKm(null); return; }
+    if ((poiOverrideIds || []).length || (poiCityCorpus || []).length) { setPoiProximityKm(null); return; }
     const raw = Number((business as any)?.poi_radius_km);
     const allowed = [0.5, 1, 5, 10, 20, 50, 100];
     setPoiProximityKm(allowed.includes(raw) ? raw : 10);
