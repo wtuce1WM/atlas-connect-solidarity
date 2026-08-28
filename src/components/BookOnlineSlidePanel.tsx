@@ -4572,10 +4572,10 @@ const BookOnlineSlidePanelInner = ({
                   setSelectedKpBusinessId(poiId);
                 }
               }}
-              fitToMarkers={(!!overridePois && widgetFitKm == null) || !!overridePool}
+              fitToMarkers={(!!overridePois && widgetFitKm == null) || (!!overridePool && poiProximityKm == null)}
               centerAtBottomRatio={0.5}
               mapTypeId={poiMapTypeId}
-              fitRadiusKm={overridePois ? widgetFitKm : (poiMapMode === "destinations" || overridePool ? null : poiProximityKm)}
+              fitRadiusKm={overridePois ? widgetFitKm : (poiMapMode === "destinations" ? null : poiProximityKm)}
               connector={widgetConnector}
               baseColor={mapBaseColor || undefined}
               onReady={onMapReady}
