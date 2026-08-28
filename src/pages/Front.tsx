@@ -24,8 +24,7 @@ import FrontHeader from "@/components/front/FrontHeader";
  *  Servie par le CDN avec le MIME video/mp4 requis par Safari iOS. */
 const PORTRAIT_VIDEO_URL = portraitVideoAsset.url;
 
-const LANDSCAPE_VIDEO_URL =
-  "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/studio-videos/1wm_montage_storyboard-home-portrait-20_vertical_20260818-1320_3376434b.mp4";
+const LANDSCAPE_VIDEO_URL = landscapeVideoAsset.url;
 
 
 const STEP_MS = 3400;
