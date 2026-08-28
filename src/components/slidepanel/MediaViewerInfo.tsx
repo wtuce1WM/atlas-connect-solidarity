@@ -112,27 +112,29 @@ const MediaViewerInfo = ({
           {name}
         </div>
 
-        {(place || (avgOn20 != null && totalReviewCount > 0)) && (
-          <div className="mt-1 flex items-center gap-1.5 flex-wrap text-[11px] md:text-xs text-white/85 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
-            {avgOn20 != null && totalReviewCount > 0 && (
-              <span className="inline-flex items-center gap-1 whitespace-nowrap">
-                <Star className="h-3.5 w-3.5 shrink-0 text-gold fill-gold" />
-                <span className="!font-extrabold text-gold" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                  {avgOn20}<span className="font-bold text-gold/80">/20</span>
+        <div className="mt-1 flex items-center gap-1.5 flex-wrap text-[11px] md:text-xs text-white/85 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] min-h-[1.25em] md:min-h-[1.5em]">
+          {(place || (avgOn20 != null && totalReviewCount > 0)) && (
+            <>
+              {avgOn20 != null && totalReviewCount > 0 && (
+                <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                  <Star className="h-3.5 w-3.5 shrink-0 text-gold fill-gold" />
+                  <span className="!font-extrabold text-gold" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                    {avgOn20}<span className="font-bold text-gold/80">/20</span>
+                  </span>
+                  <span className="!font-bold text-gold/90 tabular-nums">{totalReviewCount.toLocaleString("fr-FR")}</span>
+                  <span className="text-gold/80 font-medium">{REVIEWS[lang]}</span>
                 </span>
-                <span className="!font-bold text-gold/90 tabular-nums">{totalReviewCount.toLocaleString("fr-FR")}</span>
-                <span className="text-gold/80 font-medium">{REVIEWS[lang]}</span>
-              </span>
-            )}
-            {place && avgOn20 != null && totalReviewCount > 0 && <span className="text-white/40">·</span>}
-            {place && (
-              <span className="inline-flex items-center gap-1 min-w-0">
-                <MapPin className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">{place}</span>
-              </span>
-            )}
-          </div>
-        )}
+              )}
+              {place && avgOn20 != null && totalReviewCount > 0 && <span className="text-white/40">·</span>}
+              {place && (
+                <span className="inline-flex items-center gap-1 min-w-0">
+                  <MapPin className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{place}</span>
+                </span>
+              )}
+            </>
+          )}
+        </div>
 
         {effectiveTeaser && (
           <div className="relative mt-1.5">
