@@ -44,11 +44,6 @@ async function buildSnapshot(supabase: any, city: string) {
       .eq("city", city),
   ]);
 
-  // Plus de restriction géographique : /front ne filtre plus par ville.
-  const cityDocIds = new Set<string>();
-  const cityGenericIds = new Set<string>();
-
-
   const badgeMap = new Map<string, string>(((badgesRes.data as any[]) || []).map((b) => [b.id, b.name_fr]));
 
   const badgesByItem = new Map<string, string[]>();
