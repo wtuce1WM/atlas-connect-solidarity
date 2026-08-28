@@ -4086,9 +4086,11 @@ const BookOnlineSlidePanelInner = ({
           ? frontTabs.filter((ft) => !ft.subcategoryNames.has(masterDefaultSubcat))
           : frontTabs;
         // Origine unique des distances : l'établissement Master (fallback géoloc)
+        // Fallback : centre de la carte (POI master, ex. Koutoubia) quand le Master
+        // d'ancrage n'a pas de coordonnées — sinon le Pill Rayon disparaît.
         const proxOrigin = (business?.latitude != null && business?.longitude != null
           ? { lat: business.latitude, lng: business.longitude }
-          : userCoords) ?? null;
+          : (poiMasterCenter ?? userCoords)) ?? null;
         const distOf = (p: { latitude: number | null; longitude: number | null }) =>
           proxOrigin && p.latitude != null && p.longitude != null
             ? haversineKm(proxOrigin.lat, proxOrigin.lng, p.latitude, p.longitude)
