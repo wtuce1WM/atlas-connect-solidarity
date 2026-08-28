@@ -840,6 +840,10 @@ const EmbedAsk = () => {
     }
   }, [openGenericPoi]);
   const [poiMasterAnchorId, setPoiMasterAnchorId] = useState<string | null>(null);
+  /** Ancre POI master de secours (Délégation Régionale Du Tourisme Marrakech, POI Koutoubia)
+      pour garantir l'ouverture immédiate de l'overlay Map même si la requête échoue. */
+  const POI_MASTER_FALLBACK_ID = "fcadc38e-da1e-42ce-a7d3-27b7f6bdff57";
+
 
   // Carte des destinations (distincte de la carte des résultats établissements) :
   // marqueurs = destinations liées à la suggestion.
@@ -2087,12 +2091,12 @@ const EmbedAsk = () => {
     },
   ];
   // Chip « Map » permanent : toujours visible (accueil ET conversation), fond terracotta.
-  // Ouvre l'overlay POI/Map fullscreen dès qu'une ancre (hôte ou POI master) est connue.
+  // Ouvre TOUJOURS l'overlay POI/Map fullscreen (ancre POI master par défaut → Koutoubia).
   const renderMapChip = (key: string) => (
     <button
       key={key}
       type="button"
-      onClick={() => { if (businessId || poiMasterAnchorId) setOpenGenericPoi(true); }}
+      onClick={() => setOpenGenericPoi(true)}
       className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold shadow-md hover:opacity-90 transition-opacity shrink-0"
       style={{ fontFamily: "'Montserrat', sans-serif", background: "#C04F17", color: "#ffffff", border: "1px solid #C04F17", textTransform: "none", letterSpacing: "normal" }}
     >
@@ -2100,6 +2104,7 @@ const EmbedAsk = () => {
       Map
     </button>
   );
+
 
   const filterCount = filterGroups.flatMap((g) => g.items).length;
   const [mainEl, setMainEl] = useState<HTMLDivElement | null>(null);
@@ -3218,9 +3223,10 @@ const EmbedAsk = () => {
       </form>
       </div>
 
-      {/* Overlay POI/Map générique du chip « Map » de l'accueil IA : corpus complet
-          des POI (pas de poiOverrideIds), ancré sur l'hôte ou sur le POI master. */}
-      {renderGenericPoi && (businessId || poiMasterAnchorId) && (
+      {/* Overlay POI/Map générique du chip « Map » : corpus complet des POI,
+          toujours ouvrable. L'overlay POI est ancré à un business : à défaut
+          d'hôte, on utilise le POI master (carte centrée sur la Koutoubia). */}
+      {renderGenericPoi && (
         <div
           className={cn(
             "fixed inset-0 z-[220] transition-transform duration-300 ease-out will-change-transform",
@@ -3229,7 +3235,7 @@ const EmbedAsk = () => {
         >
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
-              businessId={businessId || poiMasterAnchorId!}
+              businessId={businessId || poiMasterAnchorId || POI_MASTER_FALLBACK_ID}
               initialOverlay="poi"
               embedMode
               hideDirections
@@ -3240,6 +3246,7 @@ const EmbedAsk = () => {
           </Suspense>
         </div>
       )}
+
 
       {openMap && (businessId || (openMap.businesses || []).some((b) => b.id)) ? (
         // Overlay POI du slidepanel réutilisé tel quel (carte + rail de cartes + pastilles + clic marqueur → fiche),
