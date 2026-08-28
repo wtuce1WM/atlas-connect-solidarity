@@ -2477,10 +2477,9 @@ const EmbedAsk = () => {
               )}
 
               {bookingCity && (
-                <div className="w-full max-w-[85%] flex flex-col gap-3">
+                <div className="w-[22rem] max-w-full flex flex-col gap-3">
                   <AvailabilitySearchOverlay
                     inline
-                    transparent
                     language={lang}
                     isSearching={hotelSearchingMsgId === msgKey}
                     initialCheckIn={bookingResult?.checkIn}
