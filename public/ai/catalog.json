@@ -2,9 +2,9 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-27T06:22:02.416Z",
+    "generated_at": "2026-08-28T06:36:17.380Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
-    "count": 1858
+    "count": 1859
   },
   "businesses": [
     {
@@ -24878,8 +24878,8 @@
       "whatsapp": "+212 706 440754",
       "website": "https://corner.essaouira.eco/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/aa7a3e5f-291e-4f8c-98f2-73930db43b45-1777186411536-krsq2h.jpg",
-      "google_rating": 4.8,
-      "google_review_count": 75,
+      "google_rating": 4.7,
+      "google_review_count": 105,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -68064,7 +68064,7 @@
       "website": "https://marrakechwithlocals.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/27a2c314-5b00-4a59-b0f6-0bb296ac8157-1771594446285-g08zmt.jpg",
       "google_rating": 5,
-      "google_review_count": 821,
+      "google_review_count": 881,
       "price_range": null,
       "min_price_mad": null,
       "languages": [
@@ -68107,7 +68107,7 @@
       "social": {
         "instagram": null,
         "facebook": "https://web.facebook.com/marrakechwithlocals",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d18819637-Reviews-Marrakech_WITH_Locals-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -114768,7 +114768,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1780901850258-6fcajfs.jpg",
       "google_rating": 5,
-      "google_review_count": 15,
+      "google_review_count": 16,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -148891,7 +148891,7 @@
       "website": "https://www.marrakechgreenwheels.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/5cc11918-c716-48a0-9c84-01adc01709c5-1782920841492-nr2btm.jpg",
       "google_rating": 4.9,
-      "google_review_count": 507,
+      "google_review_count": 508,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -153305,6 +153305,44 @@
         "instagram": "https://www.instagram.com/bemarrakech/",
         "facebook": null,
         "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d6400406-Reviews-Riad_BE_Marrakech-Marrakech_Marrakech_Safi.html?m=66827",
+        "youtube": null,
+        "linkedin": null
+      }
+    },
+    {
+      "id": "fcadc38e-da1e-42ce-a7d3-27b7f6bdff57",
+      "slug": "delegation-regionale-du-tourisme-marrakech",
+      "url": "https://oneworldmorocco.com/delegation-regionale-du-tourisme-marrakech",
+      "name": "Délégation Régionale Du Tourisme Marrakech",
+      "hook": "L'organisme de référence pour le développement du tourisme dans la région.",
+      "description": "La Délégation Régionale du Tourisme de Marrakech-Safi est l'administration de référence chargée de représenter le Ministère du Tourisme, de l'Artisanat et de l'Économie Sociale et Solidaire dans la région. Située à Marrakech, elle accompagne le développement du tourisme régional en travaillant aux côtés des professionnels du secteur, des investisseurs, des collectivités territoriales et des institutions afin de renforcer l'attractivité de l'une des premières destinations touristiques d'Afrique. ",
+      "main_category": null,
+      "categories": [],
+      "services": [],
+      "city": "Marrakech",
+      "neighborhood": "Gueliz",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.635422,
+      "longitude": -8.0140741,
+      "address": "137 Av. Mohammed V",
+      "phone": "+212524436131",
+      "whatsapp": null,
+      "website": null,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/fcadc38e-da1e-42ce-a7d3-27b7f6bdff57-1786000307111-1y7dx6.webp",
+      "google_rating": null,
+      "google_review_count": null,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": null,
+      "is_open_24h": false,
+      "booking_url": null,
+      "menu_url": null,
+      "social": {
+        "instagram": null,
+        "facebook": null,
+        "tripadvisor": null,
         "youtube": null,
         "linkedin": null
       }

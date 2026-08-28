@@ -2191,10 +2191,11 @@ const EmbedAsk = () => {
         {/* Option B : état « accueil IA » — logo, titre, champ central très visible,
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
-          <div className="flex flex-col items-center justify-center gap-6 px-1 py-8" style={{ minHeight: "min(100%, 640px)" }}>
-            {/* Conteneur de hauteur fixe : le passage de l'accueil au panneau STT,
-                et un transcript qui passe sur 2 lignes, ne décalent plus la mise en page. */}
-            <div className="w-full flex items-center justify-center overflow-hidden" style={{ height: 200 }}>
+          <div className="flex flex-col items-center justify-center gap-5 md:gap-6 px-1 py-4 md:py-8 w-full">
+            {/* Conteneur de hauteur minimale : le passage de l'accueil au panneau STT
+                reste stable, mais le contenu (texte d'accueil long ou transcript)
+                peut s'étendre sans être coupé. */}
+            <div className="w-full flex items-center justify-center min-h-[200px] h-auto overflow-visible">
             {voiceActive ? (
               /* Mode STT inline : animation micro bleue + texte blanc à la place
                  de l'icône IA + texte d'accueil (pas d'overlay fullscreen). */
@@ -2207,17 +2208,17 @@ const EmbedAsk = () => {
                 textClassName={theme === "light" ? "text-black" : "text-white"}
               />
             ) : (
-            <div className="flex flex-col items-center gap-3 text-center">
-              <div className="w-16 h-16 rounded-full bg-[#C04F17] flex items-center justify-center text-white shadow-lg">
-                <Sparkles className="w-8 h-8" />
+            <div className="flex flex-col items-center gap-3 text-center pb-2">
+              <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#C04F17] flex items-center justify-center text-white shadow-lg">
+                <Sparkles className="w-7 h-7 md:w-8 md:h-8" />
               </div>
               <h2
                 className={`font-bold leading-snug ${whiteInk}`}
-                style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(18px, 2.6vw, 26px)" }}
+                style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(16px, 2.6vw, 26px)" }}
               >
                 {headerTitle || L.platformTitle}
               </h2>
-              <p className={`text-sm max-w-[34ch] ${whiteInk || "opacity-70"}`} style={{ opacity: 0.8 }}>
+              <p className={`text-sm md:text-base max-w-[32ch] md:max-w-[34ch] ${whiteInk || "opacity-70"}`} style={{ opacity: 0.8 }}>
                 {L.platformOpener().replace(/\*\*/g, "")}
               </p>
             </div>
