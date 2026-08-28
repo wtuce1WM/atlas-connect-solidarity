@@ -94,6 +94,7 @@ const QuotesPanel = () => {
   const [editing, setEditing] = useState<Quote | null>(null);
   const [lines, setLines] = useState<Line[]>([]);
   const [saving, setSaving] = useState(false);
+  const [internalNote, setInternalNote] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
