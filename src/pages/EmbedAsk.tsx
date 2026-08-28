@@ -2168,6 +2168,18 @@ const EmbedAsk = () => {
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
           <div className="flex flex-col items-center justify-center gap-6 px-1 py-8" style={{ minHeight: "min(100%, 640px)" }}>
+            {voiceActive ? (
+              /* Mode STT inline : animation micro bleue + texte blanc à la place
+                 de l'icône IA + texte d'accueil (pas d'overlay fullscreen). */
+              <VoiceSearchPanel
+                liveTranscript={voice.liveTranscript}
+                audioLevel={voice.audioLevel}
+                micReady={voice.micReady}
+                onClose={voice.toggleRecording}
+                onFinish={voice.finishRecording}
+                textClassName={theme === "light" ? "text-black" : "text-white"}
+              />
+            ) : (
             <div className="flex flex-col items-center gap-3 text-center">
               <div className="w-16 h-16 rounded-full bg-[#C04F17] flex items-center justify-center text-white shadow-lg">
                 <Sparkles className="w-8 h-8" />
@@ -2182,6 +2194,7 @@ const EmbedAsk = () => {
                 {L.platformOpener().replace(/\*\*/g, "")}
               </p>
             </div>
+            )}
 
             <form
               onSubmit={(e) => { e.preventDefault(); send(); }}
