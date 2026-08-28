@@ -1232,30 +1232,48 @@ const EmbedAsk = () => {
       // ou vocal) → on reste sur le widget de disponibilité, jamais sur le modèle.
       suggestions.find((s) => s.mode === "booking" && normLabel(s.label) === normLabel(text)) ||
       null;
+    // Texte libre explicitement hôtelier (« une chambre d'hôtel pour 2 adultes
+    // du 27 septembre au 2 octobre ») → widget de disponibilité + SerpAPI,
+    // jamais une liste d'adresses toutes catégories produite par le modèle.
+    const freeBookingIntent = !suggestionId && !followupId ? parseBookingIntent(text) : null;
     const isBookingRequest =
       suggestionId === "8150af31-304b-40af-a638-fe10535a2e15" ||
       isBookingLabel ||
-      !!bookingSuggestion;
+      !!bookingSuggestion ||
+      !!freeBookingIntent;
     if (isBookingRequest) {
       setError(null);
       setActiveSuggestionId(bookingSuggestion?.id || suggestionId || null);
       const city = platformCity || businessCity || "Marrakech";
+      const checkIn = freeBookingIntent?.checkIn || null;
+      const checkOut = freeBookingIntent?.checkOut || null;
+      const adults = freeBookingIntent?.adults || null;
+      const hasDates = !!checkIn && !!checkOut;
+      const msgId = `a-booking-${Date.now()}`;
       setMessages((prev) => [
         ...prev,
         { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
         {
-          id: `a-booking-${Date.now()}`,
+          id: msgId,
           role: "assistant",
           parts: [{
             type: "text",
-            text: `${lang === "en"
-              ? `Choose your dates and number of guests — I'll check live availability in ${city}.`
-              : lang === "ar"
-              ? `اختر التواريخ وعدد المسافرين — سأتحقق من التوفر في ${city}.`
-              : `Choisissez vos dates et le nombre de voyageurs — je vérifie les disponibilités à ${city}.`}\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city })}-->`,
+            text: `${hasDates
+              ? (lang === "en"
+                  ? `Checking live availability in ${city} for your dates.`
+                  : lang === "ar"
+                  ? `أتحقق من التوفر في ${city} في هذه التواريخ.`
+                  : `Je vérifie les disponibilités à ${city} pour ces dates.`)
+              : (lang === "en"
+                  ? `Choose your dates and number of guests — I'll check live availability in ${city}.`
+                  : lang === "ar"
+                  ? `اختر التواريخ وعدد المسافرين — سأتحقق من التوفر في ${city}.`
+                  : `Choisissez vos dates et le nombre de voyageurs — je vérifie les disponibilités à ${city}.`)}\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city, checkIn, checkOut, adults })}-->`,
           }],
         } as any,
       ]);
+      // Dates complètes détectées → interrogation SerpAPI immédiate.
+      if (hasDates) runCityHotelSearch(msgId, city, checkIn as string, checkOut as string, adults || 2);
       return;
     }
     // Commande (tapée ou vocale) de changement de rayon : traitée localement,
