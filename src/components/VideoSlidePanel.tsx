@@ -117,17 +117,18 @@ interface VideoSlidePanelProps {
   aiMode?: "business" | "platform";
 }
 
+/** Menu fixe de filtres : seuls les libellés sont figés, les couleurs viennent du back-office (table badges). */
 const LEFT_COLUMN_BADGES = [
-  { id: "09c54af9-2263-4ee5-aaf4-43d520a95fdc", label: "Points d'intérêt", color: "#000000", textColor: "#FFFFFF" },
-  { id: "226a6dcd-f53b-4408-ac97-16d083cb4f98", label: "Guide", color: "#000000", textColor: "#FFFFFF" },
-  { id: "9c1409d9-1213-4a6f-9a2b-5984b9af227c", label: "Famille", color: "#000000", textColor: "#FFFFFF" },
-  { id: "645463af-f0a1-41f4-90c0-b79c5c74a09f", label: "Enfants", color: "#000000", textColor: "#FFFFFF" },
-  { id: "094e01b8-c2dc-47f8-838d-5bfd01d0eefc", label: "Annonces", color: "#000000", textColor: "#FFFFFF" },
-  { id: "c7f7b5dc-791f-4076-a626-e0e0f8b7bb54", label: "Deals", color: "#000000", textColor: "#FFFFFF" },
-  { id: "e042e0e8-e188-4f35-9cdd-282f8ddc5106", label: "Day Pass", color: "#000000", textColor: "#FFFFFF" },
-  { id: "651cb1af-63ee-4bc5-88cf-aea10a7d68c8", label: "Avis clients", color: "#000000", textColor: "#FFFFFF" },
-  { id: "50472b39-d364-497f-afe7-d2aa46eb92c9", label: "Agenda", color: "#000000", textColor: "#FFFFFF" },
-  { id: "3454814c-df50-414e-b5e1-70fc3976cb30", label: "Recettes", color: "#000000", textColor: "#FFFFFF" },
+  { id: "09c54af9-2263-4ee5-aaf4-43d520a95fdc", label: "Points d'intérêt" },
+  { id: "226a6dcd-f53b-4408-ac97-16d083cb4f98", label: "Guide" },
+  { id: "9c1409d9-1213-4a6f-9a2b-5984b9af227c", label: "Famille" },
+  { id: "645463af-f0a1-41f4-90c0-b79c5c74a09f", label: "Enfants" },
+  { id: "094e01b8-c2dc-47f8-838d-5bfd01d0eefc", label: "Annonces" },
+  { id: "c7f7b5dc-791f-4076-a626-e0e0f8b7bb54", label: "Deals" },
+  { id: "e042e0e8-e188-4f35-9cdd-282f8ddc5106", label: "Day Pass" },
+  { id: "651cb1af-63ee-4bc5-88cf-aea10a7d68c8", label: "Avis clients" },
+  { id: "50472b39-d364-497f-afe7-d2aa46eb92c9", label: "Agenda" },
+  { id: "3454814c-df50-414e-b5e1-70fc3976cb30", label: "Recettes" },
 ];
 
 const CITY_FEED_BADGES = [
