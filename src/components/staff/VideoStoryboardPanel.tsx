@@ -2746,11 +2746,21 @@ const VideoStoryboardPanel = () => {
                               </a>
                             )}
                             {j.error_message && (
-                              <span className="text-[11px] text-destructive ml-auto max-w-md truncate">
+                              <span className="text-[11px] text-destructive max-w-md truncate">
                                 {j.error_message}
                               </span>
                             )}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="ml-auto h-7 px-2 text-destructive hover:text-destructive"
+                              onClick={() => deleteJob(j.id)}
+                              title="Supprimer ce job"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
                           </div>
+
                           <VideoJobMeta
                             job={j}
                             businessName={j.business_id ? jobBusinessNames[j.business_id] : undefined}
