@@ -948,52 +948,48 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
   const { fps } = useVideoConfig();
 
   /**
-   * Répartition des clips : quand des bornes (start/end) sont définies, chaque
-   * clip occupe sa durée utile (end - start) au lieu d'une part égale — sinon un
-   * clip court laissait du noir dans son créneau. La somme est ensuite ramenée
-   * à la durée exacte de la section, à la hausse comme à la baisse : sans ça,
-   * des clips plus courts que la section laissaient un trou noir à la fin.
+   * Répartition des clips — les bornes Time Start / Time End saisies dans
+   * « Médias du montage » sont STRICTEMENT respectées : un clip borné occupe
+   * exactement (end - start) et n'est jamais étiré ni relâché. Le temps restant
+   * de la section est réparti entre les clips sans bornes ; s'il n'y en a aucun,
+   * le dernier clip absorbe le reliquat (seul cas où sa borne de fin est
+   * relâchée, pour éviter du noir en fin de scène).
    */
   const slots = React.useMemo(() => {
     const n = clips.length;
-    if (n === 0) return [] as { from: number; frames: number }[];
-    const equal = Math.max(1, Math.floor(durationInFrames / n));
-    const weights = clips.map((raw) => {
+    if (n === 0) return [] as { from: number; frames: number; relaxEnd: boolean }[];
+    const trimFrames = clips.map((raw) => {
       const t = trims[raw] ?? {};
       const s = t.start && t.start > 0 ? t.start : 0;
       const e = t.end && t.end > s ? t.end : 0;
-      return e > s ? Math.max(1, Math.round((e - s) * fps)) : equal;
+      return e > s ? Math.max(1, Math.round((e - s) * fps)) : 0;
     });
-    const total = weights.reduce((a, b) => a + b, 0);
-    const scale = total > 0 ? durationInFrames / total : 1;
-    const acc: { from: number; frames: number }[] = [];
-    let cursor = 0;
-    weights.forEach((w, i) => {
-      const isLast = i === n - 1;
-      let frames = Math.max(1, Math.round(w * scale));
-      if (cursor + frames > durationInFrames) frames = Math.max(1, durationInFrames - cursor);
-      // Le dernier clip absorbe l'arrondi : la section est toujours couverte
-      // intégralement (aucune seconde noire en fin de scène).
-      if (isLast) frames = Math.max(1, durationInFrames - cursor);
-      acc.push({ from: cursor, frames });
-      cursor += frames;
-    });
-    return acc;
-  }, [clips, trims, durationInFrames, fps]);
+    const fixedTotal = trimFrames.reduce((a, b) => a + b, 0);
+    const freeCount = trimFrames.filter((f) => f === 0).length;
+    const remaining = durationInFrames - fixedTotal;
+    const freeShare = freeCount > 0 ? Math.max(1, Math.floor(Math.max(0, remaining) / freeCount)) : 0;
 
-  /** Quand les clips sont plus courts que la section, on relâche les bornes de
-   * fin (endAt) : mieux vaut lire un peu au-delà du trim que du noir. */
-  const relaxEnd = React.useMemo(() => {
-    const n = clips.length;
-    if (n === 0) return false;
-    const equal = Math.max(1, Math.floor(durationInFrames / n));
-    const total = clips.reduce((sum, raw) => {
-      const t = trims[raw] ?? {};
-      const s = t.start && t.start > 0 ? t.start : 0;
-      const e = t.end && t.end > s ? t.end : 0;
-      return sum + (e > s ? Math.max(1, Math.round((e - s) * fps)) : equal);
-    }, 0);
-    return total < durationInFrames;
+    const acc: { from: number; frames: number; relaxEnd: boolean }[] = [];
+    let cursor = 0;
+    for (let i = 0; i < n; i++) {
+      const left = durationInFrames - cursor;
+      if (left <= 0) break; // section pleine : les clips suivants sont écartés
+      const want = trimFrames[i] > 0 ? trimFrames[i] : freeShare || left;
+      const frames = Math.max(1, Math.min(want, left));
+      acc.push({ from: cursor, frames, relaxEnd: false });
+      cursor += frames;
+    }
+    // Reliquat éventuel : rallonge le dernier clip placé (bornes relâchées).
+    if (acc.length > 0 && cursor < durationInFrames) {
+      const last = acc[acc.length - 1];
+      const extended = durationInFrames - last.from;
+      acc[acc.length - 1] = {
+        ...last,
+        frames: extended,
+        relaxEnd: extended > last.frames,
+      };
+    }
+    return acc;
   }, [clips, trims, durationInFrames, fps]);
 
 
@@ -1006,7 +1002,7 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
           if (!src || !slot) return null;
           const t = trims[raw] ?? {};
           const startFrom = t.start && t.start > 0 ? Math.round(t.start * fps) : undefined;
-          const endAtRaw = !relaxEnd && t.end && t.end > 0 ? Math.round(t.end * fps) : undefined;
+          const endAtRaw = !slot.relaxEnd && t.end && t.end > 0 ? Math.round(t.end * fps) : undefined;
           const endAt = endAtRaw != null && endAtRaw > (startFrom ?? 0) + 1 ? endAtRaw : undefined;
           return (
             <Sequence key={`${raw}-${i}`} from={slot.from} durationInFrames={slot.frames} layout="none">
