@@ -2163,33 +2163,6 @@ const EmbedAsk = () => {
       </header>
 
       <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto"} px-4 py-4 space-y-3 ${bg} relative`}>
-        {isPlatform && splashPhase !== "done" && messages.length <= 1 && (
-          <div
-            className="absolute inset-0 z-30 flex items-center justify-center px-6 pointer-events-none"
-            style={{
-              background: theme === "light" ? "rgb(255,255,255)" : "rgb(10,10,10)",
-              backdropFilter: "blur(16px)",
-
-              transform: splashPhase === "exit" ? "scale(0.62) translateY(-14%)" : "scale(1)",
-              opacity: splashPhase === "exit" ? 0 : 1,
-              transformOrigin: "top center",
-              transition: "transform 640ms cubic-bezier(0.22,0.9,0.24,1), opacity 640ms ease",
-            }}
-          >
-            <p
-              className={`text-center font-semibold leading-snug ${theme === "light" ? "" : "text-white"}`}
-              style={{
-                fontFamily: "'Montserrat', sans-serif",
-                fontSize: "clamp(18px, 3.4vw, 30px)",
-                maxWidth: "34ch",
-              }}
-            >
-              {(isPlatform ? L.platformOpener() : "").replace(/\*\*/g, "")}
-
-            </p>
-          </div>
-        )}
-
         {/* Option B : état « accueil IA » — logo, titre, champ central très visible,
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
