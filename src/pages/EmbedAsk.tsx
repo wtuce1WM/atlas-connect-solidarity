@@ -2189,6 +2189,9 @@ const EmbedAsk = () => {
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
           <div className="flex flex-col items-center justify-center gap-6 px-1 py-8" style={{ minHeight: "min(100%, 640px)" }}>
+            {/* Conteneur de hauteur fixe : le passage de l'accueil au panneau STT,
+                et un transcript qui passe sur 2 lignes, ne décalent plus la mise en page. */}
+            <div className="w-full flex items-center justify-center overflow-hidden" style={{ height: 200 }}>
             {voiceActive ? (
               /* Mode STT inline : animation micro bleue + texte blanc à la place
                  de l'icône IA + texte d'accueil (pas d'overlay fullscreen). */
