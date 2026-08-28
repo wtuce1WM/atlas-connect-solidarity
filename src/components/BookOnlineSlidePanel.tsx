@@ -741,7 +741,9 @@ const BookOnlineSlidePanelInner = ({
   // uniquement si la géoloc est réellement active (pas de coords résiduelles).
   const showUserMarker = !embedMode && geo.isEnabled;
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
-  const { tabs: frontTabs } = useFrontStructureTabs(business?.city || null);
+  // Corpus ville imposé : les onglets/catégories viennent de la 1ère ville du corpus
+  // (le Master d'ancrage peut ne pas avoir de structure front exploitable).
+  const { tabs: frontTabs } = useFrontStructureTabs((poiCityCorpus && poiCityCorpus[0]) || business?.city || null);
   const { translateSubcategory } = useTaxonomyTranslations();
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
 
