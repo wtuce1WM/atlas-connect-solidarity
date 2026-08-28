@@ -1330,7 +1330,7 @@ const VideoSlidePanel = ({
                 );
               })}
             </div>
-            <div className="flex flex-col items-start gap-1.5">
+            <div className="flex flex-col items-center gap-1.5">
               {(() => {
                 const firstVideoBadge = feedBadges?.[0];
                 const dynamicBadges = feedBadges?.slice(1).filter((b) => {
@@ -1394,6 +1394,21 @@ const VideoSlidePanel = ({
                         </button>
                       );
                     })}
+                    {isYouTubeUrl && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          navigate("/youtube");
+                        }}
+                        className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
+                        style={{ backgroundColor: "#FF0000", fontFamily: "'Montserrat',system-ui,sans-serif" }}
+                        title="Voir le feed YouTube"
+                      >
+                        <YouTubeIcon className="h-3 w-3 shrink-0" />
+                        YouTube
+                      </button>
+                    )}
                   </>
                 );
               })()}
