@@ -640,9 +640,9 @@ const EmbedAsk = () => {
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null; is_platform_visible?: boolean };
   type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
-  // Splash d'accueil plateforme : le message d'ouverture occupe tout l'overlay,
-  // puis zoom-out vers le haut dès que les suggestions back-office sont prêtes.
-  const [splashPhase, setSplashPhase] = useState<"full" | "exit" | "done">("full");
+  // Splash d'accueil supprimé : la landing IA s'affiche immédiatement, sans
+  // écran intermédiaire (grand message → petit message).
+  const [splashPhase] = useState<"full" | "exit" | "done">("done");
   /** Accueil IA : n'affiche que 5 chips, le CTA déplie toutes les suggestions. */
   const [showAllSuggestions, setShowAllSuggestions] = useState(false);
 
@@ -1025,9 +1025,7 @@ const EmbedAsk = () => {
       if (initialPersisted.activeSuggestionId) setActiveSuggestionId(initialPersisted.activeSuggestionId);
       return;
     }
-    // Le grand message d'accueil ne s'affiche qu'au premier montage de
-    // l'assistant plateforme, jamais après un clic sur « Nouvelle conversation ».
-    if (isPlatform && chatKey === 0) setSplashPhase("full");
+    // (splash d'accueil supprimé)
     setMessages([{
       id: "opener",
       role: "assistant",
@@ -1135,25 +1133,6 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
   }, [lang, isPlatform, suggestionFilterCity, suggestionFilterCategory]);
 
-  // Séquence du splash plateforme : plein écran → zoom-out → contenu normal.
-  // Non bloquant : la sortie se déclenche dès que la requête suggestions est
-  // retombée (succès OU erreur), avec un filet de sécurité de 2,5 s.
-  const splashScheduledRef = useRef<"none" | "pending" | "settled">("none");
-  useEffect(() => {
-    if (!isPlatform) { setSplashPhase("done"); return; }
-    const settled = dbSuggestions !== null;
-    // Ne replanifie que si rien n'est encore programmé, ou si les suggestions
-    // viennent d'arriver alors qu'on était sur le filet de sécurité 2,5 s.
-    if (splashScheduledRef.current === "settled") return;
-    if (splashScheduledRef.current === "pending" && !settled) return;
-    splashScheduledRef.current = settled ? "settled" : "pending";
-    const delay = settled ? 120 : 2500;
-    const t1 = window.setTimeout(() => setSplashPhase("exit"), delay);
-    const t2 = window.setTimeout(() => setSplashPhase("done"), delay + 700);
-    return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlatform, dbSuggestions]);
 
 
 
@@ -2184,33 +2163,6 @@ const EmbedAsk = () => {
       </header>
 
       <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto"} px-4 py-4 space-y-3 ${bg} relative`}>
-        {isPlatform && splashPhase !== "done" && messages.length <= 1 && (
-          <div
-            className="absolute inset-0 z-30 flex items-center justify-center px-6 pointer-events-none"
-            style={{
-              background: theme === "light" ? "rgb(255,255,255)" : "rgb(10,10,10)",
-              backdropFilter: "blur(16px)",
-
-              transform: splashPhase === "exit" ? "scale(0.62) translateY(-14%)" : "scale(1)",
-              opacity: splashPhase === "exit" ? 0 : 1,
-              transformOrigin: "top center",
-              transition: "transform 640ms cubic-bezier(0.22,0.9,0.24,1), opacity 640ms ease",
-            }}
-          >
-            <p
-              className={`text-center font-semibold leading-snug ${theme === "light" ? "" : "text-white"}`}
-              style={{
-                fontFamily: "'Montserrat', sans-serif",
-                fontSize: "clamp(18px, 3.4vw, 30px)",
-                maxWidth: "34ch",
-              }}
-            >
-              {(isPlatform ? L.platformOpener() : "").replace(/\*\*/g, "")}
-
-            </p>
-          </div>
-        )}
-
         {/* Option B : état « accueil IA » — logo, titre, champ central très visible,
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
