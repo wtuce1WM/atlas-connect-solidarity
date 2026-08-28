@@ -103,12 +103,11 @@ export async function fetchVideoCities(opts: {
 }
 
 /**
- * Récupère une seule ville liée à une vidéo, quelle que soit sa source
- * (business_document, generic_video, youtube_video). Si plusieurs villes sont
- * liées, seule la première (triée alphabétiquement) est retournée.
+ * Récupère toutes les villes actives liées à une vidéo, quelle que soit sa source
+ * (business_document, generic_video, youtube_video), triées alphabétiquement.
  */
-export async function fetchVideoCity(videoId: string): Promise<{ id: string; name: string } | null> {
-  if (!videoId) return null;
+export async function fetchVideoCityList(videoId: string): Promise<{ id: string; name: string }[]> {
+  if (!videoId) return [];
   const [docRes, genRes, ytRes] = await Promise.all([
     supabase.from("business_document_cities").select("city_id").eq("document_id", videoId),
     (supabase as any).from("generic_video_cities").select("city_id").eq("generic_video_id", videoId),
@@ -119,10 +118,22 @@ export async function fetchVideoCity(videoId: string): Promise<{ id: string; nam
     ...(((genRes as any)?.data as any[]) || []),
     ...(((ytRes as any)?.data as any[]) || []),
   ].map((r) => String(r.city_id)).filter(Boolean);
-  if (!ids.length) return null;
-  const { data } = await supabase.from("cities").select("id, name_fr").in("id", [...new Set(ids)]);
+  if (!ids.length) return [];
+  const { data } = await supabase
+    .from("cities")
+    .select("id, name_fr, is_active")
+    .in("id", [...new Set(ids)])
+    .eq("is_active", true);
   const rows = ((data as any[]) || []).filter((c) => c?.name_fr);
-  if (!rows.length) return null;
   rows.sort((a, b) => String(a.name_fr).localeCompare(String(b.name_fr), "fr"));
-  return { id: String(rows[0].id), name: String(rows[0].name_fr) };
+  return rows.map((c) => ({ id: String(c.id), name: String(c.name_fr) }));
 }
+
+/**
+ * Récupère une seule ville liée à une vidéo (première par ordre alphabétique).
+ */
+export async function fetchVideoCity(videoId: string): Promise<{ id: string; name: string } | null> {
+  const list = await fetchVideoCityList(videoId);
+  return list[0] ?? null;
+}
+
