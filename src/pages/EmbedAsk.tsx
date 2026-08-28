@@ -830,6 +830,15 @@ const EmbedAsk = () => {
   /** Overlay POI générique (chip « Map » permanent de l'accueil IA) : corpus complet
       des POI, ancré sur l'hôte ou sur un business `default_poi_is_master`. */
   const [openGenericPoi, setOpenGenericPoi] = useState(false);
+  const [renderGenericPoi, setRenderGenericPoi] = useState(openGenericPoi);
+  useEffect(() => {
+    if (openGenericPoi) {
+      setRenderGenericPoi(true);
+    } else {
+      const t = setTimeout(() => setRenderGenericPoi(false), 320);
+      return () => clearTimeout(t);
+    }
+  }, [openGenericPoi]);
   const [poiMasterAnchorId, setPoiMasterAnchorId] = useState<string | null>(null);
 
   // Carte des destinations (distincte de la carte des résultats établissements) :
