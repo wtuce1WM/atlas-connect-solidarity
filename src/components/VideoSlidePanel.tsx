@@ -231,6 +231,8 @@ const VideoSlidePanel = ({
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
   const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
+  /** Chips badges : replié (1 seul badge) par défaut, déplié au clic. */
+  const [chipsExpanded, setChipsExpanded] = useState(false);
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
   /** L'iframe IA signale sa disponibilité via postMessage("owm-ai-ready"). */
@@ -1300,7 +1302,39 @@ const VideoSlidePanel = ({
             Clic sur un chip → relance le feed sur ce badge/ville. */}
         {feedLayout && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && !clubPopupOpen && !timelineClubOpen && (
-          <div className="absolute top-16 left-3 right-3 z-[100] grid grid-cols-3 gap-2 pointer-events-none">
+          <div className="absolute top-16 left-3 right-3 z-[100] pointer-events-none">
+            {!chipsExpanded && (() => {
+              // Badge « vitrine » : en priorité un badge avec une couleur spécifique
+              // (back-office), sinon n'importe lequel.
+              const hasSpecificColor = (c?: string | null) => {
+                const v = String(c || "").trim().toLowerCase();
+                return !!v && v !== "#000000" && v !== "#000" && v !== "#ffffff" && v !== "#fff";
+              };
+              const pick = feedBadges?.find((b) => hasSpecificColor(b.color)) || feedBadges?.[0] || null;
+              const extra = (feedBadges?.length ?? 0) + LEFT_COLUMN_BADGES.length + CITY_FEED_BADGES.length - (pick ? 1 : 0);
+              return (
+                <div className="flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setChipsExpanded(true)}
+                    className="pointer-events-auto inline-flex max-w-full items-center gap-1.5 rounded-full border border-white/25 px-3 py-1 text-[11px] md:text-xs font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95"
+                    style={{
+                      backgroundColor: pick?.color || "rgba(0,0,0,0.7)",
+                      color: pick?.text_color || "#FFFFFF",
+                      fontFamily: "'Montserrat',system-ui,sans-serif",
+                    }}
+                    title="Voir tous les badges"
+                  >
+                    {capFirstBadgeLabel(pick?.name || "Badges")}
+                    {extra > 0 && <span className="opacity-90 tabular-nums">+{extra}</span>}
+                    <ChevronDown className="h-3.5 w-3.5 shrink-0" />
+                  </button>
+                </div>
+              );
+            })()}
+            {chipsExpanded && (
+            <div className="grid grid-cols-3 gap-2">
+
             <div className="flex flex-col items-end gap-1.5">
               {LEFT_COLUMN_BADGES.filter(
                 (b) => !(feedBadges?.[0]?.id && b.id === feedBadges[0].id)
@@ -1352,8 +1386,8 @@ const VideoSlidePanel = ({
                         onClick={() => onFeedBadgeSelect?.({ id: firstVideoBadge.id, name: firstVideoBadge.name })}
                         className="pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border border-white/25 px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
                         style={{
-                          backgroundColor: "#C04F17",
-                          color: "#FFFFFF",
+                          backgroundColor: firstVideoBadge.color || "rgba(0,0,0,0.7)",
+                          color: firstVideoBadge.text_color || "#FFFFFF",
                           fontFamily: "'Montserrat',system-ui,sans-serif",
                         }}
                         title={onFeedBadgeSelect ? `Voir les vidéos ${firstVideoBadge.name}` : firstVideoBadge.name}
@@ -1436,6 +1470,22 @@ const VideoSlidePanel = ({
                 </button>
               ))}
             </div>
+            </div>
+            )}
+            {chipsExpanded && (
+              <div className="mt-2 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setChipsExpanded(false)}
+                  className="pointer-events-auto inline-flex items-center gap-1 rounded-full border border-white/25 bg-black/70 px-3 py-1 text-[11px] md:text-xs font-semibold text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
+                  style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
+                  title="Masquer les badges"
+                >
+                  <ChevronUp className="h-3.5 w-3.5 shrink-0" />
+                  Masquer
+                </button>
+              </div>
+            )}
           </div>
         )}
 
