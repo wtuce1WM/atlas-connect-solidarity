@@ -1326,7 +1326,6 @@ const VideoSlidePanel = ({
                     title="Voir tous les badges"
                   >
                     {capFirstBadgeLabel(pick?.name || "Badges")}
-                    {extra > 0 && <span className="opacity-90 tabular-nums">+{extra}</span>}
                     <ChevronDown className="h-3.5 w-3.5 shrink-0" />
                   </button>
                 </div>
