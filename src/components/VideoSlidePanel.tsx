@@ -663,6 +663,10 @@ const VideoSlidePanel = ({
   const [ytMuted, setYtMuted] = useState(!soundOn);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
+  const isYouTubeUrl = useMemo(
+    () => /(?:youtube\.com|youtu\.be|youtube-nocookie\.com)/i.test(videoUrl || ""),
+    [videoUrl],
+  );
   const [toolbarMounted, setToolbarMounted] = useState(false);
   useEffect(() => {
     if (open) {
@@ -1632,24 +1636,6 @@ const VideoSlidePanel = ({
                 key={`desc-plus-${videoId || videoUrl}`}
                 onOpen={() => setDescOverlayOpen(true)}
               />
-            </div>
-          )}
-          {/* TEMPORAIRE (debug) : ID de la vidéo au centre, clic = copie */}
-          {feedLayout && videoId && !descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && (
-            <div className="absolute inset-0 z-[45] flex flex-col items-center justify-center gap-2 pointer-events-none">
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard?.writeText(String(videoId)).then(
-                    () => toast.success(`ID copié : ${videoId}`),
-                    () => {},
-                  );
-                }}
-                className="pointer-events-auto rounded-full bg-black/60 border border-white/20 px-3 py-1.5 font-mono text-[11px] text-white backdrop-blur-sm hover:bg-black/80 transition-colors"
-                title="Copier l'ID de la vidéo"
-              >
-                {videoId}
-              </button>
             </div>
           )}
           <div className={`absolute inset-0 z-30 pointer-events-none ${descOverlayOpen || aiOverlayOpen ? "hidden" : ""}`}>
