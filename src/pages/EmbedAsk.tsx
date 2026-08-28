@@ -3220,8 +3220,13 @@ const EmbedAsk = () => {
 
       {/* Overlay POI/Map générique du chip « Map » de l'accueil IA : corpus complet
           des POI (pas de poiOverrideIds), ancré sur l'hôte ou sur le POI master. */}
-      {openGenericPoi && (businessId || poiMasterAnchorId) && (
-        <div className="fixed inset-0 z-[220]">
+      {renderGenericPoi && (businessId || poiMasterAnchorId) && (
+        <div
+          className={cn(
+            "fixed inset-0 z-[220] transition-transform duration-300 ease-out will-change-transform",
+            openGenericPoi ? "translate-x-0" : "translate-x-full"
+          )}
+        >
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
               businessId={businessId || poiMasterAnchorId!}
