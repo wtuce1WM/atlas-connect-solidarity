@@ -881,25 +881,11 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
       deduped.push(...cleaned);
 
 
-      // Détection réelle des orientations (images + vidéos internes) pour le filtre 16:9.
-      // Important : en parallèle total (des centaines de requêtes simultanées) le
-      // navigateur sature et la plupart des détections expiraient → orientation null,
-      // donc quasi rien dans le filtre 16:9. On détecte donc par lots concurrents
-      // limités, en mettant à jour la liste au fur et à mesure.
+      // Orientations : on garde uniquement ce qui vient de la base. La détection
+      // navigateur (téléchargement de chaque média) est faite plus tard, page par
+      // page, pour éviter des centaines de requêtes à l'ouverture.
       setItems(deduped);
-      const CONCURRENCY = 6;
-      let cursor = 0;
-      const workers = Array.from({ length: CONCURRENCY }, async () => {
-        while (cursor < deduped.length) {
-          const idx = cursor++;
-          const m = deduped[idx];
-          if (m.orientation) continue;
-          const o = await detectOrientation(m);
-          if (!o) continue;
-          setItems((prev) => prev.map((it) => (it.url === m.url ? { ...it, orientation: o } : it)));
-        }
-      });
-      void Promise.all(workers);
+
     } catch (e: any) {
       toast.error(`Chargement des médias impossible : ${e.message ?? e}`);
     } finally {
@@ -1033,7 +1019,64 @@ export function useLandscapeVideos(enabled: boolean) {
   return { items, loading, pending, measuring, measure, reload: load };
 }
 
+/**
+ * Images publiques des fiches (colonne `businesses.images`), toutes fiches actives
+ * confondues. Chargement paresseux : uniquement quand la source est sélectionnée,
+ * car un montage sans établissement lié n'avait aucune image disponible.
+ */
+export function useFicheImages(enabled: boolean) {
+  const [items, setItems] = useState<PickerMedia[]>([]);
+  const [loading, setLoading] = useState(false);
+  const done = useRef(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const rows: any[] = [];
+      for (let page = 0; page < 6; page++) {
+        const from = page * 500;
+        const { data, error } = await supabase
+          .from("businesses")
+          .select("id, name, images")
+          .eq("is_active", true)
+          .not("images", "is", null)
+          .order("name", { ascending: true })
+          .range(from, from + 499);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        rows.push(...data);
+        if (data.length < 500) break;
+      }
+      const seen = new Set<string>();
+      const out: PickerMedia[] = [];
+      for (const b of rows) {
+        for (const raw of ((b as any).images ?? []) as string[]) {
+          const url = typeof raw === "string" ? raw.trim() : "";
+          if (!url) continue;
+          const k = url.toLowerCase();
+          if (seen.has(k)) continue;
+          seen.add(k);
+          out.push({ url, kind: "image", source: "other", ownerName: b.name ?? null, title: b.name ?? null });
+        }
+      }
+      setItems(out);
+      done.current = true;
+    } catch (e: any) {
+      toast.error(`Images des fiches indisponibles : ${e.message ?? e}`);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (enabled && !done.current) void load();
+  }, [enabled, load]);
+
+  return { items, loading, reload: load };
+}
+
 /* ------------------------------------------------------------------ modal */
+
 
 export function VideoMediaPickerDialog({
   businessId,
@@ -1068,7 +1111,7 @@ export function VideoMediaPickerDialog({
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("none");
   const { items, loading, reload, setItems } = useVideoMediaSources(
     businessId,
-    open && sourceFilter !== "none",
+    open && sourceFilter !== "none" && sourceFilter !== "fiche_images",
     otherSlug,
   );
   const [wideAsked, setWideAsked] = useState(false);
@@ -1293,6 +1336,35 @@ export function VideoMediaPickerDialog({
     () => sorted.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE),
     [sorted, page],
   );
+
+  /**
+   * Détection d'orientation limitée aux médias de la page affichée : télécharger
+   * des centaines de fichiers à l'ouverture rendait le popup très lent.
+   */
+  const orientationDone = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const todo = pageItems.filter((m) => !m.orientation && !orientationDone.current.has(m.url));
+    if (todo.length === 0) return;
+    let alive = true;
+    todo.forEach((m) => orientationDone.current.add(m.url));
+    void (async () => {
+      const CONCURRENCY = 4;
+      let cursor = 0;
+      await Promise.all(
+        Array.from({ length: CONCURRENCY }, async () => {
+          while (alive && cursor < todo.length) {
+            const m = todo[cursor++];
+            const o = await detectOrientation(m);
+            if (!alive || !o) continue;
+            setItems((prev) => prev.map((it) => (it.url === m.url ? { ...it, orientation: o } : it)));
+          }
+        }),
+      );
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [pageItems, setItems]);
 
 
   const toggle = (m: PickerMedia) => {
