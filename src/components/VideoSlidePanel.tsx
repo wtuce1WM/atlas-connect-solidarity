@@ -1299,7 +1299,9 @@ const VideoSlidePanel = ({
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && !clubPopupOpen && !timelineClubOpen && (
           <div className="absolute top-16 left-3 right-3 z-[100] grid grid-cols-2 gap-2 pointer-events-none">
             <div className="flex flex-col items-end gap-1.5">
-              {LEFT_COLUMN_BADGES.map((b) => {
+              {LEFT_COLUMN_BADGES.filter(
+                (b) => !(feedBadges?.[0]?.id && b.id === feedBadges[0].id)
+              ).map((b) => {
                 const isSelected = selectedBadgeId && b.id === selectedBadgeId;
                 return (
                   <button
@@ -1330,7 +1332,8 @@ const VideoSlidePanel = ({
             </div>
             <div className="flex flex-col items-start gap-1.5">
               {(() => {
-                const dynamicBadges = feedBadges?.filter((b) => {
+                const firstVideoBadge = feedBadges?.[0];
+                const dynamicBadges = feedBadges?.slice(1).filter((b) => {
                   const left = LEFT_COLUMN_BADGES.find((lb) => lb.id === b.id);
                   if (left) return false;
                   // Exclure aussi les badges dont le nom est identique à un label de gauche (insensible à la casse et aux accents)
@@ -1338,6 +1341,27 @@ const VideoSlidePanel = ({
                 }) ?? [];
                 return (
                   <>
+                    {firstVideoBadge && (
+                      <button
+                        key={firstVideoBadge.id}
+                        type="button"
+                        disabled={!onFeedBadgeSelect}
+                        onClick={() => onFeedBadgeSelect?.({ id: firstVideoBadge.id, name: firstVideoBadge.name })}
+                        className="pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border border-white/25 px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
+                        style={{
+                          backgroundColor: "#C04F17",
+                          color: "#FFFFFF",
+                          fontFamily: "'Montserrat',system-ui,sans-serif",
+                        }}
+                        title={onFeedBadgeSelect ? `Voir les vidéos ${firstVideoBadge.name}` : firstVideoBadge.name}
+                      >
+                        {firstVideoBadge.name === "Rooftop Restaurant & Bars" ? (
+                          <>Rooftop<br />Restaurant & Bars</>
+                        ) : (
+                          capFirstBadgeLabel(firstVideoBadge.name)
+                        )}
+                      </button>
+                    )}
                     {dynamicBadges.map((b) => {
                       const isSelected = selectedBadgeId && b.id === selectedBadgeId;
                       return (
