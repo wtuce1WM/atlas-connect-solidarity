@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1859,
+  "numberOfItems": 1860,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -4344,7 +4344,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 1953,
+          "reviewCount": 1957,
           "bestRating": 5
         }
       }
@@ -15523,7 +15523,7 @@
         "@id": "https://oneworldmorocco.com/kanz-erremal-excursions#business",
         "name": "Kanz Erremal Excursions",
         "url": "https://oneworldmorocco.com/kanz-erremal-excursions",
-        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/cd4815aa-d488-4558-97eb-9cb49a4efac1-1771072144039-rwg77j.jpg",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/cd4815aa-d488-4558-97eb-9cb49a4efac1-1787926763765-hmmfc.jpg",
         "description": "Au Kanz Erremal, hôtel au désert du Maroc, explorez les nombreuses excursions offertes aux alentours de l'hôtel, telles que la visite du marché animé de Rissani, des balades pittoresques à dos de chameaux à travers les dunes de l'Erg Chebbi, et l'exploration des paysages époustouflants de l'El Cherbi, les excursions en 4x4... Parc national des dunes d'Erg Chebbi L'excursion prend un tour en 4x4 à travers la hamada (désert de pierre noire) autour du champ de dunes de l'Erg Chebbi, le plus grand d",
         "address": {
           "@type": "PostalAddress",
@@ -15540,7 +15540,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 586,
+          "reviewCount": 629,
           "bestRating": 5
         }
       }
@@ -26432,7 +26432,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 272,
+          "reviewCount": 295,
           "bestRating": 5
         }
       }
@@ -26962,7 +26962,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 3.7,
-          "reviewCount": 3801,
+          "reviewCount": 3982,
           "bestRating": 5
         }
       }
@@ -27327,12 +27327,12 @@
     {
       "@type": "ListItem",
       "position": 933,
-      "url": "https://oneworldmorocco.com/oasiria-market",
+      "url": "https://oneworldmorocco.com/oasiria-bio-market",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/oasiria-market#business",
+        "@id": "https://oneworldmorocco.com/oasiria-bio-market#business",
         "name": "Oasiria Market",
-        "url": "https://oneworldmorocco.com/oasiria-market",
+        "url": "https://oneworldmorocco.com/oasiria-bio-market",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/bd8c3d46-607a-42af-92e5-b35ffe85015e-1775198734991-mflon4.jpg",
         "description": "Oasiria Market est le premier marché bio et local de Marrakech, au cœur du complexe Oasiria. Tous les dimanches de 10h à 15h, une quarantaine de stands proposent des produits frais directement du producteur au consommateur : fruits et légumes bio de saison, charcuterie, huîtres, escargots, fromages fermiers, pâtisserie, miel, œufs beldi, plantes aromatiques, huile d'olive, pâtes fraîches, confitures, épices, champignons frais, et produits issus de l'agriculture biologique. L'artisanat local est ",
         "address": {
@@ -27351,7 +27351,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 22,
+          "reviewCount": 21,
           "bestRating": 5
         }
       }
@@ -53096,6 +53096,38 @@
     {
       "@type": "ListItem",
       "position": 1853,
+      "url": "https://oneworldmorocco.com/oasiria-bio-market",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/oasiria-bio-market#business",
+        "name": "Oasiria Market",
+        "url": "https://oneworldmorocco.com/oasiria-bio-market",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/bd8c3d46-607a-42af-92e5-b35ffe85015e-1775198734991-mflon4.jpg",
+        "description": "Oasiria Market est le premier marché bio et local de Marrakech, au cœur du complexe Oasiria. Tous les dimanches de 10h à 15h, une quarantaine de stands proposent des produits frais directement du producteur au consommateur : fruits et légumes bio de saison, charcuterie, huîtres, escargots, fromages fermiers, pâtisserie, miel, œufs beldi, plantes aromatiques, huile d'olive, pâtes fraîches, confitures, épices, champignons frais, et produits issus de l'agriculture biologique. L'artisanat local est ",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Km 4",
+          "addressLocality": "Route d'Amizmiz",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.5804794,
+          "longitude": -8.0154755
+        },
+        "telephone": "+212524380438",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.6,
+          "reviewCount": 21,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1854,
       "url": "https://oneworldmorocco.com/elevate-cycle",
       "item": {
         "@type": "LocalBusiness",
@@ -53126,7 +53158,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1854,
+      "position": 1855,
       "url": "https://oneworldmorocco.com/all-fish-essaouira-garba",
       "item": {
         "@type": "LocalBusiness",
@@ -53150,7 +53182,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1855,
+      "position": 1856,
       "url": "https://oneworldmorocco.com/la-grande-table-marocaine-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -53182,7 +53214,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1856,
+      "position": 1857,
       "url": "https://oneworldmorocco.com/be-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -53213,7 +53245,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1857,
+      "position": 1858,
       "url": "https://oneworldmorocco.com/delegation-regionale-du-tourisme-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -53239,7 +53271,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1858,
+      "position": 1859,
       "url": "https://oneworldmorocco.com/m-avenue-1",
       "item": {
         "@type": "LocalBusiness",
@@ -53271,7 +53303,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1859,
+      "position": 1860,
       "url": "https://oneworldmorocco.com/pc-gamer-maroc",
       "item": {
         "@type": "LocalBusiness",

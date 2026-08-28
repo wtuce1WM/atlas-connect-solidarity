@@ -2,9 +2,9 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-28T09:24:24.274Z",
+    "generated_at": "2026-08-28T15:16:15.019Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
-    "count": 1859
+    "count": 1860
   },
   "businesses": [
     {
@@ -12338,7 +12338,7 @@
       "website": "https://www.be-agafay.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/f6c99093-122e-48cd-8591-5154706838a4-1779604769612-f47gcc.jpg",
       "google_rating": 4.8,
-      "google_review_count": 1953,
+      "google_review_count": 1957,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -45216,9 +45216,9 @@
       "phone": "+212535578482",
       "whatsapp": null,
       "website": "https://www.kanzerremal.com/fr/excursions-desert-marocain-hotel",
-      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/cd4815aa-d488-4558-97eb-9cb49a4efac1-1771072144039-rwg77j.jpg",
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/cd4815aa-d488-4558-97eb-9cb49a4efac1-1787926763765-hmmfc.jpg",
       "google_rating": 4.2,
-      "google_review_count": 586,
+      "google_review_count": 629,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -45229,7 +45229,7 @@
       "social": {
         "instagram": "https://www.instagram.com/kanzerremal/",
         "facebook": "https://www.facebook.com/kasbahotelkanzerremal",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g304017-d557735-Reviews-Hotel_Kanz_Erremal-Merzouga_Draa_Tafilalet.html?m=66827",
         "youtube": "https://www.youtube.com/@kanzerremal6097",
         "linkedin": "https://www.linkedin.com/in/hotel-kanzerremal-8284a83b"
       }
@@ -76238,7 +76238,7 @@
       "website": "https://nomadexpeditions4x4.com",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/21ce57ac-ffb4-44ee-8484-9b4d9912d85e-1771149993716-t24u0h.jpg",
       "google_rating": 5,
-      "google_review_count": 272,
+      "google_review_count": 295,
       "price_range": null,
       "min_price_mad": null,
       "languages": [
@@ -76255,7 +76255,7 @@
       "social": {
         "instagram": "https://www.instagram.com/nomadexpeditions4x4tours/",
         "facebook": "https://www.facebook.com/pages/Nomad-Expeditions-4x4-Viajes-y-Aventuras-Por-Todo-Marruecos/1519489991650809",
-        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d5575182-Reviews-Nomad_Expeditions_4x4_Day_Tours-Marrakech_Marrakech_Tensift_El_Haouz_Region.html",
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d5575182-Reviews-Nomad_Expeditions_4x4-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -77679,7 +77679,7 @@
       "website": "https://www.oasiria.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/728e90f7-3894-43a5-8c0d-9dd193fe9946-1775200704793-mlkk.jpg",
       "google_rating": 3.7,
-      "google_review_count": 3801,
+      "google_review_count": 3982,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -78874,8 +78874,8 @@
     },
     {
       "id": "bd8c3d46-607a-42af-92e5-b35ffe85015e",
-      "slug": "oasiria-market",
-      "url": "https://oneworldmorocco.com/oasiria-market",
+      "slug": "oasiria-bio-market",
+      "url": "https://oneworldmorocco.com/oasiria-bio-market",
       "name": "Oasiria Market",
       "hook": "Le marché bio et local de Marrakech : du producteur au consommateur, tous les dimanches à Oasiria.",
       "description": "Oasiria Market est le premier marché bio et local de Marrakech, au cœur du complexe Oasiria. Tous les dimanches de 10h à 15h, une quarantaine de stands proposent des produits frais directement du producteur au consommateur : fruits et légumes bio de saison, charcuterie, huîtres, escargots, fromages fermiers, pâtisserie, miel, œufs beldi, plantes aromatiques, huile d'olive, pâtes fraîches, confitures, épices, champignons frais, et produits issus de l'agriculture biologique. L'artisanat local est ",
@@ -78952,7 +78952,7 @@
       "website": "https://www.oasiria.com/market/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/bd8c3d46-607a-42af-92e5-b35ffe85015e-1775198734991-mflon4.jpg",
       "google_rating": 4.6,
-      "google_review_count": 22,
+      "google_review_count": 21,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -95877,7 +95877,7 @@
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://www.sanctuaryslimane.com/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "http://instagram.com/sanctuaryslimane",
@@ -152949,6 +152949,138 @@
         "facebook": "https://www.facebook.com/VillaMajorelle.ma",
         "tripadvisor": null,
         "youtube": "https://www.youtube.com/watch?v=krCufplLaC4",
+        "linkedin": null
+      }
+    },
+    {
+      "id": "bd8c3d46-607a-42af-92e5-b35ffe85015e",
+      "slug": "oasiria-bio-market",
+      "url": "https://oneworldmorocco.com/oasiria-bio-market",
+      "name": "Oasiria Market",
+      "hook": "Le marché bio et local de Marrakech : du producteur au consommateur, tous les dimanches à Oasiria.",
+      "description": "Oasiria Market est le premier marché bio et local de Marrakech, au cœur du complexe Oasiria. Tous les dimanches de 10h à 15h, une quarantaine de stands proposent des produits frais directement du producteur au consommateur : fruits et légumes bio de saison, charcuterie, huîtres, escargots, fromages fermiers, pâtisserie, miel, œufs beldi, plantes aromatiques, huile d'olive, pâtes fraîches, confitures, épices, champignons frais, et produits issus de l'agriculture biologique. L'artisanat local est ",
+      "main_category": "Commerce",
+      "categories": [
+        "Marché hebdomadaire",
+        "Fruits & Legumes",
+        "Fromager / Produits laitiers",
+        "Épicerie",
+        "Poissonnerie"
+      ],
+      "services": [
+        "fromages fermiers",
+        "Huile d'olive bio",
+        "Huile d'argan bio",
+        "Miel",
+        "Miel d'eucalyptus",
+        "œufs d'élevage en plein air",
+        "Miel d'oranger",
+        "Miel de lavande",
+        "pâtes fraîches",
+        "Epices",
+        "escargots",
+        "confitures",
+        "Aubergine",
+        "Champignon",
+        "Citron",
+        "Courgette",
+        "épinards",
+        "Menthe",
+        "Navet",
+        "Persil",
+        "Pomme",
+        "Raisin blanc",
+        "Sauge",
+        "Tomate",
+        "Tomates cerises",
+        "Raisin noir",
+        "Pomme de terre",
+        "Poireau",
+        "Oignon",
+        "Mandarine",
+        "Carotte",
+        "Concombre",
+        "Fleurs comestibles",
+        "Orange",
+        "Roquette",
+        "Basilic",
+        "Chou fleur",
+        "Coriandre",
+        "Laitue",
+        "plantes aromatiques",
+        "Radis",
+        "Salades",
+        "Accessible aux personnes à mobilité réduite",
+        "Dimanche",
+        "Huîtres à emporter",
+        "Coquillages",
+        "Coquilles Saint Jacques",
+        "Langouste",
+        "Consommer sur place",
+        "Moules",
+        "Plateaux de fruits de mer"
+      ],
+      "city": "Marrakech",
+      "neighborhood": "Route d'Amizmiz",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.5804794,
+      "longitude": -8.0154755,
+      "address": "Km 4",
+      "phone": "+212524380438",
+      "whatsapp": "+212620049784",
+      "website": "https://www.oasiria.com/market/",
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/bd8c3d46-607a-42af-92e5-b35ffe85015e-1775198734991-mflon4.jpg",
+      "google_rating": 4.6,
+      "google_review_count": 21,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": {
+        "friday": {
+          "open": "",
+          "close": "",
+          "closed": true
+        },
+        "monday": {
+          "open": "",
+          "close": "",
+          "closed": true
+        },
+        "sunday": {
+          "open": "10:00",
+          "close": "15:00",
+          "closed": false
+        },
+        "tuesday": {
+          "open": "",
+          "close": "",
+          "closed": true
+        },
+        "saturday": {
+          "open": "",
+          "close": "",
+          "closed": true
+        },
+        "thursday": {
+          "open": "",
+          "close": "",
+          "closed": true
+        },
+        "wednesday": {
+          "open": "",
+          "close": "",
+          "closed": true
+        }
+      },
+      "is_open_24h": false,
+      "booking_url": "https://www.oasiria.com/market/",
+      "menu_url": null,
+      "social": {
+        "instagram": "https://www.instagram.com/oasiriamarket/",
+        "facebook": "https://www.facebook.com/groups/oasiriamarket",
+        "tripadvisor": null,
+        "youtube": null,
         "linkedin": null
       }
     },
