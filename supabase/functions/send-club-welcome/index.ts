@@ -1,4 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.49.4";
+import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts';
+import { sendAndLog } from '../_shared/email-send-log.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

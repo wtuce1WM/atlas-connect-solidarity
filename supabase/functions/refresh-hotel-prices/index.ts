@@ -1,5 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { assertStaff } from "../_shared/auth-helpers.ts";
+import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts';
+import { sendAndLog } from '../_shared/email-send-log.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

@@ -1,5 +1,7 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts';
+import { sendAndLog } from '../_shared/email-send-log.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });

@@ -9,6 +9,8 @@
 // POST { city: "essaouira", force: true }          -> ignore dedupe, single city
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts';
+import { sendAndLog } from '../_shared/email-send-log.ts';
 
 type AlertType = "spring_tide" | "surf" | "kitesurf" | "wingfoil" | "fishing";
 
