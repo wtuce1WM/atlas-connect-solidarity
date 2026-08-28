@@ -238,6 +238,12 @@ const QuotesPanel = () => {
       };
     });
     const { error: e2 } = await supabase.from("quote_items").insert(rows);
+    if (!e2) {
+      const { error: e3 } = await supabase
+        .from("quote_internal_notes")
+        .upsert({ quote_id: quoteId, notes: internalNote || null }, { onConflict: "quote_id" });
+      if (e3) toast.error(e3.message);
+    }
     setSaving(false);
     if (e2) return toast.error(e2.message);
     toast.success("Devis enregistré");
