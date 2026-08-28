@@ -107,6 +107,8 @@ interface VideoSlidePanelProps {
   onFeedBadgeSelect?: (badge: { id: string; name: string }) => void;
   /** Clic sur la chip ville → relance du feed sur cette ville. */
   onFeedCitySelect?: (city: { id: string; name: string }) => void;
+  /** Clic sur la chip rouge « YouTube » → relance du feed sur les vidéos YouTube. */
+  onFeedYouTubeSelect?: () => void;
   /** ID du badge actuellement sélectionné (affiché texte noir sur fond gold) */
   selectedBadgeId?: string | null;
   /** Layout "feed" : pas de badge copyright, pas d'entête business, pas de chevrons (swipe vertical), nom+description au-dessus de la barre de navigation */
@@ -199,6 +201,7 @@ const VideoSlidePanel = ({
     feedBadges = null,
     onFeedBadgeSelect,
     onFeedCitySelect,
+    onFeedYouTubeSelect,
     selectedBadgeId = null,
     feedLayout = false,
     aiMode = "business",
@@ -1398,6 +1401,10 @@ const VideoSlidePanel = ({
                       <button
                         type="button"
                         onClick={() => {
+                          if (onFeedYouTubeSelect) {
+                            onFeedYouTubeSelect();
+                            return;
+                          }
                           onClose();
                           navigate("/youtube");
                         }}

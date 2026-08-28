@@ -248,6 +248,8 @@ interface BookOnlineSlidePanelProps {
   /** Clic sur une chip badge (relance du feed) */
   onFeedBadgeSelect?: (badge: { id: string; name: string }) => void;
   onFeedCitySelect?: (city: { id: string; name: string }) => void;
+  /** Clic sur la chip rouge « YouTube » → relance du feed sur les vidéos YouTube. */
+  onFeedYouTubeSelect?: () => void;
   /** ID du badge actuellement sélectionné (affiché texte noir sur fond gold) */
   selectedBadgeId?: string | null;
   /** Variante de l'assistant IA du viewer vidéo : business hôte (défaut) ou plateforme 1WM */
@@ -5220,6 +5222,7 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         feedBadges={props.feedBadges ?? null}
         onFeedBadgeSelect={props.onFeedBadgeSelect}
         onFeedCitySelect={props.onFeedCitySelect}
+        onFeedYouTubeSelect={props.onFeedYouTubeSelect}
         selectedBadgeId={props.selectedBadgeId ?? null}
         aiMode={props.aiMode}
       />

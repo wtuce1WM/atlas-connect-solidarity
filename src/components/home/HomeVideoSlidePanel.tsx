@@ -32,6 +32,8 @@ interface Props<T extends VideoLike> {
   /** Clic sur une chip badge en haut de la vidéo (relance du feed) */
   onBadgeSelect?: (badge: { id: string; name: string }) => void;
   onCitySelect?: (city: { id: string; name: string }) => void;
+  /** Clic sur la chip rouge « YouTube » (relance du feed YouTube) */
+  onYouTubeSelect?: () => void;
   /** ID du badge actuellement sélectionné (affiché texte noir sur fond gold) */
   selectedBadgeId?: string | null;
   /** Variante de l'assistant IA : business hôte (défaut) ou plateforme 1WM */
@@ -56,6 +58,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   hideSecondaryCtas = false,
   onBadgeSelect,
   onCitySelect,
+  onYouTubeSelect,
   selectedBadgeId = null,
   aiMode,
 }: Props<T>) {
@@ -110,6 +113,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       feedBadges={activeVideo?.badges ?? null}
       onFeedBadgeSelect={onBadgeSelect}
       onFeedCitySelect={onCitySelect}
+      onFeedYouTubeSelect={onYouTubeSelect}
       selectedBadgeId={selectedBadgeId}
       aiMode={aiMode}
     />

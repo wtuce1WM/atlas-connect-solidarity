@@ -391,6 +391,31 @@ export async function fetchDiscoveryVideoFeedForCity(
 }
 
 /**
+ * Relance du feed découverte sur les seules vidéos YouTube (clic sur la chip
+ * rouge « YouTube » du viewer). Périmètre : tous les badges « Activé sur le
+ * front », aucune limite de ville ; on élargit le pool RPC puis on ne retient
+ * que les lignes `source === "youtube"`.
+ */
+export async function fetchDiscoveryVideoFeedForYouTube(
+  _ctx: DiscoveryFeedContext,
+  limit = 60,
+): Promise<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext }> {
+  const seed = randomSeed();
+  const full = await loadDiscoveryScope();
+  const scope = { badgeIds: full.badgeIds, cityIds: [] as string[] };
+  const collected: BadgeVideoFeedItem[] = [];
+  const PAGE = 300;
+  for (let offset = 0; offset < PAGE * 6 && collected.length < limit; offset += PAGE) {
+    const { items } = await fetchDiscoveryPage(scope, seed, PAGE, offset);
+    if (!items.length) break;
+    collected.push(...items.filter((it) => it.source === "youtube"));
+    if (items.length < PAGE) break;
+  }
+  const list = collected.slice(0, limit);
+  return { items: list, ctx: { ...scope, seed, total: list.length } };
+}
+
+/**
  * Feed lancé depuis une carte de la homepage (`homepage_cards_snapshots`),
  * affichée dans le panneau gauche de la démo `/front`.
  *
