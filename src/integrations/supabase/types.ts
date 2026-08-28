@@ -6743,6 +6743,35 @@ export type Database = {
         }
         Relationships: []
       }
+      quote_internal_notes: {
+        Row: {
+          created_at: string
+          notes: string | null
+          quote_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          notes?: string | null
+          quote_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          notes?: string | null
+          quote_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_internal_notes_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: true
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_items: {
         Row: {
           created_at: string
@@ -6828,7 +6857,6 @@ export type Database = {
           expired_at: string | null
           expires_at: string | null
           id: string
-          internal_notes: string | null
           invoiced_at: string | null
           number: string | null
           prospect_email: string | null
@@ -6852,7 +6880,6 @@ export type Database = {
           expired_at?: string | null
           expires_at?: string | null
           id?: string
-          internal_notes?: string | null
           invoiced_at?: string | null
           number?: string | null
           prospect_email?: string | null
@@ -6876,7 +6903,6 @@ export type Database = {
           expired_at?: string | null
           expires_at?: string | null
           id?: string
-          internal_notes?: string | null
           invoiced_at?: string | null
           number?: string | null
           prospect_email?: string | null
