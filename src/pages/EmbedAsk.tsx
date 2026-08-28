@@ -1624,6 +1624,7 @@ const EmbedAsk = () => {
     },
     onError: (message) => setError(message),
   });
+  const voiceActive = voice.status === "recording" || voice.status === "processing";
 
   const pendingSendRef = useRef<string | null>(null);
   const startNewConversation = () => {
