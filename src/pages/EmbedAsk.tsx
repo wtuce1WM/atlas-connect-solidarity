@@ -321,6 +321,8 @@ const COMPETITOR_GUARD_RE = /<!--COMPETITOR_GUARD_ACTIVE-->/;
 const DEST_CHIPS_RE = /<!--DESTINATION_CHIPS:([\s\S]*?)-->/g;
 /** Widget de disponibilité hôtelière (suggestion back-office en mode `booking`). */
 const HOTEL_BOOKING_RE = /<!--HOTEL_BOOKING:([\s\S]*?)-->/g;
+/** Payload du widget de disponibilité : ville + dates/voyageurs éventuellement pré-remplis. */
+type BookingPayload = { city: string; checkIn: string | null; checkOut: string | null; adults: number | null };
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[]; order?: string | null };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
@@ -358,7 +360,7 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: string[]; competitorGuard: boolean; destChips: ScopeChip[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: BookingPayload[]; competitorGuard: boolean; destChips: ScopeChip[] } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
@@ -368,7 +370,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   const weather: WeatherPayload[] = [];
   const videoFeeds: VideoFeedPayload[] = [];
   const tides: string[] = [];
-  const bookings: string[] = [];
+  const bookings: BookingPayload[] = [];
   const destChips: ScopeChip[] = [];
   const competitorGuard = COMPETITOR_GUARD_RE.test(text);
   if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips };
@@ -436,7 +438,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   }).replace(HOTEL_BOOKING_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
-      if (p && p.city) bookings.push(String(p.city));
+      if (p && p.city) bookings.push({ city: String(p.city), checkIn: p.checkIn || null, checkOut: p.checkOut || null, adults: typeof p.adults === "number" ? p.adults : null });
     } catch { /* */ }
     return "";
   });
@@ -2354,7 +2356,8 @@ const EmbedAsk = () => {
           const weatherPayload = weather[weather.length - 1] || null;
           const videoFeedPayload = videoFeeds[videoFeeds.length - 1] || null;
           const tidesCity = tides[tides.length - 1] || null;
-          const bookingCity = bookings[bookings.length - 1] || null;
+          const bookingPayload = bookings[bookings.length - 1] || null;
+          const bookingCity = bookingPayload?.city || null;
           const msgKey = String(m.id || i);
           const bookingResult = hotelResults[msgKey] || null;
           const isLast = i === messages.length - 1;
@@ -2541,9 +2544,9 @@ const EmbedAsk = () => {
                     inline
                     language={lang}
                     isSearching={hotelSearchingMsgId === msgKey}
-                    initialCheckIn={bookingResult?.checkIn}
-                    initialCheckOut={bookingResult?.checkOut}
-                    initialAdults={bookingResult?.adults}
+                    initialCheckIn={bookingResult?.checkIn ?? bookingPayload?.checkIn ?? undefined}
+                    initialCheckOut={bookingResult?.checkOut ?? bookingPayload?.checkOut ?? undefined}
+                    initialAdults={bookingResult?.adults ?? bookingPayload?.adults ?? undefined}
                     onSearch={(checkIn, checkOut, adults) => {
                       runCityHotelSearch(msgKey, bookingCity, checkIn, checkOut, adults);
                     }}
