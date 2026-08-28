@@ -2035,7 +2035,7 @@ const EmbedAsk = () => {
           </button>
         )}
 
-        <div className="w-8 h-8 rounded-full bg-[#C24B3F] flex items-center justify-center text-white text-sm font-semibold">
+        <div className="w-8 h-8 rounded-full bg-[#C04F17] flex items-center justify-center text-white text-sm font-semibold">
           {(headerTitle || "?").slice(0, 1).toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">
@@ -2097,7 +2097,7 @@ const EmbedAsk = () => {
         {homeState && (
           <div className="flex flex-col items-center justify-center gap-6 px-1 py-8" style={{ minHeight: "min(100%, 640px)" }}>
             <div className="flex flex-col items-center gap-3 text-center">
-              <div className="w-16 h-16 rounded-full bg-[#C24B3F] flex items-center justify-center text-white shadow-lg">
+              <div className="w-16 h-16 rounded-full bg-[#C04F17] flex items-center justify-center text-white shadow-lg">
                 <Sparkles className="w-8 h-8" />
               </div>
               <h2
@@ -2147,7 +2147,7 @@ const EmbedAsk = () => {
                   type="submit"
                   disabled={streaming || !input.trim() || !assistantReady}
                   aria-label="Send"
-                  className="w-12 h-12 rounded-full bg-[#C24B3F] text-white flex items-center justify-center disabled:opacity-40 shrink-0 shadow-lg"
+                  className="w-12 h-12 rounded-full bg-[#C04F17] text-white flex items-center justify-center disabled:opacity-40 shrink-0 shadow-lg"
                 >
                   <Send className="w-5 h-5" />
                 </button>
@@ -2175,8 +2175,9 @@ const EmbedAsk = () => {
                 <button
                   type="button"
                   onClick={() => setShowAllSuggestions((v) => !v)}
-                  className={`text-[13px] px-4 py-2 rounded-full border ${border} underline underline-offset-2 ${whiteInk}`}
-                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  className="text-[13px] font-semibold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
+                  style={{ fontFamily: "'Montserrat', sans-serif", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37" }}
+
                 >
                   {showAllSuggestions
                     ? (lang === "en" ? "Show less" : lang === "ar" ? "عرض أقل" : "Voir moins")
@@ -2992,7 +2993,7 @@ const EmbedAsk = () => {
             type="submit"
             disabled={streaming || !input.trim() || !assistantReady}
             aria-label="Send"
-            className="w-9 h-9 rounded-full bg-[#C24B3F] text-white flex items-center justify-center disabled:opacity-40 shrink-0"
+            className="w-9 h-9 rounded-full bg-[#C04F17] text-white flex items-center justify-center disabled:opacity-40 shrink-0"
           >
             <Send className="w-4 h-4" />
           </button>
