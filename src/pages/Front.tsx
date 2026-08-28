@@ -17,6 +17,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 import portraitVideoAsset from "@/assets/hero-home-portrait-ios-v2.mp4.asset.json";
+import landscapeVideoAsset from "@/assets/hero-home-landscape-42.mp4.asset.json";
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster.jpg.asset.json";
 import FrontHeader from "@/components/front/FrontHeader";
 
