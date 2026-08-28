@@ -236,6 +236,23 @@ const VideoSlidePanel = ({
   const [chipsExpanded, setChipsExpanded] = useState(false);
   /** Au swipe vers une autre vidéo du feed, on replie les chips. */
   useEffect(() => { setChipsExpanded(false); }, [videoId, videoUrl]);
+  /** Couleurs des badges du menu fixe, lues en back-office (aucune couleur codée en dur). */
+  const [menuBadgeColors, setMenuBadgeColors] = useState<Record<string, { color: string | null; textColor: string | null }>>({});
+  useEffect(() => {
+    if (!open || !feedLayout) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("badges")
+        .select("id,color_hex,text_color_hex")
+        .in("id", LEFT_COLUMN_BADGES.map((b) => b.id));
+      if (cancelled || !data) return;
+      const map: Record<string, { color: string | null; textColor: string | null }> = {};
+      for (const row of data as any[]) map[row.id] = { color: row.color_hex, textColor: row.text_color_hex };
+      setMenuBadgeColors(map);
+    })();
+    return () => { cancelled = true; };
+  }, [open, feedLayout]);
 
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
