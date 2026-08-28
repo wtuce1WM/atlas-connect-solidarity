@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-28T08:49:08.460Z",
+    "generated_at": "2026-08-28T09:23:15.131Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1859
   },
@@ -8894,7 +8894,7 @@
       "address": "Bd Moulay Slimane",
       "phone": "080 2000 700",
       "whatsapp": null,
-      "website": "https://www.bmw.ma/fr/index.html",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/3a896a03-b3ec-415c-bc71-6155784d1af8-1774063257112-jd3n0l.webp",
       "google_rating": 3.3,
       "google_review_count": 944,
@@ -128636,7 +128636,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/28de4d8c-1ea8-4375-a3d7-14d6c37e5ac1-1780387455266-3i9of7.jpg",
       "google_rating": 5,
-      "google_review_count": 25,
+      "google_review_count": 27,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
