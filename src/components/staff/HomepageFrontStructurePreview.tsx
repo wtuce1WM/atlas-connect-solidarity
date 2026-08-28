@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, X, Loader2, Plus, GripVertical } from "lucide-react";
+import { X, Loader2, Plus, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import VideoThumbnail from "@/components/VideoThumbnail";
-import VideoLightbox from "@/components/staff/VideoLightbox";
 import { invalidateManualCardCache } from "@/lib/manualCards";
-import { cardKey, deriveThumbnail, fetchHomepageCardBadges, resolveVideoByBadges } from "@/lib/homepageCardBadges";
+import { cardKey, fetchHomepageCardBadges } from "@/lib/homepageCardBadges";
 import {
   DndContext,
   closestCenter,
@@ -42,14 +40,7 @@ interface CardPreview {
   kind: "entry" | "extra";
   id: string;
   label: string;
-  videoId: string | null;
-  videoUrl: string | null;
-  thumbnail: string | null;
-  businessName: string | null;
-  ownerLogo: string | null;
-  ownerName: string | null;
-  rating: number | null;
-  reviewCount: number | null;
+  /** Seule image de la carte : celle forcée en backoffice. */
   imageUrl: string | null;
 }
 
@@ -61,7 +52,6 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
   const [badgeFilter, setBadgeFilter] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const isFirstLoad = useRef(true);
 
   useEffect(() => {
@@ -69,10 +59,6 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
 
     const load = async () => {
       if (isFirstLoad.current) setLoading(true);
-
-      // Plus de restriction géographique : /front ne tient plus compte de la ville.
-      const cityDocIds: Set<string> | null = null;
-      const cityGenericIds: Set<string> | null = null;
 
       const [entriesRes, badgesRes, extraRes, orderRes] = await Promise.all([
         supabase.from("front_structure").select("id, name, sort_order, show_in_menu").order("sort_order"),
@@ -117,70 +103,17 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
 
       ];
 
-      const docs = await Promise.all(
-        targets.map((t) =>
-          resolveVideoByBadges(assignments[cardKey(t.kind, t.id)] || [], cityDocIds, cityGenericIds),
-        ),
-      );
-
-      const bizIds = new Set<string>();
-      docs.forEach((d) => {
-        if (!d) return;
-        if (d.business_id) bizIds.add(d.business_id);
-        const disp = d.poi_id || d.linked_business_id || d.business_id;
-        if (disp) bizIds.add(disp);
-      });
-      const bizMap = new Map<string, any>();
-      const bizArr = [...bizIds];
-      for (let i = 0; i < bizArr.length; i += 300) {
-        const { data } = await supabase
-          .from("businesses")
-          .select("id, name, logo_url, computed_rating, rating, total_review_count")
-          .in("id", bizArr.slice(i, i + 300));
-        (data || []).forEach((b: any) => bizMap.set(b.id, b));
-      }
-
-      const previews: CardPreview[] = targets.map((t, idx) => {
-        const doc = docs[idx];
+      const previews: CardPreview[] = targets.map((t) => {
         const assigned = assignments[cardKey(t.kind, t.id)] || [];
         const label =
           t.kind === "entry"
             ? t.label
             : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" / ") || t.label;
-
-        if (!doc) {
-          return {
-            key: cardKey(t.kind, t.id),
-            kind: t.kind,
-            id: t.id,
-            label,
-            videoId: null,
-            videoUrl: null,
-            thumbnail: t.imageUrl,
-            businessName: null,
-            ownerLogo: null,
-            ownerName: null,
-            rating: null,
-            reviewCount: null,
-            imageUrl: t.imageUrl,
-          };
-        }
-        const dispId = doc.poi_id || doc.linked_business_id || doc.business_id;
-        const dispBiz = dispId ? bizMap.get(dispId) || null : null;
-        const ownerBiz = doc.business_id ? bizMap.get(doc.business_id) || null : null;
         return {
           key: cardKey(t.kind, t.id),
           kind: t.kind,
           id: t.id,
           label,
-          videoId: doc.id,
-          videoUrl: doc.url,
-          thumbnail: t.imageUrl || doc.thumbnail_url || deriveThumbnail(doc.url),
-          businessName: dispBiz?.name || null,
-          ownerLogo: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.logo_url : null,
-          ownerName: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.name : null,
-          rating: dispBiz?.computed_rating ?? dispBiz?.rating ?? null,
-          reviewCount: dispBiz?.total_review_count ?? null,
           imageUrl: t.imageUrl,
         };
       });
@@ -291,7 +224,7 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
     const path = `${folder}/${card.id}-${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage
       .from("sponsor-assets")
-      .upload(path, file, { cacheControl: "3600", upsert: true, contentType: file.type });
+      .upload(path, file, { cacheControl: "3600", contentType: file.type });
     if (upErr) {
       toast({ title: "Upload échoué", description: upErr.message, variant: "destructive" });
       return;
@@ -381,72 +314,24 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
     );
   }
 
-  const renderThumbBox = (it: CardPreview) => {
-    const isFileVideo = !!it.videoUrl && !it.thumbnail && !/youtube|youtu\.be|vimeo|mediadelivery/i.test(it.videoUrl);
-    return it.videoId ? (
-      <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted">
-        {it.thumbnail ? (
-          <img src={it.thumbnail} alt={it.businessName || ""} className="w-full h-full object-cover" loading="lazy" />
-        ) : isFileVideo && it.videoUrl ? (
-          <VideoThumbnail src={it.videoUrl} alt={it.businessName || ""} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-muted" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
-        {it.label && (
-          <div className="absolute inset-x-0 top-[10%] z-[7] flex items-center justify-center px-2 pointer-events-none">
-            <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
-              {it.label}
-            </span>
-          </div>
-        )}
-        {it.rating != null && (
-          <div className="absolute top-1.5 left-1.5 right-1.5 z-[5] flex items-center gap-1 text-[10px]">
-            <Star className="h-2.5 w-2.5 text-gold fill-gold" />
-            <span className="font-medium text-white">{it.rating}/20</span>
-            {(it.reviewCount ?? 0) > 0 && <span className="text-white/70">· {it.reviewCount} avis</span>}
-          </div>
-        )}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (it.videoUrl) setLightboxUrl(it.videoUrl);
-          }}
-          disabled={!it.videoUrl}
-          className="absolute inset-0 flex items-center justify-center group/play disabled:cursor-not-allowed"
-          aria-label="Lire la vidéo"
-        >
-          <div className="w-8 h-8 rounded-full bg-black/50 group-hover/play:bg-black/70 transition-colors flex items-center justify-center">
-            <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
-          </div>
-        </button>
-        {it.ownerLogo && (
-          <div className="absolute inset-x-0 bottom-[15%] z-[6] flex items-center justify-center px-2 pointer-events-none">
-            <img
-              src={it.ownerLogo}
-              alt={it.ownerName || ""}
-              className="max-w-[100px] max-h-[72px] object-contain"
-              style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
-            />
-          </div>
-        )}
-        {it.businessName && (
-          <div className="absolute bottom-0 left-0 right-0 p-1.5">
-            <p className="text-[10px] font-medium text-white line-clamp-1">{it.businessName}</p>
-          </div>
-        )}
-      </div>
-    ) : (
-      <div className="aspect-[9/16] rounded-lg bg-muted flex items-center justify-center text-[10px] text-muted-foreground text-center px-2">
-        {it.thumbnail ? (
-          <img src={it.thumbnail} alt="" className="w-full h-full object-cover rounded-lg" />
-        ) : (
-          "Affecter un ou plusieurs badges"
-        )}
-      </div>
-    );
-  };
+  const renderThumbBox = (it: CardPreview) => (
+    <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted">
+      {it.imageUrl ? (
+        <img src={it.imageUrl} alt={it.label} className="w-full h-full object-cover" loading="lazy" />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground text-center px-2">
+          Aucune image forcée
+        </div>
+      )}
+      {it.label && (
+        <div className="absolute inset-x-0 top-[10%] z-[7] flex items-center justify-center px-2 pointer-events-none">
+          <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
+            {it.label}
+          </span>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="space-y-4">
@@ -589,7 +474,6 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
           <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter une carte
         </Button>
       </div>
-      {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </div>
   );
 };
