@@ -233,6 +233,9 @@ const VideoSlidePanel = ({
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   /** Chips badges : replié (1 seul badge) par défaut, déplié au clic. */
   const [chipsExpanded, setChipsExpanded] = useState(false);
+  /** Au swipe vers une autre vidéo du feed, on replie les chips. */
+  useEffect(() => { setChipsExpanded(false); }, [videoId, videoUrl]);
+
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
   /** L'iframe IA signale sa disponibilité via postMessage("owm-ai-ready"). */
