@@ -1515,7 +1515,7 @@ const VideoSlidePanel = ({
             En feed : Langue / Localisation / Itinéraire / YouTube dès qu'un
             établissement est lié à la vidéo (y compris générique/externe). */}
         {((feedLayout && !!ctaBusiness) || (!hideLeftCtas && !!ctaBusiness?.youtube_url))
-          && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !descBusinessId && !showYoutubeOverlay && (
+          && !chipsExpanded && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !descBusinessId && !showYoutubeOverlay && (
           <div dir="ltr" className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
             {feedLayout && (() => {
               const LANG_OPTIONS = [
@@ -1648,7 +1648,7 @@ const VideoSlidePanel = ({
                 );
               })()
             )}
-            {videoId && (
+            {videoId && !chipsExpanded && (
               <GenericVideoTimelineOverlay genericVideoId={videoId} currentTime={currentTime} />
             )}
             {agendaCity && (
@@ -1737,6 +1737,7 @@ const VideoSlidePanel = ({
               )}
               {/* Bloc crédit unifié — priorité : social > owner > eventBusiness (mutuellement exclusifs) */}
               {(() => {
+                if (chipsExpanded) return null;
                 if (visibleSocial) {
                   return (
                     <VideoSocialBadge
@@ -1813,7 +1814,7 @@ const VideoSlidePanel = ({
                 return null;
               })()}
               {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer */}
-              {feedLayout && (feedInfoTitle || feedInfoTeaser) && (
+              {feedLayout && !chipsExpanded && (feedInfoTitle || feedInfoTeaser) && (
                 <div className="relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto md:w-[calc(100%-1rem)] md:max-w-[450px] rounded-t-2xl border-x border-b-0 border-white/10 bg-gradient-to-b from-black/55 to-black/85 backdrop-blur-[14px] shadow-[0_8px_32px_rgba(0,0,0,0.45)] pointer-events-auto pb-[calc(96px+env(safe-area-inset-bottom))] -mb-[calc(96px+env(safe-area-inset-bottom))] lg:pb-[5.5rem] lg:-mb-[5.5rem]">
                   <MediaViewerInfo
                     name={feedInfoTitle}
