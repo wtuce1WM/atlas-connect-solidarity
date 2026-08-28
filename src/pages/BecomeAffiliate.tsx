@@ -222,39 +222,19 @@ const BecomeAffiliate = () => {
       });
       if (affiliateError) console.error('affiliate request failed', affiliateError);
 
-      // 2. Notification email interne
-      await supabase.functions.invoke('send-transactional-email', {
+      // 2. Notification interne + accusé de réception au demandeur
+      await supabase.functions.invoke('send-affiliate-request-emails', {
         body: {
-          templateName: 'affiliate-request',
-          recipientEmail: 'jf@oneworldmorocco.com',
-          idempotencyKey: `affiliate-req-${Date.now()}`,
-          templateData: {
-            businessName: form.businessName,
-            firstName: form.firstName,
-            lastName: form.lastName,
-            phone: form.phone,
-            email: form.email,
-            city: form.city,
-            website: form.website,
-            multipleListings: form.multipleListings,
-            contentReady: form.contentReady,
-            message: form.message,
-          },
-        },
-      });
-
-      // 3. Accusé de réception au demandeur
-      const stamp = Date.now();
-      await supabase.functions.invoke('send-transactional-email', {
-        body: {
-          templateName: 'affiliate-request-received',
-          recipientEmail: form.email.trim(),
-          idempotencyKey: `affiliate-req-ack-${form.email.trim().toLowerCase()}-${stamp}`,
-          templateData: {
-            businessName: form.businessName,
-            firstName: form.firstName,
-            city: form.city,
-          },
+          businessName: form.businessName,
+          firstName: form.firstName,
+          lastName: form.lastName,
+          phone: form.phone,
+          email: form.email.trim(),
+          city: form.city,
+          website: form.website,
+          multipleListings: form.multipleListings,
+          contentReady: form.contentReady,
+          message: form.message,
         },
       });
 

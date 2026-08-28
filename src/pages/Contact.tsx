@@ -29,12 +29,12 @@ const Contact = () => {
     setSending(true);
     try {
       const idempotencyKey = `contact-${Date.now()}-${crypto.randomUUID()}`;
-      const { error } = await supabase.functions.invoke("send-transactional-email", {
+      const { error } = await supabase.functions.invoke("send-contact-message", {
         body: {
-          templateName: "contact-form",
-          recipientEmail: "info@oneworldmorocco.com",
           idempotencyKey,
-          templateData: { name: name.trim(), email: email.trim(), message: message.trim() },
+          name: name.trim(),
+          email: email.trim(),
+          message: message.trim(),
         },
       });
       if (error) throw error;

@@ -240,24 +240,25 @@ Deno.serve(async (req) => {
       report.push({ email: sub.email, city: sub.city_slug, date: city.date, alerts: toSend.map((a) => a.type) });
       if (dryRun) continue;
 
-      const { error: sendErr } = await admin.functions.invoke("send-transactional-email", {
-        body: {
-          templateName: "widget-alert",
-          recipientEmail: sub.email,
-          idempotencyKey: `widget-alert-${sub.city_slug}-${city.date}-${sub.id}-${toSend.map((a) => a.type).join("-")}`,
-          templateData: {
-            cityName: sub.city_name || coords.get(sub.city_slug)?.name || sub.city_slug,
-            nickname: sub.nickname || "",
-            dateLabel: "demain",
-            alerts: toSend.map((a) => ({ title: TITLES[a.type], detail: a.detail })),
-            widgetUrl: "https://oneworldmorocco.com/widgets",
-            unsubscribeUrl: `${supabaseUrl}/functions/v1/widget-alerts-unsubscribe?token=${sub.unsubscribe_token}`,
-          },
-        },
-      });
-
-      if (sendErr) {
-        console.error("send failed", sub.email, sendErr.message);
+      try {
+        await sendAndLog(
+          () =>
+            sendTemplateEmail("widget-alert", sub.email, {
+              templateData: {
+                cityName: sub.city_name || coords.get(sub.city_slug)?.name || sub.city_slug,
+                nickname: sub.nickname || "",
+                dateLabel: "demain",
+                alerts: toSend.map((a) => ({ title: TITLES[a.type], detail: a.detail })),
+                widgetUrl: "https://oneworldmorocco.com/widgets",
+                unsubscribeUrl: `${supabaseUrl}/functions/v1/widget-alerts-unsubscribe?token=${sub.unsubscribe_token}`,
+              },
+              idempotencyKey: `widget-alert-${sub.city_slug}-${city.date}-${sub.id}-${toSend.map((a) => a.type).join("-")}`,
+            }),
+          "widget-alert",
+          sub.email,
+        );
+      } catch (sendErr) {
+        console.error("send failed", sub.email, sendErr instanceof Error ? sendErr.message : sendErr);
         continue;
       }
       emails++;
