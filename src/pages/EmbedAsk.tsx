@@ -987,6 +987,25 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
   }, [businessId]);
 
+  // Ancre du chip « Map » de l'accueil IA : sans hôte (mode plateforme), on utilise
+  // un business marqué default_poi_is_master (ex. Tarik Belasri) comme ancre de
+  // l'overlay POI/Map — même mécanisme que la fiche maîtresse.
+  useEffect(() => {
+    if (businessId || poiMasterAnchorId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("businesses")
+        .select("id")
+        .eq("default_poi_is_master", true)
+        .order("updated_at", { ascending: false })
+        .limit(1);
+      const id = Array.isArray(data) && data[0]?.id ? String(data[0].id) : null;
+      if (!cancelled && id) setPoiMasterAnchorId(id);
+    })();
+    return () => { cancelled = true; };
+  }, [businessId, poiMasterAnchorId]);
+
   const openerText = isPlatform
     ? L.platformOpener()
     : L.opener(businessName, radiusLabel(radiusKm, lang));
