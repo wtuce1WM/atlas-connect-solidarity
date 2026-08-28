@@ -840,6 +840,10 @@ const EmbedAsk = () => {
     }
   }, [openGenericPoi]);
   const [poiMasterAnchorId, setPoiMasterAnchorId] = useState<string | null>(null);
+  /** Ancre POI master de secours (Délégation Régionale Du Tourisme Marrakech, POI Koutoubia)
+      pour garantir l'ouverture immédiate de l'overlay Map même si la requête échoue. */
+  const POI_MASTER_FALLBACK_ID = "fcadc38e-da1e-42ce-a7d3-27b7f6bdff57";
+
 
   // Carte des destinations (distincte de la carte des résultats établissements) :
   // marqueurs = destinations liées à la suggestion.
