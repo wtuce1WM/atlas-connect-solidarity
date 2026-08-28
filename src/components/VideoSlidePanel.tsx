@@ -14,7 +14,7 @@ import { InstagramIcon, YouTubeIcon } from "@/components/staff/SocialMediaIcons"
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 import { createPortal } from "react-dom";
 import { getVideoEmbed } from "@/lib/videoEmbed";
-import { fetchVideoCity } from "@/lib/fetchVideoCities";
+import { fetchVideoCityList } from "@/lib/fetchVideoCities";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import VideoControls from "@/components/VideoControls";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
@@ -234,7 +234,7 @@ const VideoSlidePanel = ({
   const { recentBusinesses } = useRecentlyViewedBusinesses();
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
-  const [videoCity, setVideoCity] = useState<{ id: string; name: string } | null>(null);
+  const [videoCities, setVideoCities] = useState<{ id: string; name: string }[]>([]);
   const [, forceRender] = useState(0);
   useEffect(() => { if (open) forceRender((n) => n + 1); }, [open]);
 
@@ -305,16 +305,16 @@ const VideoSlidePanel = ({
     return () => { cancelled = true; };
   }, [open, owner?.id, pageBusinessId, description, language]);
 
-  // Ville liée à la vidéo (affichée en chip dans la colonne de badges dynamiques).
-  // On interroge les 3 sources possibles et on ne retient qu'une seule ville.
+  // Villes liées à la vidéo (un chip par ville active, colonne de badges dynamiques).
   useEffect(() => {
-    if (!open || !videoId) { setVideoCity(null); return; }
+    if (!open || !videoId) { setVideoCities([]); return; }
     let cancelled = false;
-    fetchVideoCity(videoId).then((city) => {
-      if (!cancelled) setVideoCity(city);
+    fetchVideoCityList(videoId).then((cities) => {
+      if (!cancelled) setVideoCities(cities);
     });
     return () => { cancelled = true; };
   }, [open, videoId]);
+
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
@@ -1394,19 +1394,21 @@ const VideoSlidePanel = ({
                         </button>
                       );
                     })}
-                    {videoCity && (
+                    {videoCities.map((city) => (
                       <button
+                        key={city.id}
                         type="button"
                         disabled={!onFeedCitySelect}
-                        onClick={() => onFeedCitySelect?.(videoCity)}
+                        onClick={() => onFeedCitySelect?.(city)}
                         className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
                         style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
-                        title={onFeedCitySelect ? `Voir les vidéos à ${videoCity.name}` : videoCity.name}
+                        title={onFeedCitySelect ? `Voir les vidéos à ${city.name}` : city.name}
                       >
                         <MapPin className="h-3 w-3 shrink-0" />
-                        {videoCity.name}
+                        {city.name}
                       </button>
-                    )}
+                    ))}
+
                   </>
                 );
               })()}
