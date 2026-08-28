@@ -1226,7 +1226,7 @@ const EmbedAsk = () => {
       null;
     if (bookingSuggestion) {
       setError(null);
-      setActiveSuggestionId(suggestionId);
+      setActiveSuggestionId(bookingSuggestion.id);
       const city = platformCity || businessCity || "Marrakech";
       setMessages((prev) => [
         ...prev,
