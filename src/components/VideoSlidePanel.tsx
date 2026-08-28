@@ -231,6 +231,8 @@ const VideoSlidePanel = ({
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
   const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
+  /** Chips badges : replié (1 seul badge) par défaut, déplié au clic. */
+  const [chipsExpanded, setChipsExpanded] = useState(false);
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
   /** L'iframe IA signale sa disponibilité via postMessage("owm-ai-ready"). */
