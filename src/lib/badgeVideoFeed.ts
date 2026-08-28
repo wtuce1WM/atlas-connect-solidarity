@@ -391,29 +391,98 @@ export async function fetchDiscoveryVideoFeedForCity(
 }
 
 /**
- * Relance du feed découverte sur les seules vidéos YouTube (clic sur la chip
- * rouge « YouTube » du viewer). Périmètre : tous les badges « Activé sur le
- * front », aucune limite de ville ; on élargit le pool RPC puis on ne retient
- * que les lignes `source === "youtube"`.
+ * Relance du feed sur les vidéos YouTube (clic sur la chip rouge « YouTube »
+ * du viewer). Périmètre = source de vérité backoffice : toutes les vidéos
+ * visibles des établissements actifs dont le toggle « mise en avant »
+ * (`businesses.youtube_channel_featured`) est activé. Aucun filtre badge ni
+ * ville. Ordre mélangé aléatoirement à chaque relance.
  */
 export async function fetchDiscoveryVideoFeedForYouTube(
   _ctx: DiscoveryFeedContext,
   limit = 60,
 ): Promise<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext }> {
   const seed = randomSeed();
-  const full = await loadDiscoveryScope();
-  const scope = { badgeIds: full.badgeIds, cityIds: [] as string[] };
-  const collected: BadgeVideoFeedItem[] = [];
-  const PAGE = 300;
-  for (let offset = 0; offset < PAGE * 6 && collected.length < limit; offset += PAGE) {
-    const { items } = await fetchDiscoveryPage(scope, seed, PAGE, offset);
-    if (!items.length) break;
-    collected.push(...items.filter((it) => it.source === "youtube"));
-    if (items.length < PAGE) break;
+  const scope = { badgeIds: [] as string[], cityIds: [] as string[] };
+
+  const { data: bizRows } = await (supabase as any)
+    .from("businesses")
+    .select("id, name, logo_url, youtube_url")
+    .eq("youtube_channel_featured", true)
+    .eq("is_active", true);
+  const businesses = (bizRows as any[]) || [];
+  if (!businesses.length) return { items: [], ctx: { ...scope, seed, total: 0 } };
+  const bizById = new Map(businesses.map((b) => [String(b.id), b]));
+
+  // Pagination : le pool peut dépasser 1000 lignes (limite PostgREST).
+  const rows: any[] = [];
+  const PAGE = 1000;
+  for (let from = 0; from < PAGE * 10; from += PAGE) {
+    const { data } = await (supabase as any)
+      .from("business_youtube_videos")
+      .select("id, business_id, video_id, title, is_short, thumbnail, custom_thumbnail_url")
+      .in("business_id", Array.from(bizById.keys()))
+      .eq("is_visible", true)
+      .not("video_id", "is", null)
+      .range(from, from + PAGE - 1);
+    const page = (data as any[]) || [];
+    rows.push(...page);
+    if (page.length < PAGE) break;
   }
-  const list = collected.slice(0, limit);
-  return { items: list, ctx: { ...scope, seed, total: list.length } };
+  if (!rows.length) return { items: [], ctx: { ...scope, seed, total: 0 } };
+
+  // Mélange aléatoire, puis on ne charge les badges que du lot retenu.
+  for (let i = rows.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [rows[i], rows[j]] = [rows[j], rows[i]];
+  }
+  const picked = rows.slice(0, limit);
+
+  const { data: badgeLinks } = await (supabase as any)
+    .from("business_youtube_video_badges")
+    .select("youtube_video_id, badges!inner(id, name_fr, name_en, color_hex, text_color_hex, sort_order, is_active_on_front)")
+    .in("youtube_video_id", picked.map((r) => String(r.id)));
+  const badgesByVideo = new Map<string, FeedBadge[]>();
+  for (const l of ((badgeLinks as any[]) || [])) {
+    const b = l.badges;
+    if (!b?.is_active_on_front) continue;
+    const key = String(l.youtube_video_id);
+    const list = badgesByVideo.get(key) || [];
+    list.push({
+      id: String(b.id),
+      name: b.name_fr,
+      name_en: b.name_en ?? null,
+      color: b.color_hex ?? null,
+      text_color: b.text_color_hex ?? null,
+      sort_order: b.sort_order ?? null,
+    });
+    badgesByVideo.set(key, list);
+  }
+
+  const items: BadgeVideoFeedItem[] = picked.map((r) => {
+    const biz = bizById.get(String(r.business_id));
+    return {
+      id: String(r.id),
+      source: "youtube",
+      url: (r.is_short ? "https://www.youtube.com/shorts/" : "https://www.youtube.com/watch?v=") + r.video_id,
+      title: r.title || "",
+      description: null,
+      price: null,
+      thumbnailUrl: r.custom_thumbnail_url || r.thumbnail || `https://i.ytimg.com/vi/${r.video_id}/hqdefault.jpg`,
+      isGeneric: false,
+      businessId: biz ? String(biz.id) : null,
+      businessName: biz?.name ?? null,
+      businessLogoUrl: biz?.logo_url ?? null,
+      businessLogoBg: null,
+      badges: (badgesByVideo.get(String(r.id)) || []).sort(
+        (a, b) => (a.sort_order ?? 999) - (b.sort_order ?? 999),
+      ),
+      social: biz ? { platform: "youtube", account: String(biz.name), url: biz.youtube_url ?? null } : null,
+    } as BadgeVideoFeedItem;
+  });
+
+  return { items, ctx: { ...scope, seed, total: rows.length } };
 }
+
 
 /**
  * Feed lancé depuis une carte de la homepage (`homepage_cards_snapshots`),
