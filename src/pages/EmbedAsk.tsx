@@ -1081,17 +1081,19 @@ const EmbedAsk = () => {
   // Séquence du splash plateforme : plein écran → zoom-out → contenu normal.
   // Non bloquant : la sortie se déclenche dès que la requête suggestions est
   // retombée (succès OU erreur), avec un filet de sécurité de 2,5 s.
+  const splashDoneRef = useRef(false);
   useEffect(() => {
     if (!isPlatform) { setSplashPhase("done"); return; }
-    if (splashPhase !== "full") return;
+    if (splashDoneRef.current) return;
     const settled = dbSuggestions !== null;
     const delay = settled ? 120 : 2500;
+    splashDoneRef.current = true;
     const t1 = window.setTimeout(() => setSplashPhase("exit"), delay);
     const t2 = window.setTimeout(() => setSplashPhase("done"), delay + 700);
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlatform, dbSuggestions, splashPhase]);
+  }, [isPlatform, dbSuggestions]);
 
 
 
