@@ -36,6 +36,8 @@ import { AI_NAME_FONT } from "@/lib/aiTypography";
 import { Maximize2, X, Navigation, Clock, Star, Building2, Compass, CloudSun, MapPinned, Footprints, SlidersHorizontal } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import AiTidesWidget from "@/components/embed/AiTidesWidget";
+import AvailabilitySearchOverlay from "@/components/overlays/AvailabilitySearchOverlay";
+import { searchCityHotels, type CityHotelSearchResult } from "@/lib/cityHotelSearch";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { applyEmbedBg, parseBg, resolveEmbedInk, parseFit, fitFlags } from "@/lib/embedFit";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
@@ -315,6 +317,8 @@ const VIDEOFEED_RE = /<!--VIDEO_FEED:([\s\S]*?)-->/g;
 const TIDES_RE = /<!--TIDES_FORECAST:([\s\S]*?)-->/g;
 const COMPETITOR_GUARD_RE = /<!--COMPETITOR_GUARD_ACTIVE-->/;
 const DEST_CHIPS_RE = /<!--DESTINATION_CHIPS:([\s\S]*?)-->/g;
+/** Widget de disponibilité hôtelière (suggestion back-office en mode `booking`). */
+const HOTEL_BOOKING_RE = /<!--HOTEL_BOOKING:([\s\S]*?)-->/g;
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[]; order?: string | null };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
@@ -352,7 +356,7 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; competitorGuard: boolean; destChips: ScopeChip[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: string[]; competitorGuard: boolean; destChips: ScopeChip[] } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
@@ -362,9 +366,10 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   const weather: WeatherPayload[] = [];
   const videoFeeds: VideoFeedPayload[] = [];
   const tides: string[] = [];
+  const bookings: string[] = [];
   const destChips: ScopeChip[] = [];
   const competitorGuard = COMPETITOR_GUARD_RE.test(text);
-  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, competitorGuard, destChips };
+  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -426,6 +431,12 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       if (p && (p.city || p.city_name)) tides.push(String(p.city || p.city_name));
     } catch { /* */ }
     return "";
+  }).replace(HOTEL_BOOKING_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && p.city) bookings.push(String(p.city));
+    } catch { /* */ }
+    return "";
   });
   clean = clean
     .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
@@ -436,6 +447,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--PINNED_BUSINESS_CARDS:[\s\S]*$/g, "")
     .replace(/<!--WEATHER_FORECAST:[\s\S]*$/g, "")
     .replace(/<!--TIDES_FORECAST:[\s\S]*$/g, "")
+    .replace(/<!--HOTEL_BOOKING:[\s\S]*$/g, "")
     .replace(/<!--VIDEO_FEED:[\s\S]*?-->/g, "")
     .replace(/<!--VIDEO_FEED:[\s\S]*$/g, "")
     .replace(/<!--POOL_BUSINESS_IDS:[\s\S]*?-->/g, "")
@@ -445,7 +457,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--DESTINATION_CHIPS:[\s\S]*$/g, "")
     .trim();
   clean = linkifyPhones(clean);
-  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, competitorGuard, destChips };
+  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips };
 }
 
 // Convert bare phone / WhatsApp numbers found in AI markdown into clickable links.
@@ -622,7 +634,7 @@ const EmbedAsk = () => {
   }, []);
 
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null; is_platform_visible?: boolean };
-  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[] };
+  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
   // Splash d'accueil plateforme : le message d'ouverture occupe tout l'overlay,
   // puis zoom-out vers le haut dès que les suggestions back-office sont prêtes.
@@ -636,6 +648,22 @@ const EmbedAsk = () => {
   const [agentPrefs, setAgentPrefs] = useState<{ sugg: string[] | null; fu: string[] | null }>({ sugg: null, fu: null });
 
   const [activeSuggestionId, setActiveSuggestionId] = useState<string | null>(null);
+
+  // Disponibilités hôtelières (suggestion mode `booking`) : résultats SerpAPI
+  // rendus inline, indexés par identifiant de message assistant.
+  const [hotelResults, setHotelResults] = useState<Record<string, CityHotelSearchResult>>({});
+  const [hotelSearchingMsgId, setHotelSearchingMsgId] = useState<string | null>(null);
+  const runCityHotelSearch = async (msgId: string, city: string, checkIn: string, checkOut: string, adults: number) => {
+    setHotelSearchingMsgId(msgId);
+    try {
+      const res = await searchCityHotels({ cityName: city, checkIn, checkOut, adults });
+      setHotelResults((prev) => ({ ...prev, [msgId]: res }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "hotel search failed");
+    } finally {
+      setHotelSearchingMsgId(null);
+    }
+  };
 
   type BlogArticle = { id: string; slug: string; title: string; image: string | null; isOwner: boolean };
   const [blogArticles, setBlogArticles] = useState<BlogArticle[]>([]);
@@ -1039,7 +1067,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data, error: suggestionsError } = await supabase
         .from("ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible")
+        .select("id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode")
         .eq("surface", "embed")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
@@ -1071,6 +1099,7 @@ const EmbedAsk = () => {
           id: r.id as string,
           label: ((r[col] || r.label_fr || "") as string).trim(),
           disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
+          mode: (r.mode as string | null) ?? null,
         }))
         .filter((r) => r.label);
       setDbSuggestions(list);
@@ -1184,6 +1213,31 @@ const EmbedAsk = () => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !assistantReady) return;
     if (!overrideText) setInput("");
+    // Suggestion back-office en mode `booking` : aucun appel modèle. On injecte
+    // localement le widget de disponibilité (dates + voyageurs) de la fiche,
+    // la recherche SerpAPI ville est ensuite rendue inline dans la réponse.
+    if (suggestionId && suggestions.find((s) => s.id === suggestionId)?.mode === "booking") {
+      setError(null);
+      setActiveSuggestionId(suggestionId);
+      const city = platformCity || businessCity || "Marrakech";
+      setMessages((prev) => [
+        ...prev,
+        { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+        {
+          id: `a-booking-${Date.now()}`,
+          role: "assistant",
+          parts: [{
+            type: "text",
+            text: `${lang === "en"
+              ? `Choose your dates and number of guests — I'll check live availability in ${city}.`
+              : lang === "ar"
+              ? `اختر التواريخ وعدد المسافرين — سأتحقق من التوفر في ${city}.`
+              : `Choisissez vos dates et le nombre de voyageurs — je vérifie les disponibilités à ${city}.`}\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city })}-->`,
+          }],
+        } as any,
+      ]);
+      return;
+    }
     // Commande (tapée ou vocale) de changement de rayon : traitée localement,
     // la valeur reste bornée aux options du champ « Rayon de proximité ».
     if (!suggestionId && !followupId) {
@@ -2232,7 +2286,7 @@ const EmbedAsk = () => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides } = extractPayloads(raw);
+          const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides, bookings } = extractPayloads(raw);
           const mapPayload = maps[maps.length - 1] || null;
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
@@ -2241,6 +2295,9 @@ const EmbedAsk = () => {
           const weatherPayload = weather[weather.length - 1] || null;
           const videoFeedPayload = videoFeeds[videoFeeds.length - 1] || null;
           const tidesCity = tides[tides.length - 1] || null;
+          const bookingCity = bookings[bookings.length - 1] || null;
+          const msgKey = String(m.id || i);
+          const bookingResult = hotelResults[msgKey] || null;
           const isLast = i === messages.length - 1;
           const hideAssistantText =
             isLast &&
@@ -2418,6 +2475,80 @@ const EmbedAsk = () => {
                   <AiTidesWidget city={tidesCity} lang={lang} />
                 </div>
               )}
+
+              {bookingCity && (
+                <div className="w-full max-w-[85%] flex flex-col gap-3">
+                  <AvailabilitySearchOverlay
+                    inline
+                    transparent
+                    language={lang}
+                    isSearching={hotelSearchingMsgId === msgKey}
+                    initialCheckIn={bookingResult?.checkIn}
+                    initialCheckOut={bookingResult?.checkOut}
+                    initialAdults={bookingResult?.adults}
+                    onSearch={(checkIn, checkOut, adults) => {
+                      runCityHotelSearch(msgKey, bookingCity, checkIn, checkOut, adults);
+                    }}
+                    onClose={() => {}}
+                  />
+
+                  {bookingResult && (
+                    <div className="flex flex-col gap-3">
+                      <div className={`text-xs font-semibold ${theme === "dark" ? "text-white/70" : "text-neutral-700"}`}>
+                        {bookingResult.hotels.length > 0
+                          ? (lang === "en"
+                              ? `${bookingResult.hotels.length} available stays in ${bookingResult.city}`
+                              : lang === "ar"
+                              ? `${bookingResult.hotels.length} إقامة متوفرة في ${bookingResult.city}`
+                              : `${bookingResult.hotels.length} établissements disponibles à ${bookingResult.city}`)
+                          : (lang === "en"
+                              ? "No availability found for these dates."
+                              : lang === "ar"
+                              ? "لا يوجد توفر لهذه التواريخ."
+                              : "Aucune disponibilité trouvée pour ces dates.")}
+                      </div>
+                      {bookingResult.hotels.map((h: any) => (
+                        <button
+                          key={h.hotelId}
+                          type="button"
+                          onClick={() => { setOpenSiblings([h.businessId]); setOpenBusinessId(h.businessId); }}
+                          className={`flex gap-3 p-3 text-left rounded-2xl border ${border} ${cardBg}`}
+                          style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08)", ...(cardStyle || {}) }}
+                        >
+                          <div className="shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-neutral-800">
+                            {(h.dbImage || h.mainImage) && (
+                              <img src={h.dbImage || h.mainImage} alt={h.name} className="w-full h-full object-cover" loading="lazy" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className={`font-semibold text-sm truncate ${cardInk}`}>{h.name}</div>
+                            <div className={`text-xs mt-0.5 truncate ${cardInk} opacity-70`}>
+                              {[h.dbBusiness?.neighborhood, h.dbBusiness?.city].filter(Boolean).join(" · ")}
+                            </div>
+                            {h.dbGoogleRating != null && (
+                              <div className={`text-xs mt-1 flex items-center gap-1 ${cardInk} opacity-80`}>
+                                <Star className="h-3 w-3" style={{ color: "#D4AF37" }} />
+                                {Number(h.dbGoogleRating).toFixed(1)}
+                                {h.dbGoogleReviewCount ? ` (${h.dbGoogleReviewCount})` : ""}
+                              </div>
+                            )}
+                            {(typeof h.serpPrice === "object" ? h.serpPrice?.amount : h.serpPrice) && (
+                              <div className="mt-1.5 inline-block rounded-full px-2.5 py-1 text-xs font-bold text-white" style={{ background: "#C04F17" }}>
+                                {typeof h.serpPrice === "object" ? h.serpPrice.amount : h.serpPrice}
+                                <span className="font-normal opacity-90">
+                                  {lang === "en" ? " / night" : lang === "ar" ? " / ليلة" : " / nuit"}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+
 
               {pinnedCards.length > 0 && (
                 <div className="w-full max-w-[85%] flex flex-col gap-3">
