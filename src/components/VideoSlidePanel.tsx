@@ -1737,6 +1737,7 @@ const VideoSlidePanel = ({
               )}
               {/* Bloc crédit unifié — priorité : social > owner > eventBusiness (mutuellement exclusifs) */}
               {(() => {
+                if (chipsExpanded) return null;
                 if (visibleSocial) {
                   return (
                     <VideoSocialBadge
