@@ -3250,6 +3250,24 @@ const EmbedAsk = () => {
       </form>
       </div>
 
+      {/* Overlay POI/Map générique du chip « Map » de l'accueil IA : corpus complet
+          des POI (pas de poiOverrideIds), ancré sur l'hôte ou sur le POI master. */}
+      {openGenericPoi && (businessId || poiMasterAnchorId) && (
+        <div className="fixed inset-0 z-[220]">
+          <Suspense fallback={null}>
+            <BookOnlineSlidePanel
+              businessId={businessId || poiMasterAnchorId!}
+              initialOverlay="poi"
+              embedMode
+              hideDirections
+              mapTheme={mapThemeResolved}
+              mapBaseColor={mapBaseColor}
+              onClose={() => setOpenGenericPoi(false)}
+            />
+          </Suspense>
+        </div>
+      )}
+
       {openMap && (businessId || (openMap.businesses || []).some((b) => b.id)) ? (
         // Overlay POI du slidepanel réutilisé tel quel (carte + rail de cartes + pastilles + clic marqueur → fiche),
         // en corpus fermé : uniquement les établissements de la réponse, dans l'ordre donné.
