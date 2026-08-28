@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1858,
+  "numberOfItems": 1859,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -8077,8 +8077,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.8,
-          "reviewCount": 75,
+          "ratingValue": 4.7,
+          "reviewCount": 105,
           "bestRating": 5
         }
       }
@@ -23668,7 +23668,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 821,
+          "reviewCount": 881,
           "bestRating": 5
         }
       }
@@ -40666,7 +40666,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 15,
+          "reviewCount": 16,
           "bestRating": 5
         }
       }
@@ -51755,7 +51755,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 507,
+          "reviewCount": 508,
           "bestRating": 5
         }
       }
@@ -53214,6 +53214,32 @@
     {
       "@type": "ListItem",
       "position": 1857,
+      "url": "https://oneworldmorocco.com/delegation-regionale-du-tourisme-marrakech",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/delegation-regionale-du-tourisme-marrakech#business",
+        "name": "Délégation Régionale Du Tourisme Marrakech",
+        "url": "https://oneworldmorocco.com/delegation-regionale-du-tourisme-marrakech",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/fcadc38e-da1e-42ce-a7d3-27b7f6bdff57-1786000307111-1y7dx6.webp",
+        "description": "La Délégation Régionale du Tourisme de Marrakech-Safi est l'administration de référence chargée de représenter le Ministère du Tourisme, de l'Artisanat et de l'Économie Sociale et Solidaire dans la région. Située à Marrakech, elle accompagne le développement du tourisme régional en travaillant aux côtés des professionnels du secteur, des investisseurs, des collectivités territoriales et des institutions afin de renforcer l'attractivité de l'une des premières destinations touristiques d'Afrique. ",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "137 Av. Mohammed V",
+          "addressLocality": "Gueliz",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.635422,
+          "longitude": -8.0140741
+        },
+        "telephone": "+212524436131"
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1858,
       "url": "https://oneworldmorocco.com/m-avenue-1",
       "item": {
         "@type": "LocalBusiness",
@@ -53245,7 +53271,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1858,
+      "position": 1859,
       "url": "https://oneworldmorocco.com/pc-gamer-maroc",
       "item": {
         "@type": "LocalBusiness",
