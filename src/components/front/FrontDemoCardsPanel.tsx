@@ -9,7 +9,7 @@ import FrontHeader from "@/components/front/FrontHeader";
 
 export interface FrontDemoCard {
   key: string;
-  videoId: string;
+  videoId: string | null;
   thumbnail: string | null;
   label: string | null;
   businessName: string | null;
@@ -65,17 +65,19 @@ const FrontDemoCardsPanel = ({
         const payload = (row?.payload as any[]) || [];
         payload.forEach((s: any, i: number) => {
           const d = s?.data;
-          if (!d?.videoId || !(d.videoUrl || d.thumbnail)) return;
-          const videoId = String(d.videoId);
-          if (seen.has(videoId)) return;
-          seen.add(videoId);
+          const badgeId = d?.badgeId ?? (d?.target?.type === "badge" ? d.target.id : null);
+          // Cartes pilotées uniquement par les badges + l'image forcée.
+          if (!badgeId) return;
+          const key = `${city}:${s.key || i}`;
+          if (seen.has(key)) return;
+          seen.add(key);
           list.push({
-            key: `${city}:${s.key || i}`,
-            videoId,
+            key,
+            videoId: d?.videoId ? String(d.videoId) : null,
             thumbnail: d.thumbnail ?? null,
             label: d.label ?? null,
             businessName: d.businessName ?? null,
-            badgeId: d.badgeId ?? (d.target?.type === "badge" ? d.target.id : null),
+            badgeId,
             businessId: d.businessId ?? null,
           });
         });

@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, X, Loader2, Plus, GripVertical } from "lucide-react";
+import { X, Loader2, Plus, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import VideoThumbnail from "@/components/VideoThumbnail";
-import VideoLightbox from "@/components/staff/VideoLightbox";
 import { invalidateManualCardCache } from "@/lib/manualCards";
 import { cardKey, fetchHomepageCardBadges } from "@/lib/homepageCardBadges";
 import {
@@ -54,7 +52,6 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
   const [badgeFilter, setBadgeFilter] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const isFirstLoad = useRef(true);
 
   useEffect(() => {
@@ -477,7 +474,6 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
           <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter une carte
         </Button>
       </div>
-      {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </div>
   );
 };
