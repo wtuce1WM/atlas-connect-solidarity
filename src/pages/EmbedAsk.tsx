@@ -207,7 +207,7 @@ function parseRadiusCommand(text: string): number | null {
 const YOUTUBE_PAGE_SUGGESTION_ID = "63d6d717-e344-4e1b-9865-850ac1ca9126";
 
 const PLATFORM_FALLBACK_SUGGESTIONS_FR = [
-  "Que faire à proximité ?",
+  "Réserver une chambre",
   "Où prendre un thé à la menthe ?",
   "Que faire ce week-end ?",
   "Activités pour les enfants",
