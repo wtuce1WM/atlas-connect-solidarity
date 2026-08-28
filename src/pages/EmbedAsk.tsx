@@ -1216,9 +1216,17 @@ const EmbedAsk = () => {
     // Suggestion back-office en mode `booking` : aucun appel modèle. On injecte
     // localement le widget de disponibilité (dates + voyageurs) de la fiche,
     // la recherche SerpAPI ville est ensuite rendue inline dans la réponse.
-    if (suggestionId && suggestions.find((s) => s.id === suggestionId)?.mode === "booking") {
+    const normLabel = (s: string) =>
+      s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    const bookingSuggestion =
+      (suggestionId ? suggestions.find((s) => s.id === suggestionId && s.mode === "booking") : null) ||
+      // Filet : même libellé qu'une suggestion `booking` (chip relancée, texte tapé
+      // ou vocal) → on reste sur le widget de disponibilité, jamais sur le modèle.
+      suggestions.find((s) => s.mode === "booking" && normLabel(s.label) === normLabel(text)) ||
+      null;
+    if (bookingSuggestion) {
       setError(null);
-      setActiveSuggestionId(suggestionId);
+      setActiveSuggestionId(bookingSuggestion.id);
       const city = platformCity || businessCity || "Marrakech";
       setMessages((prev) => [
         ...prev,
