@@ -282,7 +282,7 @@ const BookOnlineSlidePanelInner = ({
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
-  poiOverrideIds, poiOverrideTitle, feedLayout, loadingSurface, aiMode,
+  poiOverrideIds, poiCityCorpus, poiOverrideTitle, feedLayout, loadingSurface, aiMode,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const rateIframeHeight = useEmbedIframeHeight("owm-rate-height", 380);
