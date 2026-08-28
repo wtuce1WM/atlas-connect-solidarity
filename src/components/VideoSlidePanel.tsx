@@ -128,6 +128,12 @@ const LEFT_COLUMN_BADGES = [
   { id: "3454814c-df50-414e-b5e1-70fc3976cb30", label: "Recettes", color: "#000000", textColor: "#FFFFFF" },
 ];
 
+const CITY_FEED_BADGES = [
+  { id: "41545fd3-2c2c-4609-8d55-842fd7e2edde", name: "Marrakech" },
+  { id: "3f96c12a-0635-4f70-8de0-2578a66bcc07", name: "Essaouira" },
+];
+
+
 
 interface AgendaEvent {
   id: string;
