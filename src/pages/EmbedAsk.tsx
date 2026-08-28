@@ -44,6 +44,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { applyEmbedBg, parseBg, resolveEmbedInk, parseFit, fitFlags } from "@/lib/embedFit";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
 import { useWidgetParams } from "@/hooks/useWidgetParams";
+import { cn } from "@/lib/utils";
 
 // EmbedMediaBottomBar (Pause/Mute) removed — the BookOnlineSlidePanel now renders
 // its own liquid-glass PanelSearchBar with 6 CTAs and integrated video controls.
