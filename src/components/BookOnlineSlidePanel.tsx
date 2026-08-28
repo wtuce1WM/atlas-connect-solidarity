@@ -4752,21 +4752,11 @@ const BookOnlineSlidePanelInner = ({
                   if (window.innerWidth < 1024) onClose?.();
                   return;
                 }
-                // Assistant IA en overlay plein écran (embed/ask) — équivalent VideoSlidePanel
-                const slug = business?.slug || null;
-                if (aiMode === "platform") {
-                  setAiAssistantSlug(null);
-                  setAiAssistantPlatform(true);
-                  setAiAssistantOpen(true);
-                } else if (slug) {
-                  setAiAssistantReady(false);
-                  setAiAssistantSessionKey((k) => k + 1);
-                  setAiAssistantSlug(slug);
-                  setAiAssistantPlatform(false);
-                  setAiAssistantOpen(true);
-                } else {
-                  window.dispatchEvent(new Event("open-ai-tab"));
-                }
+                // CTA IA de la barre liquid glass : toujours ouvrir
+                // Assistant IA One World Morocco version plateforme.
+                setAiAssistantSlug(null);
+                setAiAssistantPlatform(true);
+                setAiAssistantOpen(true);
               }}
               iconVariant="black"
               onSearch={onSearch}
