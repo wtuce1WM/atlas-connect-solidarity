@@ -1493,7 +1493,7 @@ const VideoSlidePanel = ({
             </div>
             )}
             {chipsExpanded && (
-              <div className="mt-2 flex justify-center">
+              <div className="mt-2 flex flex-col items-center">
                 <button
                   type="button"
                   onClick={() => setChipsExpanded(false)}
@@ -1504,6 +1504,13 @@ const VideoSlidePanel = ({
                   <ChevronUp className="h-3.5 w-3.5 shrink-0" />
                   Masquer
                 </button>
+                <div
+                  role="button"
+                  aria-label="Masquer les badges"
+                  onClick={(e) => { e.stopPropagation(); setChipsExpanded(false); }}
+                  className="pointer-events-auto h-12 w-full"
+                  title="Taper en dessous pour masquer les badges"
+                />
               </div>
             )}
           </div>
