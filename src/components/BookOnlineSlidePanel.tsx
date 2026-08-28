@@ -4152,7 +4152,9 @@ const BookOnlineSlidePanelInner = ({
           : afterProx.slice(0, effectiveTopLimit);
         // Pas de bascule Top 20 / Tous si le résultat courant tient sous la limite
         const showAllToggle = poiMapMode === "poi" && total > effectiveTopLimit;
-        const showCatPill = poiMapMode === "poi" && catPillTabs.length >= 2;
+        // Dans le widget Map plateforme, le Pill Catégories doit être présent dès
+        // l'ouverture, comme le Pill POI, sans attendre le chargement des onglets.
+        const showCatPill = poiMapMode === "poi" && (isEmbedMapWidget || catPillTabs.length >= 2);
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi" && !!proxOrigin;
         const proxOpts: { km: number; label: string }[] = [
