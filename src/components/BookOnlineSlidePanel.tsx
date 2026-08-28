@@ -4546,7 +4546,7 @@ const BookOnlineSlidePanelInner = ({
                   ]
                 : [
                     ...(poiMasterItem ? [poiMasterItem] : []),
-                    ...(displayedPoi
+                    ...((overridePool ? afterProx : displayedPoi)
                       .filter(p => p.id !== poiMasterOverride?.id)
                       .map(p => ({
                         id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
