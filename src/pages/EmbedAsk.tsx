@@ -3226,8 +3226,9 @@ const EmbedAsk = () => {
       </div>
 
       {/* Overlay POI/Map générique du chip « Map » : corpus complet des POI,
-          toujours ouvrable. L'overlay POI est ancré à un business : à défaut
-          d'hôte, on utilise le POI master (carte centrée sur la Koutoubia). */}
+          toujours ouvrable. L'overlay POI est ancré au business hôte s'il existe ;
+          en mode plateforme on utilise le business maître default_poi_is_master
+          (carte centrée sur la Koutoubia + chips catégories de la ville). */}
       {renderGenericPoi && (
         <div
           className={cn(
@@ -3237,7 +3238,7 @@ const EmbedAsk = () => {
         >
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
-              businessId={businessId || POI_MASTER_FALLBACK_ID}
+              businessId={businessId || poiMasterAnchorId || POI_MASTER_FALLBACK_ID}
               initialOverlay="poi"
               embedMode
               hideDirections
