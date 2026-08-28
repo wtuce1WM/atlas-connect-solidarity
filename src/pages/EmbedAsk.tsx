@@ -1218,15 +1218,25 @@ const EmbedAsk = () => {
     // la recherche SerpAPI ville est ensuite rendue inline dans la réponse.
     const normLabel = (s: string) =>
       s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    const normalizedText = normLabel(text);
+    const isBookingLabel = [
+      "reserver une chambre",
+      "book a room",
+      "احجز غرفة",
+    ].includes(normalizedText);
     const bookingSuggestion =
       (suggestionId ? suggestions.find((s) => s.id === suggestionId && s.mode === "booking") : null) ||
       // Filet : même libellé qu'une suggestion `booking` (chip relancée, texte tapé
       // ou vocal) → on reste sur le widget de disponibilité, jamais sur le modèle.
       suggestions.find((s) => s.mode === "booking" && normLabel(s.label) === normLabel(text)) ||
       null;
-    if (bookingSuggestion) {
+    const isBookingRequest =
+      suggestionId === "8150af31-304b-40af-a638-fe10535a2e15" ||
+      isBookingLabel ||
+      !!bookingSuggestion;
+    if (isBookingRequest) {
       setError(null);
-      setActiveSuggestionId(bookingSuggestion.id);
+      setActiveSuggestionId(bookingSuggestion?.id || suggestionId || null);
       const city = platformCity || businessCity || "Marrakech";
       setMessages((prev) => [
         ...prev,
