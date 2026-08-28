@@ -826,6 +826,10 @@ const EmbedAsk = () => {
   const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
   /** Overlay inline « Le meilleur de YouTube sur le Maroc » (variante compacte de /youtube). */
   const [youtubeOpen, setYoutubeOpen] = useState(false);
+  /** Overlay POI générique (chip « Map » permanent de l'accueil IA) : corpus complet
+      des POI, ancré sur l'hôte ou sur un business `default_poi_is_master`. */
+  const [openGenericPoi, setOpenGenericPoi] = useState(false);
+  const [poiMasterAnchorId, setPoiMasterAnchorId] = useState<string | null>(null);
 
   // Carte des destinations (distincte de la carte des résultats établissements) :
   // marqueurs = destinations liées à la suggestion.
@@ -982,6 +986,25 @@ const EmbedAsk = () => {
     })();
     return () => { cancelled = true; };
   }, [businessId]);
+
+  // Ancre du chip « Map » de l'accueil IA : sans hôte (mode plateforme), on utilise
+  // un business marqué default_poi_is_master (ex. Tarik Belasri) comme ancre de
+  // l'overlay POI/Map — même mécanisme que la fiche maîtresse.
+  useEffect(() => {
+    if (businessId || poiMasterAnchorId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("businesses")
+        .select("id")
+        .eq("default_poi_is_master", true)
+        .order("updated_at", { ascending: false })
+        .limit(1);
+      const id = Array.isArray(data) && data[0]?.id ? String(data[0].id) : null;
+      if (!cancelled && id) setPoiMasterAnchorId(id);
+    })();
+    return () => { cancelled = true; };
+  }, [businessId, poiMasterAnchorId]);
 
   const openerText = isPlatform
     ? L.platformOpener()
@@ -2271,6 +2294,19 @@ const EmbedAsk = () => {
             </form>
 
             <div className="w-full max-w-xl flex flex-wrap items-center justify-center gap-2">
+              {/* Chip « Map » permanent (6e suggestion) : ouvre l'overlay POI/Map fullscreen,
+                  toujours visible quelles que soient les suggestions du backoffice. */}
+              {(businessId || poiMasterAnchorId) && (
+                <button
+                  type="button"
+                  onClick={() => setOpenGenericPoi(true)}
+                  className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold shadow-md hover:opacity-90 transition-opacity"
+                  style={{ fontFamily: "'Montserrat', sans-serif", background: "#C04F17", color: "#ffffff", border: "1px solid #C04F17", textTransform: "none", letterSpacing: "normal" }}
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  Map
+                </button>
+              )}
               {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 5)).map((s) => {
                 const label = s.label;
                 const isYoutubePage = s.id === YOUTUBE_PAGE_SUGGESTION_ID || /youtube/i.test(label);
@@ -3213,6 +3249,24 @@ const EmbedAsk = () => {
 
       </form>
       </div>
+
+      {/* Overlay POI/Map générique du chip « Map » de l'accueil IA : corpus complet
+          des POI (pas de poiOverrideIds), ancré sur l'hôte ou sur le POI master. */}
+      {openGenericPoi && (businessId || poiMasterAnchorId) && (
+        <div className="fixed inset-0 z-[220]">
+          <Suspense fallback={null}>
+            <BookOnlineSlidePanel
+              businessId={businessId || poiMasterAnchorId!}
+              initialOverlay="poi"
+              embedMode
+              hideDirections
+              mapTheme={mapThemeResolved}
+              mapBaseColor={mapBaseColor}
+              onClose={() => setOpenGenericPoi(false)}
+            />
+          </Suspense>
+        </div>
+      )}
 
       {openMap && (businessId || (openMap.businesses || []).some((b) => b.id)) ? (
         // Overlay POI du slidepanel réutilisé tel quel (carte + rail de cartes + pastilles + clic marqueur → fiche),
