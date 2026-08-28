@@ -266,6 +266,9 @@ interface BookOnlineSlidePanelProps {
   onMapReady?: () => void;
   /** Corpus fermé imposé (réponse IA) : ids d'établissements, dans l'ordre exact à afficher */
   poiOverrideIds?: string[] | null;
+  /** Corpus ville imposé (overlay carte plateforme) : toutes les fiches actives
+      géolocalisées de ces villes, sans autre condition. Cadrage = fit markers. */
+  poiCityCorpus?: string[] | null;
   /** Titre de l'overlay POI quand un corpus fermé est imposé */
   poiOverrideTitle?: string | null;
 }
