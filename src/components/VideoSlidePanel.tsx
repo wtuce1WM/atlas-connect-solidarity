@@ -1296,14 +1296,15 @@ const VideoSlidePanel = ({
           </div>
         )}
 
-        {/* Tableau de 2 colonnes de chips badges en haut de la vidéo — feed uniquement.
-            Colonne de gauche : menu fixe de 9 filtres (Points d'intérêt, Guide, Famille,
-            Enfants, Annonces, Deals, Day Pass, Avis clients, Agenda).
-            Colonne de droite : badges effectivement liés à la vidéo, les uns au-dessus des autres.
-            Clic sur un chip → relance le feed sur ce badge. */}
+        {/* Tableau de 3 colonnes de chips badges en haut de la vidéo — feed uniquement.
+            Colonne 1 : menu fixe de 10 filtres (Points d'intérêt, Guide, Famille,
+            Enfants, Annonces, Deals, Day Pass, Avis clients, Agenda, Recettes).
+            Colonne 2 : badges effectivement liés à la vidéo, le premier en #C04F17.
+            Colonne 3 : villes fixes Marrakech / Essaouira pour changer de feed.
+            Clic sur un chip → relance le feed sur ce badge/ville. */}
         {feedLayout && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && !clubPopupOpen && !timelineClubOpen && (
-          <div className="absolute top-16 left-3 right-3 z-[100] grid grid-cols-2 gap-2 pointer-events-none">
+          <div className="absolute top-16 left-3 right-3 z-[100] grid grid-cols-3 gap-2 pointer-events-none">
             <div className="flex flex-col items-end gap-1.5">
               {LEFT_COLUMN_BADGES.filter(
                 (b) => !(feedBadges?.[0]?.id && b.id === feedBadges[0].id)
@@ -1400,27 +1401,29 @@ const VideoSlidePanel = ({
                         </button>
                       );
                     })}
-                    {videoCities.map((city) => (
-                      <button
-                        key={city.id}
-                        type="button"
-                        disabled={!onFeedCitySelect}
-                        onClick={() => onFeedCitySelect?.(city)}
-                        className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
-                        style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
-                        title={onFeedCitySelect ? `Voir les vidéos à ${city.name}` : city.name}
-                      >
-                        <MapPin className="h-3 w-3 shrink-0" />
-                        {city.name}
-                      </button>
-                    ))}
-
                   </>
                 );
               })()}
             </div>
+            <div className="flex flex-col items-start gap-1.5">
+              {CITY_FEED_BADGES.map((city) => (
+                <button
+                  key={city.id}
+                  type="button"
+                  disabled={!onFeedCitySelect}
+                  onClick={() => onFeedCitySelect?.(city)}
+                  className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
+                  style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
+                  title={onFeedCitySelect ? `Voir les vidéos à ${city.name}` : city.name}
+                >
+                  <MapPin className="h-3 w-3 shrink-0" />
+                  {city.name}
+                </button>
+              ))}
+            </div>
           </div>
         )}
+
 
         {/* Left sidebar CTAs — miroir du rail de BookOnlineSlidePanel.
             Hors feed : uniquement le bouton YouTube (comportement historique).
