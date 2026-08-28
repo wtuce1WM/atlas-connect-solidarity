@@ -26,7 +26,9 @@ export async function searchCityHotels(params: CityHotelSearchParams): Promise<C
   const { checkIn, checkOut, adults } = params;
 
   const [mappingResult, gammeResult] = await Promise.all([
-    supabase.from("hotel_mappings").select("id, serp_hotel_name, business_id, city").ilike("city", cityName),
+    // RPC publique (security definer) : `hotel_mappings` est réservée au staff en
+    // lecture directe, l'assistant tourne en anonyme.
+    supabase.rpc("get_hotel_mappings_by_city", { _city: cityName }),
     supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
   ]);
   const allMappings = (mappingResult.data || []) as any[];
