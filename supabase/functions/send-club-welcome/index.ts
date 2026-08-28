@@ -1,4 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.49.4";
+import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts';
+import { sendAndLog } from '../_shared/email-send-log.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -46,21 +48,24 @@ Deno.serve(async (req) => {
     const email = String(member.email || "").toLowerCase().trim();
     if (!email.includes("@")) return json({ success: true, skipped: "no_email" });
 
-    const { error: sendErr } = await admin.functions.invoke("send-transactional-email", {
-      body: {
-        templateName: "club-welcome",
-        recipientEmail: email,
-        idempotencyKey: `club-welcome-${member.id}`,
-        templateData: {
-          nickname: member.nickname || member.first_name || "",
-          email,
-          clubUrl: "https://oneworldmorocco.com/club",
-        },
-      },
-    });
-    if (sendErr) {
-      console.error("send-transactional-email failed:", sendErr);
-      return json({ error: sendErr.message }, 400);
+    try {
+      await sendAndLog(
+        () =>
+          sendTemplateEmail("club-welcome", email, {
+            templateData: {
+              nickname: member.nickname || member.first_name || "",
+              email,
+              clubUrl: "https://oneworldmorocco.com/club",
+            },
+            idempotencyKey: `club-welcome-${member.id}`,
+          }),
+        "club-welcome",
+        email,
+      );
+    } catch (sendErr) {
+      const msg = sendErr instanceof Error ? sendErr.message : String(sendErr);
+      console.error("club-welcome send failed:", msg);
+      return json({ error: msg }, 400);
     }
 
     await admin

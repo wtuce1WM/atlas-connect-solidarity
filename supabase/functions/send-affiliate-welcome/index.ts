@@ -1,5 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.49.4";
 import { assertStaff } from "../_shared/auth-helpers.ts";
+import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts';
+import { sendAndLog } from '../_shared/email-send-log.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -104,23 +106,26 @@ Deno.serve(async (req) => {
     }
 
     // 3. Envoyer l'email de bienvenue
-    const { error: sendErr } = await admin.functions.invoke("send-transactional-email", {
-      body: {
-        templateName: "affiliate-welcome",
-        recipientEmail: email,
-        idempotencyKey: `affiliate-welcome-${affiliateId}-${Date.now()}`,
-        templateData: {
-          affiliateName: affiliate.name || "",
-          contactName: affiliate.contact_name || "",
-          email,
-          actionUrl: linkData.properties.action_link,
-          dashboardUrl: `${SITE_URL}/affiliates/dashboard`,
-        },
-      },
-    });
-    if (sendErr) {
-      console.error("send-transactional-email failed:", sendErr);
-      return json({ error: "Envoi de l'email échoué: " + sendErr.message }, 400);
+    try {
+      await sendAndLog(
+        () =>
+          sendTemplateEmail("affiliate-welcome", email, {
+            templateData: {
+              affiliateName: affiliate.name || "",
+              contactName: affiliate.contact_name || "",
+              email,
+              actionUrl: linkData.properties.action_link,
+              dashboardUrl: `${SITE_URL}/affiliates/dashboard`,
+            },
+            idempotencyKey: `affiliate-welcome-${affiliateId}-${Date.now()}`,
+          }),
+        "affiliate-welcome",
+        email,
+      );
+    } catch (sendErr) {
+      const msg = sendErr instanceof Error ? sendErr.message : String(sendErr);
+      console.error("affiliate-welcome send failed:", msg);
+      return json({ error: "Envoi de l'email échoué: " + msg }, 400);
     }
 
     return json({ success: true, email, user_id: userId });

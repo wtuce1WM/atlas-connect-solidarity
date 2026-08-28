@@ -1,7 +1,7 @@
 // Daily evaluation of widget alerts (Marées & Vents) for coastal cities.
 // Reads subscribers from `widget_alert_subscribers`, evaluates tomorrow's
 // conditions from Open-Meteo (marine + wind), and sends one grouped email per
-// subscriber via `send-transactional-email`. Deduplicated by
+// subscriber via l'envoi email managé. Deduplicated by
 // (email, city, alert_type, target_date) in `widget_alert_sends`.
 //
 // POST /functions/v1/evaluate-widget-alerts        -> real run
@@ -9,6 +9,8 @@
 // POST { city: "essaouira", force: true }          -> ignore dedupe, single city
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts';
+import { sendAndLog } from '../_shared/email-send-log.ts';
 
 type AlertType = "spring_tide" | "surf" | "kitesurf" | "wingfoil" | "fishing";
 
@@ -240,24 +242,25 @@ Deno.serve(async (req) => {
       report.push({ email: sub.email, city: sub.city_slug, date: city.date, alerts: toSend.map((a) => a.type) });
       if (dryRun) continue;
 
-      const { error: sendErr } = await admin.functions.invoke("send-transactional-email", {
-        body: {
-          templateName: "widget-alert",
-          recipientEmail: sub.email,
-          idempotencyKey: `widget-alert-${sub.city_slug}-${city.date}-${sub.id}-${toSend.map((a) => a.type).join("-")}`,
-          templateData: {
-            cityName: sub.city_name || coords.get(sub.city_slug)?.name || sub.city_slug,
-            nickname: sub.nickname || "",
-            dateLabel: "demain",
-            alerts: toSend.map((a) => ({ title: TITLES[a.type], detail: a.detail })),
-            widgetUrl: "https://oneworldmorocco.com/widgets",
-            unsubscribeUrl: `${supabaseUrl}/functions/v1/widget-alerts-unsubscribe?token=${sub.unsubscribe_token}`,
-          },
-        },
-      });
-
-      if (sendErr) {
-        console.error("send failed", sub.email, sendErr.message);
+      try {
+        await sendAndLog(
+          () =>
+            sendTemplateEmail("widget-alert", sub.email, {
+              templateData: {
+                cityName: sub.city_name || coords.get(sub.city_slug)?.name || sub.city_slug,
+                nickname: sub.nickname || "",
+                dateLabel: "demain",
+                alerts: toSend.map((a) => ({ title: TITLES[a.type], detail: a.detail })),
+                widgetUrl: "https://oneworldmorocco.com/widgets",
+                unsubscribeUrl: `${supabaseUrl}/functions/v1/widget-alerts-unsubscribe?token=${sub.unsubscribe_token}`,
+              },
+              idempotencyKey: `widget-alert-${sub.city_slug}-${city.date}-${sub.id}-${toSend.map((a) => a.type).join("-")}`,
+            }),
+          "widget-alert",
+          sub.email,
+        );
+      } catch (sendErr) {
+        console.error("send failed", sub.email, sendErr instanceof Error ? sendErr.message : sendErr);
         continue;
       }
       emails++;

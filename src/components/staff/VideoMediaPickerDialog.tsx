@@ -75,6 +75,7 @@ type SourceFilter =
   | "other"
   | "library_business"
   | "library_global"
+  | "fiche_images"
   | "badged"
   | "render_feed"
   | "render_promo"
@@ -1109,11 +1110,16 @@ export function VideoMediaPickerDialog({
   // Aucun chargement à l'ouverture : on attend que l'utilisateur choisisse une
   // source dans le menu déroulant (les requêtes sont lourdes).
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("none");
-  const { items, loading, reload, setItems } = useVideoMediaSources(
+  const { items: baseItems, loading: baseLoading, reload, setItems } = useVideoMediaSources(
     businessId,
     open && sourceFilter !== "none" && sourceFilter !== "fiche_images",
     otherSlug,
   );
+  const { items: ficheImages, loading: ficheImagesLoading } = useFicheImages(
+    open && sourceFilter === "fiche_images",
+  );
+  const items = sourceFilter === "fiche_images" ? ficheImages : baseItems;
+  const loading = sourceFilter === "fiche_images" ? ficheImagesLoading : baseLoading;
   const [wideAsked, setWideAsked] = useState(false);
   const {
     items: wideVideos,
@@ -1202,6 +1208,9 @@ export function VideoMediaPickerDialog({
         return m.source === "library" && m.scope === "business";
       case "library_global":
         return m.source === "library" && m.scope === "global";
+      case "fiche_images":
+        // Images publiques des fiches (`businesses.images`), toutes fiches actives.
+        return m.kind === "image";
       case "render_feed":
         return m.source === "render_feed";
       case "render_promo":
@@ -1636,6 +1645,7 @@ export function VideoMediaPickerDialog({
                 <option value="other">Autre fiche par slug · {activeTypeLabel} ({c(counts.other)})</option>
                 <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({c(counts.libBiz)})</option>
                 <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({c(counts.libGlobal)})</option>
+                <option value="fiche_images">Images des fiches · toutes fiches</option>
                 <option value="render_feed">Rendus · Scénario Feed ({c(counts.renderFeed)})</option>
                 <option value="render_promo">Rendus · Promo business ({c(counts.renderPromo)})</option>
                 <option value="render_storyboard">Rendus · Montages manuels ({c(counts.renderStoryboard)})</option>

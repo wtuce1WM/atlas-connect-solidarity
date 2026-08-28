@@ -4661,7 +4661,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/oasiria-market</loc>
+    <loc>https://oneworldmorocco.com/oasiria-bio-market</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9257,6 +9257,11 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/villa-jmajorelle</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/oasiria-bio-market</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

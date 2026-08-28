@@ -1,5 +1,7 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts';
+import { sendAndLog } from '../_shared/email-send-log.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -57,20 +59,21 @@ Deno.serve(async (req) => {
           .maybeSingle();
         businessName = biz?.name ?? '';
       }
-      await supabase.functions.invoke('send-transactional-email', {
-        body: {
-          templateName: 'video-ready',
-          recipientEmail: updated.notify_email_to,
-          idempotencyKey: `video-ready-${updated.id}`,
-          templateData: {
-            businessName,
-            videoTitle: updated.title || (updated.prompt ?? '').slice(0, 80),
-            durationSec: updated.duration_sec ?? null,
-            studioUrl: 'https://oneworldmorocco.com/studio-video',
-            videoUrl: updated.output_url ?? '',
-          },
-        },
-      });
+      await sendAndLog(
+        () =>
+          sendTemplateEmail('video-ready', updated.notify_email_to, {
+            templateData: {
+              businessName,
+              videoTitle: updated.title || (updated.prompt ?? '').slice(0, 80),
+              durationSec: updated.duration_sec ?? null,
+              studioUrl: 'https://oneworldmorocco.com/studio-video',
+              videoUrl: updated.output_url ?? '',
+            },
+            idempotencyKey: `video-ready-${updated.id}`,
+          }),
+        'video-ready',
+        updated.notify_email_to,
+      );
     } catch (e) {
       console.error('video-ready email failed:', (e as Error).message);
     }
