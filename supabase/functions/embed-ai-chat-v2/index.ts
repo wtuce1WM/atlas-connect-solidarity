@@ -1471,6 +1471,28 @@ Deno.serve(async (req) => {
               });
             }
 
+            // ── Garde-fou taxonomique : un type de lieu fort résolu borne le corpus ──
+            // La requête envoyée à business-search est le message brut (parité /search) :
+            // sa réponse fuzzy peut couvrir la ville entière (totalCount ≈ 500, avocats
+            // inclus pour « chambre d'hôtel »). Quand le résolveur a isolé un type de
+            // lieu réel (catégorie / sous-catégorie, jamais un service seul), seules les
+            // fiches de cette taxonomie comptent — le décompte « sur N » reflète alors
+            // la vraie population (hôtels) et non la ville. Recherche nominative
+            // exclue : « Villa Kahina » ne doit pas être écartée par « Hôtel ».
+            if (!nameHit && strongTerms.length && !strongAreServicesOnly && kept.length) {
+              const terms = strongTerms.map((t) => normalize(t));
+              const beforeTaxo = kept.length;
+              const inTaxo = kept.filter((b: any) => {
+                const hay = normalize(`${b.main_category || ""} ${(b.categories || []).join(" ")}`);
+                return terms.some((t) => hay.includes(t));
+              });
+              // Pas de repli silencieux : zéro adresse dans la taxonomie reste zéro.
+              if (inTaxo.length) kept = inTaxo;
+              console.log("[embed-ai-chat-v2] taxonomy_guard", JSON.stringify({
+                terms, before: beforeTaxo, after: kept.length,
+              }));
+            }
+
             // ── Quartier nommé dans la demande = filtre dur (recherche neuve) ──
             // Le mot quartier n'entre jamais dans la requête (ce n'est pas une catégorie) :
             // il s'applique ici, sur le corpus rendu par business-search. Pas de repli
