@@ -1508,9 +1508,11 @@ const VideoSlidePanel = ({
                   role="button"
                   aria-label="Masquer les badges"
                   onClick={(e) => { e.stopPropagation(); setChipsExpanded(false); }}
-                  className="pointer-events-auto h-12 w-full"
+                  onTouchEnd={(e) => { e.stopPropagation(); setChipsExpanded(false); }}
+                  className="pointer-events-auto h-[55vh] w-full"
                   title="Taper en dessous pour masquer les badges"
                 />
+
               </div>
             )}
           </div>
