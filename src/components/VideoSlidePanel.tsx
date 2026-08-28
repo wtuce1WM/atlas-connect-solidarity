@@ -1648,7 +1648,7 @@ const VideoSlidePanel = ({
                 );
               })()
             )}
-            {videoId && (
+            {videoId && !chipsExpanded && (
               <GenericVideoTimelineOverlay genericVideoId={videoId} currentTime={currentTime} />
             )}
             {agendaCity && (
