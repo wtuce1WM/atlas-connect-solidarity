@@ -3040,7 +3040,7 @@ const EmbedAsk = () => {
 
 
       <VoiceSearchOverlay
-        isOpen={voice.status === "recording" || voice.status === "processing"}
+        isOpen={voiceActive && !homeState}
         liveTranscript={voice.liveTranscript}
         audioLevel={voice.audioLevel}
         micReady={voice.micReady}
