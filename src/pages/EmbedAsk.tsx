@@ -2294,6 +2294,19 @@ const EmbedAsk = () => {
             </form>
 
             <div className="w-full max-w-xl flex flex-wrap items-center justify-center gap-2">
+              {/* Chip « Map » permanent (6e suggestion) : ouvre l'overlay POI/Map fullscreen,
+                  toujours visible quelles que soient les suggestions du backoffice. */}
+              {(businessId || poiMasterAnchorId) && (
+                <button
+                  type="button"
+                  onClick={() => setOpenGenericPoi(true)}
+                  className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold shadow-md hover:opacity-90 transition-opacity"
+                  style={{ fontFamily: "'Montserrat', sans-serif", background: "#C04F17", color: "#ffffff", border: "1px solid #C04F17", textTransform: "none", letterSpacing: "normal" }}
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  Map
+                </button>
+              )}
               {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 5)).map((s) => {
                 const label = s.label;
                 const isYoutubePage = s.id === YOUTUBE_PAGE_SUGGESTION_ID || /youtube/i.test(label);
