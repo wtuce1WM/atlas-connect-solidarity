@@ -9406,6 +9406,15 @@ export type Database = {
           liteapi_hotel_id: string
         }[]
       }
+      get_hotel_mappings_by_city: {
+        Args: { _city: string }
+        Returns: {
+          business_id: string
+          city: string
+          id: string
+          serp_hotel_name: string
+        }[]
+      }
       get_hotel_mappings_by_liteapi_ids: {
         Args: { _ids: string[] }
         Returns: {
