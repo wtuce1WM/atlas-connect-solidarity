@@ -2175,8 +2175,9 @@ const EmbedAsk = () => {
                 <button
                   type="button"
                   onClick={() => setShowAllSuggestions((v) => !v)}
-                  className={`text-[13px] px-4 py-2 rounded-full border ${border} underline underline-offset-2 ${whiteInk}`}
-                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  className="text-[13px] font-semibold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
+                  style={{ fontFamily: "'Montserrat', sans-serif", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37" }}
+
                 >
                   {showAllSuggestions
                     ? (lang === "en" ? "Show less" : lang === "ar" ? "عرض أقل" : "Voir moins")
