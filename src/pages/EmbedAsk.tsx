@@ -2532,9 +2532,9 @@ const EmbedAsk = () => {
                                 {h.dbGoogleReviewCount ? ` (${h.dbGoogleReviewCount})` : ""}
                               </div>
                             )}
-                            {h.serpPrice && (
+                            {(typeof h.serpPrice === "object" ? h.serpPrice?.amount : h.serpPrice) && (
                               <div className="mt-1.5 inline-block rounded-full px-2.5 py-1 text-xs font-bold text-white" style={{ background: "#C04F17" }}>
-                                {h.serpPrice}
+                                {typeof h.serpPrice === "object" ? h.serpPrice.amount : h.serpPrice}
                                 <span className="font-normal opacity-90">
                                   {lang === "en" ? " / night" : lang === "ar" ? " / ليلة" : " / nuit"}
                                 </span>
