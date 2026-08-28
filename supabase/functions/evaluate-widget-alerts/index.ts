@@ -1,7 +1,7 @@
 // Daily evaluation of widget alerts (Marées & Vents) for coastal cities.
 // Reads subscribers from `widget_alert_subscribers`, evaluates tomorrow's
 // conditions from Open-Meteo (marine + wind), and sends one grouped email per
-// subscriber via `send-transactional-email`. Deduplicated by
+// subscriber via l'envoi email managé. Deduplicated by
 // (email, city, alert_type, target_date) in `widget_alert_sends`.
 //
 // POST /functions/v1/evaluate-widget-alerts        -> real run
