@@ -3219,9 +3219,10 @@ const EmbedAsk = () => {
       </form>
       </div>
 
-      {/* Overlay POI/Map générique du chip « Map » de l'accueil IA : corpus complet
-          des POI (pas de poiOverrideIds), ancré sur l'hôte ou sur le POI master. */}
-      {renderGenericPoi && (businessId || poiMasterAnchorId) && (
+      {/* Overlay POI/Map générique du chip « Map » : corpus complet des POI,
+          toujours ouvrable. L'overlay POI est ancré à un business : à défaut
+          d'hôte, on utilise le POI master (carte centrée sur la Koutoubia). */}
+      {renderGenericPoi && (
         <div
           className={cn(
             "fixed inset-0 z-[220] transition-transform duration-300 ease-out will-change-transform",
@@ -3230,7 +3231,7 @@ const EmbedAsk = () => {
         >
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
-              businessId={businessId || poiMasterAnchorId!}
+              businessId={businessId || poiMasterAnchorId || POI_MASTER_FALLBACK_ID}
               initialOverlay="poi"
               embedMode
               hideDirections
@@ -3241,6 +3242,7 @@ const EmbedAsk = () => {
           </Suspense>
         </div>
       )}
+
 
       {openMap && (businessId || (openMap.businesses || []).some((b) => b.id)) ? (
         // Overlay POI du slidepanel réutilisé tel quel (carte + rail de cartes + pastilles + clic marqueur → fiche),
