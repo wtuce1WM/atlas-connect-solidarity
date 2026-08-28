@@ -2087,12 +2087,12 @@ const EmbedAsk = () => {
     },
   ];
   // Chip « Map » permanent : toujours visible (accueil ET conversation), fond terracotta.
-  // Ouvre l'overlay POI/Map fullscreen dès qu'une ancre (hôte ou POI master) est connue.
+  // Ouvre TOUJOURS l'overlay POI/Map fullscreen (ancre POI master par défaut → Koutoubia).
   const renderMapChip = (key: string) => (
     <button
       key={key}
       type="button"
-      onClick={() => { if (businessId || poiMasterAnchorId) setOpenGenericPoi(true); }}
+      onClick={() => setOpenGenericPoi(true)}
       className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold shadow-md hover:opacity-90 transition-opacity shrink-0"
       style={{ fontFamily: "'Montserrat', sans-serif", background: "#C04F17", color: "#ffffff", border: "1px solid #C04F17", textTransform: "none", letterSpacing: "normal" }}
     >
@@ -2100,6 +2100,7 @@ const EmbedAsk = () => {
       Map
     </button>
   );
+
 
   const filterCount = filterGroups.flatMap((g) => g.items).length;
   const [mainEl, setMainEl] = useState<HTMLDivElement | null>(null);
