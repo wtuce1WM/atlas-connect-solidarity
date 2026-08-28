@@ -1394,19 +1394,21 @@ const VideoSlidePanel = ({
                         </button>
                       );
                     })}
-                    {videoCity && (
+                    {videoCities.map((city) => (
                       <button
+                        key={city.id}
                         type="button"
                         disabled={!onFeedCitySelect}
-                        onClick={() => onFeedCitySelect?.(videoCity)}
+                        onClick={() => onFeedCitySelect?.(city)}
                         className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
                         style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
-                        title={onFeedCitySelect ? `Voir les vidéos à ${videoCity.name}` : videoCity.name}
+                        title={onFeedCitySelect ? `Voir les vidéos à ${city.name}` : city.name}
                       >
                         <MapPin className="h-3 w-3 shrink-0" />
-                        {videoCity.name}
+                        {city.name}
                       </button>
-                    )}
+                    ))}
+
                   </>
                 );
               })()}
