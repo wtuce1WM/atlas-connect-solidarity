@@ -1264,7 +1264,8 @@ const EmbedAsk = () => {
     if (isBookingRequest) {
       setError(null);
       setActiveSuggestionId(bookingSuggestion?.id || suggestionId || null);
-      const city = platformCity || businessCity || "Marrakech";
+      // La ville nommée dans la question prime sur la ville par défaut du widget.
+      const city = freeBookingIntent?.city || platformCity || businessCity || "Marrakech";
       const checkIn = freeBookingIntent?.checkIn || null;
       const checkOut = freeBookingIntent?.checkOut || null;
       const adults = freeBookingIntent?.adults || null;
