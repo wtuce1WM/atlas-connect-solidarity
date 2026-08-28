@@ -18,6 +18,7 @@ import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import VoiceSearchPanel from "@/components/VoiceSearchPanel";
 import EmbedFilterDrawer, { type EmbedFilterGroup } from "@/components/embed/EmbedFilterDrawer";
 
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
@@ -793,6 +794,7 @@ const EmbedAsk = () => {
   const hasUserMessages = messages.some((m) => m.role === "user");
   /** Option B : accueil IA plein écran (logo + champ central + chips) vs conversation. */
   const homeState = isPlatform && !hasUserMessages && !streaming && assistantReady && splashPhase === "done";
+  
   const pickFollowupLabel = (f: FollowupRow): string => {
     const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
     return raw.replace(/\{businessName\}/g, businessName || "").trim();
@@ -1622,6 +1624,7 @@ const EmbedAsk = () => {
     },
     onError: (message) => setError(message),
   });
+  const voiceActive = voice.status === "recording" || voice.status === "processing";
 
   const pendingSendRef = useRef<string | null>(null);
   const startNewConversation = () => {
@@ -2168,6 +2171,18 @@ const EmbedAsk = () => {
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
           <div className="flex flex-col items-center justify-center gap-6 px-1 py-8" style={{ minHeight: "min(100%, 640px)" }}>
+            {voiceActive ? (
+              /* Mode STT inline : animation micro bleue + texte blanc à la place
+                 de l'icône IA + texte d'accueil (pas d'overlay fullscreen). */
+              <VoiceSearchPanel
+                liveTranscript={voice.liveTranscript}
+                audioLevel={voice.audioLevel}
+                micReady={voice.micReady}
+                onClose={voice.toggleRecording}
+                onFinish={voice.finishRecording}
+                textClassName={theme === "light" ? "text-black" : "text-white"}
+              />
+            ) : (
             <div className="flex flex-col items-center gap-3 text-center">
               <div className="w-16 h-16 rounded-full bg-[#C04F17] flex items-center justify-center text-white shadow-lg">
                 <Sparkles className="w-8 h-8" />
@@ -2182,6 +2197,7 @@ const EmbedAsk = () => {
                 {L.platformOpener().replace(/\*\*/g, "")}
               </p>
             </div>
+            )}
 
             <form
               onSubmit={(e) => { e.preventDefault(); send(); }}
@@ -3024,7 +3040,7 @@ const EmbedAsk = () => {
 
 
       <VoiceSearchOverlay
-        isOpen={voice.status === "recording" || voice.status === "processing"}
+        isOpen={voiceActive && !homeState}
         liveTranscript={voice.liveTranscript}
         audioLevel={voice.audioLevel}
         micReady={voice.micReady}
