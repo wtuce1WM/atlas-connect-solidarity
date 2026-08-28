@@ -1561,6 +1561,22 @@ const VideoStoryboardPanel = () => {
     }
   }, []);
 
+  /** Supprime un job de rendu (utile pour purger un job bloqué en pending). */
+  const deleteJob = useCallback(
+    async (jobId: string) => {
+      if (!window.confirm("Supprimer définitivement ce job de rendu ?")) return;
+      const { error } = await supabase.from("video_jobs").delete().eq("id", jobId);
+      if (error) {
+        toast.error("Suppression impossible");
+        return;
+      }
+      toast.success("Job supprimé");
+      setJobs((prev) => prev.filter((j) => j.id !== jobId));
+    },
+    [],
+  );
+
+
   useEffect(() => {
     loadBoards().finally(() => setLoading(false));
     loadJobs();
