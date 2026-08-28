@@ -840,9 +840,10 @@ const EmbedAsk = () => {
     }
   }, [openGenericPoi]);
   const [poiMasterAnchorId, setPoiMasterAnchorId] = useState<string | null>(null);
-  /** Ancre POI master de secours (Délégation Régionale Du Tourisme Marrakech, POI Koutoubia)
-      pour garantir l'ouverture immédiate de l'overlay Map même si la requête échoue. */
-  const POI_MASTER_FALLBACK_ID = "fcadc38e-da1e-42ce-a7d3-27b7f6bdff57";
+  /** Ancre POI de la carte générique : le POI Koutoubia lui-même, pour que la carte
+      soit centrée immédiatement sur ses coordonnées GPS (31.6237205, -7.9936196). */
+  const POI_MASTER_FALLBACK_ID = "bc4b4fc1-06fc-4a69-8bea-59c8f89d924c";
+
 
 
   // Carte des destinations (distincte de la carte des résultats établissements) :
@@ -3235,7 +3236,7 @@ const EmbedAsk = () => {
         >
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
-              businessId={businessId || poiMasterAnchorId || POI_MASTER_FALLBACK_ID}
+              businessId={businessId || POI_MASTER_FALLBACK_ID}
               initialOverlay="poi"
               embedMode
               hideDirections
