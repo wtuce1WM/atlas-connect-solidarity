@@ -44,6 +44,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { applyEmbedBg, parseBg, resolveEmbedInk, parseFit, fitFlags } from "@/lib/embedFit";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
 import { useWidgetParams } from "@/hooks/useWidgetParams";
+import { cn } from "@/lib/utils";
 
 // EmbedMediaBottomBar (Pause/Mute) removed — the BookOnlineSlidePanel now renders
 // its own liquid-glass PanelSearchBar with 6 CTAs and integrated video controls.
@@ -829,6 +830,15 @@ const EmbedAsk = () => {
   /** Overlay POI générique (chip « Map » permanent de l'accueil IA) : corpus complet
       des POI, ancré sur l'hôte ou sur un business `default_poi_is_master`. */
   const [openGenericPoi, setOpenGenericPoi] = useState(false);
+  const [renderGenericPoi, setRenderGenericPoi] = useState(openGenericPoi);
+  useEffect(() => {
+    if (openGenericPoi) {
+      setRenderGenericPoi(true);
+    } else {
+      const t = setTimeout(() => setRenderGenericPoi(false), 320);
+      return () => clearTimeout(t);
+    }
+  }, [openGenericPoi]);
   const [poiMasterAnchorId, setPoiMasterAnchorId] = useState<string | null>(null);
 
   // Carte des destinations (distincte de la carte des résultats établissements) :
@@ -3210,8 +3220,13 @@ const EmbedAsk = () => {
 
       {/* Overlay POI/Map générique du chip « Map » de l'accueil IA : corpus complet
           des POI (pas de poiOverrideIds), ancré sur l'hôte ou sur le POI master. */}
-      {openGenericPoi && (businessId || poiMasterAnchorId) && (
-        <div className="fixed inset-0 z-[220]">
+      {renderGenericPoi && (businessId || poiMasterAnchorId) && (
+        <div
+          className={cn(
+            "fixed inset-0 z-[220] transition-transform duration-300 ease-out will-change-transform",
+            openGenericPoi ? "translate-x-0" : "translate-x-full"
+          )}
+        >
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
               businessId={businessId || poiMasterAnchorId!}
