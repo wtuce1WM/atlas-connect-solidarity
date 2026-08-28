@@ -826,6 +826,10 @@ const EmbedAsk = () => {
   const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
   /** Overlay inline « Le meilleur de YouTube sur le Maroc » (variante compacte de /youtube). */
   const [youtubeOpen, setYoutubeOpen] = useState(false);
+  /** Overlay POI générique (chip « Map » permanent de l'accueil IA) : corpus complet
+      des POI, ancré sur l'hôte ou sur un business `default_poi_is_master`. */
+  const [openGenericPoi, setOpenGenericPoi] = useState(false);
+  const [poiMasterAnchorId, setPoiMasterAnchorId] = useState<string | null>(null);
 
   // Carte des destinations (distincte de la carte des résultats établissements) :
   // marqueurs = destinations liées à la suggestion.
