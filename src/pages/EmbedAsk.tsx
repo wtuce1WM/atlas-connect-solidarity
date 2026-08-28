@@ -3236,7 +3236,7 @@ const EmbedAsk = () => {
         >
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
-              businessId={businessId || poiMasterAnchorId || POI_MASTER_FALLBACK_ID}
+              businessId={businessId || POI_MASTER_FALLBACK_ID}
               initialOverlay="poi"
               embedMode
               hideDirections
