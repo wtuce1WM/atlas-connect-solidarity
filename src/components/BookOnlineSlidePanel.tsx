@@ -4181,9 +4181,10 @@ const BookOnlineSlidePanelInner = ({
         return (
         <OverlayShell zClass="z-[80]" desktopOnly={false} animClass={isEmbedMapWidget ? "animate-slide-in-right" : "animate-slide-up-from-bottom"} bg="bg-[#ECD6B8]">
           <div dir="ltr" className="absolute inset-0">
-            {/* Corpus fermé demandé (poiOverrideIds) : la croix s'affiche dès l'ouverture,
+            {/* Corpus fermé demandé (poiOverrideIds) ou overlay générique (chip « Map »
+                de l'accueil IA, qui fournit onClose) : la croix s'affiche dès l'ouverture,
                 sans attendre le chargement des fiches du pool. */}
-            {(!embedMode || overridePool || poiOverrideKey.length > 0) && (
+            {(!embedMode || overridePool || poiOverrideKey.length > 0 || !!onClose) && (
               <button
                 onClick={() => { if (embedMode || initialOverlay === "poi") { onClose?.(); return; } setShowPoiMapOverlay(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
                 className="absolute top-[calc(3.3rem+0.75rem)] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-opacity"
