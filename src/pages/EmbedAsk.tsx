@@ -19,6 +19,7 @@ import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
+import { parseBookingIntent } from "@/lib/parseBookingIntent";
 import EmbedFilterDrawer, { type EmbedFilterGroup } from "@/components/embed/EmbedFilterDrawer";
 
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
