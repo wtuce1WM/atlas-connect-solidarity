@@ -1470,6 +1470,22 @@ const VideoSlidePanel = ({
                 </button>
               ))}
             </div>
+            </div>
+            )}
+            {chipsExpanded && (
+              <div className="mt-2 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setChipsExpanded(false)}
+                  className="pointer-events-auto inline-flex items-center gap-1 rounded-full border border-white/25 bg-black/70 px-3 py-1 text-[11px] md:text-xs font-semibold text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
+                  style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
+                  title="Masquer les badges"
+                >
+                  <ChevronUp className="h-3.5 w-3.5 shrink-0" />
+                  Masquer
+                </button>
+              </div>
+            )}
           </div>
         )}
 
