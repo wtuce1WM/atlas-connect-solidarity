@@ -1133,25 +1133,6 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
   }, [lang, isPlatform, suggestionFilterCity, suggestionFilterCategory]);
 
-  // Séquence du splash plateforme : plein écran → zoom-out → contenu normal.
-  // Non bloquant : la sortie se déclenche dès que la requête suggestions est
-  // retombée (succès OU erreur), avec un filet de sécurité de 2,5 s.
-  const splashScheduledRef = useRef<"none" | "pending" | "settled">("none");
-  useEffect(() => {
-    if (!isPlatform) { setSplashPhase("done"); return; }
-    const settled = dbSuggestions !== null;
-    // Ne replanifie que si rien n'est encore programmé, ou si les suggestions
-    // viennent d'arriver alors qu'on était sur le filet de sécurité 2,5 s.
-    if (splashScheduledRef.current === "settled") return;
-    if (splashScheduledRef.current === "pending" && !settled) return;
-    splashScheduledRef.current = settled ? "settled" : "pending";
-    const delay = settled ? 120 : 2500;
-    const t1 = window.setTimeout(() => setSplashPhase("exit"), delay);
-    const t2 = window.setTimeout(() => setSplashPhase("done"), delay + 700);
-    return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlatform, dbSuggestions]);
 
 
 
