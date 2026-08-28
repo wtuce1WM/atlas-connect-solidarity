@@ -1386,8 +1386,8 @@ const VideoSlidePanel = ({
                         onClick={() => onFeedBadgeSelect?.({ id: firstVideoBadge.id, name: firstVideoBadge.name })}
                         className="pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border border-white/25 px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
                         style={{
-                          backgroundColor: "#C04F17",
-                          color: "#FFFFFF",
+                          backgroundColor: firstVideoBadge.color || "rgba(0,0,0,0.7)",
+                          color: firstVideoBadge.text_color || "#FFFFFF",
                           fontFamily: "'Montserrat',system-ui,sans-serif",
                         }}
                         title={onFeedBadgeSelect ? `Voir les vidéos ${firstVideoBadge.name}` : firstVideoBadge.name}
