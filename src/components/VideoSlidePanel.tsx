@@ -240,7 +240,6 @@ const VideoSlidePanel = ({
   const { recentBusinesses } = useRecentlyViewedBusinesses();
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
-  const [videoCities, setVideoCities] = useState<{ id: string; name: string }[]>([]);
   const [, forceRender] = useState(0);
   useEffect(() => { if (open) forceRender((n) => n + 1); }, [open]);
 
