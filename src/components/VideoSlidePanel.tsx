@@ -1358,8 +1358,8 @@ const VideoSlidePanel = ({
                       isSelected
                         ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
                         : {
-                            backgroundColor: b.color || "rgba(0,0,0,0.7)",
-                            color: b.textColor || "#FFFFFF",
+                            backgroundColor: menuBadgeColors[b.id]?.color || "rgba(0,0,0,0.7)",
+                            color: menuBadgeColors[b.id]?.textColor || "#FFFFFF",
                             fontFamily: "'Montserrat',system-ui,sans-serif",
                           }
                     }
