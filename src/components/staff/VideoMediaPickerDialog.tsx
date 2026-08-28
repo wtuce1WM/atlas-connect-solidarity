@@ -1111,7 +1111,7 @@ export function VideoMediaPickerDialog({
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("none");
   const { items, loading, reload, setItems } = useVideoMediaSources(
     businessId,
-    open && sourceFilter !== "none",
+    open && sourceFilter !== "none" && sourceFilter !== "fiche_images",
     otherSlug,
   );
   const [wideAsked, setWideAsked] = useState(false);
@@ -1336,6 +1336,35 @@ export function VideoMediaPickerDialog({
     () => sorted.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE),
     [sorted, page],
   );
+
+  /**
+   * Détection d'orientation limitée aux médias de la page affichée : télécharger
+   * des centaines de fichiers à l'ouverture rendait le popup très lent.
+   */
+  const orientationDone = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const todo = pageItems.filter((m) => !m.orientation && !orientationDone.current.has(m.url));
+    if (todo.length === 0) return;
+    let alive = true;
+    todo.forEach((m) => orientationDone.current.add(m.url));
+    void (async () => {
+      const CONCURRENCY = 4;
+      let cursor = 0;
+      await Promise.all(
+        Array.from({ length: CONCURRENCY }, async () => {
+          while (alive && cursor < todo.length) {
+            const m = todo[cursor++];
+            const o = await detectOrientation(m);
+            if (!alive || !o) continue;
+            setItems((prev) => prev.map((it) => (it.url === m.url ? { ...it, orientation: o } : it)));
+          }
+        }),
+      );
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [pageItems, setItems]);
 
 
   const toggle = (m: PickerMedia) => {
