@@ -3244,6 +3244,7 @@ const EmbedAsk = () => {
               hideDirections
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
+              poiCityCorpus={["Marrakech", "Asni", "Imlil", "Agafay"]}
               onClose={() => setOpenGenericPoi(false)}
             />
           </Suspense>

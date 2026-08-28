@@ -266,6 +266,9 @@ interface BookOnlineSlidePanelProps {
   onMapReady?: () => void;
   /** Corpus fermé imposé (réponse IA) : ids d'établissements, dans l'ordre exact à afficher */
   poiOverrideIds?: string[] | null;
+  /** Corpus ville imposé (overlay carte plateforme) : toutes les fiches actives
+      géolocalisées de ces villes, sans autre condition. Cadrage = fit markers. */
+  poiCityCorpus?: string[] | null;
   /** Titre de l'overlay POI quand un corpus fermé est imposé */
   poiOverrideTitle?: string | null;
 }
@@ -279,7 +282,7 @@ const BookOnlineSlidePanelInner = ({
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
-  poiOverrideIds, poiOverrideTitle, feedLayout, loadingSurface, aiMode,
+  poiOverrideIds, poiCityCorpus, poiOverrideTitle, feedLayout, loadingSurface, aiMode,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const rateIframeHeight = useEmbedIframeHeight("owm-rate-height", 380);
@@ -606,7 +609,7 @@ const BookOnlineSlidePanelInner = ({
     const bid = (business as any)?.id;
     if (!bid || poiProximityInitRef.current === bid) return;
     poiProximityInitRef.current = bid;
-    if ((poiOverrideIds || []).length) { setPoiProximityKm(null); return; }
+    if ((poiOverrideIds || []).length || (poiCityCorpus || []).length) { setPoiProximityKm(null); return; }
     const raw = Number((business as any)?.poi_radius_km);
     const allowed = [0.5, 1, 5, 10, 20, 50, 100];
     setPoiProximityKm(allowed.includes(raw) ? raw : 10);
@@ -693,6 +696,34 @@ const BookOnlineSlidePanelInner = ({
     })();
     return () => { cancelled = true; };
   }, [poiOverrideKey]);
+  // Corpus ville imposé (chip « Map » plateforme) : TOUTES les fiches actives
+  // géolocalisées des villes listées, paginé (1000/page) — aucune autre condition.
+  // Alimente le même overridePool que poiOverrideIds → fit markers sur l'ensemble.
+  const poiCityCorpusKey = (poiCityCorpus || []).join(",");
+  useEffect(() => {
+    const cities = poiCityCorpusKey ? poiCityCorpusKey.split(",").filter(Boolean) : [];
+    if (!cities.length || poiOverrideKey) return;
+    let cancelled = false;
+    (async () => {
+      const all: any[] = [];
+      const PAGE = 1000;
+      for (let from = 0; ; from += PAGE) {
+        const { data } = await supabase
+          .from("businesses")
+          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, computed_rating, total_review_count")
+          .in("city", cities)
+          .eq("is_active", true)
+          .not("latitude", "is", null)
+          .not("longitude", "is", null)
+          .range(from, from + PAGE - 1);
+        all.push(...((data || []) as any[]));
+        if ((data || []).length < PAGE) break;
+      }
+      if (cancelled) return;
+      setPoiOverrideRows(all.filter((r) => isInMoroccoBounds(r.latitude, r.longitude)) as PoiBusiness[]);
+    })();
+    return () => { cancelled = true; };
+  }, [poiCityCorpusKey, poiOverrideKey]);
   const poiOpenedFromMapRef = useRef(false);
   // Embed: auto-open the "À proximité" overlay once the business is resolved.
   const autoPoiOpenedRef = useRef(false);
