@@ -1607,7 +1607,41 @@ Deno.serve(async (req) => {
               if (inRadius.length) kept = inRadius;
             }
 
+            // ── Augmentation badge-aware du corpus (déterministe, zéro token) ───
+            // `business-search` n'exploite PAS `business_badges` ni les vidéos badgées :
+            // une fiche portant le badge demandé (« Enfants ») mais dont le vocabulaire
+            // ne matche pas la requête restait invisible (cas Pikala Bikes). Quand le
+            // message nomme littéralement un badge actif sur le front, on complète le
+            // corpus avec les établissements du badge (mêmes règles que la route
+            // « badge nommé » : fiche + vidéos internes, YouTube seulement si le flag
+            // `qualify_business_from_youtube` est activé, génériques exclues).
+            // Ajout en QUEUE, jamais de remplacement : la pertinence sémantique garde
+            // la tête de liste. Neutralisé quand un filtre géographique dur s'applique
+            // (quartier nommé, rayon hôte) ou sur une recherche nominative.
+            if (!nameHit && !searchNeighborhood && !proximityApplied && !destScope) {
+              try {
+                const augBadge = await matchFrontBadgeInMessage(admin, userMessage, lang as any);
+                if (augBadge) {
+                  const have = new Set(kept.map((b: any) => String(b.id)));
+                  const badgeIds = await resolveBadgeBusinessIds(admin, [augBadge.id], city || null, 60);
+                  const missing = badgeIds.filter((id) => !have.has(id)).slice(0, 12);
+                  if (missing.length) {
+                    const extra = await fetchPriorFull(admin, missing).catch(() => [] as any[]);
+                    const usable = (extra as any[]).filter((b: any) => b?.id && !have.has(String(b.id)));
+                    kept = [...kept, ...usable];
+                    console.log("[embed-ai-chat-v2] badge_augment", JSON.stringify({
+                      badge: augBadge.name, city: city || null,
+                      badgePool: badgeIds.length, added: usable.length,
+                    }));
+                  }
+                }
+              } catch (e) {
+                console.error("[embed-ai-chat-v2] badge_augment_failed", String(e));
+              }
+            }
+
             // Décompte honnête : si AUCUN filtre local n'a réduit la page (rayon, quartier,
+
             // service, vue, concurrents), le total réel est celui de business-search, pas
             // la taille de la page (100 max). Sinon c'est le corpus filtré qui fait foi.
             const apiTotal = Number(json?.totalCount ?? 0) || 0;
