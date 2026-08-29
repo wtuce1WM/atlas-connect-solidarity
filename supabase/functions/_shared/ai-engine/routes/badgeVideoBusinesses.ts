@@ -2,10 +2,11 @@
 // Pont déterministe « badge vidéo → établissements » (zéro token, zéro LLM).
 //
 // Un badge (ex. « Complexes hôteliers ») est majoritairement porté par les
-// VIDÉOS (internes `business_documents`, YouTube `business_youtube_videos`,
-// génériques `generic_videos` via `generic_video_businesses`) et pas par les
-// fiches (`business_badges`). Toute route curatée ou lexicale qui cible un
-// badge doit donc croiser les 4 sources pour ne pas amputer le corpus.
+// VIDÉOS (internes `business_documents`, YouTube `business_youtube_videos`)
+// et pas par les fiches (`business_badges`). Toute route curatée ou lexicale
+// qui cible un badge doit donc croiser les 3 sources pour ne pas amputer le
+// corpus. Les vidéos génériques (`generic_video_businesses`) sont exclues :
+// ce rattachement sert au feed vidéo, pas à qualifier l'établissement.
 //
 // Même mécanisme que `src/lib/getVideoPinIds.ts` côté front — porté ici pour
 // être partagé par les 3 surfaces IA (embed / club / search).
