@@ -83,8 +83,15 @@ const BlogPost = () => {
   const navigate = useLocalizedNavigate();
   // Mode plateforme : route /embed/ask/article/:slug (pas de slug business).
   // Même rendu embed que /embed/ask/:embedSlug/article/:slug, retour vers l'assistant plateforme.
+  // La query string (scope, ctx, theme, panel…) est préservée telle quelle pour
+  // restaurer l'habillage exact de l'assistant au retour (ex. dark mode).
   const isPlatformArticle = location.pathname.startsWith("/embed/ask/article/");
-  const backToAssistant = embedSlug ? `/embed/ask/${embedSlug}` : isPlatformArticle ? `/embed/ask?scope=platform${new URLSearchParams(location.search).get("ctx") ? `&ctx=${new URLSearchParams(location.search).get("ctx")}` : ""}` : null;
+  const qs = location.search || "";
+  const backToAssistant = embedSlug
+    ? `/embed/ask/${embedSlug}${qs}`
+    : isPlatformArticle
+    ? `/embed/ask${qs || "?scope=platform"}`
+    : null;
   const { language, t } = useLanguage();
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
