@@ -761,7 +761,16 @@ const BookOnlineSlidePanelInner = ({
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
   // Corpus ville imposé : les onglets/catégories viennent de la 1ère ville du corpus
   // (le Master d'ancrage peut ne pas avoir de structure front exploitable).
-  const { tabs: frontTabs } = useFrontStructureTabs((poiCityCorpus && poiCityCorpus[0]) || business?.city || null);
+  // Ville de navigation : disponible IMMÉDIATEMENT depuis l'ancre / le pool IA,
+  // sans attendre le chargement complet de la fiche d'ancrage (Koutoubia / Port).
+  const navCity =
+    (poiCityCorpus && poiCityCorpus[0]) ||
+    poiAnchor?.city ||
+    poiOverrideBusinesses?.find((b) => !!b?.city)?.city ||
+    business?.city ||
+    null;
+  const { tabs: frontTabs } = useFrontStructureTabs(navCity);
+
   const { translateSubcategory } = useTaxonomyTranslations();
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
 
@@ -824,14 +833,15 @@ const BookOnlineSlidePanelInner = ({
 
   // Vivier ville (toutes catégories) chargé quand l'overlay POI/Map est ouvert
   useEffect(() => {
-    if (!showPoiMapOverlay || !business?.city) return;
+    if (!showPoiMapOverlay || !navCity) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from("businesses")
         .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score, computed_rating, total_review_count")
         .eq("is_active", true)
-        .ilike("city", business.city)
+        .ilike("city", navCity)
+
         .order("priority_score", { ascending: false, nullsFirst: false })
         .limit(1000);
       if (cancelled) return;
@@ -855,7 +865,7 @@ const BookOnlineSlidePanelInner = ({
       setPoiCityBusinesses(rows as PoiBusiness[]);
     })();
     return () => { cancelled = true; };
-  }, [showPoiMapOverlay, business?.city, businessId]);
+  }, [showPoiMapOverlay, navCity, businessId]);
 
 
   
@@ -4130,7 +4140,9 @@ const BookOnlineSlidePanelInner = ({
           const mc = (business as any)?.main_category;
           return typeof mc === "string" && mc.trim() ? mc.trim() : null;
         })();
-        const catPillTabs = isEmbedMapWidget && masterDefaultSubcat
+        // Map de l'assistant (ancre Koutoubia / Port) : aucune catégorie ne doit être
+        // retirée — l'ancre n'est qu'un centre, pas un Master hôte.
+        const catPillTabs = isEmbedMapWidget && masterDefaultSubcat && !poiAnchor
           ? frontTabs.filter((ft) => !ft.subcategoryNames.has(masterDefaultSubcat))
           : frontTabs;
         // Origine unique des distances : l'établissement Master (fallback géoloc)
