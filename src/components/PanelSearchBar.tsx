@@ -297,9 +297,14 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
               </div>
             )}
             {!hideAiButton && (
-              <div className="flex items-center rounded-[28px] border border-white/20 bg-black/40 px-2 py-1">
+              <div className="flex items-center rounded-[28px] border border-[#D4AF37]/70 animate-glow-pulse relative">
                 <Cell
-                  icon={<Sparkles className="h-5 w-5" />}
+                  icon={
+                    <Sparkles
+                      className="h-5 w-5 text-[#D4AF37] animate-ia-sparkle"
+                      style={{ animationDelay: "0.4s" }}
+                    />
+                  }
                   label="IA"
                   ariaLabel="Suggestion IA"
                   active={aiButtonActive}
