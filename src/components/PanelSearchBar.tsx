@@ -77,6 +77,9 @@ interface PanelSearchBarProps {
   aiAnswerText?: string | null;
   /** Businesses pool matching aiAnswerText (for thumbnail resolution) */
   aiBusinesses?: any[] | null;
+  /** Dock en 3 groupes glass (2+1+2, sans Search) — Play/Mute | IA | Lieu/Profil.
+   *  Utilisé par VideoSlidePanel et BookOnlineSlidePanel. */
+  dockGroups?: boolean;
 }
 
 
