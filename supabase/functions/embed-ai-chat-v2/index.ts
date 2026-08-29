@@ -1621,18 +1621,29 @@ Deno.serve(async (req) => {
             // (quartier nommé, rayon hôte) ou sur une recherche nominative.
             if (!nameHit && !searchNeighborhood && !proximityApplied && !destScope) {
               try {
-                const augBadge = await matchFrontBadgeInMessage(admin, userMessage, lang as any);
-                if (augBadge) {
+                // Plusieurs badges peuvent être nommés dans la même phrase
+                // (« location de vélo » ⇢ `Location` + `Vélo`). On privilégie
+                // l'INTERSECTION (les établissements qui portent tous les badges
+                // cités = les plus pertinents), avec repli sur l'union.
+                const augBadges = await matchFrontBadgesInMessage(admin, userMessage, lang as any, 3);
+                if (augBadges.length) {
                   const have = new Set(kept.map((b: any) => String(b.id)));
-                  const badgeIds = await resolveBadgeBusinessIds(admin, [augBadge.id], city || null, 60);
-                  const missing = badgeIds.filter((id) => !have.has(id)).slice(0, 12);
+                  const perBadge = await Promise.all(
+                    augBadges.map((b) => resolveBadgeBusinessIds(admin, [b.id], city || null, 120)),
+                  );
+                  const union = [...new Set(perBadge.flat())];
+                  const inter = perBadge.length > 1
+                    ? union.filter((id) => perBadge.every((list) => list.includes(id)))
+                    : union;
+                  const ordered = [...inter, ...union.filter((id) => !inter.includes(id))];
+                  const missing = ordered.filter((id) => !have.has(id)).slice(0, 12);
                   if (missing.length) {
-                    const extra = await fetchPriorFull(admin, missing).catch(() => [] as any[]);
+                    const extra = await fetchPriorFull(admin, missing, 12).catch(() => [] as any[]);
                     const usable = (extra as any[]).filter((b: any) => b?.id && !have.has(String(b.id)));
                     kept = [...kept, ...usable];
                     console.log("[embed-ai-chat-v2] badge_augment", JSON.stringify({
-                      badge: augBadge.name, city: city || null,
-                      badgePool: badgeIds.length, added: usable.length,
+                      badges: augBadges.map((b) => b.name), city: city || null,
+                      inter: inter.length, union: union.length, added: usable.length,
                     }));
                   }
                 }
