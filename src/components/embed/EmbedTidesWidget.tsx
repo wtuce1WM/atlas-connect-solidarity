@@ -279,21 +279,6 @@ export default function EmbedTidesWidget({
   const weatherLabel = lang === "en" ? "Weather" : lang === "ar" ? "الطقس" : "Météo";
   const settingsLabel = lang === "en" ? "Settings" : lang === "ar" ? "الإعدادات" : "Paramètres";
 
-  // Thème sombre actif ? (la carte hôte passe en neutral-900) — l'onglet Météo
-  // utilise une encre inline : on doit lui indiquer explicitement l'encre claire.
-  const [isDark, setIsDark] = React.useState(
-    () => typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
-  );
-  React.useEffect(() => {
-    const root = document.documentElement;
-    const sync = () => setIsDark(root.classList.contains("dark"));
-    sync();
-    const mo = new MutationObserver(sync);
-    mo.observe(root, { attributes: true, attributeFilter: ["class"] });
-    return () => mo.disconnect();
-  }, []);
-
-
   // Lazy-loaded weather for the same city (reuses the Weather widget payload).
   const [weather, setWeather] = React.useState<WeatherPayload | null>(null);
   const [weatherError, setWeatherError] = React.useState(false);
@@ -385,7 +370,7 @@ export default function EmbedTidesWidget({
       {view === "weather" ? (
 
         weather ? (
-          <EmbedWeatherWidget data={weather} lang={lang} embedded ink={isDark ? "light" : "dark"} />
+          <EmbedWeatherWidget data={weather} lang={lang} embedded ink="light" />
         ) : (
           <div className="px-4 py-10 text-center text-xs text-neutral-500 dark:text-neutral-400">
             {weatherError
