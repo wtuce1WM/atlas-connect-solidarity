@@ -293,7 +293,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
       <div className="owm-panel-searchbar absolute left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 max-w-[440px] mx-auto z-[85]" style={{ bottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
         {dockGroups ? (
           /* Dock en 3 groupes glass : [Play/Mute] | [IA] | [Lieu/Profil] — Search retiré */
-          <div className="relative flex items-center justify-between w-full gap-2">
+          <div className={`relative flex items-center w-full ${dockMobileCluster ? "justify-center gap-2 sm:justify-between" : "justify-between gap-2"}`}>
             {(videoControls || leadingControls) && (
               <div className="flex items-center gap-0.5 rounded-[28px] border border-white/20 bg-black/40 px-2 py-1">
                 {renderVideoCells()}
