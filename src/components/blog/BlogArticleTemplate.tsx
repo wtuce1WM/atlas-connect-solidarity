@@ -630,11 +630,7 @@ const BlogArticleTemplate = ({
 
       {/* Le contenu éditorial s'affiche immédiatement : les établissements se
           remplissent en arrière-plan (plus de spinner bloquant). */}
-      {false ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      ) : (
+      {(
         <>
           {/* TL;DR — optimized for LLM extraction (ChatGPT / Perplexity / Google AI Overviews) */}
           {tldr && (
