@@ -79,6 +79,10 @@ interface BlogPostData {
 const BlogPost = () => {
   const { slug, embedSlug } = useParams();
   const navigate = useLocalizedNavigate();
+  // Mode plateforme : route /embed/ask/article/:slug (pas de slug business).
+  // Même rendu embed que /embed/ask/:embedSlug/article/:slug, retour vers l'assistant plateforme.
+  const isPlatformArticle = location.pathname.startsWith("/embed/ask/article/");
+  const backToAssistant = embedSlug ? `/embed/ask/${embedSlug}` : isPlatformArticle ? "/embed/ask?scope=platform" : null;
   const { language, t } = useLanguage();
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
