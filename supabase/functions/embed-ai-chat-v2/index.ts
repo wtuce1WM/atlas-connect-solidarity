@@ -1605,7 +1605,7 @@ Deno.serve(async (req) => {
               console.log("[embed-ai-chat-v2] proximity_context_radius", JSON.stringify({ radiusKm, before, after: inRadius.length }));
               // Pas de repli silencieux sur la ville entière si le rayon rend zéro :
               // on garde le résultat resserré uniquement s'il reste quelque chose.
-              if (inRadius.length) kept = inRadius;
+              if (inRadius.length) { kept = inRadius; proximityApplied = true; }
             }
 
             // ── Augmentation badge-aware du corpus (déterministe, zéro token) ───
