@@ -31,7 +31,7 @@ import { pickLang, normalize, toMapMarker, fetchPriorFull, matchBusinessNameInMe
 import { warmNomadScope, isNomadBusiness, scrubNomadRow } from "../_shared/ai-engine/nomad-scope.ts";
 import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
-import { isTidesIntent, resolveTidesCity, tidesIntro } from "../_shared/ai-engine/routes/tides.ts";
+import { isTidesIntent, resolveTidesCity, tidesIntro, bonusTidesCity } from "../_shared/ai-engine/routes/tides.ts";
 import { isGlovoIntent, loadGlovoBusinessIds, glovoHeading, glovoEmpty } from "../_shared/ai-engine/routes/glovo.ts";
 import {
   loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle, matchCuratedByText,
@@ -2130,6 +2130,12 @@ ${comparativeMode ? `Question comparative : structure ta réponse en un court pa
           // filtre dedans, et pas seulement dans les adresses affichées.
           if (searchPoolIds.length) {
             emit("\n\n" + await poolMarker(admin, searchPoolIds, cityDetected || scopeCity || null));
+          }
+          // Widget marées « bonus » : question surf/vagues avec intention business
+          // sur une ville côtière → on joint le widget sans sacrifier les résultats.
+          const bonusTides = bonusTidesCity(userMessage, cityDetected || scopeCity || null);
+          if (bonusTides) {
+            emit(`\n\n<!--TIDES_FORECAST:${JSON.stringify({ city: bonusTides.slug, city_name: bonusTides.name })}-->`);
           }
           await emitDestChips(searchPoolIds.length ? searchPoolIds : results.map((b: any) => String(b.id)));
         } else if (priorFull.length) {
