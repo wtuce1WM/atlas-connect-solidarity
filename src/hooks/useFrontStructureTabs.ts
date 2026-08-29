@@ -27,7 +27,7 @@ export interface FrontStructureTab {
  *
  * Tabs are ordered by `front_structure.sort_order`.
  */
-export function useFrontStructureTabs(city: string | null) {
+export function useFrontStructureTabs(city: string | null, includeEmpty = false) {
   const [tabs, setTabs] = useState<FrontStructureTab[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -45,11 +45,13 @@ export function useFrontStructureTabs(city: string | null) {
         supabase.from("front_structure").select("id, name, sort_order").order("sort_order"),
         supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
         supabase.from("subcategories").select("id, name_fr, name_en, name_ar"),
-        supabase
-          .from("businesses")
-          .select("main_category, categories")
-          .eq("is_active", true)
-          .ilike("city", city),
+        includeEmpty
+          ? Promise.resolve({ data: [] })
+          : supabase
+              .from("businesses")
+              .select("main_category, categories")
+              .eq("is_active", true)
+              .ilike("city", city),
       ]);
 
       if (cancelled) return;
@@ -91,7 +93,7 @@ export function useFrontStructureTabs(city: string | null) {
           const inCats = Array.isArray(b.categories) && b.categories.some((c: string) => subNames.has(c));
           if (inMain || inCats) count++;
         }
-        if (count === 0) continue;
+        if (!includeEmpty && count === 0) continue;
 
         // Build per-subcategory counts, keep only those with ≥1 business
         const subDetails = (fsSubs.get(fs.id) || [])
@@ -104,7 +106,7 @@ export function useFrontStructureTabs(city: string | null) {
             }
             return { id: sd.id, name: sd.name, names: sd.names, count: c };
           })
-          .filter((sd) => sd.count > 0)
+          .filter((sd) => includeEmpty || sd.count > 0)
           .sort((a, b) => b.count - a.count);
 
         result.push({
@@ -126,7 +128,7 @@ export function useFrontStructureTabs(city: string | null) {
     return () => {
       cancelled = true;
     };
-  }, [city]);
+  }, [city, includeEmpty]);
 
   return { tabs, loading };
 }

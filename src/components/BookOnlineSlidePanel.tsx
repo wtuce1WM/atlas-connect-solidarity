@@ -769,7 +769,10 @@ const BookOnlineSlidePanelInner = ({
     poiOverrideBusinesses?.find((b) => !!b?.city)?.city ||
     business?.city ||
     null;
-  const { tabs: frontTabs } = useFrontStructureTabs(navCity);
+  // La Map calcule déjà ses compteurs depuis `poiCityBusinesses`. Charger ici
+  // uniquement la structure évite un menu Catégories vide pendant la lourde
+  // requête de comptage de tous les établissements de la ville.
+  const { tabs: frontTabs } = useFrontStructureTabs(navCity, true);
 
   const { translateSubcategory } = useTaxonomyTranslations();
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
