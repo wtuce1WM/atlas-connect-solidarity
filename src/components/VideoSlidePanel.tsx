@@ -1925,6 +1925,7 @@ const VideoSlidePanel = ({
               <div className="relative w-full h-full pointer-events-auto">
                 <PanelSearchBar
                   dockGroups
+                  dockMobileCluster
 
                   iconVariant="black"
                   profileToTimelineClub
