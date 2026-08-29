@@ -611,10 +611,6 @@ const BookOnlineSlidePanelInner = ({
   // Le rayon n'est jamais appliqué à un corpus fermé (réponse IA) tant que
   // l'utilisateur ne l'a pas choisi lui-même dans le Pill.
   const [poiProxTouched, setPoiProxTouched] = useState(false);
-  // Overlay Map de l'Assistant IA (corpus fermé / corpus ville imposé) :
-  // « TOUS » est actif dès l'ouverture, pour Marrakech comme pour Essaouira,
-  // afin de retrouver la carte complète de la ville (et non les seuls Top 20).
-  const poiShowAllInitRef = useRef(false);
 
   const poiProximityInitRef = useRef<string | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
