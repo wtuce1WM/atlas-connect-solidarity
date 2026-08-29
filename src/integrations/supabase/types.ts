@@ -9315,15 +9315,6 @@ export type Database = {
         Args: { lat1: number; lat2: number; lon1: number; lon2: number }
         Returns: number
       }
-      delete_email: {
-        Args: { message_id: number; queue_name: string }
-        Returns: boolean
-      }
-      email_queue_dispatch: { Args: never; Returns: undefined }
-      enqueue_email: {
-        Args: { payload: Json; queue_name: string }
-        Returns: number
-      }
       generate_slug: { Args: { input_text: string }; Returns: string }
       get_all_storage_sizes: {
         Args: { bucket_name: string }
@@ -9527,24 +9518,7 @@ export type Database = {
           similarity: number
         }[]
       }
-      move_to_dlq: {
-        Args: {
-          dlq_name: string
-          message_id: number
-          payload: Json
-          source_queue: string
-        }
-        Returns: number
-      }
       next_billing_number: { Args: { _kind: string }; Returns: string }
-      read_email_batch: {
-        Args: { batch_size: number; queue_name: string; vt: number }
-        Returns: {
-          message: Json
-          msg_id: number
-          read_ct: number
-        }[]
-      }
       refresh_business_search_vector_for_ids: {
         Args: { _ids: string[] }
         Returns: undefined
