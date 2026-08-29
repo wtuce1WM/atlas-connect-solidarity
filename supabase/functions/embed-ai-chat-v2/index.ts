@@ -39,7 +39,7 @@ import {
 
 } from "../_shared/ai-engine/routes/curated.ts";
 import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
-import { matchFrontBadgeInMessage, resolveBadgeBusinessIds, badgeLabelKey } from "../_shared/ai-engine/routes/badgeVideoBusinesses.ts";
+import { matchFrontBadgeInMessage, matchFrontBadgesInMessage, resolveBadgeBusinessIds, badgeLabelKey } from "../_shared/ai-engine/routes/badgeVideoBusinesses.ts";
 
 import { buildDestinationsBlock } from "../_shared/ai-engine/routes/destinations.ts";
 import { buildImmersiveLines, buildImmersiveBlock } from "../_shared/ai-engine/routes/immersive.ts";
