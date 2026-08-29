@@ -2415,9 +2415,7 @@ const EmbedAsk = () => {
               {articleCard && articleCard.inline ? (
                 <div className={`w-full max-w-[85%] rounded-2xl overflow-hidden ${cardBg}`} style={cardStyle}>
                   <a
-                    href={articleCard.kind === "video_feed" ? (articleCard.url || `/videos/${articleCard.slug}`) : `/embed/ask/${slug}/article/${articleCard.slug}`}
-                    target={articleCard.kind === "video_feed" ? "_blank" : undefined}
-                    rel={articleCard.kind === "video_feed" ? "noopener noreferrer" : undefined}
+                    {...articleLinkProps(articleCard)}
                     className="block relative w-full aspect-[16/7] bg-neutral-800 group"
                   >
                     {articleCard.hero || articleCard.image ? (
