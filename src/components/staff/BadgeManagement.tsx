@@ -44,6 +44,7 @@ interface BadgeData {
   color_hex: string | null;
   text_color_hex: string | null;
   is_active_on_front: boolean | null;
+  qualify_business_from_youtube?: boolean | null;
 }
 
 interface BadgeSubcategory {
@@ -415,14 +416,15 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
               <TableHead className="text-center">Établissements</TableHead>
               <TableHead className="text-center">Vidéos</TableHead>
               <TableHead className="text-center">Activé sur le front</TableHead>
+              <TableHead className="text-center">YouTube qualifie l'établissement</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow><TableCell colSpan={10} className="text-center py-8">Chargement...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={11} className="text-center py-8">Chargement...</TableCell></TableRow>
             ) : badges.length === 0 ? (
-              <TableRow><TableCell colSpan={10} className="text-center py-8">Aucun badge défini.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={11} className="text-center py-8">Aucun badge défini.</TableCell></TableRow>
             ) : (
               badges.map(badge => {
                 const isExpanded = expandedBadges.has(badge.id);
@@ -490,6 +492,19 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
                           }}
                         />
                       </TableCell>
+                      <TableCell className="text-center" onClick={e => e.stopPropagation()}>
+                        <Switch
+                          checked={!!badge.qualify_business_from_youtube}
+                          onCheckedChange={async (checked) => {
+                            const { error } = await supabase.from("badges").update({ qualify_business_from_youtube: checked } as any).eq("id", badge.id);
+                            if (error) {
+                              toast({ variant: "destructive", title: "Erreur", description: "Impossible de mettre à jour." });
+                            } else {
+                              setBadges(prev => prev.map(b => b.id === badge.id ? { ...b, qualify_business_from_youtube: checked } : b));
+                            }
+                          }}
+                        />
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2" onClick={e => e.stopPropagation()}>
                           <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(badge)}><Edit className="h-4 w-4" /></Button>
@@ -499,7 +514,7 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
                     </TableRow>
                     {isExpanded && businesses.length > 0 && (
                       <TableRow>
-                        <TableCell colSpan={10} className="bg-muted/30 p-0">
+                        <TableCell colSpan={11} className="bg-muted/30 p-0">
                           <div className="px-8 py-3 space-y-1">
                             {businesses.map(b => (
                               <div key={b.id} className="flex items-center justify-between py-1.5 px-3 rounded hover:bg-background transition-colors">

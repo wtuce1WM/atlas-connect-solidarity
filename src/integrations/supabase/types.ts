@@ -882,6 +882,7 @@ export type Database = {
           name_en: string | null
           name_fr: string
           og_image_url: string | null
+          qualify_business_from_youtube: boolean
           sort_order: number | null
           text_color_hex: string | null
           updated_at: string | null
@@ -899,6 +900,7 @@ export type Database = {
           name_en?: string | null
           name_fr: string
           og_image_url?: string | null
+          qualify_business_from_youtube?: boolean
           sort_order?: number | null
           text_color_hex?: string | null
           updated_at?: string | null
@@ -916,6 +918,7 @@ export type Database = {
           name_en?: string | null
           name_fr?: string
           og_image_url?: string | null
+          qualify_business_from_youtube?: boolean
           sort_order?: number | null
           text_color_hex?: string | null
           updated_at?: string | null

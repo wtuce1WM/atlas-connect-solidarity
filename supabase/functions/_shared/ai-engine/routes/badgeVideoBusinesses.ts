@@ -75,6 +75,9 @@ export async function matchFrontBadgeInMessage(
  *   2) vidéos internes badgées (`business_document_badges`) ;
  *   3) shorts YouTube badgés (`business_youtube_video_badges`).
  *
+ * La source 3 (YouTube) est conditionnée au flag `badges.qualify_business_from_youtube`
+ * (désactivé par défaut) : un short qui PARLE d'un sujet ne qualifie pas l'offre.
+ *
  * Les vidéos GÉNÉRIQUES badgées (`generic_video_businesses`) sont EXCLUES :
  * leur rattachement sert à la distribution du feed vidéo, pas à qualifier
  * l'établissement — une vidéo générique badgée (ex. « Rooftop ») est
@@ -91,10 +94,21 @@ export async function resolveBadgeBusinessIds(
   const ids = (badgeIds || []).filter(Boolean);
   if (!ids.length) return [];
 
+  // Interrupteur par badge : les shorts YouTube ne qualifient un établissement
+  // QUE si `badges.qualify_business_from_youtube` est activé en backoffice.
+  const { data: flagRows } = await admin
+    .from("badges")
+    .select("id")
+    .in("id", ids)
+    .eq("qualify_business_from_youtube", true);
+  const ytBadgeIds = (flagRows || []).map((r: any) => String(r.id));
+
   const [fiche, docs, yts] = await Promise.all([
     admin.from("business_badges").select("business_id").in("badge_id", ids).limit(3000),
     admin.from("business_document_badges").select("document_id").in("badge_id", ids).limit(5000),
-    admin.from("business_youtube_video_badges").select("youtube_video_id").in("badge_id", ids).limit(5000),
+    ytBadgeIds.length
+      ? admin.from("business_youtube_video_badges").select("youtube_video_id").in("badge_id", ytBadgeIds).limit(5000)
+      : Promise.resolve({ data: [] as any[] }),
   ]);
 
   const docIds = [...new Set((docs?.data || []).map((r: any) => String(r.document_id)))];
