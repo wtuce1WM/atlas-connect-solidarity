@@ -718,10 +718,11 @@ const EmbedAsk = () => {
     if (shouldPersistThread) return readPersisted();
     // Panneau plateforme : pas de persistance durable, MAIS on restaure le fil
     // déposé juste avant l'ouverture d'un article (retour même fenêtre).
+    // NB : pas de removeItem ici — le double rendu StrictMode consommerait la
+    // clé au premier passage. Elle est supprimée après restauration effective.
     try {
       const raw = window.sessionStorage.getItem(ARTICLE_THREAD_HANDOFF_KEY);
       if (!raw) return null;
-      window.sessionStorage.removeItem(ARTICLE_THREAD_HANDOFF_KEY);
       const parsed = JSON.parse(raw) as PersistedThread;
       if (!parsed?.sessionId || !Array.isArray(parsed.messages)) return null;
       if (Date.now() - (parsed.savedAt || 0) > TTL_MS) return null;
