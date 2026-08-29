@@ -4138,7 +4138,12 @@ const BookOnlineSlidePanelInner = ({
         };
         // Corpus fermé imposé (réponse IA) : ordre conservé, mais les contrôles
         // Top/Tous et Proximité restent disponibles sur ce corpus complet.
-        const overridePool: any[] | null = poiOverrideRows.length ? (poiOverrideRows as any[]) : null;
+        // Dès qu'un corpus fermé est demandé, il est la SEULE source de marqueurs —
+        // même pendant son chargement (tableau vide), pour ne jamais afficher
+        // transitoirement les business_pois de la ville.
+        const overrideRequested = poiOverrideKey.length > 0 || poiCityCorpusKey.length > 0;
+        const overridePool: any[] | null = overrideRequested ? (poiOverrideRows as any[]) : null;
+
         // Vivier ville restreint au rayon actif → base des compteurs catégories
         const cityInRadius = overridePool ?? (poiCityBusinesses as any[]).filter(inRadius);
         const catCounts = new Map<string, number>();
