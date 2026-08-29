@@ -116,7 +116,7 @@ export interface BlogArticleTemplateProps {
   faq?: BlogArticleFaqItem[];
   /** Optional black anchor marker on the map (e.g. reference establishment for a proximity article). */
   anchorPoi?: { name: string; latitude: number; longitude: number } | null;
-  /** When set, render in embed mode (no site header/footer/bottom bar) and back-button returns to /embed/ask/{embedBackSlug}. */
+  /** When set, render in embed mode (no site header/footer/bottom bar) and back-button returns to the assistant (/embed/ask). */
   embedBackSlug?: string | null;
   /** Optional portrait hero used on mobile (<768px) via <picture>. */
   customHeroImageMobile?: string;
@@ -574,7 +574,7 @@ const BlogArticleTemplate = ({
         <div className="absolute inset-0 bg-gradient-to-t from-[#3B3B3B] via-[#3B3B3B]/50 to-[#3B3B3B]/30" />
         {embedBackSlug && (
           <button
-            onClick={() => navigate(`/embed/ask/${embedBackSlug}`)}
+            onClick={() => navigate(embedBackSlug.includes("/embed/ask/") || embedBackSlug === "/embed/ask?scope=platform" ? embedBackSlug : `/embed/ask/${embedBackSlug}`)}
             className="absolute top-4 left-4 z-20 h-10 w-10 flex items-center justify-center rounded-full bg-black text-white shadow-2xl hover:opacity-90 transition-opacity"
             aria-label={language === "en" ? "Close article" : language === "ar" ? "إغلاق المقال" : "Fermer l'article"}
             title={language === "en" ? "Close" : language === "ar" ? "إغلاق" : "Fermer"}

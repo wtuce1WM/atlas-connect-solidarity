@@ -79,6 +79,10 @@ interface BlogPostData {
 const BlogPost = () => {
   const { slug, embedSlug } = useParams();
   const navigate = useLocalizedNavigate();
+  // Mode plateforme : route /embed/ask/article/:slug (pas de slug business).
+  // Même rendu embed que /embed/ask/:embedSlug/article/:slug, retour vers l'assistant plateforme.
+  const isPlatformArticle = location.pathname.startsWith("/embed/ask/article/");
+  const backToAssistant = embedSlug ? `/embed/ask/${embedSlug}` : isPlatformArticle ? `/embed/ask?scope=platform${new URLSearchParams(location.search).get("ctx") ? `&ctx=${new URLSearchParams(location.search).get("ctx")}` : ""}` : null;
   const { language, t } = useLanguage();
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -106,7 +110,7 @@ const BlogPost = () => {
   // Internal blog traffic tracking (one view per slug per session)
   useEffect(() => {
     if (!slug || !post) return;
-    logBlogView(slug, language, embedSlug ? "embed" : "site");
+    logBlogView(slug, language, embedSlug || isPlatformArticle ? "embed" : "site");
   }, [slug, post, language, embedSlug]);
 
 
@@ -248,7 +252,7 @@ const BlogPost = () => {
         tldr={tldr}
         faq={faq}
         anchorPoi={anchorFromBusiness ?? post.anchor_poi ?? undefined}
-        embedBackSlug={embedSlug ?? undefined}
+        embedBackSlug={backToAssistant ?? undefined}
         customHeroImageMobile={post.custom_hero_image_mobile_url ?? undefined}
         poiMapMode={
           post.poi_map_mode === "all_poi" || post.poi_map_mode === "near_10km"
