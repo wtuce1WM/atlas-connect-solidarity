@@ -72,8 +72,13 @@ export async function matchFrontBadgeInMessage(
  * Tous les établissements ACTIFS liés à un (ou plusieurs) badge(s), via :
  *   1) `business_badges` (badge posé sur la fiche) ;
  *   2) vidéos internes badgées (`business_document_badges`) ;
- *   3) shorts YouTube badgés (`business_youtube_video_badges`) ;
- *   4) vidéos génériques badgées rattachées à un établissement.
+ *   3) shorts YouTube badgés (`business_youtube_video_badges`).
+ *
+ * Les vidéos GÉNÉRIQUES badgées (`generic_video_businesses`) sont EXCLUES :
+ * leur rattachement sert à la distribution du feed vidéo, pas à qualifier
+ * l'établissement — une vidéo générique badgée (ex. « Rooftop ») est
+ * rattachée à des dizaines de business et polluait les réponses IA.
+ *
  * Ordre : mis en avant, puis note, puis volume d'avis. Filtre ville si fournie.
  */
 export async function resolveBadgeBusinessIds(
@@ -85,26 +90,21 @@ export async function resolveBadgeBusinessIds(
   const ids = (badgeIds || []).filter(Boolean);
   if (!ids.length) return [];
 
-  const [fiche, docs, yts, gens] = await Promise.all([
+  const [fiche, docs, yts] = await Promise.all([
     admin.from("business_badges").select("business_id").in("badge_id", ids).limit(3000),
     admin.from("business_document_badges").select("document_id").in("badge_id", ids).limit(5000),
     admin.from("business_youtube_video_badges").select("youtube_video_id").in("badge_id", ids).limit(5000),
-    admin.from("generic_video_badges").select("generic_video_id").in("badge_id", ids).limit(5000),
   ]);
 
   const docIds = [...new Set((docs?.data || []).map((r: any) => String(r.document_id)))];
   const ytIds = [...new Set((yts?.data || []).map((r: any) => String(r.youtube_video_id)))];
-  const genIds = [...new Set((gens?.data || []).map((r: any) => String(r.generic_video_id)))];
 
-  const [docRows, ytRows, genRows] = await Promise.all([
+  const [docRows, ytRows] = await Promise.all([
     docIds.length
       ? admin.from("business_documents").select("business_id").in("id", docIds).eq("type", "video").eq("business_is_active", true)
       : Promise.resolve({ data: [] as any[] }),
     ytIds.length
       ? admin.from("business_youtube_videos").select("business_id").in("id", ytIds).eq("business_is_active", true)
-      : Promise.resolve({ data: [] as any[] }),
-    genIds.length
-      ? admin.from("generic_video_businesses").select("business_id").in("generic_video_id", genIds)
       : Promise.resolve({ data: [] as any[] }),
   ]);
 
@@ -112,7 +112,6 @@ export async function resolveBadgeBusinessIds(
     ...(fiche?.data || []),
     ...(docRows?.data || []),
     ...(ytRows?.data || []),
-    ...(genRows?.data || []),
   ]
     .map((r: any) => r?.business_id)
     .filter(Boolean)
