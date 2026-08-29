@@ -78,6 +78,43 @@ export async function matchFrontBadgeInMessage(
 }
 
 /**
+ * TOUS les badges actifs littéralement nommés dans le message, du plus
+ * spécifique au moins spécifique. Sert à l'AUGMENTATION du corpus (où plusieurs
+ * badges peuvent coexister : « location de vélo » ⇢ `Location` + `Vélo`), là où
+ * `matchFrontBadgeInMessage` ne garde que le plus long parce qu'il fait AUTORITÉ
+ * sur le corpus entier.
+ */
+export async function matchFrontBadgesInMessage(
+  admin: any,
+  message: string,
+  lang: "fr" | "en" | "ar" = "fr",
+  max = 3,
+): Promise<FrontBadge[]> {
+  const hay = ` ${norm(message)} `;
+  const hayDep = ` ${depluralize(message)} `;
+  if (!hay.trim()) return [];
+  const { data } = await admin
+    .from("badges")
+    .select("id, name_fr, name_en, name_ar")
+    .eq("is_active_on_front", true);
+  const hits: Array<{ id: string; name: string; len: number }> = [];
+  for (const b of (data || []) as any[]) {
+    const label =
+      (lang === "en" && b.name_en) || (lang === "ar" && b.name_ar) || b.name_fr || b.name_en || b.name_ar;
+    let bestLen = 0;
+    for (const raw of [b.name_fr, b.name_en, b.name_ar]) {
+      const n = norm(raw);
+      if (!n || n.length < 3 || AMBIGUOUS_BADGE_TOKENS.has(n)) continue;
+      const nd = depluralize(raw as string);
+      if (!(hay.includes(` ${n} `) || hayDep.includes(` ${nd} `))) continue;
+      if (n.length > bestLen) bestLen = n.length;
+    }
+    if (bestLen) hits.push({ id: String(b.id), name: String(label || b.name_fr), len: bestLen });
+  }
+  return hits.sort((a, c) => c.len - a.len).slice(0, max).map(({ id, name }) => ({ id, name }));
+}
+
+/**
  * Tous les établissements ACTIFS liés à un (ou plusieurs) badge(s), via :
  *   1) `business_badges` (badge posé sur la fiche) ;
  *   2) vidéos internes badgées (`business_document_badges`) ;
