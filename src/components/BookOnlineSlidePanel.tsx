@@ -268,6 +268,10 @@ interface BookOnlineSlidePanelProps {
   onMapReady?: () => void;
   /** Corpus fermé imposé (réponse IA) : ids d'établissements, dans l'ordre exact à afficher */
   poiOverrideIds?: string[] | null;
+  /** Corpus fermé déjà résolu par l'appelant : évite une seconde requête avant d'afficher la carte. */
+  poiOverrideBusinesses?: PoiBusiness[] | null;
+  /** Ancre déjà résolue (Koutoubia / Port d'Essaouira) pour cadrer la carte dès la première frame. */
+  poiAnchor?: PoiBusiness | null;
   /** Corpus ville imposé (overlay carte plateforme) : toutes les fiches actives
       géolocalisées de ces villes, sans autre condition. Cadrage = fit markers. */
   poiCityCorpus?: string[] | null;
@@ -284,7 +288,7 @@ const BookOnlineSlidePanelInner = ({
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
-  poiOverrideIds, poiCityCorpus, poiOverrideTitle, feedLayout, loadingSurface, aiMode,
+  poiOverrideIds, poiOverrideBusinesses, poiAnchor, poiCityCorpus, poiOverrideTitle, feedLayout, loadingSurface, aiMode,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const rateIframeHeight = useEmbedIframeHeight("owm-rate-height", 380);
@@ -681,9 +685,14 @@ const BookOnlineSlidePanelInner = ({
   const [poiCityBusinesses, setPoiCityBusinesses] = useState<PoiBusiness[]>([]);
   // Corpus fermé imposé par une réponse IA : mêmes champs que les POI, ordre conservé.
   const poiOverrideKey = (poiOverrideIds || []).join(",");
-  const [poiOverrideRows, setPoiOverrideRows] = useState<PoiBusiness[]>([]);
+  const [poiOverrideRows, setPoiOverrideRows] = useState<PoiBusiness[]>(() => poiOverrideBusinesses || []);
   useEffect(() => {
     const ids = poiOverrideKey ? poiOverrideKey.split(",").filter(Boolean) : [];
+    if (poiOverrideBusinesses?.length) {
+      const byId = new Map(poiOverrideBusinesses.map((row) => [row.id, row]));
+      setPoiOverrideRows(ids.map((id) => byId.get(id)).filter(Boolean) as PoiBusiness[]);
+      return;
+    }
     if (!ids.length) { setPoiOverrideRows([]); return; }
     let cancelled = false;
     (async () => {
@@ -701,7 +710,7 @@ const BookOnlineSlidePanelInner = ({
       setPoiOverrideRows(ids.map((id) => byId.get(id)).filter(Boolean) as PoiBusiness[]);
     })();
     return () => { cancelled = true; };
-  }, [poiOverrideKey]);
+  }, [poiOverrideKey, poiOverrideBusinesses]);
   // Corpus ville imposé (chip « Map » plateforme) : TOUTES les fiches actives
   // géolocalisées des villes listées, paginé (1000/page) — aucune autre condition.
   // Alimente le même overridePool que poiOverrideIds → fit markers sur l'ensemble.
@@ -1806,7 +1815,7 @@ const BookOnlineSlidePanelInner = ({
 
   /** Marqueur master effectif (POI par défaut si coché, sinon l'établissement). */
   const poiMasterItem = useMemo(() => {
-    const src = poiMasterOverride ?? business;
+    const src = poiAnchor ?? poiMasterOverride ?? business;
     if (!src?.latitude || !src?.longitude) return null;
     return {
       id: `self-${src.id}`,
@@ -1820,7 +1829,7 @@ const BookOnlineSlidePanelInner = ({
       totalReviews: poiMasterOverride ? (poiMasterOverride.total_review_count ?? 0) : totalReviewCount,
       markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
     } as PoiMapItem;
-  }, [poiMasterOverride, business, avgOn20, totalReviewCount]);
+  }, [poiAnchor, poiMasterOverride, business, avgOn20, totalReviewCount]);
 
   // Centre de la carte. `PoiGoogleMap` n'initialise la carte qu'une fois `center`
   // défini (centerAtBottomRatio) : en mode plateforme, attendre la fiche complète

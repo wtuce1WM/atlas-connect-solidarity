@@ -896,6 +896,22 @@ const EmbedAsk = () => {
   /** Ancre POI d'Essaouira : « Port d'Essaouira » joue le rôle de la Koutoubia
       quand les résultats de la carte sont exclusivement à Essaouira. */
   const POI_ESSAOUIRA_ANCHOR_ID = "81836caa-fbfc-4abd-b29e-326e56aeadf6";
+  const KOUTOUBIA_ANCHOR = {
+    id: POI_MASTER_FALLBACK_ID,
+    name: "Koutoubia",
+    city: "Marrakech",
+    latitude: 31.6237205,
+    longitude: -7.9936196,
+    poi_radius_km: 10,
+  };
+  const ESSAOUIRA_ANCHOR = {
+    id: POI_ESSAOUIRA_ANCHOR_ID,
+    name: "Port d'Essaouira",
+    city: "Essaouira",
+    latitude: 31.5094232,
+    longitude: -9.7728012,
+    poi_radius_km: 10,
+  };
 
 
 
@@ -1088,6 +1104,10 @@ const EmbedAsk = () => {
     if (!hasMarrakech && hasEssaouira) return POI_ESSAOUIRA_ANCHOR_ID;
     return poiMasterAnchorId || POI_MASTER_FALLBACK_ID;
   }, [businessId, openMap, poiMasterAnchorId]);
+  const mapAnchor = useMemo(() => {
+    if (businessId) return null;
+    return mapAnchorId === POI_ESSAOUIRA_ANCHOR_ID ? ESSAOUIRA_ANCHOR : KOUTOUBIA_ANCHOR;
+  }, [businessId, mapAnchorId]);
 
 
 
@@ -3425,6 +3445,8 @@ const EmbedAsk = () => {
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
               poiOverrideIds={(openMap.businesses || []).map((b) => b.id)}
+              poiOverrideBusinesses={openMap.businesses as any}
+              poiAnchor={mapAnchor as any}
               poiOverrideTitle={openMap.title || null}
               onClose={() => setOpenMap(null)}
             />
