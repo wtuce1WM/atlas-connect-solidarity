@@ -1075,18 +1075,20 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
   }, [businessId, poiMasterAnchorId]);
 
-  /** Ancre de l'overlay Map (corpus fermé) : Koutoubia par défaut, mais
-      « Port d'Essaouira » lorsque tous les résultats sont à Essaouira. */
+  /** Ancre de l'overlay Map (corpus fermé) : Marrakech/Koutoubia l'emporte dès
+      qu'un résultat est à Marrakech ; sinon « Port d'Essaouira » si au moins un
+      résultat est à Essaouira ; sinon Koutoubia par défaut. */
   const mapAnchorId = useMemo(() => {
     if (businessId) return businessId;
     const cities = (openMap?.businesses || [])
       .map((b) => String(b.city || "").trim().toLowerCase())
       .filter(Boolean);
-    if (cities.length > 0 && cities.every((c) => c === "essaouira")) {
-      return POI_ESSAOUIRA_ANCHOR_ID;
-    }
+    const hasMarrakech = cities.some((c) => c.includes("marrakech"));
+    const hasEssaouira = cities.some((c) => c.includes("essaouira"));
+    if (!hasMarrakech && hasEssaouira) return POI_ESSAOUIRA_ANCHOR_ID;
     return poiMasterAnchorId || POI_MASTER_FALLBACK_ID;
   }, [businessId, openMap, poiMasterAnchorId]);
+
 
 
 
