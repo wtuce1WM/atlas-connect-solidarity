@@ -769,7 +769,10 @@ const BookOnlineSlidePanelInner = ({
     poiOverrideBusinesses?.find((b) => !!b?.city)?.city ||
     business?.city ||
     null;
-  const { tabs: frontTabs } = useFrontStructureTabs(navCity);
+  // La Map calcule déjà ses compteurs depuis `poiCityBusinesses`. Charger ici
+  // uniquement la structure évite un menu Catégories vide pendant la lourde
+  // requête de comptage de tous les établissements de la ville.
+  const { tabs: frontTabs } = useFrontStructureTabs(navCity, true);
 
   const { translateSubcategory } = useTaxonomyTranslations();
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
@@ -4269,9 +4272,10 @@ const BookOnlineSlidePanelInner = ({
           : afterProx.slice(0, effectiveTopLimit);
         // Pas de bascule Top 20 / Tous si le résultat courant tient sous la limite
         const showAllToggle = poiMapMode === "poi" && total > effectiveTopLimit;
-        // Dans le widget Map plateforme, le Pill Catégories doit être présent dès
-        // l'ouverture, comme le Pill POI, sans attendre le chargement des onglets.
-        const showCatPill = poiMapMode === "poi" && (isEmbedMapWidget || catPillTabs.length >= 2);
+        // Ne jamais afficher un Pill Catégories ouvrable tant que sa structure et
+        // son vivier ville ne sont pas prêts : auparavant le widget le montrait
+        // immédiatement, mais son menu était encore vide au premier clic.
+        const showCatPill = poiMapMode === "poi" && catPillTabs.length >= 2 && poiCityBusinesses.length > 0;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi" && !!proxOrigin;
         const proxOpts: { km: number; label: string }[] = [
