@@ -572,7 +572,7 @@ const EmbedAsk = () => {
     }
     const embedSlug = slug || ctxSlug;
     if (embedSlug) return { href: `/embed/ask/${embedSlug}/article/${card.slug}`, target: undefined, rel: undefined } as const;
-    return { href: `/embed/ask/article/${card.slug}`, target: undefined, rel: undefined } as const;
+    return { href: `/embed/ask/article/${card.slug}${ctxSlug ? `?ctx=${encodeURIComponent(ctxSlug)}` : ""}`, target: undefined, rel: undefined } as const;
   };
   // Moteur IA : V2 uniquement (V1 retiré).
   const initialTheme = themeParam

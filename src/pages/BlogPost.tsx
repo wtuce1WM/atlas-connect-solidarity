@@ -82,6 +82,7 @@ const BlogPost = () => {
   // Mode plateforme : route /embed/ask/article/:slug (pas de slug business).
   // Même rendu embed que /embed/ask/:embedSlug/article/:slug, retour vers l'assistant plateforme.
   const isPlatformArticle = location.pathname.startsWith("/embed/ask/article/");
+  const backToAssistant = embedSlug ? `/embed/ask/${embedSlug}` : isPlatformArticle ? `/embed/ask?scope=platform${new URLSearchParams(location.search).get("ctx") ? `&ctx=${new URLSearchParams(location.search).get("ctx")}` : ""}` : null;
   const backToAssistant = embedSlug ? `/embed/ask/${embedSlug}` : isPlatformArticle ? "/embed/ask?scope=platform" : null;
   const { language, t } = useLanguage();
   const [post, setPost] = useState<BlogPostData | null>(null);
