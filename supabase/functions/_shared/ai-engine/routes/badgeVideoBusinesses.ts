@@ -59,7 +59,12 @@ export async function matchFrontBadgeInMessage(
       (lang === "en" && b.name_en) || (lang === "ar" && b.name_ar) || b.name_fr || b.name_en || b.name_ar;
     for (const raw of [b.name_fr, b.name_en, b.name_ar]) {
       const n = norm(raw);
-      if (!n || n.length < 5) continue;
+      // Seuil abaissé de 5 à 3 caractères : 19 badges actifs courts (Vélo, Spa,
+      // Bar, Golf, Moto, Quad, Souk, Yoga, Musée…) étaient invisibles au texte
+      // comme au vocal. La comparaison est déjà faite sur MOT ENTIER (` velo `),
+      // donc pas de faux positif par sous-chaîne. Denylist : libellés qui sont
+      // aussi des mots grammaticaux courants (« Thé » ⇢ « the » anglais).
+      if (!n || n.length < 3 || AMBIGUOUS_BADGE_TOKENS.has(n)) continue;
       const nd = depluralize(raw as string);
       const hit = hay.includes(` ${n} `) || hayDep.includes(` ${nd} `);
       if (!hit) continue;
