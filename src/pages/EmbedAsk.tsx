@@ -3418,7 +3418,7 @@ const EmbedAsk = () => {
               hideDirections
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
-              /* Aucun corpus fermé : mode POI natif de la ville de l'ancre */
+              
               onClose={() => setOpenGenericPoi(false)}
             />
           </Suspense>
