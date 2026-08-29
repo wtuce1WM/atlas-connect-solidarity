@@ -34,6 +34,9 @@ function depluralize(v: string): string {
     .join(" ");
 }
 
+/** Libellés trop ambigus pour servir de détecteur de badge (mots grammaticaux). */
+const AMBIGUOUS_BADGE_TOKENS = new Set(["the", "and", "or", "les", "des", "una", "uno", "tea"]);
+
 export type FrontBadge = { id: string; name: string };
 
 /**
@@ -59,7 +62,12 @@ export async function matchFrontBadgeInMessage(
       (lang === "en" && b.name_en) || (lang === "ar" && b.name_ar) || b.name_fr || b.name_en || b.name_ar;
     for (const raw of [b.name_fr, b.name_en, b.name_ar]) {
       const n = norm(raw);
-      if (!n || n.length < 5) continue;
+      // Seuil abaissé de 5 à 3 caractères : 19 badges actifs courts (Vélo, Spa,
+      // Bar, Golf, Moto, Quad, Souk, Yoga, Musée…) étaient invisibles au texte
+      // comme au vocal. La comparaison est déjà faite sur MOT ENTIER (` velo `),
+      // donc pas de faux positif par sous-chaîne. Denylist : libellés qui sont
+      // aussi des mots grammaticaux courants (« Thé » ⇢ « the » anglais).
+      if (!n || n.length < 3 || AMBIGUOUS_BADGE_TOKENS.has(n)) continue;
       const nd = depluralize(raw as string);
       const hit = hay.includes(` ${n} `) || hayDep.includes(` ${nd} `);
       if (!hit) continue;
@@ -67,6 +75,43 @@ export async function matchFrontBadgeInMessage(
     }
   }
   return best ? { id: best.id, name: best.name } : null;
+}
+
+/**
+ * TOUS les badges actifs littéralement nommés dans le message, du plus
+ * spécifique au moins spécifique. Sert à l'AUGMENTATION du corpus (où plusieurs
+ * badges peuvent coexister : « location de vélo » ⇢ `Location` + `Vélo`), là où
+ * `matchFrontBadgeInMessage` ne garde que le plus long parce qu'il fait AUTORITÉ
+ * sur le corpus entier.
+ */
+export async function matchFrontBadgesInMessage(
+  admin: any,
+  message: string,
+  lang: "fr" | "en" | "ar" = "fr",
+  max = 3,
+): Promise<FrontBadge[]> {
+  const hay = ` ${norm(message)} `;
+  const hayDep = ` ${depluralize(message)} `;
+  if (!hay.trim()) return [];
+  const { data } = await admin
+    .from("badges")
+    .select("id, name_fr, name_en, name_ar")
+    .eq("is_active_on_front", true);
+  const hits: Array<{ id: string; name: string; len: number }> = [];
+  for (const b of (data || []) as any[]) {
+    const label =
+      (lang === "en" && b.name_en) || (lang === "ar" && b.name_ar) || b.name_fr || b.name_en || b.name_ar;
+    let bestLen = 0;
+    for (const raw of [b.name_fr, b.name_en, b.name_ar]) {
+      const n = norm(raw);
+      if (!n || n.length < 3 || AMBIGUOUS_BADGE_TOKENS.has(n)) continue;
+      const nd = depluralize(raw as string);
+      if (!(hay.includes(` ${n} `) || hayDep.includes(` ${nd} `))) continue;
+      if (n.length > bestLen) bestLen = n.length;
+    }
+    if (bestLen) hits.push({ id: String(b.id), name: String(label || b.name_fr), len: bestLen });
+  }
+  return hits.sort((a, c) => c.len - a.len).slice(0, max).map(({ id, name }) => ({ id, name }));
 }
 
 /**
