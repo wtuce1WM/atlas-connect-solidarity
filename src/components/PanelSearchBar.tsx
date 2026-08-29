@@ -95,7 +95,7 @@ const enrichParamsWithCityFromQuery = (params: Record<string, string>): Record<s
 // Single cell used inside the unified dock pill: round icon + small label below.
 // Declared at module scope so React doesn't remount it on every parent render
 // (which would otherwise drop click events between mousedown/mouseup).
-const Cell = ({ icon, label, onClick, ariaLabel, active, hoverClass = "hover:bg-white/10" }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string; active?: boolean; variant?: "media"; hoverClass?: string }) => {
+const Cell = ({ icon, label, onClick, ariaLabel, active, hoverClass = "hover:bg-white/10", iconHoverClass = "" }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string; active?: boolean; variant?: "media"; hoverClass?: string; iconHoverClass?: string }) => {
   return (
     <button
       type="button"
@@ -108,7 +108,7 @@ const Cell = ({ icon, label, onClick, ariaLabel, active, hoverClass = "hover:bg-
           active
             ? "bg-[#C04F17] text-white group-hover:bg-[#C04F17]/90"
             : "bg-black/60 text-white group-hover:bg-black/75"
-        }`}
+        } ${iconHoverClass}`}
       >
         {icon}
       </span>
