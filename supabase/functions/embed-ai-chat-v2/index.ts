@@ -1888,7 +1888,7 @@ Deno.serve(async (req) => {
             // pool COMPLET mémorisé, pas sur sa tête d'affichage.
             const ids = poolIds.slice(0, 60);
             const [poolRows, { data: svcRows }, { data: badgeRows }] = await Promise.all([
-              fetchPriorFull(admin, ids),
+              fetchPriorFull(admin, ids, 60),
               admin.from("businesses").select("id, services").in("id", ids),
               admin.from("business_badges").select("business_id, badges(name)").in("business_id", ids),
             ]);
