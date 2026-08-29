@@ -3388,12 +3388,15 @@ const EmbedAsk = () => {
       {openMap && (businessId || (openMap.businesses || []).some((b) => b.id)) ? (
         // Overlay POI du slidepanel réutilisé tel quel (carte + rail de cartes + pastilles + clic marqueur → fiche),
         // en corpus fermé : uniquement les établissements de la réponse, dans l'ordre donné.
-        // Mode plateforme (pas d'hôte) : l'ancre est le 1er résultat, le corpus reste inchangé.
+        // Mode plateforme (pas d'hôte) : aucune fiche ancre → le panneau charge le POI
+        // maître global (Koutoubia) en 2 requêtes légères : centre + header immédiats,
+        // au lieu d'attendre la fiche complète du 1er résultat (≈30 s) et d'afficher
+        // « À proximité de <résultat> ».
         <div className="fixed inset-0 z-[220]">
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
               key={(openMap.businesses || []).map((b) => b.id).join(",")}
-              businessId={businessId || (openMap.businesses || []).find((b) => b.id)!.id}
+              businessId={businessId || undefined}
               initialOverlay="poi"
               embedMode
               hideDirections
