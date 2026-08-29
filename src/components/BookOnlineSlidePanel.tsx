@@ -1757,9 +1757,28 @@ const BookOnlineSlidePanelInner = ({
   useEffect(() => {
     setPoiMasterOverride(null);
     setIsPoiMasterBusiness(false);
-    if (!businessId) return;
     let cancelled = false;
     (async () => {
+      // Mode plateforme (Assistant IA, pas de fiche business) : on retombe sur le
+      // POI maître global (business avec default_poi_is_master = true) → Koutoubia.
+      if (!businessId) {
+        const { data: master } = await (supabase as any)
+          .from("businesses")
+          .select("default_poi_business_id")
+          .eq("default_poi_is_master", true)
+          .not("default_poi_business_id", "is", null)
+          .limit(1)
+          .maybeSingle();
+        if (cancelled || !master?.default_poi_business_id) return;
+        const { data: poi } = await (supabase as any)
+          .from("businesses")
+          .select("id,name,city,neighborhood,latitude,longitude,images,computed_rating,total_review_count")
+          .eq("id", master.default_poi_business_id)
+          .maybeSingle();
+        if (cancelled || !poi?.latitude || !poi?.longitude) return;
+        setPoiMasterOverride(poi);
+        return;
+      }
       const { data: b } = await (supabase as any)
         .from("businesses")
         .select("default_poi_business_id,default_poi_is_master")
@@ -1779,6 +1798,7 @@ const BookOnlineSlidePanelInner = ({
     })();
     return () => { cancelled = true; };
   }, [businessId]);
+
 
   /** Marqueur master effectif (POI par défaut si coché, sinon l'établissement). */
   const poiMasterItem = useMemo(() => {
