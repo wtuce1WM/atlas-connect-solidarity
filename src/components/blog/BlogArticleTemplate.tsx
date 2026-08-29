@@ -433,20 +433,36 @@ const BlogArticleTemplate = ({
   });
 
   useEffect(() => {
+    // Chargement progressif : les 3 premières entrées s'affichent d'abord,
+    // le reste des établissements se remplit en arrière-plan.
+    const SELECT =
+      "id, name, slug, neighborhood, city, images, rating, computed_rating, total_review_count, categories, hook_fr, hook_en, hook_ar, wtuce_status, latitude, longitude, is_featured, min_price, manual_price_range";
+    const firstIds = entries.slice(0, 3).flatMap((e) => [e.id, ...(e.extraIds ?? [])]);
+    const restIds = allIds.filter((id) => !firstIds.includes(id));
+
+    const toMap = (rows: any[]) => {
+      const map: Record<string, BlogArticleBusiness> = {};
+      rows.forEach((b: any) => (map[b.id] = b));
+      return map;
+    };
+
     const fetchBiz = async () => {
-      const { data } = await supabase
+      const { data: first } = await supabase
         .from("businesses")
-        .select(
-          "id, name, slug, neighborhood, city, images, rating, computed_rating, total_review_count, categories, hook_fr, hook_en, hook_ar, wtuce_status, latitude, longitude, is_featured, min_price, manual_price_range"
-        )
-        .in("id", allIds)
+        .select(SELECT)
+        .in("id", firstIds)
         .eq("is_active", true);
-      if (data) {
-        const map: Record<string, BlogArticleBusiness> = {};
-        data.forEach((b: any) => (map[b.id] = b));
-        setBusinesses(map);
-      }
+      if (first) setBusinesses(toMap(first));
       setIsLoading(false);
+
+      if (restIds.length > 0) {
+        const { data: rest } = await supabase
+          .from("businesses")
+          .select(SELECT)
+          .in("id", restIds)
+          .eq("is_active", true);
+        if (rest) setBusinesses((prev) => ({ ...prev, ...toMap(rest) }));
+      }
     };
     fetchBiz();
 
@@ -575,7 +591,7 @@ const BlogArticleTemplate = ({
         {embedBackSlug && (
           <button
             onClick={() => navigate(embedBackSlug.includes("/embed/ask/") || embedBackSlug.startsWith("/embed/ask?") ? embedBackSlug : `/embed/ask/${embedBackSlug}`)}
-            className="absolute top-4 left-4 z-20 h-10 w-10 flex items-center justify-center rounded-full bg-black text-white shadow-2xl hover:opacity-90 transition-opacity"
+            className="fixed top-4 left-4 z-40 h-10 w-10 flex items-center justify-center rounded-full bg-black text-white shadow-2xl hover:opacity-90 transition-opacity"
             aria-label={language === "en" ? "Close article" : language === "ar" ? "إغلاق المقال" : "Fermer l'article"}
             title={language === "en" ? "Close" : language === "ar" ? "إغلاق" : "Fermer"}
           >
