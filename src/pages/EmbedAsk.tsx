@@ -3484,13 +3484,17 @@ const EmbedAsk = () => {
       })()}
 
       {showBookingOverlay && bookingOverlayUrl && (
-        <BookingOverlay
-          bookingUrl={bookingOverlayUrl}
-          title={bookingOverlayTitle}
-          onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); }}
-          closeVariant="dark"
-          hideContact
-        />
+        /* Réservation (url 1 à 5) : même géométrie que les fiches ouvertes depuis
+           la réponse IA (panneau droit lg:1/2 dans VideoSlidePanel), jamais plein écran. */
+        <div className="fixed inset-0 z-[220] bg-background lg:left-auto lg:w-1/2 lg:border-l lg:border-border overflow-hidden">
+          <BookingOverlay
+            bookingUrl={bookingOverlayUrl}
+            title={bookingOverlayTitle}
+            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); }}
+            closeVariant="dark"
+            hideContact
+          />
+        </div>
       )}
 
       {/* Slidepanel vidéo du feed curaté : swipe vertical natif de BookOnlineSlidePanel */}
