@@ -3394,6 +3394,7 @@ const EmbedAsk = () => {
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
               businessId={businessId || POI_MASTER_FALLBACK_ID}
+              poiAnchor={businessId ? undefined : (KOUTOUBIA_ANCHOR as any)}
               initialOverlay="poi"
               embedMode
               hideDirections
