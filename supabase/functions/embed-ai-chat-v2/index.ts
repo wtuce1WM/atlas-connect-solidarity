@@ -1644,22 +1644,30 @@ Deno.serve(async (req) => {
                     kept = [...kept, ...usable];
                     added = usable.length;
                   }
-                  // Remontée en TÊTE des établissements portant TOUS les badges cités
-                  // (intersection multi-badges) : sinon les fiches ajoutées en queue
-                  // ne tombaient jamais dans les 6 premiers résultats affichés.
-                  let promoted = 0;
-                  if (augBadges.length > 1 && inter.length) {
+                  // Remontée en TÊTE : d'abord les établissements portant TOUS les
+                  // badges cités (intersection), puis ceux qui en portent au moins un
+                  // (union). Sinon les fiches ajoutées en queue ne tombaient jamais
+                  // dans les 6 premiers résultats affichés. Ordre interne préservé.
+                  let promotedInter = 0;
+                  let promotedUnion = 0;
+                  if (augBadges.length > 1 && union.length) {
                     const interSet = new Set(inter.map(String));
-                    const head = kept.filter((b: any) => interSet.has(String(b.id)));
-                    if (head.length && head.length < kept.length) {
-                      kept = [...head, ...kept.filter((b: any) => !interSet.has(String(b.id)))];
-                      promoted = head.length;
+                    const unionSet = new Set(union.map(String));
+                    const headInter = kept.filter((b: any) => interSet.has(String(b.id)));
+                    const headUnion = kept.filter((b: any) => !interSet.has(String(b.id)) && unionSet.has(String(b.id)));
+                    const rest = kept.filter((b: any) => !unionSet.has(String(b.id)));
+                    if ((headInter.length || headUnion.length) && rest.length) {
+                      kept = [...headInter, ...headUnion, ...rest];
+                      promotedInter = headInter.length;
+                      promotedUnion = headUnion.length;
                     }
                   }
                   console.log("[embed-ai-chat-v2] badge_augment", JSON.stringify({
                     badges: augBadges.map((b) => b.name), city: city || null,
-                    inter: inter.length, union: union.length, added, promoted,
+                    inter: inter.length, union: union.length, added,
+                    promotedInter, promotedUnion,
                   }));
+
 
                 }
               } catch (e) {
