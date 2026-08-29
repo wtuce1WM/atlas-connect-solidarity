@@ -527,9 +527,10 @@ const MarkdownLink = ({
   );
 };
 
-// Clé sessionStorage : relais du fil de conversation pendant la visite d'un
-// article (navigation pleine page). Consommé puis supprimé au retour.
-const ARTICLE_THREAD_HANDOFF_KEY = "owm-ai-article-thread-handoff";
+// Clé sessionStorage partagée (définie dans src/lib/articleThreadHandoff.ts) :
+// relais du fil de conversation pendant la visite d'un article (navigation
+// pleine page). Consommé puis supprimé au retour.
+import { ARTICLE_THREAD_HANDOFF_KEY } from "@/lib/articleThreadHandoff";
 
 const EmbedAsk = () => {
   const { slug = "" } = useParams();
@@ -587,6 +588,10 @@ const EmbedAsk = () => {
             messageIndex: messageIndexRef.current,
             messages,
             activeSuggestionId,
+            // Résumé pour les CTA affichés après l'article (BlogArticleTemplate) :
+            // disponibilité Map + reste du corpus non affiché.
+            hasMap: !!(mapReplayTarget && poolInfo.hasGeo),
+            moreRemaining: poolRemaining,
             savedAt: Date.now(),
           }));
         }
@@ -709,6 +714,9 @@ const EmbedAsk = () => {
     messageIndex: number;
     messages: any[];
     activeSuggestionId: string | null;
+    /** Résumé déposé pour les CTA après l'article. */
+    hasMap?: boolean;
+    moreRemaining?: number;
     savedAt: number;
   };
   const readPersisted = (): PersistedThread | null => {
@@ -726,11 +734,19 @@ const EmbedAsk = () => {
     } catch { return null; }
   };
   const initialPersisted = useMemo(() => {
-    if (shouldPersistThread) return readPersisted();
-    // Panneau plateforme : pas de persistance durable, MAIS on restaure le fil
-    // déposé juste avant l'ouverture d'un article (retour même fenêtre).
-    // NB : pas de removeItem ici — le double rendu StrictMode consommerait la
-    // clé au premier passage. Elle est supprimée après restauration effective.
+    // Retour « Nouvelle conversation » depuis un article : on démarre à zéro,
+    // le relais du fil n'est PAS restauré (il sera supprimé au seeding).
+    if (/^(1|true|new)$/i.test(new URLSearchParams(window.location.search).get("postArticle") || "")) {
+      return null;
+    }
+    // Persistance durable (localStorage) si applicable…
+    if (shouldPersistThread) {
+      const persisted = readPersisted();
+      if (persisted) return persisted;
+    }
+    // …sinon relais article (sessionStorage) : déposé juste avant l'ouverture
+    // d'un article, consommé après restauration effective (pas de removeItem
+    // ici — le double rendu StrictMode consommerait la clé au premier passage).
     try {
       const raw = window.sessionStorage.getItem(ARTICLE_THREAD_HANDOFF_KEY);
       if (!raw) return null;
@@ -1078,6 +1094,8 @@ const EmbedAsk = () => {
       return;
     }
     // (splash d'accueil supprimé)
+    // Démarrage frais : on purge un éventuel relais article restant.
+    try { window.sessionStorage.removeItem(ARTICLE_THREAD_HANDOFF_KEY); } catch { /* noop */ }
     setMessages([{
       id: "opener",
       role: "assistant",
@@ -1564,6 +1582,34 @@ const EmbedAsk = () => {
     }
     return poolInfo.ids.filter((id) => !shown.has(id)).length;
   }, [messages, poolInfo]);
+
+  /**
+   * Retour depuis un article : rejouer les actions des CTA affichés en fin
+   * d'article — Map (overlay POI du dernier corpus) puis « autres résultats »
+   * (relance déterministe du pool, zéro token). Une seule action par retour.
+   */
+  const postArticleReplayRef = useRef(false);
+  useEffect(() => {
+    if (postArticleReplayRef.current) return;
+    if (!(mapReplayTarget || poolRemaining > 0)) return;
+    const url = new URL(window.location.href);
+    // postArticle=map|more|new : « new » ne passe pas ici (accueil frais géré
+    // en amont) ; map/more rejouent les CTA de fin d'article.
+    const action = url.searchParams.get("postArticle") || "";
+    if (!/^(1|true|new|map|more)$/i.test(action)) return;
+    postArticleReplayRef.current = true;
+    const isFresh = /^(1|true|new)$/i.test(action);
+    url.searchParams.delete("postArticle");
+    window.history.replaceState(window.history.state, "", url.pathname + url.search);
+    if (!isFresh) {
+      // 1) Map — les résultats sont rejoués dans l'overlay POI.
+      if (action !== "more" && mapReplayTarget) setOpenMap(mapReplayTarget);
+      // 2) « autres résultats » — relance déterministe du pool, zéro token.
+      if (action !== "map" && poolRemaining > 0) setTimeout(() => send("Montre-moi les autres"), 300);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapReplayTarget, poolRemaining]);
+
 
 
   /**
