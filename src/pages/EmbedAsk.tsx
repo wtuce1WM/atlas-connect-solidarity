@@ -2115,12 +2115,17 @@ const EmbedAsk = () => {
     },
   ];
   // Chip « Map » permanent : toujours visible (accueil ET conversation), fond terracotta.
-  // Ouvre TOUJOURS l'overlay POI/Map fullscreen (ancre POI master par défaut → Koutoubia).
+  // Si un pool de résultats existe (dernière réponse IA), la carte affiche CES
+  // marqueurs ; sinon (accueil, aucune recherche) elle ouvre l'overlay POI
+  // plateforme fullscreen (ancre POI master par défaut → Koutoubia).
   const renderMapChip = (key: string) => (
     <button
       key={key}
       type="button"
-      onClick={() => setOpenGenericPoi(true)}
+      onClick={() => {
+        if (mapReplayTarget) setOpenMap(mapReplayTarget);
+        else setOpenGenericPoi(true);
+      }}
       className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold shadow-md hover:opacity-90 transition-opacity shrink-0"
       style={{ fontFamily: "'Montserrat', sans-serif", background: "#C04F17", color: "#ffffff", border: "1px solid #C04F17", textTransform: "none", letterSpacing: "normal" }}
     >
