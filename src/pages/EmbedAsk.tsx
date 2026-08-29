@@ -2187,17 +2187,12 @@ const EmbedAsk = () => {
                 textClassName={theme === "light" ? "text-black" : "text-white"}
               />
             ) : (
-            <div className="flex flex-col items-center gap-3 text-center pb-2">
-              <h2
-                className={`font-bold leading-snug ${whiteInk}`}
-                style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(16px, 2.6vw, 26px)" }}
-              >
-                {headerTitle || L.platformTitle}
-              </h2>
-              <p className={`text-sm md:text-base max-w-[32ch] md:max-w-[34ch] whitespace-pre-line ${whiteInk || "opacity-70"}`} style={{ opacity: 0.8 }}>
+            <div className="flex flex-col items-center gap-3 text-center pb-2 w-full">
+              <p className={`text-sm md:text-base w-full max-w-[52ch] md:max-w-[64ch] whitespace-pre-line ${whiteInk || "opacity-70"}`} style={{ opacity: 0.8 }}>
                 {L.platformOpener().replace(/\*\*/g, "")}
               </p>
             </div>
+
             )}
             </div>
 
