@@ -745,9 +745,14 @@ const EmbedAsk = () => {
   // Mode plateforme : les préférences affilié (enabled_suggestion_ids) ne
   // s'appliquent pas — le périmètre est la base entière (flag Plateforme 1WM).
   const suggAllowed = isPlatform ? null : agentPrefs.sugg;
-  const filteredDbSuggestions = dbSuggestions && suggAllowed
+  const filteredByPrefs = dbSuggestions && suggAllowed
     ? dbSuggestions.filter((s) => suggAllowed.includes(s.id))
     : dbSuggestions;
+  // Garde-fou : des prefs affilié obsolètes ne doivent jamais vider la liste.
+  const filteredDbSuggestions =
+    filteredByPrefs && filteredByPrefs.length === 0 && dbSuggestions && dbSuggestions.length > 0
+      ? dbSuggestions
+      : filteredByPrefs;
   const fallbackSuggestions = L.suggestions.map((s, i) => ({ id: `default-${i}`, label: s }));
   // Plateforme : uniquement les suggestions back-office (Plateforme 1WM active,
   // tri `sort_order`) — plus aucune liste codée en dur. Les 5 chips repliées sont
