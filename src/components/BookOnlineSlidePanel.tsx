@@ -4172,7 +4172,9 @@ const BookOnlineSlidePanelInner = ({
         // Depuis le CTA Map de l'assistant plateforme, l'ancre (Koutoubia / Port)
         // sert uniquement de centre. Son propre `business_pois` ne doit pas devenir
         // le vivier des Pills : la navigation porte sur toute la ville de l'ancre.
-        const navigationPool = overrideRequested
+        // Si l'ancre n'a aucun POI de proximité (cas Map plateforme), on prend
+        // directement le vivier complet de sa ville.
+        const navigationPool = overrideRequested || (poiBusinesses as any[]).length === 0
           ? (poiCityBusinesses as any[])
           : (poiBusinesses as any[]);
         const navigationPoolInRadius = navigationPool.filter(inRadius);
