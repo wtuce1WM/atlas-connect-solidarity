@@ -1821,6 +1821,75 @@ Deno.serve(async (req) => {
           }));
         }
 
+        // ── Relance RESTRICTIVE (« vélo uniquement », « que les riads ») ──────
+        // Une restriction n'est pas une nouvelle demande : elle AFFINE le corpus du
+        // tour précédent. Sans ça, un terme taxonomique fort relançait une recherche
+        // neuve et perdait le contexte (« Enfants » → résultats vélo sans Enfants).
+        // Le filtre couvre le vocabulaire ET les badges (`business_badges`), que
+        // `business-search` n'exploite pas — c'est ce qui rendait Pikala invisible.
+        let poolRefined = false;
+        const restrictiveIntent = /(?:^|\s)(?:uniquement|seulement|juste|que\s+(?:les|le|la|des|du)|rien\s+que|only|just)(?:\s|$)/
+          .test(normalize(userMessage));
+        // Les mots bruts de la restriction comptent autant que la résolution : le
+        // résolveur renvoie parfois un libellé étroit (« vélo » → « Vélo en salle »)
+        // qui ne matche ni le badge « Vélo » ni le service « Location de vélos ».
+        const restrictiveRawTokens = normalize(userMessage).split(/\s+/).filter((w) =>
+          w.length > 3 &&
+          !/^(uniquement|seulement|juste|rien|only|just|que|les|des|une|avec|dans|pour|montre|moi|autres)$/.test(w)
+        );
+        const refineTerms = [...new Set(
+          [...strongTerms, ...specializingTerms, ...expansionTerms, ...restrictiveRawTokens]
+            .filter(Boolean).map((t) => normalize(String(t))).filter((t) => t.length > 2),
+        )];
+
+        if (
+          !nameHit && !destScope && !contextualFollowUp &&
+          restrictiveIntent && poolIds.length && refineTerms.length
+        ) {
+          try {
+            const ids = poolIds.slice(0, 30);
+            const [poolRows, { data: svcRows }, { data: badgeRows }] = await Promise.all([
+              fetchPriorFull(admin, ids),
+              admin.from("businesses").select("id, services").in("id", ids),
+              admin.from("business_badges").select("business_id, badges(name)").in("business_id", ids),
+            ]);
+            const svcById = new Map((svcRows ?? []).map((r: any) => [String(r.id), (r.services ?? []) as string[]]));
+            const badgesById = new Map<string, string[]>();
+            for (const row of (badgeRows as any[]) ?? []) {
+              const name = (row as any).badges?.name;
+              if (!name) continue;
+              const arr = badgesById.get(String(row.business_id)) || [];
+              arr.push(String(name));
+              badgesById.set(String(row.business_id), arr);
+            }
+            const kept = (poolRows as any[]).filter((b: any) => {
+              const id = String(b.id);
+              const hay = normalize([
+                b.name || "", b.main_category || "", (b.categories || []).join(" "),
+                (svcById.get(id) || []).join(" "), (badgesById.get(id) || []).join(" "),
+              ].join(" "));
+              return refineTerms.some((t) => hay.includes(t));
+            });
+            console.log("[embed-ai-chat-v2] pool_restrictive_refine", JSON.stringify({
+              terms: refineTerms, pool: (poolRows as any[]).length, kept: kept.length,
+            }));
+            if (kept.length) {
+              poolRefined = true;
+              route = "pool_refine";
+              totalFound = kept.length;
+              searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, 30);
+              results = kept.slice(0, CFG.maxResults);
+              resultsCount = results.length;
+            } else {
+              // Repli explicite (jamais silencieux) : aucune fiche du corpus précédent
+              // ne porte ce vocabulaire → recherche neuve, comportement historique.
+              fallbackReason = fallbackReason || "pool_refine_empty";
+            }
+          } catch (e) {
+            console.error("[embed-ai-chat-v2] pool_refine_failed", String(e));
+          }
+        }
+
 
         if (nameHit) {
           // Recherche nominative : business-search isole le nom exact (ville de la fiche).
@@ -1880,7 +1949,7 @@ Deno.serve(async (req) => {
           }
         }
 
-        if (!nameHit && !destScope && !contextualFollowUp && out && confident && (out.intent === "search" || out.intent === "compare")) {
+        if (!nameHit && !destScope && !contextualFollowUp && !poolRefined && out && confident && (out.intent === "search" || out.intent === "compare")) {
           const views = detectViewIntent(userMessage);
           const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
           const excluded = excludedTerms;
