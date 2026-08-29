@@ -742,7 +742,9 @@ const EmbedAsk = () => {
 
   const streaming = status === "submitted" || status === "streaming";
 
-  const suggAllowed = agentPrefs.sugg;
+  // Mode plateforme : les préférences affilié (enabled_suggestion_ids) ne
+  // s'appliquent pas — le périmètre est la base entière (flag Plateforme 1WM).
+  const suggAllowed = isPlatform ? null : agentPrefs.sugg;
   const filteredDbSuggestions = dbSuggestions && suggAllowed
     ? dbSuggestions.filter((s) => suggAllowed.includes(s.id))
     : dbSuggestions;
