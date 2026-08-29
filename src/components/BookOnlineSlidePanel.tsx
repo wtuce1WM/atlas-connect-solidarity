@@ -268,10 +268,6 @@ interface BookOnlineSlidePanelProps {
   onMapReady?: () => void;
   /** Corpus fermé imposé (réponse IA) : ids d'établissements, dans l'ordre exact à afficher */
   poiOverrideIds?: string[] | null;
-  /** Corpus fermé déjà résolu par l'appelant : évite une seconde requête avant d'afficher la carte. */
-  poiOverrideBusinesses?: PoiBusiness[] | null;
-  /** Ancre déjà résolue (Koutoubia / Port d'Essaouira) pour cadrer la carte dès la première frame. */
-  poiAnchor?: PoiBusiness | null;
   /** Corpus ville imposé (overlay carte plateforme) : toutes les fiches actives
       géolocalisées de ces villes, sans autre condition. Cadrage = fit markers. */
   poiCityCorpus?: string[] | null;
@@ -288,7 +284,7 @@ const BookOnlineSlidePanelInner = ({
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
-  poiOverrideIds, poiOverrideBusinesses, poiAnchor, poiCityCorpus, poiOverrideTitle, feedLayout, loadingSurface, aiMode,
+  poiOverrideIds, poiCityCorpus, poiOverrideTitle, feedLayout, loadingSurface, aiMode,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const rateIframeHeight = useEmbedIframeHeight("owm-rate-height", 380);
@@ -604,29 +600,22 @@ const BookOnlineSlidePanelInner = ({
 
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
   const [poiShowAll, setPoiShowAll] = useState(false);
-  const [poiProximityKm, setPoiProximityKm] = useState<number | null>(() => {
-    const raw = Number((poiAnchor as any)?.poi_radius_km);
-    return [0.5, 1, 5, 10, 20, 50, 100].includes(raw) ? raw : null;
-  });
-  // Le rayon n'est jamais appliqué à un corpus fermé (réponse IA) tant que
-  // l'utilisateur ne l'a pas choisi lui-même dans le Pill.
-  const [poiProxTouched, setPoiProxTouched] = useState(false);
-
+  const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
   const poiProximityInitRef = useRef<string | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
   const [poiMapTypeId, setPoiMapTypeId] = useState<"roadmap" | "satellite" | "terrain">("terrain");
-  // Rayon par défaut du Pill "À proximité" = champ Rayon de l'établissement (10 km par défaut),
-  // y compris quand un corpus fermé (réponse IA) est imposé : le rayon reste affiché/actif,
-  // l'étendue de la carte étant de toute façon dictée par les points du pool (fit markers).
+  // Rayon par défaut du Pill "À proximité" = champ Rayon de l'établissement (10 km par défaut).
+  // Corpus fermé imposé (réponse IA) : aucun rayon initial — l'étendue est dictée par les
+  // points GPS du pool de résultats (fit markers), pas par le Rayon du Master.
   useEffect(() => {
     const bid = (business as any)?.id;
     if (!bid || poiProximityInitRef.current === bid) return;
     poiProximityInitRef.current = bid;
+    if ((poiOverrideIds || []).length || (poiCityCorpus || []).length) { setPoiProximityKm(null); return; }
     const raw = Number((business as any)?.poi_radius_km);
     const allowed = [0.5, 1, 5, 10, 20, 50, 100];
     setPoiProximityKm(allowed.includes(raw) ? raw : 10);
-  }, [business]);
-
+  }, [business, (poiOverrideIds || []).join(",")]);
 
 
   /* ─── Widget "Adresses à proximité" : pills Regroupements KP + Lieu d'intérêt par défaut ─── */
@@ -688,14 +677,9 @@ const BookOnlineSlidePanelInner = ({
   const [poiCityBusinesses, setPoiCityBusinesses] = useState<PoiBusiness[]>([]);
   // Corpus fermé imposé par une réponse IA : mêmes champs que les POI, ordre conservé.
   const poiOverrideKey = (poiOverrideIds || []).join(",");
-  const [poiOverrideRows, setPoiOverrideRows] = useState<PoiBusiness[]>(() => poiOverrideBusinesses || []);
+  const [poiOverrideRows, setPoiOverrideRows] = useState<PoiBusiness[]>([]);
   useEffect(() => {
     const ids = poiOverrideKey ? poiOverrideKey.split(",").filter(Boolean) : [];
-    if (poiOverrideBusinesses?.length) {
-      const byId = new Map(poiOverrideBusinesses.map((row) => [row.id, row]));
-      setPoiOverrideRows(ids.map((id) => byId.get(id)).filter(Boolean) as PoiBusiness[]);
-      return;
-    }
     if (!ids.length) { setPoiOverrideRows([]); return; }
     let cancelled = false;
     (async () => {
@@ -713,7 +697,7 @@ const BookOnlineSlidePanelInner = ({
       setPoiOverrideRows(ids.map((id) => byId.get(id)).filter(Boolean) as PoiBusiness[]);
     })();
     return () => { cancelled = true; };
-  }, [poiOverrideKey, poiOverrideBusinesses]);
+  }, [poiOverrideKey]);
   // Corpus ville imposé (chip « Map » plateforme) : TOUTES les fiches actives
   // géolocalisées des villes listées, paginé (1000/page) — aucune autre condition.
   // Alimente le même overridePool que poiOverrideIds → fit markers sur l'ensemble.
@@ -761,19 +745,7 @@ const BookOnlineSlidePanelInner = ({
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
   // Corpus ville imposé : les onglets/catégories viennent de la 1ère ville du corpus
   // (le Master d'ancrage peut ne pas avoir de structure front exploitable).
-  // Ville de navigation : disponible IMMÉDIATEMENT depuis l'ancre / le pool IA,
-  // sans attendre le chargement complet de la fiche d'ancrage (Koutoubia / Port).
-  const navCity =
-    (poiCityCorpus && poiCityCorpus[0]) ||
-    poiAnchor?.city ||
-    poiOverrideBusinesses?.find((b) => !!b?.city)?.city ||
-    business?.city ||
-    null;
-  // La Map calcule déjà ses compteurs depuis `poiCityBusinesses`. Charger ici
-  // uniquement la structure évite un menu Catégories vide pendant la lourde
-  // requête de comptage de tous les établissements de la ville.
-  const { tabs: frontTabs } = useFrontStructureTabs(navCity, true);
-
+  const { tabs: frontTabs } = useFrontStructureTabs((poiCityCorpus && poiCityCorpus[0]) || business?.city || null);
   const { translateSubcategory } = useTaxonomyTranslations();
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
 
@@ -834,61 +806,40 @@ const BookOnlineSlidePanelInner = ({
     return () => { cancelled = true; };
   }, [poiCatFilter, business?.city, businessId, frontTabs]);
 
-  // Vivier ville (toutes catégories) chargé quand l'overlay POI/Map est ouvert.
-  // 2 passes : d'abord une requête LÉGÈRE (sans `images`, très lourdes) pour que
-  // les marqueurs et les Pills soient disponibles immédiatement, puis un
-  // enrichissement en arrière-plan pour les visuels des cartes.
+  // Vivier ville (toutes catégories) chargé quand l'overlay POI/Map est ouvert
   useEffect(() => {
-    if (!showPoiMapOverlay || !navCity) return;
+    if (!showPoiMapOverlay || !business?.city) return;
     let cancelled = false;
-    const LIGHT = "id, name, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score, computed_rating, total_review_count";
-    const fetchAll = async (columns: string) => {
-      const all: any[] = [];
-      const PAGE = 1000;
-      for (let from = 0; ; from += PAGE) {
-        const { data } = await supabase
-          .from("businesses")
-          .select(columns)
-          .eq("is_active", true)
-          .ilike("city", navCity)
-          .not("latitude", "is", null)
-          .not("longitude", "is", null)
-          .order("priority_score", { ascending: false, nullsFirst: false })
-          .range(from, from + PAGE - 1);
-        all.push(...((data || []) as any[]));
-        if ((data || []).length < PAGE) break;
-      }
-      return all;
-    };
-    const normalize = (all: any[]) => all
-      .filter((p) => p.id !== businessId)
-      .filter((p) => isInMoroccoBounds(p.latitude, p.longitude))
-      .map((p) => ({
-        id: p.id,
-        name: p.name,
-        images: p.images,
-        logo_url: p.logo_url,
-        latitude: p.latitude,
-        longitude: p.longitude,
-        city: p.city,
-        neighborhood: p.neighborhood,
-        categories: p.categories,
-        main_category: p.main_category,
-        default_service: p.default_service ?? null,
-        computed_rating: p.computed_rating ?? null,
-        total_review_count: p.total_review_count ?? null,
-      }));
     (async () => {
-      const light = await fetchAll(LIGHT);
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score, computed_rating, total_review_count")
+        .eq("is_active", true)
+        .ilike("city", business.city)
+        .order("priority_score", { ascending: false, nullsFirst: false })
+        .limit(1000);
       if (cancelled) return;
-      setPoiCityBusinesses(normalize(light) as PoiBusiness[]);
-      const full = await fetchAll(`${LIGHT}, images`);
-      if (cancelled || !full.length) return;
-      setPoiCityBusinesses(normalize(full) as PoiBusiness[]);
+      const rows = ((data || []) as any[])
+        .filter((p) => p.id !== businessId)
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          images: p.images,
+          logo_url: p.logo_url,
+          latitude: p.latitude,
+          longitude: p.longitude,
+          city: p.city,
+          neighborhood: p.neighborhood,
+          categories: p.categories,
+          main_category: p.main_category,
+          default_service: p.default_service ?? null,
+          computed_rating: p.computed_rating ?? null,
+          total_review_count: p.total_review_count ?? null,
+        }));
+      setPoiCityBusinesses(rows as PoiBusiness[]);
     })();
     return () => { cancelled = true; };
-  }, [showPoiMapOverlay, navCity, businessId]);
-
+  }, [showPoiMapOverlay, business?.city, businessId]);
 
 
   
@@ -1851,7 +1802,7 @@ const BookOnlineSlidePanelInner = ({
 
   /** Marqueur master effectif (POI par défaut si coché, sinon l'établissement). */
   const poiMasterItem = useMemo(() => {
-    const src = poiAnchor ?? poiMasterOverride ?? business;
+    const src = poiMasterOverride ?? business;
     if (!src?.latitude || !src?.longitude) return null;
     return {
       id: `self-${src.id}`,
@@ -1865,7 +1816,7 @@ const BookOnlineSlidePanelInner = ({
       totalReviews: poiMasterOverride ? (poiMasterOverride.total_review_count ?? 0) : totalReviewCount,
       markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
     } as PoiMapItem;
-  }, [poiAnchor, poiMasterOverride, business, avgOn20, totalReviewCount]);
+  }, [poiMasterOverride, business, avgOn20, totalReviewCount]);
 
   // Centre de la carte. `PoiGoogleMap` n'initialise la carte qu'une fois `center`
   // défini (centerAtBottomRatio) : en mode plateforme, attendre la fiche complète
@@ -4163,9 +4114,7 @@ const BookOnlineSlidePanelInner = ({
           const mc = (business as any)?.main_category;
           return typeof mc === "string" && mc.trim() ? mc.trim() : null;
         })();
-        // Map de l'assistant (ancre Koutoubia / Port) : aucune catégorie ne doit être
-        // retirée — l'ancre n'est qu'un centre, pas un Master hôte.
-        const catPillTabs = isEmbedMapWidget && masterDefaultSubcat && !poiAnchor
+        const catPillTabs = isEmbedMapWidget && masterDefaultSubcat
           ? frontTabs.filter((ft) => !ft.subcategoryNames.has(masterDefaultSubcat))
           : frontTabs;
         // Origine unique des distances : l'établissement Master (fallback géoloc)
@@ -4189,42 +4138,17 @@ const BookOnlineSlidePanelInner = ({
         };
         // Corpus fermé imposé (réponse IA) : ordre conservé, mais les contrôles
         // Top/Tous et Proximité restent disponibles sur ce corpus complet.
-        // Dès qu'un corpus fermé est demandé, il est la SEULE source de marqueurs —
-        // même pendant son chargement (tableau vide), pour ne jamais afficher
-        // transitoirement les business_pois de la ville.
-        const overrideRequested = poiOverrideKey.length > 0 || poiCityCorpusKey.length > 0;
-        const overridePool: any[] | null = overrideRequested ? (poiOverrideRows as any[]) : null;
-        // Le Pill Catégories décrit une ville entière. Il reste disponible pour un
-        // pool mono-ville, mais n'a pas de sens lorsque la réponse IA mélange au
-        // moins deux villes (ex. Rooftops Marrakech + Essaouira).
-        const normalizeMapCity = (value: unknown) => String(value || "")
-          .trim()
-          .toLocaleLowerCase("fr")
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "");
-        const poolCitiesSource = poiOverrideBusinesses?.length ? poiOverrideBusinesses : overridePool;
-        const poolCityCount = poolCitiesSource
-          ? new Set(poolCitiesSource.map((p) => normalizeMapCity(p.city)).filter(Boolean)).size
-          : (navCity ? 1 : 0);
-        const isSingleCityMap = poolCityCount <= 1;
-
-        // Source unique des Pills : tous les établissements actifs géolocalisés de
-        // la ville. Le pool IA ne sert qu'aux marqueurs affichés à l'ouverture.
-        const cityPool = poiCityBusinesses as any[];
+        const overridePool: any[] | null = poiOverrideRows.length ? (poiOverrideRows as any[]) : null;
+        // Vivier ville restreint au rayon actif → base des compteurs catégories
+        const cityInRadius = overridePool ?? (poiCityBusinesses as any[]).filter(inRadius);
         const catCounts = new Map<string, number>();
         for (const ft of catPillTabs) {
-          catCounts.set(ft.id, cityPool.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
+          catCounts.set(ft.id, cityInRadius.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
         }
 
-        // Depuis le CTA Map de l'assistant plateforme, l'ancre (Koutoubia / Port)
-        // sert uniquement de centre. Son propre `business_pois` ne doit pas devenir
-        // le vivier des Pills : la navigation porte sur toute la ville de l'ancre.
-        // Si l'ancre n'a aucun POI de proximité (cas Map plateforme), on prend
-        // directement le vivier complet de sa ville.
-        const navigationPool = cityPool;
-        const cityAfterCat = activeFrontTab
-          ? cityPool.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
-          : navigationPool;
+        const afterCat = activeFrontTab
+          ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
+          : (overridePool ?? (poiBusinesses as any[]));
 
         // Pill POI / sous-catégories — le MENU ne liste que les sous-catégories
         // "par défaut" (1ère sous-catégorie de la fiche), mais le FILTRE retenu
@@ -4254,7 +4178,7 @@ const BookOnlineSlidePanelInner = ({
 
         // Pill POI : totalement indépendant du Pill Catégories.
         // Base = POI de proximité de l'établissement Master, entrées = sous-catégories par défaut.
-        const poiPillBase = navigationPool;
+        const poiPillBase = overridePool ?? (poiBusinesses as any[]).filter(inRadius);
         const poiPillDefaults = defaultSubcatsOf(poiPillBase);
         const poiSubcatCounts = new Map<string, number>();
         for (const p of poiPillBase) {
@@ -4271,32 +4195,23 @@ const BookOnlineSlidePanelInner = ({
         // Pill Catégories : niveau 2 = sous-catégories (par défaut) de la catégorie choisie
         const catSubcatList: [string, number][] = activeFrontTab
           ? (() => {
-              const defs = defaultSubcatsOf(cityAfterCat);
+              const defs = defaultSubcatsOf(afterCat);
               return activeFrontTab.subcategories
                 .filter((sd) => defs.has(sd.name))
-                .map((sd) => [sd.name, cityAfterCat.filter((p) => matchesNames(p, sd.names)).length] as [string, number])
+                .map((sd) => [sd.name, afterCat.filter((p) => matchesNames(p, sd.names)).length] as [string, number])
                 .filter(([, c]) => c > 0)
                 .sort((a, b) => a[0].localeCompare(b[0]));
             })()
           : [];
 
         const afterSubcat = (() => {
-          let list = cityAfterCat;
+          let list = afterCat;
           if (poiSubcatFilterEff) list = list.filter((p) => subcatsOf(p).includes(poiSubcatFilterEff));
           if (catSubcatFilter) list = list.filter((p) => subcatsOf(p).includes(catSubcatFilter));
           return list;
         })();
 
-        // Le corpus IA reste affiché intact à l'ouverture. Dès qu'un Pill est utilisé,
-        // OU que l'utilisateur bascule sur « Tous », on revient au vivier POI normal
-        // afin que POI / Catégories / Rayon / Tous naviguent à nouveau entre les
-        // marqueurs de Marrakech ou d'Essaouira.
-        const pillNavigationActive = poiShowAll || poiProxTouched || !!poiCatFilter || !!poiSubcatFilterEff || !!catSubcatFilter;
-        const initialPool = overridePool && !pillNavigationActive ? overridePool : null;
-        // Le rayon affiché par défaut donne le contexte de l'ancre, mais il ne
-        // réduit jamais le vivier ni l'affichage initial. Il devient un filtre
-        // uniquement après une action explicite dans le Pill Rayon.
-        const afterProx = initialPool || (poiProxTouched ? afterSubcat.filter(inRadius) : afterSubcat);
+        const afterProx = afterSubcat.filter(inRadius);
         const total = afterProx.length;
         const effectiveTopLimit = overridePool && total <= TOP_LIMIT ? 10 : TOP_LIMIT;
         const displayedPoi = (poiShowAll || total <= effectiveTopLimit)
@@ -4304,9 +4219,9 @@ const BookOnlineSlidePanelInner = ({
           : afterProx.slice(0, effectiveTopLimit);
         // Pas de bascule Top 20 / Tous si le résultat courant tient sous la limite
         const showAllToggle = poiMapMode === "poi" && total > effectiveTopLimit;
-        // Une ville : Catégories navigue dans tous ses établissements géolocalisés.
-        // Plusieurs villes : le Pill est volontairement masqué.
-        const showCatPill = poiMapMode === "poi" && isSingleCityMap && catPillTabs.length > 0 && poiCityBusinesses.length > 0;
+        // Dans le widget Map plateforme, le Pill Catégories doit être présent dès
+        // l'ouverture, comme le Pill POI, sans attendre le chargement des onglets.
+        const showCatPill = poiMapMode === "poi" && (isEmbedMapWidget || catPillTabs.length >= 2);
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi" && !!proxOrigin;
         const proxOpts: { km: number; label: string }[] = [
@@ -4321,9 +4236,12 @@ const BookOnlineSlidePanelInner = ({
 
         const proxCountsByKm: Record<number, number> = {};
         if (showProxPill) {
-          const proxBase = activeFrontTab
-            ? (poiCityBusinesses as any[]).filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
-            : navigationPool;
+          // Corpus fermé imposé : les distances se calculent sur le pool de résultats seul.
+          const proxBase = overridePool
+            ? afterSubcat
+            : activeFrontTab
+              ? (poiCityBusinesses as any[]).filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
+              : afterSubcat;
           for (const o of proxOpts) {
             proxCountsByKm[o.km] = proxBase.filter((p) => { const d = distOf(p); return d != null && d <= o.km; }).length;
           }
@@ -4665,7 +4583,7 @@ const BookOnlineSlidePanelInner = ({
                   ]
                 : [
                     ...(poiMasterItem ? [poiMasterItem] : []),
-                    ...((overridePool && !pillNavigationActive ? overridePool : displayedPoi)
+                    ...((overridePool ? afterProx : displayedPoi)
                       .filter(p => p.id !== poiMasterOverride?.id)
                       .map(p => ({
                         id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
@@ -4753,7 +4671,7 @@ const BookOnlineSlidePanelInner = ({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="z-[260]">
                       {poiProximityKm != null && (
-                        <DropdownMenuItem onSelect={() => { resetWidgetMapView(); setPoiProxTouched(true); setPoiProximityKm(null); }}>
+                        <DropdownMenuItem onSelect={() => { resetWidgetMapView(); setPoiProximityKm(null); }}>
                           {language === "en" ? "All distances" : language === "ar" ? "جميع المسافات" : "Toutes distances"}
                         </DropdownMenuItem>
                       )}
@@ -4764,7 +4682,7 @@ const BookOnlineSlidePanelInner = ({
                           <DropdownMenuItem
                             key={o.km}
                             disabled={disabled}
-                            onSelect={(e) => { if (disabled) { e.preventDefault(); return; } resetWidgetMapView(); setPoiProxTouched(true); setPoiProximityKm(o.km); }}
+                            onSelect={(e) => { if (disabled) { e.preventDefault(); return; } resetWidgetMapView(); setPoiProximityKm(o.km); }}
                             className={disabled ? "opacity-40 pointer-events-none" : ""}
                           >
                             {o.label} <span className="ml-1 opacity-60">({count})</span>

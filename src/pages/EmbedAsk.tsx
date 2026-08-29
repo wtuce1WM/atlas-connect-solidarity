@@ -889,30 +889,10 @@ const EmbedAsk = () => {
       return () => clearTimeout(t);
     }
   }, [openGenericPoi]);
-  
+  const [poiMasterAnchorId, setPoiMasterAnchorId] = useState<string | null>(null);
   /** Ancre POI de la carte générique : le POI Koutoubia lui-même, pour que la carte
       soit centrée immédiatement sur ses coordonnées GPS (31.6237205, -7.9936196). */
   const POI_MASTER_FALLBACK_ID = "bc4b4fc1-06fc-4a69-8bea-59c8f89d924c";
-  /** Ancre POI d'Essaouira : « Port d'Essaouira » joue le rôle de la Koutoubia
-      quand les résultats de la carte sont exclusivement à Essaouira. */
-  const POI_ESSAOUIRA_ANCHOR_ID = "81836caa-fbfc-4abd-b29e-326e56aeadf6";
-  const KOUTOUBIA_ANCHOR = {
-    id: POI_MASTER_FALLBACK_ID,
-    name: "Koutoubia",
-    city: "Marrakech",
-    latitude: 31.6237205,
-    longitude: -7.9936196,
-    poi_radius_km: 10,
-  };
-  const ESSAOUIRA_ANCHOR = {
-    id: POI_ESSAOUIRA_ANCHOR_ID,
-    name: "Port d'Essaouira",
-    city: "Essaouira",
-    latitude: 31.5094232,
-    longitude: -9.7728012,
-    poi_radius_km: 10,
-  };
-
 
 
 
@@ -1072,26 +1052,24 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
   }, [businessId]);
 
-  /** Ancre de l'overlay Map : règle déterministe unique — Koutoubia pour
-      Marrakech, Port d'Essaouira quand tous les résultats sont à Essaouira.
-      Aucune sélection dynamique via default_poi_is_master (source de dérive). */
-  const mapAnchorId = useMemo(() => {
-    if (businessId) return businessId;
-    const cities = (openMap?.businesses || [])
-      .map((b) => String(b.city || "").trim().toLowerCase())
-      .filter(Boolean);
-    const hasMarrakech = cities.some((c) => c.includes("marrakech"));
-    const hasEssaouira = cities.some((c) => c.includes("essaouira"));
-    if (!hasMarrakech && hasEssaouira) return POI_ESSAOUIRA_ANCHOR_ID;
-    return POI_MASTER_FALLBACK_ID;
-  }, [businessId, openMap]);
-  const mapAnchor = useMemo(() => {
-    if (businessId) return null;
-    return mapAnchorId === POI_ESSAOUIRA_ANCHOR_ID ? ESSAOUIRA_ANCHOR : KOUTOUBIA_ANCHOR;
-  }, [businessId, mapAnchorId]);
-
-
-
+  // Ancre du chip « Map » de l'accueil IA : sans hôte (mode plateforme), on utilise
+  // un business marqué default_poi_is_master (ex. Tarik Belasri) comme ancre de
+  // l'overlay POI/Map — même mécanisme que la fiche maîtresse.
+  useEffect(() => {
+    if (businessId || poiMasterAnchorId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("businesses")
+        .select("id")
+        .eq("default_poi_is_master", true)
+        .order("updated_at", { ascending: false })
+        .limit(1);
+      const id = Array.isArray(data) && data[0]?.id ? String(data[0].id) : null;
+      if (!cancelled && id) setPoiMasterAnchorId(id);
+    })();
+    return () => { cancelled = true; };
+  }, [businessId, poiMasterAnchorId]);
 
   const openerText = isPlatform
     ? L.platformOpener()
@@ -2290,7 +2268,7 @@ const EmbedAsk = () => {
       className={
         autoHeight
           ? `flex flex-col ${surface} ${theme === "dark" ? "dark" : ""}`
-          : `fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""} transition-[right] duration-300 ease-out ${openBusinessId || showBookingOverlay ? "lg:right-1/2" : ""}`
+          : `fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""} transition-[right] duration-300 ease-out ${openBusinessId ? "lg:right-1/2" : ""}`
       }
       style={
         // `?bg=transparent` = le fond de l'hôte doit apparaître : le conteneur
@@ -3393,14 +3371,13 @@ const EmbedAsk = () => {
         >
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
-              businessId={businessId || POI_MASTER_FALLBACK_ID}
-              poiAnchor={businessId ? undefined : (KOUTOUBIA_ANCHOR as any)}
+              businessId={businessId || poiMasterAnchorId || POI_MASTER_FALLBACK_ID}
               initialOverlay="poi"
               embedMode
               hideDirections
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
-              
+              poiCityCorpus={["Marrakech", "Asni", "Imlil", "Agafay"]}
               onClose={() => setOpenGenericPoi(false)}
             />
           </Suspense>
@@ -3419,16 +3396,13 @@ const EmbedAsk = () => {
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
               key={(openMap.businesses || []).map((b) => b.id).join(",")}
-              businessId={mapAnchorId}
-
+              businessId={businessId || poiMasterAnchorId || POI_MASTER_FALLBACK_ID}
               initialOverlay="poi"
               embedMode
               hideDirections
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
               poiOverrideIds={(openMap.businesses || []).map((b) => b.id)}
-              poiOverrideBusinesses={openMap.businesses as any}
-              poiAnchor={mapAnchor as any}
               poiOverrideTitle={openMap.title || null}
               onClose={() => setOpenMap(null)}
             />
@@ -3510,19 +3484,14 @@ const EmbedAsk = () => {
       })()}
 
       {showBookingOverlay && bookingOverlayUrl && (
-        /* Réservation (url 1 à 5) : même géométrie que les fiches ouvertes depuis
-           la réponse IA (panneau droit lg:1/2 dans VideoSlidePanel), jamais plein écran. */
-        <div className="fixed inset-0 z-[220] bg-background lg:left-auto lg:w-1/2 lg:border-l lg:border-border overflow-hidden">
-          <BookingOverlay
-            bookingUrl={bookingOverlayUrl}
-            title={bookingOverlayTitle}
-            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); }}
-            closeVariant="dark"
-            hideContact
-          />
-        </div>
+        <BookingOverlay
+          bookingUrl={bookingOverlayUrl}
+          title={bookingOverlayTitle}
+          onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); }}
+          closeVariant="dark"
+          hideContact
+        />
       )}
-
 
       {/* Slidepanel vidéo du feed curaté : swipe vertical natif de BookOnlineSlidePanel */}
       {activeFeedVideoId && (() => {
