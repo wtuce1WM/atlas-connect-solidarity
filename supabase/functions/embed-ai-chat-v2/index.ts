@@ -1637,15 +1637,30 @@ Deno.serve(async (req) => {
                     : union;
                   const ordered = [...inter, ...union.filter((id) => !inter.includes(id))];
                   const missing = ordered.filter((id) => !have.has(id)).slice(0, 12);
+                  let added = 0;
                   if (missing.length) {
                     const extra = await fetchPriorFull(admin, missing, 12).catch(() => [] as any[]);
                     const usable = (extra as any[]).filter((b: any) => b?.id && !have.has(String(b.id)));
                     kept = [...kept, ...usable];
-                    console.log("[embed-ai-chat-v2] badge_augment", JSON.stringify({
-                      badges: augBadges.map((b) => b.name), city: city || null,
-                      inter: inter.length, union: union.length, added: usable.length,
-                    }));
+                    added = usable.length;
                   }
+                  // Remontée en TÊTE des établissements portant TOUS les badges cités
+                  // (intersection multi-badges) : sinon les fiches ajoutées en queue
+                  // ne tombaient jamais dans les 6 premiers résultats affichés.
+                  let promoted = 0;
+                  if (augBadges.length > 1 && inter.length) {
+                    const interSet = new Set(inter.map(String));
+                    const head = kept.filter((b: any) => interSet.has(String(b.id)));
+                    if (head.length && head.length < kept.length) {
+                      kept = [...head, ...kept.filter((b: any) => !interSet.has(String(b.id)))];
+                      promoted = head.length;
+                    }
+                  }
+                  console.log("[embed-ai-chat-v2] badge_augment", JSON.stringify({
+                    badges: augBadges.map((b) => b.name), city: city || null,
+                    inter: inter.length, union: union.length, added, promoted,
+                  }));
+
                 }
               } catch (e) {
                 console.error("[embed-ai-chat-v2] badge_augment_failed", String(e));
