@@ -3418,7 +3418,9 @@ const EmbedAsk = () => {
               hideDirections
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
-              poiCityCorpus={["Marrakech", "Asni", "Imlil", "Agafay"]}
+              {/* Aucun corpus fermé ici : sans pool de résultats, l'overlay est
+                  le mode POI natif de la ville de l'ancre (Koutoubia / Port
+                  d'Essaouira), avec son rayon par défaut et ses pills complets. */}
               onClose={() => setOpenGenericPoi(false)}
             />
           </Suspense>
