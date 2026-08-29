@@ -1759,9 +1759,7 @@ const EmbedAsk = () => {
   const mapBadgeStyle: React.CSSProperties =
     { background: "#C04F17", color: "#FFFFFF", borderColor: "#C04F17" };
   const moreBadgeStyle: React.CSSProperties =
-    theme === "light"
-      ? { background: "#D4AF37", color: "#000000", borderColor: "#D4AF37" }
-      : { background: "#D4AF37", color: "#FFFFFF", borderColor: "#D4AF37" };
+    { background: "#D4AF37", color: "#000000", borderColor: "#D4AF37" };
   const newConvStyle: React.CSSProperties =
     theme === "light"
       ? { background: "#000000", color: "#FFFFFF", borderColor: "#000000" }
@@ -1949,7 +1947,7 @@ const EmbedAsk = () => {
         ...(mapReplayTarget && poolInfo.hasGeo
           ? [{
               id: "map",
-              label: lang === "en" ? "On a map" : lang === "ar" ? "على الخريطة" : "Sur une carte",
+              label: lang === "en" ? "Map" : lang === "ar" ? "الخريطة" : "Map",
               icon: <MapPin className="w-3.5 h-3.5" />,
               onClick: () => setOpenMap(mapReplayTarget),
               style: mapBadgeStyle,
@@ -2730,7 +2728,7 @@ const EmbedAsk = () => {
                       className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity"
                     >
                       <MapPin className="w-3.5 h-3.5" />
-                      {lang === "en" ? "On a map" : lang === "ar" ? "على الخريطة" : "Sur une carte"}
+                      {lang === "en" ? "Map" : lang === "ar" ? "الخريطة" : "Map"}
                     </button>
                   )}
                   {poolRemaining > 0 && (
