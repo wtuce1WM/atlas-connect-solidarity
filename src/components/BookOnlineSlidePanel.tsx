@@ -4242,9 +4242,10 @@ const BookOnlineSlidePanelInner = ({
         })();
 
         // Le corpus IA reste affiché intact à l'ouverture. Dès qu'un Pill est utilisé,
-        // on revient au vivier POI normal afin que POI / Catégories / Rayon naviguent
-        // à nouveau entre les marqueurs de Marrakech ou d'Essaouira.
-        const pillNavigationActive = poiProxTouched || !!poiCatFilter || !!poiSubcatFilterEff || !!catSubcatFilter;
+        // OU que l'utilisateur bascule sur « Tous », on revient au vivier POI normal
+        // afin que POI / Catégories / Rayon / Tous naviguent à nouveau entre les
+        // marqueurs de Marrakech ou d'Essaouira.
+        const pillNavigationActive = poiShowAll || poiProxTouched || !!poiCatFilter || !!poiSubcatFilterEff || !!catSubcatFilter;
         const applyRadius = !overridePool || pillNavigationActive;
         const afterProx = applyRadius ? afterSubcat.filter(inRadius) : afterSubcat;
         const total = afterProx.length;
