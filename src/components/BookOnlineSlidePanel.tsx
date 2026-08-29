@@ -4190,18 +4190,18 @@ const BookOnlineSlidePanelInner = ({
           .toLocaleLowerCase("fr")
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
-        const poolCityCount = overridePool
-          ? new Set(overridePool.map((p) => normalizeMapCity(p.city)).filter(Boolean)).size
+        const poolCitiesSource = poiOverrideBusinesses?.length ? poiOverrideBusinesses : overridePool;
+        const poolCityCount = poolCitiesSource
+          ? new Set(poolCitiesSource.map((p) => normalizeMapCity(p.city)).filter(Boolean)).size
           : (navCity ? 1 : 0);
         const isSingleCityMap = poolCityCount <= 1;
 
         // Source unique des Pills : tous les établissements actifs géolocalisés de
         // la ville. Le pool IA ne sert qu'aux marqueurs affichés à l'ouverture.
         const cityPool = poiCityBusinesses as any[];
-        const cityInRadius = cityPool.filter(inRadius);
         const catCounts = new Map<string, number>();
         for (const ft of catPillTabs) {
-          catCounts.set(ft.id, cityInRadius.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
+          catCounts.set(ft.id, cityPool.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
         }
 
         // Depuis le CTA Map de l'assistant plateforme, l'ancre (Koutoubia / Port)
@@ -4210,10 +4210,9 @@ const BookOnlineSlidePanelInner = ({
         // Si l'ancre n'a aucun POI de proximité (cas Map plateforme), on prend
         // directement le vivier complet de sa ville.
         const navigationPool = cityPool;
-        const navigationPoolInRadius = navigationPool.filter(inRadius);
         const cityAfterCat = activeFrontTab
-          ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
-          : navigationPoolInRadius;
+          ? cityPool.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
+          : navigationPool;
 
         // Pill POI / sous-catégories — le MENU ne liste que les sous-catégories
         // "par défaut" (1ère sous-catégorie de la fiche), mais le FILTRE retenu
@@ -4243,7 +4242,7 @@ const BookOnlineSlidePanelInner = ({
 
         // Pill POI : totalement indépendant du Pill Catégories.
         // Base = POI de proximité de l'établissement Master, entrées = sous-catégories par défaut.
-        const poiPillBase = navigationPoolInRadius;
+        const poiPillBase = navigationPool;
         const poiPillDefaults = defaultSubcatsOf(poiPillBase);
         const poiSubcatCounts = new Map<string, number>();
         for (const p of poiPillBase) {
@@ -4282,7 +4281,10 @@ const BookOnlineSlidePanelInner = ({
         // marqueurs de Marrakech ou d'Essaouira.
         const pillNavigationActive = poiShowAll || poiProxTouched || !!poiCatFilter || !!poiSubcatFilterEff || !!catSubcatFilter;
         const initialPool = overridePool && !pillNavigationActive ? overridePool : null;
-        const afterProx = initialPool || afterSubcat.filter(inRadius);
+        // Le rayon affiché par défaut donne le contexte de l'ancre, mais il ne
+        // réduit jamais le vivier ni l'affichage initial. Il devient un filtre
+        // uniquement après une action explicite dans le Pill Rayon.
+        const afterProx = initialPool || (poiProxTouched ? afterSubcat.filter(inRadius) : afterSubcat);
         const total = afterProx.length;
         const effectiveTopLimit = overridePool && total <= TOP_LIMIT ? 10 : TOP_LIMIT;
         const displayedPoi = (poiShowAll || total <= effectiveTopLimit)
