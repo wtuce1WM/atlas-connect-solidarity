@@ -4195,10 +4195,10 @@ const BookOnlineSlidePanelInner = ({
           : (navCity ? 1 : 0);
         const isSingleCityMap = poolCityCount <= 1;
 
-        // Les marqueurs initiaux viennent du corpus fermé IA, mais les Pills gardent
-        // leur vivier de navigation habituel. Sinon leurs compteurs se réduisent aux
-        // 6 résultats et il devient impossible d'explorer les POI de la ville.
-        const cityInRadius = (poiCityBusinesses as any[]).filter(inRadius);
+        // Source unique des Pills : tous les établissements actifs géolocalisés de
+        // la ville. Le pool IA ne sert qu'aux marqueurs affichés à l'ouverture.
+        const cityPool = poiCityBusinesses as any[];
+        const cityInRadius = cityPool.filter(inRadius);
         const catCounts = new Map<string, number>();
         for (const ft of catPillTabs) {
           catCounts.set(ft.id, cityInRadius.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
@@ -4209,11 +4209,9 @@ const BookOnlineSlidePanelInner = ({
         // le vivier des Pills : la navigation porte sur toute la ville de l'ancre.
         // Si l'ancre n'a aucun POI de proximité (cas Map plateforme), on prend
         // directement le vivier complet de sa ville.
-        const navigationPool = overrideRequested || (poiBusinesses as any[]).length === 0
-          ? (poiCityBusinesses as any[])
-          : (poiBusinesses as any[]);
+        const navigationPool = cityPool;
         const navigationPoolInRadius = navigationPool.filter(inRadius);
-        const afterCat = activeFrontTab
+        const cityAfterCat = activeFrontTab
           ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
           : navigationPoolInRadius;
 
@@ -4262,17 +4260,17 @@ const BookOnlineSlidePanelInner = ({
         // Pill Catégories : niveau 2 = sous-catégories (par défaut) de la catégorie choisie
         const catSubcatList: [string, number][] = activeFrontTab
           ? (() => {
-              const defs = defaultSubcatsOf(afterCat);
+              const defs = defaultSubcatsOf(cityAfterCat);
               return activeFrontTab.subcategories
                 .filter((sd) => defs.has(sd.name))
-                .map((sd) => [sd.name, afterCat.filter((p) => matchesNames(p, sd.names)).length] as [string, number])
+                .map((sd) => [sd.name, cityAfterCat.filter((p) => matchesNames(p, sd.names)).length] as [string, number])
                 .filter(([, c]) => c > 0)
                 .sort((a, b) => a[0].localeCompare(b[0]));
             })()
           : [];
 
         const afterSubcat = (() => {
-          let list = afterCat;
+          let list = cityAfterCat;
           if (poiSubcatFilterEff) list = list.filter((p) => subcatsOf(p).includes(poiSubcatFilterEff));
           if (catSubcatFilter) list = list.filter((p) => subcatsOf(p).includes(catSubcatFilter));
           return list;
@@ -4283,8 +4281,8 @@ const BookOnlineSlidePanelInner = ({
         // afin que POI / Catégories / Rayon / Tous naviguent à nouveau entre les
         // marqueurs de Marrakech ou d'Essaouira.
         const pillNavigationActive = poiShowAll || poiProxTouched || !!poiCatFilter || !!poiSubcatFilterEff || !!catSubcatFilter;
-        const applyRadius = !overridePool || pillNavigationActive;
-        const afterProx = applyRadius ? afterSubcat.filter(inRadius) : afterSubcat;
+        const initialPool = overridePool && !pillNavigationActive ? overridePool : null;
+        const afterProx = initialPool || afterSubcat.filter(inRadius);
         const total = afterProx.length;
         const effectiveTopLimit = overridePool && total <= TOP_LIMIT ? 10 : TOP_LIMIT;
         const displayedPoi = (poiShowAll || total <= effectiveTopLimit)
