@@ -4140,7 +4140,9 @@ const BookOnlineSlidePanelInner = ({
           const mc = (business as any)?.main_category;
           return typeof mc === "string" && mc.trim() ? mc.trim() : null;
         })();
-        const catPillTabs = isEmbedMapWidget && masterDefaultSubcat
+        // Map de l'assistant (ancre Koutoubia / Port) : aucune catégorie ne doit être
+        // retirée — l'ancre n'est qu'un centre, pas un Master hôte.
+        const catPillTabs = isEmbedMapWidget && masterDefaultSubcat && !poiAnchor
           ? frontTabs.filter((ft) => !ft.subcategoryNames.has(masterDefaultSubcat))
           : frontTabs;
         // Origine unique des distances : l'établissement Master (fallback géoloc)
