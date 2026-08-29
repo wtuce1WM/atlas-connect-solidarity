@@ -124,7 +124,7 @@ const LEFT_COLUMN_BADGES = [
   { id: "9c1409d9-1213-4a6f-9a2b-5984b9af227c", label: "Famille" },
   { id: "645463af-f0a1-41f4-90c0-b79c5c74a09f", label: "Enfants" },
   { id: "094e01b8-c2dc-47f8-838d-5bfd01d0eefc", label: "Annonces" },
-  { id: "c7f7b5dc-791f-4076-a626-e0e0f8b7bb54", label: "Deals" },
+  { id: "4c5cb867-0a4e-4a44-bb4d-81f163116a54", label: "Immobilier" },
   { id: "e042e0e8-e188-4f35-9cdd-282f8ddc5106", label: "Day Pass" },
   { id: "651cb1af-63ee-4bc5-88cf-aea10a7d68c8", label: "Avis clients" },
   { id: "50472b39-d364-497f-afe7-d2aa46eb92c9", label: "Agenda" },
