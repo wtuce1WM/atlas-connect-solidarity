@@ -4160,8 +4160,10 @@ const BookOnlineSlidePanelInner = ({
         const overrideRequested = poiOverrideKey.length > 0 || poiCityCorpusKey.length > 0;
         const overridePool: any[] | null = overrideRequested ? (poiOverrideRows as any[]) : null;
 
-        // Vivier ville restreint au rayon actif → base des compteurs catégories
-        const cityInRadius = overridePool ?? (poiCityBusinesses as any[]).filter(inRadius);
+        // Les marqueurs initiaux viennent du corpus fermé IA, mais les Pills gardent
+        // leur vivier de navigation habituel. Sinon leurs compteurs se réduisent aux
+        // 6 résultats et il devient impossible d'explorer les POI de la ville.
+        const cityInRadius = (poiCityBusinesses as any[]).filter(inRadius);
         const catCounts = new Map<string, number>();
         for (const ft of catPillTabs) {
           catCounts.set(ft.id, cityInRadius.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
@@ -4169,7 +4171,7 @@ const BookOnlineSlidePanelInner = ({
 
         const afterCat = activeFrontTab
           ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
-          : (overridePool ?? (poiBusinesses as any[]));
+          : (poiBusinesses as any[]);
 
         // Pill POI / sous-catégories — le MENU ne liste que les sous-catégories
         // "par défaut" (1ère sous-catégorie de la fiche), mais le FILTRE retenu
@@ -4199,7 +4201,7 @@ const BookOnlineSlidePanelInner = ({
 
         // Pill POI : totalement indépendant du Pill Catégories.
         // Base = POI de proximité de l'établissement Master, entrées = sous-catégories par défaut.
-        const poiPillBase = overridePool ?? (poiBusinesses as any[]).filter(inRadius);
+        const poiPillBase = (poiBusinesses as any[]).filter(inRadius);
         const poiPillDefaults = defaultSubcatsOf(poiPillBase);
         const poiSubcatCounts = new Map<string, number>();
         for (const p of poiPillBase) {
@@ -4232,9 +4234,11 @@ const BookOnlineSlidePanelInner = ({
           return list;
         })();
 
-        // Corpus fermé (réponse IA) : tous les marqueurs du pool s'affichent d'emblée ;
-        // le rayon ne filtre qu'après un choix explicite de l'utilisateur.
-        const applyRadius = !overridePool || poiProxTouched;
+        // Le corpus IA reste affiché intact à l'ouverture. Dès qu'un Pill est utilisé,
+        // on revient au vivier POI normal afin que POI / Catégories / Rayon naviguent
+        // à nouveau entre les marqueurs de Marrakech ou d'Essaouira.
+        const pillNavigationActive = poiProxTouched || !!poiCatFilter || !!poiSubcatFilterEff || !!catSubcatFilter;
+        const applyRadius = !overridePool || pillNavigationActive;
         const afterProx = applyRadius ? afterSubcat.filter(inRadius) : afterSubcat;
         const total = afterProx.length;
         const effectiveTopLimit = overridePool && total <= TOP_LIMIT ? 10 : TOP_LIMIT;
@@ -4260,12 +4264,9 @@ const BookOnlineSlidePanelInner = ({
 
         const proxCountsByKm: Record<number, number> = {};
         if (showProxPill) {
-          // Corpus fermé imposé : les distances se calculent sur le pool de résultats seul.
-          const proxBase = overridePool
-            ? afterSubcat
-            : activeFrontTab
-              ? (poiCityBusinesses as any[]).filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
-              : afterSubcat;
+          const proxBase = activeFrontTab
+            ? (poiCityBusinesses as any[]).filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
+            : (poiBusinesses as any[]);
           for (const o of proxOpts) {
             proxCountsByKm[o.km] = proxBase.filter((p) => { const d = distOf(p); return d != null && d <= o.km; }).length;
           }
@@ -4607,7 +4608,7 @@ const BookOnlineSlidePanelInner = ({
                   ]
                 : [
                     ...(poiMasterItem ? [poiMasterItem] : []),
-                    ...((overridePool ? afterProx : displayedPoi)
+                    ...((overridePool && !pillNavigationActive ? overridePool : displayedPoi)
                       .filter(p => p.id !== poiMasterOverride?.id)
                       .map(p => ({
                         id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
