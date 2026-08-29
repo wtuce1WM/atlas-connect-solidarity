@@ -601,6 +601,10 @@ const BookOnlineSlidePanelInner = ({
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
   const [poiShowAll, setPoiShowAll] = useState(false);
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
+  // Le rayon n'est jamais appliqué à un corpus fermé (réponse IA) tant que
+  // l'utilisateur ne l'a pas choisi lui-même dans le Pill.
+  const [poiProxTouched, setPoiProxTouched] = useState(false);
+
   const poiProximityInitRef = useRef<string | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
   const [poiMapTypeId, setPoiMapTypeId] = useState<"roadmap" | "satellite" | "terrain">("terrain");
@@ -4216,7 +4220,10 @@ const BookOnlineSlidePanelInner = ({
           return list;
         })();
 
-        const afterProx = afterSubcat.filter(inRadius);
+        // Corpus fermé (réponse IA) : tous les marqueurs du pool s'affichent d'emblée ;
+        // le rayon ne filtre qu'après un choix explicite de l'utilisateur.
+        const applyRadius = !overridePool || poiProxTouched;
+        const afterProx = applyRadius ? afterSubcat.filter(inRadius) : afterSubcat;
         const total = afterProx.length;
         const effectiveTopLimit = overridePool && total <= TOP_LIMIT ? 10 : TOP_LIMIT;
         const displayedPoi = (poiShowAll || total <= effectiveTopLimit)
@@ -4676,7 +4683,7 @@ const BookOnlineSlidePanelInner = ({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="z-[260]">
                       {poiProximityKm != null && (
-                        <DropdownMenuItem onSelect={() => { resetWidgetMapView(); setPoiProximityKm(null); }}>
+                        <DropdownMenuItem onSelect={() => { resetWidgetMapView(); setPoiProxTouched(true); setPoiProximityKm(null); }}>
                           {language === "en" ? "All distances" : language === "ar" ? "جميع المسافات" : "Toutes distances"}
                         </DropdownMenuItem>
                       )}
@@ -4687,7 +4694,7 @@ const BookOnlineSlidePanelInner = ({
                           <DropdownMenuItem
                             key={o.km}
                             disabled={disabled}
-                            onSelect={(e) => { if (disabled) { e.preventDefault(); return; } resetWidgetMapView(); setPoiProximityKm(o.km); }}
+                            onSelect={(e) => { if (disabled) { e.preventDefault(); return; } resetWidgetMapView(); setPoiProxTouched(true); setPoiProximityKm(o.km); }}
                             className={disabled ? "opacity-40 pointer-events-none" : ""}
                           >
                             {o.label} <span className="ml-1 opacity-60">({count})</span>
