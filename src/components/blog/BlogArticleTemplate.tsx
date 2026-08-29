@@ -574,7 +574,7 @@ const BlogArticleTemplate = ({
         <div className="absolute inset-0 bg-gradient-to-t from-[#3B3B3B] via-[#3B3B3B]/50 to-[#3B3B3B]/30" />
         {embedBackSlug && (
           <button
-            onClick={() => navigate(embedBackSlug.includes("/embed/ask/") || embedBackSlug === "/embed/ask?scope=platform" ? embedBackSlug : `/embed/ask/${embedBackSlug}`)}
+            onClick={() => navigate(embedBackSlug.includes("/embed/ask/") || embedBackSlug.startsWith("/embed/ask?") ? embedBackSlug : `/embed/ask/${embedBackSlug}`)}
             className="absolute top-4 left-4 z-20 h-10 w-10 flex items-center justify-center rounded-full bg-black text-white shadow-2xl hover:opacity-90 transition-opacity"
             aria-label={language === "en" ? "Close article" : language === "ar" ? "إغلاق المقال" : "Fermer l'article"}
             title={language === "en" ? "Close" : language === "ar" ? "إغلاق" : "Fermer"}

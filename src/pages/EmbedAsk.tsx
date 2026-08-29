@@ -527,6 +527,10 @@ const MarkdownLink = ({
   );
 };
 
+// Clé sessionStorage : relais du fil de conversation pendant la visite d'un
+// article (navigation pleine page). Consommé puis supprimé au retour.
+const ARTICLE_THREAD_HANDOFF_KEY = "owm-ai-article-thread-handoff";
+
 const EmbedAsk = () => {
   const { slug = "" } = useParams();
   const { params, businessId: widgetBusinessId, settings: widgetSettings, overlay } = useWidgetParams("ask", { slug });
@@ -566,13 +570,31 @@ const EmbedAsk = () => {
   const ctxSlug = isPlatform ? (params.get("ctx") || "").trim().slice(0, 120) : "";
   // Lien d'un article/page vidéo : en mode plateforme (pas de slug business),
   // route dédiée /embed/ask/article/:slug (même fenêtre, shell assistant) — jamais /blog/:slug.
+  // La query string courante (scope, ctx, theme, panel…) est préservée pour que le
+  // retour depuis l'article restaure le même habillage (dark mode, panneau flottant).
   const articleLinkProps = (card: { kind?: string; url?: string | null; slug: string }) => {
     if (card.kind === "video_feed") {
       return { href: card.url || `/videos/${card.slug}`, target: "_blank", rel: "noopener noreferrer" } as const;
     }
+    // Navigation pleine page (a href) : le composant est démonté. On dépose le fil
+    // de conversation en sessionStorage pour le restaurer au retour de l'article.
+    const handoff = () => {
+      try {
+        if (messages?.length > 1) {
+          window.sessionStorage.setItem(ARTICLE_THREAD_HANDOFF_KEY, JSON.stringify({
+            sessionId: sessionIdRef.current,
+            messageIndex: messageIndexRef.current,
+            messages,
+            activeSuggestionId,
+            savedAt: Date.now(),
+          }));
+        }
+      } catch { /* noop */ }
+    };
+    const qs = typeof window !== "undefined" ? window.location.search : "";
     const embedSlug = slug || ctxSlug;
-    if (embedSlug) return { href: `/embed/ask/${embedSlug}/article/${card.slug}`, target: undefined, rel: undefined } as const;
-    return { href: `/embed/ask/article/${card.slug}${ctxSlug ? `?ctx=${encodeURIComponent(ctxSlug)}` : ""}`, target: undefined, rel: undefined } as const;
+    if (embedSlug) return { href: `/embed/ask/${embedSlug}/article/${card.slug}${qs}`, target: undefined, rel: undefined, onClick: handoff } as const;
+    return { href: `/embed/ask/article/${card.slug}${qs}`, target: undefined, rel: undefined, onClick: handoff } as const;
   };
   // Moteur IA : V2 uniquement (V1 retiré).
   const initialTheme = themeParam
@@ -692,7 +714,22 @@ const EmbedAsk = () => {
       return parsed;
     } catch { return null; }
   };
-  const initialPersisted = useMemo(() => shouldPersistThread ? readPersisted() : null, [storageKey, shouldPersistThread]);
+  const initialPersisted = useMemo(() => {
+    if (shouldPersistThread) return readPersisted();
+    // Panneau plateforme : pas de persistance durable, MAIS on restaure le fil
+    // déposé juste avant l'ouverture d'un article (retour même fenêtre).
+    // NB : pas de removeItem ici — le double rendu StrictMode consommerait la
+    // clé au premier passage. Elle est supprimée après restauration effective.
+    try {
+      const raw = window.sessionStorage.getItem(ARTICLE_THREAD_HANDOFF_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as PersistedThread;
+      if (!parsed?.sessionId || !Array.isArray(parsed.messages)) return null;
+      if (Date.now() - (parsed.savedAt || 0) > TTL_MS) return null;
+      return parsed;
+    } catch { return null; }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey, shouldPersistThread]);
 
   const newSessionId = () =>
     typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -1024,6 +1061,9 @@ const EmbedAsk = () => {
     if (restoredRef.current && initialPersisted?.messages?.length) {
       setMessages(initialPersisted.messages as any);
       if (initialPersisted.activeSuggestionId) setActiveSuggestionId(initialPersisted.activeSuggestionId);
+      // Le relais article (sessionStorage) est consommé : on le supprime ici,
+      // une fois les messages réellement restaurés.
+      try { window.sessionStorage.removeItem(ARTICLE_THREAD_HANDOFF_KEY); } catch { /* noop */ }
       return;
     }
     // (splash d'accueil supprimé)
