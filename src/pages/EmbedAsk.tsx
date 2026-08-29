@@ -893,6 +893,10 @@ const EmbedAsk = () => {
   /** Ancre POI de la carte générique : le POI Koutoubia lui-même, pour que la carte
       soit centrée immédiatement sur ses coordonnées GPS (31.6237205, -7.9936196). */
   const POI_MASTER_FALLBACK_ID = "bc4b4fc1-06fc-4a69-8bea-59c8f89d924c";
+  /** Ancre POI d'Essaouira : « Port d'Essaouira » joue le rôle de la Koutoubia
+      quand les résultats de la carte sont exclusivement à Essaouira. */
+  const POI_ESSAOUIRA_ANCHOR_ID = "81836caa-fbfc-4abd-b29e-326e56aeadf6";
+
 
 
 
