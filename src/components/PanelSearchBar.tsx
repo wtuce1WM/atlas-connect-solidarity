@@ -95,20 +95,20 @@ const enrichParamsWithCityFromQuery = (params: Record<string, string>): Record<s
 // Single cell used inside the unified dock pill: round icon + small label below.
 // Declared at module scope so React doesn't remount it on every parent render
 // (which would otherwise drop click events between mousedown/mouseup).
-const Cell = ({ icon, label, onClick, ariaLabel, active }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string; active?: boolean; variant?: "media" }) => {
+const Cell = ({ icon, label, onClick, ariaLabel, active, hoverClass = "hover:bg-white/10", iconHoverClass = "" }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string; active?: boolean; variant?: "media"; hoverClass?: string; iconHoverClass?: string }) => {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={ariaLabel}
-      className="group flex-1 sm:flex-none flex flex-col items-center justify-start gap-1 min-w-[44px] max-w-[56px] sm:w-14 h-14 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
+      className={`group flex-1 sm:flex-none flex flex-col items-center justify-start gap-1 min-w-[44px] max-w-[56px] sm:w-14 h-14 pt-1 pb-0.5 rounded-2xl transition-colors ${hoverClass}`}
     >
       <span
         className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
           active
             ? "bg-[#C04F17] text-white group-hover:bg-[#C04F17]/90"
             : "bg-black/60 text-white group-hover:bg-black/75"
-        }`}
+        } ${iconHoverClass}`}
       >
         {icon}
       </span>
@@ -297,8 +297,10 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
               </div>
             )}
             {!hideAiButton && (
-              <div className="flex items-center rounded-[28px] border border-[#D4AF37]/70 bg-black/40 px-2 py-1 animate-glow-pulse relative">
+              <div className="group flex items-center rounded-[28px] border border-[#D4AF37]/70 bg-black/40 hover:bg-[#D4AF37]/20 hover:border-[#D4AF37] px-2 py-1 animate-glow-pulse relative transition-colors">
                 <Cell
+                  hoverClass="hover:bg-transparent"
+                  iconHoverClass="group-hover:bg-[#D4AF37]/40"
                   icon={
                     <Sparkles
                       className="h-5 w-5 text-[#D4AF37] animate-ia-sparkle"
