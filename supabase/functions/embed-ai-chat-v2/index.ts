@@ -1309,7 +1309,7 @@ Deno.serve(async (req) => {
               return [] as string[];
             });
             console.log("[embed-ai-chat-v2] badge_named_route", JSON.stringify({
-              badge: namedBadge.name, city: scopeCity, found: badgeBizIds.length,
+              badge: namedBadge.name, city: badgeCity, found: badgeBizIds.length,
             }));
             if (badgeBizIds.length >= 3) {
               let earlyEmitted = false;
