@@ -94,18 +94,22 @@ const BlogPost = () => {
     const fetchPost = async () => {
       if (!slug) return;
       setIsLoading(true);
-      const { data } = await supabase
-        .from("blog_posts")
-        .select("*")
-        .eq("slug", slug)
-        .eq("is_published", true)
-        .maybeSingle();
-
-      setPost(data as unknown as BlogPostData | null);
+      // Dans une iframe (assistant IA), la session brokerée peut être hors de portée
+      // → la requête échoue et l'article paraît « introuvable ». On confirme en anonyme.
+      const data = await embedBusinessQuery<BlogPostData>("blog_post", (client) =>
+        client
+          .from("blog_posts")
+          .select("*")
+          .eq("slug", slug)
+          .eq("is_published", true)
+          .maybeSingle() as never,
+      );
+      setPost(data);
       setIsLoading(false);
     };
     fetchPost();
   }, [slug]);
+
 
   // Internal blog traffic tracking (one view per slug per session)
   useEffect(() => {
