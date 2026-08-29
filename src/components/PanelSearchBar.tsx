@@ -300,6 +300,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
               <div className="group flex items-center rounded-[28px] border border-[#D4AF37]/70 bg-black/40 hover:bg-[#D4AF37]/20 hover:border-[#D4AF37] px-2 py-1 animate-glow-pulse relative transition-colors">
                 <Cell
                   hoverClass="hover:bg-transparent"
+                  iconHoverClass="group-hover:bg-[#D4AF37]/40"
                   icon={
                     <Sparkles
                       className="h-5 w-5 text-[#D4AF37] animate-ia-sparkle"
