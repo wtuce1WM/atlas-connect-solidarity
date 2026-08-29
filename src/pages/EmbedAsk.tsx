@@ -219,7 +219,7 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
       `Bonjour 👋 Je suis l'assistant de **${n}**. Mes recherches de proximité et de distance se calculent dans un rayon de **${r}** autour de **${n}** — vous pouvez changer ce rayon ci-dessous ou à la voix. Comment puis-je vous aider ?`,
     platformTitle: "Assistant IA One World Morocco",
     platformOpener: () =>
-      `Bonjour 👋\nJe suis l'assistant One World Morocco. Je puise dans toute la base 1WM — restaurants, riads, sorties, activités, événements, adresses authentiques — à Marrakech, Essaouira et bientôt partout au Maroc. Comment puis-je vous aider ?`,
+      `Bonjour 👋\nJe suis l'assistant One World Morocco.\nJe puise dans toute la base 1WM — restaurants, riads, sorties, activités, événements, adresses authentiques — à Marrakech, Essaouira et bientôt partout au Maroc.\nComment puis-je vous aider ?`,
 
     radiusLabel: "RAYON",
     radiusChanged: (r) => `D'accord 👍 Rayon de proximité réglé sur **${r}**. Les recherches de proximité et de distance utiliseront ce périmètre.`,
@@ -1073,6 +1073,9 @@ const EmbedAsk = () => {
     // Le filtre ville/catégorie n'est appliqué que si un contexte existe.
     let cancelled = false;
     setDbSuggestions(null);
+    const loadingTimeout = window.setTimeout(() => {
+      if (!cancelled) setDbSuggestions([]);
+    }, 8000);
 
     (async () => {
       const { data, error: suggestionsError } = await supabase
@@ -1083,10 +1086,15 @@ const EmbedAsk = () => {
         .order("sort_order", { ascending: true });
       if (cancelled) return;
       if (suggestionsError) {
-        setDbSuggestions(null);
+        window.clearTimeout(loadingTimeout);
+        setDbSuggestions([]);
         return;
       }
-      if (!data) { setDbSuggestions([]); return; }
+      if (!data) {
+        window.clearTimeout(loadingTimeout);
+        setDbSuggestions([]);
+        return;
+      }
       const col = lang === "en" ? "label_en" : lang === "ar" ? "label_ar" : "label_fr";
       const normCity = (s: string | null | undefined) =>
         (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
@@ -1112,9 +1120,13 @@ const EmbedAsk = () => {
           mode: (r.mode as string | null) ?? null,
         }))
         .filter((r) => r.label);
+      window.clearTimeout(loadingTimeout);
       setDbSuggestions(list);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      window.clearTimeout(loadingTimeout);
+    };
   }, [lang, isPlatform, suggestionFilterCity, suggestionFilterCategory]);
 
 
