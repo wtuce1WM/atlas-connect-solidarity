@@ -1,0 +1,1 @@
+ALTER TABLE public.badges ADD COLUMN IF NOT EXISTS qualify_business_from_youtube boolean NOT NULL DEFAULT false;
