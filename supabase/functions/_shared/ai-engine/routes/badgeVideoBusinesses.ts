@@ -34,6 +34,9 @@ function depluralize(v: string): string {
     .join(" ");
 }
 
+/** Libellés trop ambigus pour servir de détecteur de badge (mots grammaticaux). */
+const AMBIGUOUS_BADGE_TOKENS = new Set(["the", "and", "or", "les", "des", "una", "uno", "tea"]);
+
 export type FrontBadge = { id: string; name: string };
 
 /**
