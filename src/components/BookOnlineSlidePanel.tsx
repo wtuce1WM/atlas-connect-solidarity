@@ -604,18 +604,18 @@ const BookOnlineSlidePanelInner = ({
   const poiProximityInitRef = useRef<string | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
   const [poiMapTypeId, setPoiMapTypeId] = useState<"roadmap" | "satellite" | "terrain">("terrain");
-  // Rayon par défaut du Pill "À proximité" = champ Rayon de l'établissement (10 km par défaut).
-  // Corpus fermé imposé (réponse IA) : aucun rayon initial — l'étendue est dictée par les
-  // points GPS du pool de résultats (fit markers), pas par le Rayon du Master.
+  // Rayon par défaut du Pill "À proximité" = champ Rayon de l'établissement (10 km par défaut),
+  // y compris quand un corpus fermé (réponse IA) est imposé : le rayon reste affiché/actif,
+  // l'étendue de la carte étant de toute façon dictée par les points du pool (fit markers).
   useEffect(() => {
     const bid = (business as any)?.id;
     if (!bid || poiProximityInitRef.current === bid) return;
     poiProximityInitRef.current = bid;
-    if ((poiOverrideIds || []).length || (poiCityCorpus || []).length) { setPoiProximityKm(null); return; }
     const raw = Number((business as any)?.poi_radius_km);
     const allowed = [0.5, 1, 5, 10, 20, 50, 100];
     setPoiProximityKm(allowed.includes(raw) ? raw : 10);
-  }, [business, (poiOverrideIds || []).join(",")]);
+  }, [business]);
+
 
 
   /* ─── Widget "Adresses à proximité" : pills Regroupements KP + Lieu d'intérêt par défaut ─── */
