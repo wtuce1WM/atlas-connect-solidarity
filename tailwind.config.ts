@@ -191,6 +191,11 @@ export default {
           "0%, 100%": { boxShadow: "0 0 40px -10px hsl(43 75% 55% / 0.45)" },
           "50%": { boxShadow: "0 0 70px -5px hsl(43 75% 55% / 0.75)" },
         },
+        "ia-sparkle": {
+          "0%, 78%, 100%": { transform: "scale(1) rotate(0deg)", opacity: "0.95" },
+          "85%": { transform: "scale(1.3) rotate(12deg)", opacity: "1" },
+          "92%": { transform: "scale(1.1) rotate(-6deg)", opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
