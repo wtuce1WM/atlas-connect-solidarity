@@ -4169,9 +4169,16 @@ const BookOnlineSlidePanelInner = ({
           catCounts.set(ft.id, cityInRadius.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
         }
 
+        // Depuis le CTA Map de l'assistant plateforme, l'ancre (Koutoubia / Port)
+        // sert uniquement de centre. Son propre `business_pois` ne doit pas devenir
+        // le vivier des Pills : la navigation porte sur toute la ville de l'ancre.
+        const navigationPool = overrideRequested
+          ? (poiCityBusinesses as any[])
+          : (poiBusinesses as any[]);
+        const navigationPoolInRadius = navigationPool.filter(inRadius);
         const afterCat = activeFrontTab
           ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
-          : (poiBusinesses as any[]);
+          : navigationPoolInRadius;
 
         // Pill POI / sous-catégories — le MENU ne liste que les sous-catégories
         // "par défaut" (1ère sous-catégorie de la fiche), mais le FILTRE retenu
@@ -4201,7 +4208,7 @@ const BookOnlineSlidePanelInner = ({
 
         // Pill POI : totalement indépendant du Pill Catégories.
         // Base = POI de proximité de l'établissement Master, entrées = sous-catégories par défaut.
-        const poiPillBase = (poiBusinesses as any[]).filter(inRadius);
+        const poiPillBase = navigationPoolInRadius;
         const poiPillDefaults = defaultSubcatsOf(poiPillBase);
         const poiSubcatCounts = new Map<string, number>();
         for (const p of poiPillBase) {
@@ -4266,7 +4273,7 @@ const BookOnlineSlidePanelInner = ({
         if (showProxPill) {
           const proxBase = activeFrontTab
             ? (poiCityBusinesses as any[]).filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
-            : (poiBusinesses as any[]);
+            : navigationPool;
           for (const o of proxOpts) {
             proxCountsByKm[o.km] = proxBase.filter((p) => { const d = distOf(p); return d != null && d <= o.km; }).length;
           }
