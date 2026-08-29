@@ -566,13 +566,31 @@ const EmbedAsk = () => {
   const ctxSlug = isPlatform ? (params.get("ctx") || "").trim().slice(0, 120) : "";
   // Lien d'un article/page vidéo : en mode plateforme (pas de slug business),
   // route dédiée /embed/ask/article/:slug (même fenêtre, shell assistant) — jamais /blog/:slug.
+  // La query string courante (scope, ctx, theme, panel…) est préservée pour que le
+  // retour depuis l'article restaure le même habillage (dark mode, panneau flottant).
   const articleLinkProps = (card: { kind?: string; url?: string | null; slug: string }) => {
     if (card.kind === "video_feed") {
       return { href: card.url || `/videos/${card.slug}`, target: "_blank", rel: "noopener noreferrer" } as const;
     }
+    // Navigation pleine page (a href) : le composant est démonté. On dépose le fil
+    // de conversation en sessionStorage pour le restaurer au retour de l'article.
+    const handoff = () => {
+      try {
+        if (messages?.length > 1) {
+          window.sessionStorage.setItem(ARTICLE_THREAD_HANDOFF_KEY, JSON.stringify({
+            sessionId: sessionIdRef.current,
+            messageIndex: messageIndexRef.current,
+            messages,
+            activeSuggestionId,
+            savedAt: Date.now(),
+          }));
+        }
+      } catch { /* noop */ }
+    };
+    const qs = typeof window !== "undefined" ? window.location.search : "";
     const embedSlug = slug || ctxSlug;
-    if (embedSlug) return { href: `/embed/ask/${embedSlug}/article/${card.slug}`, target: undefined, rel: undefined } as const;
-    return { href: `/embed/ask/article/${card.slug}${ctxSlug ? `?ctx=${encodeURIComponent(ctxSlug)}` : ""}`, target: undefined, rel: undefined } as const;
+    if (embedSlug) return { href: `/embed/ask/${embedSlug}/article/${card.slug}${qs}`, target: undefined, rel: undefined, onClick: handoff } as const;
+    return { href: `/embed/ask/article/${card.slug}${qs}`, target: undefined, rel: undefined, onClick: handoff } as const;
   };
   // Moteur IA : V2 uniquement (V1 retiré).
   const initialTheme = themeParam
