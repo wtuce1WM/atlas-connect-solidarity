@@ -889,7 +889,7 @@ const EmbedAsk = () => {
       return () => clearTimeout(t);
     }
   }, [openGenericPoi]);
-  const [poiMasterAnchorId, setPoiMasterAnchorId] = useState<string | null>(null);
+  
   /** Ancre POI de la carte générique : le POI Koutoubia lui-même, pour que la carte
       soit centrée immédiatement sur ses coordonnées GPS (31.6237205, -7.9936196). */
   const POI_MASTER_FALLBACK_ID = "bc4b4fc1-06fc-4a69-8bea-59c8f89d924c";
@@ -1072,28 +1072,9 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
   }, [businessId]);
 
-  // Ancre du chip « Map » de l'accueil IA : sans hôte (mode plateforme), on utilise
-  // un business marqué default_poi_is_master (ex. Tarik Belasri) comme ancre de
-  // l'overlay POI/Map — même mécanisme que la fiche maîtresse.
-  useEffect(() => {
-    if (businessId || poiMasterAnchorId) return;
-    let cancelled = false;
-    (async () => {
-      const { data } = await (supabase as any)
-        .from("businesses")
-        .select("id")
-        .eq("default_poi_is_master", true)
-        .order("updated_at", { ascending: false })
-        .limit(1);
-      const id = Array.isArray(data) && data[0]?.id ? String(data[0].id) : null;
-      if (!cancelled && id) setPoiMasterAnchorId(id);
-    })();
-    return () => { cancelled = true; };
-  }, [businessId, poiMasterAnchorId]);
-
-  /** Ancre de l'overlay Map (corpus fermé) : Marrakech/Koutoubia l'emporte dès
-      qu'un résultat est à Marrakech ; sinon « Port d'Essaouira » si au moins un
-      résultat est à Essaouira ; sinon Koutoubia par défaut. */
+  /** Ancre de l'overlay Map : règle déterministe unique — Koutoubia pour
+      Marrakech, Port d'Essaouira quand tous les résultats sont à Essaouira.
+      Aucune sélection dynamique via default_poi_is_master (source de dérive). */
   const mapAnchorId = useMemo(() => {
     if (businessId) return businessId;
     const cities = (openMap?.businesses || [])
@@ -1102,8 +1083,8 @@ const EmbedAsk = () => {
     const hasMarrakech = cities.some((c) => c.includes("marrakech"));
     const hasEssaouira = cities.some((c) => c.includes("essaouira"));
     if (!hasMarrakech && hasEssaouira) return POI_ESSAOUIRA_ANCHOR_ID;
-    return poiMasterAnchorId || POI_MASTER_FALLBACK_ID;
-  }, [businessId, openMap, poiMasterAnchorId]);
+    return POI_MASTER_FALLBACK_ID;
+  }, [businessId, openMap]);
   const mapAnchor = useMemo(() => {
     if (businessId) return null;
     return mapAnchorId === POI_ESSAOUIRA_ANCHOR_ID ? ESSAOUIRA_ANCHOR : KOUTOUBIA_ANCHOR;
@@ -3412,7 +3393,7 @@ const EmbedAsk = () => {
         >
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
-              businessId={businessId || poiMasterAnchorId || POI_MASTER_FALLBACK_ID}
+              businessId={businessId || POI_MASTER_FALLBACK_ID}
               initialOverlay="poi"
               embedMode
               hideDirections
