@@ -746,6 +746,17 @@ const BookOnlineSlidePanelInner = ({
     })();
     return () => { cancelled = true; };
   }, [poiCityCorpusKey, poiOverrideKey]);
+  // « TOUS » par défaut dès l'ouverture de l'overlay Map depuis l'Assistant IA
+  useEffect(() => {
+    const overrideRequested = poiOverrideKey.length > 0 || poiCityCorpusKey.length > 0;
+    if (!showPoiMapOverlay || !overrideRequested) {
+      if (!showPoiMapOverlay) poiShowAllInitRef.current = false;
+      return;
+    }
+    if (poiShowAllInitRef.current) return;
+    poiShowAllInitRef.current = true;
+    setPoiShowAll(true);
+  }, [showPoiMapOverlay, poiOverrideKey, poiCityCorpusKey]);
   const poiOpenedFromMapRef = useRef(false);
   // Embed: auto-open the "À proximité" overlay once the business is resolved.
   const autoPoiOpenedRef = useRef(false);
