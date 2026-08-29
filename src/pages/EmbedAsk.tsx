@@ -209,36 +209,6 @@ function parseRadiusCommand(text: string): number | null {
 /** Cas unique : suggestion embed "Le meilleur de YouTube sur le Maroc" → page /youtube. */
 const YOUTUBE_PAGE_SUGGESTION_ID = "63d6d717-e344-4e1b-9865-850ac1ca9126";
 
-const PLATFORM_FALLBACK_SUGGESTIONS_FR = [
-  "Réserver une chambre",
-  "Où prendre un thé à la menthe ?",
-  "Que faire ce week-end ?",
-  "Activités pour les enfants",
-  "Quelle météo les 3 prochains jours ?",
-  "Quelles excursions d'une journée proposes tu ?",
-  "Une activité insolite",
-  "Vie pratique",
-  "Beach-clubs",
-  "Suivez le guide",
-  "Une piscine ou un beach-club à côté d'un golf",
-  "Journée surf & cheval à Essaouira",
-  "Visite guidée",
-  "Balade à vélo",
-  "Réserver un jet privé",
-  "#Vlogs",
-  "Acheter des babouches",
-  "Une idée cadeau originale",
-  "Le meilleur de youtube sur le Maroc",
-  "Les adresses avec vue sur l'Atlas",
-  "Magasins avec livraison internationale",
-  "Golf",
-  "Equitation",
-  "L'heure des marées",
-  "Où faire la fête ?",
-  "Les adresses avec vue sur mer",
-  "Artistes",
-  "Souvenirs",
-];
 
 
 const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string, radius: string) => string; platformTitle: string; platformOpener: () => string; radiusLabel: string; radiusChanged: (r: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
@@ -249,7 +219,7 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
       `Bonjour 👋 Je suis l'assistant de **${n}**. Mes recherches de proximité et de distance se calculent dans un rayon de **${r}** autour de **${n}** — vous pouvez changer ce rayon ci-dessous ou à la voix. Comment puis-je vous aider ?`,
     platformTitle: "Assistant IA One World Morocco",
     platformOpener: () =>
-      `Bonjour 👋 Je suis l'assistant One World Morocco. Je puise dans toute la base 1WM — restaurants, riads, sorties, activités, événements, adresses authentiques — à Marrakech, Essaouira et bientôt partout au Maroc. Comment puis-je vous aider ?`,
+      `Bonjour 👋\nJe suis l'assistant One World Morocco. Je puise dans toute la base 1WM — restaurants, riads, sorties, activités, événements, adresses authentiques — à Marrakech, Essaouira et bientôt partout au Maroc. Comment puis-je vous aider ?`,
 
     radiusLabel: "RAYON",
     radiusChanged: (r) => `D'accord 👍 Rayon de proximité réglé sur **${r}**. Les recherches de proximité et de distance utiliseront ce périmètre.`,
@@ -270,7 +240,7 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
       `Hi 👋 I'm the assistant for **${n}**. Nearby and distance searches are calculated within a **${r}** radius around **${n}** — you can change this radius below or by voice. How can I help?`,
     platformTitle: "One World Morocco AI Assistant",
     platformOpener: () =>
-      `Hi 👋 I'm the One World Morocco assistant. I draw on the whole 1WM database — restaurants, riads, going out, activities, events, authentic addresses — in Marrakech, Essaouira and soon across Morocco. How can I help?`,
+      `Hi 👋\nI'm the One World Morocco assistant. I draw on the whole 1WM database — restaurants, riads, going out, activities, events, authentic addresses — in Marrakech, Essaouira and soon across Morocco. How can I help?`,
 
     radiusLabel: "Proximity radius",
     radiusChanged: (r) => `Got it 👍 Proximity radius set to **${r}**. Nearby and distance searches will use this perimeter.`,
@@ -291,7 +261,7 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
       `مرحبًا 👋 أنا مساعد **${n}**. تُحسب نتائج القرب والمسافات داخل نطاق **${r}** حول **${n}** — يمكنك تغيير هذا النطاق أدناه أو بالصوت. كيف يمكنني مساعدتك؟`,
     platformTitle: "مساعد One World Morocco الذكي",
     platformOpener: () =>
-      `مرحبًا 👋 أنا مساعد One World Morocco. أستقي من قاعدة 1WM بأكملها — مطاعم، رياضات، خروجات، أنشطة، فعاليات، عناوين أصيلة — في مراكش، الصويرة وقريبًا في كل المغرب. كيف يمكنني مساعدتك؟`,
+      `مرحبًا 👋\nأنا مساعد One World Morocco. أستقي من قاعدة 1WM بأكملها — مطاعم، رياضات، خروجات، أنشطة، فعاليات، عناوين أصيلة — في مراكش، الصويرة وقريبًا في كل المغرب. كيف يمكنني مساعدتك؟`,
 
     radiusLabel: "نطاق القرب",
     radiusChanged: (r) => `تم 👍 تم ضبط نطاق القرب على **${r}**.`,
