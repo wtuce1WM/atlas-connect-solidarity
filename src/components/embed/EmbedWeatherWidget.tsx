@@ -219,7 +219,7 @@ export default function EmbedWeatherWidget({
 
 
   return (
-    <div className={embedded ? "w-full rounded-3xl overflow-hidden" : "w-full max-w-[85%] rounded-3xl overflow-hidden shadow-xl"}>
+    <div className={embedded ? "w-full rounded-3xl overflow-hidden" : "w-full max-w-[560px] mx-auto rounded-3xl overflow-hidden shadow-xl"}>
 
       <style>{`
         @keyframes wxSunPulse { 0%,100% { transform: scale(1); filter: drop-shadow(0 0 24px rgba(255,220,120,0.55)); } 50% { transform: scale(1.06); filter: drop-shadow(0 0 40px rgba(255,220,120,0.85)); } }
