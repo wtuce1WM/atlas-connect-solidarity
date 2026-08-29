@@ -3089,39 +3089,8 @@ const EmbedAsk = () => {
       <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`relative p-3 border-t ${border} ${bg} ${homeState ? "hidden" : ""}`}>
         {messages.length > 1 && !streaming && !competitorGuardActive && (
           <>
-            {/* Ligne des 4 actions rapides au-dessus du composer */}
+            {/* Action rapide unique au-dessus du composer : Filtres */}
             <div className="flex items-center gap-2 pb-2 overflow-x-auto scrollbar-hide">
-              {mapReplayTarget && poolInfo.hasGeo && (
-                <button
-                  type="button"
-                  onClick={() => setOpenMap(mapReplayTarget)}
-                  style={{ ...AI_NAME_FONT, ...mapBadgeStyle }}
-                  className="text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-bold hover:opacity-90 shrink-0 transition-opacity"
-                >
-                  <MapPin className="w-3.5 h-3.5" />
-                  {lang === "en" ? "On a map" : lang === "ar" ? "على الخريطة" : "Sur une carte"}
-                </button>
-              )}
-              {poolRemaining > 0 && (
-                <button
-                  type="button"
-                  onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
-                  style={{ ...AI_NAME_FONT, ...moreBadgeStyle }}
-                  className="text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-bold hover:opacity-90 shrink-0 transition-opacity"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`}
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={startNewConversation}
-                disabled={streaming}
-                style={{ ...AI_NAME_FONT, ...newConvStyle }}
-                className="text-xs px-3 py-1.5 rounded-full border transition-opacity font-bold hover:opacity-90 disabled:opacity-40 shrink-0"
-              >
-                {SCOPE_LABELS[lang]?.newConversation ?? SCOPE_LABELS.fr.newConversation}
-              </button>
               <button
                 type="button"
                 onClick={() => setFiltersOpen(true)}
@@ -3137,6 +3106,7 @@ const EmbedAsk = () => {
                 )}
               </button>
             </div>
+
 
             <EmbedFilterDrawer
               groups={filterGroups}
