@@ -1947,7 +1947,7 @@ const EmbedAsk = () => {
         ...(mapReplayTarget && poolInfo.hasGeo
           ? [{
               id: "map",
-              label: lang === "en" ? "On a map" : lang === "ar" ? "على الخريطة" : "Sur une carte",
+              label: lang === "en" ? "Map" : lang === "ar" ? "الخريطة" : "Map",
               icon: <MapPin className="w-3.5 h-3.5" />,
               onClick: () => setOpenMap(mapReplayTarget),
               style: mapBadgeStyle,
