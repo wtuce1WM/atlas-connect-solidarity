@@ -2971,9 +2971,7 @@ const EmbedAsk = () => {
                   affichée APRÈS le carrousel de miniatures des résultats. */}
               {articleCard && !articleCard.inline && (
                 <a
-                  href={articleCard.kind === "video_feed" ? (articleCard.url || `/videos/${articleCard.slug}`) : `/embed/ask/${slug}/article/${articleCard.slug}`}
-                  target={articleCard.kind === "video_feed" ? "_blank" : undefined}
-                  rel={articleCard.kind === "video_feed" ? "noopener noreferrer" : undefined}
+                  {...articleLinkProps(articleCard)}
                   className={`relative flex w-full max-w-[85%] gap-3 rounded-2xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
                   style={cardStyle}
                 >
