@@ -963,7 +963,10 @@ Deno.serve(async (req) => {
               pinnedIds: curated.pinnedBusinessIds,
 
 
-              scopeCity,
+              // Périmètre ville : ville nommée dans le message > ville de la
+              // suggestion > ville de l'hôte (embed). En scope plateforme, pas
+              // de repli Marrakech : suggestion sans ville = national.
+              scopeCity: explicitCity || curated.city || (host ? scopeCity : null),
               maxResults: CFG.maxResults,
               competitorGuard,
               supabaseUrl: SUPABASE_URL,
@@ -1298,12 +1301,15 @@ Deno.serve(async (req) => {
           );
           if (namedBadge && multiWord && (!hasResolvedIntent || sameConcept)) {
 
-            const badgeBizIds = await resolveBadgeBusinessIds(admin, [namedBadge.id], scopeCity, 60).catch((e) => {
+            // Même règle de périmètre : ville explicite du message > ville hôte ;
+            // en scope plateforme sans ville nommée → national (pas de repli Marrakech).
+            const badgeCity = explicitCity || (host ? scopeCity : null);
+            const badgeBizIds = await resolveBadgeBusinessIds(admin, [namedBadge.id], badgeCity, 60).catch((e) => {
               console.error("[embed-ai-chat-v2] badge_video_route_failed", String(e));
               return [] as string[];
             });
             console.log("[embed-ai-chat-v2] badge_named_route", JSON.stringify({
-              badge: namedBadge.name, city: scopeCity, found: badgeBizIds.length,
+              badge: namedBadge.name, city: badgeCity, found: badgeBizIds.length,
             }));
             if (badgeBizIds.length >= 3) {
               let earlyEmitted = false;
