@@ -1798,7 +1798,17 @@ const BookOnlineSlidePanelInner = ({
     } as PoiMapItem;
   }, [poiMasterOverride, business, avgOn20, totalReviewCount]);
 
-  const poiMasterCenter = poiMasterItem ? { lat: poiMasterItem.latitude, lng: poiMasterItem.longitude } : undefined;
+  // Centre de la carte. `PoiGoogleMap` n'initialise la carte qu'une fois `center`
+  // défini (centerAtBottomRatio) : en mode plateforme, attendre la fiche complète
+  // (useBookOnlineData) retardait l'affichage des marqueurs de plusieurs secondes.
+  // Repli immédiat sur la 1ère fiche du corpus fermé (poiOverrideIds), déjà chargée.
+  const poiOverrideCenter = useMemo(() => {
+    const first = poiOverrideRows.find((r) => r.latitude != null && r.longitude != null);
+    return first ? { lat: Number(first.latitude), lng: Number(first.longitude) } : undefined;
+  }, [poiOverrideRows]);
+  const poiMasterCenter = poiMasterItem
+    ? { lat: poiMasterItem.latitude, lng: poiMasterItem.longitude }
+    : poiOverrideCenter;
 
 
 
