@@ -4296,12 +4296,15 @@ const BookOnlineSlidePanelInner = ({
                 );
               })()}
             </div>
-            {(business?.name || activeFrontTab || (overridePool && poiOverrideTitle)) && (
+            {(business?.name || activeFrontTab || poiMasterOverride?.name || (overridePool && poiOverrideTitle)) && (
               <div className="absolute top-[calc(3.3rem+0.75rem)] left-14 right-3 z-[10] pointer-events-none flex justify-center">
                 <div className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                  {overridePool && poiOverrideTitle ? (
+                  {!business?.name && poiMasterOverride?.name ? (
+                    language === "en" ? `Near ${poiMasterOverride.name}` : language === "ar" ? `بالقرب من ${poiMasterOverride.name}` : `À proximité de ${poiMasterOverride.name}`
+                  ) : overridePool && poiOverrideTitle ? (
                     poiOverrideTitle
                   ) : activeFrontTab ? (
+
                     <>
                       {translateFrontStructure(activeFrontTab.name, language)}
                       {catSubcatFilter ? <span className="opacity-60"> / {translateSubcategory(catSubcatFilter, language)}</span> : null}
