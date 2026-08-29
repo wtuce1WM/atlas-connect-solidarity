@@ -422,9 +422,9 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow><TableCell colSpan={10} className="text-center py-8">Chargement...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={11} className="text-center py-8">Chargement...</TableCell></TableRow>
             ) : badges.length === 0 ? (
-              <TableRow><TableCell colSpan={10} className="text-center py-8">Aucun badge défini.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={11} className="text-center py-8">Aucun badge défini.</TableCell></TableRow>
             ) : (
               badges.map(badge => {
                 const isExpanded = expandedBadges.has(badge.id);
@@ -514,7 +514,7 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
                     </TableRow>
                     {isExpanded && businesses.length > 0 && (
                       <TableRow>
-                        <TableCell colSpan={10} className="bg-muted/30 p-0">
+                        <TableCell colSpan={11} className="bg-muted/30 p-0">
                           <div className="px-8 py-3 space-y-1">
                             {businesses.map(b => (
                               <div key={b.id} className="flex items-center justify-between py-1.5 px-3 rounded hover:bg-background transition-colors">
