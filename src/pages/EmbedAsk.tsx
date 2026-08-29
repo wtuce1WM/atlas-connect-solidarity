@@ -747,12 +747,11 @@ const EmbedAsk = () => {
     ? dbSuggestions.filter((s) => suggAllowed.includes(s.id))
     : dbSuggestions;
   const fallbackSuggestions = L.suggestions.map((s, i) => ({ id: `default-${i}`, label: s }));
-  const platformFallbackSuggestions: SuggestionRow[] = PLATFORM_FALLBACK_SUGGESTIONS_FR.map((label, i) => ({
-    id: label === "Le meilleur de youtube sur le Maroc" ? YOUTUBE_PAGE_SUGGESTION_ID : `platform-fallback-${i}`,
-    label,
-  }));
+  // Plateforme : uniquement les suggestions back-office (Plateforme 1WM active,
+  // tri `sort_order`) — plus aucune liste codée en dur. Les 5 chips repliées sont
+  // donc les 5 premières suggestions visibles de la table.
   const suggestions: SuggestionRow[] = isPlatform
-    ? (filteredDbSuggestions && filteredDbSuggestions.length > 0 ? filteredDbSuggestions : platformFallbackSuggestions)
+    ? (filteredDbSuggestions ?? [])
     : filteredDbSuggestions && filteredDbSuggestions.length > 0
     ? filteredDbSuggestions
     : fallbackSuggestions;
