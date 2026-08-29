@@ -1301,7 +1301,10 @@ Deno.serve(async (req) => {
           );
           if (namedBadge && multiWord && (!hasResolvedIntent || sameConcept)) {
 
-            const badgeBizIds = await resolveBadgeBusinessIds(admin, [namedBadge.id], scopeCity, 60).catch((e) => {
+            // Même règle de périmètre : ville explicite du message > ville hôte ;
+            // en scope plateforme sans ville nommée → national (pas de repli Marrakech).
+            const badgeCity = explicitCity || (host ? scopeCity : null);
+            const badgeBizIds = await resolveBadgeBusinessIds(admin, [namedBadge.id], badgeCity, 60).catch((e) => {
               console.error("[embed-ai-chat-v2] badge_video_route_failed", String(e));
               return [] as string[];
             });
