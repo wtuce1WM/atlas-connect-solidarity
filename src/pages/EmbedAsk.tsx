@@ -564,6 +564,16 @@ const EmbedAsk = () => {
   // les suggestions par ville/catégorie côté client — jamais envoyé au moteur.
   const isPlatform = !slug && /^(1|true|platform)$/i.test(params.get("scope") || "");
   const ctxSlug = isPlatform ? (params.get("ctx") || "").trim().slice(0, 120) : "";
+  // Lien d'un article/page vidéo : en mode plateforme (pas de slug business),
+  // la route /embed/ask/:embedSlug/article/:slug n'existe pas → /blog/:slug.
+  const articleLinkProps = (card: { kind?: string; url?: string | null; slug: string }) => {
+    if (card.kind === "video_feed") {
+      return { href: card.url || `/videos/${card.slug}`, target: "_blank", rel: "noopener noreferrer" } as const;
+    }
+    const embedSlug = slug || ctxSlug;
+    if (embedSlug) return { href: `/embed/ask/${embedSlug}/article/${card.slug}`, target: undefined, rel: undefined } as const;
+    return { href: `/blog/${card.slug}`, target: "_blank", rel: "noopener noreferrer" } as const;
+  };
   // Moteur IA : V2 uniquement (V1 retiré).
   const initialTheme = themeParam
     ? themeParam
@@ -2405,9 +2415,7 @@ const EmbedAsk = () => {
               {articleCard && articleCard.inline ? (
                 <div className={`w-full max-w-[85%] rounded-2xl overflow-hidden ${cardBg}`} style={cardStyle}>
                   <a
-                    href={articleCard.kind === "video_feed" ? (articleCard.url || `/videos/${articleCard.slug}`) : `/embed/ask/${slug}/article/${articleCard.slug}`}
-                    target={articleCard.kind === "video_feed" ? "_blank" : undefined}
-                    rel={articleCard.kind === "video_feed" ? "noopener noreferrer" : undefined}
+                    {...articleLinkProps(articleCard)}
                     className="block relative w-full aspect-[16/7] bg-neutral-800 group"
                   >
                     {articleCard.hero || articleCard.image ? (
@@ -2963,9 +2971,7 @@ const EmbedAsk = () => {
                   affichée APRÈS le carrousel de miniatures des résultats. */}
               {articleCard && !articleCard.inline && (
                 <a
-                  href={articleCard.kind === "video_feed" ? (articleCard.url || `/videos/${articleCard.slug}`) : `/embed/ask/${slug}/article/${articleCard.slug}`}
-                  target={articleCard.kind === "video_feed" ? "_blank" : undefined}
-                  rel={articleCard.kind === "video_feed" ? "noopener noreferrer" : undefined}
+                  {...articleLinkProps(articleCard)}
                   className={`relative flex w-full max-w-[85%] gap-3 rounded-2xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
                   style={cardStyle}
                 >
