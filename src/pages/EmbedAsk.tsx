@@ -572,6 +572,7 @@ const EmbedAsk = () => {
   // route dédiée /embed/ask/article/:slug (même fenêtre, shell assistant) — jamais /blog/:slug.
   // La query string courante (scope, ctx, theme, panel…) est préservée pour que le
   // retour depuis l'article restaure le même habillage (dark mode, panneau flottant).
+  const navigate = useNavigate();
   const articleLinkProps = (card: { kind?: string; url?: string | null; slug: string }) => {
     if (card.kind === "video_feed") {
       return { href: card.url || `/videos/${card.slug}`, target: "_blank", rel: "noopener noreferrer" } as const;
