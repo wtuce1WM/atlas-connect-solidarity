@@ -2137,8 +2137,8 @@ const EmbedAsk = () => {
           </button>
         )}
 
-        <div className="w-8 h-8 rounded-full bg-[#C04F17] flex items-center justify-center text-white text-sm font-semibold">
-          {(headerTitle || "?").slice(0, 1).toUpperCase()}
+        <div className="w-8 h-8 rounded-full bg-[#C04F17] flex items-center justify-center text-white">
+          <Sparkles className="w-4 h-4" />
         </div>
         <div className="min-w-0 flex-1">
           <div className={`font-semibold truncate text-sm ${whiteInk}`}>{headerTitle || "…"}</div>
@@ -2188,16 +2188,13 @@ const EmbedAsk = () => {
               />
             ) : (
             <div className="flex flex-col items-center gap-3 text-center pb-2">
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#C04F17] flex items-center justify-center text-white shadow-lg">
-                <Sparkles className="w-7 h-7 md:w-8 md:h-8" />
-              </div>
               <h2
                 className={`font-bold leading-snug ${whiteInk}`}
                 style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "clamp(16px, 2.6vw, 26px)" }}
               >
                 {headerTitle || L.platformTitle}
               </h2>
-              <p className={`text-sm md:text-base max-w-[32ch] md:max-w-[34ch] ${whiteInk || "opacity-70"}`} style={{ opacity: 0.8 }}>
+              <p className={`text-sm md:text-base max-w-[32ch] md:max-w-[34ch] whitespace-pre-line ${whiteInk || "opacity-70"}`} style={{ opacity: 0.8 }}>
                 {L.platformOpener().replace(/\*\*/g, "")}
               </p>
             </div>
