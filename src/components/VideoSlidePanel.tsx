@@ -234,6 +234,9 @@ const VideoSlidePanel = ({
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   /** Chips badges : replié (1 seul badge) par défaut, déplié au clic. */
   const [chipsExpanded, setChipsExpanded] = useState(false);
+  // Badge épinglé par l'utilisateur : dernier badge sélectionné dans les chips.
+  // Reste affiché comme badge vitrine (chips repliés) jusqu'à la sélection d'un autre badge.
+  const [pinnedBadge, setPinnedBadge] = useState<{ id: string; name: string; color?: string | null; textColor?: string | null } | null>(null);
   /** Au swipe vers une autre vidéo du feed, on replie les chips. */
   useEffect(() => { setChipsExpanded(false); }, [videoId, videoUrl]);
   /** Couleurs des badges du menu fixe, lues en back-office (aucune couleur codée en dur). */
@@ -1331,7 +1334,9 @@ const VideoSlidePanel = ({
                 const v = String(c || "").trim().toLowerCase();
                 return !!v && v !== "#000000" && v !== "#000" && v !== "#ffffff" && v !== "#fff";
               };
-              const pick = feedBadges?.find((b) => hasSpecificColor(b.color)) || feedBadges?.[0] || null;
+              const pick = (pinnedBadge
+                ? { id: pinnedBadge.id, name: pinnedBadge.name, color: pinnedBadge.color, text_color: pinnedBadge.textColor }
+                : feedBadges?.find((b) => hasSpecificColor(b.color)) || feedBadges?.[0]) || null;
               const extra = (feedBadges?.length ?? 0) + LEFT_COLUMN_BADGES.length + CITY_FEED_BADGES.length - (pick ? 1 : 0);
               return (
                 <div className="flex justify-center">
