@@ -234,6 +234,9 @@ const VideoSlidePanel = ({
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   /** Chips badges : replié (1 seul badge) par défaut, déplié au clic. */
   const [chipsExpanded, setChipsExpanded] = useState(false);
+  // Badge épinglé par l'utilisateur : dernier badge sélectionné dans les chips.
+  // Reste affiché comme badge vitrine (chips repliés) jusqu'à la sélection d'un autre badge.
+  const [pinnedBadge, setPinnedBadge] = useState<{ id: string; name: string; color?: string | null; textColor?: string | null } | null>(null);
   /** Au swipe vers une autre vidéo du feed, on replie les chips. */
   useEffect(() => { setChipsExpanded(false); }, [videoId, videoUrl]);
   /** Couleurs des badges du menu fixe, lues en back-office (aucune couleur codée en dur). */
@@ -1331,7 +1334,9 @@ const VideoSlidePanel = ({
                 const v = String(c || "").trim().toLowerCase();
                 return !!v && v !== "#000000" && v !== "#000" && v !== "#ffffff" && v !== "#fff";
               };
-              const pick = feedBadges?.find((b) => hasSpecificColor(b.color)) || feedBadges?.[0] || null;
+              const pick = (pinnedBadge
+                ? { id: pinnedBadge.id, name: pinnedBadge.name, color: pinnedBadge.color, text_color: pinnedBadge.textColor }
+                : feedBadges?.find((b) => hasSpecificColor(b.color)) || feedBadges?.[0]) || null;
               const extra = (feedBadges?.length ?? 0) + LEFT_COLUMN_BADGES.length + CITY_FEED_BADGES.length - (pick ? 1 : 0);
               return (
                 <div className="flex justify-center">
@@ -1365,7 +1370,10 @@ const VideoSlidePanel = ({
                     key={b.id}
                     type="button"
                     disabled={!onFeedBadgeSelect}
-                    onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.label })}
+                    onClick={() => {
+                      setPinnedBadge({ id: b.id, name: b.label, color: menuBadgeColors[b.id]?.color, textColor: menuBadgeColors[b.id]?.textColor });
+                      onFeedBadgeSelect?.({ id: b.id, name: b.label });
+                    }}
                     className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
                       isSelected
                         ? "border-gold bg-gold text-gold-foreground"
@@ -1403,7 +1411,10 @@ const VideoSlidePanel = ({
                         key={firstVideoBadge.id}
                         type="button"
                         disabled={!onFeedBadgeSelect}
-                        onClick={() => onFeedBadgeSelect?.({ id: firstVideoBadge.id, name: firstVideoBadge.name })}
+                        onClick={() => {
+                          setPinnedBadge({ id: firstVideoBadge.id, name: firstVideoBadge.name, color: firstVideoBadge.color, textColor: firstVideoBadge.text_color });
+                          onFeedBadgeSelect?.({ id: firstVideoBadge.id, name: firstVideoBadge.name });
+                        }}
                         className="pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border border-white/25 px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
                         style={{
                           backgroundColor: firstVideoBadge.color || "rgba(0,0,0,0.7)",
@@ -1426,7 +1437,10 @@ const VideoSlidePanel = ({
                           key={b.id}
                           type="button"
                           disabled={!onFeedBadgeSelect}
-                          onClick={() => onFeedBadgeSelect?.({ id: b.id, name: b.name })}
+                          onClick={() => {
+                            setPinnedBadge({ id: b.id, name: b.name, color: b.color, textColor: b.text_color });
+                            onFeedBadgeSelect?.({ id: b.id, name: b.name });
+                          }}
                           className={`pointer-events-auto inline-flex max-w-full items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
                             isSelected
                               ? "border-gold bg-gold text-gold-foreground"
@@ -1455,6 +1469,7 @@ const VideoSlidePanel = ({
                       <button
                         type="button"
                         onClick={() => {
+                          setPinnedBadge({ id: "youtube", name: "YouTube", color: "#FF0000", textColor: "#FFFFFF" });
                           if (onFeedYouTubeSelect) {
                             onFeedYouTubeSelect();
                             return;
@@ -1480,7 +1495,10 @@ const VideoSlidePanel = ({
                   key={city.id}
                   type="button"
                   disabled={!onFeedCitySelect}
-                  onClick={() => onFeedCitySelect?.(city)}
+                  onClick={() => {
+                    setPinnedBadge({ id: city.id, name: city.name, color: null, textColor: null });
+                    onFeedCitySelect?.(city);
+                  }}
                   className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-2.5 py-0.5 text-[11px] md:text-xs font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
                   style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
                   title={onFeedCitySelect ? `Voir les vidéos à ${city.name}` : city.name}
