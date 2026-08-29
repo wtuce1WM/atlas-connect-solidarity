@@ -564,6 +564,16 @@ const EmbedAsk = () => {
   // les suggestions par ville/catégorie côté client — jamais envoyé au moteur.
   const isPlatform = !slug && /^(1|true|platform)$/i.test(params.get("scope") || "");
   const ctxSlug = isPlatform ? (params.get("ctx") || "").trim().slice(0, 120) : "";
+  // Lien d'un article/page vidéo : en mode plateforme (pas de slug business),
+  // la route /embed/ask/:embedSlug/article/:slug n'existe pas → /blog/:slug.
+  const articleLinkProps = (card: { kind?: string; url?: string | null; slug: string }) => {
+    if (card.kind === "video_feed") {
+      return { href: card.url || `/videos/${card.slug}`, target: "_blank", rel: "noopener noreferrer" } as const;
+    }
+    const embedSlug = slug || ctxSlug;
+    if (embedSlug) return { href: `/embed/ask/${embedSlug}/article/${card.slug}`, target: undefined, rel: undefined } as const;
+    return { href: `/blog/${card.slug}`, target: "_blank", rel: "noopener noreferrer" } as const;
+  };
   // Moteur IA : V2 uniquement (V1 retiré).
   const initialTheme = themeParam
     ? themeParam
