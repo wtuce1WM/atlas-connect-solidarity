@@ -2256,7 +2256,7 @@ const EmbedAsk = () => {
             <div className="w-full max-w-xl flex flex-wrap items-center justify-center gap-2">
               {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
               {renderMapChip("home")}
-              {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 5)).map((s) => {
+              {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s) => {
                 const label = s.label;
                 const isYoutubePage = s.id === YOUTUBE_PAGE_SUGGESTION_ID || /youtube/i.test(label);
                 return (
