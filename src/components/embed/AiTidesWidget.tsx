@@ -41,5 +41,10 @@ export default function AiTidesWidget({ city, lang = "fr" }: { city: string; lan
       </div>
     );
   }
-  return <EmbedTidesWidget data={data} lang={lang} fullWidth onCityChange={setCurrent} />;
+  // Largeur optimale : on plafonne à 560px même sur écrans larges (pas de fullWidth).
+  return (
+    <div className="w-full max-w-[560px] mx-auto">
+      <EmbedTidesWidget data={data} lang={lang} fullWidth onCityChange={setCurrent} />
+    </div>
+  );
 }
