@@ -889,7 +889,7 @@ const EmbedAsk = () => {
       return () => clearTimeout(t);
     }
   }, [openGenericPoi]);
-  const [poiMasterAnchorId, setPoiMasterAnchorId] = useState<string | null>(null);
+  
   /** Ancre POI de la carte générique : le POI Koutoubia lui-même, pour que la carte
       soit centrée immédiatement sur ses coordonnées GPS (31.6237205, -7.9936196). */
   const POI_MASTER_FALLBACK_ID = "bc4b4fc1-06fc-4a69-8bea-59c8f89d924c";
@@ -3393,7 +3393,7 @@ const EmbedAsk = () => {
         >
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
-              businessId={businessId || poiMasterAnchorId || POI_MASTER_FALLBACK_ID}
+              businessId={businessId || POI_MASTER_FALLBACK_ID}
               initialOverlay="poi"
               embedMode
               hideDirections
