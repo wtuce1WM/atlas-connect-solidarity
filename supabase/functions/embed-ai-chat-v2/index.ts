@@ -1830,8 +1830,18 @@ Deno.serve(async (req) => {
         let poolRefined = false;
         const restrictiveIntent = /(?:^|\s)(?:uniquement|seulement|juste|que\s+(?:les|le|la|des|du)|rien\s+que|only|just)(?:\s|$)/
           .test(normalize(userMessage));
-        const refineTerms = [...strongTerms, ...specializingTerms, ...expansionTerms]
-          .filter(Boolean).map((t) => normalize(String(t))).filter((t) => t.length > 2);
+        // Les mots bruts de la restriction comptent autant que la résolution : le
+        // résolveur renvoie parfois un libellé étroit (« vélo » → « Vélo en salle »)
+        // qui ne matche ni le badge « Vélo » ni le service « Location de vélos ».
+        const restrictiveRawTokens = normalize(userMessage).split(/\s+/).filter((w) =>
+          w.length > 3 &&
+          !/^(uniquement|seulement|juste|rien|only|just|que|les|des|une|avec|dans|pour|montre|moi|autres)$/.test(w)
+        );
+        const refineTerms = [...new Set(
+          [...strongTerms, ...specializingTerms, ...expansionTerms, ...restrictiveRawTokens]
+            .filter(Boolean).map((t) => normalize(String(t))).filter((t) => t.length > 2),
+        )];
+
         if (
           !nameHit && !destScope && !contextualFollowUp &&
           restrictiveIntent && poolIds.length && refineTerms.length
