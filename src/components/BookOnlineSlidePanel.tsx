@@ -865,7 +865,7 @@ const BookOnlineSlidePanelInner = ({
       setPoiCityBusinesses(rows as PoiBusiness[]);
     })();
     return () => { cancelled = true; };
-  }, [showPoiMapOverlay, business?.city, businessId]);
+  }, [showPoiMapOverlay, navCity, businessId]);
 
 
   
