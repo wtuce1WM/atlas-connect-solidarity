@@ -4272,9 +4272,10 @@ const BookOnlineSlidePanelInner = ({
           : afterProx.slice(0, effectiveTopLimit);
         // Pas de bascule Top 20 / Tous si le résultat courant tient sous la limite
         const showAllToggle = poiMapMode === "poi" && total > effectiveTopLimit;
-        // Dans le widget Map plateforme, le Pill Catégories doit être présent dès
-        // l'ouverture, comme le Pill POI, sans attendre le chargement des onglets.
-        const showCatPill = poiMapMode === "poi" && (isEmbedMapWidget || catPillTabs.length >= 2);
+        // Ne jamais afficher un Pill Catégories ouvrable tant que sa structure et
+        // son vivier ville ne sont pas prêts : auparavant le widget le montrait
+        // immédiatement, mais son menu était encore vide au premier clic.
+        const showCatPill = poiMapMode === "poi" && catPillTabs.length >= 2 && poiCityBusinesses.length > 0;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi" && !!proxOrigin;
         const proxOpts: { km: number; label: string }[] = [
