@@ -1176,12 +1176,10 @@ const EmbedAsk = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
-        .from("ai_followups")
-        .select("id,label_fr,label_en,label_ar,is_platform_visible")
-        .eq("surface", "embed")
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true });
+      const data = await publicSelect(
+        "ai_followups",
+        "select=id,label_fr,label_en,label_ar,is_platform_visible&surface=eq.embed&is_active=eq.true&order=sort_order.asc",
+      );
       if (cancelled || !data) return;
       setGlobalFollowups(data as FollowupRow[]);
     })();
