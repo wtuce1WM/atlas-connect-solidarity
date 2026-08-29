@@ -5,6 +5,8 @@ import { useSEO } from "@/hooks/useSEO";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { supabase } from "@/integrations/supabase/client";
+import { embedBusinessQuery } from "@/lib/embedBusinessQuery";
+
 import { useLanguage } from "@/contexts/LanguageContext";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
