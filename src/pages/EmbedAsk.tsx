@@ -1073,6 +1073,46 @@ const EmbedAsk = () => {
   }, [messages, streaming, businessName, activeSuggestionId, shouldPersistThread]);
 
 
+  // Lecture REST directe (clé anon) pour les tables publiques lues par l'embed.
+  // Pourquoi : dans le preview, l'app tourne déjà dans l'iframe de l'éditeur ;
+  // l'overlay IA ajoute une iframe imbriquée dont le client passe par le
+  // stockage de session « broker » (postMessage vers l'éditeur). Dans ce cadre
+  // imbriqué, la réponse n'arrive jamais et la requête reste bloquée
+  // (« Chargement des suggestions… » infini). Ces tables sont publiques en
+  // lecture (grant anon + policy is_active), la session n'est pas requise.
+  const publicSelect = async (table: string, query: string): Promise<any[] | null> => {
+    try {
+      const base = import.meta.env.VITE_SUPABASE_URL;
+      const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const res = await fetch(`${base}/rest/v1/${table}?${query}`, {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+      });
+      if (!res.ok) return null;
+      return (await res.json()) as any[];
+    } catch {
+      return null;
+    }
+  };
+
+  // Coller dans le champ question : les retours à la ligne du texte collé
+  // deviennent des espaces (sinon ils poussaient le texte hors de vue).
+  const handleQuestionPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\s*\n+\s*/g, " ");
+    if (!pasted) return;
+    const el = e.currentTarget;
+    const start = el.selectionStart ?? input.length;
+    const end = el.selectionEnd ?? input.length;
+    const next = (input.slice(0, start) + pasted + input.slice(end)).replace(/ {2,}/g, " ");
+    setInput(next);
+    requestAnimationFrame(() => {
+      try {
+        const pos = Math.min(next.length, start + pasted.length);
+        el.setSelectionRange(pos, pos);
+      } catch { /* noop */ }
+    });
+  };
+
   useEffect(() => {
     // Suggestions back-office : toujours chargées, même sans hôte résolu
     // (ex. overlay IA d'un feed vidéo dont le slug n'est pas un business actif).
@@ -1085,18 +1125,11 @@ const EmbedAsk = () => {
     }, 8000);
 
     (async () => {
-      const { data, error: suggestionsError } = await supabase
-        .from("ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode")
-        .eq("surface", "embed")
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true });
+      const data = await publicSelect(
+        "ai_suggestions",
+        "select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode&surface=eq.embed&is_active=eq.true&order=sort_order.asc",
+      );
       if (cancelled) return;
-      if (suggestionsError) {
-        window.clearTimeout(loadingTimeout);
-        setDbSuggestions([]);
-        return;
-      }
       if (!data) {
         window.clearTimeout(loadingTimeout);
         setDbSuggestions([]);
