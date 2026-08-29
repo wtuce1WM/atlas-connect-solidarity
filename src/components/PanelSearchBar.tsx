@@ -80,6 +80,10 @@ interface PanelSearchBarProps {
   /** Dock en 3 groupes glass (2+1+2, sans Search) — Play/Mute | IA | Lieu/Profil.
    *  Utilisé par VideoSlidePanel et BookOnlineSlidePanel. */
   dockGroups?: boolean;
+  /** Mobile uniquement : les groupes ne s'étalent plus sur toute la largeur
+   *  (justify-between) mais se regroupent autour du CTA IA centré, laissant
+   *  un espace avec les bords de la barre info viewer. Desktop inchangé. */
+  dockMobileCluster?: boolean;
 }
 
 
@@ -117,7 +121,7 @@ const Cell = ({ icon, label, onClick, ariaLabel, active, hoverClass = "hover:bg-
   );
 };
 
-const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiButtonActive = false, profileToClub = false, profileToTimelineClub = false, profileClubEvent, aiAnswerText, aiBusinesses, dockGroups = false }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiButtonActive = false, profileToClub = false, profileToTimelineClub = false, profileClubEvent, aiAnswerText, aiBusinesses, dockGroups = false, dockMobileCluster = false }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
   const navigate = useLocalizedNavigate();
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
