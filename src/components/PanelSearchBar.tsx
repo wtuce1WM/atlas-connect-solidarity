@@ -57,6 +57,7 @@ interface PanelSearchBarProps {
     | { type: "file"; videoRef: RefObject<HTMLVideoElement>; paused: boolean; muted: boolean; onMutedChange?: (m: boolean) => void }
     | { type: "youtube"; iframeRef: RefObject<HTMLIFrameElement>; playing: boolean; muted: boolean; onPlayingChange: (p: boolean) => void; onMutedChange: (m: boolean) => void };
   /** When true, hides the Sparkles (Suggestion IA) button from the floating bar */
+
   hideAiButton?: boolean;
   /** Rend le bouton IA visuellement actif (assistant déjà ouvert derrière la fiche) */
   aiButtonActive?: boolean;
