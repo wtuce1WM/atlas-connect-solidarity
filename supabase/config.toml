@@ -37,6 +37,8 @@ project_id = "plnphgdrawpsnumnejzc"
     verify_jwt = false
   [functions.handle-email-events]
     verify_jwt = false
+  [functions.handle-email-unsubscribe]
+    verify_jwt = false
   [functions.send-contact-message]
     verify_jwt = false
   [functions.send-affiliate-request-emails]
