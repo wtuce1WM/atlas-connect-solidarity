@@ -839,17 +839,25 @@ const BookOnlineSlidePanelInner = ({
     if (!showPoiMapOverlay || !navCity) return;
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
-        .from("businesses")
-        .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score, computed_rating, total_review_count")
-        .eq("is_active", true)
-        .ilike("city", navCity)
-
-        .order("priority_score", { ascending: false, nullsFirst: false })
-        .limit(1000);
+      const all: any[] = [];
+      const PAGE = 1000;
+      for (let from = 0; ; from += PAGE) {
+        const { data } = await supabase
+          .from("businesses")
+          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score, computed_rating, total_review_count")
+          .eq("is_active", true)
+          .ilike("city", navCity)
+          .not("latitude", "is", null)
+          .not("longitude", "is", null)
+          .order("priority_score", { ascending: false, nullsFirst: false })
+          .range(from, from + PAGE - 1);
+        all.push(...((data || []) as any[]));
+        if ((data || []).length < PAGE) break;
+      }
       if (cancelled) return;
-      const rows = ((data || []) as any[])
+      const rows = all
         .filter((p) => p.id !== businessId)
+        .filter((p) => isInMoroccoBounds(p.latitude, p.longitude))
         .map((p) => ({
           id: p.id,
           name: p.name,
@@ -4174,6 +4182,18 @@ const BookOnlineSlidePanelInner = ({
         // transitoirement les business_pois de la ville.
         const overrideRequested = poiOverrideKey.length > 0 || poiCityCorpusKey.length > 0;
         const overridePool: any[] | null = overrideRequested ? (poiOverrideRows as any[]) : null;
+        // Le Pill Catégories décrit une ville entière. Il reste disponible pour un
+        // pool mono-ville, mais n'a pas de sens lorsque la réponse IA mélange au
+        // moins deux villes (ex. Rooftops Marrakech + Essaouira).
+        const normalizeMapCity = (value: unknown) => String(value || "")
+          .trim()
+          .toLocaleLowerCase("fr")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+        const poolCityCount = overridePool
+          ? new Set(overridePool.map((p) => normalizeMapCity(p.city)).filter(Boolean)).size
+          : (navCity ? 1 : 0);
+        const isSingleCityMap = poolCityCount <= 1;
 
         // Les marqueurs initiaux viennent du corpus fermé IA, mais les Pills gardent
         // leur vivier de navigation habituel. Sinon leurs compteurs se réduisent aux
@@ -4272,10 +4292,9 @@ const BookOnlineSlidePanelInner = ({
           : afterProx.slice(0, effectiveTopLimit);
         // Pas de bascule Top 20 / Tous si le résultat courant tient sous la limite
         const showAllToggle = poiMapMode === "poi" && total > effectiveTopLimit;
-        // Ne jamais afficher un Pill Catégories ouvrable tant que sa structure et
-        // son vivier ville ne sont pas prêts : auparavant le widget le montrait
-        // immédiatement, mais son menu était encore vide au premier clic.
-        const showCatPill = poiMapMode === "poi" && catPillTabs.length >= 2 && poiCityBusinesses.length > 0;
+        // Une ville : Catégories navigue dans tous ses établissements géolocalisés.
+        // Plusieurs villes : le Pill est volontairement masqué.
+        const showCatPill = poiMapMode === "poi" && isSingleCityMap && catPillTabs.length > 0 && poiCityBusinesses.length > 0;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi" && !!proxOrigin;
         const proxOpts: { km: number; label: string }[] = [
