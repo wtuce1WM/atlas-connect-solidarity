@@ -57,6 +57,7 @@ interface PanelSearchBarProps {
     | { type: "file"; videoRef: RefObject<HTMLVideoElement>; paused: boolean; muted: boolean; onMutedChange?: (m: boolean) => void }
     | { type: "youtube"; iframeRef: RefObject<HTMLIFrameElement>; playing: boolean; muted: boolean; onPlayingChange: (p: boolean) => void; onMutedChange: (m: boolean) => void };
   /** When true, hides the Sparkles (Suggestion IA) button from the floating bar */
+
   hideAiButton?: boolean;
   /** Rend le bouton IA visuellement actif (assistant déjà ouvert derrière la fiche) */
   aiButtonActive?: boolean;
@@ -76,6 +77,9 @@ interface PanelSearchBarProps {
   aiAnswerText?: string | null;
   /** Businesses pool matching aiAnswerText (for thumbnail resolution) */
   aiBusinesses?: any[] | null;
+  /** Dock en 3 groupes glass (2+1+2, sans Search) — Play/Mute | IA | Lieu/Profil.
+   *  Utilisé par VideoSlidePanel et BookOnlineSlidePanel. */
+  dockGroups?: boolean;
 }
 
 
@@ -113,7 +117,7 @@ const Cell = ({ icon, label, onClick, ariaLabel, active }: { icon: ReactNode; la
   );
 };
 
-const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiButtonActive = false, profileToClub = false, profileToTimelineClub = false, profileClubEvent, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiButtonActive = false, profileToClub = false, profileToTimelineClub = false, profileClubEvent, aiAnswerText, aiBusinesses, dockGroups = false }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
   const navigate = useLocalizedNavigate();
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
@@ -283,40 +287,79 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
     <>
       {/* Unified dock pill at the bottom of the panel */}
       <div className="owm-panel-searchbar absolute left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 max-w-[440px] mx-auto z-[85]" style={{ bottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
-        <div className="relative flex items-center justify-between sm:justify-start gap-1 sm:gap-0.5 rounded-[28px] border border-white/20 bg-black/40 px-3 sm:px-2 py-1">
-          {renderVideoCells()}
-          {leadingControls}
-          <Cell
-            icon={<Search className="h-5 w-5" />}
-            label="Search"
-            ariaLabel="Search"
-            onClick={() => setOverlay(true)}
-          />
-          {!hideAiButton && (
+        {dockGroups ? (
+          /* Dock en 3 groupes glass : [Play/Mute] | [IA] | [Lieu/Profil] — Search retiré */
+          <div className="relative flex items-center justify-between w-full gap-2">
+            {(videoControls || leadingControls) && (
+              <div className="flex items-center gap-0.5 rounded-[28px] border border-white/20 bg-black/40 px-2 py-1">
+                {renderVideoCells()}
+                {leadingControls}
+              </div>
+            )}
+            {!hideAiButton && (
+              <div className="flex items-center rounded-[28px] border border-white/20 bg-black/40 px-2 py-1">
+                <Cell
+                  icon={<Sparkles className="h-5 w-5" />}
+                  label="IA"
+                  ariaLabel="Suggestion IA"
+                  active={aiButtonActive}
+                  onClick={() => { if (onAiClick) onAiClick(); else setAiOverlayOpen(true); }}
+                />
+              </div>
+            )}
+            <div className="flex items-center gap-0.5 rounded-[28px] border border-white/20 bg-black/40 px-2 py-1">
+              <Cell
+                icon={<MapPin className="h-5 w-5" />}
+                label="Lieu"
+                ariaLabel="Géolocalisation"
+                active={geo.isEnabled && (!!geo.detectedCity || !!geo.detectedNeighborhood || !!geo.confirmedAddress)}
+                onClick={() => window.dispatchEvent(new Event("open-location-picker"))}
+              />
+              <Cell
+                icon={<User className="h-5 w-5" />}
+                label="Profil"
+                ariaLabel="Profil"
+                onClick={handleProfileClick}
+                active={isLoggedIn}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="relative flex items-center justify-between sm:justify-start gap-1 sm:gap-0.5 rounded-[28px] border border-white/20 bg-black/40 px-3 sm:px-2 py-1">
+            {renderVideoCells()}
+            {leadingControls}
             <Cell
-              icon={<Sparkles className="h-5 w-5" />}
-              label="IA"
-              ariaLabel="Suggestion IA"
-              active={aiButtonActive}
-              onClick={() => { if (onAiClick) onAiClick(); else setAiOverlayOpen(true); }}
+              icon={<Search className="h-5 w-5" />}
+              label="Search"
+              ariaLabel="Search"
+              onClick={() => setOverlay(true)}
             />
-          )}
-          <Cell
-            icon={<MapPin className="h-5 w-5" />}
-            label="Lieu"
-            ariaLabel="Géolocalisation"
-            active={geo.isEnabled && (!!geo.detectedCity || !!geo.detectedNeighborhood || !!geo.confirmedAddress)}
-            onClick={() => window.dispatchEvent(new Event("open-location-picker"))}
-          />
-          <Cell
-            icon={<User className="h-5 w-5" />}
-            label="Profil"
-            ariaLabel="Profil"
-            onClick={handleProfileClick}
-            active={isLoggedIn}
-          />
+            {!hideAiButton && (
+              <Cell
+                icon={<Sparkles className="h-5 w-5" />}
+                label="IA"
+                ariaLabel="Suggestion IA"
+                active={aiButtonActive}
+                onClick={() => { if (onAiClick) onAiClick(); else setAiOverlayOpen(true); }}
+              />
+            )}
+            <Cell
+              icon={<MapPin className="h-5 w-5" />}
+              label="Lieu"
+              ariaLabel="Géolocalisation"
+              active={geo.isEnabled && (!!geo.detectedCity || !!geo.detectedNeighborhood || !!geo.confirmedAddress)}
+              onClick={() => window.dispatchEvent(new Event("open-location-picker"))}
+            />
+            <Cell
+              icon={<User className="h-5 w-5" />}
+              label="Profil"
+              ariaLabel="Profil"
+              onClick={handleProfileClick}
+              active={isLoggedIn}
+            />
 
-        </div>
+          </div>
+        )}
       </div>
 
 
