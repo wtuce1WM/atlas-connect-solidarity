@@ -1239,12 +1239,27 @@ const VideoSlidePanel = ({
           </div>
         )}
 
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && ((!headerVideoTitle && (videoName || manualCardLabel)) || price !== undefined && price !== null) && !(isGeneric && social?.account && videoName === `@${social.account}` && !manualCardLabel && (price === undefined || price === null)) && (() => {
+        {(() => {
+          // Vidéos liées au badge « Vente » : sans info prix, on affiche toujours
+          // « Prix : nous consulter » (badge id 6ae94381-ec78-4165-80bd-26b2c56399a3).
+          const isVenteVideo = !!feedBadges?.some(
+            (b) => b.id === "6ae94381-ec78-4165-80bd-26b2c56399a3",
+          );
+          const hasNoPriceInfo = price === undefined || price === null || !String(price).trim();
+          const isVenteNoPrice = isVenteVideo && hasNoPriceInfo;
+          return !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen
+            && (isVenteNoPrice || ((!headerVideoTitle && (videoName || manualCardLabel)) || price !== undefined && price !== null))
+            && !(isGeneric && social?.account && videoName === `@${social.account}` && !manualCardLabel && (price === undefined || price === null) && !isVenteNoPrice);
+        })() && (() => {
           const dateStr = eventId && eventInfo ? formatEventDateRange(eventInfo.start_date, eventInfo.end_date) : null;
           const daysStr = eventId && eventInfo ? formatDaysOfWeek(eventInfo.days_of_week) : null;
           const timeStr = eventId && eventInfo ? formatTimeRange(eventInfo.start_time, eventInfo.end_time) : null;
           const textShadow = "0 1px 2px rgba(0,0,0,0.4)";
           const showVideoName = !!videoName && !(isGeneric && social?.account && videoName === `@${social.account}`);
+          const isVenteVideo = !!feedBadges?.some(
+            (b) => b.id === "6ae94381-ec78-4165-80bd-26b2c56399a3",
+          );
+          const hasNoPriceInfo = price === undefined || price === null || !String(price).trim();
 
           let badgeText = manualCardLabel;
           if (price !== undefined && price !== null) {
@@ -1262,6 +1277,9 @@ const VideoSlidePanel = ({
                 badgeText = sentence.replace(/\bmad\b/g, "MAD").replace(/\beur\b/g, "EUR");
               }
             }
+          } else if (isVenteVideo && hasNoPriceInfo && !badgeText) {
+            // Badge « Vente » sans info prix → « Prix : nous consulter »
+            badgeText = "Prix : nous consulter";
           }
 
           return (
