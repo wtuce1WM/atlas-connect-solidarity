@@ -2843,45 +2843,6 @@ const EmbedAsk = () => {
 
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
 
-              {/* Actions après les cartes de résultats : Sur une carte / autres résultats /
-                  Nouvelle conversation — uniquement sur le dernier message, hors streaming. */}
-              {isLast && !streaming && ((mapPayload && mapPayload.businesses.length > 0) || citedFallback.length > 0) && (
-                <div className="w-full max-w-[85%] flex flex-wrap items-center gap-2 pt-1">
-                  {mapReplayTarget && poolInfo.hasGeo && (
-                    <button
-                      type="button"
-                      onClick={() => setOpenMap(mapReplayTarget)}
-                      style={{ ...mapBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                      className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity"
-                    >
-                      <MapPin className="w-3.5 h-3.5" />
-                      {lang === "en" ? "Map" : lang === "ar" ? "الخريطة" : "Map"}
-                    </button>
-                  )}
-                  {poolRemaining > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
-                      style={{ ...moreBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                      className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity"
-                    >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`}
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={startNewConversation}
-                    disabled={streaming}
-                    style={{ ...newConvStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                    className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity disabled:opacity-40"
-                  >
-                    <MessageSquarePlus className="w-3.5 h-3.5" />
-                    {lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
-                  </button>
-                </div>
-              )}
-
               {destinationsPayload && destinationsPayload.destinations.length > 0 && (
                 <EmbedCardCarousel
                   items={destinationsPayload.destinations.slice(0, 20).map((d) => {
