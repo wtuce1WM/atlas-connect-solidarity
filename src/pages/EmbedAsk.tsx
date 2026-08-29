@@ -3396,7 +3396,7 @@ const EmbedAsk = () => {
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
               key={(openMap.businesses || []).map((b) => b.id).join(",")}
-              businessId={businessId || undefined}
+              businessId={businessId || poiMasterAnchorId || POI_MASTER_FALLBACK_ID}
               initialOverlay="poi"
               embedMode
               hideDirections
