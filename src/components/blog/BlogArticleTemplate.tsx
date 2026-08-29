@@ -1133,6 +1133,85 @@ const BlogArticleTemplate = ({
               </div>
             </section>
           )}
+
+          {/* CTA de fin d'article (mode embed uniquement) : les 3 actions de la
+              dernière réponse de l'assistant — Map, autres résultats, nouvelle
+              conversation — rejouées au retour via ?postArticle=map|more|new.
+              Placé après tout le contenu (entrées, FAQ, vidéos). */}
+          {embedBackSlug && (
+            <section className="py-10 bg-background" aria-label="Assistant IA">
+              <div className="container mx-auto px-4 max-w-3xl">
+                <div className="flex flex-wrap items-center gap-2">
+                  {(() => {
+                    let summary: { hasMap?: boolean; moreRemaining?: number } = {};
+                    try {
+                      const raw = window.sessionStorage.getItem(ARTICLE_THREAD_HANDOFF_KEY);
+                      if (raw) summary = JSON.parse(raw) ?? {};
+                    } catch { /* noop */ }
+                    const hasMap = Boolean(summary.hasMap);
+                    const remaining = Number(summary.moreRemaining ?? 0);
+                    return (
+                      <>
+                        {hasMap && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              try {
+                                const url = new URL(embedBackSlug, window.location.origin);
+                                url.searchParams.set("postArticle", "map");
+                                navigate(url.pathname + url.search);
+                              } catch { navigate(embedBackSlug); }
+                            }}
+                            style={{ background: "#C04F17", color: "#FFFFFF", borderColor: "#C04F17", fontFamily: "'Montserrat', sans-serif" }}
+                            className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity"
+                          >
+                            <MapPin className="w-3.5 h-3.5" />
+                            {language === "en" ? "Map" : language === "ar" ? "الخريطة" : "Map"}
+                          </button>
+                        )}
+                        {remaining > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              try {
+                                const url = new URL(embedBackSlug, window.location.origin);
+                                url.searchParams.set("postArticle", "more");
+                                navigate(url.pathname + url.search);
+                              } catch { navigate(embedBackSlug); }
+                            }}
+                            style={{ background: "#D4AF37", color: "#000000", borderColor: "#D4AF37", fontFamily: "'Montserrat', sans-serif" }}
+                            className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity"
+                          >
+                            <Sparkles className="w-3.5 h-3.5" />
+                            {language === "en"
+                              ? `${remaining} more results`
+                              : language === "ar"
+                              ? `${remaining} نتائج أخرى`
+                              : `${remaining} autres résultats`}
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            try {
+                              const url = new URL(embedBackSlug, window.location.origin);
+                              url.searchParams.set("postArticle", "new");
+                              navigate(url.pathname + url.search);
+                            } catch { navigate(embedBackSlug); }
+                          }}
+                          style={{ background: "#000000", color: "#FFFFFF", borderColor: "#000000", fontFamily: "'Montserrat', sans-serif" }}
+                          className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity"
+                        >
+                          <MessageSquarePlus className="w-3.5 h-3.5" />
+                          {language === "en" ? "New conversation" : language === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
+                        </button>
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </section>
+          )}
         </>
       )}
 
