@@ -963,7 +963,10 @@ Deno.serve(async (req) => {
               pinnedIds: curated.pinnedBusinessIds,
 
 
-              scopeCity,
+              // Périmètre ville : ville nommée dans le message > ville de la
+              // suggestion > ville de l'hôte (embed). En scope plateforme, pas
+              // de repli Marrakech : suggestion sans ville = national.
+              scopeCity: explicitCity || curated.city || (host ? scopeCity : null),
               maxResults: CFG.maxResults,
               competitorGuard,
               supabaseUrl: SUPABASE_URL,
