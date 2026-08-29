@@ -1581,6 +1581,7 @@ Deno.serve(async (req) => {
             // ville explicite reste dans le rayon actif autour de l'hôte (défaut
             // 1 km), qu'elle suive un panorama « à proximité » ou non.
             // Les adresses sans coordonnées (nomades / Maps désactivée) sont conservées.
+            let proximityApplied = false;
             if (
               host?.latitude != null && host?.longitude != null &&
               !nameHit && !destScope && !explicitCity && !resolvedCityRaw && kept.length
