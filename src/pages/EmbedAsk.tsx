@@ -3227,8 +3227,6 @@ const EmbedAsk = () => {
               <Mic className="w-4 h-4" />
             )}
           </button>
-          {/* Chip « Map » permanent, visible aussi en mode conversation. */}
-          {renderMapChip("composer")}
         </div>
 
       </form>
