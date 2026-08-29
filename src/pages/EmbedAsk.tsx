@@ -1681,6 +1681,11 @@ const EmbedAsk = () => {
     setActiveSuggestionId(null);
     setUsedFollowupIds([]);
     setUsedHostBadges([]);
+    // Accueil IA : badges repliés — tiroir Filtres fermé et retour aux 6 chips
+    // apparents (Map + 5 suggestions), même si « Voir toutes les suggestions »
+    // avait été déplié dans la conversation précédente.
+    setShowAllSuggestions(false);
+    setFiltersOpen(false);
     pendingSendRef.current = pending || null;
 
     setChatKey((k) => k + 1); // resets useChat id → clears message list
