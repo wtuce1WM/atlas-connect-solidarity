@@ -601,6 +601,10 @@ const BookOnlineSlidePanelInner = ({
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
   const [poiShowAll, setPoiShowAll] = useState(false);
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
+  // Le rayon n'est jamais appliqué à un corpus fermé (réponse IA) tant que
+  // l'utilisateur ne l'a pas choisi lui-même dans le Pill.
+  const [poiProxTouched, setPoiProxTouched] = useState(false);
+
   const poiProximityInitRef = useRef<string | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
   const [poiMapTypeId, setPoiMapTypeId] = useState<"roadmap" | "satellite" | "terrain">("terrain");
