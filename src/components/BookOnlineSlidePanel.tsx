@@ -604,7 +604,10 @@ const BookOnlineSlidePanelInner = ({
 
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
   const [poiShowAll, setPoiShowAll] = useState(false);
-  const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
+  const [poiProximityKm, setPoiProximityKm] = useState<number | null>(() => {
+    const raw = Number((poiAnchor as any)?.poi_radius_km);
+    return [0.5, 1, 5, 10, 20, 50, 100].includes(raw) ? raw : null;
+  });
   // Le rayon n'est jamais appliqué à un corpus fermé (réponse IA) tant que
   // l'utilisateur ne l'a pas choisi lui-même dans le Pill.
   const [poiProxTouched, setPoiProxTouched] = useState(false);
