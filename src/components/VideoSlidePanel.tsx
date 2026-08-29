@@ -1274,7 +1274,8 @@ const VideoSlidePanel = ({
                 badgeText = "Prix : nous consulter";
               } else {
                 const sentence = p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
-                badgeText = sentence.replace(/\bmad\b/g, "MAD").replace(/\beur\b/g, "EUR");
+                const formatted = sentence.replace(/\bmad\b/g, "MAD").replace(/\beur\b/g, "EUR");
+                badgeText = `Prix : ${formatted}`;
               }
             }
           } else if (isVenteVideo && hasNoPriceInfo && !badgeText) {
