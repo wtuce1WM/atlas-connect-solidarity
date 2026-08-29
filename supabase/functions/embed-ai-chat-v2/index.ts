@@ -1939,7 +1939,7 @@ Deno.serve(async (req) => {
           }
         }
 
-        if (!nameHit && !destScope && !contextualFollowUp && out && confident && (out.intent === "search" || out.intent === "compare")) {
+        if (!nameHit && !destScope && !contextualFollowUp && !poolRefined && out && confident && (out.intent === "search" || out.intent === "compare")) {
           const views = detectViewIntent(userMessage);
           const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
           const excluded = excludedTerms;
