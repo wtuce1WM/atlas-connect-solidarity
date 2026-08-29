@@ -116,7 +116,7 @@ export interface BlogArticleTemplateProps {
   faq?: BlogArticleFaqItem[];
   /** Optional black anchor marker on the map (e.g. reference establishment for a proximity article). */
   anchorPoi?: { name: string; latitude: number; longitude: number } | null;
-  /** When set, render in embed mode (no site header/footer/bottom bar) and back-button returns to /embed/ask/{embedBackSlug}. */
+  /** When set, render in embed mode (no site header/footer/bottom bar) and back-button returns to the assistant (/embed/ask). */
   embedBackSlug?: string | null;
   /** Optional portrait hero used on mobile (<768px) via <picture>. */
   customHeroImageMobile?: string;
