@@ -1061,6 +1061,9 @@ const EmbedAsk = () => {
     if (restoredRef.current && initialPersisted?.messages?.length) {
       setMessages(initialPersisted.messages as any);
       if (initialPersisted.activeSuggestionId) setActiveSuggestionId(initialPersisted.activeSuggestionId);
+      // Le relais article (sessionStorage) est consommé : on le supprime ici,
+      // une fois les messages réellement restaurés.
+      try { window.sessionStorage.removeItem(ARTICLE_THREAD_HANDOFF_KEY); } catch { /* noop */ }
       return;
     }
     // (splash d'accueil supprimé)
