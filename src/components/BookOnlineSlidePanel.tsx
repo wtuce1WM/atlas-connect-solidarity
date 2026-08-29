@@ -834,17 +834,21 @@ const BookOnlineSlidePanelInner = ({
     return () => { cancelled = true; };
   }, [poiCatFilter, business?.city, businessId, frontTabs]);
 
-  // Vivier ville (toutes catégories) chargé quand l'overlay POI/Map est ouvert
+  // Vivier ville (toutes catégories) chargé quand l'overlay POI/Map est ouvert.
+  // 2 passes : d'abord une requête LÉGÈRE (sans `images`, très lourdes) pour que
+  // les marqueurs et les Pills soient disponibles immédiatement, puis un
+  // enrichissement en arrière-plan pour les visuels des cartes.
   useEffect(() => {
     if (!showPoiMapOverlay || !navCity) return;
     let cancelled = false;
-    (async () => {
+    const LIGHT = "id, name, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score, computed_rating, total_review_count";
+    const fetchAll = async (columns: string) => {
       const all: any[] = [];
       const PAGE = 1000;
       for (let from = 0; ; from += PAGE) {
         const { data } = await supabase
           .from("businesses")
-          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score, computed_rating, total_review_count")
+          .select(columns)
           .eq("is_active", true)
           .ilike("city", navCity)
           .not("latitude", "is", null)
@@ -854,29 +858,37 @@ const BookOnlineSlidePanelInner = ({
         all.push(...((data || []) as any[]));
         if ((data || []).length < PAGE) break;
       }
+      return all;
+    };
+    const normalize = (all: any[]) => all
+      .filter((p) => p.id !== businessId)
+      .filter((p) => isInMoroccoBounds(p.latitude, p.longitude))
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        images: p.images,
+        logo_url: p.logo_url,
+        latitude: p.latitude,
+        longitude: p.longitude,
+        city: p.city,
+        neighborhood: p.neighborhood,
+        categories: p.categories,
+        main_category: p.main_category,
+        default_service: p.default_service ?? null,
+        computed_rating: p.computed_rating ?? null,
+        total_review_count: p.total_review_count ?? null,
+      }));
+    (async () => {
+      const light = await fetchAll(LIGHT);
       if (cancelled) return;
-      const rows = all
-        .filter((p) => p.id !== businessId)
-        .filter((p) => isInMoroccoBounds(p.latitude, p.longitude))
-        .map((p) => ({
-          id: p.id,
-          name: p.name,
-          images: p.images,
-          logo_url: p.logo_url,
-          latitude: p.latitude,
-          longitude: p.longitude,
-          city: p.city,
-          neighborhood: p.neighborhood,
-          categories: p.categories,
-          main_category: p.main_category,
-          default_service: p.default_service ?? null,
-          computed_rating: p.computed_rating ?? null,
-          total_review_count: p.total_review_count ?? null,
-        }));
-      setPoiCityBusinesses(rows as PoiBusiness[]);
+      setPoiCityBusinesses(normalize(light) as PoiBusiness[]);
+      const full = await fetchAll(`${LIGHT}, images`);
+      if (cancelled || !full.length) return;
+      setPoiCityBusinesses(normalize(full) as PoiBusiness[]);
     })();
     return () => { cancelled = true; };
   }, [showPoiMapOverlay, navCity, businessId]);
+
 
 
   
