@@ -893,6 +893,10 @@ const EmbedAsk = () => {
   /** Ancre POI de la carte générique : le POI Koutoubia lui-même, pour que la carte
       soit centrée immédiatement sur ses coordonnées GPS (31.6237205, -7.9936196). */
   const POI_MASTER_FALLBACK_ID = "bc4b4fc1-06fc-4a69-8bea-59c8f89d924c";
+  /** Ancre POI d'Essaouira : « Port d'Essaouira » joue le rôle de la Koutoubia
+      quand les résultats de la carte sont exclusivement à Essaouira. */
+  const POI_ESSAOUIRA_ANCHOR_ID = "81836caa-fbfc-4abd-b29e-326e56aeadf6";
+
 
 
 
@@ -1070,6 +1074,21 @@ const EmbedAsk = () => {
     })();
     return () => { cancelled = true; };
   }, [businessId, poiMasterAnchorId]);
+
+  /** Ancre de l'overlay Map (corpus fermé) : Koutoubia par défaut, mais
+      « Port d'Essaouira » lorsque tous les résultats sont à Essaouira. */
+  const mapAnchorId = useMemo(() => {
+    if (businessId) return businessId;
+    const cities = (openMap?.businesses || [])
+      .map((b) => String(b.city || "").trim().toLowerCase())
+      .filter(Boolean);
+    if (cities.length > 0 && cities.every((c) => c === "essaouira")) {
+      return POI_ESSAOUIRA_ANCHOR_ID;
+    }
+    return poiMasterAnchorId || POI_MASTER_FALLBACK_ID;
+  }, [businessId, openMap, poiMasterAnchorId]);
+
+
 
   const openerText = isPlatform
     ? L.platformOpener()
@@ -3396,7 +3415,8 @@ const EmbedAsk = () => {
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
               key={(openMap.businesses || []).map((b) => b.id).join(",")}
-              businessId={businessId || poiMasterAnchorId || POI_MASTER_FALLBACK_ID}
+              businessId={mapAnchorId}
+
               initialOverlay="poi"
               embedMode
               hideDirections
