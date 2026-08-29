@@ -80,6 +80,10 @@ interface PanelSearchBarProps {
   /** Dock en 3 groupes glass (2+1+2, sans Search) — Play/Mute | IA | Lieu/Profil.
    *  Utilisé par VideoSlidePanel et BookOnlineSlidePanel. */
   dockGroups?: boolean;
+  /** Mobile uniquement : les groupes ne s'étalent plus sur toute la largeur
+   *  (justify-between) mais se regroupent autour du CTA IA centré, laissant
+   *  un espace avec les bords de la barre info viewer. Desktop inchangé. */
+  dockMobileCluster?: boolean;
 }
 
 
@@ -117,7 +121,7 @@ const Cell = ({ icon, label, onClick, ariaLabel, active, hoverClass = "hover:bg-
   );
 };
 
-const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiButtonActive = false, profileToClub = false, profileToTimelineClub = false, profileClubEvent, aiAnswerText, aiBusinesses, dockGroups = false }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiButtonActive = false, profileToClub = false, profileToTimelineClub = false, profileClubEvent, aiAnswerText, aiBusinesses, dockGroups = false, dockMobileCluster = false }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
   const navigate = useLocalizedNavigate();
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
@@ -289,7 +293,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
       <div className="owm-panel-searchbar absolute left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 max-w-[440px] mx-auto z-[85]" style={{ bottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
         {dockGroups ? (
           /* Dock en 3 groupes glass : [Play/Mute] | [IA] | [Lieu/Profil] — Search retiré */
-          <div className="relative flex items-center justify-between w-full gap-2">
+          <div className={`relative flex items-center w-full ${dockMobileCluster ? "justify-center gap-2 sm:justify-between" : "justify-between gap-2"}`}>
             {(videoControls || leadingControls) && (
               <div className="flex items-center gap-0.5 rounded-[28px] border border-white/20 bg-black/40 px-2 py-1">
                 {renderVideoCells()}
