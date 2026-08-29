@@ -297,7 +297,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
               </div>
             )}
             {!hideAiButton && (
-              <div className="flex items-center rounded-[28px] border border-[#D4AF37]/70 animate-glow-pulse relative">
+              <div className="flex items-center rounded-[28px] border border-[#D4AF37]/70 bg-black/40 px-2 py-1 animate-glow-pulse relative">
                 <Cell
                   icon={
                     <Sparkles
