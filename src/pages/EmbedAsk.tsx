@@ -527,6 +527,10 @@ const MarkdownLink = ({
   );
 };
 
+// Clé sessionStorage : relais du fil de conversation pendant la visite d'un
+// article (navigation pleine page). Consommé puis supprimé au retour.
+const ARTICLE_THREAD_HANDOFF_KEY = "owm-ai-article-thread-handoff";
+
 const EmbedAsk = () => {
   const { slug = "" } = useParams();
   const { params, businessId: widgetBusinessId, settings: widgetSettings, overlay } = useWidgetParams("ask", { slug });
