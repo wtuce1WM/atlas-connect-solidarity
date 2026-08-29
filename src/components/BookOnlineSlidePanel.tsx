@@ -833,14 +833,15 @@ const BookOnlineSlidePanelInner = ({
 
   // Vivier ville (toutes catégories) chargé quand l'overlay POI/Map est ouvert
   useEffect(() => {
-    if (!showPoiMapOverlay || !business?.city) return;
+    if (!showPoiMapOverlay || !navCity) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from("businesses")
         .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score, computed_rating, total_review_count")
         .eq("is_active", true)
-        .ilike("city", business.city)
+        .ilike("city", navCity)
+
         .order("priority_score", { ascending: false, nullsFirst: false })
         .limit(1000);
       if (cancelled) return;
