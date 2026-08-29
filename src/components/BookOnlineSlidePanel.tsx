@@ -761,7 +761,16 @@ const BookOnlineSlidePanelInner = ({
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
   // Corpus ville imposé : les onglets/catégories viennent de la 1ère ville du corpus
   // (le Master d'ancrage peut ne pas avoir de structure front exploitable).
-  const { tabs: frontTabs } = useFrontStructureTabs((poiCityCorpus && poiCityCorpus[0]) || business?.city || null);
+  // Ville de navigation : disponible IMMÉDIATEMENT depuis l'ancre / le pool IA,
+  // sans attendre le chargement complet de la fiche d'ancrage (Koutoubia / Port).
+  const navCity =
+    (poiCityCorpus && poiCityCorpus[0]) ||
+    poiAnchor?.city ||
+    poiOverrideBusinesses?.find((b) => !!b?.city)?.city ||
+    business?.city ||
+    null;
+  const { tabs: frontTabs } = useFrontStructureTabs(navCity);
+
   const { translateSubcategory } = useTaxonomyTranslations();
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
 
