@@ -611,6 +611,10 @@ const BookOnlineSlidePanelInner = ({
   // Le rayon n'est jamais appliqué à un corpus fermé (réponse IA) tant que
   // l'utilisateur ne l'a pas choisi lui-même dans le Pill.
   const [poiProxTouched, setPoiProxTouched] = useState(false);
+  // Overlay Map de l'Assistant IA (corpus fermé / corpus ville imposé) :
+  // « TOUS » est actif dès l'ouverture, pour Marrakech comme pour Essaouira,
+  // afin de retrouver la carte complète de la ville (et non les seuls Top 20).
+  const poiShowAllInitRef = useRef(false);
 
   const poiProximityInitRef = useRef<string | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
@@ -742,6 +746,17 @@ const BookOnlineSlidePanelInner = ({
     })();
     return () => { cancelled = true; };
   }, [poiCityCorpusKey, poiOverrideKey]);
+  // « TOUS » par défaut dès l'ouverture de l'overlay Map depuis l'Assistant IA
+  useEffect(() => {
+    const overrideRequested = poiOverrideKey.length > 0 || poiCityCorpusKey.length > 0;
+    if (!showPoiMapOverlay || !overrideRequested) {
+      if (!showPoiMapOverlay) poiShowAllInitRef.current = false;
+      return;
+    }
+    if (poiShowAllInitRef.current) return;
+    poiShowAllInitRef.current = true;
+    setPoiShowAll(true);
+  }, [showPoiMapOverlay, poiOverrideKey, poiCityCorpusKey]);
   const poiOpenedFromMapRef = useRef(false);
   // Embed: auto-open the "À proximité" overlay once the business is resolved.
   const autoPoiOpenedRef = useRef(false);
