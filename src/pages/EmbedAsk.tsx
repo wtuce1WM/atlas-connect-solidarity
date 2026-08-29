@@ -3418,9 +3418,7 @@ const EmbedAsk = () => {
               hideDirections
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
-              {/* Aucun corpus fermé ici : sans pool de résultats, l'overlay est
-                  le mode POI natif de la ville de l'ancre (Koutoubia / Port
-                  d'Essaouira), avec son rayon par défaut et ses pills complets. */}
+              /* Aucun corpus fermé : mode POI natif de la ville de l'ancre */
               onClose={() => setOpenGenericPoi(false)}
             />
           </Suspense>
