@@ -1882,7 +1882,11 @@ Deno.serve(async (req) => {
           restrictiveIntent && poolIds.length && refineTerms.length
         ) {
           try {
-            const ids = poolIds.slice(0, 30);
+            // Le corpus curaté d'une suggestion badge peut compter jusqu'à 60 fiches :
+            // couper à 30 excluait mécaniquement la queue du classement (Pikala Bikes
+            // était 39e du pool « Enfants »). La restriction travaille donc sur le
+            // pool COMPLET mémorisé, pas sur sa tête d'affichage.
+            const ids = poolIds.slice(0, 60);
             const [poolRows, { data: svcRows }, { data: badgeRows }] = await Promise.all([
               fetchPriorFull(admin, ids),
               admin.from("businesses").select("id, services").in("id", ids),
