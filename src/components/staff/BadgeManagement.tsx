@@ -44,6 +44,7 @@ interface BadgeData {
   color_hex: string | null;
   text_color_hex: string | null;
   is_active_on_front: boolean | null;
+  qualify_business_from_youtube?: boolean | null;
 }
 
 interface BadgeSubcategory {
@@ -415,6 +416,7 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
               <TableHead className="text-center">Établissements</TableHead>
               <TableHead className="text-center">Vidéos</TableHead>
               <TableHead className="text-center">Activé sur le front</TableHead>
+              <TableHead className="text-center">YouTube qualifie l'établissement</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -486,6 +488,19 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
                               toast({ variant: "destructive", title: "Erreur", description: "Impossible de mettre à jour." });
                             } else {
                               setBadges(prev => prev.map(b => b.id === badge.id ? { ...b, is_active_on_front: checked } : b));
+                            }
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell className="text-center" onClick={e => e.stopPropagation()}>
+                        <Switch
+                          checked={!!badge.qualify_business_from_youtube}
+                          onCheckedChange={async (checked) => {
+                            const { error } = await supabase.from("badges").update({ qualify_business_from_youtube: checked } as any).eq("id", badge.id);
+                            if (error) {
+                              toast({ variant: "destructive", title: "Erreur", description: "Impossible de mettre à jour." });
+                            } else {
+                              setBadges(prev => prev.map(b => b.id === badge.id ? { ...b, qualify_business_from_youtube: checked } : b));
                             }
                           }}
                         />
