@@ -212,6 +212,7 @@ export default {
         "count-pop": "count-pop 0.6s cubic-bezier(0.16,1,0.3,1)",
         "pin-pulse": "pin-pulse 2.2s ease-out infinite",
         "glow-pulse": "glow-pulse 3s ease-in-out infinite",
+        "ia-sparkle": "ia-sparkle 2.6s ease-in-out infinite",
       },
     },
   },
