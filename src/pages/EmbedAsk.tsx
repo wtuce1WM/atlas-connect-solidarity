@@ -5,7 +5,7 @@
 // - Parses trailing markers (SHOW_ON_MAP, EVENTS_SNAPSHOT, KNOWN_BUSINESSES)
 //   from the assistant text to render the same panels as /club.
 import { useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
@@ -572,6 +572,7 @@ const EmbedAsk = () => {
   // route dédiée /embed/ask/article/:slug (même fenêtre, shell assistant) — jamais /blog/:slug.
   // La query string courante (scope, ctx, theme, panel…) est préservée pour que le
   // retour depuis l'article restaure le même habillage (dark mode, panneau flottant).
+  const navigate = useNavigate();
   const articleLinkProps = (card: { kind?: string; url?: string | null; slug: string }) => {
     if (card.kind === "video_feed") {
       return { href: card.url || `/videos/${card.slug}`, target: "_blank", rel: "noopener noreferrer" } as const;
@@ -593,8 +594,18 @@ const EmbedAsk = () => {
     };
     const qs = typeof window !== "undefined" ? window.location.search : "";
     const embedSlug = slug || ctxSlug;
-    if (embedSlug) return { href: `/embed/ask/${embedSlug}/article/${card.slug}${qs}`, target: undefined, rel: undefined, onClick: handoff } as const;
-    return { href: `/embed/ask/article/${card.slug}${qs}`, target: undefined, rel: undefined, onClick: handoff } as const;
+    const to = embedSlug
+      ? `/embed/ask/${embedSlug}/article/${card.slug}${qs}`
+      : `/embed/ask/article/${card.slug}${qs}`;
+    // Navigation SPA (pas de rechargement du bundle React dans l'iframe) :
+    // le fil est relayé par sessionStorage, le href reste pour l'accessibilité.
+    const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+      handoff();
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      navigate(to);
+    };
+    return { href: to, target: undefined, rel: undefined, onClick } as const;
   };
   // Moteur IA : V2 uniquement (V1 retiré).
   const initialTheme = themeParam

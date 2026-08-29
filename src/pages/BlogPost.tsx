@@ -5,7 +5,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { supabase } from "@/integrations/supabase/client";
-import { embedBusinessQuery } from "@/lib/embedBusinessQuery";
+import { embedBusinessQuery, getEmbedAnonClient } from "@/lib/embedBusinessQuery";
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
@@ -103,8 +103,20 @@ const BlogPost = () => {
     const fetchPost = async () => {
       if (!slug) return;
       setIsLoading(true);
-      // Dans une iframe (assistant IA), la session brokerée peut être hors de portée
-      // → la requête échoue et l'article paraît « introuvable ». On confirme en anonyme.
+      const isEmbed = Boolean(embedSlug) || isPlatformArticle;
+      if (isEmbed) {
+        // En iframe (assistant IA), la session brokerée est hors de portée : on
+        // interroge directement en anonyme (table publique) → 1 seule requête.
+        const { data } = await getEmbedAnonClient()
+          .from("blog_posts")
+          .select("*")
+          .eq("slug", slug)
+          .eq("is_published", true)
+          .maybeSingle();
+        setPost((data as BlogPostData | null) ?? null);
+        setIsLoading(false);
+        return;
+      }
       const data = await embedBusinessQuery<BlogPostData>("blog_post", (client) =>
         client
           .from("blog_posts")
@@ -117,7 +129,7 @@ const BlogPost = () => {
       setIsLoading(false);
     };
     fetchPost();
-  }, [slug]);
+  }, [slug, embedSlug, isPlatformArticle]);
 
 
   // Internal blog traffic tracking (one view per slug per session)
