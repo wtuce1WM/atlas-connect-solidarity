@@ -714,7 +714,21 @@ const EmbedAsk = () => {
       return parsed;
     } catch { return null; }
   };
-  const initialPersisted = useMemo(() => shouldPersistThread ? readPersisted() : null, [storageKey, shouldPersistThread]);
+  const initialPersisted = useMemo(() => {
+    if (shouldPersistThread) return readPersisted();
+    // Panneau plateforme : pas de persistance durable, MAIS on restaure le fil
+    // déposé juste avant l'ouverture d'un article (retour même fenêtre).
+    try {
+      const raw = window.sessionStorage.getItem(ARTICLE_THREAD_HANDOFF_KEY);
+      if (!raw) return null;
+      window.sessionStorage.removeItem(ARTICLE_THREAD_HANDOFF_KEY);
+      const parsed = JSON.parse(raw) as PersistedThread;
+      if (!parsed?.sessionId || !Array.isArray(parsed.messages)) return null;
+      if (Date.now() - (parsed.savedAt || 0) > TTL_MS) return null;
+      return parsed;
+    } catch { return null; }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey, shouldPersistThread]);
 
   const newSessionId = () =>
     typeof crypto !== "undefined" && "randomUUID" in crypto
