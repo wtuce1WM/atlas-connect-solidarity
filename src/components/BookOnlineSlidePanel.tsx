@@ -4141,10 +4141,16 @@ const BookOnlineSlidePanelInner = ({
         const overridePool: any[] | null = poiOverrideRows.length ? (poiOverrideRows as any[]) : null;
         // Vivier ville restreint au rayon actif → base des compteurs catégories
         const cityInRadius = overridePool ?? (poiCityBusinesses as any[]).filter(inRadius);
+        // Base des compteurs encore en cours de chargement (assistant IA : la fiche
+        // d'ancrage, puis le vivier ville, arrivent après l'ouverture de l'overlay).
+        // Dans ce cas les entrées du Pill Catégories restent actives et sans compteur,
+        // au lieu d'apparaître toutes grisées / vides.
+        const catBaseReady = !!overridePool || (poiCityBusinesses as any[]).length > 0;
         const catCounts = new Map<string, number>();
         for (const ft of catPillTabs) {
           catCounts.set(ft.id, cityInRadius.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
         }
+
 
         const afterCat = activeFrontTab
           ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
@@ -4424,9 +4430,14 @@ const BookOnlineSlidePanelInner = ({
                               ))}
                             </>
                           ) : (
+                            catPillTabs.length === 0 ? (
+                              <DropdownMenuItem disabled className="opacity-60 pointer-events-none">
+                                {language === "en" ? "Loading…" : language === "ar" ? "جار التحميل…" : "Chargement…"}
+                              </DropdownMenuItem>
+                            ) : (
                             catPillTabs.map((ft) => {
                               const count = catCounts.get(ft.id) ?? 0;
-                              const disabled = count === 0;
+                              const disabled = catBaseReady && count === 0;
                               return (
                                 <DropdownMenuItem
                                   key={ft.id}
@@ -4438,10 +4449,13 @@ const BookOnlineSlidePanelInner = ({
                                   }}
                                   className={disabled ? "opacity-40 pointer-events-none" : ""}
                                 >
-                                  {translateFrontStructure(ft.name, language)} <span className="ml-1 opacity-60">({count})</span>
+                                  {translateFrontStructure(ft.name, language)}
+                                  {catBaseReady && <span className="ml-1 opacity-60">({count})</span>}
                                 </DropdownMenuItem>
                               );
                             })
+                            )
+
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -4508,9 +4522,10 @@ const BookOnlineSlidePanelInner = ({
                   items={catPillTabs.map((ft) => ({
                     key: ft.id,
                     label: translateFrontStructure(ft.name, language),
-                    count: catCounts.get(ft.id) ?? 0,
-                    disabled: (catCounts.get(ft.id) ?? 0) === 0,
+                    count: catBaseReady ? (catCounts.get(ft.id) ?? 0) : undefined,
+                    disabled: catBaseReady && (catCounts.get(ft.id) ?? 0) === 0,
                   }))}
+
                   selectedKey={poiCatFilter}
                   allLabel={language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
                   onSelectAll={() => {
