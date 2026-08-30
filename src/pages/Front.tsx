@@ -653,7 +653,7 @@ const Front = () => {
         {/* Assistant IA — iframe /embed/embédée (chrome masqué, thème sombre) */}
         <div className="flex h-full w-full flex-col">
           <iframe
-            src="/embed/ask?scope=platform&theme=dark&chrome=0&bg=transparent"
+            src="/embed/ask?scope=platform&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light"
             title="Assistant IA"
             className="h-full w-full flex-1 border-0 bg-transparent"
           />

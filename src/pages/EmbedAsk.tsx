@@ -1953,10 +1953,14 @@ const EmbedAsk = () => {
   const flat = noTheme && bgTransparent && !cardColor;
   const ink = (params.get("ink") || "").toLowerCase();
   const flatDarkInk = flat && ink === "dark";
+  // `?ink=light` (hôte sombre, ex. /front) : l'encre reste blanche même si la
+  // couleur de widget enregistrée suggérerait une encre foncée.
+  const forceLightInk = ink === "light";
   const bg = customBg ? "bg-transparent" : theme === "light" ? "bg-white" : "bg-neutral-950";
   const surface = customBg
-    ? `bg-transparent ${flatDarkInk || activeBgInk === "dark" ? "text-black" : "text-white"}`
+    ? `bg-transparent ${!forceLightInk && (flatDarkInk || activeBgInk === "dark") ? "text-black" : "text-white"}`
     : theme === "light" ? "bg-white text-black" : "bg-neutral-950 text-white";
+
   const userBubble = flat
     ? (ink === "dark" ? "bg-white/80 text-black border border-white/50" : "bg-white/10 text-white border border-white/20")
     : theme === "light" ? "bg-neutral-900 text-white" : "bg-white text-black";
