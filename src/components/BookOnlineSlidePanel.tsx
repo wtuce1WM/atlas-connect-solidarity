@@ -276,6 +276,9 @@ interface BookOnlineSlidePanelProps {
   /** Assistant IA uniquement : charge la structure des catégories sans attendre
       le comptage ville du hook ; les compteurs sont recalculés sur le vivier du panneau. */
   eagerPoiCategories?: boolean;
+  /** Ville de l'ancre connue par l'appelant (assistant IA) : permet de lancer la
+      taxonomie et le vivier ville en parallèle du chargement de la fiche Master. */
+  poiAnchorCity?: string | null;
 }
 
 
@@ -287,7 +290,8 @@ const BookOnlineSlidePanelInner = ({
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
-  poiOverrideIds, poiCityCorpus, poiOverrideTitle, eagerPoiCategories = false, feedLayout, loadingSurface, aiMode,
+  poiOverrideIds, poiCityCorpus, poiOverrideTitle, eagerPoiCategories = false, poiAnchorCity, feedLayout, loadingSurface, aiMode,
+
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const rateIframeHeight = useEmbedIframeHeight("owm-rate-height", 380);
