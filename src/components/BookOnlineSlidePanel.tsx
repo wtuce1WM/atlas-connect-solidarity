@@ -745,7 +745,25 @@ const BookOnlineSlidePanelInner = ({
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
   // Corpus ville imposé : les onglets/catégories viennent de la 1ère ville du corpus
   // (le Master d'ancrage peut ne pas avoir de structure front exploitable).
-  const { tabs: frontTabs } = useFrontStructureTabs((poiCityCorpus && poiCityCorpus[0]) || business?.city || null);
+  // Repli : si le Master n'a pas de ville exploitable (ancre POI de l'assistant IA),
+  // on prend la ville majoritaire des fiches réellement affichées sur la carte,
+  // sinon le Pill Catégories reste vide indéfiniment.
+  const fallbackFrontCity = useMemo(() => {
+    const pool = [...(poiOverrideRows as any[]), ...(poiBusinesses as any[])];
+    const counts = new Map<string, number>();
+    for (const p of pool) {
+      const c = typeof p?.city === "string" ? p.city.trim() : "";
+      if (c) counts.set(c, (counts.get(c) || 0) + 1);
+    }
+    let best: string | null = null;
+    let bestN = 0;
+    counts.forEach((n, c) => { if (n > bestN) { best = c; bestN = n; } });
+    return best;
+  }, [poiOverrideRows, poiBusinesses]);
+  const frontTabsCity =
+    (poiCityCorpus && poiCityCorpus[0]) || business?.city || fallbackFrontCity || null;
+  const { tabs: frontTabs } = useFrontStructureTabs(frontTabsCity);
+
   const { translateSubcategory } = useTaxonomyTranslations();
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
 
@@ -808,14 +826,14 @@ const BookOnlineSlidePanelInner = ({
 
   // Vivier ville (toutes catégories) chargé quand l'overlay POI/Map est ouvert
   useEffect(() => {
-    if (!showPoiMapOverlay || !business?.city) return;
+    if (!showPoiMapOverlay || !frontTabsCity) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from("businesses")
         .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score, computed_rating, total_review_count")
         .eq("is_active", true)
-        .ilike("city", business.city)
+        .ilike("city", frontTabsCity)
         .order("priority_score", { ascending: false, nullsFirst: false })
         .limit(1000);
       if (cancelled) return;
@@ -839,7 +857,7 @@ const BookOnlineSlidePanelInner = ({
       setPoiCityBusinesses(rows as PoiBusiness[]);
     })();
     return () => { cancelled = true; };
-  }, [showPoiMapOverlay, business?.city, businessId]);
+  }, [showPoiMapOverlay, frontTabsCity, businessId]);
 
 
   
