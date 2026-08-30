@@ -3385,6 +3385,7 @@ const EmbedAsk = () => {
               hideDirections
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
+              eagerPoiCategories
               onClose={() => setOpenGenericPoi(false)}
             />
           </Suspense>
