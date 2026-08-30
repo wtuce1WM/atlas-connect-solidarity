@@ -741,6 +741,37 @@ Deno.serve(async (req) => {
             console.log("[embed-ai-chat-v2] curated_text_match", JSON.stringify(m));
           }
         }
+        // Relance libre qui ne fait QUE changer de ville (« à Essaouira ») : le
+        // périmètre taxonomique de la suggestion active (badge, sous-catégories,
+        // services, commodités) reste la loi — seule la ville bascule. Sans ça, le
+        // badge « Rooftop Restaurant & Bars » de la suggestion « Rooftops » était
+        // perdu et la ville renvoyait des établissements sans aucun lien.
+        if (!suggestionId && !followupId && contextSuggestionId && explicitCity) {
+          const cityKey = normalize(explicitCity);
+          const rest = normalize(userMessage)
+            .split(/\s+/)
+            .filter((w) => w && !cityKey.split(/\s+/).includes(w))
+            .filter((w) => !/^(a|au|aux|à|en|de|du|des|dans|sur|vers|pour|et|the|in|at|to|of|على|في|الى|إلى)$/.test(w))
+            .filter((w) => w.length > 2);
+          if (!rest.length) {
+            let allowed = true;
+            if (platformMode) {
+              const { data: sg } = await admin
+                .from("ai_suggestions")
+                .select("is_platform_visible")
+                .eq("id", contextSuggestionId)
+                .maybeSingle();
+              allowed = !!sg?.is_platform_visible;
+            }
+            if (allowed) {
+              suggestionId = contextSuggestionId;
+              suggestionFromText = true;
+              console.log("[embed-ai-chat-v2] curated_city_refine", JSON.stringify({
+                suggestionId: contextSuggestionId, city: explicitCity,
+              }));
+            }
+          }
+        }
         if (suggestionId || followupId) {
           const curated = await loadCuratedTargets(admin, {
             suggestionId, followupId, businessId: host?.id ?? null,
