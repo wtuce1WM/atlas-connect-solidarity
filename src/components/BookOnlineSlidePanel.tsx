@@ -4182,7 +4182,14 @@ const BookOnlineSlidePanelInner = ({
         // servir de base ici : il contient toutes les fiches actives (non-POI comprises)
         // et ferait exploser la liste des sous-catégories par défaut.
         const closedAiPool = (poiOverrideIds || []).length ? overridePool : null;
-        const poiPillBase = closedAiPool ?? (poiBusinesses as any[]).filter(inRadius);
+        // Corpus ville imposé (chip « Map ») : on ne garde que les fiches is_poi,
+        // pour retrouver exactement la même liste d'entrées que l'overlay classique.
+        const cityCorpusPois =
+          !closedAiPool && (poiCityCorpus || []).length && poiOverrideRows.length
+            ? (poiOverrideRows as any[]).filter((p) => (p as any).is_poi)
+            : null;
+        const poiPillBase =
+          closedAiPool ?? cityCorpusPois ?? (poiBusinesses as any[]).filter(inRadius);
         const poiPillDefaults = defaultSubcatsOf(poiPillBase);
         const poiSubcatCounts = new Map<string, number>();
         for (const p of poiPillBase) {
