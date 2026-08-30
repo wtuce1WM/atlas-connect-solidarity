@@ -1976,7 +1976,9 @@ const EmbedAsk = () => {
   const border = flat
     ? (ink === "dark" ? "border-neutral-200" : "border-white/20")
     : theme === "light" ? "border-neutral-200" : "border-neutral-800";
-  const inputBg = flat
+  const inputBg = bgTransparent
+    ? "bg-transparent"
+    : flat
     ? (ink === "dark" ? "bg-transparent" : "bg-transparent")
     : theme === "light" ? "bg-white" : "bg-neutral-900";
   const cardBg = flat
