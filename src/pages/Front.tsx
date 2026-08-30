@@ -787,7 +787,9 @@ const Front = () => {
               onYouTubeSelect={() => { void selectDemoYouTube(); }}
               selectedBadgeId={demoBadgeId}
               aiMode={demoAiMode}
+              roundedFrame
             />
+
           </Suspense>
         );
       })()}

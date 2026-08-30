@@ -63,6 +63,9 @@ const capFirstBadgeLabel = (s: string) => (s ? s.charAt(0).toUpperCase() + s.sli
 interface VideoSlidePanelProps {
   open: boolean;
   onClose: () => void;
+  /** Variante embarquée /front : coins arrondis */
+  roundedFrame?: boolean;
+
   videoUrl: string | null;
   videoId: string | null;
   businessName: string;
@@ -205,8 +208,11 @@ const VideoSlidePanel = ({
     onFeedYouTubeSelect,
     selectedBadgeId = null,
     feedLayout = false,
+    roundedFrame = false,
     aiMode = "business",
   }: VideoSlidePanelProps) => {
+
+
 
   const navigate = useLocalizedNavigate();
   const rawNavigate = useNavigate();
@@ -1002,7 +1008,7 @@ const VideoSlidePanel = ({
   }
 
   return createPortal(
-    <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[220] bg-black h-[100dvh]"
+    <div className={`fixed inset-y-0 right-0 w-full lg:w-1/2 z-[220] bg-black h-[100dvh] overflow-hidden ${roundedFrame ? "rounded-2xl ring-1 ring-white/10" : ""}`}
       onClick={(e) => {
         // Les contenus Radix (LocationPickerDialog, DropdownMenu des chips de la
         // carte POI, etc.) sont rendus dans un portal sur document.body : DOM-ment

@@ -168,6 +168,8 @@ interface BookSocialInfo {
 
 interface BookOnlineSlidePanelProps {
   businessId?: string;
+  /** Coins arrondis (variante /front) */
+  roundedFrame?: boolean;
   /** Display name used when delegating to VideoSlidePanel (no business resolved) */
   businessName?: string;
   onClose: () => void;
@@ -5353,6 +5355,7 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         onFeedYouTubeSelect={props.onFeedYouTubeSelect}
         selectedBadgeId={props.selectedBadgeId ?? null}
         aiMode={props.aiMode}
+        roundedFrame={props.roundedFrame}
       />
     );
   }
