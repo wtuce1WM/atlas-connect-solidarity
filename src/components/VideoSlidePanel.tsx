@@ -1529,7 +1529,7 @@ const VideoSlidePanel = ({
                 );
               })()}
             </div>
-            <div className="flex flex-col items-start gap-1.5">
+            <div className="flex flex-wrap items-center justify-center gap-1.5 md:flex-col md:items-start md:justify-start">
               {CITY_FEED_BADGES.map((city) => (
                 <button
                   key={city.id}
