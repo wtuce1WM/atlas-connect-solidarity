@@ -677,6 +677,11 @@ const EmbedAsk = () => {
   // rendus inline, indexés par identifiant de message assistant.
   const [hotelResults, setHotelResults] = useState<Record<string, CityHotelSearchResult>>({});
   const [hotelSearchingMsgId, setHotelSearchingMsgId] = useState<string | null>(null);
+  // Suggestion `booking` liée à des sous-catégories : la ville du widget est
+  // mémorisée au clic, puis rattachée au message assistant du moteur (le widget
+  // s'affiche donc SOUS les résultats des sous-catégories).
+  const pendingBookingCityRef = useRef<string | null>(null);
+  const [bookingWidgetByMsg, setBookingWidgetByMsg] = useState<Record<string, string>>({});
   const runCityHotelSearch = async (msgId: string, city: string, checkIn: string, checkOut: string, adults: number) => {
     setHotelSearchingMsgId(msgId);
     try {
