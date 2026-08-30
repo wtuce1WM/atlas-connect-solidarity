@@ -159,42 +159,78 @@ export async function resolveBadgeBusinessIds(
   const docIds = [...new Set((docs?.data || []).map((r: any) => String(r.document_id)))];
   const ytIds = [...new Set((yts?.data || []).map((r: any) => String(r.youtube_video_id)))];
 
+  /**
+   * Résolution vidéo → établissement PAR LOTS. Un badge très filmé porte des
+   * centaines de vidéos : un `.in("id", [400 uuid])` dépassait la longueur d'URL
+   * acceptée par l'API, l'erreur était avalée silencieusement et le pont vidéo
+   * renvoyait 0 — le corpus curaté retombait aux seuls badges de fiche
+   * (ex. « Rooftop » Essaouira : 2 au lieu de 22).
+   */
+  const CHUNK = 80;
+  const chunked = async (
+    table: string,
+    idList: string[],
+    apply: (q: any) => any,
+  ): Promise<any[]> => {
+    const out: any[] = [];
+    for (let i = 0; i < idList.length; i += CHUNK) {
+      const slice = idList.slice(i, i + CHUNK);
+      const { data, error } = await apply(admin.from(table).select("business_id").in("id", slice));
+      if (error) {
+        console.error(`[badge-video] ${table}_chunk_failed`, error.message);
+        continue;
+      }
+      out.push(...(data || []));
+    }
+    return out;
+  };
+
   const [docRows, ytRows] = await Promise.all([
     docIds.length
-      ? admin.from("business_documents").select("business_id").in("id", docIds).eq("type", "video").eq("business_is_active", true)
-      : Promise.resolve({ data: [] as any[] }),
+      ? chunked("business_documents", docIds, (q: any) => q.eq("type", "video").eq("business_is_active", true))
+      : Promise.resolve([] as any[]),
     ytIds.length
-      ? admin.from("business_youtube_videos").select("business_id").in("id", ytIds).eq("business_is_active", true)
-      : Promise.resolve({ data: [] as any[] }),
+      ? chunked("business_youtube_videos", ytIds, (q: any) => q.eq("business_is_active", true))
+      : Promise.resolve([] as any[]),
   ]);
+
 
   const pool = [
     ...(fiche?.data || []),
-    ...(docRows?.data || []),
-    ...(ytRows?.data || []),
+    ...docRows,
+    ...ytRows,
   ]
+
     .map((r: any) => r?.business_id)
     .filter(Boolean)
     .map(String);
   const unique = [...new Set(pool)];
   if (!unique.length) return [];
 
-  let q = admin
-    .from("businesses")
-    .select("id")
-    .in("id", unique)
-    .eq("is_active", true)
-    .is("closure_message", null)
-    .order("is_featured", { ascending: false })
-    .order("computed_rating", { ascending: false, nullsFirst: false })
-    .order("total_review_count", { ascending: false, nullsFirst: false })
-    .limit(limit);
+  // Même précaution de longueur d'URL : le pool d'établissements est lu par lots,
+  // puis trié en mémoire (mis en avant → note → volume d'avis) avant la coupe.
   const c = String(city || "").trim();
-  if (c) q = q.eq("city", c);
-  const { data, error } = await q;
-  if (error) {
-    console.error("[badge-video] businesses_failed", error.message);
-    return [];
+  const rows: any[] = [];
+  for (let i = 0; i < unique.length; i += CHUNK) {
+    let q = admin
+      .from("businesses")
+      .select("id, is_featured, computed_rating, total_review_count")
+      .in("id", unique.slice(i, i + CHUNK))
+      .eq("is_active", true)
+      .is("closure_message", null);
+    if (c) q = q.eq("city", c);
+    const { data, error } = await q;
+    if (error) {
+      console.error("[badge-video] businesses_chunk_failed", error.message);
+      continue;
+    }
+    rows.push(...(data || []));
   }
-  return (data || []).map((b: any) => String(b.id));
+  rows.sort((a, b) =>
+    Number(!!b.is_featured) - Number(!!a.is_featured) ||
+    Number(b.computed_rating ?? -1) - Number(a.computed_rating ?? -1) ||
+    Number(b.total_review_count ?? -1) - Number(a.total_review_count ?? -1)
+  );
+  return rows.slice(0, limit).map((b: any) => String(b.id));
+
 }
