@@ -4120,7 +4120,9 @@ const BookOnlineSlidePanelInner = ({
         // Origine unique des distances : l'établissement Master (fallback géoloc)
         // Fallback : centre de la carte (POI master, ex. Koutoubia) quand le Master
         // d'ancrage n'a pas de coordonnées — sinon le Pill Rayon disparaît.
-        const proxOrigin = (poiMasterCenter ?? userCoords) ?? null;
+        const proxOrigin = (business?.latitude != null && business?.longitude != null
+          ? { lat: business.latitude, lng: business.longitude }
+          : (poiMasterCenter ?? userCoords)) ?? null;
         const distOf = (p: { latitude: number | null; longitude: number | null }) =>
           proxOrigin && p.latitude != null && p.longitude != null
             ? haversineKm(proxOrigin.lat, proxOrigin.lng, p.latitude, p.longitude)
@@ -4137,12 +4139,8 @@ const BookOnlineSlidePanelInner = ({
         // Corpus fermé imposé (réponse IA) : ordre conservé, mais les contrôles
         // Top/Tous et Proximité restent disponibles sur ce corpus complet.
         const overridePool: any[] | null = poiOverrideRows.length ? (poiOverrideRows as any[]) : null;
-        const closedAiPool = (poiOverrideIds || []).length ? overridePool : null;
         // Vivier ville restreint au rayon actif → base des compteurs catégories
-        const cityInRadius = closedAiPool
-          ?? ((poiCityCorpus || []).length && overridePool
-            ? overridePool.filter(inRadius)
-            : (poiCityBusinesses as any[]).filter(inRadius));
+        const cityInRadius = overridePool ?? (poiCityBusinesses as any[]).filter(inRadius);
         const catCounts = new Map<string, number>();
         for (const ft of catPillTabs) {
           catCounts.set(ft.id, cityInRadius.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
