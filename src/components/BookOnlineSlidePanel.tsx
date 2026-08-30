@@ -1396,11 +1396,22 @@ const BookOnlineSlidePanelInner = ({
     });
     return () => subscription.unsubscribe();
   }, []);
+  // Une seule instance doit répondre à l'événement global : celle du dessus.
+  // Sinon le panneau parent ET la sous-fiche (POI/KP) ouvrent chacun leur popup
+  // (le parent en plein écran, la sous-fiche dans le slidepanel) → 2 popups.
+  const subPanelOpenRef = useRef(false);
   useEffect(() => {
-    const handler = () => setClubAuthOpen(true);
+    subPanelOpenRef.current = !!selectedPoiBusinessId || !!selectedKpBusinessId;
+  }, [selectedPoiBusinessId, selectedKpBusinessId]);
+  useEffect(() => {
+    const handler = () => {
+      if (subPanelOpenRef.current) return;
+      setClubAuthOpen(true);
+    };
     window.addEventListener("open-panel-club-popup", handler);
     return () => window.removeEventListener("open-panel-club-popup", handler);
   }, []);
+
 
   // Tap-to-reveal label on touch devices for left CTAs: first tap expands, second tap triggers.
   const [tappedCta, setTappedCta] = useState<string | null>(null);
