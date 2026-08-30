@@ -658,7 +658,7 @@ const EmbedAsk = () => {
   }, []);
 
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null; is_platform_visible?: boolean };
-  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null; city?: string | null };
+  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null; city?: string | null; subcategory_ids?: string[] };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
   // Splash d'accueil supprimé : la landing IA s'affiche immédiatement, sans
   // écran intermédiaire (grand message → petit message).
@@ -677,6 +677,11 @@ const EmbedAsk = () => {
   // rendus inline, indexés par identifiant de message assistant.
   const [hotelResults, setHotelResults] = useState<Record<string, CityHotelSearchResult>>({});
   const [hotelSearchingMsgId, setHotelSearchingMsgId] = useState<string | null>(null);
+  // Suggestion `booking` liée à des sous-catégories : la ville du widget est
+  // mémorisée au clic, puis rattachée au message assistant du moteur (le widget
+  // s'affiche donc SOUS les résultats des sous-catégories).
+  const pendingBookingCityRef = useRef<string | null>(null);
+  const [bookingWidgetByMsg, setBookingWidgetByMsg] = useState<Record<string, string>>({});
   const runCityHotelSearch = async (msgId: string, city: string, checkIn: string, checkOut: string, adults: number) => {
     setHotelSearchingMsgId(msgId);
     try {
@@ -819,6 +824,15 @@ const EmbedAsk = () => {
   });
 
   const streaming = status === "submitted" || status === "streaming";
+  // Rattachement du widget de disponibilité au message assistant du moteur.
+  useEffect(() => {
+    const city = pendingBookingCityRef.current;
+    if (!city || !messages.length) return;
+    const last = messages[messages.length - 1] as any;
+    if (last?.role !== "assistant" || !last?.id) return;
+    pendingBookingCityRef.current = null;
+    setBookingWidgetByMsg((prev) => ({ ...prev, [String(last.id)]: city }));
+  }, [messages]);
 
   // Mode plateforme : les préférences affilié (enabled_suggestion_ids) ne
   // s'appliquent pas — le périmètre est la base entière (flag Plateforme 1WM).
@@ -1245,7 +1259,7 @@ const EmbedAsk = () => {
     (async () => {
       const data = await publicSelect(
         "ai_suggestions",
-        "select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode&surface=eq.embed&is_active=eq.true&order=sort_order.asc",
+        "select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode,subcategory_ids&surface=eq.embed&is_active=eq.true&order=sort_order.asc",
       );
       if (cancelled) return;
       if (!data) {
@@ -1276,6 +1290,7 @@ const EmbedAsk = () => {
           label: ((r[col] || r.label_fr || "") as string).trim(),
           disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
           mode: (r.mode as string | null) ?? null,
+          subcategory_ids: Array.isArray(r.subcategory_ids) ? (r.subcategory_ids as string[]) : [],
           city: (r.city as string | null) ?? null,
         }))
         .filter((r) => r.label);
@@ -1422,7 +1437,17 @@ const EmbedAsk = () => {
       isBookingLabel ||
       !!bookingSuggestion ||
       !!freeBookingIntent;
-    if (isBookingRequest) {
+    // Suggestion `booking` LIÉE à des sous-catégories : le tour passe par le
+    // moteur (route `search_businesses`) pour afficher d'abord les résultats des
+    // sous-catégories ; le widget de disponibilité est rendu ensuite, sous les
+    // cartes, avec la ville active.
+    const bookingWithSubcats =
+      !!bookingSuggestion && (bookingSuggestion.subcategory_ids?.length ?? 0) > 0;
+    if (isBookingRequest && bookingWithSubcats) {
+      pendingBookingCityRef.current =
+        bookingSuggestion?.city || platformCity || businessCity || "Marrakech";
+    }
+    if (isBookingRequest && !bookingWithSubcats) {
       setError(null);
       setActiveSuggestionId(bookingSuggestion?.id || suggestionId || null);
       // La ville nommée dans la question prime sur la ville par défaut du widget.
@@ -2583,8 +2608,8 @@ const EmbedAsk = () => {
           const videoFeedPayload = videoFeeds[videoFeeds.length - 1] || null;
           const tidesCity = tides[tides.length - 1] || null;
           const bookingPayload = bookings[bookings.length - 1] || null;
-          const bookingCity = bookingPayload?.city || null;
           const msgKey = String(m.id || i);
+          const bookingCity = bookingPayload?.city || bookingWidgetByMsg[msgKey] || null;
           const bookingResult = hotelResults[msgKey] || null;
           const isLast = i === messages.length - 1;
           const hideAssistantText =
@@ -2762,76 +2787,6 @@ const EmbedAsk = () => {
                 </div>
               )}
 
-              {bookingCity && (
-                <div className="w-[22rem] max-w-full flex flex-col gap-3">
-                  <AvailabilitySearchOverlay
-                    inline
-                    language={lang}
-                    isSearching={hotelSearchingMsgId === msgKey}
-                    initialCheckIn={bookingResult?.checkIn ?? bookingPayload?.checkIn ?? undefined}
-                    initialCheckOut={bookingResult?.checkOut ?? bookingPayload?.checkOut ?? undefined}
-                    initialAdults={bookingResult?.adults ?? bookingPayload?.adults ?? undefined}
-                    onSearch={(checkIn, checkOut, adults) => {
-                      runCityHotelSearch(msgKey, bookingCity, checkIn, checkOut, adults);
-                    }}
-                    onClose={() => {}}
-                  />
-
-                  {bookingResult && (
-                    <div className="flex flex-col gap-3">
-                      <div className={`text-xs font-semibold ${theme === "dark" ? "text-white/70" : "text-neutral-700"}`}>
-                        {bookingResult.hotels.length > 0
-                          ? (lang === "en"
-                              ? `${bookingResult.hotels.length} available stays in ${bookingResult.city}`
-                              : lang === "ar"
-                              ? `${bookingResult.hotels.length} إقامة متوفرة في ${bookingResult.city}`
-                              : `${bookingResult.hotels.length} établissements disponibles à ${bookingResult.city}`)
-                          : (lang === "en"
-                              ? "No availability found for these dates."
-                              : lang === "ar"
-                              ? "لا يوجد توفر لهذه التواريخ."
-                              : "Aucune disponibilité trouvée pour ces dates.")}
-                      </div>
-                      {bookingResult.hotels.map((h: any) => (
-                        <button
-                          key={h.hotelId}
-                          type="button"
-                          onClick={() => { setOpenSiblings([h.businessId]); setOpenBusinessId(h.businessId); }}
-                          className={`flex gap-3 p-3 text-left rounded-2xl border ${border} ${cardBg}`}
-                          style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08)", ...(cardStyle || {}) }}
-                        >
-                          <div className="shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-neutral-800">
-                            {(h.dbImage || h.mainImage) && (
-                              <img src={h.dbImage || h.mainImage} alt={h.name} className="w-full h-full object-cover" loading="lazy" />
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className={`font-semibold text-sm truncate ${cardInk}`}>{h.name}</div>
-                            <div className={`text-xs mt-0.5 truncate ${cardInk} opacity-70`}>
-                              {[h.dbBusiness?.neighborhood, h.dbBusiness?.city].filter(Boolean).join(" · ")}
-                            </div>
-                            {h.dbGoogleRating != null && (
-                              <div className={`text-xs mt-1 flex items-center gap-1 ${cardInk} opacity-80`}>
-                                <Star className="h-3 w-3" style={{ color: "#D4AF37" }} />
-                                {Number(h.dbGoogleRating).toFixed(1)}
-                                {h.dbGoogleReviewCount ? ` (${h.dbGoogleReviewCount})` : ""}
-                              </div>
-                            )}
-                            {(typeof h.serpPrice === "object" ? h.serpPrice?.amount : h.serpPrice) && (
-                              <div className="mt-1.5 inline-block rounded-full px-2.5 py-1 text-xs font-bold text-white" style={{ background: "#C04F17" }}>
-                                {typeof h.serpPrice === "object" ? h.serpPrice.amount : h.serpPrice}
-                                <span className="font-normal opacity-90">
-                                  {lang === "en" ? " / night" : lang === "ar" ? " / ليلة" : " / nuit"}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
 
 
 
@@ -2931,6 +2886,77 @@ const EmbedAsk = () => {
                 renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload), mapPayload.order)}
 
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
+
+              {bookingCity && (
+                <div className="w-full max-w-[85%] flex flex-col gap-3">
+                  <AvailabilitySearchOverlay
+                    inline
+                    language={lang}
+                    isSearching={hotelSearchingMsgId === msgKey}
+                    initialCheckIn={bookingResult?.checkIn ?? bookingPayload?.checkIn ?? undefined}
+                    initialCheckOut={bookingResult?.checkOut ?? bookingPayload?.checkOut ?? undefined}
+                    initialAdults={bookingResult?.adults ?? bookingPayload?.adults ?? undefined}
+                    onSearch={(checkIn, checkOut, adults) => {
+                      runCityHotelSearch(msgKey, bookingCity, checkIn, checkOut, adults);
+                    }}
+                    onClose={() => {}}
+                  />
+
+                  {bookingResult && (
+                    <div className="flex flex-col gap-3">
+                      <div className={`text-xs font-semibold ${theme === "dark" ? "text-white/70" : "text-neutral-700"}`}>
+                        {bookingResult.hotels.length > 0
+                          ? (lang === "en"
+                              ? `${bookingResult.hotels.length} available stays in ${bookingResult.city}`
+                              : lang === "ar"
+                              ? `${bookingResult.hotels.length} إقامة متوفرة في ${bookingResult.city}`
+                              : `${bookingResult.hotels.length} établissements disponibles à ${bookingResult.city}`)
+                          : (lang === "en"
+                              ? "No availability found for these dates."
+                              : lang === "ar"
+                              ? "لا يوجد توفر لهذه التواريخ."
+                              : "Aucune disponibilité trouvée pour ces dates.")}
+                      </div>
+                      {bookingResult.hotels.map((h: any) => (
+                        <button
+                          key={h.hotelId}
+                          type="button"
+                          onClick={() => { setOpenSiblings([h.businessId]); setOpenBusinessId(h.businessId); }}
+                          className={`flex gap-3 p-3 text-left rounded-2xl border ${border} ${cardBg}`}
+                          style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08)", ...(cardStyle || {}) }}
+                        >
+                          <div className="shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-neutral-800">
+                            {(h.dbImage || h.mainImage) && (
+                              <img src={h.dbImage || h.mainImage} alt={h.name} className="w-full h-full object-cover" loading="lazy" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className={`font-semibold text-sm truncate ${cardInk}`}>{h.name}</div>
+                            <div className={`text-xs mt-0.5 truncate ${cardInk} opacity-70`}>
+                              {[h.dbBusiness?.neighborhood, h.dbBusiness?.city].filter(Boolean).join(" · ")}
+                            </div>
+                            {h.dbGoogleRating != null && (
+                              <div className={`text-xs mt-1 flex items-center gap-1 ${cardInk} opacity-80`}>
+                                <Star className="h-3 w-3" style={{ color: "#D4AF37" }} />
+                                {Number(h.dbGoogleRating).toFixed(1)}
+                                {h.dbGoogleReviewCount ? ` (${h.dbGoogleReviewCount})` : ""}
+                              </div>
+                            )}
+                            {(typeof h.serpPrice === "object" ? h.serpPrice?.amount : h.serpPrice) && (
+                              <div className="mt-1.5 inline-block rounded-full px-2.5 py-1 text-xs font-bold text-white" style={{ background: "#C04F17" }}>
+                                {typeof h.serpPrice === "object" ? h.serpPrice.amount : h.serpPrice}
+                                <span className="font-normal opacity-90">
+                                  {lang === "en" ? " / night" : lang === "ar" ? " / ليلة" : " / nuit"}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {destinationsPayload && destinationsPayload.destinations.length > 0 && (
                 <EmbedCardCarousel
