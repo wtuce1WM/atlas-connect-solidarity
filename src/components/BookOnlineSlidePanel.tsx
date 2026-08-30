@@ -4141,10 +4141,16 @@ const BookOnlineSlidePanelInner = ({
         const overridePool: any[] | null = poiOverrideRows.length ? (poiOverrideRows as any[]) : null;
         // Vivier ville restreint au rayon actif → base des compteurs catégories
         const cityInRadius = overridePool ?? (poiCityBusinesses as any[]).filter(inRadius);
+        // Base des compteurs encore en cours de chargement (assistant IA : la fiche
+        // d'ancrage, puis le vivier ville, arrivent après l'ouverture de l'overlay).
+        // Dans ce cas les entrées du Pill Catégories restent actives et sans compteur,
+        // au lieu d'apparaître toutes grisées / vides.
+        const catBaseReady = !!overridePool || (poiCityBusinesses as any[]).length > 0;
         const catCounts = new Map<string, number>();
         for (const ft of catPillTabs) {
           catCounts.set(ft.id, cityInRadius.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
         }
+
 
         const afterCat = activeFrontTab
           ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
