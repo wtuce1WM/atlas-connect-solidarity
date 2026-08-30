@@ -800,6 +800,9 @@ const EmbedAsk = () => {
         messageIndex: messageIndexRef.current,
         suggestionId: (body as any)?.suggestionId ?? null,
         followupId: (body as any)?.followupId ?? null,
+        // Contexte curaté (jamais un clic) : conserve le périmètre badge de la
+        // suggestion active quand la relance libre ne change que la ville.
+        contextSuggestionId: (body as any)?.contextSuggestionId ?? null,
         scope: (body as any)?.scope ?? null,
         forcedRoute: (body as any)?.forcedRoute ?? null,
         destinationId: (body as any)?.destinationId ?? null,
