@@ -4183,10 +4183,19 @@ const BookOnlineSlidePanelInner = ({
         // et ferait exploser la liste des sous-catégories par défaut.
         const closedAiPool = (poiOverrideIds || []).length ? overridePool : null;
         // Corpus ville imposé (chip « Map ») : on ne garde que les fiches is_poi,
-        // pour retrouver exactement la même liste d'entrées que l'overlay classique.
+        // ET on applique le même rayon par défaut que l'overlay classique (champ
+        // Rayon du Master, 10 km sinon) — sinon des POI d'autres villes du corpus
+        // (ex. Agafay) gonfleraient les compteurs. Le chip « À proximité » reste prioritaire.
+        const anchorRawKm = Number((business as any)?.poi_radius_km);
+        const anchorDefaultKm = [0.5, 1, 5, 10, 20, 50, 100].includes(anchorRawKm) ? anchorRawKm : 10;
         const cityCorpusPois =
           !closedAiPool && (poiCityCorpus || []).length && poiOverrideRows.length
-            ? (poiOverrideRows as any[]).filter((p) => (p as any).is_poi)
+            ? (poiOverrideRows as any[]).filter((p) => {
+                if (!(p as any).is_poi) return false;
+                const km = poiProximityKm ?? anchorDefaultKm;
+                const d = distOf(p);
+                return d != null && d <= km;
+              })
             : null;
         const poiPillBase =
           closedAiPool ?? cityCorpusPois ?? (poiBusinesses as any[]).filter(inRadius);
