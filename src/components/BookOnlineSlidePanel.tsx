@@ -4522,9 +4522,10 @@ const BookOnlineSlidePanelInner = ({
                   items={catPillTabs.map((ft) => ({
                     key: ft.id,
                     label: translateFrontStructure(ft.name, language),
-                    count: catCounts.get(ft.id) ?? 0,
-                    disabled: (catCounts.get(ft.id) ?? 0) === 0,
+                    count: catBaseReady ? (catCounts.get(ft.id) ?? 0) : undefined,
+                    disabled: catBaseReady && (catCounts.get(ft.id) ?? 0) === 0,
                   }))}
+
                   selectedKey={poiCatFilter}
                   allLabel={language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
                   onSelectAll={() => {
