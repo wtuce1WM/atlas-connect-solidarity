@@ -1299,7 +1299,7 @@ const VideoSlidePanel = ({
           }
 
           return (
-            <div className="absolute top-40 md:top-40 lg:top-44 left-4 right-4 z-[60] pointer-events-none flex flex-col items-center gap-1.5 text-center">
+            <div className="absolute top-40 md:top-40 lg:top-44 left-4 right-4 z-[60] pointer-events-none flex flex-col items-center gap-0.5 md:gap-1.5 text-center">
               {badgeText && (
                 <span
                   className="pointer-events-none inline-flex items-center rounded-full bg-black/70 backdrop-blur-md border border-white/15 px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase text-white tracking-wide"
@@ -1360,7 +1360,7 @@ const VideoSlidePanel = ({
             Clic sur un chip → relance le feed sur ce badge/ville. */}
         {feedLayout && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && !clubPopupOpen && !timelineClubOpen && (
-          <div className="absolute top-16 left-3 right-3 z-[100] pointer-events-none">
+          <div className="absolute top-16 left-1.5 right-1.5 md:left-3 md:right-3 z-[100] pointer-events-none">
             {!chipsExpanded && (() => {
               // Badge « vitrine » : en priorité un badge avec une couleur spécifique
               // (back-office), sinon n'importe lequel.
@@ -1392,9 +1392,9 @@ const VideoSlidePanel = ({
               );
             })()}
             {chipsExpanded && (
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-1 md:gap-2">
 
-            <div className="flex flex-col items-end gap-1.5">
+            <div className="flex flex-col items-end gap-0.5 md:gap-1.5">
               {LEFT_COLUMN_BADGES.filter(
                 (b) => !(feedBadges?.[0]?.id && b.id === feedBadges[0].id)
               ).map((b) => {
@@ -1432,7 +1432,7 @@ const VideoSlidePanel = ({
                 );
               })}
             </div>
-            <div className="flex flex-col items-center gap-1.5">
+            <div className="flex flex-col items-center gap-0.5 md:gap-1.5">
               {(() => {
                 const firstVideoBadge = feedBadges?.[0];
                 const dynamicBadges = feedBadges?.slice(1).filter((b) => {
