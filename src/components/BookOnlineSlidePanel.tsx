@@ -2523,7 +2523,6 @@ const BookOnlineSlidePanelInner = ({
             const LANG_OPTIONS = [
               { code: "fr" as const, flag: "🇫🇷", label: "Français" },
               { code: "en" as const, flag: "🇬🇧", label: "English" },
-              { code: "ar" as const, flag: "🇲🇦", label: "العربية" },
             ];
             const ctaLabel = language === "en" ? "Language" : language === "ar" ? "اللغة" : "Langue";
             const currentLang = LANG_OPTIONS.find((opt) => opt.code === language) || LANG_OPTIONS[0];
