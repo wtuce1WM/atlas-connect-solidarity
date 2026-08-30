@@ -2112,6 +2112,8 @@ const EmbedAsk = () => {
       setOpenBusinessId(id);
     };
     return (
+      // Desktop : cartes limitées en largeur (alignées à gauche), pas étirées sur tout l'écran.
+      <div className="w-full max-w-[480px] lg:max-w-[560px] mr-auto">
       <AiBusinessResultCards
         businesses={list as never}
         origin={hostLocation ? { lat: hostLocation.lat, lng: hostLocation.lng } : null}
@@ -2126,6 +2128,7 @@ const EmbedAsk = () => {
         footer={null}
 
       />
+      </div>
     );
   };
 
