@@ -849,8 +849,21 @@ Deno.serve(async (req) => {
           }
 
 
-          // Feed vidéo curaté (mode = 'video_feed') : le tour renvoie des vidéos,
-          // pas des fiches. Route déterministe partagée (parité V1 / club).
+          // Feed vidéo curaté (mode = 'video_feed') : le tour renvoie des vidéos.
+          // Route déterministe partagée (parité V1 / club).
+          //
+          // MODE COMBINÉ : si la même entrée porte AUSSI un périmètre fiches
+          // (sous-catégories / services / commodités — ex. « Suivez le guide »
+          // + sous-catégorie « Visite guidée »), on n'arrête PAS le tour : le
+          // feed est émis en premier (le front ouvre le lecteur automatiquement),
+          // puis le flux continue vers la réponse filtrée qui s'affiche dessous.
+          // Le filtre fiches ignore alors les badges vidéo du feed (ils servent
+          // à la distribution des vidéos, pas à qualifier l'offre).
+          const videoFeedCombined =
+            !!curated &&
+            String(curated.mode || "").trim() === "video_feed" &&
+            (curated.subcategoryNames.length + curated.serviceNames.length + curated.commodities.length) > 0;
+
           if (curated && keepCurated && String(curated.mode || "").trim() === "video_feed") {
             const built = await buildVideoFeedAnswer(admin, {
               badgeIds: curated.badgeIds,
@@ -867,10 +880,13 @@ Deno.serve(async (req) => {
               resultsCount = built.count;
               emit(built.text);
               emit(videoFeedMarker(built.payload));
-              await finish(true);
-              return;
+              if (!videoFeedCombined) {
+                await finish(true);
+                return;
+              }
             }
           }
+
 
           // Agenda curaté (mode = 'events') : le tour renvoie des événements
           // #Agenda de la ville active, pas des fiches. Parité V1.
