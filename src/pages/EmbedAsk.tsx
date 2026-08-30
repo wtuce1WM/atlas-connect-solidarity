@@ -1423,7 +1423,17 @@ const EmbedAsk = () => {
       isBookingLabel ||
       !!bookingSuggestion ||
       !!freeBookingIntent;
-    if (isBookingRequest) {
+    // Suggestion `booking` LIÉE à des sous-catégories : le tour passe par le
+    // moteur (route `search_businesses`) pour afficher d'abord les résultats des
+    // sous-catégories ; le widget de disponibilité est rendu ensuite, sous les
+    // cartes, avec la ville active.
+    const bookingWithSubcats =
+      !!bookingSuggestion && (bookingSuggestion.subcategory_ids?.length ?? 0) > 0;
+    if (isBookingRequest && bookingWithSubcats) {
+      pendingBookingCityRef.current =
+        bookingSuggestion?.city || platformCity || businessCity || "Marrakech";
+    }
+    if (isBookingRequest && !bookingWithSubcats) {
       setError(null);
       setActiveSuggestionId(bookingSuggestion?.id || suggestionId || null);
       // La ville nommée dans la question prime sur la ville par défaut du widget.
