@@ -2128,9 +2128,19 @@ Deno.serve(async (req) => {
           // Services qualifiés forts → filtre dur (l'expansion par mot reste du ranking).
           // Neutralisé en résolution faible : le filtre dur « Alcool » écarterait justement
           // les points de vente qu'on cherche.
-          const requiredServices = resolution && !weakResolution
+          let requiredServices = resolution && !weakResolution
             ? [...new Set(qualifiedServiceTargets(resolution).filter((t) => t.strength !== "expansion").map((t) => t.value))]
             : [];
+          // ── Service seul fort (« cours de surf » → Surf) ───────────────────
+          // qualifiedServiceTargets() rend [] sans catégorie d'intention : le
+          // service résolu n'était jamais filtré et la recherche retombait sur
+          // le fuzzy ville. Ici le service DEVIENT le filtre dur
+          // (businesses.services). L'intention d'achat est déjà exclue par
+          // weakResolution (purchaseIntent && strongAreServicesOnly).
+          if (!requiredServices.length && strongAreServicesOnly && strongTerms.length) {
+            requiredServices = strongTerms;
+            console.log("[embed-ai-chat-v2] service_only_hard_filter", JSON.stringify({ requiredServices }));
+          }
           await runSearch(baseQuery, searchCity, excluded, requiredServices);
           // Quartier nommé + corpus vide après filtre : le terme résolu était trop
           // étroit (« shopping » → « Boutique »). On rejoue avec le message brut, dont
