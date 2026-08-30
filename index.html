@@ -198,11 +198,13 @@
           // Chromium peint le fond de base d'une iframe transparente avec le
           // "color-adjust background" dès que le color-scheme de l'iframe diffère
           // de celui du document hôte (→ blanc si l'hôte est dark et l'iframe light).
-          // preset=overlay = usage interne dans l'app (hôte dark) → on aligne sur dark.
+          // preset=overlay et canvas=transparent = usages internes sur fond sombre :
+          // aligner le canvas AVANT le montage React évite tout flash blanc initial.
           var isOverlay = /(^|[?&])preset=overlay(&|$)/.test(location.search);
+          var isTransparentCanvas = /(^|[?&])canvas=transparent(&|$)/.test(location.search);
           var metas = document.querySelectorAll('meta[name="color-scheme"]');
           for (var i = 0; i < metas.length; i++) metas[i].parentNode.removeChild(metas[i]);
-          if (isOverlay) {
+          if (isOverlay || isTransparentCanvas) {
             document.documentElement.style.setProperty("color-scheme", "dark");
           } else {
             // Embed réel chez l'hôte : color-scheme LIGHT obligatoire, sinon
