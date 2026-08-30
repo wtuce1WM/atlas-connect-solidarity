@@ -1710,13 +1710,20 @@ const BookOnlineSlidePanelInner = ({
         "*"
       );
     };
+    // Quand une sous-fiche (POI / KP) est ouverte au-dessus de ce panel, c'est
+    // l'instance imbriquée qui doit répondre au pont Play/Mute. Sinon les deux
+    // instances réagissent au même événement window et la préférence son est
+    // basculée deux fois (bref son puis re-mute, play non conservé).
+    const isTopMost = () => !subPanelOpenRef.current;
     const emitState = () => {
+      if (!isTopMost()) return;
       const v = videoRef.current;
       const playing = v ? !v.paused : !videoPaused;
       const muted = !globalSoundOn;
       window.dispatchEvent(new CustomEvent("book-panel:state", { detail: { playing, muted } }));
     };
     const onTogglePlay = () => {
+      if (!isTopMost()) return;
       const v = videoRef.current;
       if (v) {
         if (v.paused) { v.play().catch(() => {}); ytPost("playVideo"); }
@@ -1729,7 +1736,9 @@ const BookOnlineSlidePanelInner = ({
       setTimeout(emitState, 50);
     };
     const onToggleMute = () => {
+      if (!isTopMost()) return;
       const nextOn = !globalSoundOn;
+
       setGlobalSoundOn(nextOn);
       const v = videoRef.current;
       if (v) { v.muted = !nextOn; v.volume = nextOn ? 1 : 0; }
