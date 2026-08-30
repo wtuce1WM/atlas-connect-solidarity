@@ -164,6 +164,7 @@ const EmbedBookPanelWrapper = ({
             onNext={onNext}
             hasPrev={hasPrev}
             hasNext={hasNext}
+            prioritizeBusinessSwipe
             showSearchBar
             onSearch={() => { /* embed: search bar is used for its 6 liquid CTAs + video controls only */ }}
             onSearchBusinessSelect={() => { /* no-op inside embed */ }}
