@@ -2889,7 +2889,9 @@ const EmbedAsk = () => {
 
               {bookingCity && (
                 <div className="w-full max-w-[85%] flex flex-col gap-3">
-                  <AvailabilitySearchOverlay
+                <div className="flex justify-center">
+                  <div className="w-full max-w-sm">
+                    <AvailabilitySearchOverlay
                     inline
                     language={lang}
                     isSearching={hotelSearchingMsgId === msgKey}
@@ -2901,8 +2903,10 @@ const EmbedAsk = () => {
                     }}
                     onClose={() => {}}
                   />
+                </div>
+                </div>
 
-                  {bookingResult && (
+                {bookingResult && (
                     <div className="flex flex-col gap-3">
                       <div className={`text-xs font-semibold ${theme === "dark" ? "text-white/70" : "text-neutral-700"}`}>
                         {bookingResult.hotels.length > 0
