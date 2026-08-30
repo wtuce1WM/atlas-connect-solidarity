@@ -1011,7 +1011,9 @@ Deno.serve(async (req) => {
           // parité V1. Aucun classifieur, aucun générateur.
           if (curated && keepCurated && (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length || curated.serviceNames.length)) {
             const built = await buildFilteredAnswer(admin, host, lang, {
-              badgeIds: curated.badgeIds,
+              // Mode combiné feed vidéo + fiches : les badges portent le feed,
+              // le périmètre fiches vient des sous-catégories / services.
+              badgeIds: videoFeedCombined ? [] : curated.badgeIds,
               subcategoryNames: curated.subcategoryNames,
               serviceNames: curated.serviceNames,
               commodities: curated.commodities,
