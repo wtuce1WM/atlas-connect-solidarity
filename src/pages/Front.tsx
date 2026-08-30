@@ -17,8 +17,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
-import landscapeVideoAsset from "@/assets/hero-home-landscape-42.mp4.asset.json";
+import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
+import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 import FrontHeader from "@/components/front/FrontHeader";
 
 /** Vidéo de fond ré-encodée pour iOS Safari (yuv420p / Main / faststart).
@@ -598,7 +599,7 @@ const Front = () => {
         key={isPortrait ? "portrait" : "landscape"}
         className="absolute inset-0 h-full w-full object-cover"
         src={isPortrait ? PORTRAIT_VIDEO_URL : LANDSCAPE_VIDEO_URL}
-        poster={isPortrait ? portraitVideoPoster.url : undefined}
+        poster={isPortrait ? portraitVideoPoster.url : landscapeVideoPoster.url}
         autoPlay
         muted
         loop
