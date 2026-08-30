@@ -3372,8 +3372,40 @@ const EmbedAsk = () => {
       <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`relative p-3 border-t ${border} ${bg} ${homeState ? "hidden" : ""}`}>
         {messages.length > 1 && !streaming && !competitorGuardActive && (
           <>
-            {/* Action rapide unique au-dessus du composer : Filtres */}
+            {/* Barre d'actions unique au-dessus du composer :
+                Map / autres résultats / Nouvelle conversation / Filtres. */}
             <div className="flex items-center gap-2 pb-2 overflow-x-auto scrollbar-hide">
+              {mapReplayTarget && poolInfo.hasGeo && (
+                <button
+                  type="button"
+                  onClick={() => setOpenMap(mapReplayTarget)}
+                  style={{ ...mapBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                  className="text-xs px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-sm shrink-0 hover:opacity-90 transition-opacity"
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  {lang === "en" ? "Map" : lang === "ar" ? "الخريطة" : "Map"}
+                </button>
+              )}
+              {poolRemaining > 0 && (
+                <button
+                  type="button"
+                  onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
+                  style={{ ...moreBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                  className="text-xs px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-sm shrink-0 hover:opacity-90 transition-opacity"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={startNewConversation}
+                style={{ ...newConvStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                className="text-xs px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-sm shrink-0 hover:opacity-90 transition-opacity"
+              >
+                <MessageSquarePlus className="w-3.5 h-3.5" />
+                {lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
+              </button>
               <button
                 type="button"
                 onClick={() => setFiltersOpen(true)}
@@ -3389,6 +3421,7 @@ const EmbedAsk = () => {
                 )}
               </button>
             </div>
+
 
 
             <EmbedFilterDrawer
