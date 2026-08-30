@@ -45,6 +45,7 @@ import { applyEmbedBg, parseBg, resolveEmbedInk, parseFit, fitFlags } from "@/li
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
 import { useWidgetParams } from "@/hooks/useWidgetParams";
 import { cn } from "@/lib/utils";
+import { preloadFrontStructureTaxonomy } from "@/hooks/useFrontStructureTabs";
 
 // EmbedMediaBottomBar (Pause/Mute) removed — the BookOnlineSlidePanel now renders
 // its own liquid-glass PanelSearchBar with 6 CTAs and integrated video controls.
@@ -871,6 +872,9 @@ const EmbedAsk = () => {
 
 
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
+  useEffect(() => {
+    preloadFrontStructureTaxonomy();
+  }, []);
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   const [openBusinessOverlay, setOpenBusinessOverlay] = useState<"reviews" | null>(null);
@@ -906,6 +910,20 @@ const EmbedAsk = () => {
     : /essaouira/i.test(businessCity || "")
     ? POI_ESSAOUIRA_PORT_ID
     : POI_MASTER_FALLBACK_ID;
+  const openMapCities = (openMap?.businesses || [])
+    .map((item) => item.city || "")
+    .filter(Boolean);
+  // La ville de la suggestion est disponible sans attendre la fiche Master.
+  // À défaut, Marrakech l'emporte si le corpus de la réponse contient les deux villes.
+  const openMapAnchorCity = /essaouira/i.test(activeSuggestionCity)
+    ? "Essaouira"
+    : /marrakech/i.test(activeSuggestionCity)
+    ? "Marrakech"
+    : openMapCities.some((city) => /marrakech/i.test(city))
+    ? "Marrakech"
+    : openMapCities.some((city) => /essaouira/i.test(city))
+    ? "Essaouira"
+    : businessCity || "Marrakech";
 
 
 
@@ -3415,14 +3433,14 @@ const EmbedAsk = () => {
               // La ville de la suggestion active prime : une suggestion rattachée
               // à Essaouira (ex. « Journée surf & cheval à Essaouira ») ancre la
               // carte sur le Port d'Essaouira, pas sur Koutoubia.
-              businessId={businessId || (/essaouira/i.test(activeSuggestionCity) ? POI_ESSAOUIRA_PORT_ID : poiMasterAnchorId || POI_MASTER_FALLBACK_ID)}
+              businessId={businessId || (openMapAnchorCity === "Essaouira" ? POI_ESSAOUIRA_PORT_ID : poiMasterAnchorId || POI_MASTER_FALLBACK_ID)}
               initialOverlay="poi"
               embedMode
               hideDirections
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
               eagerPoiCategories
-              poiAnchorCity={businessId ? (businessCity || null) : (/essaouira/i.test(activeSuggestionCity) ? "Essaouira" : "Marrakech")}
+              poiAnchorCity={openMapAnchorCity}
               poiOverrideIds={(openMap.businesses || []).map((b) => b.id)}
               poiOverrideTitle={openMap.title || null}
               onClose={() => setOpenMap(null)}

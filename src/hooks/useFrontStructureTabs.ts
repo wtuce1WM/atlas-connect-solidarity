@@ -25,6 +25,16 @@ async function loadTaxonomy(): Promise<Taxonomy> {
   return taxoInflight;
 }
 
+/** Lance le chargement léger de la taxonomie avant le montage du panneau Map. */
+export function preloadFrontStructureTaxonomy(): void {
+  const cached = taxoMem || getCached<Taxonomy>(TAXO_KEY);
+  if (cached) {
+    taxoMem = cached;
+    return;
+  }
+  void loadTaxonomy();
+}
+
 
 export interface FrontStructureSubTab {
   id: string;
@@ -82,14 +92,11 @@ export function useFrontStructureTabs(city: string | null, includeEmpty = false)
       if (cachedTaxo) void loadTaxonomy();
 
       if (cancelled) return;
-
       const fsEntries = taxo.fs || [];
       const fssLinks = taxo.fss || [];
       const subMap = new Map((taxo.subs || []).map((s: any) => [s.id, s]));
       const businesses = bizRes.data || [];
 
-
-      // Build per-front_structure: union of names + per-subcategory details
       const fsSubNames = new Map<string, Set<string>>();
       const fsSubs = new Map<string, { id: string; name: string; names: Set<string> }[]>();
       for (const link of fssLinks as any[]) {
@@ -104,11 +111,7 @@ export function useFrontStructureTabs(city: string | null, includeEmpty = false)
         if (sub.name_fr) { s.add(sub.name_fr); names.add(sub.name_fr); }
         if (sub.name_en) { s.add(sub.name_en); names.add(sub.name_en); }
         if (sub.name_ar) { s.add(sub.name_ar); names.add(sub.name_ar); }
-        fsSubs.get(link.front_structure_id)!.push({
-          id: sub.id,
-          name: sub.name_fr || sub.name_en || sub.name_ar || "—",
-          names,
-        });
+        fsSubs.get(link.front_structure_id)!.push({ id: sub.id, name: sub.name_fr || sub.name_en || sub.name_ar || "—", names });
       }
 
       const result: FrontStructureTab[] = [];
@@ -122,34 +125,23 @@ export function useFrontStructureTabs(city: string | null, includeEmpty = false)
           if (inMain || inCats) count++;
         }
         if (!includeEmpty && count === 0) continue;
-
-        // Build per-subcategory counts, keep only those with ≥1 business
-        const subDetails = (fsSubs.get(fs.id) || [])
-          .map((sd) => {
-            let c = 0;
-            for (const b of businesses as any[]) {
-              const inMain = b.main_category && sd.names.has(b.main_category);
-              const inCats = Array.isArray(b.categories) && b.categories.some((cat: string) => sd.names.has(cat));
-              if (inMain || inCats) c++;
-            }
-            return { id: sd.id, name: sd.name, names: sd.names, count: c };
-          })
-          .filter((sd) => includeEmpty || sd.count > 0)
-          .sort((a, b) => b.count - a.count);
-
-        result.push({
-          id: fs.id,
-          name: fs.name,
-          count,
-          subcategoryNames: subNames,
-          subcategories: subDetails,
-        });
+        const subDetails = (fsSubs.get(fs.id) || []).map((sd) => {
+          let c = 0;
+          for (const b of businesses as any[]) {
+            const inMain = b.main_category && sd.names.has(b.main_category);
+            const inCats = Array.isArray(b.categories) && b.categories.some((cat: string) => sd.names.has(cat));
+            if (inMain || inCats) c++;
+          }
+          return { id: sd.id, name: sd.name, names: sd.names, count: c };
+        }).filter((sd) => includeEmpty || sd.count > 0).sort((a, b) => b.count - a.count);
+        result.push({ id: fs.id, name: fs.name, count, subcategoryNames: subNames, subcategories: subDetails });
       }
 
       if (!cancelled) {
         setTabs(result);
         setLoading(false);
       }
+
     };
 
     fetchTabs();
