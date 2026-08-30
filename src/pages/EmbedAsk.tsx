@@ -559,6 +559,7 @@ const EmbedAsk = () => {
   const noTheme = /^(none|off|0)$/i.test(params.get("theme") || "");
   // Panneau flottant : l'hôte demande une croix de fermeture dans le widget.
   const inFloatingPanel = /^(1|true)$/i.test(params.get("panel") || "");
+  const chromeOff = /^(0|false|off)$/i.test(params.get("chrome") || "");
   // Hauteur auto : le widget redimensionne l'iframe hôte pour éviter le scroll interne.
   const fit = params.get("fit") || "";
   const { fullHeight } = fitFlags(parseFit(fit));
@@ -2400,6 +2401,7 @@ const EmbedAsk = () => {
       }
     >
       <div ref={setMainEl} className={autoHeight ? "flex flex-col" : "flex flex-col h-full"}>
+        {chromeOff ? null : (
         <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
         {inFloatingPanel && (
           <button
@@ -2445,6 +2447,7 @@ const EmbedAsk = () => {
           </button>
         )}
       </header>
+        )}
 
       <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto"} px-4 pt-4 pb-8 space-y-3 ${bg} relative`}>
         {/* Option B : état « accueil IA » — logo, titre, champ central très visible,
