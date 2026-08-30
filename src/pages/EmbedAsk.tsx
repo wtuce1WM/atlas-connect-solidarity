@@ -1357,6 +1357,29 @@ const EmbedAsk = () => {
   }, [businessId, lang]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [messages]);
+
+  /**
+   * Le contenu d'une réponse (cartes fiches, images, carrousels, CTAs) arrive après
+   * le message : le scroll initial se fait sur une hauteur périmée et le dernier
+   * résultat + les 3 CTAs restent sous la ligne de flottaison. On re-colle en bas
+   * tant que l'utilisateur est resté proche du bas.
+   */
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    let raf = 0;
+    const nearBottom = () => el.scrollHeight - el.scrollTop - el.clientHeight < 260;
+    const stick = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        if (nearBottom()) el.scrollTo({ top: el.scrollHeight });
+      });
+    };
+    const mo = new MutationObserver(stick);
+    mo.observe(el, { childList: true, subtree: true, characterData: true });
+    el.addEventListener("load", stick, true);
+    return () => { cancelAnimationFrame(raf); mo.disconnect(); el.removeEventListener("load", stick, true); };
+  }, []);
   useEffect(() => { inputRef.current?.focus(); }, [businessName, assistantReady]);
 
   const dir = lang === "ar" ? "rtl" : "ltr";
