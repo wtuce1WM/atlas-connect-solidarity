@@ -838,7 +838,7 @@ const Front = () => {
           style={{
             opacity: showCue && !demoIntro && !demoActiveId ? 1 : 0,
 
-            pointerEvents: showCue && !demoIntro && !demoActiveId && !askLocked ? "auto" : "none",
+            pointerEvents: showCue && !demoIntro && !demoActiveId ? "auto" : "none",
             animation: reduced || !showCue || demoActiveId ? undefined : "owmSlideDown 420ms ease-out both",
             transition: motion,
           }}
