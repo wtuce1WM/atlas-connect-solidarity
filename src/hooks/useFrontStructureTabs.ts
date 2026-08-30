@@ -7,21 +7,9 @@ const TAXO_KEY = "front_structure:taxonomy:v1";
 let taxoMem: Taxonomy | null = null;
 let taxoInflight: Promise<Taxonomy> | null = null;
 
-const isUsableTaxonomy = (value: Taxonomy | null): value is Taxonomy =>
-  !!value && value.fs.length > 0 && value.fss.length > 0 && value.subs.length > 0;
-
-const getCachedTaxonomy = (): Taxonomy | null => {
-  if (isUsableTaxonomy(taxoMem)) return taxoMem;
-  const cached = getCached<Taxonomy>(TAXO_KEY);
-  if (!isUsableTaxonomy(cached)) return null;
-  taxoMem = cached;
-  return cached;
-};
-
 /** Taxonomie Structure du Front — mémoire + localStorage (stale-while-revalidate). */
 async function loadTaxonomy(): Promise<Taxonomy> {
-  const cached = getCachedTaxonomy();
-  if (cached) return cached;
+  if (taxoMem) return taxoMem;
   if (taxoInflight) return taxoInflight;
   taxoInflight = (async () => {
     const [fsRes, fssRes, subsRes] = await Promise.all([
@@ -29,23 +17,22 @@ async function loadTaxonomy(): Promise<Taxonomy> {
       supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
       supabase.from("subcategories").select("id, name_fr, name_en, name_ar"),
     ]);
-    const error = fsRes.error || fssRes.error || subsRes.error;
-    if (error) throw error;
     const t: Taxonomy = { fs: fsRes.data || [], fss: fssRes.data || [], subs: subsRes.data || [] };
-    if (!isUsableTaxonomy(t)) throw new Error("Front taxonomy is empty");
     taxoMem = t;
     setCached(TAXO_KEY, t);
     return t;
-  })().finally(() => {
-    taxoInflight = null;
-  });
+  })();
   return taxoInflight;
 }
 
 /** Lance le chargement léger de la taxonomie avant le montage du panneau Map. */
 export function preloadFrontStructureTaxonomy(): void {
-  if (getCachedTaxonomy()) return;
-  void loadTaxonomy().catch(() => undefined);
+  const cached = taxoMem || getCached<Taxonomy>(TAXO_KEY);
+  if (cached) {
+    taxoMem = cached;
+    return;
+  }
+  void loadTaxonomy();
 }
 
 
@@ -91,23 +78,18 @@ export function useFrontStructureTabs(city: string | null, includeEmpty = false)
     const fetchTabs = async () => {
       // Taxonomie servie depuis le cache (mémoire/localStorage) quand disponible :
       // les entrées du Pill Catégories n'attendent plus un aller-retour réseau.
-      const cachedTaxo = getCachedTaxonomy();
-      const bizRequest = includeEmpty
-        ? Promise.resolve({ data: [] })
-        : supabase
-            .from("businesses")
-            .select("main_category, categories")
-            .eq("is_active", true)
-            .ilike("city", city);
-      let taxo: Taxonomy;
-      try {
-        taxo = cachedTaxo || await loadTaxonomy();
-      } catch {
-        // Le préchargement peut avoir échoué pendant l'ouverture de l'iframe.
-        // Une seconde tentative indépendante empêche le Pill de rester bloqué.
-        taxo = await loadTaxonomy();
-      }
-      const bizRes = await bizRequest;
+      const cachedTaxo = taxoMem || getCached<Taxonomy>(TAXO_KEY);
+      const [taxo, bizRes] = await Promise.all([
+        cachedTaxo ? Promise.resolve(cachedTaxo) : loadTaxonomy(),
+        includeEmpty
+          ? Promise.resolve({ data: [] })
+          : supabase
+              .from("businesses")
+              .select("main_category, categories")
+              .eq("is_active", true)
+              .ilike("city", city),
+      ]);
+      if (cachedTaxo) void loadTaxonomy();
 
       if (cancelled) return;
       const fsEntries = taxo.fs || [];
@@ -162,9 +144,7 @@ export function useFrontStructureTabs(city: string | null, includeEmpty = false)
 
     };
 
-    fetchTabs().catch(() => {
-      if (!cancelled) setLoading(false);
-    });
+    fetchTabs();
     return () => {
       cancelled = true;
     };
