@@ -1790,7 +1790,7 @@ const BookOnlineSlidePanelInner = ({
 
       const { data: poi } = await (supabase as any)
         .from("businesses")
-        .select("id,name,city,neighborhood,latitude,longitude,images,computed_rating,total_review_count,poi_radius_km")
+        .select("id,name,city,neighborhood,latitude,longitude,images,computed_rating,total_review_count")
         .eq("id", b.default_poi_business_id)
         .maybeSingle();
       if (cancelled || !poi?.latitude || !poi?.longitude) return;
@@ -1830,18 +1830,6 @@ const BookOnlineSlidePanelInner = ({
     ? { lat: poiMasterItem.latitude, lng: poiMasterItem.longitude }
     : poiOverrideCenter;
 
-  // Même règle sur toutes les Maps : le rayon initial vient du POI maître effectif
-  // (Koutoubia / Port d'Essaouira), puis de la fiche hôte, avec repli à 10 km.
-  // Seul un corpus fermé de résultats IA reste sans rayon initial (fit markers).
-  useEffect(() => {
-    if ((poiOverrideIds || []).length) {
-      setPoiProximityKm(null);
-      return;
-    }
-    const raw = Number((poiMasterOverride as any)?.poi_radius_km ?? (business as any)?.poi_radius_km);
-    const allowed = [0.5, 1, 5, 10, 20, 50, 100];
-    setPoiProximityKm(allowed.includes(raw) ? raw : 10);
-  }, [business?.id, (business as any)?.poi_radius_km, (poiMasterOverride as any)?.id, (poiMasterOverride as any)?.poi_radius_km, (poiOverrideIds || []).join(",")]);
 
 
 
