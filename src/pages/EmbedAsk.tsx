@@ -2479,7 +2479,7 @@ const EmbedAsk = () => {
               onSubmit={(e) => { e.preventDefault(); send(); }}
               className="w-full max-w-xl"
             >
-              <div className={`flex items-end gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-3 shadow-2xl`}>
+              <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-3 shadow-2xl`}>
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -2491,6 +2491,7 @@ const EmbedAsk = () => {
                   disabled={streaming || !assistantReady}
                   className={`flex-1 resize-none bg-transparent outline-none text-base leading-snug max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white/70"}`}
                 />
+                <div className="flex items-center justify-center gap-2 md:flex-col">
                 <button
                   type="button"
                   onClick={voice.toggleRecording}
