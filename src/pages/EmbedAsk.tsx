@@ -2203,32 +2203,9 @@ const EmbedAsk = () => {
   // ————— Badges/filtres dynamiques regroupés (tiroir dépliable) —————
   const pillClass = `${cardBg} ${border} ${cardInk}`;
   const filterGroups: EmbedFilterGroup[] = [
-    {
-      id: "see",
-      label: lang === "en" ? "See" : lang === "ar" ? "عرض" : "Voir",
-      items: [
-        ...(mapReplayTarget && poolInfo.hasGeo
-          ? [{
-              id: "map",
-              label: lang === "en" ? "Map" : lang === "ar" ? "الخريطة" : "Map",
-              icon: <MapPin className="w-3.5 h-3.5" />,
-              onClick: () => setOpenMap(mapReplayTarget),
-              style: mapBadgeStyle,
-              priority: true,
-            }]
-          : []),
-        ...(poolRemaining > 0
-          ? [{
-              id: "more",
-              label: lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`,
-              icon: <Sparkles className="w-3.5 h-3.5" />,
-              onClick: () => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres"),
-              style: moreBadgeStyle,
-              priority: true,
-            }]
-          : []),
-      ],
-    },
+    // Groupe « Voir » (Map + autres résultats) supprimé : ces deux actions vivent
+    // désormais uniquement dans la barre fixe du bas — plus de doublon.
+
     {
       id: "hours",
       label: lang === "en" ? "Opening hours" : lang === "ar" ? "المواعيد" : "Horaires",
