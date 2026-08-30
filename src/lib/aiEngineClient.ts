@@ -76,6 +76,19 @@ export function extractEngineMarkers(raw: string): Omit<AiEngineResult, "raw"> {
 
   // Marqueur encore incomplet pendant le streaming : ne jamais l'afficher.
   text = text.replace(/<!--[A-Z_]*:?[\s\S]*$/, "").trim();
+  // Filet de sécurité : le rendu n'affiche pas les tableaux markdown (ils sortent
+  // en texte illisible « | Établissement | Quartier | … »). On retire ces lignes.
+  text = text
+    .split("\n")
+    .filter((line) => {
+      const t = line.trim();
+      if (!t) return true;
+      if (/^\|?\s*:?-{2,}/.test(t.replace(/\|/g, "|"))) return !/\|/.test(t);
+      return (t.match(/\|/g)?.length ?? 0) < 2;
+    })
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
   return { text, known, maps, payloads };
 }
 

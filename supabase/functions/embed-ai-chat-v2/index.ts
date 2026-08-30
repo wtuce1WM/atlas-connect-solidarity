@@ -2209,7 +2209,8 @@ ${results.length
 
 ${contextualFollowUp ? "Cette réponse est une relance contextuelle : appuie-toi à fond sur le CONTEXTE ÉDITORIAL (services, offres, textes de photos, description) pour détailler concrètement ce que l'on peut faire dans chaque établissement déjà présenté (activités, piscine, repas, expériences), sans rien inventer.\n" : ""}
 Les faits chiffrés (capacité, âges, équipements, prix, notes) doivent provenir UNIQUEMENT du contexte fourni. La donnée de prix n'est disponible que sur une partie du catalogue (essentiellement l'hôtellerie, ~60 %) : ne mentionne un prix que s'il figure explicitement dans le contexte, et ne dis jamais qu'un établissement est plus/moins cher quand le prix est absent.
-${comparativeMode ? `Question comparative : structure ta réponse en un court paragraphe d'intro, puis une ligne par établissement (nom en gras + 1-2 phrases concrètes appuyées sur le contexte éditorial), puis un tableau markdown de synthèse (colonnes utiles uniquement, ex. Établissement | Quartier | Points forts | Prix si connu).
+${comparativeMode ? `Question comparative : structure ta réponse en un court paragraphe d'intro, puis une ligne par établissement (nom en gras + 1-2 phrases concrètes appuyées sur le contexte éditorial), puis une phrase de synthèse finale.
+INTERDIT ABSOLU : aucun tableau, aucune ligne contenant des barres verticales « | », aucun séparateur de type |---|. Le rendu n'affiche pas les tableaux markdown : ils apparaissent comme du texte illisible.
 ` : ""}Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}, ${comparativeMode ? "450" : contextualFollowUp ? "220" : "120"} mots maximum (relance incluse)${comparativeMode ? "" : ", sans liste brute si tu peux faire des phrases"}.`;
 
         const history = uiMessages
