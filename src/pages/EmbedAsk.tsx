@@ -3386,6 +3386,7 @@ const EmbedAsk = () => {
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
               eagerPoiCategories
+              poiAnchorCity={businessId ? (businessCity || null) : (genericPoiAnchorId === POI_ESSAOUIRA_PORT_ID ? "Essaouira" : "Marrakech")}
               onClose={() => setOpenGenericPoi(false)}
             />
           </Suspense>
