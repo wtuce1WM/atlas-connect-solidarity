@@ -560,12 +560,15 @@ const Front = () => {
       const y = e.touches[0]?.clientY ?? null;
       if (y === null || touchYRef.current === null) return;
       e.preventDefault();
+      if (askLockedRef.current) return;
       setTarget(targetRef.current + (touchYRef.current - y) / 350);
       touchYRef.current = y;
     };
 
     const onKey = (e: KeyboardEvent) => {
+      if (askLockedRef.current) return;
       if (e.key === "ArrowDown" || e.key === "PageDown") {
+
         e.preventDefault();
         setTarget(targetRef.current + (e.key === "PageDown" ? 0.5 : 0.2));
       } else if (e.key === "ArrowUp" || e.key === "PageUp") {
