@@ -657,7 +657,7 @@ const EmbedAsk = () => {
   }, []);
 
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null; is_platform_visible?: boolean };
-  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null };
+  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null; city?: string | null };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
   // Splash d'accueil supprimé : la landing IA s'affiche immédiatement, sans
   // écran intermédiaire (grand message → petit message).
@@ -896,8 +896,14 @@ const EmbedAsk = () => {
   /** Ancre POI Essaouira : le Port d'Essaouira (31.5094232, -9.7728012). */
   const POI_ESSAOUIRA_PORT_ID = "81836caa-fbfc-4abd-b29e-326e56aeadf6";
   // Règle d'ancrage : Marrakech (Koutoubia) par défaut ; Essaouira (Port) si le
-  // contexte (business hôte ou `ctx`) est rattaché à Essaouira.
-  const genericPoiAnchorId = /essaouira/i.test(businessCity || "")
+  // contexte est rattaché à Essaouira. La ville de la suggestion active
+  // (ex. « Journée surf & cheval à Essaouira ») prime sur le business hôte.
+  const activeSuggestionCity = activeSuggestion?.city || "";
+  const genericPoiAnchorId = /essaouira/i.test(activeSuggestionCity)
+    ? POI_ESSAOUIRA_PORT_ID
+    : /marrakech/i.test(activeSuggestionCity)
+    ? POI_MASTER_FALLBACK_ID
+    : /essaouira/i.test(businessCity || "")
     ? POI_ESSAOUIRA_PORT_ID
     : POI_MASTER_FALLBACK_ID;
 
@@ -1244,6 +1250,7 @@ const EmbedAsk = () => {
           label: ((r[col] || r.label_fr || "") as string).trim(),
           disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
           mode: (r.mode as string | null) ?? null,
+          city: (r.city as string | null) ?? null,
         }))
         .filter((r) => r.label);
       window.clearTimeout(loadingTimeout);
@@ -3405,12 +3412,16 @@ const EmbedAsk = () => {
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
               key={(openMap.businesses || []).map((b) => b.id).join(",")}
-              businessId={businessId || poiMasterAnchorId || POI_MASTER_FALLBACK_ID}
+              // La ville de la suggestion active prime : une suggestion rattachée
+              // à Essaouira (ex. « Journée surf & cheval à Essaouira ») ancre la
+              // carte sur le Port d'Essaouira, pas sur Koutoubia.
+              businessId={businessId || (/essaouira/i.test(activeSuggestionCity) ? POI_ESSAOUIRA_PORT_ID : poiMasterAnchorId || POI_MASTER_FALLBACK_ID)}
               initialOverlay="poi"
               embedMode
               hideDirections
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
+              poiAnchorCity={businessId ? (businessCity || null) : (/essaouira/i.test(activeSuggestionCity) ? "Essaouira" : "Marrakech")}
               poiOverrideIds={(openMap.businesses || []).map((b) => b.id)}
               poiOverrideTitle={openMap.title || null}
               onClose={() => setOpenMap(null)}
