@@ -678,6 +678,153 @@ const Front = () => {
         </div>
       </div>
 
+      <style>{`
+        @keyframes owmSlideDown {
+          from { opacity: 0; transform: translateY(-24px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes owmFillBar {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
+      `}</style>
+
+      {/* Couche écran 2 — masquée dès qu'une conversation IA est lancée */}
+      {!askLocked && (
+      <div
+        className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 px-5 pt-10 pb-14 md:gap-8 md:px-10 md:pt-16 md:pb-24"
+        style={{
+          opacity: ctaP,
+          transform: reduced ? undefined : `translateY(${(1 - ctaP) * 48}px) scale(${0.96 + ctaP * 0.04})`,
+          pointerEvents: ctaActive ? "auto" : "none",
+          transition: motion,
+        }}
+        aria-hidden={!ctaActive}
+      >
+        {/* Titre écran 2 */}
+        <p
+          className="text-center text-[clamp(1.75rem,min(8.5vw,5.5vh),3.8rem)] md:text-[clamp(2rem,min(10vw,6.5vh),4.5rem)] uppercase leading-[1.12] tracking-tight"
+          style={{
+            fontFamily: "'Montserrat', sans-serif",
+            fontWeight: 900,
+            color: "transparent",
+            WebkitTextStrokeWidth: "2px",
+            WebkitTextStrokeColor: "#FFFFFF",
+            ...(sloganFontPx ? { fontSize: `${isMobile ? Math.round(sloganFontPx * 0.85) : sloganFontPx}px` } : null),
+          }}
+        >
+          <span className="block md:hidden">One</span>
+          <span className="block md:hidden">World</span>
+          <span className="block md:hidden">Morocco</span>
+          <span className="hidden md:inline">One World Morocco</span>
+        </p>
+
+        {/* Animation bullet points */}
+        <div className="flex w-full max-w-2xl flex-col items-center gap-2 md:gap-3">
+          <div className="min-h-[1.75rem] md:min-h-[2.25rem]">
+            {step >= 1 && STEPS[step]?.title && (
+              <p
+                key={`s2-${step}`}
+                className="font-roboto text-xl font-bold leading-snug text-[#F4EEE4] md:text-2xl"
+                style={{ animation: reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
+              >
+                {STEPS[step].title}
+              </p>
+            )}
+          </div>
+
+          <div className="relative w-full">
+            <div className="flex items-start gap-3 font-roboto text-base font-normal leading-[1.3] text-[#F4EEE4] md:text-lg md:leading-snug">
+              <img
+                src={hamsaIcon.url}
+                alt=""
+                className={`mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6 transition-opacity duration-300 ${
+                  step >= 1 ? "opacity-100" : "opacity-0"
+                }`}
+                loading="eager"
+              />
+              <div className="grid grid-cols-1">
+                {STEPS.map((s, i) => {
+                  if (!s.bullet) return null;
+                  const isActive = i === step;
+                  return (
+                    <span
+                      key={i}
+                      aria-hidden={!isActive}
+                      className={`col-start-1 row-start-1 ${
+                        isActive ? "opacity-100" : "pointer-events-none opacity-0"
+                      }`}
+                      style={{
+                        animation:
+                          reduced || !isActive ? undefined : "owmSlideDown 420ms ease-out both",
+                      }}
+                    >
+                      {s.render()}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-1.5 flex gap-1.5 md:mt-4" onClick={(e) => e.stopPropagation()}>
+              {CAROUSEL_STEPS.map((stepIndex, i) => {
+                const done = step > stepIndex;
+                const current = step === stepIndex;
+                const durationMs = CAROUSEL_DURATIONS_MS[i] ?? STEP_MS;
+                return (
+                  <button
+                    key={stepIndex}
+                    type="button"
+                    aria-label={`Bullet ${stepIndex}`}
+                    aria-current={current}
+                    tabIndex={ctaActive ? 0 : -1}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToStep(stepIndex, true);
+                    }}
+                    style={{ flex: `${BULLET_WEIGHTS[i] ?? 1} 1 0%` }}
+                    className="h-2 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)] py-[3px]"
+                  >
+                    <span
+                      key={current ? `cur2-${step}` : done ? "done" : "todo"}
+                      className="block h-full rounded-full bg-gold"
+                      style={{
+                        width: done || current ? "100%" : "0%",
+                        opacity: done || current ? 1 : 0,
+                        transition: reduced || !current ? "none" : `width ${durationMs}ms linear`,
+                        ...(current && !reduced && auto
+                          ? { animation: `owmFillBar ${durationMs}ms linear both` }
+                          : null),
+                      }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Slogan écran 2 */}
+        <p
+          className="relative text-center text-[clamp(1.75rem,min(8.5vw,5.5vh),3.8rem)] md:text-[clamp(2rem,min(10vw,6.5vh),4.5rem)] uppercase leading-[1.12] tracking-tight"
+          style={{
+            fontFamily: "'Montserrat', sans-serif",
+            fontWeight: 900,
+            color: "transparent",
+            WebkitTextStrokeWidth: "2px",
+            WebkitTextStrokeColor: "#FFFFFF",
+            ...(sloganFontPx ? { fontSize: `${isMobile ? Math.round(sloganFontPx * 0.85) : sloganFontPx}px` } : null),
+          }}
+        >
+          <span className="relative z-10 block">LOCAL</span>
+          <span className="relative z-10 block">DIGITAL</span>
+          <span className="relative z-10 block">SOLIDAIRE</span>
+        </p>
+      </div>
+      )}
+
+
+
       {/* Cue de scroll */}
       <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center">
         <button
