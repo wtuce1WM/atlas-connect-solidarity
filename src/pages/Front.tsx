@@ -1128,8 +1128,28 @@ const Front = () => {
         </button>
       </div>
 
-      {/* CTA Revenir — symétrique de Découvrir, visible sur écran 2 (desktop only) */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 hidden md:flex justify-center">
+      {/* CTA Revenir (+ Demo discret) — symétrique de Découvrir, visible sur écran 2 (desktop only) */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 hidden md:flex items-end justify-center gap-6">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            startDemo();
+          }}
+          disabled={demoLoading}
+          aria-label="Demo — découverte vidéo"
+          className="rounded-lg border border-white/20 bg-white/[0.06] px-3 py-1.5 font-roboto text-xs font-bold uppercase tracking-[0.18em] text-[rgba(244,238,228,0.8)] backdrop-blur-md transition-colors hover:border-gold/60 hover:text-gold disabled:opacity-60"
+          style={{
+            opacity: ctaActive ? 1 : 0,
+            pointerEvents: ctaActive ? "auto" : "none",
+            transition: motion,
+          }}
+          tabIndex={ctaActive ? 0 : -1}
+          aria-hidden={!ctaActive}
+        >
+          Demo
+        </button>
+
         <button
           type="button"
           onClick={(e) => {
