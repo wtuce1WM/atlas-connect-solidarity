@@ -631,8 +631,9 @@ const Front = () => {
         }}
       />
 
-      {/* Mini-header pinné (identité + menu) — masqué sur l'écran 2 */}
-      <FrontHeader fixed={false} visible={!ctaActive && !demoIntro} />
+      {/* Mini-header pinné (identité + menu) — visible écrans 1 et 2, masqué pendant la démo */}
+      <FrontHeader fixed={false} visible={!demoIntro} />
+
 
       {/* Bloc central — 3 sections égales entre header et CTA Découvrir */}
       <div
