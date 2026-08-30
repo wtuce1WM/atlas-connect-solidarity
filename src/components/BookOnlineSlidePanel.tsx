@@ -5351,9 +5351,7 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         onFeedBadgeSelect={props.onFeedBadgeSelect}
         onFeedCitySelect={props.onFeedCitySelect}
         onFeedYouTubeSelect={props.onFeedYouTubeSelect}
-        selectedBadge
-
-Id={props.selectedBadgeId ?? null}
+        selectedBadgeId={props.selectedBadgeId ?? null}
         aiMode={props.aiMode}
         roundedFrame={props.roundedFrame}
       />
