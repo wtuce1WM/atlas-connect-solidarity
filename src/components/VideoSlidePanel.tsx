@@ -1432,7 +1432,7 @@ const VideoSlidePanel = ({
                 );
               })}
             </div>
-            <div className="flex flex-col items-center gap-0.5 md:gap-1.5">
+            <div className="flex flex-wrap items-center justify-center gap-1.5 md:flex-col md:items-center md:justify-start md:gap-0.5">
               {(() => {
                 const firstVideoBadge = feedBadges?.[0];
                 const dynamicBadges = feedBadges?.slice(1).filter((b) => {
