@@ -755,7 +755,7 @@ const BookOnlineSlidePanelInner = ({
   // sont déjà recalculés ci-dessous sur le vivier ville et le rayon actifs.
   // poiAnchorCity (assistant IA) est connue avant la fiche : elle évite la sérialisation
   // fiche Master → ville → taxonomie → vivier ville.
-  const frontTabsCity = (poiCityCorpus && poiCityCorpus[0]) || business?.city || poiAnchorCity || null;
+  const frontTabsCity = (poiCityCorpus && poiCityCorpus[0]) || poiAnchorCity || business?.city || null;
   const { tabs: frontTabs } = useFrontStructureTabs(frontTabsCity, eagerPoiCategories);
 
   const { translateSubcategory } = useTaxonomyTranslations();
