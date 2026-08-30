@@ -16,9 +16,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
-import portraitVideoAsset from "@/assets/hero-home-portrait-ios-v2.mp4.asset.json";
+import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
 import landscapeVideoAsset from "@/assets/hero-home-landscape-42.mp4.asset.json";
-import portraitVideoPoster from "@/assets/hero-home-portrait-poster.jpg.asset.json";
+import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
 import FrontHeader from "@/components/front/FrontHeader";
 
 /** Vidéo de fond ré-encodée pour iOS Safari (yuv420p / Main / faststart).
