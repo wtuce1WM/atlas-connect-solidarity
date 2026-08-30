@@ -4148,7 +4148,7 @@ const BookOnlineSlidePanelInner = ({
 
         const afterCat = activeFrontTab
           ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
-          : (closedAiPool ?? ((poiCityCorpus || []).length ? cityInRadius : (poiBusinesses as any[])));
+          : (overridePool ?? (poiBusinesses as any[]));
 
         // Pill POI / sous-catégories — le MENU ne liste que les sous-catégories
         // "par défaut" (1ère sous-catégorie de la fiche), mais le FILTRE retenu
@@ -4182,6 +4182,7 @@ const BookOnlineSlidePanelInner = ({
         // Le corpus VILLE imposé (poiCityCorpus, chip « Map » de l'assistant) ne doit PAS
         // servir de base ici : il contient toutes les fiches actives (non-POI comprises)
         // et ferait exploser la liste des sous-catégories par défaut.
+        const closedAiPool = (poiOverrideIds || []).length ? overridePool : null;
         const poiPillBase =
           closedAiPool ?? (poiBusinesses as any[]).filter(inRadius);
         const poiPillDefaults = defaultSubcatsOf(poiPillBase);
