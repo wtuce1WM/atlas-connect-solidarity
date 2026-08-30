@@ -2785,11 +2785,6 @@ const EmbedAsk = () => {
                 />
               )}
 
-              {tidesCity && (
-                <div className="w-full max-w-[85%]">
-                  <AiTidesWidget city={tidesCity} lang={lang} />
-                </div>
-              )}
 
 
 
