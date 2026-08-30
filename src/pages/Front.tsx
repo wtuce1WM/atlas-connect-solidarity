@@ -658,6 +658,7 @@ const Front = () => {
             className="h-full w-full flex-1 border-0 bg-transparent"
           />
         </div>
+      </div>
 
       {/* Cue de scroll */}
       <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center">
