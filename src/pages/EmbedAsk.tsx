@@ -896,8 +896,14 @@ const EmbedAsk = () => {
   /** Ancre POI Essaouira : le Port d'Essaouira (31.5094232, -9.7728012). */
   const POI_ESSAOUIRA_PORT_ID = "81836caa-fbfc-4abd-b29e-326e56aeadf6";
   // Règle d'ancrage : Marrakech (Koutoubia) par défaut ; Essaouira (Port) si le
-  // contexte (business hôte ou `ctx`) est rattaché à Essaouira.
-  const genericPoiAnchorId = /essaouira/i.test(businessCity || "")
+  // contexte est rattaché à Essaouira. La ville de la suggestion active
+  // (ex. « Journée surf & cheval à Essaouira ») prime sur le business hôte.
+  const activeSuggestionCity = activeSuggestion?.city || "";
+  const genericPoiAnchorId = /essaouira/i.test(activeSuggestionCity)
+    ? POI_ESSAOUIRA_PORT_ID
+    : /marrakech/i.test(activeSuggestionCity)
+    ? POI_MASTER_FALLBACK_ID
+    : /essaouira/i.test(businessCity || "")
     ? POI_ESSAOUIRA_PORT_ID
     : POI_MASTER_FALLBACK_ID;
 
