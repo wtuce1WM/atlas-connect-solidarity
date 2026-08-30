@@ -15,7 +15,6 @@ const CTAS: { label: string; to: string }[] = [
 const FRONT_LANGS = [
   { code: "fr", flag: "🇫🇷", label: "Français" },
   { code: "en", flag: "🇬🇧", label: "English" },
-  { code: "ar", flag: "🇲🇦", label: "العربية" },
 ] as const;
 
 interface Props {
@@ -144,7 +143,7 @@ const FrontHeader = ({ fixed = false, visible = true, onMenuToggle, onLogoClick 
           ))}
 
           {/* Switch de langues */}
-          <div className="mt-2 grid grid-cols-3 gap-3">
+          <div className="mt-2 grid grid-cols-2 gap-3">
             {FRONT_LANGS.map((lang) => (
               <button
                 key={lang.code}
