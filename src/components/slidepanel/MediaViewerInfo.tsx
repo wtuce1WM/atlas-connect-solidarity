@@ -40,6 +40,16 @@ export const buildFallbackTeaser = (name: string, language = "fr") => {
 
 
 const MORE: Record<string, string> = { fr: "plus", en: "more", ar: "المزيد" };
+
+/** Décode les entités HTML courantes (descriptions en base stockent parfois du HTML brut, ex. "&amp;"). */
+const decodeEntities = (s: string) =>
+  s
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0?39;|&apos;/gi, "'")
+    .replace(/&nbsp;/gi, " ");
 const REVIEWS: Record<string, string> = { fr: "avis", en: "reviews", ar: "آراء" };
 const OPEN_ARIA: Record<string, string> = {
   fr: "Ouvrir la description complète",
@@ -61,7 +71,7 @@ const MediaViewerInfo = ({
   fallbackTeaser,
 }: MediaViewerInfoProps) => {
   const lang = (language in MORE ? language : "fr") as keyof typeof MORE;
-  const effectiveTeaser = teaser?.trim() || fallbackTeaser?.trim() || buildFallbackTeaser(name, language);
+  const effectiveTeaser = decodeEntities(teaser?.trim() || fallbackTeaser?.trim() || buildFallbackTeaser(name, language));
   const place = [city, neighborhood].filter(Boolean).join(", ");
   // Tap = ouvrir ; swipe vertical = laissé au panneau (aucun stopPropagation)
   const touchStart = React.useRef<{ x: number; y: number } | null>(null);
