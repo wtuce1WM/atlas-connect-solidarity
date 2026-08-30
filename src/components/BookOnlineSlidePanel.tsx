@@ -753,7 +753,9 @@ const BookOnlineSlidePanelInner = ({
   // La ville du Master est l'unique référence du parcours business-centric.
   // Dans l'assistant IA, le hook charge seulement la taxonomie : les compteurs
   // sont déjà recalculés ci-dessous sur le vivier ville et le rayon actifs.
-  const frontTabsCity = (poiCityCorpus && poiCityCorpus[0]) || business?.city || null;
+  // poiAnchorCity (assistant IA) est connue avant la fiche : elle évite la sérialisation
+  // fiche Master → ville → taxonomie → vivier ville.
+  const frontTabsCity = (poiCityCorpus && poiCityCorpus[0]) || business?.city || poiAnchorCity || null;
   const { tabs: frontTabs } = useFrontStructureTabs(frontTabsCity, eagerPoiCategories);
 
   const { translateSubcategory } = useTaxonomyTranslations();
