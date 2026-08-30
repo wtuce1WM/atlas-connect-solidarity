@@ -1977,7 +1977,10 @@ const EmbedAsk = () => {
     ? (ink === "dark" ? "bg-white/80 border border-white/50 text-black" : "bg-transparent border border-white/15 text-white")
     : theme === "light" ? "bg-white border border-neutral-200" : "bg-neutral-900 border border-neutral-800";
   // Encre réellement lisible : avec un fond personnalisé, elle dépend de la couleur du fond.
-  const lightInk = flat ? ink === "dark" : customBg ? activeBgInk === "dark" : theme === "light";
+  // `?ink=light` force l'encre claire (liens en blanc) quel que soit le fond déduit.
+  const lightInk = forceLightInk
+    ? false
+    : flat ? ink === "dark" : customBg ? activeBgInk === "dark" : theme === "light";
   // Sur fond noir / transparent sombre : tous les textes en blanc pur (jamais de gris).
   const whiteInk = lightInk ? "" : "text-white";
   // Puces (suggestions / relances) : contraste explicite, jamais de texte clair sur fond clair.
