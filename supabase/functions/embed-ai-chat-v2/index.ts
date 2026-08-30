@@ -291,6 +291,15 @@ Deno.serve(async (req) => {
   /** true quand la suggestion a été retrouvée depuis le texte libre (pas un clic). */
   let suggestionFromText = false;
   const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
+  /**
+   * Suggestion curatée encore active dans la conversation (contexte, PAS un clic).
+   * Sert uniquement à conserver le périmètre taxonomique (badge, sous-catégories…)
+   * quand la relance libre ne fait QUE changer de ville (« à Essaouira ») : sans
+   * elle, le badge de la suggestion (ex. « Rooftop Restaurant & Bars ») était perdu
+   * et la réponse renvoyait n'importe quel établissement de la ville.
+   */
+  const contextSuggestionId: string | null =
+    typeof body.contextSuggestionId === "string" && body.contextSuggestionId ? body.contextSuggestionId : null;
   /** Rayon de proximité demandé par l'utilisateur, borné aux valeurs du champ « Rayon de proximité ». */
   const RADIUS_OPTIONS = [0.5, 1, 5, 10, 20, 50, 100];
   const requestedRadiusKm: number | null = RADIUS_OPTIONS.includes(Number(body.radiusKm))
@@ -730,6 +739,37 @@ Deno.serve(async (req) => {
             suggestionId = m.id;
             suggestionFromText = true;
             console.log("[embed-ai-chat-v2] curated_text_match", JSON.stringify(m));
+          }
+        }
+        // Relance libre qui ne fait QUE changer de ville (« à Essaouira ») : le
+        // périmètre taxonomique de la suggestion active (badge, sous-catégories,
+        // services, commodités) reste la loi — seule la ville bascule. Sans ça, le
+        // badge « Rooftop Restaurant & Bars » de la suggestion « Rooftops » était
+        // perdu et la ville renvoyait des établissements sans aucun lien.
+        if (!suggestionId && !followupId && contextSuggestionId && explicitCity) {
+          const cityKey = normalize(explicitCity);
+          const rest = normalize(userMessage)
+            .split(/\s+/)
+            .filter((w) => w && !cityKey.split(/\s+/).includes(w))
+            .filter((w) => !/^(a|au|aux|à|en|de|du|des|dans|sur|vers|pour|et|the|in|at|to|of|على|في|الى|إلى)$/.test(w))
+            .filter((w) => w.length > 2);
+          if (!rest.length) {
+            let allowed = true;
+            if (platformMode) {
+              const { data: sg } = await admin
+                .from("ai_suggestions")
+                .select("is_platform_visible")
+                .eq("id", contextSuggestionId)
+                .maybeSingle();
+              allowed = !!sg?.is_platform_visible;
+            }
+            if (allowed) {
+              suggestionId = contextSuggestionId;
+              suggestionFromText = true;
+              console.log("[embed-ai-chat-v2] curated_city_refine", JSON.stringify({
+                suggestionId: contextSuggestionId, city: explicitCity,
+              }));
+            }
           }
         }
         if (suggestionId || followupId) {

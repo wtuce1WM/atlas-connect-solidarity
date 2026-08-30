@@ -800,6 +800,9 @@ const EmbedAsk = () => {
         messageIndex: messageIndexRef.current,
         suggestionId: (body as any)?.suggestionId ?? null,
         followupId: (body as any)?.followupId ?? null,
+        // Contexte curaté (jamais un clic) : conserve le périmètre badge de la
+        // suggestion active quand la relance libre ne change que la ville.
+        contextSuggestionId: (body as any)?.contextSuggestionId ?? null,
         scope: (body as any)?.scope ?? null,
         forcedRoute: (body as any)?.forcedRoute ?? null,
         destinationId: (body as any)?.destinationId ?? null,
@@ -1476,18 +1479,26 @@ const EmbedAsk = () => {
       !!id && (id.startsWith("default-") || id.startsWith("platform-fallback-"));
     const realSuggestionId = isSyntheticId(suggestionId) ? null : suggestionId || null;
     if (realSuggestionId) setActiveSuggestionId(realSuggestionId);
-    // Une recherche libre doit toujours être résolue depuis son propre texte.
-    // L'ancienne suggestion active ne sert que de contexte à une relance explicite.
-    if (!suggestionId && !followupId) setActiveSuggestionId(null);
     setError(null);
     lastLocalFilterRef.current = null;
     messageIndexRef.current += 1;
     const contextSuggestionId = isSyntheticId(activeSuggestionId) ? null : activeSuggestionId;
     const effectiveSuggestionId: string | null =
       realSuggestionId || (followupId ? contextSuggestionId : null) || null;
+    // Une recherche libre reste résolue depuis son propre texte : la suggestion
+    // active part seulement en CONTEXTE (`contextSuggestionId`), que le moteur
+    // n'exploite que si la relance ne fait que changer de ville — le périmètre
+    // badge de la suggestion est alors conservé.
     sendMessage(
       { text },
-      { body: { suggestionId: effectiveSuggestionId, followupId: followupId || null, scope: null } },
+      {
+        body: {
+          suggestionId: effectiveSuggestionId,
+          followupId: followupId || null,
+          scope: null,
+          contextSuggestionId: effectiveSuggestionId ? null : contextSuggestionId,
+        },
+      },
     );
   };
 
