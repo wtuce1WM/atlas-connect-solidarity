@@ -824,6 +824,15 @@ const EmbedAsk = () => {
   });
 
   const streaming = status === "submitted" || status === "streaming";
+  // Rattachement du widget de disponibilité au message assistant du moteur.
+  useEffect(() => {
+    const city = pendingBookingCityRef.current;
+    if (!city || !messages.length) return;
+    const last = messages[messages.length - 1] as any;
+    if (last?.role !== "assistant" || !last?.id) return;
+    pendingBookingCityRef.current = null;
+    setBookingWidgetByMsg((prev) => ({ ...prev, [String(last.id)]: city }));
+  }, [messages]);
 
   // Mode plateforme : les préférences affilié (enabled_suggestion_ids) ne
   // s'appliquent pas — le périmètre est la base entière (flag Plateforme 1WM).
@@ -2599,8 +2608,8 @@ const EmbedAsk = () => {
           const videoFeedPayload = videoFeeds[videoFeeds.length - 1] || null;
           const tidesCity = tides[tides.length - 1] || null;
           const bookingPayload = bookings[bookings.length - 1] || null;
-          const bookingCity = bookingPayload?.city || null;
           const msgKey = String(m.id || i);
+          const bookingCity = bookingPayload?.city || bookingWidgetByMsg[msgKey] || null;
           const bookingResult = hotelResults[msgKey] || null;
           const isLast = i === messages.length - 1;
           const hideAssistantText =
