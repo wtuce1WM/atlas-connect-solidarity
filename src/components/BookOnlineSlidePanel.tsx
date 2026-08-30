@@ -2655,7 +2655,29 @@ const BookOnlineSlidePanelInner = ({
 
       )}
 
-      {/* Overlaid content */}
+      {/* Pilule chevrons haut/bas — navigation verticale rapide (sans quitter le swipe) */}
+      {!cardsHidden && !showPoiMapOverlay && !showDirections && (effectiveHasPrev || effectiveHasNext) && (
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1 rounded-l-full border border-r-0 border-white/10 bg-black/80 backdrop-blur-md shadow-[-4px_4px_12px_rgba(0,0,0,0.3)] py-2 px-1 pointer-events-auto">
+          <button
+            type="button"
+            data-cta-tap
+            aria-label="Next"
+            onClick={(e) => { e.stopPropagation(); effectiveOnNext?.(); }}
+            className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white active:scale-90 transition-all"
+          >
+            <ChevronUp className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            data-cta-tap
+            aria-label="Previous"
+            onClick={(e) => { e.stopPropagation(); effectiveOnPrev?.(); }}
+            className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white active:scale-90 transition-all"
+          >
+            <ChevronDown className="h-5 w-5 />
+          </button>
+        </div>
+      )}
       <div
         data-slidepanel-scroll="true"
         className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-16 md:p-6 md:pt-20 lg:pt-16 ${cardsHidden ? 'pb-0' : showSearchBar ? 'pb-[calc(96px+env(safe-area-inset-bottom))] md:pb-[95px]' : 'pb-[calc(2rem+env(safe-area-inset-bottom))]'} ${(effectiveMedia?.kind === "matterport" && cardsHidden) ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""} scrollbar-hide-mobile`}
