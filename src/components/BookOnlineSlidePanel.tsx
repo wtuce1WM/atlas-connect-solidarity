@@ -4182,6 +4182,10 @@ const BookOnlineSlidePanelInner = ({
         // servir de base ici : il contient toutes les fiches actives (non-POI comprises)
         // et ferait exploser la liste des sous-catégories par défaut.
         const closedAiPool = (poiOverrideIds || []).length ? overridePool : null;
+        // Corpus ville imposé (chip « Map ») : on ne garde que les fiches is_poi,
+        // ET on applique le même rayon par défaut que l'overlay classique (champ
+        // Rayon du Master, 10 km sinon) — sinon des POI d'autres villes du corpus
+        // (ex. Agafay) gonfleraient les compteurs. Le chip « À proximité » reste prioritaire.
         const poiPillBase =
           closedAiPool ?? (poiBusinesses as any[]).filter(inRadius);
         const poiPillDefaults = defaultSubcatsOf(poiPillBase);
