@@ -1412,7 +1412,13 @@ const EmbedAsk = () => {
   const send = (overrideText?: string, suggestionId?: string, followupId?: string) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !assistantReady) return;
+    // Hôte embarqueur (ex. /front) : signale qu'une question a été lancée pour
+    // qu'il puisse neutraliser son propre scroll de page.
+    try {
+      window.parent?.postMessage({ type: "owm-ask:asked" }, "*");
+    } catch { /* cross-origin */ }
     if (!overrideText) setInput("");
+
     // Suggestion back-office en mode `booking` : aucun appel modèle. On injecte
     // localement le widget de disponibilité (dates + voyageurs) de la fiche,
     // la recherche SerpAPI ville est ensuite rendue inline dans la réponse.
