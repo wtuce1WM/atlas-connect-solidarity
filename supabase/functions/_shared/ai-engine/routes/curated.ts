@@ -695,19 +695,28 @@ export async function buildFilteredAnswer(
       ];
       if (!bizIds.length) return null;
 
-      let q = admin
-        .from("businesses")
-        .select("id, is_featured, computed_rating, total_review_count")
-        .eq("is_active", true)
-        .in("id", bizIds)
-        .order("is_featured", { ascending: false })
-        .order("computed_rating", { ascending: false, nullsFirst: false })
-        .limit(60);
-      if (cityFilter) q = q.eq("city", cityFilter);
-      if (serviceNames.length) q = q.overlaps("services", serviceNames);
-      const { data, error } = await q;
-      if (error) throw error;
-      all = data || [];
+      // Lecture PAR LOTS : un `.in()` de plusieurs centaines d'UUID dépasse la
+      // longueur d'URL acceptée et échouait silencieusement (corpus amputé).
+      const rows: any[] = [];
+      for (let i = 0; i < bizIds.length; i += 80) {
+        let q = admin
+          .from("businesses")
+          .select("id, is_featured, computed_rating, total_review_count")
+          .eq("is_active", true)
+          .in("id", bizIds.slice(i, i + 80));
+        if (cityFilter) q = q.eq("city", cityFilter);
+        if (serviceNames.length) q = q.overlaps("services", serviceNames);
+        const { data, error } = await q;
+        if (error) throw error;
+        rows.push(...(data || []));
+      }
+      rows.sort((a: any, b: any) =>
+        Number(!!b.is_featured) - Number(!!a.is_featured) ||
+        Number(b.computed_rating ?? -1) - Number(a.computed_rating ?? -1) ||
+        Number(b.total_review_count ?? -1) - Number(a.total_review_count ?? -1)
+      );
+      all = rows.slice(0, 60);
+
     } catch (e) {
       console.error("[curated] badge_filter_failed", String(e));
       return null;
