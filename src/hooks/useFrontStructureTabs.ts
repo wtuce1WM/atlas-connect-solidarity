@@ -1,5 +1,30 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getCached, setCached } from "@/lib/swrCache";
+
+type Taxonomy = { fs: any[]; fss: any[]; subs: any[] };
+const TAXO_KEY = "front_structure:taxonomy:v1";
+let taxoMem: Taxonomy | null = null;
+let taxoInflight: Promise<Taxonomy> | null = null;
+
+/** Taxonomie Structure du Front — mémoire + localStorage (stale-while-revalidate). */
+async function loadTaxonomy(): Promise<Taxonomy> {
+  if (taxoMem) return taxoMem;
+  if (taxoInflight) return taxoInflight;
+  taxoInflight = (async () => {
+    const [fsRes, fssRes, subsRes] = await Promise.all([
+      supabase.from("front_structure").select("id, name, sort_order").order("sort_order"),
+      supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
+      supabase.from("subcategories").select("id, name_fr, name_en, name_ar"),
+    ]);
+    const t: Taxonomy = { fs: fsRes.data || [], fss: fssRes.data || [], subs: subsRes.data || [] };
+    taxoMem = t;
+    setCached(TAXO_KEY, t);
+    return t;
+  })();
+  return taxoInflight;
+}
+
 
 export interface FrontStructureSubTab {
   id: string;
