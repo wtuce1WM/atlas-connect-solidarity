@@ -2203,32 +2203,9 @@ const EmbedAsk = () => {
   // ————— Badges/filtres dynamiques regroupés (tiroir dépliable) —————
   const pillClass = `${cardBg} ${border} ${cardInk}`;
   const filterGroups: EmbedFilterGroup[] = [
-    {
-      id: "see",
-      label: lang === "en" ? "See" : lang === "ar" ? "عرض" : "Voir",
-      items: [
-        ...(mapReplayTarget && poolInfo.hasGeo
-          ? [{
-              id: "map",
-              label: lang === "en" ? "Map" : lang === "ar" ? "الخريطة" : "Map",
-              icon: <MapPin className="w-3.5 h-3.5" />,
-              onClick: () => setOpenMap(mapReplayTarget),
-              style: mapBadgeStyle,
-              priority: true,
-            }]
-          : []),
-        ...(poolRemaining > 0
-          ? [{
-              id: "more",
-              label: lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`,
-              icon: <Sparkles className="w-3.5 h-3.5" />,
-              onClick: () => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres"),
-              style: moreBadgeStyle,
-              priority: true,
-            }]
-          : []),
-      ],
-    },
+    // Groupe « Voir » (Map + autres résultats) supprimé : ces deux actions vivent
+    // désormais uniquement dans la barre fixe du bas — plus de doublon.
+
     {
       id: "hours",
       label: lang === "en" ? "Opening hours" : lang === "ar" ? "المواعيد" : "Horaires",
@@ -3244,44 +3221,10 @@ const EmbedAsk = () => {
                 );
               })()}
 
-              {/* Actions toujours en dernier, sous les relances : Map / autres
-                  résultats / Nouvelle conversation — dernier message, hors streaming. */}
-              {isLast && !streaming && ((mapPayload && mapPayload.businesses.length > 0) || citedFallback.length > 0 || articleCard) && (
-                <div className="w-full max-w-[85%] flex flex-wrap items-center gap-2 pt-1">
-                  {mapReplayTarget && poolInfo.hasGeo && (
-                    <button
-                      type="button"
-                      onClick={() => setOpenMap(mapReplayTarget)}
-                      style={{ ...mapBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                      className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity"
-                    >
-                      <MapPin className="w-3.5 h-3.5" />
-                      {lang === "en" ? "Map" : lang === "ar" ? "الخريطة" : "Map"}
-                    </button>
-                  )}
-                  {poolRemaining > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
-                      style={{ ...moreBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                      className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity"
-                    >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`}
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={startNewConversation}
-                    disabled={streaming}
-                    style={{ ...newConvStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                    className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity disabled:opacity-40"
-                  >
-                    <MessageSquarePlus className="w-3.5 h-3.5" />
-                    {lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
-                  </button>
-                </div>
-              )}
+              {/* Actions Map / autres résultats / Nouvelle conversation : déplacées
+                  dans la barre fixe du bas (au-dessus du composer), aux côtés du
+                  chip Filtres — source unique, plus de disparition au scroll. */}
+
 
 
 
@@ -3406,8 +3349,40 @@ const EmbedAsk = () => {
       <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`relative p-3 border-t ${border} ${bg} ${homeState ? "hidden" : ""}`}>
         {messages.length > 1 && !streaming && !competitorGuardActive && (
           <>
-            {/* Action rapide unique au-dessus du composer : Filtres */}
+            {/* Barre d'actions unique au-dessus du composer :
+                Map / autres résultats / Nouvelle conversation / Filtres. */}
             <div className="flex items-center gap-2 pb-2 overflow-x-auto scrollbar-hide">
+              {mapReplayTarget && poolInfo.hasGeo && (
+                <button
+                  type="button"
+                  onClick={() => setOpenMap(mapReplayTarget)}
+                  style={{ ...mapBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                  className="text-xs px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-sm shrink-0 hover:opacity-90 transition-opacity"
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  {lang === "en" ? "Map" : lang === "ar" ? "الخريطة" : "Map"}
+                </button>
+              )}
+              {poolRemaining > 0 && (
+                <button
+                  type="button"
+                  onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
+                  style={{ ...moreBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                  className="text-xs px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-sm shrink-0 hover:opacity-90 transition-opacity"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={startNewConversation}
+                style={{ ...newConvStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                className="text-xs px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-sm shrink-0 hover:opacity-90 transition-opacity"
+              >
+                <MessageSquarePlus className="w-3.5 h-3.5" />
+                {lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
+              </button>
               <button
                 type="button"
                 onClick={() => setFiltersOpen(true)}
@@ -3423,6 +3398,7 @@ const EmbedAsk = () => {
                 )}
               </button>
             </div>
+
 
 
             <EmbedFilterDrawer
