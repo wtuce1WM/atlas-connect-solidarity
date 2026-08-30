@@ -301,7 +301,7 @@ const AiBusinessResultCards = ({
                           : window.open(bookingUrl, "_blank", "noopener,noreferrer")
                       }
                       className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
-                      style={{ backgroundColor: "#C24B3F", ...AI_NAME_FONT }}
+                      style={{ backgroundColor: "#C04F17", ...AI_NAME_FONT }}
                     >
                       <CalendarCheck className="w-3 h-3" /> {bookingLabel}
                     </button>
