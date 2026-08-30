@@ -197,9 +197,10 @@ export async function resolveBadgeBusinessIds(
 
   const pool = [
     ...(fiche?.data || []),
-    ...(docRows?.data || []),
-    ...(ytRows?.data || []),
+    ...docRows,
+    ...ytRows,
   ]
+
     .map((r: any) => r?.business_id)
     .filter(Boolean)
     .map(String);
