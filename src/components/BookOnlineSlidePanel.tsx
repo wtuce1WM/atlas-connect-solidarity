@@ -2674,7 +2674,7 @@ const BookOnlineSlidePanelInner = ({
             onClick={(e) => { e.stopPropagation(); effectiveOnPrev?.(); }}
             className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white active:scale-90 transition-all"
           >
-            <ChevronDown className="h-5 w-5 />
+            <ChevronDown className="h-5 w-5" />
           </button>
         </div>
       )}
