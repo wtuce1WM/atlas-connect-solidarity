@@ -678,6 +678,14 @@ const VideoSlidePanel = ({
   }, [open, agendaCity]);
 
   const { soundOn, setSoundOn } = useVideoSoundPreference();
+  // Lus dans les effets de synchro média SANS les mettre en dépendance : sinon
+  // un simple clic sur le CTA son réexécute tout l'effet (re-mute technique,
+  // relance forcée de play) et l'état pause/play de l'utilisateur est perdu.
+  const soundOnRef = useRef(soundOn);
+  const setSoundOnRef = useRef(setSoundOn);
+  useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
+  useEffect(() => { setSoundOnRef.current = setSoundOn; }, [setSoundOn]);
+
 
   // Log a view whenever a video becomes active in the panel.
   // Generic videos have an id; for business "internal" videos we fall back to the URL.
@@ -743,7 +751,8 @@ const VideoSlidePanel = ({
     if (!v) return;
     let disposed = false;
     // Apply the user's persisted sound preference to this new video element
-    v.muted = !soundOn;
+    v.muted = !soundOnRef.current;
+
     // Drapeau : un mute technique (autoplay bloqué / lecture interrompue par un
     // swipe) ne doit JAMAIS être persisté comme un choix utilisateur.
     let autoMute = false;
@@ -764,7 +773,7 @@ const VideoSlidePanel = ({
           autoMute = true;
           v.muted = true;
           v.play().catch(() => {});
-          if (!soundOn) return;
+          if (!soundOnRef.current) return;
           const tryUnmute = (ev: Event) => {
             // Si le geste vise le bouton son lui-même, on laisse son handler décider
             // (sinon on dé-mute ici et le clic re-mute juste après).
@@ -790,7 +799,7 @@ const VideoSlidePanel = ({
       setFilePaused(false);
       // Si la lecture démarre alors que le son est demandé mais que l'élément est
       // resté muté (mute technique), on rétablit le son.
-      if (soundOn && v.muted && autoMute) {
+      if (soundOnRef.current && v.muted && autoMute) {
         autoMute = false;
         v.muted = false;
       }
@@ -799,7 +808,7 @@ const VideoSlidePanel = ({
     const onVol = () => {
       setFileMuted(v.muted);
       // Persist user's choice so subsequent videos respect it
-      if (!autoMute) setSoundOn(!v.muted);
+      if (!autoMute) setSoundOnRef.current(!v.muted);
     };
     v.addEventListener("play", onPlay);
     v.addEventListener("pause", onPause);
@@ -812,7 +821,7 @@ const VideoSlidePanel = ({
       v.removeEventListener("pause", onPause);
       v.removeEventListener("volumechange", onVol);
     };
-  }, [videoUrl, videoId, soundOn, setSoundOn]);
+  }, [videoUrl, videoId]);
 
 
   // L'URL d'embed force toujours mute=1 pour que l'autoplay démarre.
@@ -843,7 +852,7 @@ const VideoSlidePanel = ({
     };
 
     const applyUnmute = () => {
-      if (unmuteApplied || !soundOn) return;
+      if (unmuteApplied || !soundOnRef.current) return;
       const w = iframe.contentWindow;
       if (!w) return;
       unmuteApplied = true;
@@ -877,7 +886,7 @@ const VideoSlidePanel = ({
           if (typeof info.muted === "boolean") {
             setYtMuted(info.muted);
             // Ne pas écraser la préférence son avec le mute technique de départ
-            if (unmuteApplied || !soundOn) setSoundOn(!info.muted);
+            if (unmuteApplied || !soundOnRef.current) setSoundOnRef.current(!info.muted);
           }
         }
       } catch {}
@@ -888,7 +897,7 @@ const VideoSlidePanel = ({
       iframe.removeEventListener("load", subscribe);
       window.removeEventListener("message", onMessage);
     };
-  }, [open, videoUrl, videoId, soundOn, setSoundOn]);
+  }, [open, videoUrl, videoId]);
 
   // Pause + mute the background video when the Full Description overlay is open.
   // Resume (with the user's sound preference) when it closes.
@@ -908,19 +917,19 @@ const VideoSlidePanel = ({
     } else {
       const v = videoRef.current;
       if (v) {
-        v.muted = !soundOn;
+        v.muted = !soundOnRef.current;
         v.play().catch(() => {});
       }
       const iframe = iframeRef.current;
       if (iframe?.contentWindow) {
         iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "playVideo", args: [] }), "*");
-        if (soundOn) {
+        if (soundOnRef.current) {
           iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "unMute", args: [] }), "*");
           iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "setVolume", args: [100] }), "*");
         }
       }
     }
-  }, [descBusinessId, aiOverlayOpen, open, soundOn]);
+  }, [descBusinessId, aiOverlayOpen, open]);
 
   // Fermeture de l'overlay IA depuis l'intérieur de l'iframe (/embed/ask, mode panneau)
   // + signal de disponibilité. En mode plateforme, l'iframe peut être préchargée
