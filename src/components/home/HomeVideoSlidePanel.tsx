@@ -40,6 +40,8 @@ interface Props<T extends VideoLike> {
   aiMode?: "business" | "platform";
 }
 
+
+
 /**
  * Wraps BookOnlineSlidePanel with prev/next navigation logic over a list of videos.
  * Extracted from Home.tsx to encapsulate the four duplicated index-search callbacks.
