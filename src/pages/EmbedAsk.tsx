@@ -1093,10 +1093,15 @@ const EmbedAsk = () => {
     if (businessId || poiMasterAnchorId) return;
     let cancelled = false;
     (async () => {
+      // L'ancre doit être géolocalisée : sans GPS, la carte n'a pas de centre et
+      // aucun marqueur ne s'affiche (cas Tarik Belasri, default_poi_is_master sans
+      // latitude/longitude).
       const { data } = await (supabase as any)
         .from("businesses")
         .select("id")
         .eq("default_poi_is_master", true)
+        .not("latitude", "is", null)
+        .not("longitude", "is", null)
         .order("updated_at", { ascending: false })
         .limit(1);
       const id = Array.isArray(data) && data[0]?.id ? String(data[0].id) : null;
@@ -1675,6 +1680,22 @@ const EmbedAsk = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapReplayTarget, poolRemaining]);
+
+  /**
+   * Marqueurs de l'overlay Map : corpus COMPLET du tour (marqueur
+   * POOL_BUSINESS_IDS, ex. 30 fiches pour « un spa pour cet après-midi »),
+   * et non seulement les 6 fiches affichées. Les fiches affichées restent en
+   * tête (ordre de la réponse), le reste du pool est ajouté ensuite.
+   * Le pool n'est fusionné que s'il correspond bien au corpus de la carte.
+   */
+  const openMapPoiIds = useMemo<string[]>(() => {
+    const shown = (openMap?.businesses || []).map((b) => b.id).filter(Boolean);
+    if (!shown.length) return [];
+    const pool = poolInfo.ids;
+    if (!pool.length || !shown.some((id) => pool.includes(id))) return shown;
+    const seen = new Set(shown);
+    return [...shown, ...pool.filter((id) => !seen.has(id))];
+  }, [openMap, poolInfo]);
 
 
 
@@ -3467,7 +3488,7 @@ const EmbedAsk = () => {
         <div className="fixed inset-0 z-[220]">
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
-              key={(openMap.businesses || []).map((b) => b.id).join(",")}
+              key={openMapPoiIds.join(",")}
               // La ville de la suggestion active prime : une suggestion rattachée
               // à Essaouira (ex. « Journée surf & cheval à Essaouira ») ancre la
               // carte sur le Port d'Essaouira, pas sur Koutoubia.
@@ -3480,8 +3501,8 @@ const EmbedAsk = () => {
               mapBaseColor={mapBaseColor}
               eagerPoiCategories
               poiAnchorCity={openMapAnchorCity}
-              poiOverrideIds={(openMap.businesses || []).map((b) => b.id)}
-              poiOverrideTitle={openMap.title || null}
+              poiOverrideIds={openMapPoiIds}
+              poiOverrideTitle={openMap.title || (lang === "en" ? "Results on the map" : lang === "ar" ? "النتائج على الخريطة" : "Résultats sur la carte")}
               onClose={() => setOpenMap(null)}
             />
           </Suspense>
