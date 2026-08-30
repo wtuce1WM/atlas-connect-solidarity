@@ -991,11 +991,12 @@ const EmbedAsk = () => {
 
   // Fond des cartes (overlay POI/Map) :
   //   - overlay Full Description (?preset=overlay) → couleur claire 1WM, identique partout
-  //   - vraie version /embed → couleur de carte propriétaire de la fiche
+  //   - sinon → couleur de carte propriétaire si définie, sinon beige 1WM par défaut
+  //     (l'overlay POI/Map ne doit jamais retomber sur un fond sombre).
   const OVERLAY_MAP_COLOR = "#ECD6B8";
   const mapBaseColor = overlay
     ? OVERLAY_MAP_COLOR
-    : hostMapBgColor || activeWidgetBg || null;
+    : hostMapBgColor || activeWidgetBg || OVERLAY_MAP_COLOR;
   const mapThemeResolved: "light" | "default-dark" | "default-light" = mapBaseColor
     ? "light"
     : theme === "dark"
