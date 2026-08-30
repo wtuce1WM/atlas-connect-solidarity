@@ -66,7 +66,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   onCitySelect,
   onYouTubeSelect,
   selectedBadgeId = null,
-  ai Mode,
+  aiMode,
   roundedFrame,
 }: Props<T>) {
   const currentIndex = useMemo(
