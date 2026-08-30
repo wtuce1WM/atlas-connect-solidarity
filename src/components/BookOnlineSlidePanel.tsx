@@ -5351,8 +5351,11 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         onFeedBadgeSelect={props.onFeedBadgeSelect}
         onFeedCitySelect={props.onFeedCitySelect}
         onFeedYouTubeSelect={props.onFeedYouTubeSelect}
-        selectedBadgeId={props.selectedBadgeId ?? null}
+        selectedBadge
+
+Id={props.selectedBadgeId ?? null}
         aiMode={props.aiMode}
+        roundedFrame={props.roundedFrame}
       />
     );
   }
