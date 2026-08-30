@@ -601,21 +601,8 @@ const BookOnlineSlidePanelInner = ({
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
   const [poiShowAll, setPoiShowAll] = useState(false);
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
-  const poiProximityInitRef = useRef<string | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
   const [poiMapTypeId, setPoiMapTypeId] = useState<"roadmap" | "satellite" | "terrain">("terrain");
-  // Rayon par défaut du Pill "À proximité" = champ Rayon de l'établissement (10 km par défaut).
-  // Corpus fermé imposé (réponse IA) : aucun rayon initial — l'étendue est dictée par les
-  // points GPS du pool de résultats (fit markers), pas par le Rayon du Master.
-  useEffect(() => {
-    const bid = (business as any)?.id;
-    if (!bid || poiProximityInitRef.current === bid) return;
-    poiProximityInitRef.current = bid;
-    if ((poiOverrideIds || []).length || (poiCityCorpus || []).length) { setPoiProximityKm(null); return; }
-    const raw = Number((business as any)?.poi_radius_km);
-    const allowed = [0.5, 1, 5, 10, 20, 50, 100];
-    setPoiProximityKm(allowed.includes(raw) ? raw : 10);
-  }, [business, (poiOverrideIds || []).join(",")]);
 
 
   /* ─── Widget "Adresses à proximité" : pills Regroupements KP + Lieu d'intérêt par défaut ─── */
@@ -1772,7 +1759,7 @@ const BookOnlineSlidePanelInner = ({
         if (cancelled || !master?.default_poi_business_id) return;
         const { data: poi } = await (supabase as any)
           .from("businesses")
-          .select("id,name,city,neighborhood,latitude,longitude,images,computed_rating,total_review_count")
+          .select("id,name,city,neighborhood,latitude,longitude,images,computed_rating,total_review_count,poi_radius_km")
           .eq("id", master.default_poi_business_id)
           .maybeSingle();
         if (cancelled || !poi?.latitude || !poi?.longitude) return;
@@ -1790,7 +1777,7 @@ const BookOnlineSlidePanelInner = ({
 
       const { data: poi } = await (supabase as any)
         .from("businesses")
-        .select("id,name,city,neighborhood,latitude,longitude,images,computed_rating,total_review_count")
+        .select("id,name,city,neighborhood,latitude,longitude,images,computed_rating,total_review_count,poi_radius_km")
         .eq("id", b.default_poi_business_id)
         .maybeSingle();
       if (cancelled || !poi?.latitude || !poi?.longitude) return;
@@ -1829,6 +1816,19 @@ const BookOnlineSlidePanelInner = ({
   const poiMasterCenter = poiMasterItem
     ? { lat: poiMasterItem.latitude, lng: poiMasterItem.longitude }
     : poiOverrideCenter;
+
+  // Même règle sur toutes les Maps : le rayon initial vient du POI maître effectif
+  // (Koutoubia / Port d'Essaouira), puis de la fiche hôte, avec repli à 10 km.
+  // Seul un corpus fermé de résultats IA reste sans rayon initial (fit markers).
+  useEffect(() => {
+    if ((poiOverrideIds || []).length) {
+      setPoiProximityKm(null);
+      return;
+    }
+    const raw = Number((poiMasterOverride as any)?.poi_radius_km ?? (business as any)?.poi_radius_km);
+    const allowed = [0.5, 1, 5, 10, 20, 50, 100];
+    setPoiProximityKm(allowed.includes(raw) ? raw : 10);
+  }, [business?.id, (business as any)?.poi_radius_km, (poiMasterOverride as any)?.id, (poiMasterOverride as any)?.poi_radius_km, (poiOverrideIds || []).join(",")]);
 
 
 
@@ -4119,9 +4119,7 @@ const BookOnlineSlidePanelInner = ({
         // Origine unique des distances : l'établissement Master (fallback géoloc)
         // Fallback : centre de la carte (POI master, ex. Koutoubia) quand le Master
         // d'ancrage n'a pas de coordonnées — sinon le Pill Rayon disparaît.
-        const proxOrigin = (business?.latitude != null && business?.longitude != null
-          ? { lat: business.latitude, lng: business.longitude }
-          : (poiMasterCenter ?? userCoords)) ?? null;
+        const proxOrigin = (poiMasterCenter ?? userCoords) ?? null;
         const distOf = (p: { latitude: number | null; longitude: number | null }) =>
           proxOrigin && p.latitude != null && p.longitude != null
             ? haversineKm(proxOrigin.lat, proxOrigin.lng, p.latitude, p.longitude)
@@ -4138,8 +4136,12 @@ const BookOnlineSlidePanelInner = ({
         // Corpus fermé imposé (réponse IA) : ordre conservé, mais les contrôles
         // Top/Tous et Proximité restent disponibles sur ce corpus complet.
         const overridePool: any[] | null = poiOverrideRows.length ? (poiOverrideRows as any[]) : null;
+        const closedAiPool = (poiOverrideIds || []).length ? overridePool : null;
         // Vivier ville restreint au rayon actif → base des compteurs catégories
-        const cityInRadius = overridePool ?? (poiCityBusinesses as any[]).filter(inRadius);
+        const cityInRadius = closedAiPool
+          ?? ((poiCityCorpus || []).length && overridePool
+            ? overridePool.filter(inRadius)
+            : (poiCityBusinesses as any[]).filter(inRadius));
         const catCounts = new Map<string, number>();
         for (const ft of catPillTabs) {
           catCounts.set(ft.id, cityInRadius.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
@@ -4147,7 +4149,7 @@ const BookOnlineSlidePanelInner = ({
 
         const afterCat = activeFrontTab
           ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
-          : (overridePool ?? (poiBusinesses as any[]));
+          : (closedAiPool ?? ((poiCityCorpus || []).length ? cityInRadius : (poiBusinesses as any[])));
 
         // Pill POI / sous-catégories — le MENU ne liste que les sous-catégories
         // "par défaut" (1ère sous-catégorie de la fiche), mais le FILTRE retenu
@@ -4181,7 +4183,6 @@ const BookOnlineSlidePanelInner = ({
         // Le corpus VILLE imposé (poiCityCorpus, chip « Map » de l'assistant) ne doit PAS
         // servir de base ici : il contient toutes les fiches actives (non-POI comprises)
         // et ferait exploser la liste des sous-catégories par défaut.
-        const closedAiPool = (poiOverrideIds || []).length ? overridePool : null;
         const poiPillBase =
           closedAiPool ?? (poiBusinesses as any[]).filter(inRadius);
         const poiPillDefaults = defaultSubcatsOf(poiPillBase);
