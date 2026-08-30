@@ -631,8 +631,9 @@ const Front = () => {
         }}
       />
 
-      {/* Mini-header pinné (identité + menu) — masqué sur l'écran 2 */}
-      <FrontHeader fixed={false} visible={!ctaActive && !demoIntro} />
+      {/* Mini-header pinné (identité + menu) — visible écrans 1 et 2, masqué pendant la démo */}
+      <FrontHeader fixed={false} visible={!demoIntro} />
+
 
       {/* Bloc central — 3 sections égales entre header et CTA Découvrir */}
       <div
@@ -995,29 +996,91 @@ const Front = () => {
           <span className="hidden md:inline">One World Morocco</span>
         </p>
 
-        <div className="grid w-full max-w-5xl grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3 md:gap-3">
-          {CTAS.map((cta) => (
-            <Link
-              key={cta.to}
-              to={cta.to}
-              tabIndex={ctaActive ? 0 : -1}
-              className="group relative overflow-hidden rounded-xl border border-[rgba(244,238,228,0.15)] bg-black/35 p-3.5 pt-4 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-gold/60 focus-visible:-translate-y-1 focus-visible:border-gold/60 focus-visible:outline-none md:p-5 md:pt-6"
-            >
-              <span
-                className="absolute inset-x-0 top-0 h-[3px]"
-                style={{
-                  background:
-                    "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--gold)))",
-                }}
-                aria-hidden="true"
+        {/* Animation bullet points (reprise de l'écran 1) */}
+        <div className="flex w-full max-w-2xl flex-col items-center gap-2 md:gap-3">
+          <div className="min-h-[1.75rem] md:min-h-[2.25rem]">
+            {step >= 1 && STEPS[step]?.title && (
+              <p
+                key={`s2-${step}`}
+                className="font-roboto text-xl font-bold leading-snug text-[#F4EEE4] md:text-2xl"
+                style={{ animation: reduced ? undefined : "owmSlideDown 420ms ease-out both" }}
+              >
+                {STEPS[step].title}
+              </p>
+            )}
+          </div>
+
+          <div className="relative w-full">
+            <div className="flex items-start gap-3 font-roboto text-base font-normal leading-[1.3] text-[#F4EEE4] md:text-lg md:leading-snug">
+              <img
+                src={hamsaIcon.url}
+                alt=""
+                className={`mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6 transition-opacity duration-300 ${
+                  step >= 1 ? "opacity-100" : "opacity-0"
+                }`}
+                loading="eager"
               />
-              <ArrowUpRight className="absolute right-4 top-5 h-4 w-4 text-[rgba(244,238,228,0.6)] transition-colors group-hover:text-gold" />
-              <span className="block pr-8 font-roboto text-sm font-bold text-[#F4EEE4] md:text-lg">
-                {cta.label}
-              </span>
-            </Link>
-          ))}
+              <div className="grid grid-cols-1">
+                {STEPS.map((s, i) => {
+                  if (!s.bullet) return null;
+                  const isActive = i === step;
+                  return (
+                    <span
+                      key={i}
+                      aria-hidden={!isActive}
+                      className={`col-start-1 row-start-1 ${
+                        isActive ? "opacity-100" : "pointer-events-none opacity-0"
+                      }`}
+                      style={{
+                        animation:
+                          reduced || !isActive ? undefined : "owmSlideDown 420ms ease-out both",
+                      }}
+                    >
+                      {s.render()}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-1.5 flex gap-1.5 md:mt-4" onClick={(e) => e.stopPropagation()}>
+              {CAROUSEL_STEPS.map((stepIndex, i) => {
+                const done = step > stepIndex;
+                const current = step === stepIndex;
+                const durationMs = CAROUSEL_DURATIONS_MS[i] ?? STEP_MS;
+                return (
+                  <button
+                    key={stepIndex}
+                    type="button"
+                    aria-label={`Bullet ${stepIndex}`}
+                    aria-current={current}
+                    tabIndex={ctaActive ? 0 : -1}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToStep(stepIndex, true);
+                    }}
+                    style={{ flex: `${BULLET_WEIGHTS[i] ?? 1} 1 0%` }}
+                    className="h-2 overflow-hidden rounded-full bg-[rgba(244,238,228,0.2)] py-[3px]"
+                  >
+                    <span
+                      key={current ? `cur2-${step}` : done ? "done" : "todo"}
+                      className="block h-full rounded-full bg-gold"
+                      style={{
+                        width: done || current ? "100%" : "0%",
+                        opacity: done || current ? 1 : 0,
+                        transition: reduced || !current ? "none" : `width ${durationMs}ms linear`,
+                        ...(current && !reduced && auto
+                          ? { animation: `owmFillBar ${durationMs}ms linear both` }
+                          : null),
+                      }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
+
 
         {/* Slogan écran 2 — légèrement réduit sur mobile */}
         <p
@@ -1065,8 +1128,28 @@ const Front = () => {
         </button>
       </div>
 
-      {/* CTA Revenir — symétrique de Découvrir, visible sur écran 2 (desktop only) */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 hidden md:flex justify-center">
+      {/* CTA Revenir (+ Demo discret) — symétrique de Découvrir, visible sur écran 2 (desktop only) */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 hidden md:flex items-end justify-center gap-6">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            startDemo();
+          }}
+          disabled={demoLoading}
+          aria-label="Demo — découverte vidéo"
+          className="rounded-lg border border-white/20 bg-white/[0.06] px-3 py-1.5 font-roboto text-xs font-bold uppercase tracking-[0.18em] text-[rgba(244,238,228,0.8)] backdrop-blur-md transition-colors hover:border-gold/60 hover:text-gold disabled:opacity-60"
+          style={{
+            opacity: ctaActive ? 1 : 0,
+            pointerEvents: ctaActive ? "auto" : "none",
+            transition: motion,
+          }}
+          tabIndex={ctaActive ? 0 : -1}
+          aria-hidden={!ctaActive}
+        >
+          Demo
+        </button>
+
         <button
           type="button"
           onClick={(e) => {
