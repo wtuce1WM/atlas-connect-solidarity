@@ -3098,21 +3098,31 @@ const EmbedAsk = () => {
 
               {/* Feed vidéo curaté : miniatures 9/16, ouverture du slidepanel vidéo
                   (swipe vertical) — même composant que /videos/:slug. */}
-              {videoFeedPayload && videoFeedPayload.videos.length > 0 && (
-                <EmbedCardCarousel
-                  items={videoFeedPayload.videos.map((v) => ({
-                    key: v.id,
-                    image: v.thumbnailUrl || null,
-                    title: v.title || v.businessName || "Vidéo",
-                    badge: v.businessName || null,
-                    onClick: () => {
-                      setVideoFeedList(videoFeedPayload.videos);
-                      setFeedVideoTime(0);
-                      setActiveFeedVideoId(v.id);
-                    },
-                  }))}
-                />
-              )}
+              {videoFeedPayload && videoFeedPayload.videos.length > 0 && (() => {
+                // Fallback à la fermeture du lecteur : on réaffiche le carrousel
+                // avec TOUTES les vidéos déjà chargées (pagination du slidepanel
+                // incluse), pas seulement le premier lot du marqueur.
+                const loadedIsSameFeed =
+                  videoFeedList.length > videoFeedPayload.videos.length &&
+                  videoFeedList.some((v) => v.id === videoFeedPayload.videos[0].id);
+                const carouselVideos = loadedIsSameFeed ? videoFeedList : videoFeedPayload.videos;
+                return (
+                  <EmbedCardCarousel
+                    limit={carouselVideos.length}
+                    items={carouselVideos.map((v) => ({
+                      key: v.id,
+                      image: v.thumbnailUrl || null,
+                      title: v.title || v.businessName || "Vidéo",
+                      badge: v.businessName || null,
+                      onClick: () => {
+                        setVideoFeedList(carouselVideos);
+                        setFeedVideoTime(0);
+                        setActiveFeedVideoId(v.id);
+                      },
+                    }))}
+                  />
+                );
+              })()}
 
               {/* Article recommandé : jamais une réponse — simple option cliquable,
                   affichée APRÈS le carrousel de miniatures des résultats. */}
