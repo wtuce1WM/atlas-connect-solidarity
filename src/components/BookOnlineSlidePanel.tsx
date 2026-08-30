@@ -4361,7 +4361,7 @@ const BookOnlineSlidePanelInner = ({
                     <button
                       type="button"
                       onClick={() => { resetWidgetMapView(); setPoiShowAll(false); }}
-                      className={`px-3 py-1 rounded-full transition-colors ${!poiShowAll ? PILL_IDLE_EMBED : PILL_ACTIVE_EMBED}`}
+                      className={`px-3 py-1 rounded-full transition-colors ${!poiShowAll ? PILL_ACTIVE_EMBED : PILL_IDLE_EMBED}`}
                     >
                       {language === "en" ? `Top ${effectiveTopLimit}` : language === "ar" ? `أفضل ${effectiveTopLimit}` : `Top ${effectiveTopLimit}`}
                     </button>
