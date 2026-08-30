@@ -2762,76 +2762,6 @@ const EmbedAsk = () => {
                 </div>
               )}
 
-              {bookingCity && (
-                <div className="w-[22rem] max-w-full flex flex-col gap-3">
-                  <AvailabilitySearchOverlay
-                    inline
-                    language={lang}
-                    isSearching={hotelSearchingMsgId === msgKey}
-                    initialCheckIn={bookingResult?.checkIn ?? bookingPayload?.checkIn ?? undefined}
-                    initialCheckOut={bookingResult?.checkOut ?? bookingPayload?.checkOut ?? undefined}
-                    initialAdults={bookingResult?.adults ?? bookingPayload?.adults ?? undefined}
-                    onSearch={(checkIn, checkOut, adults) => {
-                      runCityHotelSearch(msgKey, bookingCity, checkIn, checkOut, adults);
-                    }}
-                    onClose={() => {}}
-                  />
-
-                  {bookingResult && (
-                    <div className="flex flex-col gap-3">
-                      <div className={`text-xs font-semibold ${theme === "dark" ? "text-white/70" : "text-neutral-700"}`}>
-                        {bookingResult.hotels.length > 0
-                          ? (lang === "en"
-                              ? `${bookingResult.hotels.length} available stays in ${bookingResult.city}`
-                              : lang === "ar"
-                              ? `${bookingResult.hotels.length} إقامة متوفرة في ${bookingResult.city}`
-                              : `${bookingResult.hotels.length} établissements disponibles à ${bookingResult.city}`)
-                          : (lang === "en"
-                              ? "No availability found for these dates."
-                              : lang === "ar"
-                              ? "لا يوجد توفر لهذه التواريخ."
-                              : "Aucune disponibilité trouvée pour ces dates.")}
-                      </div>
-                      {bookingResult.hotels.map((h: any) => (
-                        <button
-                          key={h.hotelId}
-                          type="button"
-                          onClick={() => { setOpenSiblings([h.businessId]); setOpenBusinessId(h.businessId); }}
-                          className={`flex gap-3 p-3 text-left rounded-2xl border ${border} ${cardBg}`}
-                          style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08)", ...(cardStyle || {}) }}
-                        >
-                          <div className="shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-neutral-800">
-                            {(h.dbImage || h.mainImage) && (
-                              <img src={h.dbImage || h.mainImage} alt={h.name} className="w-full h-full object-cover" loading="lazy" />
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className={`font-semibold text-sm truncate ${cardInk}`}>{h.name}</div>
-                            <div className={`text-xs mt-0.5 truncate ${cardInk} opacity-70`}>
-                              {[h.dbBusiness?.neighborhood, h.dbBusiness?.city].filter(Boolean).join(" · ")}
-                            </div>
-                            {h.dbGoogleRating != null && (
-                              <div className={`text-xs mt-1 flex items-center gap-1 ${cardInk} opacity-80`}>
-                                <Star className="h-3 w-3" style={{ color: "#D4AF37" }} />
-                                {Number(h.dbGoogleRating).toFixed(1)}
-                                {h.dbGoogleReviewCount ? ` (${h.dbGoogleReviewCount})` : ""}
-                              </div>
-                            )}
-                            {(typeof h.serpPrice === "object" ? h.serpPrice?.amount : h.serpPrice) && (
-                              <div className="mt-1.5 inline-block rounded-full px-2.5 py-1 text-xs font-bold text-white" style={{ background: "#C04F17" }}>
-                                {typeof h.serpPrice === "object" ? h.serpPrice.amount : h.serpPrice}
-                                <span className="font-normal opacity-90">
-                                  {lang === "en" ? " / night" : lang === "ar" ? " / ليلة" : " / nuit"}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
 
 
 
@@ -2931,6 +2861,77 @@ const EmbedAsk = () => {
                 renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload), mapPayload.order)}
 
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
+
+              {bookingCity && (
+                <div className="w-full max-w-[85%] flex flex-col gap-3">
+                  <AvailabilitySearchOverlay
+                    inline
+                    language={lang}
+                    isSearching={hotelSearchingMsgId === msgKey}
+                    initialCheckIn={bookingResult?.checkIn ?? bookingPayload?.checkIn ?? undefined}
+                    initialCheckOut={bookingResult?.checkOut ?? bookingPayload?.checkOut ?? undefined}
+                    initialAdults={bookingResult?.adults ?? bookingPayload?.adults ?? undefined}
+                    onSearch={(checkIn, checkOut, adults) => {
+                      runCityHotelSearch(msgKey, bookingCity, checkIn, checkOut, adults);
+                    }}
+                    onClose={() => {}}
+                  />
+
+                  {bookingResult && (
+                    <div className="flex flex-col gap-3">
+                      <div className={`text-xs font-semibold ${theme === "dark" ? "text-white/70" : "text-neutral-700"}`}>
+                        {bookingResult.hotels.length > 0
+                          ? (lang === "en"
+                              ? `${bookingResult.hotels.length} available stays in ${bookingResult.city}`
+                              : lang === "ar"
+                              ? `${bookingResult.hotels.length} إقامة متوفرة في ${bookingResult.city}`
+                              : `${bookingResult.hotels.length} établissements disponibles à ${bookingResult.city}`)
+                          : (lang === "en"
+                              ? "No availability found for these dates."
+                              : lang === "ar"
+                              ? "لا يوجد توفر لهذه التواريخ."
+                              : "Aucune disponibilité trouvée pour ces dates.")}
+                      </div>
+                      {bookingResult.hotels.map((h: any) => (
+                        <button
+                          key={h.hotelId}
+                          type="button"
+                          onClick={() => { setOpenSiblings([h.businessId]); setOpenBusinessId(h.businessId); }}
+                          className={`flex gap-3 p-3 text-left rounded-2xl border ${border} ${cardBg}`}
+                          style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08)", ...(cardStyle || {}) }}
+                        >
+                          <div className="shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-neutral-800">
+                            {(h.dbImage || h.mainImage) && (
+                              <img src={h.dbImage || h.mainImage} alt={h.name} className="w-full h-full object-cover" loading="lazy" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className={`font-semibold text-sm truncate ${cardInk}`}>{h.name}</div>
+                            <div className={`text-xs mt-0.5 truncate ${cardInk} opacity-70`}>
+                              {[h.dbBusiness?.neighborhood, h.dbBusiness?.city].filter(Boolean).join(" · ")}
+                            </div>
+                            {h.dbGoogleRating != null && (
+                              <div className={`text-xs mt-1 flex items-center gap-1 ${cardInk} opacity-80`}>
+                                <Star className="h-3 w-3" style={{ color: "#D4AF37" }} />
+                                {Number(h.dbGoogleRating).toFixed(1)}
+                                {h.dbGoogleReviewCount ? ` (${h.dbGoogleReviewCount})` : ""}
+                              </div>
+                            )}
+                            {(typeof h.serpPrice === "object" ? h.serpPrice?.amount : h.serpPrice) && (
+                              <div className="mt-1.5 inline-block rounded-full px-2.5 py-1 text-xs font-bold text-white" style={{ background: "#C04F17" }}>
+                                {typeof h.serpPrice === "object" ? h.serpPrice.amount : h.serpPrice}
+                                <span className="font-normal opacity-90">
+                                  {lang === "en" ? " / night" : lang === "ar" ? " / ليلة" : " / nuit"}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {destinationsPayload && destinationsPayload.destinations.length > 0 && (
                 <EmbedCardCarousel
