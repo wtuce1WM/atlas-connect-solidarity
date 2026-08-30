@@ -674,8 +674,14 @@ const Front = () => {
             src="/embed/ask?scope=platform&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light"
             title="Assistant IA"
             className="h-full w-full flex-1 border-0 bg-transparent"
+            style={{
+              opacity: askFrameReady ? 1 : 0,
+              transition: "opacity 220ms ease-out",
+            }}
+            onLoad={() => setAskFrameReady(true)}
           />
         </div>
+
       </div>
 
       <style>{`
