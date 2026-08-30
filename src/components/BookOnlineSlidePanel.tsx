@@ -4177,7 +4177,12 @@ const BookOnlineSlidePanelInner = ({
 
         // Pill POI : totalement indépendant du Pill Catégories.
         // Base = POI de proximité de l'établissement Master, entrées = sous-catégories par défaut.
-        const poiPillBase = overridePool ?? (poiBusinesses as any[]).filter(inRadius);
+        // Exception : corpus fermé d'une réponse IA (poiOverrideIds) → base = ce pool.
+        // Le corpus VILLE imposé (poiCityCorpus, chip « Map » de l'assistant) ne doit PAS
+        // servir de base ici : il contient toutes les fiches actives (non-POI comprises)
+        // et ferait exploser la liste des sous-catégories par défaut.
+        const closedAiPool = (poiOverrideIds || []).length ? overridePool : null;
+        const poiPillBase = closedAiPool ?? (poiBusinesses as any[]).filter(inRadius);
         const poiPillDefaults = defaultSubcatsOf(poiPillBase);
         const poiSubcatCounts = new Map<string, number>();
         for (const p of poiPillBase) {
