@@ -63,6 +63,9 @@ const capFirstBadgeLabel = (s: string) => (s ? s.charAt(0).toUpperCase() + s.sli
 interface VideoSlidePanelProps {
   open: boolean;
   onClose: () => void;
+  /** Variante embarquée /front : coins arrondis */
+  roundedFrame?: boolean;
+
   videoUrl: string | null;
   videoId: string | null;
   businessName: string;
