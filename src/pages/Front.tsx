@@ -524,6 +524,19 @@ const Front = () => {
   }, [scheduleNext, step]);
 
 
+  // Une question lancée dans l'assistant IA de l'écran 1 neutralise le scroll
+  // vers l'écran 2 (l'utilisateur lit sa réponse).
+  const [askLocked, setAskLocked] = useState(false);
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      if (e.data?.type === "owm-ask:asked") setAskLocked(true);
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
+  const askLockedRef = useRef(false);
+  askLockedRef.current = askLocked;
+
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
@@ -531,8 +544,10 @@ const Front = () => {
     const onWheel = (e: WheelEvent) => {
       if ((e.target as HTMLElement).closest("[data-front-demo-panel]")) return;
       e.preventDefault();
+      if (askLockedRef.current) return;
       setTarget(targetRef.current + e.deltaY / 600);
     };
+
     const onTouchStart = (e: TouchEvent) => {
       if ((e.target as HTMLElement).closest("[data-front-demo-panel]")) {
         touchYRef.current = null;
