@@ -2491,7 +2491,7 @@ const EmbedAsk = () => {
                   disabled={streaming || !assistantReady}
                   className={`flex-1 resize-none bg-transparent outline-none text-base leading-snug max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white/70"}`}
                 />
-                <div className="flex items-center justify-center gap-2 md:flex-col">
+                <div className="flex items-center justify-center gap-2">
                 <button
                   type="button"
                   onClick={voice.toggleRecording}
