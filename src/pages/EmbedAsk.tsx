@@ -2360,7 +2360,7 @@ const EmbedAsk = () => {
         )}
       </header>
 
-      <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto"} px-4 py-4 space-y-3 ${bg} relative`}>
+      <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto"} px-4 pt-4 pb-8 space-y-3 ${bg} relative`}>
         {/* Option B : état « accueil IA » — logo, titre, champ central très visible,
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
@@ -3087,44 +3087,7 @@ const EmbedAsk = () => {
                 </a>
               )}
 
-              {/* Actions après la carte Article recommandé : Map / autres résultats /
-                  Nouvelle conversation — uniquement sur le dernier message, hors streaming. */}
-              {isLast && !streaming && ((mapPayload && mapPayload.businesses.length > 0) || citedFallback.length > 0 || articleCard) && (
-                <div className="w-full max-w-[85%] flex flex-wrap items-center gap-2 pt-1">
-                  {mapReplayTarget && poolInfo.hasGeo && (
-                    <button
-                      type="button"
-                      onClick={() => setOpenMap(mapReplayTarget)}
-                      style={{ ...mapBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                      className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity"
-                    >
-                      <MapPin className="w-3.5 h-3.5" />
-                      {lang === "en" ? "Map" : lang === "ar" ? "الخريطة" : "Map"}
-                    </button>
-                  )}
-                  {poolRemaining > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
-                      style={{ ...moreBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                      className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity"
-                    >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`}
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={startNewConversation}
-                    disabled={streaming}
-                    style={{ ...newConvStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                    className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity disabled:opacity-40"
-                  >
-                    <MessageSquarePlus className="w-3.5 h-3.5" />
-                    {lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
-                  </button>
-                </div>
-              )}
+
 
 
 
@@ -3162,6 +3125,46 @@ const EmbedAsk = () => {
                   </div>
                 );
               })()}
+
+              {/* Actions toujours en dernier, sous les relances : Map / autres
+                  résultats / Nouvelle conversation — dernier message, hors streaming. */}
+              {isLast && !streaming && ((mapPayload && mapPayload.businesses.length > 0) || citedFallback.length > 0 || articleCard) && (
+                <div className="w-full max-w-[85%] flex flex-wrap items-center gap-2 pt-1">
+                  {mapReplayTarget && poolInfo.hasGeo && (
+                    <button
+                      type="button"
+                      onClick={() => setOpenMap(mapReplayTarget)}
+                      style={{ ...mapBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                      className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity"
+                    >
+                      <MapPin className="w-3.5 h-3.5" />
+                      {lang === "en" ? "Map" : lang === "ar" ? "الخريطة" : "Map"}
+                    </button>
+                  )}
+                  {poolRemaining > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
+                      style={{ ...moreBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                      className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={startNewConversation}
+                    disabled={streaming}
+                    style={{ ...newConvStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                    className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-md hover:opacity-90 transition-opacity disabled:opacity-40"
+                  >
+                    <MessageSquarePlus className="w-3.5 h-3.5" />
+                    {lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
+                  </button>
+                </div>
+              )}
+
 
 
 
