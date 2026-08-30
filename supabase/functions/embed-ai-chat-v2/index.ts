@@ -291,6 +291,15 @@ Deno.serve(async (req) => {
   /** true quand la suggestion a été retrouvée depuis le texte libre (pas un clic). */
   let suggestionFromText = false;
   const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
+  /**
+   * Suggestion curatée encore active dans la conversation (contexte, PAS un clic).
+   * Sert uniquement à conserver le périmètre taxonomique (badge, sous-catégories…)
+   * quand la relance libre ne fait QUE changer de ville (« à Essaouira ») : sans
+   * elle, le badge de la suggestion (ex. « Rooftop Restaurant & Bars ») était perdu
+   * et la réponse renvoyait n'importe quel établissement de la ville.
+   */
+  const contextSuggestionId: string | null =
+    typeof body.contextSuggestionId === "string" && body.contextSuggestionId ? body.contextSuggestionId : null;
   /** Rayon de proximité demandé par l'utilisateur, borné aux valeurs du champ « Rayon de proximité ». */
   const RADIUS_OPTIONS = [0.5, 1, 5, 10, 20, 50, 100];
   const requestedRadiusKm: number | null = RADIUS_OPTIONS.includes(Number(body.radiusKm))
