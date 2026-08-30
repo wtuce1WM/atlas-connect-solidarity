@@ -2439,7 +2439,9 @@ const EmbedAsk = () => {
       </header>
         )}
 
-      <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto"} px-4 pt-4 pb-8 space-y-3 ${bg} relative`}>
+      {/* scrollbar-hide : ascenseur masqué (scroll molette/tactile/clavier conservé). */}
+      <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto scrollbar-hide"} px-4 pt-4 pb-8 space-y-3 ${bg} relative`}>
+
         {/* Option B : état « accueil IA » — logo, titre, champ central très visible,
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
