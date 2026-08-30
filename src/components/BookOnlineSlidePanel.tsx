@@ -606,7 +606,8 @@ const BookOnlineSlidePanelInner = ({
   }, [isAiOriginFiche]);
 
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
-  const [poiShowAll, setPoiShowAll] = useState(false);
+  // Par défaut : "Tous" (tous les marqueurs) plutôt que Top 20.
+  const [poiShowAll, setPoiShowAll] = useState(true);
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
   const poiProximityInitRef = useRef<string | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
