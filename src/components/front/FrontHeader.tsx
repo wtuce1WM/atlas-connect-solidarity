@@ -143,7 +143,7 @@ const FrontHeader = ({ fixed = false, visible = true, onMenuToggle, onLogoClick 
           ))}
 
           {/* Switch de langues */}
-          <div className="mt-2 grid grid-cols-3 gap-3">
+          <div className="mt-2 grid grid-cols-2 gap-3">
             {FRONT_LANGS.map((lang) => (
               <button
                 key={lang.code}
