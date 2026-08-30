@@ -3365,10 +3365,11 @@ const EmbedAsk = () => {
       </form>
       </div>
 
-      {/* Overlay POI/Map générique du chip « Map » : corpus complet des POI,
-          toujours ouvrable. L'overlay POI est ancré au business hôte s'il existe ;
-          en mode plateforme on utilise le business maître default_poi_is_master
-          (carte centrée sur la Koutoubia + chips catégories de la ville). */}
+      {/* Overlay POI/Map générique du chip « Map » : même parcours business-centric
+          que l'embed /embed/nearby (darnajat) — ancre = fiche hôte si elle existe,
+          sinon le POI Koutoubia (défaut, Marrakech l'emporte) ou le Port d'Essaouira
+          si le contexte est Essaouira. Aucun corpus ville imposé : le panel charge
+          son corpus POI standard filtré par le rayon de l'ancre. */}
       {renderGenericPoi && (
         <div
           className={cn(
@@ -3378,13 +3379,12 @@ const EmbedAsk = () => {
         >
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
-              businessId={businessId || poiMasterAnchorId || POI_MASTER_FALLBACK_ID}
+              businessId={businessId || genericPoiAnchorId}
               initialOverlay="poi"
               embedMode
               hideDirections
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
-              poiCityCorpus={["Marrakech", "Asni", "Imlil", "Agafay"]}
               onClose={() => setOpenGenericPoi(false)}
             />
           </Suspense>
