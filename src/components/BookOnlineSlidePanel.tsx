@@ -3893,7 +3893,7 @@ const BookOnlineSlidePanelInner = ({
                         <LazyMount minHeight={rateIframeHeight} rootMargin="400px">
                           <iframe
                             key={`rate-widget-bottom-${business.slug}`}
-                            src={`/embed/avis/${business.slug}?preset=overlay&platform=all&lang=${language}&variant=card&bg=transparent&theme=dark`}
+                            src={`/embed/avis/${business.slug}?preset=overlay&platform=all&lang=${language}&variant=card&bg=transparent&ink=light&canvas=transparent`}
                             title={language === "en" ? "Leave a review" : language === "ar" ? "اترك تقييماً" : "Laisser un avis"}
                             className="w-full block border-0 bg-transparent"
                             style={{ height: rateIframeHeight, background: "transparent" }}

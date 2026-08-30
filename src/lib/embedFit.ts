@@ -135,7 +135,12 @@ export const applyEmbedBg = (color: string | null | undefined) => {
   // a déjà aligné le color-scheme sur "dark" ; le repasser à "normal" ici ferait
   // repeindre le canvas transparent de l'iframe en BLANC par Chromium.
   const isInternalOverlay = /(^|[?&])preset=overlay(&|$)/.test(window.location.search);
-  if (!isInternalOverlay) {
+  // Certains widgets internes (notamment Avis dans Full Description) doivent
+  // conserver un canvas réellement transparent, y compris dans une iframe
+  // ouverte depuis une surface sombre. Le marqueur explicite évite de changer
+  // le comportement des autres overlays internes.
+  const wantsTransparentCanvas = new URLSearchParams(window.location.search).get("canvas") === "transparent";
+  if (!isInternalOverlay || wantsTransparentCanvas) {
     document.documentElement.style.setProperty("color-scheme", bg === "transparent" ? "normal" : "light");
   }
 

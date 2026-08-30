@@ -3407,6 +3407,7 @@ const EmbedAsk = () => {
               businessId={businessId || genericPoiAnchorId}
               initialOverlay="poi"
               embedMode
+              showSearchBar
               hideDirections
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
@@ -3436,6 +3437,7 @@ const EmbedAsk = () => {
               businessId={businessId || (openMapAnchorCity === "Essaouira" ? POI_ESSAOUIRA_PORT_ID : poiMasterAnchorId || POI_MASTER_FALLBACK_ID)}
               initialOverlay="poi"
               embedMode
+              showSearchBar
               hideDirections
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
