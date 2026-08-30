@@ -712,7 +712,7 @@ const BookOnlineSlidePanelInner = ({
       for (let from = 0; ; from += PAGE) {
         const { data } = await supabase
           .from("businesses")
-          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, computed_rating, total_review_count")
+          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, computed_rating, total_review_count, is_poi")
           .in("city", cities)
           .eq("is_active", true)
           .not("latitude", "is", null)
@@ -4177,7 +4177,19 @@ const BookOnlineSlidePanelInner = ({
 
         // Pill POI : totalement indépendant du Pill Catégories.
         // Base = POI de proximité de l'établissement Master, entrées = sous-catégories par défaut.
-        const poiPillBase = overridePool ?? (poiBusinesses as any[]).filter(inRadius);
+        // Exception : corpus fermé d'une réponse IA (poiOverrideIds) → base = ce pool.
+        // Le corpus VILLE imposé (poiCityCorpus, chip « Map » de l'assistant) ne doit PAS
+        // servir de base ici : il contient toutes les fiches actives (non-POI comprises)
+        // et ferait exploser la liste des sous-catégories par défaut.
+        const closedAiPool = (poiOverrideIds || []).length ? overridePool : null;
+        // Corpus ville imposé (chip « Map ») : on ne garde que les fiches is_poi,
+        // pour retrouver exactement la même liste d'entrées que l'overlay classique.
+        const cityCorpusPois =
+          !closedAiPool && (poiCityCorpus || []).length && poiOverrideRows.length
+            ? (poiOverrideRows as any[]).filter((p) => (p as any).is_poi)
+            : null;
+        const poiPillBase =
+          closedAiPool ?? cityCorpusPois ?? (poiBusinesses as any[]).filter(inRadius);
         const poiPillDefaults = defaultSubcatsOf(poiPillBase);
         const poiSubcatCounts = new Map<string, number>();
         for (const p of poiPillBase) {
