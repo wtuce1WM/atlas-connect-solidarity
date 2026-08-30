@@ -36,8 +36,12 @@ interface Props<T extends VideoLike> {
   onYouTubeSelect?: () => void;
   /** ID du badge actuellement sélectionné (affiché texte noir sur fond gold) */
   selectedBadgeId?: string | null;
-  /** Variante de l'assistant IA : business hôte (défaut) ou plateforme 1WM */
+  /** Variante de l'assistant 
+
+IA : business hôte (défaut) ou plateforme 1WM */
   aiMode?: "business" | "platform";
+  /** Coins arrondis (variante /front) */
+  roundedFrame?: boolean;
 }
 
 
@@ -62,7 +66,8 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   onCitySelect,
   onYouTubeSelect,
   selectedBadgeId = null,
-  aiMode,
+  ai Mode,
+  roundedFrame,
 }: Props<T>) {
   const currentIndex = useMemo(
     () => (activeVideo ? activeList.findIndex((v) => v.id === activeVideo.id) : -1),
@@ -118,6 +123,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       onFeedYouTubeSelect={onYouTubeSelect}
       selectedBadgeId={selectedBadgeId}
       aiMode={aiMode}
+      roundedFrame={roundedFrame}
     />
   );
 }
