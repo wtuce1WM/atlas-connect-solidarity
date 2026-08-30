@@ -1681,6 +1681,22 @@ const EmbedAsk = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapReplayTarget, poolRemaining]);
 
+  /**
+   * Marqueurs de l'overlay Map : corpus COMPLET du tour (marqueur
+   * POOL_BUSINESS_IDS, ex. 30 fiches pour « un spa pour cet après-midi »),
+   * et non seulement les 6 fiches affichées. Les fiches affichées restent en
+   * tête (ordre de la réponse), le reste du pool est ajouté ensuite.
+   * Le pool n'est fusionné que s'il correspond bien au corpus de la carte.
+   */
+  const openMapPoiIds = useMemo<string[]>(() => {
+    const shown = (openMap?.businesses || []).map((b) => b.id).filter(Boolean);
+    if (!shown.length) return [];
+    const pool = poolInfo.ids;
+    if (!pool.length || !shown.some((id) => pool.includes(id))) return shown;
+    const seen = new Set(shown);
+    return [...shown, ...pool.filter((id) => !seen.has(id))];
+  }, [openMap, poolInfo]);
+
 
 
   /**
