@@ -208,6 +208,7 @@ const VideoSlidePanel = ({
     aiMode = "business",
   }: VideoSlidePanelProps) => {
 
+
   const navigate = useLocalizedNavigate();
   const rawNavigate = useNavigate();
   const isMobile = useIsMobile();
