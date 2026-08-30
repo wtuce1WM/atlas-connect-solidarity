@@ -4080,13 +4080,18 @@ const BookOnlineSlidePanelInner = ({
 
       {/* POI sub-panel */}
       {selectedPoiBusinessId && (
+        <>
+        {/* Desktop : assombrit la Google Map restée visible à gauche derrière la fiche imbriquée */}
+        {embedHalfSheet && (
+          <div className="hidden lg:block absolute inset-0 z-[84] bg-black/70 pointer-events-none" />
+        )}
         <OverlayShell zClass="z-[85]" coverToolbar={false} animClass={isEmbedMapWidget ? "animate-slide-in-right" : "animate-slide-up-from-bottom"} bg="bg-background" className={`flex flex-col ${embedHalfSheet ? "left-1/2 w-1/2" : ""}`}>
 
           <SlidePanelHeader
             onClose={() => { setSelectedPoiBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
             alwaysDark
-            closeVariant="inverse"
             glassClose
+
             toolbarLeftId="poi-slide-panel-toolbar-left"
             toolbarCenterId="poi-slide-panel-toolbar-center"
             toolbarRightId="poi-slide-panel-toolbar"
@@ -4105,6 +4110,8 @@ const BookOnlineSlidePanelInner = ({
             />
           </div>
         </OverlayShell>
+        </>
+
       )}
 
       {/* KP sub-panel */}
