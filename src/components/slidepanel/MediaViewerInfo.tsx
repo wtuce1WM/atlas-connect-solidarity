@@ -71,7 +71,7 @@ const MediaViewerInfo = ({
   fallbackTeaser,
 }: MediaViewerInfoProps) => {
   const lang = (language in MORE ? language : "fr") as keyof typeof MORE;
-  const effectiveTeaser = teaser?.trim() || fallbackTeaser?.trim() || buildFallbackTeaser(name, language);
+  const effectiveTeaser = decodeEntities(teaser?.trim() || fallbackTeaser?.trim() || buildFallbackTeaser(name, language));
   const place = [city, neighborhood].filter(Boolean).join(", ");
   // Tap = ouvrir ; swipe vertical = laissé au panneau (aucun stopPropagation)
   const touchStart = React.useRef<{ x: number; y: number } | null>(null);
