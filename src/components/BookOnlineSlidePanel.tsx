@@ -712,7 +712,7 @@ const BookOnlineSlidePanelInner = ({
       for (let from = 0; ; from += PAGE) {
         const { data } = await supabase
           .from("businesses")
-          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, computed_rating, total_review_count")
+          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, computed_rating, total_review_count, is_poi")
           .in("city", cities)
           .eq("is_active", true)
           .not("latitude", "is", null)
