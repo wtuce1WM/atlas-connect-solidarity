@@ -1022,10 +1022,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         return s[Math.min(s.length - 1, Math.floor(s.length * 0.9))];
       };
 
-      // Tant qu'il n'y a que le marqueur Master (corpus encore en chargement),
-      // la dispersion n'a aucun sens : on cadre sur le rayon du pill « À proximité »
-      // (branche ci-dessous) au lieu de zoomer à 300 m sur un point unique.
-      if (center && pts.length > 1 && height > 0 && width > 0) {
+      if (center && pts.length && height > 0 && width > 0) {
         const cLat = pts.reduce((s, p) => s + p.lat, 0) / pts.length;
         const cLng = pts.reduce((s, p) => s + p.lng, 0) / pts.length;
         const spreadFromMaster = pct90(pts.map((p) => haversineKm(center.lat, center.lng, p.lat, p.lng)));
