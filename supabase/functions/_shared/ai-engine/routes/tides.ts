@@ -43,20 +43,20 @@ function hasStrongTides(text: string, n: string): boolean {
 export function isTidesIntent(text: string): boolean {
   const n = normalize(text);
   if (!n) return false;
-  if (hasStrongTides(text, n)) return true;
-  // Déclencheur faible : route marées seulement sans intention business.
-  if (WEAK.test(n) && !BUSINESS_INTENT.test(n)) return true;
-  return false;
+  // Seules les vraies questions « mer » court-circuitent la recherche business.
+  // « surf / vagues » seul (ex. « surf sur Essaouira ») part en route business :
+  // le service exact « Surf » résout les fiches, et le widget marées est joint en bonus.
+  return hasStrongTides(text, n);
 }
 
 /**
- * Widget marées « bonus » : la question mentionne surf/vagues avec une intention
- * business ET vise une ville côtière → on joint le widget APRÈS les résultats,
- * sans court-circuiter la recherche. Retourne null si hors côte.
+ * Widget marées « bonus » : la question mentionne surf/vagues (avec ou sans
+ * intention business explicite) ET vise une ville côtière → on joint le widget
+ * APRÈS les résultats, sans court-circuiter la recherche. Null si hors côte.
  */
 export function bonusTidesCity(text: string, scopeCity?: string | null): { slug: string; name: string } | null {
   const n = normalize(text);
-  if (!n || !WEAK.test(n) || !BUSINESS_INTENT.test(n)) return null;
+  if (!n || !WEAK.test(n)) return null;
   if (hasStrongTides(text, n)) return null; // déjà géré par la route marées
   for (const c of COASTAL) {
     const keys = [normalize(c.name), c.slug.replace(/-/g, " "), ...c.aliases.map(normalize)];
@@ -71,6 +71,7 @@ export function bonusTidesCity(text: string, scopeCity?: string | null): { slug:
   }
   return null;
 }
+
 
 /** Résout la ville côtière : message > ville de scope > Essaouira (côte la plus proche de Marrakech). */
 export function resolveTidesCity(text: string, scopeCity?: string | null): { slug: string; name: string } {
