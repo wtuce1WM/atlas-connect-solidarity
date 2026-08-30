@@ -2903,8 +2903,10 @@ const EmbedAsk = () => {
                     }}
                     onClose={() => {}}
                   />
+                </div>
+                </div>
 
-                  {bookingResult && (
+                {bookingResult && (
                     <div className="flex flex-col gap-3">
                       <div className={`text-xs font-semibold ${theme === "dark" ? "text-white/70" : "text-neutral-700"}`}>
                         {bookingResult.hotels.length > 0
