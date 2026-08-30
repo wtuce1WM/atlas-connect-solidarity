@@ -208,8 +208,10 @@ const VideoSlidePanel = ({
     onFeedYouTubeSelect,
     selectedBadgeId = null,
     feedLayout = false,
+    roundedFrame = false,
     aiMode = "business",
   }: VideoSlidePanelProps) => {
+
 
 
   const navigate = useLocalizedNavigate();
