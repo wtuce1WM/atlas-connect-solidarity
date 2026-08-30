@@ -1093,10 +1093,15 @@ const EmbedAsk = () => {
     if (businessId || poiMasterAnchorId) return;
     let cancelled = false;
     (async () => {
+      // L'ancre doit être géolocalisée : sans GPS, la carte n'a pas de centre et
+      // aucun marqueur ne s'affiche (cas Tarik Belasri, default_poi_is_master sans
+      // latitude/longitude).
       const { data } = await (supabase as any)
         .from("businesses")
         .select("id")
         .eq("default_poi_is_master", true)
+        .not("latitude", "is", null)
+        .not("longitude", "is", null)
         .order("updated_at", { ascending: false })
         .limit(1);
       const id = Array.isArray(data) && data[0]?.id ? String(data[0].id) : null;
