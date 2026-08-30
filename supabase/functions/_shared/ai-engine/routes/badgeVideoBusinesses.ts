@@ -207,22 +207,30 @@ export async function resolveBadgeBusinessIds(
   const unique = [...new Set(pool)];
   if (!unique.length) return [];
 
-  let q = admin
-    .from("businesses")
-    .select("id")
-    .in("id", unique)
-    .eq("is_active", true)
-    .is("closure_message", null)
-    .order("is_featured", { ascending: false })
-    .order("computed_rating", { ascending: false, nullsFirst: false })
-    .order("total_review_count", { ascending: false, nullsFirst: false })
-    .limit(limit);
+  // Même précaution de longueur d'URL : le pool d'établissements est lu par lots,
+  // puis trié en mémoire (mis en avant → note → volume d'avis) avant la coupe.
   const c = String(city || "").trim();
-  if (c) q = q.eq("city", c);
-  const { data, error } = await q;
-  if (error) {
-    console.error("[badge-video] businesses_failed", error.message);
-    return [];
+  const rows: any[] = [];
+  for (let i = 0; i < unique.length; i += CHUNK) {
+    let q = admin
+      .from("businesses")
+      .select("id, is_featured, computed_rating, total_review_count")
+      .in("id", unique.slice(i, i + CHUNK))
+      .eq("is_active", true)
+      .is("closure_message", null);
+    if (c) q = q.eq("city", c);
+    const { data, error } = await q;
+    if (error) {
+      console.error("[badge-video] businesses_chunk_failed", error.message);
+      continue;
+    }
+    rows.push(...(data || []));
   }
-  return (data || []).map((b: any) => String(b.id));
+  rows.sort((a, b) =>
+    Number(!!b.is_featured) - Number(!!a.is_featured) ||
+    Number(b.computed_rating ?? -1) - Number(a.computed_rating ?? -1) ||
+    Number(b.total_review_count ?? -1) - Number(a.total_review_count ?? -1)
+  );
+  return rows.slice(0, limit).map((b: any) => String(b.id));
+
 }
