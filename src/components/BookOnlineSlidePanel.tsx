@@ -4430,9 +4430,14 @@ const BookOnlineSlidePanelInner = ({
                               ))}
                             </>
                           ) : (
+                            catPillTabs.length === 0 ? (
+                              <DropdownMenuItem disabled className="opacity-60 pointer-events-none">
+                                {language === "en" ? "Loading…" : language === "ar" ? "جار التحميل…" : "Chargement…"}
+                              </DropdownMenuItem>
+                            ) : (
                             catPillTabs.map((ft) => {
                               const count = catCounts.get(ft.id) ?? 0;
-                              const disabled = count === 0;
+                              const disabled = catBaseReady && count === 0;
                               return (
                                 <DropdownMenuItem
                                   key={ft.id}
@@ -4444,10 +4449,13 @@ const BookOnlineSlidePanelInner = ({
                                   }}
                                   className={disabled ? "opacity-40 pointer-events-none" : ""}
                                 >
-                                  {translateFrontStructure(ft.name, language)} <span className="ml-1 opacity-60">({count})</span>
+                                  {translateFrontStructure(ft.name, language)}
+                                  {catBaseReady && <span className="ml-1 opacity-60">({count})</span>}
                                 </DropdownMenuItem>
                               );
                             })
+                            )
+
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
