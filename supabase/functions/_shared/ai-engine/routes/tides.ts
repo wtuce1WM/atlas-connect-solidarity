@@ -33,8 +33,8 @@ const STRONG_EN = /\b(tide|tides|tidal|low tide|high tide|swell|sea level)\b/i;
 const STRONG_AR = /(المد|الجزر|المد والجزر|الأمواج)/;
 // Déclencheurs faibles : « surf » / « vague(s) » peuvent viser un business (école, cours…).
 const WEAK = /\b(surf|surfer|vagues?|wave|waves)\b/i;
-// Intention business : la question cherche une adresse, pas l'état de la mer.
-const BUSINESS_INTENT = /\b(ecole|cours|club|stage|stages|location|louer|loue|lecon|lecons|apprendre|moniteur|camp|surfcamp|spot|spots|ou faire|ou aller|meilleur|meilleurs|meilleure|meilleures|adresse|adresses)\b/i;
+// (Ancien filtre d'intention business retiré : « surf/vagues » ne court-circuite plus la recherche.)
+
 
 function hasStrongTides(text: string, n: string): boolean {
   return STRONG_FR.test(n) || STRONG_EN.test(n) || STRONG_AR.test(text);
