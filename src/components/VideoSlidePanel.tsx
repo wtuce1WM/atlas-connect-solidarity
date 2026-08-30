@@ -678,6 +678,14 @@ const VideoSlidePanel = ({
   }, [open, agendaCity]);
 
   const { soundOn, setSoundOn } = useVideoSoundPreference();
+  // Lus dans les effets de synchro média SANS les mettre en dépendance : sinon
+  // un simple clic sur le CTA son réexécute tout l'effet (re-mute technique,
+  // relance forcée de play) et l'état pause/play de l'utilisateur est perdu.
+  const soundOnRef = useRef(soundOn);
+  const setSoundOnRef = useRef(setSoundOn);
+  useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
+  useEffect(() => { setSoundOnRef.current = setSoundOn; }, [setSoundOn]);
+
 
   // Log a view whenever a video becomes active in the panel.
   // Generic videos have an id; for business "internal" videos we fall back to the URL.
