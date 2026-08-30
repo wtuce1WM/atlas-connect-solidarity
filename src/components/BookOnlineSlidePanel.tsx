@@ -590,6 +590,11 @@ const BookOnlineSlidePanelInner = ({
   const embedHalfSheet = isEmbedMapWidget && embedWideView;
   const usePillDropdown = embedMode || !isMobileView;
 
+  // Pills de l'overlay Map (version /embed uniquement) : sélection = fond #C04F17 + texte blanc bold ;
+  // non sélectionné = fond blanc + texte #C04F17. Hors embed : comportement historique inchangé.
+  const PILL_IDLE_EMBED = isEmbedMapWidget ? "bg-white text-[#C04F17]" : "text-white/80 hover:text-white";
+  const PILL_ACTIVE_EMBED = isEmbedMapWidget ? "bg-[#C04F17] text-white" : "bg-[#F1F1F1] text-black";
+
   // Fiche ouverte DEPUIS l'assistant IA (iframe /embed/ask) : seule surface qui combine
   // embedMode + barre liquid glass. L'assistant est déjà monté derrière (colonne gauche
   // en desktop lg, plein écran en dessous) → le CTA IA ne doit pas en rouvrir un second.
@@ -4356,14 +4361,14 @@ const BookOnlineSlidePanelInner = ({
                     <button
                       type="button"
                       onClick={() => { resetWidgetMapView(); setPoiShowAll(false); }}
-                      className={`px-3 py-1 rounded-full transition-colors ${!poiShowAll ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                      className={`px-3 py-1 rounded-full transition-colors ${!poiShowAll ? PILL_IDLE_EMBED : PILL_ACTIVE_EMBED}`}
                     >
                       {language === "en" ? `Top ${effectiveTopLimit}` : language === "ar" ? `أفضل ${effectiveTopLimit}` : `Top ${effectiveTopLimit}`}
                     </button>
                     <button
                       type="button"
                       onClick={() => { resetWidgetMapView(); setPoiShowAll(true); }}
-                      className={`px-3 py-1 rounded-full transition-colors ${poiShowAll ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                      className={`px-3 py-1 rounded-full transition-colors ${poiShowAll ? PILL_ACTIVE_EMBED : PILL_IDLE_EMBED}`}
                     >
                       {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"} <span className="ml-0.5 opacity-70">{total}</span>
                     </button>
@@ -4375,7 +4380,7 @@ const BookOnlineSlidePanelInner = ({
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilterEff ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilterEff ? PILL_ACTIVE_EMBED : PILL_IDLE_EMBED}`}
                         >
                           <MapPin className="h-3.5 w-3.5" />
                           {poiSubcatFilterEff ? translateSubcategory(poiSubcatFilterEff, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
@@ -4398,7 +4403,7 @@ const BookOnlineSlidePanelInner = ({
                     <button
                       type="button"
                       onClick={() => setPoiPillOverlay("poi")}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilterEff ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilterEff ? PILL_ACTIVE_EMBED : PILL_IDLE_EMBED}`}
                     >
                       <MapPin className="h-3.5 w-3.5" />
                       {poiSubcatFilterEff ? translateSubcategory(poiSubcatFilterEff, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
@@ -4413,7 +4418,7 @@ const BookOnlineSlidePanelInner = ({
                         <DropdownMenuTrigger asChild>
                           <button
                             type="button"
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? PILL_ACTIVE_EMBED : PILL_IDLE_EMBED}`}
                           >
                             <SlidersHorizontal className="h-3.5 w-3.5" />
                             {catSubcatFilter
@@ -4479,7 +4484,7 @@ const BookOnlineSlidePanelInner = ({
                       <button
                         type="button"
                         onClick={() => setPoiPillOverlay("cat")}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? PILL_ACTIVE_EMBED : PILL_IDLE_EMBED}`}
                       >
                         <SlidersHorizontal className="h-3.5 w-3.5" />
                         {catSubcatFilter
@@ -4697,7 +4702,7 @@ const BookOnlineSlidePanelInner = ({
                     <DropdownMenuTrigger asChild>
                       <button
                         type="button"
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiProximityKm != null ? "bg-black text-white" : "text-black/60 hover:text-black"}`}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiProximityKm != null ? PILL_ACTIVE_EMBED : PILL_IDLE_EMBED}`}
                       >
                         <Navigation className="h-3.5 w-3.5" />
                         {activeProx ? activeProx.label : (language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité")}
@@ -4734,21 +4739,21 @@ const BookOnlineSlidePanelInner = ({
                 <button
                   type="button"
                   onClick={() => setPoiMapTypeId("roadmap")}
-                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "roadmap" ? "bg-black text-white" : "text-black/60 hover:text-black"}`}
+                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "roadmap" ? PILL_ACTIVE_EMBED : PILL_IDLE_EMBED}`}
                 >
                   {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Plan"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setPoiMapTypeId("terrain")}
-                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "terrain" ? "bg-black text-white" : "text-black/60 hover:text-black"}`}
+                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "terrain" ? PILL_ACTIVE_EMBED : PILL_IDLE_EMBED}`}
                 >
                   {language === "en" ? "Terrain" : language === "ar" ? "تضاريس" : "Relief"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setPoiMapTypeId("satellite")}
-                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "satellite" ? "bg-black text-white" : "text-black/60 hover:text-black"}`}
+                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "satellite" ? PILL_ACTIVE_EMBED : PILL_IDLE_EMBED}`}
                 >
                   {language === "en" ? "Satellite" : language === "ar" ? "قمر صناعي" : "Satellite"}
                 </button>
