@@ -1,5 +1,30 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getCached, setCached } from "@/lib/swrCache";
+
+type Taxonomy = { fs: any[]; fss: any[]; subs: any[] };
+const TAXO_KEY = "front_structure:taxonomy:v1";
+let taxoMem: Taxonomy | null = null;
+let taxoInflight: Promise<Taxonomy> | null = null;
+
+/** Taxonomie Structure du Front — mémoire + localStorage (stale-while-revalidate). */
+async function loadTaxonomy(): Promise<Taxonomy> {
+  if (taxoMem) return taxoMem;
+  if (taxoInflight) return taxoInflight;
+  taxoInflight = (async () => {
+    const [fsRes, fssRes, subsRes] = await Promise.all([
+      supabase.from("front_structure").select("id, name, sort_order").order("sort_order"),
+      supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
+      supabase.from("subcategories").select("id, name_fr, name_en, name_ar"),
+    ]);
+    const t: Taxonomy = { fs: fsRes.data || [], fss: fssRes.data || [], subs: subsRes.data || [] };
+    taxoMem = t;
+    setCached(TAXO_KEY, t);
+    return t;
+  })();
+  return taxoInflight;
+}
+
 
 export interface FrontStructureSubTab {
   id: string;
@@ -41,10 +66,11 @@ export function useFrontStructureTabs(city: string | null, includeEmpty = false)
     setLoading(true);
 
     const fetchTabs = async () => {
-      const [fsRes, fssRes, subsRes, bizRes] = await Promise.all([
-        supabase.from("front_structure").select("id, name, sort_order").order("sort_order"),
-        supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
-        supabase.from("subcategories").select("id, name_fr, name_en, name_ar"),
+      // Taxonomie servie depuis le cache (mémoire/localStorage) quand disponible :
+      // les entrées du Pill Catégories n'attendent plus un aller-retour réseau.
+      const cachedTaxo = taxoMem || getCached<Taxonomy>(TAXO_KEY);
+      const [taxo, bizRes] = await Promise.all([
+        cachedTaxo ? Promise.resolve(cachedTaxo) : loadTaxonomy(),
         includeEmpty
           ? Promise.resolve({ data: [] })
           : supabase
@@ -53,13 +79,15 @@ export function useFrontStructureTabs(city: string | null, includeEmpty = false)
               .eq("is_active", true)
               .ilike("city", city),
       ]);
+      if (cachedTaxo) void loadTaxonomy();
 
       if (cancelled) return;
 
-      const fsEntries = fsRes.data || [];
-      const fssLinks = fssRes.data || [];
-      const subMap = new Map((subsRes.data || []).map((s: any) => [s.id, s]));
+      const fsEntries = taxo.fs || [];
+      const fssLinks = taxo.fss || [];
+      const subMap = new Map((taxo.subs || []).map((s: any) => [s.id, s]));
       const businesses = bizRes.data || [];
+
 
       // Build per-front_structure: union of names + per-subcategory details
       const fsSubNames = new Map<string, Set<string>>();
