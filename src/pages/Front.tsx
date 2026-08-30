@@ -527,6 +527,7 @@ const Front = () => {
   // Une question lancée dans l'assistant IA de l'écran 1 neutralise le scroll
   // vers l'écran 2 (l'utilisateur lit sa réponse).
   const [askLocked, setAskLocked] = useState(false);
+  const [askFrameReady, setAskFrameReady] = useState(false);
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
       if (e.data?.type === "owm-ask:asked") setAskLocked(true);
@@ -674,8 +675,14 @@ const Front = () => {
             src="/embed/ask?scope=platform&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light"
             title="Assistant IA"
             className="h-full w-full flex-1 border-0 bg-transparent"
+            style={{
+              opacity: askFrameReady ? 1 : 0,
+              transition: "opacity 220ms ease-out",
+            }}
+            onLoad={() => setAskFrameReady(true)}
           />
         </div>
+
       </div>
 
       <style>{`
