@@ -273,6 +273,9 @@ interface BookOnlineSlidePanelProps {
   poiCityCorpus?: string[] | null;
   /** Titre de l'overlay POI quand un corpus fermé est imposé */
   poiOverrideTitle?: string | null;
+  /** Assistant IA uniquement : charge la structure des catégories sans attendre
+      le comptage ville du hook ; les compteurs sont recalculés sur le vivier du panneau. */
+  eagerPoiCategories?: boolean;
 }
 
 
@@ -284,7 +287,7 @@ const BookOnlineSlidePanelInner = ({
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
-  poiOverrideIds, poiCityCorpus, poiOverrideTitle, feedLayout, loadingSurface, aiMode,
+  poiOverrideIds, poiCityCorpus, poiOverrideTitle, eagerPoiCategories = false, feedLayout, loadingSurface, aiMode,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const rateIframeHeight = useEmbedIframeHeight("owm-rate-height", 380);
@@ -743,26 +746,11 @@ const BookOnlineSlidePanelInner = ({
   // uniquement si la géoloc est réellement active (pas de coords résiduelles).
   const showUserMarker = !embedMode && geo.isEnabled;
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
-  // Corpus ville imposé : les onglets/catégories viennent de la 1ère ville du corpus
-  // (le Master d'ancrage peut ne pas avoir de structure front exploitable).
-  // Repli : si le Master n'a pas de ville exploitable (ancre POI de l'assistant IA),
-  // on prend la ville majoritaire des fiches réellement affichées sur la carte,
-  // sinon le Pill Catégories reste vide indéfiniment.
-  const fallbackFrontCity = useMemo(() => {
-    const pool = [...(poiOverrideRows as any[]), ...(poiBusinesses as any[])];
-    const counts = new Map<string, number>();
-    for (const p of pool) {
-      const c = typeof p?.city === "string" ? p.city.trim() : "";
-      if (c) counts.set(c, (counts.get(c) || 0) + 1);
-    }
-    let best: string | null = null;
-    let bestN = 0;
-    counts.forEach((n, c) => { if (n > bestN) { best = c; bestN = n; } });
-    return best;
-  }, [poiOverrideRows, poiBusinesses]);
-  const frontTabsCity =
-    (poiCityCorpus && poiCityCorpus[0]) || business?.city || fallbackFrontCity || null;
-  const { tabs: frontTabs } = useFrontStructureTabs(frontTabsCity);
+  // La ville du Master est l'unique référence du parcours business-centric.
+  // Dans l'assistant IA, le hook charge seulement la taxonomie : les compteurs
+  // sont déjà recalculés ci-dessous sur le vivier ville et le rayon actifs.
+  const frontTabsCity = (poiCityCorpus && poiCityCorpus[0]) || business?.city || null;
+  const { tabs: frontTabs } = useFrontStructureTabs(frontTabsCity, eagerPoiCategories);
 
   const { translateSubcategory } = useTaxonomyTranslations();
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
@@ -4429,7 +4417,11 @@ const BookOnlineSlidePanelInner = ({
                                 : (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="z-[260] max-h-[70vh] min-w-[15rem] overflow-y-auto">
+                        <DropdownMenuContent
+                          key={catPillTabs.map((ft) => ft.id).join(",") || "loading"}
+                          align="end"
+                          className="z-[260] max-h-[70vh] min-w-[15rem] overflow-y-auto"
+                        >
                           {activeFrontTab ? (
                             <>
                               {/* Fallback vers Catégories en haut des sous-catégories */}
