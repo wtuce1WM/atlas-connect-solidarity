@@ -4110,6 +4110,8 @@ const BookOnlineSlidePanelInner = ({
             />
           </div>
         </OverlayShell>
+        </>
+
       )}
 
       {/* KP sub-panel */}
