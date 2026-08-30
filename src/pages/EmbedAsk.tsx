@@ -3421,6 +3421,7 @@ const EmbedAsk = () => {
               hideDirections
               mapTheme={mapThemeResolved}
               mapBaseColor={mapBaseColor}
+              eagerPoiCategories
               poiAnchorCity={businessId ? (businessCity || null) : (/essaouira/i.test(activeSuggestionCity) ? "Essaouira" : "Marrakech")}
               poiOverrideIds={(openMap.businesses || []).map((b) => b.id)}
               poiOverrideTitle={openMap.title || null}
