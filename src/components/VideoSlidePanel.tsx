@@ -751,7 +751,8 @@ const VideoSlidePanel = ({
     if (!v) return;
     let disposed = false;
     // Apply the user's persisted sound preference to this new video element
-    v.muted = !soundOn;
+    v.muted = !soundOnRef.current;
+
     // Drapeau : un mute technique (autoplay bloqué / lecture interrompue par un
     // swipe) ne doit JAMAIS être persisté comme un choix utilisateur.
     let autoMute = false;
