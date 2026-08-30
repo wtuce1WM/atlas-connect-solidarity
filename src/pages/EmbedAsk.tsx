@@ -3488,7 +3488,7 @@ const EmbedAsk = () => {
         <div className="fixed inset-0 z-[220]">
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
-              key={(openMap.businesses || []).map((b) => b.id).join(",")}
+              key={openMapPoiIds.join(",")}
               // La ville de la suggestion active prime : une suggestion rattachée
               // à Essaouira (ex. « Journée surf & cheval à Essaouira ») ancre la
               // carte sur le Port d'Essaouira, pas sur Koutoubia.
@@ -3501,8 +3501,8 @@ const EmbedAsk = () => {
               mapBaseColor={mapBaseColor}
               eagerPoiCategories
               poiAnchorCity={openMapAnchorCity}
-              poiOverrideIds={(openMap.businesses || []).map((b) => b.id)}
-              poiOverrideTitle={openMap.title || null}
+              poiOverrideIds={openMapPoiIds}
+              poiOverrideTitle={openMap.title || (lang === "en" ? "Results on the map" : lang === "ar" ? "النتائج على الخريطة" : "Résultats sur la carte")}
               onClose={() => setOpenMap(null)}
             />
           </Suspense>
