@@ -2889,7 +2889,9 @@ const EmbedAsk = () => {
 
               {bookingCity && (
                 <div className="w-full max-w-[85%] flex flex-col gap-3">
-                  <AvailabilitySearchOverlay
+                <div className="flex justify-center">
+                  <div className="w-full max-w-sm">
+                    <AvailabilitySearchOverlay
                     inline
                     language={lang}
                     isSearching={hotelSearchingMsgId === msgKey}
