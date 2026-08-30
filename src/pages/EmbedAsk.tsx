@@ -658,7 +658,7 @@ const EmbedAsk = () => {
   }, []);
 
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null; is_platform_visible?: boolean };
-  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null; city?: string | null };
+  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null; city?: string | null; subcategory_ids?: string[] };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
   // Splash d'accueil supprimé : la landing IA s'affiche immédiatement, sans
   // écran intermédiaire (grand message → petit message).
@@ -1245,7 +1245,7 @@ const EmbedAsk = () => {
     (async () => {
       const data = await publicSelect(
         "ai_suggestions",
-        "select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode&surface=eq.embed&is_active=eq.true&order=sort_order.asc",
+        "select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode,subcategory_ids&surface=eq.embed&is_active=eq.true&order=sort_order.asc",
       );
       if (cancelled) return;
       if (!data) {
@@ -1276,6 +1276,7 @@ const EmbedAsk = () => {
           label: ((r[col] || r.label_fr || "") as string).trim(),
           disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
           mode: (r.mode as string | null) ?? null,
+          subcategory_ids: Array.isArray(r.subcategory_ids) ? (r.subcategory_ids as string[]) : [],
           city: (r.city as string | null) ?? null,
         }))
         .filter((r) => r.label);
