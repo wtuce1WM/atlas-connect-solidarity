@@ -1727,7 +1727,9 @@ const EmbedAsk = () => {
    */
   const autoOpenedFeedRef = useRef<string | null>(null);
   useEffect(() => {
-    if (streaming) return;
+    // Pas d'attente de fin de streaming : dès que le marqueur VIDEO_FEED est
+    // complet, le lecteur s'ouvre (le reste de la réponse continue en fond et
+    // sert de contenu au retour, à la fermeture du lecteur).
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
       if (m.role !== "assistant") continue;

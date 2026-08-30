@@ -878,7 +878,10 @@ Deno.serve(async (req) => {
             if (built) {
               route = built.route;
               resultsCount = built.count;
-              emit(built.text);
+              // Mode combiné : on n'émet PAS le texte d'annonce du feed
+              // (« N vidéos verticales… ») — le lecteur s'ouvre aussitôt et
+              // la réponse fiches qui suit sert de contenu au retour.
+              if (!videoFeedCombined) emit(built.text);
               emit(videoFeedMarker(built.payload));
               if (!videoFeedCombined) {
                 await finish(true);
