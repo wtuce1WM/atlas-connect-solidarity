@@ -684,16 +684,18 @@ const Front = () => {
           type="button"
           onClick={(e) => {
             e.stopPropagation();
+            if (askLocked) return;
             setTarget(1);
           }}
           className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.8)] hover:text-gold"
           style={{
-            opacity: showCue && !demoIntro && !demoActiveId ? 1 : 0,
-            pointerEvents: showCue && !demoIntro && !demoActiveId ? "auto" : "none",
+            opacity: showCue && !demoIntro && !demoActiveId && !askLocked ? 1 : 0,
+            pointerEvents: showCue && !demoIntro && !demoActiveId && !askLocked ? "auto" : "none",
             animation: reduced || !showCue || demoActiveId ? undefined : "owmSlideDown 420ms ease-out both",
             transition: motion,
           }}
-          tabIndex={showCue ? 0 : -1}
+          tabIndex={showCue && !askLocked ? 0 : -1}
+
         >
           <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
           <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
