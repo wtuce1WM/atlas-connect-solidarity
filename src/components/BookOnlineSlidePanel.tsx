@@ -198,6 +198,8 @@ interface BookOnlineSlidePanelProps {
   onNext?: () => void;
   hasPrev?: boolean;
   hasNext?: boolean;
+  /** Prioritise le swipe vertical entre fiches sur les vidéos externes. */
+  prioritizeBusinessSwipe?: boolean;
   // --- Video-first entry props (SlidePanelHome migration, not yet wired in render) ---
   /** Forces this video URL as the background, regardless of business video list */
   videoUrl?: string | null;
@@ -288,7 +290,7 @@ const BookOnlineSlidePanelInner = ({
   initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults,
   onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl,
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
-  onPrev, onNext, hasPrev, hasNext,
+  onPrev, onNext, hasPrev, hasNext, prioritizeBusinessSwipe = false,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
   poiOverrideIds, poiCityCorpus, poiOverrideTitle, eagerPoiCategories = false, poiAnchorCity, feedLayout, loadingSurface, aiMode,
 
@@ -2177,7 +2179,11 @@ const BookOnlineSlidePanelInner = ({
     if (open) setGlobalSoundOn(true);
     setShowYoutubeOverlay(open);
   }, [setGlobalSoundOn]);
-  const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
+  const externalVideoInteractiveMode =
+    cardsHidden &&
+    effectiveMedia?.kind === "video" &&
+    videoInfo?.type !== "file" &&
+    !prioritizeBusinessSwipe;
   const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData);
 
   // Plein écran de la vidéo de fond :
