@@ -918,13 +918,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
   }, [conversationOpenSignal]);
 
-  // Signal « panneau vidéo ouvert/fermé » : l'hôte (/front) met sa vidéo de fond en pause.
-  useEffect(() => {
-    const payload = { type: "owm-ask:video-panel", open: !!activeFeedVideoId };
-    try { window.postMessage(payload, "*"); } catch { /* noop */ }
-    try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
-  }, [activeFeedVideoId]);
-
   /** Option B : accueil IA plein écran (logo + champ central + chips) vs conversation. */
   const homeState = isPlatform && !hasUserMessages && !streaming && assistantReady && splashPhase === "done";
   
