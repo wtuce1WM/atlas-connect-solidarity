@@ -329,10 +329,30 @@ const Front = () => {
         setDemoActiveId(cached.items[0].id);
         return;
       }
+      // Cache persistant (localStorage) : affichage immédiat au retour sur la page,
+      // puis revalidation réseau en arrière-plan (stale-while-revalidate).
+      const persisted = getCached<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext }>(DEMO_FEED_CACHE_KEY);
+      if (persisted?.items?.length) {
+        demoSnapshotRef.current = persisted;
+        setDemoList(persisted.items.map(toPanelVideo));
+        setDemoCtx(persisted.ctx);
+        setDemoTime(0);
+        demoLoadingMoreRef.current = false;
+        setDemoActiveId(persisted.items[0].id);
+        void (async () => {
+          try {
+            const fresh = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
+            if (!fresh.items.length) return;
+            setCached(DEMO_FEED_CACHE_KEY, fresh);
+          } catch { /* silencieux */ }
+        })();
+        return;
+      }
       // Première page courte : affichage rapide, complément en arrière-plan.
       const { items, ctx } = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
       if (!items.length) { setDemoIntro(false); return; }
       demoSnapshotRef.current = { items, ctx };
+      setCached(DEMO_FEED_CACHE_KEY, { items, ctx });
       setDemoList(items.map(toPanelVideo));
       setDemoCtx(ctx);
       setDemoTime(0);
