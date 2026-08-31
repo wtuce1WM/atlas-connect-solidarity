@@ -299,6 +299,7 @@ const BookOnlineSlidePanelInner = ({
   onPrev, onNext, hasPrev, hasNext, prioritizeBusinessSwipe = false,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
   poiOverrideIds, poiCityCorpus, poiOverrideTitle, eagerPoiCategories = false, poiAnchorCity, feedLayout, loadingSurface, aiMode,
+  onFeedBadgeSelect, onFeedCitySelect, onFeedYouTubeSelect,
 
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
