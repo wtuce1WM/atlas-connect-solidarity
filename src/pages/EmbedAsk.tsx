@@ -1405,9 +1405,19 @@ const EmbedAsk = () => {
     };
     compute();
     el.addEventListener("scroll", compute, { passive: true });
+    // Dès que l'utilisateur reprend la main (roue, trackpad, tactile), la
+    // neutralisation du « stick-to-bottom » liée aux boutons flottants s'annule.
+    const releaseSuppress = () => { stickSuppressUntilRef.current = 0; };
+    el.addEventListener("wheel", releaseSuppress, { passive: true });
+    el.addEventListener("touchstart", releaseSuppress, { passive: true });
     const ro = new ResizeObserver(compute);
     ro.observe(el);
-    return () => { el.removeEventListener("scroll", compute); ro.disconnect(); };
+    return () => {
+      el.removeEventListener("scroll", compute);
+      el.removeEventListener("wheel", releaseSuppress);
+      el.removeEventListener("touchstart", releaseSuppress);
+      ro.disconnect();
+    };
   }, [messages, streaming, homeState, autoHeight]);
   // Pendant un défilement déclenché par les boutons flottants, neutralise
   // temporairement le « stick-to-bottom » : les images qui chargent en cours de
