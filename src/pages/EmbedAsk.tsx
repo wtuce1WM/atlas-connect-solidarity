@@ -1358,6 +1358,11 @@ const EmbedAsk = () => {
         .filter((r) => r.label);
       window.clearTimeout(loadingTimeout);
       setDbSuggestions(list);
+      if (list.length > 0) {
+        SUGG_MEM_CACHE.set(suggCacheKey, list);
+        try { window.localStorage.setItem(suggCacheKey, JSON.stringify(list)); } catch { /* quota */ }
+      }
+
     })();
     return () => {
       cancelled = true;
