@@ -1425,7 +1425,7 @@ const VideoSlidePanel = ({
             Colonne 2 : badges effectivement liés à la vidéo, le premier en #C04F17.
             Colonne 3 : villes fixes Marrakech / Essaouira pour changer de feed.
             Clic sur un chip → relance le feed sur ce badge/ville. */}
-        {feedLayout && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
+        {(feedLayout || (chipsBadges?.length ?? 0) > 0) && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && !clubPopupOpen && !timelineClubOpen && (
           <div className="absolute top-16 left-1.5 right-1.5 md:left-3 md:right-3 z-[100] pointer-events-none">
             {!chipsExpanded && (() => {
