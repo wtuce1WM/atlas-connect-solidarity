@@ -530,7 +530,15 @@ const Front = () => {
   const [askFrameReady, setAskFrameReady] = useState(false);
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
-      if (e.data?.type === "owm-ask:asked") setAskLocked(true);
+      if (e.data?.type === "owm-ask:asked") {
+        setAskLocked(true);
+        // Conversation lancée : la vidéo de fond passe en pause.
+        backgroundVideoRef.current?.pause();
+      } else if (e.data?.type === "owm-ask:new-conversation") {
+        // Nouvelle conversation : la lecture de la vidéo de fond reprend.
+        const video = backgroundVideoRef.current;
+        if (video?.paused) void video.play().catch(() => undefined);
+      }
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
