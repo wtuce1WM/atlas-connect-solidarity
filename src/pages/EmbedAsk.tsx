@@ -704,6 +704,9 @@ const EmbedAsk = () => {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  // Ligne des badges/suggestions de l'accueil IA : sa position est signalée au
+  // parent (/front) pour placer le CTA « Découvrez l'App » à équidistance.
+  const badgesRowRef = useRef<HTMLDivElement>(null);
   const L = LANG_LABELS[lang];
 
   // Mode plateforme : l'assistant est prêt sans business hôte ; le titre est
@@ -902,6 +905,23 @@ const EmbedAsk = () => {
   useEffect(() => {
     preloadFrontStructureTaxonomy();
   }, []);
+  // Signale au parent la position du bas de la ligne de badges de l'accueil IA
+  // (accroche CTA « Découvrez l'App » à équidistance badges ↔ CTA Découvrir).
+  useEffect(() => {
+    if (!homeState) return;
+    const report = () => {
+      const row = badgesRowRef.current;
+      if (!row) return;
+      const bottom = Math.round(row.getBoundingClientRect().bottom);
+      try { window.parent?.postMessage({ type: "owm-ask:badges-bottom", bottom }, "*"); } catch { /* cross-origin */ }
+    };
+    report();
+    const t2 = window.setTimeout(report, 120);
+    const ro = new ResizeObserver(report);
+    if (badgesRowRef.current) ro.observe(badgesRowRef.current);
+    window.addEventListener("resize", report);
+    return () => { ro.disconnect(); window.removeEventListener("resize", report); window.clearTimeout(t2); };
+  }, [homeState, visibleSuggestions.length, showAllSuggestions, lang]);
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   const [openBusinessOverlay, setOpenBusinessOverlay] = useState<"reviews" | null>(null);
@@ -2646,7 +2666,7 @@ const EmbedAsk = () => {
               </div>
             </form>
 
-            <div className="w-full max-w-xl mx-auto flex flex-wrap items-center justify-center gap-2">
+            <div ref={badgesRowRef} data-badges-row className="w-full max-w-xl mx-auto flex flex-wrap items-center justify-center gap-2">
               {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
               {renderMapChip("home")}
               {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s) => {
