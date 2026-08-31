@@ -529,6 +529,7 @@ const Front = () => {
   // Une question lancée dans l'assistant IA de l'écran 1 neutralise le scroll
   // vers l'écran 2 (l'utilisateur lit sa réponse).
   const [askLocked, setAskLocked] = useState(false);
+  const [suggestionsExpanded, setSuggestionsExpanded] = useState(false);
   // Overlay Map ouvert depuis l'embed (ex. chip « Map » de l'accueil IA) :
   // l'iframe passe en pleine largeur pour que le panneau soit collé à droite.
   const [mapOpen, setMapOpen] = useState(false);
@@ -553,6 +554,8 @@ const Front = () => {
         // Nouvelle conversation : la lecture de la vidéo de fond reprend.
         const video = backgroundVideoRef.current;
         if (video?.paused) void video.play().catch(() => undefined);
+      } else if (e.data?.type === "owm-ask:suggestions-expanded") {
+        setSuggestionsExpanded(!!e.data.expanded);
       } else if (e.data?.type === "owm-ask:map-open") {
         setMapOpen(true);
       } else if (e.data?.type === "owm-ask:map-closed") {
@@ -580,57 +583,6 @@ const Front = () => {
   const askLockedRef = useRef(false);
   askLockedRef.current = askLocked;
 
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-
-    const onWheel = (e: WheelEvent) => {
-      if ((e.target as HTMLElement).closest("[data-front-demo-panel]")) return;
-      e.preventDefault();
-      if (askLockedRef.current) return;
-      setTarget(targetRef.current + e.deltaY / 600);
-    };
-
-    const onTouchStart = (e: TouchEvent) => {
-      if ((e.target as HTMLElement).closest("[data-front-demo-panel]")) {
-        touchYRef.current = null;
-        return;
-      }
-      touchYRef.current = e.touches[0]?.clientY ?? null;
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      if ((e.target as HTMLElement).closest("[data-front-demo-panel]")) return;
-      const y = e.touches[0]?.clientY ?? null;
-      if (y === null || touchYRef.current === null) return;
-      e.preventDefault();
-      if (askLockedRef.current) return;
-      setTarget(targetRef.current + (touchYRef.current - y) / 350);
-      touchYRef.current = y;
-    };
-
-    const onKey = (e: KeyboardEvent) => {
-      if (askLockedRef.current) return;
-      if (e.key === "ArrowDown" || e.key === "PageDown") {
-
-        e.preventDefault();
-        setTarget(targetRef.current + (e.key === "PageDown" ? 0.5 : 0.2));
-      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
-        e.preventDefault();
-        setTarget(targetRef.current - (e.key === "PageUp" ? 0.5 : 0.2));
-      }
-    };
-
-    el.addEventListener("wheel", onWheel, { passive: false });
-    el.addEventListener("touchstart", onTouchStart, { passive: true });
-    el.addEventListener("touchmove", onTouchMove, { passive: false });
-    window.addEventListener("keydown", onKey);
-    return () => {
-      el.removeEventListener("wheel", onWheel);
-      el.removeEventListener("touchstart", onTouchStart);
-      el.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [setTarget]);
 
   const narrativeOpacity = 1 - range(progress, 0, 0.35);
   const narrativeActive = progress < 0.35;
@@ -732,7 +684,7 @@ const Front = () => {
         </div>
 
 
-        {!askLocked && (() => {
+        {!askLocked && !suggestionsExpanded && (() => {
           // Équidistance : le bouton est centré dans le gap entre la fin de la
           // ligne de badges (iframe, coordonnées = haut de l'iframe) et le haut
           // du CTA Découvrir. iframeTop = pt-16 (mobile) / pt-14 (md) du bloc.
