@@ -2478,7 +2478,7 @@ const EmbedAsk = () => {
 
             <form
               onSubmit={(e) => { e.preventDefault(); send(); }}
-              className="w-full max-w-xl"
+              className={`w-full ${isPlatform ? "" : "max-w-xl"}`}
             >
               <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-3 shadow-2xl`}>
                 <textarea
@@ -2522,7 +2522,7 @@ const EmbedAsk = () => {
               </div>
             </form>
 
-            <div className="w-full max-w-xl flex flex-wrap items-center justify-center gap-2">
+            <div className={`w-full ${isPlatform ? "" : "max-w-xl"} flex flex-wrap items-center justify-center gap-2`}>
               {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
               {renderMapChip("home")}
               {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s) => {
