@@ -2677,11 +2677,15 @@ const EmbedAsk = () => {
               <div className="w-full max-w-xl mx-auto flex justify-center">
                 <button
                   type="button"
-                  onClick={() => {
-                    try { window.parent?.postMessage({ type: "owm-ask:start-demo" }, "*"); } catch { /* cross-origin */ }
+                  onPointerDown={(e) => {
+                    // pointerdown : le message part avant tout reflow/scroll de la
+                    // colonne de messages qui pourrait déplacer le bouton sous le curseur.
+                    e.stopPropagation();
+                    startDemoFromEmbed();
                   }}
-                  className="text-[13px] font-bold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
-                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#25D366", color: "#0b2e18", border: "1px solid #25D366" }}
+                  onClick={(e) => { e.stopPropagation(); startDemoFromEmbed(); }}
+                  className="relative z-[60] text-[13px] font-bold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#25D366", color: "#0b2e18", border: "1px solid #25D366", touchAction: "manipulation" }}
                 >
                   {lang === "en" ? "Discover the App" : lang === "ar" ? "اكتشف التطبيق" : "Découvrez l'App"}
                 </button>
