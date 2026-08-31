@@ -77,10 +77,10 @@ function useContainerColumns(ref: React.RefObject<HTMLDivElement>) {
 }
 
 const AiBusinessResultTiles = ({
-  businesses, origin, lang = "fr", rankOrder, onOpen, onOpenBooking, footer, max = 20,
+  businesses, origin, lang = "fr", rankOrder, onOpen, onOpenBooking, footer, max = 20, compact = false,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const cols = useContainerColumns(wrapRef);
+  const cols = useContainerColumns(wrapRef, compact);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const t = L[(lang as keyof typeof L) in L ? (lang as keyof typeof L) : "fr"];
