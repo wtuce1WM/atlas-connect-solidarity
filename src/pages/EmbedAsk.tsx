@@ -2029,7 +2029,6 @@ const EmbedAsk = () => {
     if (now - demoMsgAtRef.current < 800) return;
     demoMsgAtRef.current = now;
     try { window.parent?.postMessage({ type: "owm-ask:start-demo" }, "*"); } catch { /* cross-origin */ }
-    try { window.top?.postMessage({ type: "owm-ask:start-demo" }, "*"); } catch { /* cross-origin */ }
   };
   const startNewConversation = () => {
     try { window.parent?.postMessage({ type: "owm-ask:new-conversation" }, "*"); } catch { /* cross-origin */ }
