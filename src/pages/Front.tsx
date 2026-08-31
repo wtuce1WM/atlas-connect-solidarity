@@ -25,6 +25,8 @@ import { getCached, setCached } from "@/lib/swrCache";
 
 /** Cache persistant de la première page du feed démo (/front → CTA Découvrez l'App). */
 const DEMO_FEED_CACHE_KEY = "front:demo:feed:v1";
+/** Durée pendant laquelle la première page en cache est considérée fraîche (pas de refetch). */
+const DEMO_FEED_TTL_MS = 10 * 60 * 1000;
 
 /** Préchargement du média de la première vidéo dès que la liste est connue. */
 const preloadFirstMedia = (item?: { url?: string | null; thumbnail_url?: string | null } | null) => {
