@@ -25,6 +25,8 @@ import { getCached, setCached } from "@/lib/swrCache";
 
 /** Cache persistant de la première page du feed démo (/front → CTA Découvrez l'App). */
 const DEMO_FEED_CACHE_KEY = "front:demo:feed:v1";
+/** Durée pendant laquelle la première page en cache est considérée fraîche (pas de refetch). */
+const DEMO_FEED_TTL_MS = 10 * 60 * 1000;
 
 /** Préchargement du média de la première vidéo dès que la liste est connue. */
 const preloadFirstMedia = (item?: { url?: string | null; thumbnail_url?: string | null } | null) => {
@@ -298,6 +300,7 @@ const Front = () => {
   const [demoBadgeId, setDemoBadgeId] = useState<string | null>(null);
   const demoLoadingMoreRef = useRef(false);
   const demoSnapshotRef = useRef<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext } | null>(null);
+  const demoPrefetchRef = useRef(false);
   // La démo /front passe directement sur l'assistant IA plateforme 1WM.
   const [demoAiMode, setDemoAiMode] = useState<"business" | "platform">("platform");
 
@@ -340,7 +343,7 @@ const Front = () => {
     setDemoLoading(true);
     try {
       const mod = await import("@/lib/badgeVideoFeed");
-      // Cache mémoire : réouverture instantanée de la démo.
+      // Cache mémoire : réouverture instantanée de la démo (alimenté aussi par le prefetch idle).
       const cached = demoSnapshotRef.current;
       if (cached && cached.items.length) {
         setDemoList(cached.items.map(toPanelVideo));
@@ -352,30 +355,33 @@ const Front = () => {
         return;
       }
       // Cache persistant (localStorage) : affichage immédiat au retour sur la page,
-      // puis revalidation réseau en arrière-plan (stale-while-revalidate).
-      const persisted = getCached<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext }>(DEMO_FEED_CACHE_KEY);
+      // puis revalidation réseau uniquement si l'entrée dépasse le TTL.
+      const persisted = getCached<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext; ts?: number }>(DEMO_FEED_CACHE_KEY);
       if (persisted?.items?.length) {
-        demoSnapshotRef.current = persisted;
+        demoSnapshotRef.current = { items: persisted.items, ctx: persisted.ctx };
         setDemoList(persisted.items.map(toPanelVideo));
         setDemoCtx(persisted.ctx);
         setDemoTime(0);
         demoLoadingMoreRef.current = false;
         setDemoActiveId(persisted.items[0].id);
         preloadFirstMedia(persisted.items[0] as any);
-        void (async () => {
-          try {
-            const fresh = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
-            if (!fresh.items.length) return;
-            setCached(DEMO_FEED_CACHE_KEY, fresh);
-          } catch { /* silencieux */ }
-        })();
+        const age = Date.now() - (persisted.ts ?? 0);
+        if (age > DEMO_FEED_TTL_MS) {
+          void (async () => {
+            try {
+              const fresh = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
+              if (!fresh.items.length) return;
+              setCached(DEMO_FEED_CACHE_KEY, { ...fresh, ts: Date.now() });
+            } catch { /* silencieux */ }
+          })();
+        }
         return;
       }
       // Première page courte : affichage rapide, complément en arrière-plan.
       const { items, ctx } = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
       if (!items.length) { setDemoIntro(false); return; }
       demoSnapshotRef.current = { items, ctx };
-      setCached(DEMO_FEED_CACHE_KEY, { items, ctx });
+      setCached(DEMO_FEED_CACHE_KEY, { items, ctx, ts: Date.now() });
       setDemoList(items.map(toPanelVideo));
       setDemoCtx(ctx);
       setDemoTime(0);
@@ -402,10 +408,31 @@ const Front = () => {
 
   }, [demoLoading]);
 
-  // Préchargement du module de feed (survol / idle sur le CTA démo).
+  // Préchargement du module ET des données de la première page (survol / idle sur le CTA démo).
   const prefetchDemo = useCallback(() => {
-    void import("@/lib/badgeVideoFeed");
+    if (demoPrefetchRef.current) return;
+    demoPrefetchRef.current = true;
+    void (async () => {
+      try {
+        const mod = await import("@/lib/badgeVideoFeed");
+        if (demoSnapshotRef.current?.items?.length) return;
+        const persisted = getCached<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext; ts?: number }>(DEMO_FEED_CACHE_KEY);
+        if (persisted?.items?.length && Date.now() - (persisted.ts ?? 0) <= DEMO_FEED_TTL_MS) {
+          demoSnapshotRef.current = { items: persisted.items, ctx: persisted.ctx };
+          preloadFirstMedia(persisted.items[0] as any);
+          return;
+        }
+        const { items, ctx } = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
+        if (!items.length) return;
+        demoSnapshotRef.current = { items, ctx };
+        setCached(DEMO_FEED_CACHE_KEY, { items, ctx, ts: Date.now() });
+        preloadFirstMedia(items[0] as any);
+      } catch {
+        demoPrefetchRef.current = false;
+      }
+    })();
   }, []);
+
 
   // Préchargement en idle après montage.
   useEffect(() => {
