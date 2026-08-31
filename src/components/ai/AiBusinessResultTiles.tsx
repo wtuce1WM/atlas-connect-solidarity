@@ -59,20 +59,20 @@ function todayHours(b: AiResultBusiness): { label: string | null; isOpen: boolea
   return { label: label === "—" ? null : label, isOpen: isCurrentlyOpen(dh) };
 }
 
-/** Colonnes calculées sur la largeur réelle du conteneur (pas du viewport). */
-function useContainerColumns(ref: React.RefObject<HTMLDivElement>) {
+function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: boolean) {
   const [cols, setCols] = useState(2);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const compute = (w: number) => setCols(w < 300 ? 1 : w < 520 ? 2 : w < 820 ? 3 : 4);
+    const compute = (w: number) =>
+      setCols(compact ? (w < 300 ? 1 : 2) : w < 300 ? 1 : w < 520 ? 2 : w < 820 ? 3 : 4);
     compute(el.clientWidth);
     const ro = new ResizeObserver((entries) => {
       for (const e of entries) compute(e.contentRect.width);
     });
     ro.observe(el);
     return () => ro.disconnect();
-  }, [ref]);
+  }, [ref, compact]);
   return cols;
 }
 
