@@ -1032,6 +1032,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
   const [feedVideoTime, setFeedVideoTime] = useState(0);
 
+  // Signal « panneau vidéo ouvert/fermé » : l'hôte (/front) met sa vidéo de fond en pause.
+  useEffect(() => {
+    const payload = { type: "owm-ask:video-panel", open: !!activeFeedVideoId };
+    try { window.postMessage(payload, "*"); } catch { /* noop */ }
+    try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
+  }, [activeFeedVideoId]);
+
   const [openSiblings, setOpenSiblings] = useState<string[]>([]);
   // Overlay de réservation déclenché par les liens "Réservez" du markdown IA.
   const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
