@@ -3925,7 +3925,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             key={openBusinessId}
             businessId={openBusinessId}
             initialOverlay={openBusinessOverlay ?? undefined}
-            initialVideoUrl={badgeVideoUrlById[openBusinessId] || undefined}
+            initialVideoUrl={badgeVideoUrlById[openBusinessId] || feedVideoUrlById[openBusinessId] || undefined}
             onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); }}
             onPrev={goPrev}
             onNext={goNext}
