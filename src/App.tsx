@@ -19,7 +19,7 @@ const CookieBanner = lazy(() => import("./components/CookieBanner"));
 
 import RouteSeo from "./seo/RouteSeo";
 import { PageMetaOverridesLoader } from "./seo/usePageMetaOverrides";
-import HomeMindtripEager from "./pages/HomeMindtrip";
+import FrontEager from "./pages/Front";
 import HomeV1Eager from "./pages/HomeV1";
 import CorporateEager from "./pages/Corporate";
 import ClubEager from "./pages/Club";
@@ -86,7 +86,7 @@ const SearchLayoutDemo = lazy(() => import("./pages/SearchLayoutDemo"));
 
 const StrictModePage = lazy(() => import("./pages/StrictModePage"));
 const StudioVideo = lazy(() => import("./pages/StudioVideo"));
-const Front = lazy(() => import("./pages/Front"));
+
 const IconPreview = lazy(() => import("./pages/IconPreview"));
 const BlogPresentation = lazy(() => import("./pages/BlogPresentation"));
 const BlogPresentationFR = lazy(() => import("./pages/BlogPresentationFR"));
@@ -94,7 +94,7 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const CarouselNavDemo = lazy(() => import("./pages/CarouselNavDemo"));
 const FicheImmersive = lazy(() => import("./pages/FicheImmersive"));
 const Test = lazy(() => import("./pages/Home"));
-const HomeMindtrip = HomeMindtripEager;
+const Front = FrontEager;
 const HomeV1 = HomeV1Eager;
 const Install = lazy(() => import("./pages/Install"));
 const EmbedAsk = lazy(() => import("./pages/EmbedAsk"));
