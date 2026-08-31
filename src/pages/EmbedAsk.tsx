@@ -2344,21 +2344,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setOpenBusinessId(id);
     };
     return (
-      // Desktop : cartes limitées en largeur (alignées à gauche), pas étirées sur tout l'écran.
-      <div className="w-full max-w-[480px] lg:max-w-[560px] mr-auto">
-      <AiBusinessResultCards
+      // Grille de miniatures carrées : colonnes recalculées sur la largeur réelle
+      // du conteneur (effet resize à l'ouverture du slidepanel vidéo).
+      <div className="w-full">
+      <AiBusinessResultTiles
         businesses={list as never}
         origin={hostLocation ? { lat: hostLocation.lat, lng: hostLocation.lng } : null}
         lang={lang}
         rankOrder={rankOrder ?? null}
-        ink={lightInk ? "dark" : "light"}
         onOpen={(id, sib) => openOne(id, sib, null)}
-        onOpenReviews={(id, sib) => openOne(id, sib, "reviews")}
         onOpenBooking={openBookingOverlay}
-        // Pas de CTA carte ici : redondant avec la relance déterministe
-        // « Sur une carte » affichée sous le CTA micro.
         footer={null}
-
       />
       </div>
     );
