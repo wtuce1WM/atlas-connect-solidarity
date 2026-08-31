@@ -1732,7 +1732,11 @@ const VideoSlidePanel = ({
               })()
             )}
             {videoId && !chipsExpanded && (
-              <GenericVideoTimelineOverlay genericVideoId={videoId} currentTime={currentTime} />
+              <GenericVideoTimelineOverlay
+                genericVideoId={videoId}
+                currentTime={currentTime}
+                onMountedChange={(m) => { timelineOverlayMountedRef.current = m; }}
+              />
             )}
             {agendaCity && (
 
