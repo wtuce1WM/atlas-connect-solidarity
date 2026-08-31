@@ -362,6 +362,24 @@ const VideoSlidePanel = ({
     window.addEventListener("video-timeline-club-state", handler);
     return () => window.removeEventListener("video-timeline-club-state", handler);
   }, []);
+  /* Filet de sécurité du CTA Profil : PanelSearchBar (profileToTimelineClub)
+     dispatche "open-video-timeline-club", écouté uniquement par
+     GenericVideoTimelineOverlay — lui-même monté seulement si `videoId` existe
+     et que les chips badges sont replié(e)s. Hors de ces conditions personne
+     n'écoutait → aucun popup. On relaie alors vers le popup Club global
+     (ClubLoginPopup, toujours monté en bas de ce composant). */
+  const timelineOverlayMountedRef = useRef(false);
+  useEffect(() => {
+    timelineOverlayMountedRef.current = !!videoId && !chipsExpanded;
+  }, [videoId, chipsExpanded]);
+  useEffect(() => {
+    const handler = () => {
+      if (timelineOverlayMountedRef.current) return;
+      window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
+    };
+    window.addEventListener("open-video-timeline-club", handler);
+    return () => window.removeEventListener("open-video-timeline-club", handler);
+  }, []);
   // Feed : quand la vidéo est liée à un établissement, la barre info ouvre la
   // Full Description de BookOnlineSlidePanel de cet établissement (pas l'overlay local).
   const [descBusinessId, setDescBusinessId] = useState<string | null>(null);
