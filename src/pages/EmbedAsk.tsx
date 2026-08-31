@@ -891,6 +891,11 @@ const EmbedAsk = () => {
 
 
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
+  // Signale au parent (/front) l'ouverture/fermeture de l'overlay Map : le parent
+  // passe alors l'iframe en pleine largeur pour que le panneau soit sans marge.
+  useEffect(() => {
+    try { window.parent?.postMessage({ type: openMap ? "owm-ask:map-open" : "owm-ask:map-closed" }, "*"); } catch { /* cross-origin */ }
+  }, [openMap]);
   useEffect(() => {
     preloadFrontStructureTaxonomy();
   }, []);
