@@ -3397,6 +3397,17 @@ const EmbedAsk = () => {
       />
 
       <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`relative p-3 border-t ${border} ${bg} ${homeState ? "hidden" : ""}`}>
+        {/* Bouton flottant « bas » — desktop uniquement, juste au-dessus de la barre fixe. */}
+        {!autoHeight && !homeState && convScroll.canDown && (
+          <button
+            type="button"
+            onClick={() => convScrollBy(1)}
+            aria-label="Descendre dans la conversation"
+            className="hidden md:flex absolute left-1/2 -translate-x-1/2 -top-12 z-30 h-9 w-9 items-center justify-center rounded-full bg-black/70 text-white shadow-lg backdrop-blur-sm hover:bg-black/85 transition-colors"
+          >
+            <ChevronDown className="w-5 h-5" />
+          </button>
+        )}
         {messages.length > 1 && !streaming && !competitorGuardActive && (
           <>
             {/* Barre d'actions unique au-dessus du composer :
