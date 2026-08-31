@@ -276,6 +276,7 @@ const Front = () => {
   const [demoTime, setDemoTime] = useState(0);
   const [demoBadgeId, setDemoBadgeId] = useState<string | null>(null);
   const demoLoadingMoreRef = useRef(false);
+  const demoSnapshotRef = useRef<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext } | null>(null);
   // La démo /front passe directement sur l'assistant IA plateforme 1WM.
   const [demoAiMode, setDemoAiMode] = useState<"business" | "platform">("platform");
 
