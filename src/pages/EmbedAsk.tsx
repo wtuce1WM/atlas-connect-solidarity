@@ -1998,6 +1998,43 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     }
   }, [videoFeedCtx, videoFeedList]);
 
+  /**
+   * Complète le feed jusqu'à son total (par pages de 30, plafond 180) : la fiche
+   * ouverte depuis la grille de résultats scrolle sur TOUT le feed du badge, pas
+   * seulement sur le premier lot chargé.
+   */
+  const completeVideoFeed = useCallback(async () => {
+    const ctx = videoFeedCtx;
+    if (!ctx || !ctx.badgeIds?.length || feedLoadingMoreRef.current) return;
+    if (videoFeedList.length >= Math.min(ctx.total, 180)) return;
+    feedLoadingMoreRef.current = true;
+    try {
+      const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
+      let offset = videoFeedList.length;
+      const cap = Math.min(ctx.total, 180);
+      while (offset < cap) {
+        const { items } = await fetchBadgesVideoFeed(ctx.badgeIds, {
+          seed: ctx.seed,
+          limit: 30,
+          offset,
+          cityIds: ctx.cityIds ?? null,
+        });
+        if (!items.length) break;
+        setVideoFeedList((prev) => {
+          const seen = new Set(prev.map((v) => v.id));
+          return [...prev, ...items.filter((it) => !seen.has(it.id))];
+        });
+        offset += items.length;
+      }
+    } catch {
+      /* best-effort : le feed reste utilisable */
+    } finally {
+      feedLoadingMoreRef.current = false;
+    }
+  }, [videoFeedCtx, videoFeedList]);
+
+
+
   /** Clic sur une chip badge dans le viewer → relance le feed sur ce badge. */
   const selectFeedBadge = useCallback(async (badge: { id: string; name: string }) => {
     feedLoadingMoreRef.current = true;
