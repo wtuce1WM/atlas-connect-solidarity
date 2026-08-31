@@ -1389,6 +1389,31 @@ const EmbedAsk = () => {
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [messages]);
 
+  // Boutons flottants haut/bas (desktop) : état du dépassement vertical du flux.
+  const [convScroll, setConvScroll] = useState({ scrollable: false, canUp: false, canDown: false });
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const compute = () => {
+      const max = el.scrollHeight - el.clientHeight;
+      const scrollable = max > 120;
+      setConvScroll({
+        scrollable,
+        canUp: scrollable && el.scrollTop > 60,
+        canDown: scrollable && el.scrollTop < max - 60,
+      });
+    };
+    compute();
+    el.addEventListener("scroll", compute, { passive: true });
+    const ro = new ResizeObserver(compute);
+    ro.observe(el);
+    return () => { el.removeEventListener("scroll", compute); ro.disconnect(); };
+  }, [messages, streaming, homeState, autoHeight]);
+  const convScrollBy = (dir: 1 | -1) => {
+    const el = scrollRef.current;
+    if (el) el.scrollBy({ top: dir * el.clientHeight * 0.85, behavior: "smooth" });
+  };
+
   /**
    * Le contenu d'une réponse (cartes fiches, images, carrousels, CTAs) arrive après
    * le message : le scroll initial se fait sur une hauteur périmée et le dernier
