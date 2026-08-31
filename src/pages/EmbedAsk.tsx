@@ -2670,6 +2670,23 @@ const EmbedAsk = () => {
                 </span>
               )}
             </div>
+
+            {/* Badge « Découvrez l'App » — visible uniquement embarqué (Home /front) :
+                demande à la page parente de lancer le mode Demo (feed découverte). */}
+            {typeof window !== "undefined" && window.parent !== window && (
+              <div className="w-full max-w-xl mx-auto flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    try { window.parent?.postMessage({ type: "owm-ask:start-demo" }, "*"); } catch { /* cross-origin */ }
+                  }}
+                  className="text-[13px] font-bold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#25D366", color: "#0b2e18", border: "1px solid #25D366" }}
+                >
+                  {lang === "en" ? "Discover the App" : lang === "ar" ? "اكتشف التطبيق" : "Découvrez l'App"}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
