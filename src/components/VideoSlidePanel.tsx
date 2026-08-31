@@ -370,6 +370,9 @@ const VideoSlidePanel = ({
      (ClubLoginPopup, toujours monté en bas de ce composant). */
   const timelineOverlayMountedRef = useRef(false);
   useEffect(() => {
+    timelineOverlayMountedRef.current = !!videoId && !chipsExpanded;
+  }, [videoId, chipsExpanded]);
+  useEffect(() => {
     const handler = () => {
       if (timelineOverlayMountedRef.current) return;
       window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
