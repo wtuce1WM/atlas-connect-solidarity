@@ -40,6 +40,8 @@ interface Props<T extends VideoLike> {
 
 IA : business hôte (défaut) ou plateforme 1WM */
   aiMode?: "business" | "platform";
+  /** Neutralise le CTA IA de la barre liquid glass (déjà dans l'assistant IA). */
+  aiCtaDisabled?: boolean;
   /** Coins arrondis (variante /front) */
   roundedFrame?: boolean;
 }
@@ -67,6 +69,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   onYouTubeSelect,
   selectedBadgeId = null,
   aiMode,
+  aiCtaDisabled,
   roundedFrame,
 }: Props<T>) {
   const currentIndex = useMemo(
@@ -123,6 +126,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       onFeedYouTubeSelect={onYouTubeSelect}
       selectedBadgeId={selectedBadgeId}
       aiMode={aiMode}
+      aiCtaDisabled={aiCtaDisabled}
       roundedFrame={roundedFrame}
     />
   );

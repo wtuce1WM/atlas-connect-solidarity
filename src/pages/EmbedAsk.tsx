@@ -3771,6 +3771,7 @@ const EmbedAsk = () => {
               returnContext={null}
               hideDirections
               hideSecondaryCtas
+              aiCtaDisabled
               onBadgeSelect={(b: any) => { void selectFeedBadge(b); }}
             />
           </Suspense>
