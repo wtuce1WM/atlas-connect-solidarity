@@ -122,6 +122,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   const [fetchedBadges, setFetchedBadges] = useState<FeedBadge[] | null>(null);
   const lastFetchedRef = useRef<string | null>(null);
   useEffect(() => {
+    setFetchedBadges(null);
     if (!open || !activeId || hasOwnBadges) return;
     if (lastFetchedRef.current === activeId) return;
     lastFetchedRef.current = activeId;
