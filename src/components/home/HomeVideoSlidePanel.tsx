@@ -174,7 +174,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       feedLayout
       manualCardLabel={activeVideo?.manualCard?.label || null}
       price={activeVideo?.price || null}
-      feedBadges={activeVideo?.badges ?? null}
+      feedBadges={resolvedBadges}
       onFeedBadgeSelect={onBadgeSelect}
       onFeedCitySelect={onCitySelect}
       onFeedYouTubeSelect={onYouTubeSelect}
