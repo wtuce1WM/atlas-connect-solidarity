@@ -3336,7 +3336,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         ? (lang === "en" ? "Recommended video page" : lang === "ar" ? "صفحة فيديو موصى بها" : "Page vidéo recommandée")
                         : (lang === "en" ? "Recommended article" : lang === "ar" ? "مقال موصى به" : "Article recommandé")}
                     </span>
-                    <div className={`text-sm font-semibold leading-snug line-clamp-3 ${cardInk}`}>{articleCard.title}</div>
+                    <div className="text-sm font-semibold leading-snug line-clamp-3 text-black">{articleCard.title}</div>
                   </div>
                 </a>
               )}
