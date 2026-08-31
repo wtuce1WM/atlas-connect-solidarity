@@ -672,7 +672,7 @@ const Front = () => {
       {/* Bloc central — 3 sections égales entre header et CTA Découvrir */}
       <div
         ref={narrativeBoxRef}
-        className={`absolute inset-0 z-20 flex flex-col pt-16 pb-16 md:pt-14 md:pb-10 ${askLocked ? "px-0" : "px-2 md:px-10 lg:px-16"}`}
+        className={`absolute inset-0 z-20 flex flex-col pt-16 pb-16 md:pt-14 md:pb-10 ${askLocked || mapOpen ? "px-0" : "px-2 md:px-10 lg:px-16"}`}
         style={{
           opacity: demoActiveId || demoCardsOnly ? 0 : narrativeOpacity,
           transform: reduced
