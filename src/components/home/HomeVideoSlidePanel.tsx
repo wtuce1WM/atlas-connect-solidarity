@@ -116,6 +116,23 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex >= 0 && currentIndex < activeList.length - 1;
 
+  // Repli badges : si la vidéo active n'en porte pas, lecture directe par ID.
+  const activeId = activeVideo?.id || null;
+  const hasOwnBadges = !!(activeVideo?.badges && activeVideo.badges.length);
+  const [fetchedBadges, setFetchedBadges] = useState<FeedBadge[] | null>(null);
+  const lastFetchedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!open || !activeId || hasOwnBadges) return;
+    if (lastFetchedRef.current === activeId) return;
+    lastFetchedRef.current = activeId;
+    let cancelled = false;
+    fetchVideoBadgesById(activeId).then((b) => {
+      if (!cancelled) setFetchedBadges(b);
+    });
+    return () => { cancelled = true; };
+  }, [open, activeId, hasOwnBadges]);
+  const resolvedBadges = hasOwnBadges ? (activeVideo?.badges ?? null) : (fetchedBadges?.length ? fetchedBadges : null);
+
   const goPrev = useCallback(() => {
     if (hasPrev) onActiveVideoChange(activeList[currentIndex - 1]);
   }, [hasPrev, activeList, currentIndex, onActiveVideoChange]);
