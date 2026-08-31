@@ -1,18 +1,20 @@
-import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import FrontHeader from "@/components/front/FrontHeader";
 import Footer from "@/components/Footer";
-import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
-import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
-import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
-import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
-// @ts-ignore - raw imports provided by Vite
-import corporateCss from "./corporate.scoped.css?raw";
-// @ts-ignore
-import corporateBody from "./corporate.body.html?raw";
+import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
+import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
+import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
+import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { withLangPrefix } from "@/lib/localizedPath";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
+import { useSEO } from "@/hooks/useSEO";
+
+const MODEL_VIDEO_URL =
+  "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1777800001847-84ntzf.mp4";
+const MODEL_VIDEO_POSTER =
+  "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/thumbs/generic-1777800015758-60ney6.jpg";
 
 const LABELS = {
   fr: {
@@ -22,26 +24,24 @@ const LABELS = {
     h1Line3: "en impact POSITIF",
     lede: "L'excellence de l'hospitalité, de la gastronomie et de l'art de vivre marocains, réunie sur une plateforme éthique au service des professionnels de tout le Royaume du Maroc.",
     btnJoin: "Rejoindre le mouvement",
-    pillar1Title: "Zéro Commission",
-    pillar1Body: "Aucune commission prélevée sur vos transactions. Vous gardez l'intégralité de votre chiffre d'affaires.",
-    pillar2Title: "Abonnement Mensuel",
-    pillar2Body: "Un abonnement clair et prévisible, là où les plateformes classiques prélèvent jusqu'à 25%.",
-    pillar3Title: "20% Reversés",
-    pillar3Body: "20% de chaque abonnement sont reversés, via séquestre bancaire, à des causes humanitaires au Maroc.",
     modelEyebrow: "Un modèle inversé",
-    modelTitle: "L'éthique <em>n'est pas</em> une option.<br>C'est le modèle.",
-    modelP1: "One World Morocco repose sur une conviction simple : la valeur créée par les professionnels marocains doit leur revenir. Nous avons supprimé la commission par transaction et l'avons remplacée par un <span class=\"hl\">abonnement mensuel transparent</span>.",
+    modelTitleA: "L'éthique",
+    modelTitleEm: "n'est pas",
+    modelTitleB: "une option.",
+    modelTitleC: "C'est le modèle.",
+    modelP1: "One World Morocco repose sur une conviction simple : la valeur créée par les professionnels marocains doit leur revenir. Nous avons supprimé la commission par transaction et l'avons remplacée par un abonnement mensuel transparent.",
     modelP2: "Hôteliers, restaurateurs, transporteurs et acteurs de l'hospitalité de tout le Royaume du Maroc rejoignent une vitrine commune, du Maroc vers le reste du Monde — sans intermédiaire prédateur.",
     compareOwmVal: "0 commission",
     compareThemVal: "jusqu'à 25%",
-    ariaPlay: "Play/Pause",
-    ariaMute: "Mute/Unmute",
     videoTag: "Reversés à des causes humanitaires au Maroc",
     citiesEyebrow: "Villes Pionnières",
-    citiesTitle: "Là où tout <em>commence</em>.",
+    citiesTitleA: "Là où tout",
+    citiesTitleEm: "commence",
     citiesSub: "Le déploiement rayonne désormais sur tout le Royaume du Maroc.",
     cityLabel: "Ville Pionnière",
     citiesKingdom: "Du Maroc vers le reste du Monde.",
+    discover: "Découvrir",
+    back: "Revenir",
   },
   en: {
     topBanner: "The first ethical digital ecosystem dedicated to the local economy",
@@ -50,26 +50,24 @@ const LABELS = {
     h1Line3: "into POSITIVE impact",
     lede: "The excellence of Moroccan hospitality, gastronomy and art de vivre, united on an ethical platform serving professionals across the Kingdom of Morocco.",
     btnJoin: "Join the movement",
-    pillar1Title: "Zero Commission",
-    pillar1Body: "No commission taken on your transactions. You keep 100% of your revenue.",
-    pillar2Title: "Monthly Subscription",
-    pillar2Body: "A clear, predictable subscription — where legacy platforms take up to 25%.",
-    pillar3Title: "20% Donated",
-    pillar3Body: "20% of every subscription is placed in escrow and donated to humanitarian causes in Morocco.",
     modelEyebrow: "An inverted model",
-    modelTitle: "Ethics <em>is not</em> optional.<br>It is the model.",
-    modelP1: "One World Morocco is built on a simple conviction: the value created by Moroccan professionals should stay with them. We replaced per-transaction commissions with a <span class=\"hl\">transparent monthly subscription</span>.",
+    modelTitleA: "Ethics",
+    modelTitleEm: "is not",
+    modelTitleB: "optional.",
+    modelTitleC: "It is the model.",
+    modelP1: "One World Morocco is built on a simple conviction: the value created by Moroccan professionals should stay with them. We replaced per-transaction commissions with a transparent monthly subscription.",
     modelP2: "Hoteliers, restaurateurs, transporters and hospitality actors from across the Kingdom of Morocco join a shared showcase, from Morocco to the rest of the world — without predatory intermediaries.",
     compareOwmVal: "0 commission",
     compareThemVal: "up to 25%",
-    ariaPlay: "Play/Pause",
-    ariaMute: "Mute/Unmute",
     videoTag: "Donated to humanitarian causes in Morocco",
     citiesEyebrow: "Pioneer Cities",
-    citiesTitle: "Where it all <em>begins</em>.",
+    citiesTitleA: "Where it all",
+    citiesTitleEm: "begins",
     citiesSub: "The rollout now extends across the entire Kingdom of Morocco.",
     cityLabel: "Pioneer City",
     citiesKingdom: "From Morocco to the rest of the world.",
+    discover: "Discover",
+    back: "Back",
   },
   ar: {
     topBanner: "أول منظومة رقمية أخلاقية مخصصة للاقتصاد المحلي",
@@ -78,204 +76,466 @@ const LABELS = {
     h1Line3: "إلى أثرٍ إيجابي",
     lede: "براعة الضيافة المغربية والفنون والمطبخ، مجتمعةً في منصة أخلاقية تخدم المهنيين في جميع أنحاء المملكة المغربية.",
     btnJoin: "انضم إلى الحركة",
-    pillar1Title: "صفر عمولة",
-    pillar1Body: "لا تُقتطع أي عمولة من معاملاتك. أنت تحتفظ بكامل رقم أعمالك.",
-    pillar2Title: "اشتراك شهري",
-    pillar2Body: "اشتراك واضح وثابت، في حين تأخذ المنصات التقليدية ما يصل إلى 25%.",
-    pillar3Title: "20% موجَّهة للخير",
-    pillar3Body: "يُودَع 20% من كل اشتراك في ضمان بنكي ويُخصَّص لقضايا إنسانية في المغرب.",
     modelEyebrow: "نموذج مقلوب",
-    modelTitle: "الأخلاق <em>ليست</em> خياراً.<br>إنها النموذج.",
-    modelP1: "يقوم One World Morocco على قناعة بسيطة: القيمة التي يخلقها المهنيون المغاربة يجب أن تعود إليهم. لقد ألغينا العمولة على كل معاملة واستبدلناها <span class=\"hl\">باشتراك شهري شفاف</span>.",
+    modelTitleA: "الأخلاق",
+    modelTitleEm: "ليست",
+    modelTitleB: "خياراً.",
+    modelTitleC: "إنها النموذج.",
+    modelP1: "يقوم One World Morocco على قناعة بسيطة: القيمة التي يخلقها المهنيون المغاربة يجب أن تعود إليهم. لقد ألغينا العمولة على كل معاملة واستبدلناها باشتراك شهري شفاف.",
     modelP2: "يلتحق أصحاب الفنادق والمطاعم وشركات النقل وفاعلو الضيافة من كل أنحاء المملكة المغربية بواجهة مشتركة، من المغرب إلى بقية العالم — دون وسطاء متغوّلين.",
     compareOwmVal: "0 عمولة",
     compareThemVal: "حتى 25%",
-    ariaPlay: "تشغيل/إيقاف",
-    ariaMute: "صوت/كتم",
     videoTag: "موجَّهة لقضايا إنسانية في المغرب",
     citiesEyebrow: "المدن الرائدة",
-    citiesTitle: "حيث يبدأ كل شيء.",
+    citiesTitleA: "حيث يبدأ",
+    citiesTitleEm: "كل شيء",
     citiesSub: "ينتشر المشروع الآن في جميع أنحاء المملكة المغربية.",
     cityLabel: "مدينة رائدة",
     citiesKingdom: "من المغرب إلى بقية العالم.",
+    discover: "اكتشف",
+    back: "رجوع",
   },
 } as const;
 
+const SCREENS = 3;
+const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+
 const Corporate = () => {
-  const navigate = useNavigate();
-  const rootRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
-  const L = LABELS[language] ?? LABELS.fr;
+  const L = (LABELS as any)[language] ?? LABELS.fr;
+  const navigate = useLocalizedNavigate();
 
-  // Intercept internal-link clicks → React Router navigation.
-  // Keep anchor (#id) clicks for smooth-scroll.
+  useSEO({
+    title: "Un concept local et solidaire — One World Morocco",
+    description:
+      "Zéro commission, abonnement transparent et 20% reversés à des causes humanitaires : le modèle éthique de One World Morocco.",
+    canonical: "/corporate",
+  });
+
+  const [progress, setProgress] = useState(0); // 0 → 2 (index d'écran continu)
+  const [isPortrait, setIsPortrait] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches,
+  );
+  const [reduced, setReduced] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
+  const modelVideoRef = useRef<HTMLVideoElement | null>(null);
+  const targetRef = useRef(0);
+  const currentRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const touchYRef = useRef<number | null>(null);
+
   useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
+    const mqO = window.matchMedia("(max-aspect-ratio: 1/1)");
+    const mqM = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onO = () => setIsPortrait(mqO.matches);
+    const onM = () => setReduced(mqM.matches);
+    mqO.addEventListener("change", onO);
+    mqM.addEventListener("change", onM);
+    return () => {
+      mqO.removeEventListener("change", onO);
+      mqM.removeEventListener("change", onM);
+    };
+  }, []);
 
-    const onClick = (e: MouseEvent) => {
-      const a = (e.target as HTMLElement)?.closest?.("a") as HTMLAnchorElement | null;
-      if (!a) return;
-      const href = a.getAttribute("href") || "";
-      if (href.startsWith("#")) {
-        e.preventDefault();
-        const id = href.slice(1);
-        const el = id ? document.getElementById(id) : null;
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  // Safari iOS peut différer l'autoplay malgré muted + playsInline.
+  useEffect(() => {
+    const retry = () => {
+      const v = bgVideoRef.current;
+      if (v?.paused) void v.play().catch(() => undefined);
+    };
+    retry();
+    document.addEventListener("touchstart", retry, { passive: true, once: true });
+    document.addEventListener("click", retry, { once: true });
+    return () => {
+      document.removeEventListener("touchstart", retry);
+      document.removeEventListener("click", retry);
+    };
+  }, [isPortrait]);
+
+  const setTarget = useCallback(
+    (v: number) => {
+      targetRef.current = clamp(v, 0, SCREENS - 1);
+      if (reduced) {
+        currentRef.current = targetRef.current;
+        setProgress(targetRef.current);
         return;
       }
-      // Internal route (starts with "/" and not "//")
-      if (href.startsWith("/") && !href.startsWith("//")) {
+      if (rafRef.current !== null) return;
+      const tick = () => {
+        currentRef.current += (targetRef.current - currentRef.current) * 0.24;
+        if (Math.abs(targetRef.current - currentRef.current) < 0.002) {
+          currentRef.current = targetRef.current;
+          setProgress(currentRef.current);
+          rafRef.current = null;
+          return;
+        }
+        setProgress(currentRef.current);
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    },
+    [reduced],
+  );
+
+  useEffect(
+    () => () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      setTarget(targetRef.current + (e.deltaY > 0 ? 1 : -1) * 0.55);
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      touchYRef.current = e.touches[0]?.clientY ?? null;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const y = e.touches[0]?.clientY ?? null;
+      if (y === null || touchYRef.current === null) return;
+      e.preventDefault();
+      setTarget(targetRef.current + (touchYRef.current - y) / 320);
+      touchYRef.current = y;
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown" || e.key === "PageDown") {
         e.preventDefault();
-        navigate(withLangPrefix(href, language));
+        setTarget(Math.round(targetRef.current) + 1);
+      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+        e.preventDefault();
+        setTarget(Math.round(targetRef.current) - 1);
       }
     };
-
-    root.addEventListener("click", onClick);
-
-    // Reveal-on-scroll for .reveal elements (mirrors the original script).
-    const io = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((x) => {
-          if (x.isIntersecting) {
-            (x.target as HTMLElement).classList.add("in");
-            io.unobserve(x.target);
-          }
-        }),
-      { threshold: 0.14 },
-    );
-    root.querySelectorAll<HTMLElement>(".reveal").forEach((el, i) => {
-      el.style.transitionDelay = (i % 4) * 90 + "ms";
-      io.observe(el);
-    });
-
-    // Parallax on hero bg — desktop image + mobile phone mockup + section bg + mouse parallax
-    const heroBg = root.querySelector<HTMLImageElement>(".hero .bg-img-desktop");
-    const heroBgMobile = root.querySelector<HTMLImageElement>(".hero .bg-img-mobile");
-    const heroSection = root.querySelector<HTMLElement>(".hero");
-    let cleanupParallax: (() => void) | undefined;
-
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const onScroll = () => {
-        const y = window.scrollY;
-        if (heroBg) heroBg.style.transform = `translate3d(0, ${y * 0.3}px, 0)`;
-        if (window.innerWidth < 1024) {
-          if (heroBgMobile) heroBgMobile.style.transform = `scale(.95) translate3d(0, ${y * -0.35}px, 0)`;
-          if (heroSection) heroSection.style.backgroundPosition = `center calc(50% + ${y * 0.4}px)`;
-        }
-      };
-      onScroll();
-      window.addEventListener("scroll", onScroll, { passive: true });
-      cleanupParallax = () => window.removeEventListener("scroll", onScroll);
-    } else {
-      let mx = 0, my = 0, tx = 0, ty = 0, sy = 0, ticking = false;
-      let raf = 0;
-      const update = () => {
-        raf = 0;
-        const y = window.scrollY;
-        if (heroBg) heroBg.style.transform = `translate3d(0, ${y * 0.3}px, 0)`;
-        if (window.innerWidth < 1024) {
-          if (heroBgMobile) heroBgMobile.style.transform = `scale(.95) translate3d(0, ${y * -0.35}px, 0)`;
-          if (heroSection) heroSection.style.backgroundPosition = `center calc(50% + ${y * 0.4}px)`;
-        }
-
-        tx += (mx - tx) * 0.08;
-        ty += (my - ty) * 0.08;
-        if (heroSection) {
-          heroSection.style.setProperty("--mx", tx.toFixed(3));
-          heroSection.style.setProperty("--my", ty.toFixed(3));
-          heroSection.style.setProperty("--sy", sy.toFixed(3));
-        }
-        if (Math.abs(mx - tx) > 0.001 || Math.abs(my - ty) > 0.001) {
-          raf = requestAnimationFrame(update);
-        } else {
-          ticking = false;
-        }
-      };
-      const kick = () => { if (!ticking) { ticking = true; raf = requestAnimationFrame(update); } };
-      const onMove = (e: MouseEvent) => {
-        if (!heroSection) return;
-        const r = heroSection.getBoundingClientRect();
-        mx = ((e.clientX - r.left) / r.width - 0.5) * 2;
-        my = ((e.clientY - r.top) / r.height - 0.5) * 2;
-        kick();
-      };
-      const onLeave = () => { mx = 0; my = 0; kick(); };
-      const onScroll = () => {
-        if (!heroSection) return;
-        const r = heroSection.getBoundingClientRect();
-        sy = Math.max(-1, Math.min(1, -r.top / r.height));
-        kick();
-      };
-      heroSection?.addEventListener("mousemove", onMove);
-      heroSection?.addEventListener("mouseleave", onLeave);
-      window.addEventListener("scroll", onScroll, { passive: true });
-      update();
-      cleanupParallax = () => {
-        heroSection?.removeEventListener("mousemove", onMove);
-        heroSection?.removeEventListener("mouseleave", onLeave);
-        window.removeEventListener("scroll", onScroll);
-        if (raf) cancelAnimationFrame(raf);
-      };
-    }
-
+    el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("keydown", onKey);
     return () => {
-      root.removeEventListener("click", onClick);
-      io.disconnect();
-      cleanupParallax?.();
+      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("keydown", onKey);
     };
-  }, [navigate]);
+  }, [setTarget]);
 
-  const localizedBody = corporateBody
-    .replace("{{HERO_DESKTOP_URL}}", originalHeroAsset.url)
-    .replace("{{TOP_BANNER}}", L.topBanner)
-    .replace("{{H1_LINE1}}", L.h1Line1)
-    .replace("{{H1_LINE2}}", L.h1Line2)
-    .replace("{{H1_LINE3}}", L.h1Line3)
-    .replace("{{LEDE}}", L.lede)
-    .replace("{{BTN_JOIN}}", L.btnJoin)
-    .replace("{{PILLAR1_TITLE}}", L.pillar1Title)
-    .replace("{{PILLAR1_BODY}}", L.pillar1Body)
-    .replace("{{PILLAR2_TITLE}}", L.pillar2Title)
-    .replace("{{PILLAR2_BODY}}", L.pillar2Body)
-    .replace("{{PILLAR3_TITLE}}", L.pillar3Title)
-    .replace("{{PILLAR3_BODY}}", L.pillar3Body)
-    .replace("{{MODEL_EYEBROW}}", L.modelEyebrow)
-    .replace("{{MODEL_TITLE}}", L.modelTitle)
-    .replace("{{MODEL_P1}}", L.modelP1)
-    .replace("{{MODEL_P2}}", L.modelP2)
-    .replace("{{COMPARE_OWM_VAL}}", L.compareOwmVal)
-    .replace("{{COMPARE_THEM_VAL}}", L.compareThemVal)
-    .replace("{{ARIA_PLAY}}", L.ariaPlay)
-    .replace("{{ARIA_MUTE}}", L.ariaMute)
-    .replace("{{VIDEO_TAG}}", L.videoTag)
-    .replace("{{CITIES_EYEBROW}}", L.citiesEyebrow)
-    .replace("{{CITIES_TITLE}}", L.citiesTitle)
-    .replace("{{CITIES_SUB}}", L.citiesSub)
-    .split("{{CITY_LABEL}}").join(L.cityLabel)
-    .replace("{{CITIES_KINGDOM}}", L.citiesKingdom);
+  // Vidéo du modèle (écran 2) : lecture uniquement quand l'écran est visible.
+  const [modelPlaying, setModelPlaying] = useState(true);
+  const [modelMuted, setModelMuted] = useState(true);
+  useEffect(() => {
+    const v = modelVideoRef.current;
+    if (!v) return;
+    const visible = Math.abs(progress - 1) < 0.5;
+    if (visible && modelPlaying) void v.play().catch(() => undefined);
+    else v.pause();
+  }, [progress, modelPlaying]);
+
+  const layer = (index: number) => {
+    const d = progress - index;
+    const opacity = clamp(1 - Math.abs(d) * 1.6, 0, 1);
+    const active = Math.abs(d) < 0.45;
+    return {
+      opacity,
+      transform: reduced ? undefined : `translateY(${d * -48}px)`,
+      pointerEvents: active ? ("auto" as const) : ("none" as const),
+      transition: reduced ? "none" : undefined,
+      ariaHidden: !active,
+    };
+  };
+
+  const s1 = layer(0);
+  const s2 = layer(1);
+  const s3 = layer(2);
+  const current = Math.round(progress);
 
   return (
     <>
-      <HomeMindtripHeader />
-      <div
-        ref={rootRef}
-        className="corp-page"
-        style={{
-          ["--hero-img-desktop" as any]: `url("${originalHeroAsset.url}")`,
-          ["--hero-img-tablet" as any]: `url("${zelligeBrunAsset.url}")`,
-          ["--hero-img-mobile" as any]: `url("${koutoubiaVerticalBgAsset.url}")`,
-          ["--hero-phone-mockup" as any]: `url("${phoneMockupAsset.url}")`,
-          ["--hero-phone-mockup-tablet" as any]: `url("${iphoneTabletMockupAsset.url}")`,
-        }}
+      <FrontHeader fixed visible onLogoClick={() => navigate("/")} />
+      <section
+        ref={sectionRef}
+        className="relative h-[100dvh] min-h-[560px] w-full touch-none overflow-hidden bg-[hsl(0_0%_4%)]"
       >
-        <style>{corporateCss}</style>
-        <div dangerouslySetInnerHTML={{ __html: localizedBody }} />
-      </div>
+        {/* Vidéo de fond (desktop / mobile) — reprise de la homepage */}
+        <video
+          ref={bgVideoRef}
+          key={isPortrait ? "portrait" : "landscape"}
+          className="absolute inset-0 h-full w-full object-cover"
+          src={isPortrait ? portraitVideoAsset.url : landscapeVideoAsset.url}
+          poster={isPortrait ? portraitVideoPoster.url : landscapeVideoPoster.url}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          style={{ filter: `brightness(${1 - clamp(progress / (SCREENS - 1), 0, 1) * 0.4})` }}
+        />
+        <div
+          className="absolute inset-0"
+          aria-hidden="true"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(6,5,4,.62) 0%, rgba(6,5,4,.48) 35%, rgba(6,5,4,.74) 75%, rgba(6,5,4,.92) 100%)",
+          }}
+        />
+
+        {/* ============ Écran 1 — Hero ============ */}
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-24 pb-24 md:px-12"
+          style={{ opacity: s1.opacity, transform: s1.transform, pointerEvents: s1.pointerEvents }}
+          aria-hidden={s1.ariaHidden}
+        >
+          <img
+            src={phoneMockupAsset.url}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute left-[3%] top-1/2 hidden h-[58%] w-auto -translate-y-1/2 lg:block"
+          />
+          <p
+            className="mb-6 max-w-3xl text-center text-[13px] font-medium uppercase tracking-[0.18em] text-white/85 md:text-[16px] md:tracking-[0.22em]"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            {L.topBanner}
+          </p>
+          <h1
+            className="max-w-4xl text-center text-[26px] leading-[1.2] text-[#F4ECDF] sm:text-[2.25rem] md:text-[3rem] lg:text-[3.5rem]"
+            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
+          >
+            {L.h1Line1}
+            <br />
+            {L.h1Line2}
+            <br />
+            <span className="font-bold text-[#C6A046]">{L.h1Line3}</span>
+          </h1>
+          <p className="mt-5 max-w-2xl text-center font-roboto text-[15px] leading-relaxed text-white md:text-[1.125rem]">
+            {L.lede}
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate("/join")}
+            className="mt-8 inline-flex items-center gap-3 rounded-full bg-[#C04F17] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            {L.btnJoin}
+          </button>
+        </div>
+
+        {/* ============ Écran 2 — L'éthique n'est pas une option ============ */}
+        <div
+          className="absolute inset-0 z-10 flex items-center justify-center px-5 pt-20 pb-24 md:px-12"
+          style={{ opacity: s2.opacity, transform: s2.transform, pointerEvents: s2.pointerEvents }}
+          aria-hidden={s2.ariaHidden}
+        >
+          <div className="grid max-h-full w-full max-w-6xl items-center gap-6 overflow-y-auto md:grid-cols-2 md:gap-12">
+            <div>
+              <span
+                className="block text-[12px] uppercase tracking-[0.42em] text-[#C6A046]"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+              >
+                {L.modelEyebrow}
+              </span>
+              <h2
+                className="mt-4 text-[clamp(24px,4vw,44px)] leading-[1.12] text-[#F4ECDF]"
+                style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
+              >
+                {L.modelTitleA} <em className="italic text-[#C04F17]">{L.modelTitleEm}</em>{" "}
+                {L.modelTitleB}
+                <br />
+                {L.modelTitleC}
+              </h2>
+              <p className="mt-4 hidden font-roboto text-[15px] leading-[1.8] text-white/90 md:block">
+                {L.modelP1}
+              </p>
+              <p className="mt-3 hidden font-roboto text-[15px] leading-[1.8] text-white/80 lg:block">
+                {L.modelP2}
+              </p>
+              <div className="mt-5 border-t border-[rgba(198,160,70,.34)]">
+                <div className="flex items-baseline justify-between border-b border-[rgba(198,160,70,.2)] py-3">
+                  <span className="text-[11px] uppercase tracking-[0.2em] text-white/60">
+                    One World Morocco
+                  </span>
+                  <span
+                    className="text-[19px] text-[#C04F17]"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
+                    {L.compareOwmVal}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between py-3">
+                  <span className="text-[11px] uppercase tracking-[0.2em] text-white/60">
+                    Booking · Airbnb · Expedia
+                  </span>
+                  <span
+                    className="text-[19px] text-white/40 line-through"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
+                    {L.compareThemVal}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="relative overflow-hidden rounded-3xl">
+                <video
+                  ref={modelVideoRef}
+                  src={MODEL_VIDEO_URL}
+                  poster={MODEL_VIDEO_POSTER}
+                  muted={modelMuted}
+                  loop
+                  playsInline
+                  preload="metadata"
+                  className="block max-h-[46vh] w-full object-cover"
+                />
+                <div className="absolute bottom-3 left-1/2 z-[3] flex -translate-x-1/2 gap-3">
+                  <button
+                    type="button"
+                    aria-label="Play/Pause"
+                    onClick={() => setModelPlaying((p) => !p)}
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur"
+                  >
+                    {modelPlaying ? (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="6" y="5" width="4" height="14" />
+                        <rect x="14" y="5" width="4" height="14" />
+                      </svg>
+                    ) : (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Mute/Unmute"
+                    onClick={() => setModelMuted((m) => !m)}
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8.04v7.91A4.5 4.5 0 0 0 16.5 12z" />
+                      {modelMuted && (
+                        <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" strokeWidth="2" />
+                      )}
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div className="mt-3 flex items-center gap-3 rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 px-4 py-3 backdrop-blur md:absolute md:-left-6 md:bottom-8 md:mt-0 md:max-w-[240px] md:flex-col md:items-start">
+                <b
+                  className="text-2xl text-[#C6A046]"
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                >
+                  20%
+                </b>
+                <small className="text-[11px] uppercase tracking-[0.18em] text-white/80">
+                  {L.videoTag}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ============ Écran 3 — Là où tout commence ============ */}
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-20 pb-24 text-center md:px-12"
+          style={{ opacity: s3.opacity, transform: s3.transform, pointerEvents: s3.pointerEvents }}
+          aria-hidden={s3.ariaHidden}
+        >
+          <span
+            className="block text-[12px] uppercase tracking-[0.42em] text-[#C6A046]"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            {L.citiesEyebrow}
+          </span>
+          <h2
+            className="mt-5 text-[clamp(28px,4.6vw,56px)] leading-[1.1] text-[#F4ECDF]"
+            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
+          >
+            {L.citiesTitleA} <em className="italic text-[#C04F17]">{L.citiesTitleEm}</em>.
+          </h2>
+          <p className="mt-4 max-w-xl font-roboto text-[15px] text-white/85">{L.citiesSub}</p>
+
+          <div className="mt-8 flex flex-col items-center gap-6 md:flex-row md:gap-0">
+            {["Marrakech", "Essaouira"].map((city, i) => (
+              <div key={city} className="flex items-center">
+                {i === 1 && (
+                  <span
+                    aria-hidden
+                    className="hidden h-[110px] w-px bg-[rgba(198,160,70,.34)] md:block"
+                  />
+                )}
+                <div className="px-0 md:px-[70px]">
+                  <div
+                    className="text-[clamp(34px,5vw,68px)] leading-none text-[#F4ECDF]"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
+                    {city}
+                  </div>
+                  <div className="mt-2 text-[11px] uppercase tracking-[0.32em] text-[#C6A046]">
+                    {L.cityLabel}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p
+            className="mt-10 italic text-white/75"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            {L.citiesKingdom}
+          </p>
+        </div>
+
+        {/* ============ CTA Découvrir / Revenir — chevron Gold, tous devices ============ */}
+        <div className="absolute inset-x-0 bottom-5 z-20 flex items-end justify-center gap-10">
+          <button
+            type="button"
+            onClick={() => setTarget(Math.round(progress) - 1)}
+            className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+            style={{
+              opacity: current > 0 ? 1 : 0,
+              pointerEvents: current > 0 ? "auto" : "none",
+            }}
+            tabIndex={current > 0 ? 0 : -1}
+            aria-hidden={current === 0}
+          >
+            <ChevronUp className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
+              {L.back}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTarget(Math.round(progress) + 1)}
+            className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+            style={{
+              opacity: current < SCREENS - 1 ? 1 : 0,
+              pointerEvents: current < SCREENS - 1 ? "auto" : "none",
+            }}
+            tabIndex={current < SCREENS - 1 ? 0 : -1}
+            aria-hidden={current === SCREENS - 1}
+          >
+            <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
+              {L.discover}
+            </span>
+          </button>
+        </div>
+      </section>
       <Footer variant="verified" />
     </>
   );
 };
-
 
 export default Corporate;
