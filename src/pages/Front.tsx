@@ -558,8 +558,8 @@ const Front = () => {
      } else if (e.data?.type === "owm-ask:conversation-open") {
        setConversationOpen(!!e.data.open);
       } else if (e.data?.type === "owm-ask:video-panel") {
-        // VideoSlidePanel ouvert : la vidéo de fond de Home passe en pause.
-        if (e.data.open) backgroundVideoRef.current?.pause();
+         // VideoSlidePanel OU BookOnlineSlidePanel ouvert : vidéo de fond en pause.
+         if (e.data.open) backgroundVideoRef.current?.pause();
       } else if (e.data?.type === "owm-ask:suggestions-expanded") {
         setSuggestionsExpanded(!!e.data.expanded);
       } else if (e.data?.type === "owm-ask:map-open") {
