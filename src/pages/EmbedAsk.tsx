@@ -1387,7 +1387,13 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
   }, [businessId, lang]);
 
-  useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [messages]);
+  // L'utilisateur a délibérément scrollé vers le haut : on désactive le collage
+  // automatique en bas jusqu'à ce qu'il revienne lui-même tout en bas.
+  const stickDisabledRef = useRef(false);
+  useEffect(() => {
+    if (stickDisabledRef.current) return;
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
 
   // Boutons flottants haut/bas (desktop) : état du dépassement vertical du flux.
   const [convScroll, setConvScroll] = useState({ scrollable: false, canUp: false, canDown: false });
