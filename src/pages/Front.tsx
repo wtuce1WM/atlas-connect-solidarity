@@ -529,6 +529,7 @@ const Front = () => {
   // Une question lancée dans l'assistant IA de l'écran 1 neutralise le scroll
   // vers l'écran 2 (l'utilisateur lit sa réponse).
   const [askLocked, setAskLocked] = useState(false);
+  const [conversationOpen, setConversationOpen] = useState(false);
   const [suggestionsExpanded, setSuggestionsExpanded] = useState(false);
   // Overlay Map ouvert depuis l'embed (ex. chip « Map » de l'accueil IA) :
   // l'iframe passe en pleine largeur pour que le panneau soit collé à droite.
@@ -554,6 +555,8 @@ const Front = () => {
         // Nouvelle conversation : la lecture de la vidéo de fond reprend.
         const video = backgroundVideoRef.current;
         if (video?.paused) void video.play().catch(() => undefined);
+     } else if (e.data?.type === "owm-ask:conversation-open") {
+       setConversationOpen(!!e.data.open);
       } else if (e.data?.type === "owm-ask:suggestions-expanded") {
         setSuggestionsExpanded(!!e.data.expanded);
       } else if (e.data?.type === "owm-ask:map-open") {
@@ -684,7 +687,7 @@ const Front = () => {
         </div>
 
 
-        {!askLocked && !suggestionsExpanded && (() => {
+        {!askLocked && !suggestionsExpanded && !conversationOpen && (() => {
           // Équidistance : le bouton est centré dans le gap entre la fin de la
           // ligne de badges (iframe, coordonnées = haut de l'iframe) et le haut
           // du CTA Découvrir. iframeTop = pt-16 (mobile) / pt-14 (md) du bloc.
