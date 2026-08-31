@@ -184,8 +184,11 @@ const EmbedBookPanelWrapper = ({
             hasNext={hasNext}
             prioritizeBusinessSwipe
             showSearchBar
+            onFeedBadgeSelect={onFeedBadgeSelect}
+            onFeedCitySelect={onFeedCitySelect}
             onSearch={() => { /* embed: search bar is used for its 6 liquid CTAs + video controls only */ }}
             onSearchBusinessSelect={() => { /* no-op inside embed */ }}
+
           />
         </Suspense>
       </div>
