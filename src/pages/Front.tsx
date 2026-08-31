@@ -687,7 +687,7 @@ const Front = () => {
         </div>
 
 
-        {!askLocked && !suggestionsExpanded && (() => {
+        {!askLocked && !suggestionsExpanded && !conversationOpen && (() => {
           // Équidistance : le bouton est centré dans le gap entre la fin de la
           // ligne de badges (iframe, coordonnées = haut de l'iframe) et le haut
           // du CTA Découvrir. iframeTop = pt-16 (mobile) / pt-14 (md) du bloc.
