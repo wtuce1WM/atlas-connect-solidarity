@@ -9,6 +9,7 @@ import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.j
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useSEO } from "@/hooks/useSEO";
+import hamsaIcon from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 
 const MODEL_VIDEO_URL =
   "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1777800001847-84ntzf.mp4";
@@ -96,7 +97,38 @@ const LABELS = {
   },
 } as const;
 
-const SCREENS = 3;
+const BULLET_STEPS: { title: React.ReactNode; text: React.ReactNode }[] = [
+  {
+    title: "Notre App fait ce que font...",
+    text: <>TikTok/Instagram/Youtube + Google + Chat GPT + Booking + Google Maps + Tripadvisor + CapCut + un site web professionnel...</>,
+  },
+  {
+    title: "Où ?",
+    text: <>sur une seule interface...</>,
+  },
+  {
+    title: "Agent IA personnalisé",
+    text: <>avec un Agent IA personnalisé...</>,
+  },
+  {
+    title: "Comment ?",
+    text: <>sur 3 surfaces : orienté client / entreprise hôte / plateforme 1WM...</>,
+  },
+  {
+    title: "Du digital au local",
+    text: <>avec un modèle économique direct-to-local, sans commission et solidaire :</>,
+  },
+  {
+    title: "Du digital au solidaire",
+    text: <><b>20 %</b> des abonnements des affiliés sont destinés à des causes humanitaires au Maroc...</>,
+  },
+  {
+    title: "Notre philosophie",
+    text: <>Parce que créer de la valeur ne devrait pas seulement profiter à ceux qui la créent.</>,
+  },
+];
+
+const SCREENS = 4;
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 const Corporate = () => {
@@ -228,6 +260,14 @@ const Corporate = () => {
   }, [setTarget]);
 
   // Vidéo du modèle (écran 2) : lecture uniquement quand l'écran est visible.
+  // Carousel bullets (écran 4) — rotation automatique des étapes.
+  const [bulletStep, setBulletStep] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => {
+      setBulletStep((s) => (s + 1) % BULLET_STEPS.length);
+    }, 3400);
+    return () => window.clearInterval(t);
+  }, []);
   const [modelPlaying, setModelPlaying] = useState(true);
   const [modelMuted, setModelMuted] = useState(true);
   useEffect(() => {
@@ -254,6 +294,7 @@ const Corporate = () => {
   const s1 = layer(0);
   const s2 = layer(1);
   const s3 = layer(2);
+  const s4 = layer(3);
   const current = Math.round(progress);
 
   return (
@@ -443,7 +484,65 @@ const Corporate = () => {
           </div>
         </div>
 
-        {/* ============ Écran 3 — Là où tout commence ============ */}
+        {/* ============ Écran 4 — App (carousel bullets, modèle homepage) ============ */}
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 px-5 pt-20 pb-24 md:px-12"
+          style={{ opacity: s4.opacity, transform: s4.transform, pointerEvents: s4.pointerEvents }}
+          aria-hidden={s4.ariaHidden}
+ >
+          <p
+            className="text-center text-[clamp(1.75rem,min(8.5vw,5.5vh),3.8rem)] uppercase leading-[1.12] tracking-tight"
+            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900, color: "transparent", WebkitTextStrokeWidth: "2px", WebkitTextStrokeColor: "#FFFFFF" }}
+          >
+            One World Morocco
+          </p>
+
+          <div className="flex w-full max-w-2xl flex-col items-center gap-2 md:gap-3">
+            <div className="min-h-[1.75rem] md:min-h-[2.25rem]">
+              <p
+                key={'bul-step'}
+                className="font-roboto text-xl font-bold leading-snug text-[#F4EEE4] md:text-2xl"
+                style={{ animation: "owmSlideDown 420ms ease-out both" }}
+              >
+                {BULLET_STEPS[bulletStep].title}
+              </p>
+            </div>
+
+            <div className="relative w-full">
+              <div className="flex items-start gap-3 font-roboto text-base leading-[1.3] text-[#F4EEE4] md:text-lg md:leading-snug">
+                <img
+                  src={hamsaIcon.url}
+                  alt=""
+                  className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
+                  loading="eager"
+                />
+                <p>{BULLET_STEPS[bulletStep].text}</p>
+              </div>
+
+              <div className="mt-4 flex gap-1.5">
+                {BULLET_STEPS.map((_, i) => (
+                  <span
+                    key={i}
+                    aria-hidden
+                    className={ i === bulletStep
+ ? "h-1.5 flex-1 rounded-full bg-gold"
+ : "h-1.5 flex-1 rounded-full bg-[rgba(244,238,228,0.2)]" }
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <p
+            className="text-center text-[clamp(1.75rem,min(8.5vw,5.5vh),3.8rem)] uppercase leading-[1.12] tracking-tight"
+            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900, color: "transparent", WebkitTextStrokeWidth: "2px", WebkitTextStrokeColor: "#FFFFFF" }}
+          >
+            <span className="block">LOCAL</span>
+            <span className="block">DIGITAL</span>
+            <span className="block">SOLIDAIRE</span>
+          </p>
+        </div>
+        {/* ============ CTA Découvrir / Revenir — chevron Gold, tous devices ============ */}
         <div
           className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-20 pb-24 text-center md:px-12"
           style={{ opacity: s3.opacity, transform: s3.transform, pointerEvents: s3.pointerEvents }}
