@@ -95,6 +95,7 @@ const CarouselNavDemo = lazy(() => import("./pages/CarouselNavDemo"));
 const FicheImmersive = lazy(() => import("./pages/FicheImmersive"));
 const Test = lazy(() => import("./pages/Home"));
 const HomeMindtrip = HomeMindtripEager;
+const HomeV1 = HomeV1Eager;
 const Install = lazy(() => import("./pages/Install"));
 const EmbedAsk = lazy(() => import("./pages/EmbedAsk"));
 const EmbedWeather = lazy(() => import("./pages/EmbedWeather"));
