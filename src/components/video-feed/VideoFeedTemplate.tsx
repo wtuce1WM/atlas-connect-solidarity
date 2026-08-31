@@ -337,6 +337,7 @@ const VideoFeedTemplate = ({
               returnContext={null}
               hideDirections={true}
               hideSecondaryCtas={true}
+              aiCtaDisabled
             />
           </Suspense>
         );

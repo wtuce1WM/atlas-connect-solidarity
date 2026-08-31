@@ -5357,7 +5357,7 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         onFeedYouTubeSelect={props.onFeedYouTubeSelect}
         selectedBadgeId={props.selectedBadgeId ?? null}
         aiMode={props.aiMode}
-        aiCtaDisabled={props.aiCtaDisabled}
+        aiCtaDisabled={props.aiCtaDisabled ?? true}
         roundedFrame={props.roundedFrame}
       />
     );
