@@ -21,6 +21,8 @@ import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
 import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 import FrontHeader from "@/components/front/FrontHeader";
+const EmbedAskInline = lazy(() => import("@/pages/EmbedAsk"));
+
 
 /** Vidéo de fond ré-encodée pour iOS Safari (yuv420p / Main / faststart).
  *  Servie par le CDN avec le MIME video/mp4 requis par Safari iOS. */
