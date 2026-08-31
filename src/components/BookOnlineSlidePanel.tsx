@@ -1542,10 +1542,9 @@ const BookOnlineSlidePanelInner = ({
 
       const onVolChange = () => {
         setVideoMuted(v.muted);
-        // Ne pas écraser la préférence utilisateur avec un mute automatique
-        // (fallback autoplay bloqué par le navigateur).
-        if (v.dataset.owmAutoMute) return;
-        setGlobalSoundOn(!v.muted);
+        // Le volumechange décrit l'état réel du lecteur, pas nécessairement un
+        // choix utilisateur (React, Safari et les fallbacks autoplay peuvent le
+        // déclencher). La préférence globale ne change que depuis les contrôles.
       };
       v.addEventListener("play", onPlay);
       v.addEventListener("pause", onPause);
@@ -2170,11 +2169,12 @@ const BookOnlineSlidePanelInner = ({
 
   // Video info via extracted hook
   // (globalSoundOn / setGlobalSoundOn hoisted earlier — see top of component)
-  // Force sound ON at slide panel mount (overrides any stored "off" preference).
-  // Defer while a blocking overlay is open — sound activates only once the card is closed,
-  // mirroring how video autoplay is neutralized during overlays.
+  // Force sound ON une seule fois à l'ouverture du slidepanel. Ne jamais le
+  // réactiver à chaque fermeture d'overlay : cela annulait un mute utilisateur.
+  const initialSoundAppliedRef = useRef(false);
   useEffect(() => {
-    if (mediaBlockingOverlayOpen) return;
+    if (mediaBlockingOverlayOpen || initialSoundAppliedRef.current) return;
+    initialSoundAppliedRef.current = true;
     setGlobalSoundOn(true);
   }, [setGlobalSoundOn, mediaBlockingOverlayOpen]);
 

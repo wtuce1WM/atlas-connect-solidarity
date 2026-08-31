@@ -43,10 +43,19 @@ const MediaBackground = React.memo(function MediaBackground({
     }
     delete v.dataset.owmUserPaused;
     v.muted = !soundOn;
+    let disposed = false;
     const attemptPlay = () => {
       const p = v.play();
       if (p && typeof p.catch === "function") {
-        p.catch(() => {
+        p.catch((error: unknown) => {
+          if (disposed) return;
+          // Un swipe rapide remplace la source pendant que play() est encore en
+          // attente. Safari renvoie alors AbortError : ce n'est pas un refus
+          // d'autoplay et il ne faut surtout pas basculer la vidéo en mute.
+          if ((error as { name?: string })?.name === "AbortError") {
+            window.setTimeout(() => { if (!disposed) attemptPlay(); }, 120);
+            return;
+          }
           // Only fall back to muted playback when the browser really blocked playback.
           // If the video is already playing, re-muting here would silently override the
           // user's explicit Mute/Sound choice (single source of truth = soundOn).
@@ -76,6 +85,7 @@ const MediaBackground = React.memo(function MediaBackground({
     const timers = [300, 900, 2000].map((ms) => window.setTimeout(recover, ms));
 
     const cleanupPlay = () => {
+      disposed = true;
       v.removeEventListener("canplay", recover);
       v.removeEventListener("loadeddata", recover);
       v.removeEventListener("pause", recover);
