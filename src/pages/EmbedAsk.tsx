@@ -3276,33 +3276,9 @@ const EmbedAsk = () => {
 
               })()}
 
-              {/* Feed vidéo curaté : miniatures 9/16, ouverture du slidepanel vidéo
-                  (swipe vertical) — même composant que /videos/:slug. */}
-              {videoFeedPayload && videoFeedPayload.videos.length > 0 && (() => {
-                // Fallback à la fermeture du lecteur : on réaffiche le carrousel
-                // avec TOUTES les vidéos déjà chargées (pagination du slidepanel
-                // incluse), pas seulement le premier lot du marqueur.
-                const loadedIsSameFeed =
-                  videoFeedList.length > videoFeedPayload.videos.length &&
-                  videoFeedList.some((v) => v.id === videoFeedPayload.videos[0].id);
-                const carouselVideos = loadedIsSameFeed ? videoFeedList : videoFeedPayload.videos;
-                return (
-                  <EmbedCardCarousel
-                    limit={carouselVideos.length}
-                    items={carouselVideos.map((v) => ({
-                      key: v.id,
-                      image: v.thumbnailUrl || null,
-                      title: v.title || v.businessName || "Vidéo",
-                      badge: v.businessName || null,
-                      onClick: () => {
-                        setVideoFeedList(carouselVideos);
-                        setFeedVideoTime(0);
-                        setActiveFeedVideoId(v.id);
-                      },
-                    }))}
-                  />
-                );
-              })()}
+              {/* Carousel miniatures supprimé : la réponse IA n'affiche plus le
+                  flux vidéo horizontalement ; le flux reste accessible via le
+                  slidepanel vidéo ouvert depuis VIDEO_FEED. */}
 
               {/* Article recommandé : jamais une réponse — simple option cliquable,
                   affichée APRÈS le carrousel de miniatures des résultats. */}
