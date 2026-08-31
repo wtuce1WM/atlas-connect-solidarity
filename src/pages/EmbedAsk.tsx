@@ -908,10 +908,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     }))
     .filter((s) => s.label);
   const hasUserMessages = messages.some((m) => m.role === "user");
-  // Signal « conversation ouverte » au host (Front masque le CUA0« Découvrez l'App »).
+  // Signal « conversation ouverte » au host (Front masque le CTA « Découvrez l'App »).
+  // On couvre tous les cas d'ouverture : question tapée, suggestion/badge cliqué
+  // (aucun message user), streaming en cours, conversation restaurée.
+  const conversationOpenSignal = hasUserMessages || streaming || messages.length > 1;
   useEffect(() => {
-    try { window.parent?.postMessage({ type: "owm-ask:conversation-open", open: hasUserMessages }, "*"); } catch { /* cross-origin */ }
-  }, [hasUserMessages]);
+    const payload = { type: "owm-ask:conversation-open", open: conversationOpenSignal };
+    try { window.postMessage(payload, "*"); } catch { /* noop */ }
+    try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
+  }, [conversationOpenSignal]);
+
   /** Option B : accueil IA plein écran (logo + champ central + chips) vs conversation. */
   const homeState = isPlatform && !hasUserMessages && !streaming && assistantReady && splashPhase === "done";
   
