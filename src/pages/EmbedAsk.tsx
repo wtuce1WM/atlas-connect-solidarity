@@ -2024,11 +2024,31 @@ const EmbedAsk = () => {
   const pendingSendRef = useRef<string | null>(null);
   /** Badge « Découvrez l'App » : demande le mode Demo à la page hôte (une seule fois par geste). */
   const demoMsgAtRef = useRef(0);
+  const demoAckRef = useRef(false);
+  useEffect(() => {
+    const onAck = (e: MessageEvent) => {
+      if ((e.data as { type?: string } | null)?.type === "owm-ask:demo-ack") demoAckRef.current = true;
+    };
+    window.addEventListener("message", onAck);
+    return () => window.removeEventListener("message", onAck);
+  }, []);
   const startDemoFromEmbed = () => {
     const now = Date.now();
-    if (now - demoMsgAtRef.current < 800) return;
+    if (now - demoMsgAtRef.current < 1200) return;
     demoMsgAtRef.current = now;
+    demoAckRef.current = false;
     try { window.parent?.postMessage({ type: "owm-ask:start-demo" }, "*"); } catch { /* cross-origin */ }
+    // Repli : si l'hôte n'accuse pas réception (listener absent, preview imbriqué…),
+    // on force le mode Demo par navigation même-origine de la page parente.
+    window.setTimeout(() => {
+      if (demoAckRef.current) return;
+      try {
+        const parentWin = window.parent;
+        if (parentWin && parentWin !== window && parentWin.location?.origin === window.location.origin) {
+          parentWin.location.href = "/?demo=1";
+        }
+      } catch { /* cross-origin : rien de plus à faire */ }
+    }, 700);
   };
   const startNewConversation = () => {
     try { window.parent?.postMessage({ type: "owm-ask:new-conversation" }, "*"); } catch { /* cross-origin */ }
