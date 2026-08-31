@@ -2352,6 +2352,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         origin={hostLocation ? { lat: hostLocation.lat, lng: hostLocation.lng } : null}
         lang={lang}
         rankOrder={rankOrder ?? null}
+        compact={anyPanelOpen}
         onOpen={(id, sib) => openOne(id, sib, null)}
         onOpenBooking={openBookingOverlay}
         footer={null}

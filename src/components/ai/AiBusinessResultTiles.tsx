@@ -25,6 +25,7 @@ interface Props {
   onOpenBooking?: (url: string, label: string) => void;
   footer?: React.ReactNode;
   max?: number;
+  compact?: boolean;
 }
 
 const L = {
@@ -59,28 +60,28 @@ function todayHours(b: AiResultBusiness): { label: string | null; isOpen: boolea
   return { label: label === "—" ? null : label, isOpen: isCurrentlyOpen(dh) };
 }
 
-/** Colonnes calculées sur la largeur réelle du conteneur (pas du viewport). */
-function useContainerColumns(ref: React.RefObject<HTMLDivElement>) {
+function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: boolean) {
   const [cols, setCols] = useState(2);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const compute = (w: number) => setCols(w < 300 ? 1 : w < 520 ? 2 : w < 820 ? 3 : 4);
+    const compute = (w: number) =>
+      setCols(compact ? (w < 300 ? 1 : 2) : w < 300 ? 1 : w < 520 ? 2 : w < 820 ? 3 : 4);
     compute(el.clientWidth);
     const ro = new ResizeObserver((entries) => {
       for (const e of entries) compute(e.contentRect.width);
     });
     ro.observe(el);
     return () => ro.disconnect();
-  }, [ref]);
+  }, [ref, compact]);
   return cols;
 }
 
 const AiBusinessResultTiles = ({
-  businesses, origin, lang = "fr", rankOrder, onOpen, onOpenBooking, footer, max = 20,
+  businesses, origin, lang = "fr", rankOrder, onOpen, onOpenBooking, footer, max = 20, compact = false,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const cols = useContainerColumns(wrapRef);
+  const cols = useContainerColumns(wrapRef, compact);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const t = L[(lang as keyof typeof L) in L ? (lang as keyof typeof L) : "fr"];
@@ -156,6 +157,40 @@ const AiBusinessResultTiles = ({
                 </span>
               ) : null}
 
+              {waHref || bookingUrl ? (
+                <div className="pointer-events-none absolute inset-x-0 top-2 z-[4] flex justify-center px-1.5">
+                  <div className="flex items-center gap-1.5">
+                    {waHref ? (
+                      <a
+                        href={waHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white shadow-lg"
+                        style={{ backgroundColor: "#25D366", ...AI_NAME_FONT }}
+                      >
+                        <WhatsAppIcon className="h-3 w-3" /> WhatsApp
+                      </a>
+                    ) : null}
+                    {bookingUrl ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenBooking
+                            ? onOpenBooking(bookingUrl, bookingLabel)
+                            : window.open(bookingUrl, "_blank", "noopener,noreferrer");
+                        }}
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white shadow-lg"
+                        style={{ backgroundColor: "#C04F17", ...AI_NAME_FONT }}
+                      >
+                        <CalendarCheck className="h-3 w-3" /> {bookingLabel}
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
+
               {/* Bloc info bas : nom, méta, hook 2 lignes + « … plus » (déplie dans la miniature). */}
               <div
                 className={`absolute inset-x-0 bottom-0 z-[2] flex flex-col gap-1 p-2.5 text-white ${
@@ -210,35 +245,6 @@ const AiBusinessResultTiles = ({
                   </>
                 ) : null}
 
-                {waHref || bookingUrl ? (
-                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                    {waHref ? (
-                      <a
-                        href={waHref}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`inline-flex items-center gap-1 rounded-full font-semibold text-white ${isOpenText ? "px-3 py-1.5 text-[13px]" : "px-2.5 py-1 text-[11px]"}`}
-                        style={{ backgroundColor: "#25D366", ...AI_NAME_FONT }}
-                      >
-                        <WhatsAppIcon className={isOpenText ? "h-4 w-4" : "h-3 w-3"} /> WhatsApp
-                      </a>
-                    ) : null}
-                    {bookingUrl ? (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          onOpenBooking
-                            ? onOpenBooking(bookingUrl, bookingLabel)
-                            : window.open(bookingUrl, "_blank", "noopener,noreferrer")
-                        }
-                        className={`inline-flex items-center gap-1 rounded-full font-semibold text-white ${isOpenText ? "px-3 py-1.5 text-[13px]" : "px-2.5 py-1 text-[11px]"}`}
-                        style={{ backgroundColor: "#C04F17", ...AI_NAME_FONT }}
-                      >
-                        <CalendarCheck className={isOpenText ? "h-4 w-4" : "h-3 w-3"} /> {bookingLabel}
-                      </button>
-                    ) : null}
-                  </div>
-                ) : null}
 
               </div>
             </div>
