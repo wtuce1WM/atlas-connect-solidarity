@@ -21,6 +21,27 @@ import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
 import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 import FrontHeader from "@/components/front/FrontHeader";
+import { getCached, setCached } from "@/lib/swrCache";
+
+/** Cache persistant de la première page du feed démo (/front → CTA Découvrez l'App). */
+const DEMO_FEED_CACHE_KEY = "front:demo:feed:v1";
+
+/** Préchargement du média de la première vidéo dès que la liste est connue. */
+const preloadFirstMedia = (item?: { url?: string | null; thumbnail_url?: string | null } | null) => {
+  if (!item) return;
+  try {
+    const thumb = (item as any).thumbnail_url || (item as any).thumbnail;
+    if (thumb) { const img = new Image(); img.src = String(thumb); }
+    const url = item.url ? String(item.url) : "";
+    if (url && /\.(mp4|webm|mov)(\?|$)/i.test(url)) {
+      const v = document.createElement("video");
+      v.preload = "auto";
+      v.muted = true;
+      v.src = url;
+      v.load();
+    }
+  } catch { /* best-effort */ }
+};
 const EmbedAskInline = lazy(() => import("@/pages/EmbedAsk"));
 
 
@@ -327,17 +348,40 @@ const Front = () => {
         setDemoTime(0);
         demoLoadingMoreRef.current = false;
         setDemoActiveId(cached.items[0].id);
+        preloadFirstMedia(cached.items[0] as any);
+        return;
+      }
+      // Cache persistant (localStorage) : affichage immédiat au retour sur la page,
+      // puis revalidation réseau en arrière-plan (stale-while-revalidate).
+      const persisted = getCached<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext }>(DEMO_FEED_CACHE_KEY);
+      if (persisted?.items?.length) {
+        demoSnapshotRef.current = persisted;
+        setDemoList(persisted.items.map(toPanelVideo));
+        setDemoCtx(persisted.ctx);
+        setDemoTime(0);
+        demoLoadingMoreRef.current = false;
+        setDemoActiveId(persisted.items[0].id);
+        preloadFirstMedia(persisted.items[0] as any);
+        void (async () => {
+          try {
+            const fresh = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
+            if (!fresh.items.length) return;
+            setCached(DEMO_FEED_CACHE_KEY, fresh);
+          } catch { /* silencieux */ }
+        })();
         return;
       }
       // Première page courte : affichage rapide, complément en arrière-plan.
       const { items, ctx } = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
       if (!items.length) { setDemoIntro(false); return; }
       demoSnapshotRef.current = { items, ctx };
+      setCached(DEMO_FEED_CACHE_KEY, { items, ctx });
       setDemoList(items.map(toPanelVideo));
       setDemoCtx(ctx);
       setDemoTime(0);
       demoLoadingMoreRef.current = false;
       setDemoActiveId(items[0].id);
+      preloadFirstMedia(items[0] as any);
       // Complément silencieux (page suivante) une fois le viewer visible.
       void (async () => {
         try {
