@@ -3317,22 +3317,21 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               {articleCard && !articleCard.inline && (
                 <a
                   {...articleLinkProps(articleCard)}
-                  className={`relative flex w-full max-w-[85%] gap-3 rounded-2xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
-                  style={cardStyle}
+                  className="relative flex w-fit max-w-full gap-3 rounded-2xl overflow-hidden bg-white text-black hover:opacity-95 transition-opacity"
                 >
                   {articleCard.image ? (
                     <img
                       src={articleCard.image}
                       alt=""
-                      className="w-24 h-24 min-w-24 object-cover flex-shrink-0 bg-neutral-800"
+                      className="w-24 h-24 min-w-24 object-cover flex-shrink-0"
                       loading="lazy"
                       onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = "hidden"; }}
                     />
                   ) : (
-                    <div className="w-24 h-24 min-w-24 bg-neutral-800 flex-shrink-0" />
+                    <div className="w-24 h-24 min-w-24 bg-neutral-200 flex-shrink-0" />
                   )}
                   <div className="flex-1 py-2 pr-3 flex flex-col justify-center gap-1">
-                    <span className="text-[10px] uppercase tracking-wide text-[#D4AF37] font-semibold">
+                    <span className="text-[10px] uppercase tracking-wide text-black/60 font-semibold">
                       {articleCard.kind === "video_feed"
                         ? (lang === "en" ? "Recommended video page" : lang === "ar" ? "صفحة فيديو موصى بها" : "Page vidéo recommandée")
                         : (lang === "en" ? "Recommended article" : lang === "ar" ? "مقال موصى به" : "Article recommandé")}
