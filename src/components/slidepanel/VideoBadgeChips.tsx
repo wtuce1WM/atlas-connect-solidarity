@@ -162,9 +162,9 @@ const VideoBadgeChips = ({
         );
       })()}
       {expanded && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-2">
+        <div className="grid grid-cols-3 gap-1 md:gap-2">
 
-          <div className="flex flex-wrap items-center justify-center gap-1.5 md:flex-col md:items-end md:justify-start md:gap-0.5">
+          <div className="flex flex-col items-center justify-start gap-0.5">
             {visibleLeftColumnBadges.filter(
               (b) => !(chipsBadges?.[0]?.id && b.id === chipsBadges[0].id)
             ).map((b) => {
@@ -198,7 +198,7 @@ const VideoBadgeChips = ({
               );
             })}
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-1.5 md:flex-col md:items-center md:justify-start md:gap-0.5">
+          <div className="flex flex-col items-center justify-start gap-0.5">
             {(() => {
               const firstVideoBadge = chipsBadges?.[0];
               const dynamicBadges = chipsBadges?.slice(1).filter((b) => {
