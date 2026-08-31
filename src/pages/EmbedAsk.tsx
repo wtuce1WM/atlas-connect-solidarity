@@ -74,6 +74,8 @@ const EmbedBookPanelWrapper = ({
   onNext,
   hasPrev,
   hasNext,
+  onFeedBadgeSelect,
+  onFeedCitySelect,
 }: {
   businessId: string;
   initialOverlay?: "reviews";
@@ -84,7 +86,11 @@ const EmbedBookPanelWrapper = ({
   onNext: () => void;
   hasPrev: boolean;
   hasNext: boolean;
+  /** Chips badges/ville de la vidéo : relancent le feed vidéo (même mécanisme que le viewer). */
+  onFeedBadgeSelect?: (badge: { id: string; name: string }) => void;
+  onFeedCitySelect?: (city: { id: string; name: string }) => void;
 }) => {
+
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const wheelAccumRef = useRef(0);
   const wheelLockUntilRef = useRef(0);
