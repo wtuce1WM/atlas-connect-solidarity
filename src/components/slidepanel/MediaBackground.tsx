@@ -41,22 +41,40 @@ const MediaBackground = React.memo(function MediaBackground({
       v.pause();
       return;
     }
+    delete v.dataset.owmUserPaused;
     v.muted = !soundOn;
-    const tryPlay = v.play();
-    if (tryPlay && typeof tryPlay.catch === "function") {
-      tryPlay.catch(() => {
-        // Only fall back to muted playback when the browser really blocked playback.
-        // If the video is already playing, re-muting here would silently override the
-        // user's explicit Mute/Sound choice (single source of truth = soundOn).
-        if (!v.paused) return;
-        v.dataset.owmAutoMute = "1";
-        v.muted = true;
-        v.play().catch(() => {});
-        // volumechange est asynchrone : on garde le drapeau assez longtemps
-        // pour que les listeners ne prennent pas ce mute automatique pour un choix utilisateur.
-        window.setTimeout(() => { delete v.dataset.owmAutoMute; }, 800);
-      });
-    }
+    const attemptPlay = () => {
+      const p = v.play();
+      if (p && typeof p.catch === "function") {
+        p.catch(() => {
+          // Only fall back to muted playback when the browser really blocked playback.
+          // If the video is already playing, re-muting here would silently override the
+          // user's explicit Mute/Sound choice (single source of truth = soundOn).
+          if (!v.paused) return;
+          v.dataset.owmAutoMute = "1";
+          v.muted = true;
+          v.play().catch(() => {});
+          // volumechange est asynchrone : on garde le drapeau assez longtemps
+          // pour que les listeners ne prennent pas ce mute automatique pour un choix utilisateur.
+          window.setTimeout(() => { delete v.dataset.owmAutoMute; }, 800);
+        });
+      }
+    };
+    attemptPlay();
+
+    // iOS/Safari met parfois la vidéo en pause lors d'un changement de source
+    // rapide (swipe entre fiches). On relance tant que l'utilisateur n'a pas
+    // explicitement appuyé sur Pause.
+    const recover = () => {
+      if (v.dataset.owmUserPaused === "1") return;
+      if (!v.paused) return;
+      attemptPlay();
+    };
+    v.addEventListener("canplay", recover);
+    v.addEventListener("loadeddata", recover);
+    v.addEventListener("pause", recover);
+    const timers = [300, 900, 2000].map((ms) => window.setTimeout(recover, ms));
+
 
 
     // If the browser forced mute (autoplay policy), unmute on the next user gesture.
