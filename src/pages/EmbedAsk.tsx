@@ -958,7 +958,7 @@ const EmbedAsk = () => {
   // `videoFeedCtx` porte le contexte de pagination (badges + seed du tirage au
   // sort côté base) pour charger les pages suivantes pendant le swipe.
   const [videoFeedList, setVideoFeedList] = useState<VideoFeedItem[]>([]);
-  const [videoFeedCtx, setVideoFeedCtx] = useState<{ badgeIds: string[]; seed: string; total: number } | null>(null);
+  const [videoFeedCtx, setVideoFeedCtx] = useState<{ badgeIds: string[]; seed: string; total: number; cityIds?: string[] | null } | null>(null);
   const feedLoadingMoreRef = useRef(false);
   const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
   const [feedVideoTime, setFeedVideoTime] = useState(0);
@@ -1873,6 +1873,7 @@ const EmbedAsk = () => {
         seed: ctx.seed,
         limit: 30,
         offset: videoFeedList.length,
+        cityIds: ctx.cityIds ?? null,
       });
       if (items.length) {
         setVideoFeedList((prev) => {
@@ -1896,7 +1897,7 @@ const EmbedAsk = () => {
       const { items, total } = await fetchBadgesVideoFeed([badge.id], { seed, limit: 60 });
       if (!items.length) return;
       setVideoFeedList(items);
-      setVideoFeedCtx({ badgeIds: [badge.id], seed, total });
+      setVideoFeedCtx({ badgeIds: [badge.id], seed, total, cityIds: null });
       setFeedVideoTime(0);
       feedLoadingMoreRef.current = false;
       setActiveFeedVideoId(items[0].id);
@@ -1904,6 +1905,31 @@ const EmbedAsk = () => {
       feedLoadingMoreRef.current = false;
     }
   }, []);
+
+  /** Clic sur une chip ville (colonne 3) → même feed badges filtré sur la ville. */
+  const selectFeedCity = useCallback(async (city: { id: string; name: string }) => {
+    const ctx = videoFeedCtx;
+    const badgeIds = ctx?.badgeIds ?? [];
+    if (!badgeIds.length) return;
+    feedLoadingMoreRef.current = true;
+    try {
+      const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
+      const seed = Math.random().toString(36).slice(2, 10);
+      const { items, total } = await fetchBadgesVideoFeed(badgeIds, {
+        seed,
+        limit: 60,
+        cityIds: [city.id],
+      });
+      if (!items.length) return;
+      setVideoFeedList(items);
+      setVideoFeedCtx({ badgeIds, seed, total, cityIds: [city.id] });
+      setFeedVideoTime(0);
+      feedLoadingMoreRef.current = false;
+      setActiveFeedVideoId(items[0].id);
+    } catch {
+      feedLoadingMoreRef.current = false;
+    }
+  }, [videoFeedCtx]);
 
 
 
@@ -3773,6 +3799,7 @@ const EmbedAsk = () => {
               hideSecondaryCtas
               aiCtaDisabled
               onBadgeSelect={(b: any) => { void selectFeedBadge(b); }}
+              onCitySelect={(c: any) => { void selectFeedCity(c); }}
             />
           </Suspense>
         );
