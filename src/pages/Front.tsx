@@ -736,6 +736,8 @@ const Front = () => {
           return (
             <button
               type="button"
+              onPointerEnter={prefetchDemo}
+              onTouchStart={prefetchDemo}
               onClick={(e) => {
                 e.stopPropagation();
                 startDemo();
