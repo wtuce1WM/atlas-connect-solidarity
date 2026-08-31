@@ -1998,6 +1998,43 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     }
   }, [videoFeedCtx, videoFeedList]);
 
+  /**
+   * Complète le feed jusqu'à son total (par pages de 30, plafond 180) : la fiche
+   * ouverte depuis la grille de résultats scrolle sur TOUT le feed du badge, pas
+   * seulement sur le premier lot chargé.
+   */
+  const completeVideoFeed = useCallback(async () => {
+    const ctx = videoFeedCtx;
+    if (!ctx || !ctx.badgeIds?.length || feedLoadingMoreRef.current) return;
+    if (videoFeedList.length >= Math.min(ctx.total, 180)) return;
+    feedLoadingMoreRef.current = true;
+    try {
+      const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
+      let offset = videoFeedList.length;
+      const cap = Math.min(ctx.total, 180);
+      while (offset < cap) {
+        const { items } = await fetchBadgesVideoFeed(ctx.badgeIds, {
+          seed: ctx.seed,
+          limit: 30,
+          offset,
+          cityIds: ctx.cityIds ?? null,
+        });
+        if (!items.length) break;
+        setVideoFeedList((prev) => {
+          const seen = new Set(prev.map((v) => v.id));
+          return [...prev, ...items.filter((it) => !seen.has(it.id))];
+        });
+        offset += items.length;
+      }
+    } catch {
+      /* best-effort : le feed reste utilisable */
+    } finally {
+      feedLoadingMoreRef.current = false;
+    }
+  }, [videoFeedCtx, videoFeedList]);
+
+
+
   /** Clic sur une chip badge dans le viewer → relance le feed sur ce badge. */
   const selectFeedBadge = useCallback(async (badge: { id: string; name: string }) => {
     feedLoadingMoreRef.current = true;
@@ -2297,6 +2334,38 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return out;
   }, [richByName]);
 
+  /**
+   * Établissements du FEED VIDÉO badges (mode `video_feed`), dans l'ordre du feed.
+   * Le scroll vertical de la fiche ouverte depuis la grille de résultats ne doit
+   * pas s'arrêter aux quelques résultats affichés : il parcourt tout le feed du
+   * badge, en commençant par les résultats affichés.
+   */
+  const feedBusinessIds = useMemo(() => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const v of videoFeedList) {
+      const bid = (v as { businessId?: string | null }).businessId;
+      if (!bid || seen.has(String(bid))) continue;
+      seen.add(String(bid));
+      out.push(String(bid));
+    }
+    return out;
+  }, [videoFeedList]);
+
+  /** Vidéo du feed par établissement : sert de repli à `badge_video_url`. */
+  const feedVideoUrlById = useMemo(() => {
+    const out: Record<string, string> = {};
+    for (const v of videoFeedList) {
+      const bid = (v as { businessId?: string | null }).businessId;
+      const url = (v as { url?: string | null }).url;
+      if (!bid || !url || out[String(bid)]) continue;
+      out[String(bid)] = String(url);
+    }
+    return out;
+  }, [videoFeedList]);
+
+
+
 
 
   // Les conversations sont conservées 7 jours : leurs anciens marqueurs SHOW_ON_MAP
@@ -2357,10 +2426,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       glovo_url: (business as MapPanelBusiness & { glovo_url?: string | null }).glovo_url || glovoUrlsById[business.id] || null,
     }));
     const openOne = (id: string, siblings: string[], overlay: "reviews" | null) => {
-      setOpenSiblings(siblings);
+      // Scroll vertical : résultats affichés d'abord, puis tout le feed vidéo du badge.
+      const seen = new Set(siblings);
+      const full = [...siblings, ...feedBusinessIds.filter((bid) => !seen.has(bid))];
+      setOpenSiblings(full);
       setOpenBusinessOverlay(overlay);
       setOpenBusinessId(id);
+      void completeVideoFeed();
     };
+
     return (
       // Grille de miniatures carrées : colonnes recalculées sur la largeur réelle
       // du conteneur (effet resize à l'ouverture du slidepanel vidéo).
@@ -3851,7 +3925,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             key={openBusinessId}
             businessId={openBusinessId}
             initialOverlay={openBusinessOverlay ?? undefined}
-            initialVideoUrl={badgeVideoUrlById[openBusinessId] || undefined}
+            initialVideoUrl={badgeVideoUrlById[openBusinessId] || feedVideoUrlById[openBusinessId] || undefined}
             onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); }}
             onPrev={goPrev}
             onNext={goNext}
