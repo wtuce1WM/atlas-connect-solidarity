@@ -174,6 +174,7 @@ const LocalizedRoutes = () => {
   return (
     <Routes location={routingLocation}>
               <Route path="/" element={renderLazyRoute(<HomeMindtrip />)} />
+              <Route path="/home_v1" element={renderLazyRoute(<HomeMindtrip />)} />
               <Route path="/videos" element={renderLazyRoute(<Test />)} />
               <Route path="/ancien-index" element={renderLazyRoute(<Index />)} />
               <Route path="/business/:slug" element={<BusinessRedirect />} />

@@ -24,6 +24,11 @@ export const DYNAMIC_PATTERNS = new Set([
   "/:vanitySlug",
 ]);
 
+const NOINDEX_PATTERNS = new Set<string>([
+  // Snapshot homepage — jamais indexée
+  "/home_v1",
+]);
+
 const PRIORITY_PATTERNS = Object.keys(PAGE_META)
   .filter((p) => p !== "*" && p !== "/:vanitySlug")
   .sort((a, b) => {
