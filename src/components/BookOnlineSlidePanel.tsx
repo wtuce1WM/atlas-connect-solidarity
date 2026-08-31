@@ -4943,11 +4943,10 @@ const BookOnlineSlidePanelInner = ({
               profileClubEvent="open-panel-club-popup"
               aiButtonActive={isAiOriginFiche && isDesktopSplit}
               onAiClick={() => {
-                // Fiche ouverte depuis l'assistant IA : pas de second assistant.
-                // Desktop (>=1024) : l'assistant est visible à gauche → aucune action.
-                // Mobile/tablette : on ferme la fiche pour revenir à l'assistant (conversation intacte).
+                // Fiche ouverte depuis l'assistant IA : on revient à l'assistant 1WM
+                // (conversation intacte) sur tous les formats d'écran.
                 if (isAiOriginFiche) {
-                  if (window.innerWidth < 1024) onClose?.();
+                  onClose?.();
                   return;
                 }
                 // CTA IA de la barre liquid glass : toujours ouvrir
