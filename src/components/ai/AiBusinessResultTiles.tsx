@@ -25,6 +25,7 @@ interface Props {
   onOpenBooking?: (url: string, label: string) => void;
   footer?: React.ReactNode;
   max?: number;
+  compact?: boolean;
 }
 
 const L = {
