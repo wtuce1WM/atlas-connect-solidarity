@@ -2522,7 +2522,7 @@ const EmbedAsk = () => {
               </div>
             </form>
 
-            <div className={`w-full ${isPlatform ? "" : "max-w-xl"} flex flex-wrap items-center justify-center gap-2`}>
+            <div className="w-full max-w-xl mx-auto flex flex-wrap items-center justify-center gap-2">
               {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
               {renderMapChip("home")}
               {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s) => {
