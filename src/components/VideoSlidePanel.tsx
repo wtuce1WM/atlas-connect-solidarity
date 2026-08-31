@@ -253,7 +253,7 @@ const VideoSlidePanel = ({
   /** Filtre `is_active_on_front` appliqué aussi à la colonne 1 : null tant que non chargé. */
   const [menuBadgeActive, setMenuBadgeActive] = useState<Record<string, boolean> | null>(null);
   useEffect(() => {
-    if (!open || !feedLayout) return;
+    if (!open) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
