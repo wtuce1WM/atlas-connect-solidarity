@@ -250,21 +250,32 @@ const VideoSlidePanel = ({
   useEffect(() => { setChipsExpanded(false); }, [videoId, videoUrl]);
   /** Couleurs des badges du menu fixe, lues en back-office (aucune couleur codée en dur). */
   const [menuBadgeColors, setMenuBadgeColors] = useState<Record<string, { color: string | null; textColor: string | null }>>({});
+  /** Filtre `is_active_on_front` appliqué aussi à la colonne 1 : null tant que non chargé. */
+  const [menuBadgeActive, setMenuBadgeActive] = useState<Record<string, boolean> | null>(null);
   useEffect(() => {
     if (!open || !feedLayout) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from("badges")
-        .select("id,color_hex,text_color_hex")
+        .select("id,color_hex,text_color_hex,is_active_on_front")
         .in("id", LEFT_COLUMN_BADGES.map((b) => b.id));
       if (cancelled || !data) return;
       const map: Record<string, { color: string | null; textColor: string | null }> = {};
-      for (const row of data as any[]) map[row.id] = { color: row.color_hex, textColor: row.text_color_hex };
+      const active: Record<string, boolean> = {};
+      for (const row of data as any[]) {
+        map[row.id] = { color: row.color_hex, textColor: row.text_color_hex };
+        active[row.id] = !!row.is_active_on_front;
+      }
       setMenuBadgeColors(map);
+      setMenuBadgeActive(active);
     })();
     return () => { cancelled = true; };
   }, [open, feedLayout]);
+  /** Colonne 1 filtrée sur is_active_on_front (tout afficher tant que non chargé). */
+  const visibleLeftColumnBadges = menuBadgeActive
+    ? LEFT_COLUMN_BADGES.filter((b) => menuBadgeActive[b.id])
+    : LEFT_COLUMN_BADGES;
 
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
