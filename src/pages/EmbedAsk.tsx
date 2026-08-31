@@ -3940,7 +3940,18 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             onNext={goNext}
             hasPrev={hasPrev}
             hasNext={hasNext}
+            onFeedBadgeSelect={(b) => {
+              setOpenBusinessId(null);
+              setOpenBusinessOverlay(null);
+              void selectFeedBadge(b);
+            }}
+            onFeedCitySelect={(c) => {
+              setOpenBusinessId(null);
+              setOpenBusinessOverlay(null);
+              void selectFeedCity(c);
+            }}
           />
+
         );
       })()}
 
