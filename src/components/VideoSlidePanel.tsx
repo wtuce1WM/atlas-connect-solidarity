@@ -307,9 +307,14 @@ const VideoSlidePanel = ({
     })();
     return () => { cancelled = true; };
   }, [open, videoId]);
-  const chipsBadges = (selfBadges && selfBadges.videoId === String(videoId ?? "")
-    ? selfBadges.badges
-    : feedBadges) ?? null;
+  const chipsBadges = useMemo(() => {
+    const out = new Map<string, { id: string; name: string; color?: string | null; text_color?: string | null }>();
+    for (const badge of feedBadges ?? []) out.set(badge.id, badge);
+    if (selfBadges?.videoId === String(videoId ?? "")) {
+      for (const badge of selfBadges.badges) out.set(badge.id, badge);
+    }
+    return out.size ? Array.from(out.values()) : null;
+  }, [feedBadges, selfBadges, videoId]);
 
 
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);

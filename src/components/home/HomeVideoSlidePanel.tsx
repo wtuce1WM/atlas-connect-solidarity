@@ -124,9 +124,14 @@ function HomeVideoSlidePanel<T extends VideoLike>({
     });
     return () => { cancelled = true; };
   }, [open, activeId]);
-  const resolvedBadges = fetchedBadges?.videoId === activeId
-    ? fetchedBadges.badges
-    : (activeVideo?.badges ?? null);
+  const resolvedBadges = useMemo(() => {
+    const out = new Map<string, FeedBadge>();
+    for (const badge of activeVideo?.badges ?? []) out.set(badge.id, badge);
+    if (fetchedBadges?.videoId === activeId) {
+      for (const badge of fetchedBadges.badges) out.set(badge.id, badge);
+    }
+    return out.size ? Array.from(out.values()) : null;
+  }, [activeId, activeVideo?.badges, fetchedBadges]);
 
   const goPrev = useCallback(() => {
     if (hasPrev) onActiveVideoChange(activeList[currentIndex - 1]);
