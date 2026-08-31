@@ -2478,7 +2478,7 @@ const EmbedAsk = () => {
 
             <form
               onSubmit={(e) => { e.preventDefault(); send(); }}
-              className={`w-full ${isPlatform ? "" : "max-w-xl"}`}
+              className="w-full max-w-xl mx-auto"
             >
               <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-3 shadow-2xl`}>
                 <textarea
@@ -2522,7 +2522,7 @@ const EmbedAsk = () => {
               </div>
             </form>
 
-            <div className={`w-full ${isPlatform ? "" : "max-w-xl"} flex flex-wrap items-center justify-center gap-2`}>
+            <div className="w-full max-w-xl mx-auto flex flex-wrap items-center justify-center gap-2">
               {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
               {renderMapChip("home")}
               {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s) => {
@@ -2546,7 +2546,7 @@ const EmbedAsk = () => {
                   type="button"
                   onClick={() => setShowAllSuggestions((v) => !v)}
                   className="text-[13px] font-bold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
-                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.02em", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37" }}
 
                 >
                   {showAllSuggestions
