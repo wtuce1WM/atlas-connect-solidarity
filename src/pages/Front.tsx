@@ -654,7 +654,7 @@ const Front = () => {
       <FrontHeader
         fixed
 
-        visible={!demoIntro && !askLocked}
+        visible={!demoIntro && !askLocked && !conversationOpen}
         onLogoClick={() => {
           if (window.location.pathname === "/") {
             window.location.reload();
