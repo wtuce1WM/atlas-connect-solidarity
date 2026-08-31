@@ -1409,9 +1409,15 @@ const EmbedAsk = () => {
     ro.observe(el);
     return () => { el.removeEventListener("scroll", compute); ro.disconnect(); };
   }, [messages, streaming, homeState, autoHeight]);
+  // Pendant un défilement déclenché par les boutons flottants, neutralise
+  // temporairement le « stick-to-bottom » : les images qui chargent en cours de
+  // scroll renvoyaient l'utilisateur en bas avant la fin du déplacement.
+  const stickSuppressUntilRef = useRef(0);
   const convScrollBy = (dir: 1 | -1) => {
     const el = scrollRef.current;
-    if (el) el.scrollBy({ top: dir * el.clientHeight * 0.85, behavior: "smooth" });
+    if (!el) return;
+    stickSuppressUntilRef.current = performance.now() + 1200;
+    el.scrollBy({ top: dir * el.clientHeight * 0.85, behavior: "smooth" });
   };
 
   /**
@@ -1428,6 +1434,7 @@ const EmbedAsk = () => {
     const stick = () => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
+        if (performance.now() < stickSuppressUntilRef.current) return;
         if (nearBottom()) el.scrollTo({ top: el.scrollHeight });
       });
     };
