@@ -547,11 +547,26 @@ const Front = () => {
         setMapOpen(false);
       } else if (e.data?.type === "owm-ask:start-demo") {
         // Badge « Découvrez l'App » de l'assistant embarqué : même action que le CTA Demo.
+        // On accuse réception pour que l'embed n'active pas son repli par navigation.
+        try { (e.source as Window | null)?.postMessage({ type: "owm-ask:demo-ack" }, "*"); } catch { /* cross-origin */ }
         startDemo();
       }
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
+  }, [startDemo]);
+
+  // Repli : arrivée sur /?demo=1 (badge « Découvrez l'App » sans hôte à l'écoute).
+  const demoParamHandledRef = useRef(false);
+  useEffect(() => {
+    if (demoParamHandledRef.current) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("demo") !== "1") return;
+    demoParamHandledRef.current = true;
+    params.delete("demo");
+    const qs = params.toString();
+    window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
+    startDemo();
   }, [startDemo]);
   const askLockedRef = useRef(false);
   askLockedRef.current = askLocked;
