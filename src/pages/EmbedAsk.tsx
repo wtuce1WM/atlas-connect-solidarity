@@ -2424,7 +2424,7 @@ const EmbedAsk = () => {
           : undefined
       }
     >
-      <div ref={setMainEl} className={autoHeight ? "flex flex-col" : "flex flex-col h-full"}>
+      <div ref={setMainEl} className={autoHeight ? "flex flex-col relative" : "flex flex-col h-full relative"}>
         {chromeOff ? null : (
         <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
         {inFloatingPanel && (
