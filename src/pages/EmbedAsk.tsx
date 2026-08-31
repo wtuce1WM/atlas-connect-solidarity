@@ -1032,12 +1032,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
   const [feedVideoTime, setFeedVideoTime] = useState(0);
 
-  // Signal « panneau vidéo ouvert/fermé » : l'hôte (/front) met sa vidéo de fond en pause.
+  // Signal « panneau ouvert/fermé » : l'hôte (/front) met sa vidéo de fond en pause.
+  // Couvre les DEUX parcours viewer : VideoSlidePanel (feed vidéo) ET
+  // BookOnlineSlidePanel (fiche business, carte des résultats, POI générique).
+  const anyPanelOpen = !!activeFeedVideoId || !!openBusinessId || !!openMap || openGenericPoi;
   useEffect(() => {
-    const payload = { type: "owm-ask:video-panel", open: !!activeFeedVideoId };
+    const payload = { type: "owm-ask:video-panel", open: anyPanelOpen };
     try { window.postMessage(payload, "*"); } catch { /* noop */ }
     try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
-  }, [activeFeedVideoId]);
+  }, [anyPanelOpen]);
 
   const [openSiblings, setOpenSiblings] = useState<string[]>([]);
   // Overlay de réservation déclenché par les liens "Réservez" du markdown IA.
