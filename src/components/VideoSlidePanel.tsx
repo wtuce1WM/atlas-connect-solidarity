@@ -1324,7 +1324,7 @@ const VideoSlidePanel = ({
         {(() => {
           // Vidéos liées au badge « Vente » : sans info prix, on affiche toujours
           // « Prix : nous consulter » (badge id 6ae94381-ec78-4165-80bd-26b2c56399a3).
-          const isVenteVideo = !!feedBadges?.some(
+          const isVenteVideo = !!chipsBadges?.some(
             (b) => b.id === "6ae94381-ec78-4165-80bd-26b2c56399a3",
           );
           const hasNoPriceInfo = price === undefined || price === null || !String(price).trim();
@@ -1338,7 +1338,7 @@ const VideoSlidePanel = ({
           const timeStr = eventId && eventInfo ? formatTimeRange(eventInfo.start_time, eventInfo.end_time) : null;
           const textShadow = "0 1px 2px rgba(0,0,0,0.4)";
           const showVideoName = !!videoName && !(isGeneric && social?.account && videoName === `@${social.account}`);
-          const isVenteVideo = !!feedBadges?.some(
+          const isVenteVideo = !!chipsBadges?.some(
             (b) => b.id === "6ae94381-ec78-4165-80bd-26b2c56399a3",
           );
           const hasNoPriceInfo = price === undefined || price === null || !String(price).trim();
@@ -1437,8 +1437,8 @@ const VideoSlidePanel = ({
               };
               const pick = (pinnedBadge
                 ? { id: pinnedBadge.id, name: pinnedBadge.name, color: pinnedBadge.color, text_color: pinnedBadge.textColor }
-                : feedBadges?.find((b) => hasSpecificColor(b.color)) || feedBadges?.[0]) || null;
-              const extra = (feedBadges?.length ?? 0) + visibleLeftColumnBadges.length + CITY_FEED_BADGES.length - (pick ? 1 : 0);
+                : chipsBadges?.find((b) => hasSpecificColor(b.color)) || chipsBadges?.[0]) || null;
+              const extra = (chipsBadges?.length ?? 0) + visibleLeftColumnBadges.length + CITY_FEED_BADGES.length - (pick ? 1 : 0);
               return (
                 <div className="flex justify-center">
                   <button
@@ -1463,7 +1463,7 @@ const VideoSlidePanel = ({
 
             <div className="flex flex-wrap items-center justify-center gap-1.5 md:flex-col md:items-end md:justify-start md:gap-0.5">
               {visibleLeftColumnBadges.filter(
-                (b) => !(feedBadges?.[0]?.id && b.id === feedBadges[0].id)
+                (b) => !(chipsBadges?.[0]?.id && b.id === chipsBadges[0].id)
               ).map((b) => {
                 const isSelected = selectedBadgeId && b.id === selectedBadgeId;
                 return (
@@ -1501,8 +1501,8 @@ const VideoSlidePanel = ({
             </div>
             <div className="flex flex-wrap items-center justify-center gap-1.5 md:flex-col md:items-center md:justify-start md:gap-0.5">
               {(() => {
-                const firstVideoBadge = feedBadges?.[0];
-                const dynamicBadges = feedBadges?.slice(1).filter((b) => {
+                const firstVideoBadge = chipsBadges?.[0];
+                const dynamicBadges = chipsBadges?.slice(1).filter((b) => {
                   const left = LEFT_COLUMN_BADGES.find((lb) => lb.id === b.id);
                   if (left) return false;
                   // Exclure aussi les badges dont le nom est identique à un label de gauche (insensible à la casse et aux accents)
