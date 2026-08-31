@@ -216,7 +216,7 @@ const AiBusinessResultCards = ({
                     {b.name}
                   </button>
 
-                  {hook ? <div className="text-[11.5px] leading-snug opacity-80 line-clamp-2">{hook}</div> : null}
+                  {hook ? <div className="text-[13.5px] leading-snug opacity-90 line-clamp-5">{hook}</div> : null}
 
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] opacity-75">
                     {loc ? (
