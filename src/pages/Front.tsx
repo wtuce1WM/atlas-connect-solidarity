@@ -545,11 +545,14 @@ const Front = () => {
         setMapOpen(true);
       } else if (e.data?.type === "owm-ask:map-closed") {
         setMapOpen(false);
+      } else if (e.data?.type === "owm-ask:start-demo") {
+        // Badge « Découvrez l'App » de l'assistant embarqué : même action que le CTA Demo.
+        startDemo();
       }
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, []);
+  }, [startDemo]);
   const askLockedRef = useRef(false);
   askLockedRef.current = askLocked;
 
