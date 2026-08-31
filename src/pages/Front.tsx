@@ -21,6 +21,27 @@ import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
 import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 import FrontHeader from "@/components/front/FrontHeader";
+import { getCached, setCached } from "@/lib/swrCache";
+
+/** Cache persistant de la première page du feed démo (/front → CTA Découvrez l'App). */
+const DEMO_FEED_CACHE_KEY = "front:demo:feed:v1";
+
+/** Préchargement du média de la première vidéo dès que la liste est connue. */
+const preloadFirstMedia = (item?: { url?: string | null; thumbnail_url?: string | null } | null) => {
+  if (!item) return;
+  try {
+    const thumb = (item as any).thumbnail_url || (item as any).thumbnail;
+    if (thumb) { const img = new Image(); img.src = String(thumb); }
+    const url = item.url ? String(item.url) : "";
+    if (url && /\.(mp4|webm|mov)(\?|$)/i.test(url)) {
+      const v = document.createElement("video");
+      v.preload = "auto";
+      v.muted = true;
+      v.src = url;
+      v.load();
+    }
+  } catch { /* best-effort */ }
+};
 const EmbedAskInline = lazy(() => import("@/pages/EmbedAsk"));
 
 
