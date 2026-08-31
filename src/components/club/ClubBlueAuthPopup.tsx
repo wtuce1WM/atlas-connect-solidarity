@@ -82,7 +82,7 @@ const ClubBlueAuthPopup = ({ onClose, children }: Props) => {
 
   return (
     <div
-      className="absolute inset-0 z-[90] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      className="absolute inset-0 z-[130] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
