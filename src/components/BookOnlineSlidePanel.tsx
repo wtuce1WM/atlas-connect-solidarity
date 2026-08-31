@@ -4925,7 +4925,6 @@ const BookOnlineSlidePanelInner = ({
           onExpandedChange={setChipsExpanded}
         />
 
-        />
       )}
       {/* Search bar */}
       {showSearchBar && !showPoiMapOverlay && !showDirections && !docOverlay && !showDescriptionOverlay && !showBookingOverlay && !showYoutubeOverlay && !selectedPoiBusinessId && (
