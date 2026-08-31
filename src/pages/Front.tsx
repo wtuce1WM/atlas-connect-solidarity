@@ -527,6 +527,9 @@ const Front = () => {
   // Une question lancée dans l'assistant IA de l'écran 1 neutralise le scroll
   // vers l'écran 2 (l'utilisateur lit sa réponse).
   const [askLocked, setAskLocked] = useState(false);
+  // Overlay Map ouvert depuis l'embed (ex. chip « Map » de l'accueil IA) :
+  // l'iframe passe en pleine largeur pour que le panneau soit collé à droite.
+  const [mapOpen, setMapOpen] = useState(false);
   const [askFrameReady, setAskFrameReady] = useState(false);
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
@@ -538,6 +541,10 @@ const Front = () => {
         // Nouvelle conversation : la lecture de la vidéo de fond reprend.
         const video = backgroundVideoRef.current;
         if (video?.paused) void video.play().catch(() => undefined);
+      } else if (e.data?.type === "owm-ask:map-open") {
+        setMapOpen(true);
+      } else if (e.data?.type === "owm-ask:map-closed") {
+        setMapOpen(false);
       }
     };
     window.addEventListener("message", onMsg);
