@@ -1967,6 +1967,10 @@ const VideoSlidePanel = ({
                   profileToTimelineClub
                   onOverlayChange={setSearchOverlayOpen}
                   onAiClick={() => {
+                    // Viewer ouvert depuis l'assistant IA (embed) : l'assistant est
+                    // déjà monté derrière → le CTA IA est neutralisé (pas de second
+                    // assistant business par-dessus l'assistant 1WM).
+                    if (aiCtaDisabled) return;
                     // Assistant IA en overlay : business de la vidéo, sinon dernier
                     // business consulté, sinon fallback sur l'onglet IA de /search.
                     // Mode plateforme : assistant 1WM global (sans hôte), le slug
