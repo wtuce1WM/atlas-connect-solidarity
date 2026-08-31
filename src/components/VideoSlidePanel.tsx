@@ -241,13 +241,13 @@ const VideoSlidePanel = ({
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
   const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
-  /** Chips badges : replié (1 seul badge) par défaut, déplié au clic. */
-  const [chipsExpanded, setChipsExpanded] = useState(false);
+  /** Feed : afficher immédiatement les badges liés à la vidéo. */
+  const [chipsExpanded, setChipsExpanded] = useState(feedLayout);
   // Badge épinglé par l'utilisateur : dernier badge sélectionné dans les chips.
   // Reste affiché comme badge vitrine (chips repliés) jusqu'à la sélection d'un autre badge.
   const [pinnedBadge, setPinnedBadge] = useState<{ id: string; name: string; color?: string | null; textColor?: string | null } | null>(null);
-  /** Au swipe vers une autre vidéo du feed, on replie les chips. */
-  useEffect(() => { setChipsExpanded(false); }, [videoId, videoUrl]);
+  /** Au swipe, chaque vidéo du feed affiche immédiatement ses propres badges. */
+  useEffect(() => { setChipsExpanded(feedLayout); }, [videoId, videoUrl, feedLayout]);
   /** Couleurs des badges du menu fixe, lues en back-office (aucune couleur codée en dur). */
   const [menuBadgeColors, setMenuBadgeColors] = useState<Record<string, { color: string | null; textColor: string | null }>>({});
   /** Filtre `is_active_on_front` appliqué aussi à la colonne 1 : null tant que non chargé. */
