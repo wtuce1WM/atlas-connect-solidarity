@@ -2697,7 +2697,9 @@ const BookOnlineSlidePanelInner = ({
       <div
         data-slidepanel-scroll="true"
         className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-16 md:p-6 md:pt-20 lg:pt-16 ${cardsHidden ? 'pb-0' : showSearchBar ? 'pb-[calc(96px+env(safe-area-inset-bottom))] md:pb-[95px]' : 'pb-[calc(2rem+env(safe-area-inset-bottom))]'} ${(effectiveMedia?.kind === "matterport" && cardsHidden) ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""} scrollbar-hide-mobile`}
-        style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
+        // Navigation verticale entre fiches disponible (feed/résultats IA) :
+        // on ne suit PAS le pouce — le fond reste fixe comme dans VideoSlidePanel.
+        style={isDragging && !(effectiveHasPrev || effectiveHasNext) ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
         onTouchStart={externalVideoInteractiveMode ? undefined : handleMediaTouchStart}
         onTouchMove={externalVideoInteractiveMode ? undefined : handleMediaTouchMove}
         onTouchEnd={externalVideoInteractiveMode ? undefined : handleMediaTouchEnd}
@@ -4941,11 +4943,10 @@ const BookOnlineSlidePanelInner = ({
               profileClubEvent="open-panel-club-popup"
               aiButtonActive={isAiOriginFiche && isDesktopSplit}
               onAiClick={() => {
-                // Fiche ouverte depuis l'assistant IA : pas de second assistant.
-                // Desktop (>=1024) : l'assistant est visible à gauche → aucune action.
-                // Mobile/tablette : on ferme la fiche pour revenir à l'assistant (conversation intacte).
+                // Fiche ouverte depuis l'assistant IA : on revient à l'assistant 1WM
+                // (conversation intacte) sur tous les formats d'écran.
                 if (isAiOriginFiche) {
-                  if (window.innerWidth < 1024) onClose?.();
+                  onClose?.();
                   return;
                 }
                 // CTA IA de la barre liquid glass : toujours ouvrir

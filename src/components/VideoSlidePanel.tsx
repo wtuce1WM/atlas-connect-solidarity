@@ -1738,18 +1738,12 @@ const VideoSlidePanel = ({
                   profileToTimelineClub
                   onOverlayChange={setSearchOverlayOpen}
                   onAiClick={() => {
-                    // Viewer ouvert depuis l'assistant IA (embed) : l'assistant est
-                    // déjà monté derrière → le CTA IA est neutralisé (pas de second
-                    // assistant business par-dessus l'assistant 1WM).
-                    if (aiCtaDisabled) return;
-                    // Assistant IA en overlay : business de la vidéo, sinon dernier
-                    // business consulté, sinon fallback sur l'onglet IA de /search.
-                    // Mode plateforme : assistant 1WM global (sans hôte), le slug
-                    // trouvé ne sert que de contexte de suggestions (`ctx`).
+                    // Le CTA IA liquid glass ramène TOUJOURS vers l'assistant IA 1WM
+                    // (version plateforme, jamais l'assistant business).
                     const slug = ctaBusiness?.slug
                       || recentBusinesses.find((b) => !b.isYoutubeChannel)?.slug
                       || null;
-                    if (aiMode === "platform") {
+                    if (aiCtaDisabled || aiMode === "platform") {
                       setAiSlug(null);
                       setAiPlatform(true);
                       setAiOverlayOpen(true);

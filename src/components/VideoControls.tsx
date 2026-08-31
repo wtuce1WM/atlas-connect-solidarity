@@ -34,8 +34,9 @@ const VideoControls = (props: VideoControlsProps) => {
           type="button"
           onClick={() => {
             if (videoRef.current) {
-              if (videoRef.current.paused) videoRef.current.play();
-              else videoRef.current.pause();
+              const v = videoRef.current;
+              if (v.paused) { delete v.dataset.owmUserPaused; v.play(); }
+              else { v.dataset.owmUserPaused = "1"; v.pause(); }
             }
           }}
           className={btnClass}
