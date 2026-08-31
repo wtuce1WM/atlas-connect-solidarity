@@ -1916,6 +1916,7 @@ const EmbedAsk = () => {
 
   const pendingSendRef = useRef<string | null>(null);
   const startNewConversation = () => {
+    try { window.parent?.postMessage({ type: "owm-ask:new-conversation" }, "*"); } catch { /* cross-origin */ }
     const pending = input.trim();
     try { window.localStorage.removeItem(storageKey); } catch { /* noop */ }
     restoredRef.current = false;
