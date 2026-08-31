@@ -133,7 +133,7 @@ const Front = () => {
     title: "One World Morocco — Local × Digital × Solidaire",
     description:
       "Une seule interface pour découvrir le Maroc authentique : adresses sélectionnées, Agent IA personnalisé et modèle solidaire sans commission.",
-    canonical: "/front",
+    canonical: "/",
   });
 
   // Chrome navigateur noir + annulation des paddings safe-area du body
