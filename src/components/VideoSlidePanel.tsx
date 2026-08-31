@@ -118,6 +118,8 @@ interface VideoSlidePanelProps {
   feedLayout?: boolean;
   /** Variante de l'assistant IA ouvert depuis la barre : business hôte (défaut) ou plateforme 1WM (sans ancrage) */
   aiMode?: "business" | "platform";
+  /** Désactive le CTA IA de la barre liquid glass (déjà dans l'assistant IA : pas de second assistant). */
+  aiCtaDisabled?: boolean;
 }
 
 /** Menu fixe de filtres : seuls les libellés sont figés, les couleurs viennent du back-office (table badges). */
@@ -210,6 +212,7 @@ const VideoSlidePanel = ({
     feedLayout = false,
     roundedFrame = false,
     aiMode = "business",
+    aiCtaDisabled = false,
   }: VideoSlidePanelProps) => {
 
 
@@ -1964,6 +1967,10 @@ const VideoSlidePanel = ({
                   profileToTimelineClub
                   onOverlayChange={setSearchOverlayOpen}
                   onAiClick={() => {
+                    // Viewer ouvert depuis l'assistant IA (embed) : l'assistant est
+                    // déjà monté derrière → le CTA IA est neutralisé (pas de second
+                    // assistant business par-dessus l'assistant 1WM).
+                    if (aiCtaDisabled) return;
                     // Assistant IA en overlay : business de la vidéo, sinon dernier
                     // business consulté, sinon fallback sur l'onglet IA de /search.
                     // Mode plateforme : assistant 1WM global (sans hôte), le slug

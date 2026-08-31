@@ -258,6 +258,8 @@ interface BookOnlineSlidePanelProps {
   selectedBadgeId?: string | null;
   /** Variante de l'assistant IA du viewer vidéo : business hôte (défaut) ou plateforme 1WM */
   aiMode?: "business" | "platform";
+  /** Désactive le CTA IA de la barre liquid glass du viewer vidéo (parcours assistant IA). */
+  aiCtaDisabled?: boolean;
   /** Auto-opens an overlay as soon as the data is ready (embed usage) */
   initialOverlay?: "poi" | "reviews" | "description";
   /** Fond du squelette de chargement : "dark" pour les contextes sombres (viewer vidéo /front) */
@@ -5355,6 +5357,7 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         onFeedYouTubeSelect={props.onFeedYouTubeSelect}
         selectedBadgeId={props.selectedBadgeId ?? null}
         aiMode={props.aiMode}
+        aiCtaDisabled={props.aiCtaDisabled}
         roundedFrame={props.roundedFrame}
       />
     );
