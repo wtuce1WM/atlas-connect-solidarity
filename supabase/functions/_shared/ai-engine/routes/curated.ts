@@ -12,7 +12,7 @@
 import { scrubNomadRows } from "../nomad-scope.ts";
 import { stripText } from "./nearby.ts";
 import { CTA_SELECT_FIELDS, ctaFieldsOf } from "./shared.ts";
-import { buildImmersiveLines, buildImmersiveBlock, type ImmersiveCtx } from "./immersive.ts";
+import { buildImmersiveLines, buildImmersivePhrases, buildImmersivePhrasesLocal, type ImmersiveCtx } from "./immersive.ts";
 import type { CompetitorGuard } from "./competitors.ts";
 import { resolveBadgeBusinessIds } from "./badgeVideoBusinesses.ts";
 
@@ -331,9 +331,13 @@ export type CuratedAnswer = {
 };
 
 
-function mapBusinessesOf(list: any[]) {
+function mapBusinessesOf(list: any[], phrases?: Map<string, string>) {
   // « Hors les murs » (Maps désactivée) : ni coordonnées, ni quartier.
-  return scrubNomadRows(list).map((b: any) => ({
+  return scrubNomadRows(list).map((b: any) => {
+    // Le descriptif immersif (celui rédigé pour la réponse) remplace le hook de
+    // la carte : plus de redondance texte/carte.
+    const phrase = phrases?.get(String(b.id)) || null;
+    return {
     id: b.id, slug: b.slug, name: b.name, city: b.city, neighborhood: b.neighborhood,
     address: b.address ?? null, main_category: b.main_category,
     categories: Array.isArray(b.categories) ? b.categories : [],
@@ -343,13 +347,16 @@ function mapBusinessesOf(list: any[]) {
     tripadvisor_rating: b.tripadvisor_rating, tripadvisor_review_count: b.tripadvisor_review_count,
     computed_rating: b.computed_rating ?? null, total_review_count: b.total_review_count ?? null,
     // Champs de la carte résultat IA (hook, horaires) — présentation unifiée côté client.
-    hook_fr: b.hook_fr ?? null, hook_en: b.hook_en ?? null, hook_ar: b.hook_ar ?? null,
+    hook_fr: phrase ?? b.hook_fr ?? null,
+    hook_en: phrase ?? b.hook_en ?? null,
+    hook_ar: phrase ?? b.hook_ar ?? null,
     opening_hours: b.opening_hours ?? null,
     is_open_24h: b.is_open_24h ?? null,
     show_opening_hours: b.show_opening_hours ?? null,
     ...ctaFieldsOf(b),
     engagements: b.engagements,
-  }));
+    };
+  });
 }
 
 
@@ -569,10 +576,20 @@ export async function buildPinnedAnswer(
       : `📍 C'est la sélection curatée complète${host?.city ? ` à ${host.city}` : ""} — tu veux la carte, les horaires, ou les liens de réservation ?`);
 
   const knownBusinesses = ordered.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name }));
-  const mapPayload = { title: label || null, businesses: mapBusinessesOf(ordered) };
 
-  // Émission anticipée : l'utilisateur voit l'en-tête et les cartes tout de suite,
-  // la réécriture immersive (plusieurs secondes) arrive ensuite dans le même flux.
+  // Descriptifs immersifs : version enrichie (corpus éditorial étendu + réécriture
+  // par lot) si un contexte est fourni, sinon zéro token. Ils remplacent le hook
+  // dans les cartes — la réponse texte ne les répète plus.
+  const phrases = overrides?.immersive
+    ? await buildImmersivePhrases(ordered, lang, overrides.immersive).catch((e) => {
+      console.error("[curated] immersive_rich_failed", String(e));
+      return buildImmersivePhrasesLocal(ordered, lang);
+    })
+    : buildImmersivePhrasesLocal(ordered, lang);
+
+  const mapPayload = { title: label || null, businesses: mapBusinessesOf(ordered, phrases) };
+
+  // Émission des cartes (déjà porteuses du descriptif immersif).
   if (overrides?.onCards) {
     try {
       await overrides.onCards({ heading, knownBusinesses, mapPayload });
@@ -581,18 +598,10 @@ export async function buildPinnedAnswer(
     }
   }
 
-  // Bloc immersif : version enrichie (corpus éditorial étendu + réécriture par
-  // lot) si un contexte est fourni, sinon zéro token.
-  const immersive = overrides?.immersive
-    ? await buildImmersiveBlock(ordered, lang, overrides.immersive).catch((e) => {
-      console.error("[curated] immersive_rich_failed", String(e));
-      return buildImmersiveLines(ordered, lang);
-    })
-    : buildImmersiveLines(ordered, lang);
-
   return {
-    text: (overrides?.onCards ? [immersive, outro] : [heading, immersive, outro])
+    text: (overrides?.onCards ? [outro] : [heading, outro])
       .filter((p) => p && String(p).trim()).join("\n\n"),
+
 
     knownBusinesses,
     mapPayload,

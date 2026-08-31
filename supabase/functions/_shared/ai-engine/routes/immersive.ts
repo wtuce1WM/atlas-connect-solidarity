@@ -386,17 +386,20 @@ export interface ImmersiveCtx {
 }
 
 /**
- * Bloc immersif enrichi : corpus étendu (TXT IA + highlights), sélection ciblée
- * par la question, et réécriture par lot en un seul appel quand c'est utile.
- * Dégrade toujours vers la version déterministe.
+ * Phrases immersives PAR ÉTABLISSEMENT (id → texte), sans en-tête (ni nom, ni
+ * note, ni quartier) : elles remplacent le hook des cartes résultat IA.
+ * Corpus étendu (TXT IA + highlights), sélection ciblée par la question, et
+ * réécriture par lot en un seul appel quand c'est utile. Dégrade toujours vers
+ * la version déterministe.
  */
-export async function buildImmersiveBlock(
+export async function buildImmersivePhrases(
   rows: any[],
   lang: Lang,
   ctx: ImmersiveCtx,
-): Promise<string> {
+): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
   const list = (Array.isArray(rows) ? rows : []).filter((b: any) => b?.name).slice(0, ctx.max ?? 10);
-  if (!list.length) return "";
+  if (!list.length) return out;
 
   let extras = new Map<string, Extras>();
   try {
@@ -421,10 +424,41 @@ export async function buildImmersiveBlock(
     }
   }
 
-  return list.map((b: any) => {
-    const head = headOf(b, lang);
+  for (const b of list) {
     const phrase = rewritten.get(String(b.id))
       || targetedPhrase(b, extras.get(String(b.id)), lang, keywords);
+    if (phrase) out.set(String(b.id), phrase);
+  }
+  return out;
+}
+
+/** Phrases immersives déterministes (zéro token), id → texte. */
+export function buildImmersivePhrasesLocal(rows: any[], lang: Lang, max = 10): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const b of (Array.isArray(rows) ? rows : []).slice(0, max)) {
+    if (!b?.name) continue;
+    const phrase = phraseOf(b, lang);
+    if (phrase) out.set(String(b.id), phrase);
+  }
+  return out;
+}
+
+/**
+ * Bloc immersif enrichi (texte markdown) — conservé pour les surfaces qui
+ * rendent encore le descriptif dans la réponse plutôt que dans les cartes.
+ */
+export async function buildImmersiveBlock(
+  rows: any[],
+  lang: Lang,
+  ctx: ImmersiveCtx,
+): Promise<string> {
+  const list = (Array.isArray(rows) ? rows : []).filter((b: any) => b?.name).slice(0, ctx.max ?? 10);
+  if (!list.length) return "";
+  const phrases = await buildImmersivePhrases(list, lang, ctx);
+  return list.map((b: any) => {
+    const head = headOf(b, lang);
+    const phrase = phrases.get(String(b.id));
     return phrase ? `${head}. ${phrase}` : `${head}.`;
   }).join("\n\n");
 }
+
