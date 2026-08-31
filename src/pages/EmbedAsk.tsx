@@ -1465,6 +1465,7 @@ const EmbedAsk = () => {
     const stick = () => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
+        if (stickDisabledRef.current) return;
         if (performance.now() < stickSuppressUntilRef.current) return;
         if (nearBottom()) el.scrollTo({ top: el.scrollHeight });
       });
