@@ -532,7 +532,7 @@ const Front = () => {
   // Overlay Map ouvert depuis l'embed (ex. chip « Map » de l'accueil IA) :
   // l'iframe passe en pleine largeur pour que le panneau soit collé à droite.
   const [mapOpen, setMapOpen] = useState(false);
-  const [askFrameReady, setAskFrameReady] = useState(false);
+  
   // Position du bas de la ligne de badges signalée par l'iframe (accueil IA) :
   // sert à placer « Découvrez l'App » à équidistance badges ↔ CTA Découvrir.
   const [askBadgesBottom, setAskBadgesBottom] = useState<number | null>(null);
