@@ -124,25 +124,6 @@ interface VideoSlidePanelProps {
   aiCtaDisabled?: boolean;
 }
 
-/** Menu fixe de filtres : seuls les libellés sont figés, les couleurs viennent du back-office (table badges). */
-const LEFT_COLUMN_BADGES = [
-  { id: "09c54af9-2263-4ee5-aaf4-43d520a95fdc", label: "Points d'intérêt" },
-  { id: "226a6dcd-f53b-4408-ac97-16d083cb4f98", label: "Guide" },
-  { id: "9c1409d9-1213-4a6f-9a2b-5984b9af227c", label: "Famille" },
-  { id: "645463af-f0a1-41f4-90c0-b79c5c74a09f", label: "Enfants" },
-  { id: "094e01b8-c2dc-47f8-838d-5bfd01d0eefc", label: "Annonces" },
-  { id: "4c5cb867-0a4e-4a44-bb4d-81f163116a54", label: "Immobilier" },
-  { id: "e042e0e8-e188-4f35-9cdd-282f8ddc5106", label: "Day Pass" },
-  { id: "651cb1af-63ee-4bc5-88cf-aea10a7d68c8", label: "Avis clients" },
-  { id: "50472b39-d364-497f-afe7-d2aa46eb92c9", label: "Agenda" },
-  { id: "3454814c-df50-414e-b5e1-70fc3976cb30", label: "Recettes" },
-];
-
-const CITY_FEED_BADGES = [
-  { id: "41545fd3-2c2c-4609-8d55-842fd7e2edde", name: "Marrakech" },
-  { id: "3f96c12a-0635-4f70-8de0-2578a66bcc07", name: "Essaouira" },
-];
-
 
 
 interface AgendaEvent {
