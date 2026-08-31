@@ -555,6 +555,8 @@ const Front = () => {
         // Nouvelle conversation : la lecture de la vidéo de fond reprend.
         const video = backgroundVideoRef.current;
         if (video?.paused) void video.play().catch(() => undefined);
+     } else if (e.data?.type === "owm-ask:conversation-open") {
+       setConversationOpen(!!e.data.open);
       } else if (e.data?.type === "owm-ask:suggestions-expanded") {
         setSuggestionsExpanded(!!e.data.expanded);
       } else if (e.data?.type === "owm-ask:map-open") {
