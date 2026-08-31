@@ -3372,6 +3372,18 @@ const EmbedAsk = () => {
         {error && <div className="text-xs text-red-500">{error}</div>}
       </div>
 
+      {/* Bouton flottant « haut » — desktop uniquement, quand la réponse déborde. */}
+      {!autoHeight && !homeState && convScroll.canUp && (
+        <button
+          type="button"
+          onClick={() => convScrollBy(-1)}
+          aria-label="Remonter dans la conversation"
+          className={`hidden md:flex absolute left-1/2 -translate-x-1/2 ${chromeOff ? "top-2" : "top-14"} z-30 h-9 w-9 items-center justify-center rounded-full bg-black/70 text-white shadow-lg backdrop-blur-sm hover:bg-black/85 transition-colors`}
+        >
+          <ChevronUp className="w-5 h-5" />
+        </button>
+      )}
+
 
 
 
