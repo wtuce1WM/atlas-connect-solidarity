@@ -590,7 +590,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const isPlatform = !slug && /^(1|true|platform)$/i.test(params.get("scope") || "");
   // Dans la Home, cette route vit dans une iframe. Si le preview est actualisé
   // directement sur son URL, proposer une sortie explicite sans modifier les embeds externes.
-  const isTopLevelPlatform = isPlatform && typeof window !== "undefined" && window.self === window.top;
+  const isTopLevelPlatform = isPlatform && !paramsOverride && typeof window !== "undefined" && window.self === window.top;
   const ctxSlug = isPlatform ? (params.get("ctx") || "").trim().slice(0, 120) : "";
   // Lien d'un article/page vidéo : en mode plateforme (pas de slug business),
   // route dédiée /embed/ask/article/:slug (même fenêtre, shell assistant) — jamais /blog/:slug.
