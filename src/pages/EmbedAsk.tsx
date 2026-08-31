@@ -41,7 +41,7 @@ const SUGG_MEM_CACHE = new Map<string, any[]>();
 
 
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
-import AiBusinessResultCards from "@/components/ai/AiBusinessResultCards";
+import AiBusinessResultTiles from "@/components/ai/AiBusinessResultTiles";
 import { AI_NAME_FONT } from "@/lib/aiTypography";
 import { Maximize2, X, Navigation, Clock, Star, Building2, Compass, CloudSun, MapPinned, Footprints, SlidersHorizontal } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
