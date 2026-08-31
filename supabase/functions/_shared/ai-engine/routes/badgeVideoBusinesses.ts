@@ -234,3 +234,66 @@ export async function resolveBadgeBusinessIds(
   return rows.slice(0, limit).map((b: any) => String(b.id));
 
 }
+
+/**
+ * Pour chaque établissement, l'URL de SA vidéo interne effectivement badgée
+ * (celle qui l'a fait entrer dans le corpus). Sert à ouvrir la fiche sur la
+ * bonne vidéo : sans ça, la fiche démarre sur sa première vidéo au tri interne,
+ * souvent sans rapport avec le badge de la suggestion.
+ *
+ * Ordre de préférence : `front_sort_order` puis `sort_order` (même ordre que
+ * la grille de la fiche). Vidéos internes uniquement (YouTube/génériques ne
+ * sont pas des médias de la fiche).
+ */
+export async function resolveBadgeVideoUrlByBusiness(
+  admin: any,
+  badgeIds: string[],
+  businessIds: string[],
+): Promise<Record<string, string>> {
+  const badges = (badgeIds || []).filter(Boolean);
+  const biz = [...new Set((businessIds || []).filter(Boolean).map(String))];
+  if (!badges.length || !biz.length) return {};
+
+  const { data: links, error: linkErr } = await admin
+    .from("business_document_badges")
+    .select("document_id")
+    .in("badge_id", badges)
+    .limit(5000);
+  if (linkErr) {
+    console.error("[badge-video] badged_docs_failed", linkErr.message);
+    return {};
+  }
+  const docIds = [...new Set((links || []).map((r: any) => String(r.document_id)))];
+  if (!docIds.length) return {};
+
+  const CHUNK = 80;
+  const rows: any[] = [];
+  for (let i = 0; i < docIds.length; i += CHUNK) {
+    const { data, error } = await admin
+      .from("business_documents")
+      .select("id, business_id, url, front_sort_order, sort_order")
+      .in("id", docIds.slice(i, i + CHUNK))
+      .eq("type", "video")
+      .eq("business_is_active", true);
+    if (error) {
+      console.error("[badge-video] badged_doc_urls_chunk_failed", error.message);
+      continue;
+    }
+    rows.push(...(data || []));
+  }
+
+  const wanted = new Set(biz);
+  const best = new Map<string, { url: string; f: number; s: number }>();
+  for (const r of rows) {
+    const bid = r?.business_id ? String(r.business_id) : "";
+    const url = String(r?.url || "");
+    if (!bid || !url || !wanted.has(bid)) continue;
+    const f = Number(r.front_sort_order ?? Number.MAX_SAFE_INTEGER);
+    const s = Number(r.sort_order ?? Number.MAX_SAFE_INTEGER);
+    const cur = best.get(bid);
+    if (!cur || f < cur.f || (f === cur.f && s < cur.s)) best.set(bid, { url, f, s });
+  }
+  const out: Record<string, string> = {};
+  for (const [bid, v] of best) out[bid] = v.url;
+  return out;
+}
