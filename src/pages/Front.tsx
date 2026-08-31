@@ -692,7 +692,8 @@ const Front = () => {
 
       {/* Mini-header pinné (identité + menu) — visible écrans 1 et 2, masqué pendant la démo */}
       <FrontHeader
-        fixed={false}
+        fixed
+
         visible={!demoIntro && !askLocked}
         onLogoClick={() => {
           if (window.location.pathname === "/") {
