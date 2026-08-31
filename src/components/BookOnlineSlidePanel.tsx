@@ -4912,6 +4912,7 @@ const BookOnlineSlidePanelInner = ({
           <div className="relative w-full h-full pointer-events-auto">
             <PanelSearchBar
               dockGroups
+              dockMobileCluster
 
               profileClubEvent="open-panel-club-popup"
               aiButtonActive={isAiOriginFiche && isDesktopSplit}
