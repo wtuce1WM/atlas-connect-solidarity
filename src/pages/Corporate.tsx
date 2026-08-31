@@ -167,7 +167,7 @@ const Corporate = () => {
       }
       if (rafRef.current !== null) return;
       const tick = () => {
-        currentRef.current += (targetRef.current - currentRef.current) * 0.24;
+        currentRef.current += (targetRef.current - currentRef.current) * 0.11;
         if (Math.abs(targetRef.current - currentRef.current) < 0.002) {
           currentRef.current = targetRef.current;
           setProgress(currentRef.current);
