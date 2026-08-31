@@ -2297,6 +2297,38 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return out;
   }, [richByName]);
 
+  /**
+   * Établissements du FEED VIDÉO badges (mode `video_feed`), dans l'ordre du feed.
+   * Le scroll vertical de la fiche ouverte depuis la grille de résultats ne doit
+   * pas s'arrêter aux quelques résultats affichés : il parcourt tout le feed du
+   * badge, en commençant par les résultats affichés.
+   */
+  const feedBusinessIds = useMemo(() => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const v of videoFeedList) {
+      const bid = (v as { businessId?: string | null }).businessId;
+      if (!bid || seen.has(String(bid))) continue;
+      seen.add(String(bid));
+      out.push(String(bid));
+    }
+    return out;
+  }, [videoFeedList]);
+
+  /** Vidéo du feed par établissement : sert de repli à `badge_video_url`. */
+  const feedVideoUrlById = useMemo(() => {
+    const out: Record<string, string> = {};
+    for (const v of videoFeedList) {
+      const bid = (v as { businessId?: string | null }).businessId;
+      const url = (v as { url?: string | null }).url;
+      if (!bid || !url || out[String(bid)]) continue;
+      out[String(bid)] = String(url);
+    }
+    return out;
+  }, [videoFeedList]);
+
+
+
 
 
   // Les conversations sont conservées 7 jours : leurs anciens marqueurs SHOW_ON_MAP
