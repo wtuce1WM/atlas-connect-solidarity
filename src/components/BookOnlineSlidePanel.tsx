@@ -4923,9 +4923,8 @@ const BookOnlineSlidePanelInner = ({
           badges={currentVideoBadges}
           expanded={chipsExpanded}
           onExpandedChange={setChipsExpanded}
-          onFeedBadgeSelect={props.onFeedBadgeSelect}
-          onFeedCitySelect={props.onFeedCitySelect}
-          selectedBadgeId={props.selectedBadgeId ?? null}
+        />
+
         />
       )}
       {/* Search bar */}
