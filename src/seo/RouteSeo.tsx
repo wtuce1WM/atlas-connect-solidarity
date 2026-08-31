@@ -83,6 +83,7 @@ export default function RouteSeo() {
       <html lang={currentLang} dir={currentLang === "ar" ? "rtl" : "ltr"} />
       <title>{meta.title}</title>
       <meta name="description" content={meta.description} />
+      {NOINDEX_PATTERNS.has(cleanPath) && <meta name="robots" content="noindex, nofollow" />}
       <link rel="canonical" href={url} />
       {hreflangs}
       <meta property="og:title" content={meta.title} />
