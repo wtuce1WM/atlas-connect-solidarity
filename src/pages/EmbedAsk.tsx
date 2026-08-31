@@ -32,6 +32,14 @@ const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlideP
 const LocationPickerDialog = lazy(() => import("@/components/LocationPickerDialog"));
 const YouTubeChannelsTabContent = lazy(() => import("@/pages/search/YouTubeChannelsTabContent"));
 
+/**
+ * Cache mémoire des suggestions (chips de l'accueil IA) : évite le placeholder
+ * « Chargement des suggestions… » lors des remontages de l'embed dans la même
+ * session. Le miroir localStorage assure l'affichage immédiat au premier rendu.
+ */
+const SUGG_MEM_CACHE = new Map<string, any[]>();
+
+
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 import AiBusinessResultCards from "@/components/ai/AiBusinessResultCards";
 import { AI_NAME_FONT } from "@/lib/aiTypography";
