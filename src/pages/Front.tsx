@@ -21,6 +21,8 @@ import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
 import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 import FrontHeader from "@/components/front/FrontHeader";
+const EmbedAskInline = lazy(() => import("@/pages/EmbedAsk"));
+
 
 /** Vidéo de fond ré-encodée pour iOS Safari (yuv420p / Main / faststart).
  *  Servie par le CDN avec le MIME video/mp4 requis par Safari iOS. */
@@ -530,7 +532,7 @@ const Front = () => {
   // Overlay Map ouvert depuis l'embed (ex. chip « Map » de l'accueil IA) :
   // l'iframe passe en pleine largeur pour que le panneau soit collé à droite.
   const [mapOpen, setMapOpen] = useState(false);
-  const [askFrameReady, setAskFrameReady] = useState(false);
+  
   // Position du bas de la ligne de badges signalée par l'iframe (accueil IA) :
   // sert à placer « Découvrez l'App » à équidistance badges ↔ CTA Découvrir.
   const [askBadgesBottom, setAskBadgesBottom] = useState<number | null>(null);
@@ -720,19 +722,15 @@ const Front = () => {
         aria-hidden={!!(demoActiveId || demoCardsOnly || !narrativeActive)}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Assistant IA — iframe /embed/embédée (chrome masqué, thème sombre) */}
+        {/* Assistant IA — monté directement (plus d'iframe : un seul bundle, pas de flash) */}
         <div className="flex h-full w-full flex-col">
-          <iframe
-            src="/embed/ask?scope=platform&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light"
-            title="Assistant IA"
-            className="h-full w-full flex-1 border-0 bg-transparent"
-            style={{
-              opacity: askFrameReady ? 1 : 0,
-              transition: "opacity 220ms ease-out",
-            }}
-            onLoad={() => setAskFrameReady(true)}
-          />
+          <div className="h-full w-full flex-1 bg-transparent">
+            <Suspense fallback={<div className="h-full w-full bg-transparent" />}>
+              <EmbedAskInline paramsOverride="scope=platform&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light" />
+            </Suspense>
+          </div>
         </div>
+
 
         {!askLocked && (() => {
           // Équidistance : le bouton est centré dans le gap entre la fin de la

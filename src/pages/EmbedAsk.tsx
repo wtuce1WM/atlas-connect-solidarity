@@ -542,10 +542,19 @@ const MarkdownLink = ({
 // pleine page). Consommé puis supprimé au retour.
 import { ARTICLE_THREAD_HANDOFF_KEY } from "@/lib/articleThreadHandoff";
 
-const EmbedAsk = () => {
+// `paramsOverride` : montage direct du composant (sans iframe) — la Home passe
+// la même query string que l'ancienne URL d'iframe (scope, theme, chrome…).
+const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const { slug = "" } = useParams();
-  const { params, businessId: widgetBusinessId, settings: widgetSettings, overlay } = useWidgetParams("ask", { slug });
+  const { params: urlParams, businessId: widgetBusinessId, settings: widgetSettings, overlay } = useWidgetParams("ask", { slug });
+  const params = useMemo(() => {
+    if (!paramsOverride) return urlParams;
+    const merged = new URLSearchParams(paramsOverride);
+    urlParams.forEach((v, k) => { if (!merged.has(k)) merged.set(k, v); });
+    return merged;
+  }, [paramsOverride, urlParams]);
   const lang = (["fr", "en", "ar"].includes(params.get("lang") || "") ? params.get("lang") : "fr") as "fr" | "en" | "ar";
+
   useWidgetTracking("ask", widgetBusinessId, lang);
   // Fond du widget :
   //   ?bg=EFE6D8       → l'assistant prend cette couleur (encre auto selon luminance)
@@ -581,7 +590,7 @@ const EmbedAsk = () => {
   const isPlatform = !slug && /^(1|true|platform)$/i.test(params.get("scope") || "");
   // Dans la Home, cette route vit dans une iframe. Si le preview est actualisé
   // directement sur son URL, proposer une sortie explicite sans modifier les embeds externes.
-  const isTopLevelPlatform = isPlatform && typeof window !== "undefined" && window.self === window.top;
+  const isTopLevelPlatform = isPlatform && !paramsOverride && typeof window !== "undefined" && window.self === window.top;
   const ctxSlug = isPlatform ? (params.get("ctx") || "").trim().slice(0, 120) : "";
   // Lien d'un article/page vidéo : en mode plateforme (pas de slug business),
   // route dédiée /embed/ask/article/:slug (même fenêtre, shell assistant) — jamais /blog/:slug.
