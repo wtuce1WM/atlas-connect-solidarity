@@ -1939,6 +1939,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       feedLoadingMoreRef.current = false;
       setFeedVideoTime(0);
       setActiveFeedVideoId(payload.videos[0].id);
+      preloadFirstFeedMedia(payload.videos[0]);
       return;
     }
   }, [messages, streaming]);
