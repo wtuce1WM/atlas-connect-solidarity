@@ -664,7 +664,26 @@ const EmbedAsk = () => {
 
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null; is_platform_visible?: boolean };
   type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null; city?: string | null; subcategory_ids?: string[] };
-  const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
+  // Affichage immédiat : les suggestions du dernier chargement sont relues
+  // synchrone (mémoire puis localStorage) pour que les chips soient peintes dès
+  // la première frame ; la requête réseau rafraîchit ensuite la liste.
+  const suggCacheKey = `owm-ask-sugg:${isPlatform ? "platform" : "host"}:${lang}`;
+  const readSuggCache = (): SuggestionRow[] | null => {
+    const mem = SUGG_MEM_CACHE.get(suggCacheKey);
+    if (mem) return mem;
+    try {
+      const raw = window.localStorage.getItem(suggCacheKey);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed) || parsed.length === 0) return null;
+      SUGG_MEM_CACHE.set(suggCacheKey, parsed);
+      return parsed as SuggestionRow[];
+    } catch {
+      return null;
+    }
+  };
+  const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(() => readSuggCache());
+
   // Splash d'accueil supprimé : la landing IA s'affiche immédiatement, sans
   // écran intermédiaire (grand message → petit message).
   const [splashPhase] = useState<"full" | "exit" | "done">("done");
