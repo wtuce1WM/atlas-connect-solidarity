@@ -317,14 +317,37 @@ const Front = () => {
     if (demoLoading) return;
     setDemoLoading(true);
     try {
-      const { fetchDiscoveryVideoFeed } = await import("@/lib/badgeVideoFeed");
-      const { items, ctx } = await fetchDiscoveryVideoFeed({ limit: 60, featuredAuthor: "Tarik Belasri" });
+      const mod = await import("@/lib/badgeVideoFeed");
+      // Cache mémoire : réouverture instantanée de la démo.
+      const cached = demoSnapshotRef.current;
+      if (cached && cached.items.length) {
+        setDemoList(cached.items.map(toPanelVideo));
+        setDemoCtx(cached.ctx);
+        setDemoTime(0);
+        demoLoadingMoreRef.current = false;
+        setDemoActiveId(cached.items[0].id);
+        return;
+      }
+      // Première page courte : affichage rapide, complément en arrière-plan.
+      const { items, ctx } = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
       if (!items.length) { setDemoIntro(false); return; }
+      demoSnapshotRef.current = { items, ctx };
       setDemoList(items.map(toPanelVideo));
       setDemoCtx(ctx);
       setDemoTime(0);
       demoLoadingMoreRef.current = false;
       setDemoActiveId(items[0].id);
+      // Complément silencieux (page suivante) une fois le viewer visible.
+      void (async () => {
+        try {
+          const more = await mod.fetchDiscoveryVideoFeedPage(ctx, items.length, 30);
+          if (!more.length) return;
+          setDemoList((prev) => {
+            const seen = new Set(prev.map((v) => v.id));
+            return [...prev, ...more.filter((it) => !seen.has(it.id)).map(toPanelVideo)];
+          });
+        } catch { /* silencieux */ }
+      })();
     } catch (e) {
       console.error("[front] openDemoFeed failed", e);
       setDemoIntro(false);
@@ -334,12 +357,20 @@ const Front = () => {
 
   }, [demoLoading]);
 
+  // Préchargement du module de feed (survol / idle sur le CTA démo).
+  const prefetchDemo = useCallback(() => {
+    void import("@/lib/badgeVideoFeed");
+  }, []);
+
   // Lancement direct de la démo sur l'assistant IA plateforme 1WM.
   const startDemo = useCallback(() => {
     setDemoAiMode("platform");
     setDemoIntro(true);
-    window.setTimeout(() => { void openDemoFeed(); }, reduced ? 0 : 700);
-  }, [openDemoFeed, reduced]);
+    // Fetch immédiat (plus d'attente de 700 ms) : l'animation d'intro et le
+    // chargement des vidéos se déroulent en parallèle.
+    void openDemoFeed();
+  }, [openDemoFeed]);
+
 
   const maybeLoadMoreDemo = useCallback(async (currentId: string) => {
     const ctx = demoCtx;
