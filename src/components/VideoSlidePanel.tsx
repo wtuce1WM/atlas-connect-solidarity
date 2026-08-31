@@ -271,11 +271,46 @@ const VideoSlidePanel = ({
       setMenuBadgeActive(active);
     })();
     return () => { cancelled = true; };
-  }, [open, feedLayout]);
+  }, [open]);
   /** Colonne 1 filtrée sur is_active_on_front (tout afficher tant que non chargé). */
   const visibleLeftColumnBadges = menuBadgeActive
     ? LEFT_COLUMN_BADGES.filter((b) => menuBadgeActive[b.id])
     : LEFT_COLUMN_BADGES;
+
+  /**
+   * Source de vérité unique des badges de la vidéo : lecture directe par ID
+   * dans les 3 tables de liaison, quel que soit le parcours d'ouverture
+   * (feed, suggestion badge, fiche business). Le prop `feedBadges` ne sert
+   * plus que de repli tant que la lecture n'est pas revenue.
+   */
+  const [selfBadges, setSelfBadges] = useState<{ videoId: string; badges: { id: string; name: string; color?: string | null; text_color?: string | null }[] } | null>(null);
+  useEffect(() => {
+    if (!open || !videoId) return;
+    let cancelled = false;
+    (async () => {
+      const badgeSelect = "badges!inner(id, name_fr, color_hex, text_color_hex, is_active_on_front)";
+      const [docs, gens, yts] = await Promise.all([
+        (supabase as any).from("business_document_badges").select(badgeSelect).eq("document_id", videoId),
+        (supabase as any).from("generic_video_badges").select(badgeSelect).eq("generic_video_id", videoId),
+        (supabase as any).from("business_youtube_video_badges").select(badgeSelect).eq("youtube_video_id", videoId),
+      ]);
+      if (cancelled) return;
+      const out = new Map<string, { id: string; name: string; color?: string | null; text_color?: string | null }>();
+      for (const res of [docs, gens, yts]) {
+        for (const row of ((res as any)?.data || []) as any[]) {
+          const b = row.badges;
+          if (!b?.id || !b.is_active_on_front) continue;
+          out.set(String(b.id), { id: String(b.id), name: String(b.name_fr || ""), color: b.color_hex ?? null, text_color: b.text_color_hex ?? null });
+        }
+      }
+      setSelfBadges({ videoId: String(videoId), badges: Array.from(out.values()) });
+    })();
+    return () => { cancelled = true; };
+  }, [open, videoId]);
+  const chipsBadges = (selfBadges && selfBadges.videoId === String(videoId ?? "")
+    ? selfBadges.badges
+    : feedBadges) ?? null;
+
 
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
