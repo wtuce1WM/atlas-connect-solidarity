@@ -331,9 +331,13 @@ export type CuratedAnswer = {
 };
 
 
-function mapBusinessesOf(list: any[]) {
+function mapBusinessesOf(list: any[], phrases?: Map<string, string>) {
   // « Hors les murs » (Maps désactivée) : ni coordonnées, ni quartier.
-  return scrubNomadRows(list).map((b: any) => ({
+  return scrubNomadRows(list).map((b: any) => {
+    // Le descriptif immersif (celui rédigé pour la réponse) remplace le hook de
+    // la carte : plus de redondance texte/carte.
+    const phrase = phrases?.get(String(b.id)) || null;
+    return {
     id: b.id, slug: b.slug, name: b.name, city: b.city, neighborhood: b.neighborhood,
     address: b.address ?? null, main_category: b.main_category,
     categories: Array.isArray(b.categories) ? b.categories : [],
@@ -343,13 +347,16 @@ function mapBusinessesOf(list: any[]) {
     tripadvisor_rating: b.tripadvisor_rating, tripadvisor_review_count: b.tripadvisor_review_count,
     computed_rating: b.computed_rating ?? null, total_review_count: b.total_review_count ?? null,
     // Champs de la carte résultat IA (hook, horaires) — présentation unifiée côté client.
-    hook_fr: b.hook_fr ?? null, hook_en: b.hook_en ?? null, hook_ar: b.hook_ar ?? null,
+    hook_fr: phrase ?? b.hook_fr ?? null,
+    hook_en: phrase ?? b.hook_en ?? null,
+    hook_ar: phrase ?? b.hook_ar ?? null,
     opening_hours: b.opening_hours ?? null,
     is_open_24h: b.is_open_24h ?? null,
     show_opening_hours: b.show_opening_hours ?? null,
     ...ctaFieldsOf(b),
     engagements: b.engagements,
-  }));
+    };
+  });
 }
 
 
