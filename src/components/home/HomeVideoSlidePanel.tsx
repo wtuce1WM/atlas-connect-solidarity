@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -119,20 +119,18 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   // Repli badges : si la vidéo active n'en porte pas, lecture directe par ID.
   const activeId = activeVideo?.id || null;
   const hasOwnBadges = !!(activeVideo?.badges && activeVideo.badges.length);
-  const [fetchedBadges, setFetchedBadges] = useState<FeedBadge[] | null>(null);
-  const lastFetchedRef = useRef<string | null>(null);
+  const [fetchedBadges, setFetchedBadges] = useState<{ videoId: string; badges: FeedBadge[] } | null>(null);
   useEffect(() => {
-    setFetchedBadges(null);
     if (!open || !activeId || hasOwnBadges) return;
-    if (lastFetchedRef.current === activeId) return;
-    lastFetchedRef.current = activeId;
     let cancelled = false;
     fetchVideoBadgesById(activeId).then((b) => {
-      if (!cancelled) setFetchedBadges(b);
+      if (!cancelled) setFetchedBadges({ videoId: activeId, badges: b });
     });
     return () => { cancelled = true; };
   }, [open, activeId, hasOwnBadges]);
-  const resolvedBadges = hasOwnBadges ? (activeVideo?.badges ?? null) : (fetchedBadges?.length ? fetchedBadges : null);
+  const resolvedBadges = hasOwnBadges
+    ? (activeVideo?.badges ?? null)
+    : (fetchedBadges?.videoId === activeId && fetchedBadges.badges.length ? fetchedBadges.badges : null);
 
   const goPrev = useCallback(() => {
     if (hasPrev) onActiveVideoChange(activeList[currentIndex - 1]);
