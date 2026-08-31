@@ -16,6 +16,7 @@ import { createPortal } from "react-dom";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 
 import PanelSearchBar from "@/components/PanelSearchBar";
+import { VIEWER_BAR_LAYOUT } from "@/components/slidepanel/viewerBarPreset";
 import VideoControls from "@/components/VideoControls";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { useNavigate } from "react-router-dom";
