@@ -299,6 +299,23 @@ const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
 const VIDEOFEED_RE = /<!--VIDEO_FEED:([\s\S]*?)-->/g;
 const TIDES_RE = /<!--TIDES_FORECAST:([\s\S]*?)-->/g;
 const COMPETITOR_GUARD_RE = /<!--COMPETITOR_GUARD_ACTIVE-->/;
+
+/** Préchargement best-effort du poster + flux de la 1re vidéo d'un feed curaté. */
+const preloadFirstFeedMedia = (item?: { url?: string | null; thumbnail_url?: string | null } | null) => {
+  if (!item) return;
+  try {
+    const thumb = (item as any).thumbnail_url || (item as any).thumbnail;
+    if (thumb) { const img = new Image(); img.src = String(thumb); }
+    const url = item.url ? String(item.url) : "";
+    if (url && /\.(mp4|webm|mov)(\?|$)/i.test(url)) {
+      const v = document.createElement("video");
+      v.preload = "auto";
+      v.muted = true;
+      v.src = url;
+      v.load();
+    }
+  } catch { /* best-effort */ }
+};
 const DEST_CHIPS_RE = /<!--DESTINATION_CHIPS:([\s\S]*?)-->/g;
 /** Widget de disponibilité hôtelière (suggestion back-office en mode `booking`). */
 const HOTEL_BOOKING_RE = /<!--HOTEL_BOOKING:([\s\S]*?)-->/g;
@@ -1939,6 +1956,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       feedLoadingMoreRef.current = false;
       setFeedVideoTime(0);
       setActiveFeedVideoId(payload.videos[0].id);
+      preloadFirstFeedMedia(payload.videos[0]);
       return;
     }
   }, [messages, streaming]);
