@@ -576,10 +576,20 @@ export async function buildPinnedAnswer(
       : `📍 C'est la sélection curatée complète${host?.city ? ` à ${host.city}` : ""} — tu veux la carte, les horaires, ou les liens de réservation ?`);
 
   const knownBusinesses = ordered.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name }));
-  const mapPayload = { title: label || null, businesses: mapBusinessesOf(ordered) };
 
-  // Émission anticipée : l'utilisateur voit l'en-tête et les cartes tout de suite,
-  // la réécriture immersive (plusieurs secondes) arrive ensuite dans le même flux.
+  // Descriptifs immersifs : version enrichie (corpus éditorial étendu + réécriture
+  // par lot) si un contexte est fourni, sinon zéro token. Ils remplacent le hook
+  // dans les cartes — la réponse texte ne les répète plus.
+  const phrases = overrides?.immersive
+    ? await buildImmersivePhrases(ordered, lang, overrides.immersive).catch((e) => {
+      console.error("[curated] immersive_rich_failed", String(e));
+      return buildImmersivePhrasesLocal(ordered, lang);
+    })
+    : buildImmersivePhrasesLocal(ordered, lang);
+
+  const mapPayload = { title: label || null, businesses: mapBusinessesOf(ordered, phrases) };
+
+  // Émission des cartes (déjà porteuses du descriptif immersif).
   if (overrides?.onCards) {
     try {
       await overrides.onCards({ heading, knownBusinesses, mapPayload });
@@ -588,18 +598,10 @@ export async function buildPinnedAnswer(
     }
   }
 
-  // Bloc immersif : version enrichie (corpus éditorial étendu + réécriture par
-  // lot) si un contexte est fourni, sinon zéro token.
-  const immersive = overrides?.immersive
-    ? await buildImmersiveBlock(ordered, lang, overrides.immersive).catch((e) => {
-      console.error("[curated] immersive_rich_failed", String(e));
-      return buildImmersiveLines(ordered, lang);
-    })
-    : buildImmersiveLines(ordered, lang);
-
   return {
-    text: (overrides?.onCards ? [immersive, outro] : [heading, immersive, outro])
+    text: (overrides?.onCards ? [outro] : [heading, outro])
       .filter((p) => p && String(p).trim()).join("\n\n"),
+
 
     knownBusinesses,
     mapPayload,
