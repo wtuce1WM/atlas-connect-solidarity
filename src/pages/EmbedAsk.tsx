@@ -2022,6 +2022,15 @@ const EmbedAsk = () => {
   const voiceActive = voice.status === "recording" || voice.status === "processing";
 
   const pendingSendRef = useRef<string | null>(null);
+  /** Badge « Découvrez l'App » : demande le mode Demo à la page hôte (une seule fois par geste). */
+  const demoMsgAtRef = useRef(0);
+  const startDemoFromEmbed = () => {
+    const now = Date.now();
+    if (now - demoMsgAtRef.current < 800) return;
+    demoMsgAtRef.current = now;
+    try { window.parent?.postMessage({ type: "owm-ask:start-demo" }, "*"); } catch { /* cross-origin */ }
+    try { window.top?.postMessage({ type: "owm-ask:start-demo" }, "*"); } catch { /* cross-origin */ }
+  };
   const startNewConversation = () => {
     try { window.parent?.postMessage({ type: "owm-ask:new-conversation" }, "*"); } catch { /* cross-origin */ }
     const pending = input.trim();
