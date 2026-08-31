@@ -666,7 +666,17 @@ const Front = () => {
       />
 
       {/* Mini-header pinné (identité + menu) — visible écrans 1 et 2, masqué pendant la démo */}
-      <FrontHeader fixed={false} visible={!demoIntro} />
+      <FrontHeader
+        fixed={false}
+        visible={!demoIntro}
+        onLogoClick={() => {
+          if (window.location.pathname === "/") {
+            window.location.reload();
+          } else {
+            window.location.assign("/");
+          }
+        }}
+      />
 
 
       {/* Bloc central — 3 sections égales entre header et CTA Découvrir */}
