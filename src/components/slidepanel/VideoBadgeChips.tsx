@@ -292,7 +292,7 @@ const VideoBadgeChips = ({
               );
             })()}
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-1.5 md:flex-col md:items-start md:justify-start">
+          <div className="flex flex-col items-center justify-start gap-0.5">
             {CITY_FEED_BADGES.map((city) => (
               <button
                 key={city.id}
