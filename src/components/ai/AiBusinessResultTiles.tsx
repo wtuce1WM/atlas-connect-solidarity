@@ -157,6 +157,41 @@ const AiBusinessResultTiles = ({
                 </span>
               ) : null}
 
+              {waHref || bookingUrl ? (
+                <div className="pointer-events-none absolute inset-x-0 top-2 z-[4] flex justify-center px-1.5">
+                  <div className="flex items-center gap-1.5">
+                    {wa
+Href ? (
+                      <a
+                        href={waHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white shadow-lg"
+                        style={{ backgroundColor: "#25D366", ...AI_NAME_FONT }}
+                      >
+                        <WhatsAppIcon className="h-3 w-3" /> WhatsApp
+                      </a>
+                    ) : null}
+                    {bookingUrl ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenBooking
+                            ? onOpenBooking(bookingUrl, bookingLabel)
+                            : window.open(bookingUrl, "_blank", "noopener,noreferrer");
+                        }}
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white shadow-lg"
+                        style={{ backgroundColor: "#C04F17", ...AI_NAME_FONT }}
+                      >
+                        <CalendarCheck className="h-3 w-3" /> {bookingLabel}
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
+
               {/* Bloc info bas : nom, méta, hook 2 lignes + « … plus » (déplie dans la miniature). */}
               <div
                 className={`absolute inset-x-0 bottom-0 z-[2] flex flex-col gap-1 p-2.5 text-white ${
