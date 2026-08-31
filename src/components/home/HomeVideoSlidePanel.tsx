@@ -8,12 +8,10 @@ type FeedBadge = { id: string; name: string; color?: string | null; text_color?:
  * Repli « ID vidéo → badges » : certaines sources de feed ne joignent pas les
  * badges à la vidéo. On les lit ici directement par ID vidéo dans les 3 tables
  * de liaison (interne / générique / YouTube), filtrés `is_active_on_front`.
- * Résultats mis en cache par ID pour éviter les requêtes au swipe.
+ * Cette lecture directe fait autorité : le payload du feed peut ne contenir
+ * qu'un sous-ensemble des badges liés à la vidéo.
  */
-const videoBadgesCache = new Map<string, FeedBadge[]>();
 async function fetchVideoBadgesById(videoId: string): Promise<FeedBadge[]> {
-  const cached = videoBadgesCache.get(videoId);
-  if (cached) return cached;
   const badgeSelect = "badges!inner(id, name_fr, color_hex, text_color_hex, is_active_on_front)";
   const [docs, gens, yts] = await Promise.all([
     (supabase as any).from("business_document_badges").select(badgeSelect).eq("document_id", videoId),
@@ -33,9 +31,7 @@ async function fetchVideoBadgesById(videoId: string): Promise<FeedBadge[]> {
       });
     }
   }
-  const badges = Array.from(out.values());
-  videoBadgesCache.set(videoId, badges);
-  return badges;
+  return Array.from(out.values());
 }
 
 interface VideoLike {
@@ -116,21 +112,21 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex >= 0 && currentIndex < activeList.length - 1;
 
-  // Repli badges : si la vidéo active n'en porte pas, lecture directe par ID.
+  // Source de vérité badges : lecture directe à chaque vidéo active. Le feed
+  // peut fournir un tableau partiel (par exemple uniquement le badge filtrant).
   const activeId = activeVideo?.id || null;
-  const hasOwnBadges = !!(activeVideo?.badges && activeVideo.badges.length);
   const [fetchedBadges, setFetchedBadges] = useState<{ videoId: string; badges: FeedBadge[] } | null>(null);
   useEffect(() => {
-    if (!open || !activeId || hasOwnBadges) return;
+    if (!open || !activeId) return;
     let cancelled = false;
     fetchVideoBadgesById(activeId).then((b) => {
       if (!cancelled) setFetchedBadges({ videoId: activeId, badges: b });
     });
     return () => { cancelled = true; };
-  }, [open, activeId, hasOwnBadges]);
-  const resolvedBadges = hasOwnBadges
-    ? (activeVideo?.badges ?? null)
-    : (fetchedBadges?.videoId === activeId && fetchedBadges.badges.length ? fetchedBadges.badges : null);
+  }, [open, activeId]);
+  const resolvedBadges = fetchedBadges?.videoId === activeId
+    ? fetchedBadges.badges
+    : (activeVideo?.badges ?? null);
 
   const goPrev = useCallback(() => {
     if (hasPrev) onActiveVideoChange(activeList[currentIndex - 1]);
