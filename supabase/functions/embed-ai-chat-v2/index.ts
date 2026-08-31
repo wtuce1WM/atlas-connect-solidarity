@@ -871,6 +871,9 @@ Deno.serve(async (req) => {
               label: curated.label,
               lang: lang as any,
               city: scopeCity,
+              // 1er lot à 30 (comme le feed Demo) : ouverture plus rapide,
+              // la pagination RPC recharge les lots suivants par 30.
+              max: 30,
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] video_feed_failed", String(e));
               return null;
