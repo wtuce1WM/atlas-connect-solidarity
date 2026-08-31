@@ -73,6 +73,7 @@ import PhoneMockupFrame from "@/components/PhoneMockupFrame";
 import SoundCloudOverlay from "@/components/overlays/SoundCloudOverlay";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import { VIEWER_BAR_LAYOUT } from "@/components/slidepanel/viewerBarPreset";
 
 
 import { useHotelAvailability } from "@/hooks/useHotelAvailability";
@@ -4911,9 +4912,7 @@ const BookOnlineSlidePanelInner = ({
         <div className={`absolute pointer-events-none ${searchOverlayActive ? "inset-0 left-0 translate-x-0 w-full max-w-none z-[90]" : "bottom-0 left-1/2 -translate-x-1/2 w-[96%] sm:w-[94%] max-w-[540px] z-[85]"}`}>
           <div className="relative w-full h-full pointer-events-auto">
             <PanelSearchBar
-              dockGroups
-              dockMobileCluster
-
+              {...VIEWER_BAR_LAYOUT}
               profileClubEvent="open-panel-club-popup"
               aiButtonActive={isAiOriginFiche && isDesktopSplit}
               onAiClick={() => {
@@ -4930,7 +4929,6 @@ const BookOnlineSlidePanelInner = ({
                 setAiAssistantPlatform(true);
                 setAiAssistantOpen(true);
               }}
-              iconVariant="black"
               onSearch={onSearch}
               onBusinessSelect={onSearchBusinessSelect}
               onHotelSearch={onHotelSearch}
