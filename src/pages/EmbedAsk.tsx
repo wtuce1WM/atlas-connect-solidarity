@@ -9,7 +9,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus, Bed, Utensils, Wine, Coffee, ShoppingBag, Sparkles, Landmark, Camera, Play, Pause, Volume2, VolumeX, Mic, MicOff, Loader2, ChevronUp, ChevronDown, Home } from "lucide-react";
+import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus, Bed, Utensils, Wine, Coffee, ShoppingBag, Sparkles, Landmark, Camera, Play, Pause, Volume2, VolumeX, Mic, MicOff, Loader2, ChevronUp, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { embedBusinessQuery } from "@/lib/embedBusinessQuery";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
@@ -2570,19 +2570,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       }
     >
       <div ref={setMainEl} className={autoHeight ? "flex flex-col relative" : "flex flex-col h-full relative"}>
-        {isTopLevelPlatform && (
-          <button
-            type="button"
-            onClick={() => window.location.assign("/")}
-            aria-label="Revenir à la page d'accueil"
-            title="Revenir à la page d'accueil"
-            className="fixed left-3 top-3 z-[300] inline-flex h-10 items-center gap-2 rounded-full border border-white/25 bg-black/75 px-3 text-xs font-bold text-white shadow-lg backdrop-blur-md hover:bg-black/90"
-            style={{ fontFamily: "'Montserrat', sans-serif" }}
-          >
-            <Home className="h-4 w-4" />
-            Accueil
-          </button>
-        )}
         {chromeOff ? null : (
         <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
         {inFloatingPanel && (
