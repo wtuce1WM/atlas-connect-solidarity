@@ -1309,7 +1309,11 @@ const EmbedAsk = () => {
     // Sans cela on retombait sur la liste de secours codée en dur (4 puces).
     // Le filtre ville/catégorie n'est appliqué que si un contexte existe.
     let cancelled = false;
-    setDbSuggestions(null);
+    // On garde la liste en cache affichée pendant le rafraîchissement réseau :
+    // remettre `null` ici ferait clignoter le placeholder de chargement.
+    const cachedNow = readSuggCache();
+    if (!cachedNow) setDbSuggestions(null);
+
     const loadingTimeout = window.setTimeout(() => {
       if (!cancelled) setDbSuggestions([]);
     }, 8000);
