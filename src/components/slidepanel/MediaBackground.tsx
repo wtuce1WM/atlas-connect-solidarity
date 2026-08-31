@@ -75,10 +75,15 @@ const MediaBackground = React.memo(function MediaBackground({
     v.addEventListener("pause", recover);
     const timers = [300, 900, 2000].map((ms) => window.setTimeout(recover, ms));
 
-
+    const cleanupPlay = () => {
+      v.removeEventListener("canplay", recover);
+      v.removeEventListener("loadeddata", recover);
+      v.removeEventListener("pause", recover);
+      timers.forEach((t) => window.clearTimeout(t));
+    };
 
     // If the browser forced mute (autoplay policy), unmute on the next user gesture.
-    if (!soundOn) return;
+    if (!soundOn) return cleanupPlay;
     const tryUnmute = () => {
       if (!v.muted) return;
       v.muted = false;
@@ -89,6 +94,7 @@ const MediaBackground = React.memo(function MediaBackground({
     document.addEventListener("touchstart", tryUnmute, opts);
     document.addEventListener("keydown", tryUnmute, opts);
     return () => {
+      cleanupPlay();
       document.removeEventListener("pointerdown", tryUnmute, true);
       document.removeEventListener("touchstart", tryUnmute, true);
       document.removeEventListener("keydown", tryUnmute, true);
