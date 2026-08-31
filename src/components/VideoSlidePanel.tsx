@@ -1403,7 +1403,7 @@ const VideoSlidePanel = ({
               const pick = (pinnedBadge
                 ? { id: pinnedBadge.id, name: pinnedBadge.name, color: pinnedBadge.color, text_color: pinnedBadge.textColor }
                 : feedBadges?.find((b) => hasSpecificColor(b.color)) || feedBadges?.[0]) || null;
-              const extra = (feedBadges?.length ?? 0) + LEFT_COLUMN_BADGES.length + CITY_FEED_BADGES.length - (pick ? 1 : 0);
+              const extra = (feedBadges?.length ?? 0) + visibleLeftColumnBadges.length + CITY_FEED_BADGES.length - (pick ? 1 : 0);
               return (
                 <div className="flex justify-center">
                   <button
@@ -1427,7 +1427,7 @@ const VideoSlidePanel = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-2">
 
             <div className="flex flex-wrap items-center justify-center gap-1.5 md:flex-col md:items-end md:justify-start md:gap-0.5">
-              {LEFT_COLUMN_BADGES.filter(
+              {visibleLeftColumnBadges.filter(
                 (b) => !(feedBadges?.[0]?.id && b.id === feedBadges[0].id)
               ).map((b) => {
                 const isSelected = selectedBadgeId && b.id === selectedBadgeId;
