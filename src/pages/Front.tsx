@@ -361,6 +361,7 @@ const Front = () => {
         setDemoTime(0);
         demoLoadingMoreRef.current = false;
         setDemoActiveId(persisted.items[0].id);
+        preloadFirstMedia(persisted.items[0] as any);
         void (async () => {
           try {
             const fresh = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
