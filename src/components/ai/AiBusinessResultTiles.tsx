@@ -165,42 +165,44 @@ const AiBusinessResultTiles = ({
                 <button
                   type="button"
                   onClick={() => onOpen(b.id, siblings)}
-                  className="text-left text-[13.5px] font-bold leading-tight line-clamp-2 underline decoration-dotted underline-offset-2"
+                  className={`text-left font-bold leading-tight underline decoration-dotted underline-offset-2 ${
+                    isOpenText ? "text-[17px]" : "text-[13.5px] line-clamp-2"
+                  }`}
                   style={AI_NAME_FONT}
                 >
                   {b.name}
                 </button>
 
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10.5px] opacity-90">
+                <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 opacity-90 ${isOpenText ? "text-[13px]" : "text-[10.5px]"}`}>
                   {rating20 != null ? (
                     <span className="inline-flex items-center gap-1 font-bold" style={{ color: "#D4AF37" }}>
-                      <Star className="h-3 w-3" style={{ color: "#D4AF37" }} fill="#D4AF37" />
-                      {rating20.toFixed(1)}<span className="text-[9px] opacity-80">/20</span>
+                      <Star className={isOpenText ? "h-4 w-4" : "h-3 w-3"} style={{ color: "#D4AF37" }} fill="#D4AF37" />
+                      {rating20.toFixed(1)}<span className={isOpenText ? "text-[11px] opacity-80" : "text-[9px] opacity-80"}>/20</span>
                       {reviewCount ? <span className="font-normal text-white/80">· {reviewCount} {t.reviews}</span> : null}
                     </span>
                   ) : null}
                   {statusLabel ? (
                     <span className="inline-flex items-center gap-1" style={{ color: hours.isOpen ? "#25D366" : "#E4897F" }}>
-                      <Clock className="h-2.5 w-2.5" /> {statusLabel}
+                      <Clock className={isOpenText ? "h-3.5 w-3.5" : "h-2.5 w-2.5"} /> {statusLabel}
                       {isOpenText && hours.label ? <span className="text-white/80">· {hours.label}</span> : null}
                     </span>
                   ) : null}
                 </div>
 
                 {loc || distStr ? (
-                  <div className="flex items-center gap-1 text-[10.5px] opacity-85 min-w-0">
-                    <MapPin className="h-3 w-3 shrink-0" />
-                    <span className="truncate">{[loc, distStr].filter(Boolean).join(" · ")}</span>
+                  <div className={`flex items-center gap-1 opacity-85 min-w-0 ${isOpenText ? "text-[13px]" : "text-[10.5px]"}`}>
+                    <MapPin className={isOpenText ? "h-4 w-4 shrink-0" : "h-3 w-3 shrink-0"} />
+                    <span className={isOpenText ? "" : "truncate"}>{[loc, distStr].filter(Boolean).join(" · ")}</span>
                   </div>
                 ) : null}
 
                 {hook ? (
                   <>
-                    <p className={`text-[12.5px] leading-snug text-white/90 ${isOpenText ? "" : "line-clamp-2"}`}>{hook}</p>
+                    <p className={`text-white/90 ${isOpenText ? "text-[15px] leading-relaxed" : "text-[12.5px] leading-snug line-clamp-2"}`}>{hook}</p>
                     <button
                       type="button"
                       onClick={() => setExpanded((s) => ({ ...s, [b.id]: !s[b.id] }))}
-                      className="self-start inline-flex items-center gap-1 text-[11px] font-semibold text-white/90 underline underline-offset-2"
+                      className={`self-start inline-flex items-center gap-1 font-semibold text-white/90 underline underline-offset-2 ${isOpenText ? "text-[13px]" : "text-[11px]"}`}
                       style={AI_NAME_FONT}
                     >
                       {isOpenText ? <><ChevronUp className="h-3 w-3" /> {t.less}</> : <><ChevronDown className="h-3 w-3" /> {t.more}</>}
@@ -208,17 +210,17 @@ const AiBusinessResultTiles = ({
                   </>
                 ) : null}
 
-                {isOpenText && (waHref || bookingUrl) ? (
+                {waHref || bookingUrl ? (
                   <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                     {waHref ? (
                       <a
                         href={waHref}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
+                        className={`inline-flex items-center gap-1 rounded-full font-semibold text-white ${isOpenText ? "px-3 py-1.5 text-[13px]" : "px-2.5 py-1 text-[11px]"}`}
                         style={{ backgroundColor: "#25D366", ...AI_NAME_FONT }}
                       >
-                        <WhatsAppIcon className="h-3 w-3" /> WhatsApp
+                        <WhatsAppIcon className={isOpenText ? "h-4 w-4" : "h-3 w-3"} /> WhatsApp
                       </a>
                     ) : null}
                     {bookingUrl ? (
@@ -229,14 +231,15 @@ const AiBusinessResultTiles = ({
                             ? onOpenBooking(bookingUrl, bookingLabel)
                             : window.open(bookingUrl, "_blank", "noopener,noreferrer")
                         }
-                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
+                        className={`inline-flex items-center gap-1 rounded-full font-semibold text-white ${isOpenText ? "px-3 py-1.5 text-[13px]" : "px-2.5 py-1 text-[11px]"}`}
                         style={{ backgroundColor: "#C04F17", ...AI_NAME_FONT }}
                       >
-                        <CalendarCheck className="h-3 w-3" /> {bookingLabel}
+                        <CalendarCheck className={isOpenText ? "h-4 w-4" : "h-3 w-3"} /> {bookingLabel}
                       </button>
                     ) : null}
                   </div>
                 ) : null}
+
               </div>
             </div>
           );
