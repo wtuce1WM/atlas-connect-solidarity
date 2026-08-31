@@ -545,11 +545,6 @@ const Front = () => {
         setMapOpen(true);
       } else if (e.data?.type === "owm-ask:map-closed") {
         setMapOpen(false);
-      } else if (e.data?.type === "owm-ask:start-demo") {
-        // Badge « Découvrez l'App » de l'assistant embarqué : même action que le CTA Demo.
-        // On accuse réception pour que l'embed n'active pas son repli par navigation.
-        try { (e.source as Window | null)?.postMessage({ type: "owm-ask:demo-ack" }, "*"); } catch { /* cross-origin */ }
-        startDemo();
       }
     };
     window.addEventListener("message", onMsg);
@@ -725,6 +720,21 @@ const Front = () => {
             onLoad={() => setAskFrameReady(true)}
           />
         </div>
+
+        {!askLocked && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              startDemo();
+            }}
+            disabled={demoLoading}
+            className="absolute bottom-20 left-1/2 z-30 -translate-x-1/2 rounded-full border border-[#25D366] bg-[#25D366] px-4 py-2 text-[13px] font-bold text-[#0b2e18] shadow-md transition-opacity hover:opacity-90 disabled:opacity-60"
+            style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.02em" }}
+          >
+            Découvrez l'App
+          </button>
+        )}
 
       </div>
 

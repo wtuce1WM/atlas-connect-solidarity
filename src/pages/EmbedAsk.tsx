@@ -2022,34 +2022,6 @@ const EmbedAsk = () => {
   const voiceActive = voice.status === "recording" || voice.status === "processing";
 
   const pendingSendRef = useRef<string | null>(null);
-  /** Badge « Découvrez l'App » : demande le mode Demo à la page hôte (une seule fois par geste). */
-  const demoMsgAtRef = useRef(0);
-  const demoAckRef = useRef(false);
-  useEffect(() => {
-    const onAck = (e: MessageEvent) => {
-      if ((e.data as { type?: string } | null)?.type === "owm-ask:demo-ack") demoAckRef.current = true;
-    };
-    window.addEventListener("message", onAck);
-    return () => window.removeEventListener("message", onAck);
-  }, []);
-  const startDemoFromEmbed = () => {
-    const now = Date.now();
-    if (now - demoMsgAtRef.current < 1200) return;
-    demoMsgAtRef.current = now;
-    demoAckRef.current = false;
-    try { window.parent?.postMessage({ type: "owm-ask:start-demo" }, "*"); } catch { /* cross-origin */ }
-    // Repli : si l'hôte n'accuse pas réception (listener absent, preview imbriqué…),
-    // on force le mode Demo par navigation même-origine de la page parente.
-    window.setTimeout(() => {
-      if (demoAckRef.current) return;
-      try {
-        const parentWin = window.parent;
-        if (parentWin && parentWin !== window && parentWin.location?.origin === window.location.origin) {
-          parentWin.location.href = "/?demo=1";
-        }
-      } catch { /* cross-origin : rien de plus à faire */ }
-    }, 700);
-  };
   const startNewConversation = () => {
     try { window.parent?.postMessage({ type: "owm-ask:new-conversation" }, "*"); } catch { /* cross-origin */ }
     const pending = input.trim();
@@ -2699,26 +2671,6 @@ const EmbedAsk = () => {
               )}
             </div>
 
-            {/* Badge « Découvrez l'App » — visible uniquement embarqué (Home /front) :
-                demande à la page parente de lancer le mode Demo (feed découverte). */}
-            {typeof window !== "undefined" && window.parent !== window && (
-              <div className="w-full max-w-xl mx-auto flex justify-center">
-                <button
-                  type="button"
-                  onPointerDown={(e) => {
-                    // pointerdown : le message part avant tout reflow/scroll de la
-                    // colonne de messages qui pourrait déplacer le bouton sous le curseur.
-                    e.stopPropagation();
-                    startDemoFromEmbed();
-                  }}
-                  onClick={(e) => { e.stopPropagation(); startDemoFromEmbed(); }}
-                  className="relative z-[60] text-[13px] font-bold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
-                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#25D366", color: "#0b2e18", border: "1px solid #25D366", touchAction: "manipulation" }}
-                >
-                  {lang === "en" ? "Discover the App" : lang === "ar" ? "اكتشف التطبيق" : "Découvrez l'App"}
-                </button>
-              </div>
-            )}
           </div>
         )}
 
