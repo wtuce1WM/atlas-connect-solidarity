@@ -867,11 +867,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     onError: (e) => setError(e.message),
   });
 
-  const streaming = status === "submitted" || "streaming" && status === "streaming";
-  // Signal conversation ouverte/fermée au host (Front masque le CTA « Découvrez l'App »).
-  useEffect(() => {
-    try { window.parent?.postMessage({ type: "owm-ask:conversation-open", open: hasUserMessages }, "*"); } catch { /* cross-origin */ }
-  }, [hasUserMessages]);
+  const streaming = status === "submitted" || status === "streaming";
   // Rattachement du widget de disponibilité au message assistant du moteur.
   useEffect(() => {
     const city = pendingBookingCityRef.current;
