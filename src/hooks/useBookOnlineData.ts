@@ -168,6 +168,8 @@ export interface VideoDoc {
   price_type: string | null;
   description: string | null;
   thumbnail_url: string | null;
+  /** ID de la ligne vidéo (business_documents.id ou generic_videos.id) — lecture des badges par ID */
+  video_id?: string | null;
   owner_business_id: string | null;
   owner_name: string | null;
   owner_logo: string | null;
@@ -354,7 +356,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           .order("sort_order"),
         db
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
+          .select("id, url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("business_id", businessId)
           .eq("type", "video")
           .order("sort_order"),
@@ -392,6 +394,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
 
       const vDocs = ((videoDocsRes.data || []) as any[]).map(d => ({
         ...d,
+        video_id: d.id ?? null,
         owner_business_id: d.business_id || businessId,
         owner_name: null as string | null,
         owner_logo: null as string | null,
@@ -410,14 +413,14 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       const [linkedVidsRes, poiVidsRes, gvLinksRes] = await Promise.all([
         db
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
+          .select("id, url, name, city, price, price_type, description, thumbnail_url, business_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("linked_business_id", businessId)
           .eq("type", "video")
           .eq("business_is_active", true)
           .order("front_sort_order"),
         db
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
+          .select("id, url, name, city, price, price_type, description, thumbnail_url, business_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("poi_id", businessId)
           .eq("type", "video")
           .eq("business_is_active", true)
@@ -456,7 +459,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           .map((d) => {
             const o = ownerMap.get(d.business_id);
             return {
-              url: d.url, name: d.name, city: d.city, price: d.price,
+              url: d.url, name: d.name, city: d.city, price: d.price, video_id: d.id ?? null,
               price_type: d.price_type, description: d.description,
               thumbnail_url: d.thumbnail_url,
               owner_business_id: d.business_id,
@@ -480,7 +483,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       const genericVDocs: VideoDoc[] = ((gvDataRes.data || []) as any[])
         .sort((a: any, b: any) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0))
         .map((gv: any) => ({
-          url: gv.url, name: gv.name, city: null, price: null, price_type: null,
+          url: gv.url, name: gv.name, city: null, price: null, price_type: null, video_id: gv.id ?? null,
           description: null, thumbnail_url: gv.thumbnail_url,
           owner_business_id: null, owner_name: null, owner_logo: null, owner_instagram: null,
           generic_video_account: gv.instagram_account || gv.youtube_account || gv.tiktok_account || gv.name || null,
@@ -674,7 +677,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       const fetchLinkedVideos = async () => {
         const { data: linkedVids } = await db
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
+          .select("id, url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("linked_business_id", businessId)
           .eq("type", "video")
           .eq("business_is_active", true)
@@ -701,7 +704,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
             .map(d => {
               const owner = ownerMap.get(d.business_id);
               return {
-                url: d.url, name: d.name, city: d.city, price: d.price,
+                url: d.url, name: d.name, city: d.city, price: d.price, video_id: d.id ?? null,
                 price_type: d.price_type, description: d.description,
                 thumbnail_url: d.thumbnail_url,
                 owner_business_id: d.business_id,
@@ -728,7 +731,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       const fetchPoiLinkedVideos = async () => {
         const { data: poiVids } = await db
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
+          .select("id, url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("poi_id", businessId)
           .eq("type", "video")
           .eq("business_is_active", true)
@@ -759,7 +762,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
             .map(d => {
               const owner = ownerMap.get(d.business_id);
               return {
-                url: d.url, name: d.name, city: d.city, price: d.price,
+                url: d.url, name: d.name, city: d.city, price: d.price, video_id: d.id ?? null,
                 price_type: d.price_type, description: d.description,
                 thumbnail_url: d.thumbnail_url,
                 owner_business_id: d.business_id,
@@ -804,6 +807,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           return {
             url: gv.url,
             name: gv.name,
+            video_id: gv.id ?? null,
             city: null,
             price: null,
             price_type: null,

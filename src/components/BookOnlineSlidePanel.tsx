@@ -74,6 +74,7 @@ import SoundCloudOverlay from "@/components/overlays/SoundCloudOverlay";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import { VIEWER_BAR_LAYOUT } from "@/components/slidepanel/viewerBarPreset";
+import VideoBadgeChips, { useVideoBadges } from "@/components/slidepanel/VideoBadgeChips";
 
 
 import { useHotelAvailability } from "@/hooks/useHotelAvailability";
@@ -2177,6 +2178,15 @@ const BookOnlineSlidePanelInner = ({
   }, [setGlobalSoundOn, mediaBlockingOverlayOpen]);
 
   const { videoInfo, isVerticalVideo, isSquareVideo, setIsFileVideoVertical, setIsFileVideoSquare } = useVideoInfo(effectiveMedia || null, globalSoundOn);
+  /** Chips badges de la vidéo affichée dans la fiche (même composant que le viewer immersif). */
+  const [chipsExpanded, setChipsExpanded] = useState(false);
+  const currentVideoRowId = useMemo(() => {
+    if (effectiveMedia?.kind !== "video") return null;
+    const doc = (videoDocs || []).find((d: any) => d.url === effectiveMedia.url) as any;
+    return doc?.video_id ?? null;
+  }, [effectiveMedia, videoDocs]);
+  useEffect(() => { setChipsExpanded(false); }, [currentVideoRowId]);
+  const currentVideoBadges = useVideoBadges(effectiveMedia?.kind === "video", currentVideoRowId);
   const activeInternalVideoLikeId = activeVideoOverlay?.url || (
     effectiveMedia?.kind === "video" && videoInfo?.type !== "youtube" ? effectiveMedia.url : null
   );
@@ -4906,6 +4916,15 @@ const BookOnlineSlidePanelInner = ({
           />
           </div>
         </OverlayShell>
+      )}
+      {/* Chips badges de la vidéo courante (source partagée avec le viewer immersif) */}
+      {effectiveMedia?.kind === "video" && (currentVideoBadges?.length ?? 0) > 0 && !anyOverlay && (
+        <VideoBadgeChips
+          badges={currentVideoBadges}
+          expanded={chipsExpanded}
+          onExpandedChange={setChipsExpanded}
+        />
+
       )}
       {/* Search bar */}
       {showSearchBar && !showPoiMapOverlay && !showDirections && !docOverlay && !showDescriptionOverlay && !showBookingOverlay && !showYoutubeOverlay && !selectedPoiBusinessId && (
