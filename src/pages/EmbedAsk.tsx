@@ -2389,10 +2389,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       glovo_url: (business as MapPanelBusiness & { glovo_url?: string | null }).glovo_url || glovoUrlsById[business.id] || null,
     }));
     const openOne = (id: string, siblings: string[], overlay: "reviews" | null) => {
-      setOpenSiblings(siblings);
+      // Scroll vertical : résultats affichés d'abord, puis tout le feed vidéo du badge.
+      const seen = new Set(siblings);
+      const full = [...siblings, ...feedBusinessIds.filter((bid) => !seen.has(bid))];
+      setOpenSiblings(full);
       setOpenBusinessOverlay(overlay);
       setOpenBusinessId(id);
+      void completeVideoFeed();
     };
+
     return (
       // Grille de miniatures carrées : colonnes recalculées sur la largeur réelle
       // du conteneur (effet resize à l'ouverture du slidepanel vidéo).
