@@ -363,6 +363,18 @@ const Front = () => {
     void import("@/lib/badgeVideoFeed");
   }, []);
 
+  // Préchargement en idle après montage.
+  useEffect(() => {
+    const w = window as any;
+    const id = w.requestIdleCallback
+      ? w.requestIdleCallback(() => prefetchDemo(), { timeout: 3000 })
+      : window.setTimeout(prefetchDemo, 1500);
+    return () => {
+      if (w.cancelIdleCallback) w.cancelIdleCallback(id);
+      else window.clearTimeout(id);
+    };
+  }, [prefetchDemo]);
+
   // Lancement direct de la démo sur l'assistant IA plateforme 1WM.
   const startDemo = useCallback(() => {
     setDemoAiMode("platform");
