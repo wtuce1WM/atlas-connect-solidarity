@@ -14,7 +14,7 @@ import { stripText } from "./nearby.ts";
 import { CTA_SELECT_FIELDS, ctaFieldsOf } from "./shared.ts";
 import { buildImmersiveLines, buildImmersivePhrases, buildImmersivePhrasesLocal, type ImmersiveCtx } from "./immersive.ts";
 import type { CompetitorGuard } from "./competitors.ts";
-import { resolveBadgeBusinessIds } from "./badgeVideoBusinesses.ts";
+import { resolveBadgeBusinessIds, resolveBadgeVideoUrlByBusiness } from "./badgeVideoBusinesses.ts";
 
 
 export type Lang = "fr" | "en" | "ar";
@@ -331,7 +331,7 @@ export type CuratedAnswer = {
 };
 
 
-function mapBusinessesOf(list: any[], phrases?: Map<string, string>) {
+function mapBusinessesOf(list: any[], phrases?: Map<string, string>, badgeVideoUrls?: Record<string, string>) {
   // « Hors les murs » (Maps désactivée) : ni coordonnées, ni quartier.
   return scrubNomadRows(list).map((b: any) => {
     // Le descriptif immersif (celui rédigé pour la réponse) remplace le hook de
@@ -339,6 +339,9 @@ function mapBusinessesOf(list: any[], phrases?: Map<string, string>) {
     const phrase = phrases?.get(String(b.id)) || null;
     return {
     id: b.id, slug: b.slug, name: b.name, city: b.city, neighborhood: b.neighborhood,
+    // Vidéo réellement badgée de l'établissement (celle qui l'a fait entrer dans
+    // le corpus) : la fiche s'ouvre dessus au lieu de sa 1re vidéo au tri interne.
+    badge_video_url: badgeVideoUrls?.[String(b.id)] || null,
     address: b.address ?? null, main_category: b.main_category,
     categories: Array.isArray(b.categories) ? b.categories : [],
     latitude: b.latitude, longitude: b.longitude, logo_url: b.logo_url,
@@ -541,6 +544,15 @@ export async function buildPinnedAnswer(
       mapPayload: any;
     }) => void | Promise<void>;
 
+    /**
+     * Badges du périmètre (suggestion/relance) : quand ils sont fournis, chaque
+     * carte porte l'URL de la vidéo interne réellement badgée de l'établissement
+     * (`badge_video_url`) pour que la fiche s'ouvre dessus.
+     */
+    badgeIds?: string[];
+
+
+
   },
 ): Promise<CuratedAnswer | null> {
 
@@ -587,7 +599,19 @@ export async function buildPinnedAnswer(
     })
     : buildImmersivePhrasesLocal(ordered, lang);
 
-  const mapPayload = { title: label || null, businesses: mapBusinessesOf(ordered, phrases) };
+  // Vidéo badgée par établissement (ouverture de fiche sur la bonne vidéo).
+  const badgeVideoUrls = (overrides?.badgeIds || []).filter(Boolean).length
+    ? await resolveBadgeVideoUrlByBusiness(
+        admin,
+        (overrides!.badgeIds || []).filter(Boolean),
+        ordered.map((b: any) => String(b.id)),
+      ).catch((e) => {
+        console.error("[curated] badge_video_url_failed", String(e));
+        return {} as Record<string, string>;
+      })
+    : {};
+
+  const mapPayload = { title: label || null, businesses: mapBusinessesOf(ordered, phrases, badgeVideoUrls) };
 
   // Émission des cartes (déjà porteuses du descriptif immersif).
   if (overrides?.onCards) {
@@ -891,6 +915,7 @@ export async function buildFilteredAnswer(
     isCompetitor: opts.isCompetitor,
     competitorGuard: opts.competitorGuard,
     immersive: opts.immersive,
+    badgeIds,
   });
 
   return built;

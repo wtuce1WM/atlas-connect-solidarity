@@ -68,6 +68,7 @@ import { preloadFrontStructureTaxonomy } from "@/hooks/useFrontStructureTabs";
 const EmbedBookPanelWrapper = ({
   businessId,
   initialOverlay,
+  initialVideoUrl,
   onClose,
   onPrev,
   onNext,
@@ -76,6 +77,8 @@ const EmbedBookPanelWrapper = ({
 }: {
   businessId: string;
   initialOverlay?: "reviews";
+  /** Vidéo badgée de l'établissement : la fiche démarre dessus. */
+  initialVideoUrl?: string;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -167,6 +170,7 @@ const EmbedBookPanelWrapper = ({
             businessId={businessId}
             embedMode
             initialOverlay={initialOverlay}
+            initialVideoUrl={initialVideoUrl}
             onClose={onClose}
             onPrev={onPrev}
             onNext={onNext}
@@ -2281,6 +2285,20 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return { richByName: rich, knownByName: known, destByName: dests, allDestinations: destList, eventsByName: evs };
   }, [messages]);
 
+  // Vidéo réellement badgée par établissement (`badge_video_url` porté par les
+  // cartes SHOW_ON_MAP) : la fiche ouverte depuis la réponse IA démarre dessus,
+  // au lieu de sa 1re vidéo au tri interne (souvent hors sujet du badge).
+  const badgeVideoUrlById = useMemo(() => {
+    const out: Record<string, string> = {};
+    for (const b of richByName.values()) {
+      const url = (b as MapPanelBusiness & { badge_video_url?: string | null }).badge_video_url;
+      if (b?.id && url) out[String(b.id)] = String(url);
+    }
+    return out;
+  }, [richByName]);
+
+
+
   // Les conversations sont conservées 7 jours : leurs anciens marqueurs SHOW_ON_MAP
   // peuvent précéder l'ajout de `glovo_url`. Réhydrate donc ce seul champ côté client
   // afin qu'un simple refresh affiche aussi le badge sur les cartes déjà enregistrées.
@@ -3833,6 +3851,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             key={openBusinessId}
             businessId={openBusinessId}
             initialOverlay={openBusinessOverlay ?? undefined}
+            initialVideoUrl={badgeVideoUrlById[openBusinessId] || undefined}
             onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); }}
             onPrev={goPrev}
             onNext={goNext}
