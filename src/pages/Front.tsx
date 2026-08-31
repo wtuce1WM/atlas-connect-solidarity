@@ -348,6 +348,7 @@ const Front = () => {
         setDemoTime(0);
         demoLoadingMoreRef.current = false;
         setDemoActiveId(cached.items[0].id);
+        preloadFirstMedia(cached.items[0] as any);
         return;
       }
       // Cache persistant (localStorage) : affichage immédiat au retour sur la page,
