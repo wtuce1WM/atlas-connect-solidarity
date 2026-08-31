@@ -583,57 +583,6 @@ const Front = () => {
   const askLockedRef = useRef(false);
   askLockedRef.current = askLocked;
 
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-
-    const onWheel = (e: WheelEvent) => {
-      if ((e.target as HTMLElement).closest("[data-front-demo-panel]")) return;
-      e.preventDefault();
-      if (askLockedRef.current) return;
-      setTarget(targetRef.current + e.deltaY / 600);
-    };
-
-    const onTouchStart = (e: TouchEvent) => {
-      if ((e.target as HTMLElement).closest("[data-front-demo-panel]")) {
-        touchYRef.current = null;
-        return;
-      }
-      touchYRef.current = e.touches[0]?.clientY ?? null;
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      if ((e.target as HTMLElement).closest("[data-front-demo-panel]")) return;
-      const y = e.touches[0]?.clientY ?? null;
-      if (y === null || touchYRef.current === null) return;
-      e.preventDefault();
-      if (askLockedRef.current) return;
-      setTarget(targetRef.current + (touchYRef.current - y) / 350);
-      touchYRef.current = y;
-    };
-
-    const onKey = (e: KeyboardEvent) => {
-      if (askLockedRef.current) return;
-      if (e.key === "ArrowDown" || e.key === "PageDown") {
-
-        e.preventDefault();
-        setTarget(targetRef.current + (e.key === "PageDown" ? 0.5 : 0.2));
-      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
-        e.preventDefault();
-        setTarget(targetRef.current - (e.key === "PageUp" ? 0.5 : 0.2));
-      }
-    };
-
-    el.addEventListener("wheel", onWheel, { passive: false });
-    el.addEventListener("touchstart", onTouchStart, { passive: true });
-    el.addEventListener("touchmove", onTouchMove, { passive: false });
-    window.addEventListener("keydown", onKey);
-    return () => {
-      el.removeEventListener("wheel", onWheel);
-      el.removeEventListener("touchstart", onTouchStart);
-      el.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [setTarget]);
 
   const narrativeOpacity = 1 - range(progress, 0, 0.35);
   const narrativeActive = progress < 0.35;
