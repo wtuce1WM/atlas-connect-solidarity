@@ -73,6 +73,7 @@ import PhoneMockupFrame from "@/components/PhoneMockupFrame";
 import SoundCloudOverlay from "@/components/overlays/SoundCloudOverlay";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import { VIEWER_BAR_LAYOUT } from "@/components/slidepanel/viewerBarPreset";
 
 
 import { useHotelAvailability } from "@/hooks/useHotelAvailability";
