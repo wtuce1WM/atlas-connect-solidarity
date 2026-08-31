@@ -160,6 +160,8 @@ const Corporate = () => {
   const currentRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const touchYRef = useRef<number | null>(null);
+  const wheelLockedRef = useRef(false);
+  const wheelUnlockRef = useRef<number | null>(null);
 
   useEffect(() => {
     const mqO = window.matchMedia("(max-aspect-ratio: 1/1)");
@@ -199,7 +201,7 @@ const Corporate = () => {
       }
       if (rafRef.current !== null) return;
       const tick = () => {
-        currentRef.current += (targetRef.current - currentRef.current) * 0.055;
+        currentRef.current += (targetRef.current - currentRef.current) * 0.035;
         if (Math.abs(targetRef.current - currentRef.current) < 0.002) {
           currentRef.current = targetRef.current;
           setProgress(currentRef.current);
@@ -226,7 +228,13 @@ const Corporate = () => {
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      setTarget(targetRef.current + (e.deltaY > 0 ? 1 : -1) * 0.55);
+      if (wheelLockedRef.current || Math.abs(e.deltaY) < 8) return;
+      wheelLockedRef.current = true;
+      setTarget(Math.round(targetRef.current) + (e.deltaY > 0 ? 1 : -1));
+      wheelUnlockRef.current = window.setTimeout(() => {
+        wheelLockedRef.current = false;
+        wheelUnlockRef.current = null;
+      }, 1400);
     };
     const onTouchStart = (e: TouchEvent) => {
       touchYRef.current = e.touches[0]?.clientY ?? null;
@@ -256,6 +264,10 @@ const Corporate = () => {
       el.removeEventListener("touchstart", onTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("keydown", onKey);
+      if (wheelUnlockRef.current !== null) {
+        window.clearTimeout(wheelUnlockRef.current);
+        wheelUnlockRef.current = null;
+      }
     };
   }, [setTarget]);
 
