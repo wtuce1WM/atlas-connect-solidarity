@@ -1408,20 +1408,35 @@ const EmbedAsk = () => {
         canUp: scrollable && el.scrollTop > 60,
         canDown: scrollable && el.scrollTop < max - 60,
       });
+      // Retour manuel tout en bas : on réactive le collage automatique.
+      if (el.scrollHeight - el.scrollTop - el.clientHeight < 40) stickDisabledRef.current = false;
     };
     compute();
     el.addEventListener("scroll", compute, { passive: true });
     // Dès que l'utilisateur reprend la main (roue, trackpad, tactile), la
     // neutralisation du « stick-to-bottom » liée aux boutons flottants s'annule.
     const releaseSuppress = () => { stickSuppressUntilRef.current = 0; };
-    el.addEventListener("wheel", releaseSuppress, { passive: true });
-    el.addEventListener("touchstart", releaseSuppress, { passive: true });
+    // Intention de remonter dans la conversation : désactive le collage en bas.
+    const onWheelIntent = (e: WheelEvent) => { if (e.deltaY < 0) stickDisabledRef.current = true; releaseSuppress(); };
+    let lastTouchY: number | null = null;
+    const onTouchStart = (e: TouchEvent) => { lastTouchY = e.touches[0]?.clientY ?? null; releaseSuppress(); };
+    const onTouchMove = (e: TouchEvent) => {
+      const y = e.touches[0]?.clientY;
+      if (y == null || lastTouchY == null) { lastTouchY = y ?? null; return; }
+      // Doigt vers le bas = contenu vers le haut (scrollTop diminue).
+      if (y - lastTouchY > 4) stickDisabledRef.current = true;
+      lastTouchY = y;
+    };
+    el.addEventListener("wheel", onWheelIntent, { passive: true });
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: true });
     const ro = new ResizeObserver(compute);
     ro.observe(el);
     return () => {
       el.removeEventListener("scroll", compute);
-      el.removeEventListener("wheel", releaseSuppress);
-      el.removeEventListener("touchstart", releaseSuppress);
+      el.removeEventListener("wheel", onWheelIntent);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
       ro.disconnect();
     };
   }, [messages, streaming, homeState, autoHeight]);
