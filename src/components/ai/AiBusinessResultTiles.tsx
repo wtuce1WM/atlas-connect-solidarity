@@ -245,35 +245,6 @@ const AiBusinessResultTiles = ({
                   </>
                 ) : null}
 
-                {waHref || bookingUrl ? (
-                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                    {waHref ? (
-                      <a
-                        href={waHref}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`inline-flex items-center gap-1 rounded-full font-semibold text-white ${isOpenText ? "px-3 py-1.5 text-[13px]" : "px-2.5 py-1 text-[11px]"}`}
-                        style={{ backgroundColor: "#25D366", ...AI_NAME_FONT }}
-                      >
-                        <WhatsAppIcon className={isOpenText ? "h-4 w-4" : "h-3 w-3"} /> WhatsApp
-                      </a>
-                    ) : null}
-                    {bookingUrl ? (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          onOpenBooking
-                            ? onOpenBooking(bookingUrl, bookingLabel)
-                            : window.open(bookingUrl, "_blank", "noopener,noreferrer")
-                        }
-                        className={`inline-flex items-center gap-1 rounded-full font-semibold text-white ${isOpenText ? "px-3 py-1.5 text-[13px]" : "px-2.5 py-1 text-[11px]"}`}
-                        style={{ backgroundColor: "#C04F17", ...AI_NAME_FONT }}
-                      >
-                        <CalendarCheck className={isOpenText ? "h-4 w-4" : "h-3 w-3"} /> {bookingLabel}
-                      </button>
-                    ) : null}
-                  </div>
-                ) : null}
 
               </div>
             </div>
