@@ -2478,7 +2478,7 @@ const EmbedAsk = () => {
 
             <form
               onSubmit={(e) => { e.preventDefault(); send(); }}
-              className={`w-full ${isPlatform ? "" : "max-w-xl"}`}
+              className="w-full max-w-xl mx-auto"
             >
               <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-3 shadow-2xl`}>
                 <textarea
