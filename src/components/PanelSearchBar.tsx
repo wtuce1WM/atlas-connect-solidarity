@@ -138,22 +138,25 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
     return () => { mounted = false; sub.subscription.unsubscribe(); };
   }, []);
 
-  const handleProfileClick = useCallback(async () => {
+  const handleProfileClick = useCallback(() => {
     // Mode « lien direct » : /club affiche son propre écran login/register
     // pour les visiteurs anonymes — pas besoin du popup club global.
     if (profileToClub) {
       navigate("/club");
       return;
     }
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) {
+    // On s'appuie sur l'état de session déjà suivi (getSession + onAuthStateChange).
+    // Ne JAMAIS attendre supabase.auth.getSession() ici : dans un iframe /embed
+    // (storage partitionné / refresh de token), l'appel peut mettre >20 s et le
+    // popup Club n'apparaît qu'après ce délai.
+    if (!isLoggedIn) {
       // profileClubEvent : l'hôte choisit son popup club (ex. popup bleu interne
       // du slide panel). Sinon viewer vidéo (timeline) ou popup beige global.
       window.dispatchEvent(new Event(profileClubEvent ?? (profileToTimelineClub ? "open-video-timeline-club" : "open-generic-club-popup")));
       return;
     }
     navigate("/club");
-  }, [navigate, profileToClub, profileToTimelineClub, profileClubEvent]);
+  }, [navigate, profileToClub, profileToTimelineClub, profileClubEvent, isLoggedIn]);
 
   // Notify parent when search overlay opens/closes
   const setOverlay = useCallback((open: boolean) => {
