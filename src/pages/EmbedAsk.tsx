@@ -1906,23 +1906,34 @@ const EmbedAsk = () => {
     }
   }, []);
 
-  /** Clic sur une chip ville (colonne 3) → même feed badges filtré sur la ville. */
+  /** Clic sur une chip ville (colonne 3) → même feed badges filtré sur la ville.
+      Si le feed courant ne porte pas de scope badges (payload IA sans badgeIds),
+      on retombe sur le périmètre découverte (tous les badges actifs) + ville. */
   const selectFeedCity = useCallback(async (city: { id: string; name: string }) => {
-    const ctx = videoFeedCtx;
-    const badgeIds = ctx?.badgeIds ?? [];
-    if (!badgeIds.length) return;
+    const badgeIds = videoFeedCtx?.badgeIds ?? [];
     feedLoadingMoreRef.current = true;
     try {
-      const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
       const seed = Math.random().toString(36).slice(2, 10);
-      const { items, total } = await fetchBadgesVideoFeed(badgeIds, {
-        seed,
-        limit: 60,
-        cityIds: [city.id],
-      });
+      if (badgeIds.length) {
+        const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
+        const { items, total } = await fetchBadgesVideoFeed(badgeIds, { seed, limit: 60, cityIds: [city.id] });
+        if (!items.length) return;
+        setVideoFeedList(items);
+        setVideoFeedCtx({ badgeIds, seed, total, cityIds: [city.id] });
+        setFeedVideoTime(0);
+        feedLoadingMoreRef.current = false;
+        setActiveFeedVideoId(items[0].id);
+        return;
+      }
+      const { fetchDiscoveryVideoFeedForCity } = await import("@/lib/badgeVideoFeed");
+      const { items, ctx: nextCtx } = await fetchDiscoveryVideoFeedForCity(
+        { badgeIds: [], cityIds: [], seed, total: 0 } as any,
+        city.id,
+        60,
+      );
       if (!items.length) return;
-      setVideoFeedList(items);
-      setVideoFeedCtx({ badgeIds, seed, total, cityIds: [city.id] });
+      setVideoFeedList(items as any);
+      setVideoFeedCtx({ badgeIds: nextCtx.badgeIds, seed: nextCtx.seed, total: nextCtx.total, cityIds: [city.id] });
       setFeedVideoTime(0);
       feedLoadingMoreRef.current = false;
       setActiveFeedVideoId(items[0].id);
@@ -1930,6 +1941,7 @@ const EmbedAsk = () => {
       feedLoadingMoreRef.current = false;
     }
   }, [videoFeedCtx]);
+
 
 
 
