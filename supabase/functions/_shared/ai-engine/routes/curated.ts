@@ -674,7 +674,11 @@ export async function buildFilteredAnswer(
       console.error("[curated] commodity_filter_failed", String(e));
       return null;
     }
-  } else if (badgeIds.length) {
+  } else if (badgeIds.length && !subcategoryNames.length) {
+    // Priorité: si la suggestion porte des SOUS-CATÉGORIES, ce sont elles qui
+    // définissent le corpus de fiches de la réponse IA. Les badges ne servent
+    // alors qu'à décider/alimenter le feed vidéo, pas les fiches.
+
     // Badges curatés : filtre DUR en base, jamais via `business-search`.
     // Source de vérité ÉLARGIE : un badge est majoritairement porté par les
     // VIDÉOS (internes / YouTube / génériques) et pas par la fiche — on croise
