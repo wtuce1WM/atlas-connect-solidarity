@@ -9,7 +9,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus, Bed, Utensils, Wine, Coffee, ShoppingBag, Sparkles, Landmark, Camera, Play, Pause, Volume2, VolumeX, Mic, MicOff, Loader2 } from "lucide-react";
+import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus, Bed, Utensils, Wine, Coffee, ShoppingBag, Sparkles, Landmark, Camera, Play, Pause, Volume2, VolumeX, Mic, MicOff, Loader2, ChevronUp, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { embedBusinessQuery } from "@/lib/embedBusinessQuery";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
@@ -1389,6 +1389,31 @@ const EmbedAsk = () => {
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [messages]);
 
+  // Boutons flottants haut/bas (desktop) : état du dépassement vertical du flux.
+  const [convScroll, setConvScroll] = useState({ scrollable: false, canUp: false, canDown: false });
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const compute = () => {
+      const max = el.scrollHeight - el.clientHeight;
+      const scrollable = max > 120;
+      setConvScroll({
+        scrollable,
+        canUp: scrollable && el.scrollTop > 60,
+        canDown: scrollable && el.scrollTop < max - 60,
+      });
+    };
+    compute();
+    el.addEventListener("scroll", compute, { passive: true });
+    const ro = new ResizeObserver(compute);
+    ro.observe(el);
+    return () => { el.removeEventListener("scroll", compute); ro.disconnect(); };
+  }, [messages, streaming, homeState, autoHeight]);
+  const convScrollBy = (dir: 1 | -1) => {
+    const el = scrollRef.current;
+    if (el) el.scrollBy({ top: dir * el.clientHeight * 0.85, behavior: "smooth" });
+  };
+
   /**
    * Le contenu d'une réponse (cartes fiches, images, carrousels, CTAs) arrive après
    * le message : le scroll initial se fait sur une hauteur périmée et le dernier
@@ -2399,7 +2424,7 @@ const EmbedAsk = () => {
           : undefined
       }
     >
-      <div ref={setMainEl} className={autoHeight ? "flex flex-col" : "flex flex-col h-full"}>
+      <div ref={setMainEl} className={autoHeight ? "flex flex-col relative" : "flex flex-col h-full relative"}>
         {chromeOff ? null : (
         <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
         {inFloatingPanel && (
@@ -3347,6 +3372,18 @@ const EmbedAsk = () => {
         {error && <div className="text-xs text-red-500">{error}</div>}
       </div>
 
+      {/* Bouton flottant « haut » — desktop uniquement, quand la réponse déborde. */}
+      {!autoHeight && !homeState && convScroll.canUp && (
+        <button
+          type="button"
+          onClick={() => convScrollBy(-1)}
+          aria-label="Remonter dans la conversation"
+          className={`hidden md:flex absolute left-1/2 -translate-x-1/2 ${chromeOff ? "top-2" : "top-14"} z-30 h-9 w-9 items-center justify-center rounded-full bg-black/70 text-white shadow-lg backdrop-blur-sm hover:bg-black/85 transition-colors`}
+        >
+          <ChevronUp className="w-5 h-5" />
+        </button>
+      )}
+
 
 
 
@@ -3360,6 +3397,17 @@ const EmbedAsk = () => {
       />
 
       <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`relative p-3 border-t ${border} ${bg} ${homeState ? "hidden" : ""}`}>
+        {/* Bouton flottant « bas » — desktop uniquement, juste au-dessus de la barre fixe. */}
+        {!autoHeight && !homeState && convScroll.canDown && (
+          <button
+            type="button"
+            onClick={() => convScrollBy(1)}
+            aria-label="Descendre dans la conversation"
+            className="hidden md:flex absolute left-1/2 -translate-x-1/2 -top-12 z-30 h-9 w-9 items-center justify-center rounded-full bg-black/70 text-white shadow-lg backdrop-blur-sm hover:bg-black/85 transition-colors"
+          >
+            <ChevronDown className="w-5 h-5" />
+          </button>
+        )}
         {messages.length > 1 && !streaming && !competitorGuardActive && (
           <>
             {/* Barre d'actions unique au-dessus du composer :
