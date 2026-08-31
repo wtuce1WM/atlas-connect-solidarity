@@ -46,7 +46,7 @@
       (function() {
         try {
           var path = location.pathname;
-          if (path !== "/test" && path !== "/") return;
+          if (path !== "/test") return;
           var params = new URLSearchParams(location.search);
           var city = params.get("city");
           if (!city) {
