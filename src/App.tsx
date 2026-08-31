@@ -20,6 +20,7 @@ const CookieBanner = lazy(() => import("./components/CookieBanner"));
 import RouteSeo from "./seo/RouteSeo";
 import { PageMetaOverridesLoader } from "./seo/usePageMetaOverrides";
 import HomeMindtripEager from "./pages/HomeMindtrip";
+import HomeV1Eager from "./pages/HomeV1";
 import CorporateEager from "./pages/Corporate";
 import ClubEager from "./pages/Club";
 import JoinEager from "./pages/Join";
@@ -174,7 +175,7 @@ const LocalizedRoutes = () => {
   return (
     <Routes location={routingLocation}>
               <Route path="/" element={renderLazyRoute(<HomeMindtrip />)} />
-              <Route path="/home_v1" element={renderLazyRoute(<HomeMindtrip />)} />
+              <Route path="/home_v1" element={renderLazyRoute(<HomeV1 />)} />
               <Route path="/videos" element={renderLazyRoute(<Test />)} />
               <Route path="/ancien-index" element={renderLazyRoute(<Index />)} />
               <Route path="/business/:slug" element={<BusinessRedirect />} />
