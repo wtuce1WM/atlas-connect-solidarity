@@ -253,7 +253,7 @@ const VideoSlidePanel = ({
   /** Filtre `is_active_on_front` appliqué aussi à la colonne 1 : null tant que non chargé. */
   const [menuBadgeActive, setMenuBadgeActive] = useState<Record<string, boolean> | null>(null);
   useEffect(() => {
-    if (!open || !feedLayout) return;
+    if (!open) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
@@ -271,11 +271,46 @@ const VideoSlidePanel = ({
       setMenuBadgeActive(active);
     })();
     return () => { cancelled = true; };
-  }, [open, feedLayout]);
+  }, [open]);
   /** Colonne 1 filtrée sur is_active_on_front (tout afficher tant que non chargé). */
   const visibleLeftColumnBadges = menuBadgeActive
     ? LEFT_COLUMN_BADGES.filter((b) => menuBadgeActive[b.id])
     : LEFT_COLUMN_BADGES;
+
+  /**
+   * Source de vérité unique des badges de la vidéo : lecture directe par ID
+   * dans les 3 tables de liaison, quel que soit le parcours d'ouverture
+   * (feed, suggestion badge, fiche business). Le prop `feedBadges` ne sert
+   * plus que de repli tant que la lecture n'est pas revenue.
+   */
+  const [selfBadges, setSelfBadges] = useState<{ videoId: string; badges: { id: string; name: string; color?: string | null; text_color?: string | null }[] } | null>(null);
+  useEffect(() => {
+    if (!open || !videoId) return;
+    let cancelled = false;
+    (async () => {
+      const badgeSelect = "badges!inner(id, name_fr, color_hex, text_color_hex, is_active_on_front)";
+      const [docs, gens, yts] = await Promise.all([
+        (supabase as any).from("business_document_badges").select(badgeSelect).eq("document_id", videoId),
+        (supabase as any).from("generic_video_badges").select(badgeSelect).eq("generic_video_id", videoId),
+        (supabase as any).from("business_youtube_video_badges").select(badgeSelect).eq("youtube_video_id", videoId),
+      ]);
+      if (cancelled) return;
+      const out = new Map<string, { id: string; name: string; color?: string | null; text_color?: string | null }>();
+      for (const res of [docs, gens, yts]) {
+        for (const row of ((res as any)?.data || []) as any[]) {
+          const b = row.badges;
+          if (!b?.id || !b.is_active_on_front) continue;
+          out.set(String(b.id), { id: String(b.id), name: String(b.name_fr || ""), color: b.color_hex ?? null, text_color: b.text_color_hex ?? null });
+        }
+      }
+      setSelfBadges({ videoId: String(videoId), badges: Array.from(out.values()) });
+    })();
+    return () => { cancelled = true; };
+  }, [open, videoId]);
+  const chipsBadges = (selfBadges && selfBadges.videoId === String(videoId ?? "")
+    ? selfBadges.badges
+    : feedBadges) ?? null;
+
 
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
@@ -1289,7 +1324,7 @@ const VideoSlidePanel = ({
         {(() => {
           // Vidéos liées au badge « Vente » : sans info prix, on affiche toujours
           // « Prix : nous consulter » (badge id 6ae94381-ec78-4165-80bd-26b2c56399a3).
-          const isVenteVideo = !!feedBadges?.some(
+          const isVenteVideo = !!chipsBadges?.some(
             (b) => b.id === "6ae94381-ec78-4165-80bd-26b2c56399a3",
           );
           const hasNoPriceInfo = price === undefined || price === null || !String(price).trim();
@@ -1303,7 +1338,7 @@ const VideoSlidePanel = ({
           const timeStr = eventId && eventInfo ? formatTimeRange(eventInfo.start_time, eventInfo.end_time) : null;
           const textShadow = "0 1px 2px rgba(0,0,0,0.4)";
           const showVideoName = !!videoName && !(isGeneric && social?.account && videoName === `@${social.account}`);
-          const isVenteVideo = !!feedBadges?.some(
+          const isVenteVideo = !!chipsBadges?.some(
             (b) => b.id === "6ae94381-ec78-4165-80bd-26b2c56399a3",
           );
           const hasNoPriceInfo = price === undefined || price === null || !String(price).trim();
@@ -1390,7 +1425,7 @@ const VideoSlidePanel = ({
             Colonne 2 : badges effectivement liés à la vidéo, le premier en #C04F17.
             Colonne 3 : villes fixes Marrakech / Essaouira pour changer de feed.
             Clic sur un chip → relance le feed sur ce badge/ville. */}
-        {feedLayout && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
+        {(feedLayout || (chipsBadges?.length ?? 0) > 0) && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && !clubPopupOpen && !timelineClubOpen && (
           <div className="absolute top-16 left-1.5 right-1.5 md:left-3 md:right-3 z-[100] pointer-events-none">
             {!chipsExpanded && (() => {
@@ -1402,8 +1437,8 @@ const VideoSlidePanel = ({
               };
               const pick = (pinnedBadge
                 ? { id: pinnedBadge.id, name: pinnedBadge.name, color: pinnedBadge.color, text_color: pinnedBadge.textColor }
-                : feedBadges?.find((b) => hasSpecificColor(b.color)) || feedBadges?.[0]) || null;
-              const extra = (feedBadges?.length ?? 0) + visibleLeftColumnBadges.length + CITY_FEED_BADGES.length - (pick ? 1 : 0);
+                : chipsBadges?.find((b) => hasSpecificColor(b.color)) || chipsBadges?.[0]) || null;
+              const extra = (chipsBadges?.length ?? 0) + visibleLeftColumnBadges.length + CITY_FEED_BADGES.length - (pick ? 1 : 0);
               return (
                 <div className="flex justify-center">
                   <button
@@ -1428,7 +1463,7 @@ const VideoSlidePanel = ({
 
             <div className="flex flex-wrap items-center justify-center gap-1.5 md:flex-col md:items-end md:justify-start md:gap-0.5">
               {visibleLeftColumnBadges.filter(
-                (b) => !(feedBadges?.[0]?.id && b.id === feedBadges[0].id)
+                (b) => !(chipsBadges?.[0]?.id && b.id === chipsBadges[0].id)
               ).map((b) => {
                 const isSelected = selectedBadgeId && b.id === selectedBadgeId;
                 return (
@@ -1466,8 +1501,8 @@ const VideoSlidePanel = ({
             </div>
             <div className="flex flex-wrap items-center justify-center gap-1.5 md:flex-col md:items-center md:justify-start md:gap-0.5">
               {(() => {
-                const firstVideoBadge = feedBadges?.[0];
-                const dynamicBadges = feedBadges?.slice(1).filter((b) => {
+                const firstVideoBadge = chipsBadges?.[0];
+                const dynamicBadges = chipsBadges?.slice(1).filter((b) => {
                   const left = LEFT_COLUMN_BADGES.find((lb) => lb.id === b.id);
                   if (left) return false;
                   // Exclure aussi les badges dont le nom est identique à un label de gauche (insensible à la casse et aux accents)
