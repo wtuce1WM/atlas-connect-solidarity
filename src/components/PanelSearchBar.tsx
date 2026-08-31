@@ -234,8 +234,12 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             onClick={() => {
               const v = videoRef.current;
               if (!v) return;
-              if (v.paused) v.play(); else v.pause();
+              // Même sémantique que VideoControls : marquer la pause explicite
+              // pour que la logique de récupération autoplay ne relance pas.
+              if (v.paused) { delete v.dataset.owmUserPaused; v.play(); }
+              else { v.dataset.owmUserPaused = "1"; v.pause(); }
             }}
+
           />
           <Cell
             variant="media"

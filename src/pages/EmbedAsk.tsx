@@ -74,6 +74,8 @@ const EmbedBookPanelWrapper = ({
   onNext,
   hasPrev,
   hasNext,
+  onFeedBadgeSelect,
+  onFeedCitySelect,
 }: {
   businessId: string;
   initialOverlay?: "reviews";
@@ -84,7 +86,11 @@ const EmbedBookPanelWrapper = ({
   onNext: () => void;
   hasPrev: boolean;
   hasNext: boolean;
+  /** Chips badges/ville de la vidéo : relancent le feed vidéo (même mécanisme que le viewer). */
+  onFeedBadgeSelect?: (badge: { id: string; name: string }) => void;
+  onFeedCitySelect?: (city: { id: string; name: string }) => void;
 }) => {
+
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const wheelAccumRef = useRef(0);
   const wheelLockUntilRef = useRef(0);
@@ -178,8 +184,11 @@ const EmbedBookPanelWrapper = ({
             hasNext={hasNext}
             prioritizeBusinessSwipe
             showSearchBar
+            onFeedBadgeSelect={onFeedBadgeSelect}
+            onFeedCitySelect={onFeedCitySelect}
             onSearch={() => { /* embed: search bar is used for its 6 liquid CTAs + video controls only */ }}
             onSearchBusinessSelect={() => { /* no-op inside embed */ }}
+
           />
         </Suspense>
       </div>
@@ -3931,7 +3940,18 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             onNext={goNext}
             hasPrev={hasPrev}
             hasNext={hasNext}
+            onFeedBadgeSelect={(b) => {
+              setOpenBusinessId(null);
+              setOpenBusinessOverlay(null);
+              void selectFeedBadge(b);
+            }}
+            onFeedCitySelect={(c) => {
+              setOpenBusinessId(null);
+              setOpenBusinessOverlay(null);
+              void selectFeedCity(c);
+            }}
           />
+
         );
       })()}
 
