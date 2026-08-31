@@ -159,7 +159,8 @@ const AiBusinessResultTiles = ({
 
               {waHref || bookingUrl ? (
                 <div className="pointer-events-none absolute inset-x-0 top-2 z-[4] flex justify-center px-1.5">
-                  <div className="flex items-center gap-1.5">
+                  <div className="pointer-events-auto flex items-center gap-1.5">
+
                     {waHref ? (
                       <a
                         href={waHref}
