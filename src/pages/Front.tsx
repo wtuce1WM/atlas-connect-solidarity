@@ -381,6 +381,7 @@ const Front = () => {
       setDemoTime(0);
       demoLoadingMoreRef.current = false;
       setDemoActiveId(items[0].id);
+      preloadFirstMedia(items[0] as any);
       // Complément silencieux (page suivante) une fois le viewer visible.
       void (async () => {
         try {
