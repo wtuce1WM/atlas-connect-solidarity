@@ -908,6 +908,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     }))
     .filter((s) => s.label);
   const hasUserMessages = messages.some((m) => m.role === "user");
+  // Signal « conversation ouverte » au host (Front masque le CUA0« Découvrez l'App »).
+  useEffect(() => {
+    try { window.parent?.postMessage({ type: "owm-ask:conversation-open", open: hasUserMessages }, "*"); } catch { /* cross-origin */ }
+  }, [hasUserMessages]);
   /** Option B : accueil IA plein écran (logo + champ central + chips) vs conversation. */
   const homeState = isPlatform && !hasUserMessages && !streaming && assistantReady && splashPhase === "done";
   
