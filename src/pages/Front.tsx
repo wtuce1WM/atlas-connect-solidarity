@@ -310,14 +310,47 @@ const Front = () => {
     const demoOpen = !!(demoIntro || demoActiveId || demoCardsOnly);
     demoOpenRef.current = demoOpen;
     const video = backgroundVideoRef.current;
-    if (!video) return;
     if (demoOpen) {
-      video.pause();
-      video.muted = true;
-    } else {
-      void video.play().catch(() => undefined);
+      video?.pause();
+      if (video) video.muted = true;
+      return;
     }
+    // Démo fermée : aucun média autre que le fond ne doit continuer à jouer.
+    // Balayage de sécurité (double buffer démonté tardivement, buffer caché, etc.)
+    // + libération de la source pour rendre la RAM/le réseau à l'utilisateur.
+    const sweep = () => {
+      document.querySelectorAll("video, audio").forEach((el) => {
+        const m = el as HTMLMediaElement;
+        if (m === video) return;
+        try {
+          m.pause();
+          m.muted = true;
+          if (m.getAttribute("src")) { m.removeAttribute("src"); m.load(); }
+        } catch { /* ignore */ }
+      });
+    };
+    sweep();
+    const t = window.setTimeout(sweep, 400);
+    if (video) void video.play().catch(() => undefined);
+    return () => window.clearTimeout(t);
   }, [demoIntro, demoActiveId, demoCardsOnly, isPortrait]);
+
+  // Onglet en arrière-plan : on met tout en pause (aucun son, aucun décodage inutile).
+  useEffect(() => {
+    const onVis = () => {
+      const video = backgroundVideoRef.current;
+      if (document.hidden) {
+        document.querySelectorAll("video, audio").forEach((el) => {
+          try { (el as HTMLMediaElement).pause(); } catch { /* ignore */ }
+        });
+      } else if (video && !demoOpenRef.current) {
+        void video.play().catch(() => undefined);
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
+
 
   const toPanelVideo = (v: BadgeVideoFeedItem) => ({
     id: v.id,

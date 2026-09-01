@@ -98,7 +98,15 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
     };
   }, [src, videoKey, videoRef]);
 
-  // Sécurité : à la destruction, aucun buffer ne doit continuer à jouer.
+  // Le buffer caché ne doit JAMAIS émettre de son (préchargement silencieux).
+  useEffect(() => {
+    const hidden = getEl(active === 0 ? 1 : 0);
+    if (!hidden) return;
+    try { hidden.muted = true; hidden.pause(); } catch {/* ignore */}
+  }, [active]);
+
+  // Sécurité : à la destruction, aucun buffer ne doit continuer à jouer,
+  // et la source est libérée pour rendre la mémoire / couper le téléchargement.
   useEffect(() => {
     return () => {
       [refA.current, refB.current].forEach((el) => {
@@ -106,10 +114,13 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
         try {
           el.pause();
           el.muted = true;
+          el.removeAttribute("src");
+          el.load();
         } catch {/* ignore */}
       });
     };
   }, []);
+
 
   const buffer = (slot: 0 | 1, ref: React.RefObject<HTMLVideoElement>) => (
     <video
