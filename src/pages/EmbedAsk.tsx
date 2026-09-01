@@ -2041,6 +2041,47 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       }
     } catch { /* best-effort : le marqueur VIDEO_FEED du stream reste le filet */ }
   }, []);
+
+  /**
+   * Suggestions « FEED PUR » (périmètre strict : « Vie pratique ») : aucune
+   * réponse IA, aucun corpus fiches badge en fond — uniquement le flux vidéo du
+   * badge, ordonné en commençant par les vidéos des établissements épinglés
+   * (`business_ids` de la suggestion).
+   */
+  const PURE_FEED_SUGGESTION_IDS = ["7f452ed9-52df-417f-b771-d478d3d74826"];
+  const openPureBadgeFeed = useCallback(async (badgeIds: string[], pinnedBusinessIds: string[]): Promise<boolean> => {
+    try {
+      const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
+      const seed = Math.random().toString(36).slice(2, 10);
+      // Pool large en un appel : les vidéos des établissements épinglés peuvent
+      // se trouver au-delà de la première page du mélange par seed.
+      const { items, total } = await fetchBadgesVideoFeed(badgeIds, { seed, limit: 180 });
+      if (!items.length) return false;
+      const pinned = new Set((pinnedBusinessIds || []).filter(Boolean));
+      const ordered = pinned.size
+        ? [
+            ...items.filter((v) => v.businessId && pinned.has(String(v.businessId))),
+            ...items.filter((v) => !v.businessId || !pinned.has(String(v.businessId))),
+          ]
+        : items;
+      earlyFeedOpenRef.current = true;
+      setVideoFeedList(ordered);
+      setVideoFeedCtx({ badgeIds, seed, total, cityIds: null });
+      feedLoadingMoreRef.current = false;
+      setFeedVideoTime(0);
+      setActiveFeedVideoId(ordered[0].id);
+      preloadFirstFeedMedia(ordered[0]);
+      for (const v of ordered.slice(1, 3)) {
+        try {
+          const thumb = (v as any).thumbnailUrl || (v as any).thumbnail_url;
+          if (thumb) { const img = new Image(); img.src = String(thumb); }
+        } catch { /* best-effort */ }
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
   useEffect(() => {
     // Pas d'attente de fin de streaming : dès que le marqueur VIDEO_FEED est
     // complet, le lecteur s'ouvre (le reste de la réponse continue en fond et
