@@ -2994,8 +2994,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             </div>
             </div>
 
-            {/* Zone 3 (20 %) : réservée au CTA « Découvrez l'App » monté par Front.tsx */}
-            {heroLayout && <div style={{ flex: "1 1 0%", minHeight: 0 }} aria-hidden />}
+            {/* Zone 3 : réservée au CTA « Découvrez l'App » monté par Front.tsx.
+                Sur mobile la zone est réduite (~9 %) ; desktop inchangé (20 %). */}
+            {heroLayout && <div className="basis-0 grow-[0.4] md:grow-[1]" aria-hidden />}
           </div>
         )}
 
