@@ -755,11 +755,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   }, []);
 
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null; is_platform_visible?: boolean };
-  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null; city?: string | null; subcategory_ids?: string[] };
+  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null; city?: string | null; subcategory_ids?: string[]; badge_ids?: string[] };
   // Affichage immédiat : les suggestions du dernier chargement sont relues
   // synchrone (mémoire puis localStorage) pour que les chips soient peintes dès
   // la première frame ; la requête réseau rafraîchit ensuite la liste.
-  const suggCacheKey = `owm-ask-sugg:${isPlatform ? "platform" : "host"}:${lang}`;
+  const suggCacheKey = `owm-ask-sugg2:${isPlatform ? "platform" : "host"}:${lang}`;
   const readSuggCache = (): SuggestionRow[] | null => {
     const mem = SUGG_MEM_CACHE.get(suggCacheKey);
     if (mem) return mem;
