@@ -22,6 +22,8 @@ interface Props {
   fixed?: boolean;
   /** Force l'affichage même si le header parent est masqué. */
   visible?: boolean;
+  /** Fond opaque/flouté : le contenu défile visiblement sous le header. */
+  solid?: boolean;
   /** Callback fermeture du menu (optionnel). */
   onMenuToggle?: (open: boolean) => void;
   /** Callback clic sur le logo / nom (retour écran 1). */
