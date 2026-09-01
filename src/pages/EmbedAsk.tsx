@@ -1043,11 +1043,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
 
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
-  // Signale au parent (/front) l'ouverture/fermeture de l'overlay Map : le parent
-  // passe alors l'iframe en pleine largeur pour que le panneau soit sans marge.
-  useEffect(() => {
-    try { window.parent?.postMessage({ type: openMap ? "owm-ask:map-open" : "owm-ask:map-closed" }, "*"); } catch { /* cross-origin */ }
-  }, [openMap]);
   useEffect(() => {
     preloadFrontStructureTaxonomy();
   }, []);
@@ -1091,10 +1086,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       return () => clearTimeout(t);
     }
   }, [openGenericPoi]);
-  // L'overlay POI générique (chip « Map » de l'accueil) émet le même signal que
-  // l'overlay Map : le host masque alors le CTA vert dès l'ouverture (même pendant le chargement).
+  // Source unique de vérité pour tous les overlays Map. Un second effet dédié à
+  // `openMap` envoyait parfois « map-closed » pendant l'ouverture du POI générique.
   useEffect(() => {
-    try { window.parent?.postMessage({ type: openGenericPoi || openMap ? "owm-ask:map-open" : "owm-ask:map-closed" }, "*"); } catch { /* cross-origin */ }
+    const payload = { type: openGenericPoi || openMap ? "owm-ask:map-open" : "owm-ask:map-closed" };
+    try { window.postMessage(payload, "*"); } catch { /* noop */ }
+    try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
   }, [openGenericPoi, openMap]);
   const [poiMasterAnchorId, setPoiMasterAnchorId] = useState<string | null>(null);
   /** Ancre POI de la carte générique : le POI Koutoubia lui-même, pour que la carte

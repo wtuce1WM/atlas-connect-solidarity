@@ -735,6 +735,7 @@ const Front = () => {
 
   const narrativeOpacity = 1 - range(progress, 0, 0.35);
   const narrativeActive = progress < 0.35;
+  const showHomeChrome = !demoIntro && !youtubeOpen && !mapOpen;
   
   const ctaP = range(progress, 0.25, 0.9);
   const ctaActive = progress > 0.575;
@@ -796,8 +797,7 @@ const Front = () => {
       {/* Mini-header pinné (identité + menu) — visible écrans 1 et 2, masqué pendant la démo */}
       <FrontHeader
         fixed
-
-        visible={!demoIntro && !youtubeOpen && !mapOpen}
+        visible={showHomeChrome}
         onLogoClick={() => {
           // Suggestions dépliées : simple repli, aucun rechargement (évite le flash #ECD6B8).
           if (suggestionsExpanded) {
@@ -839,7 +839,7 @@ const Front = () => {
         </div>
 
 
-        {!askLocked && !suggestionsExpanded && !conversationOpen && !mapOpen && !youtubeOpen && (
+        {showHomeChrome && !askLocked && !suggestionsExpanded && !conversationOpen && (
           // Répartition 40/40/20 : la zone basse (20 % du conteneur) est réservée
           // dans EmbedAsk (hero=1) ; le CTA vert y est centré, sans chevauchement.
           // Overlay Map/YouTube ouvert : le CTA est démonté (pas seulement transparent).
