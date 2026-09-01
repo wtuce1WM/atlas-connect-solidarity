@@ -1383,7 +1383,7 @@ const BookOnlineSlidePanelInner = ({
   }, [showTransitionOverlay]);
 
   const {
-    cardsHidden, dragOffsetY, isDragging,
+    cardsHidden,
     showCards, hideCards, resetDrag,
     onTouchStart, onTouchMove, onTouchEnd, onMouseDownDrag,
   } = useDragToHide();
