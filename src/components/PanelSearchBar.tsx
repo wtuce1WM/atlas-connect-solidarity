@@ -103,9 +103,13 @@ const Cell = ({ icon, label, onClick, ariaLabel, active, hoverClass = "hover:bg-
   return (
     <button
       type="button"
+      data-cta-tap
+      onTouchStart={(event) => event.stopPropagation()}
+      onTouchMove={(event) => event.stopPropagation()}
+      onTouchEnd={(event) => event.stopPropagation()}
       onClick={onClick}
       aria-label={ariaLabel}
-      className={`group flex-1 sm:flex-none flex flex-col items-center justify-start gap-1 min-w-[44px] max-w-[56px] sm:w-14 h-14 pt-1 pb-0.5 rounded-2xl transition-colors ${hoverClass}`}
+      className={`group flex-1 sm:flex-none flex flex-col items-center justify-start gap-1 min-w-[44px] max-w-[56px] sm:w-14 h-14 pt-1 pb-0.5 rounded-2xl touch-manipulation transition-colors ${hoverClass}`}
     >
       <span
         className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
