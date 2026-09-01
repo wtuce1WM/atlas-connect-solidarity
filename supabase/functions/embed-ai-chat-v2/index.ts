@@ -422,6 +422,20 @@ Deno.serve(async (req) => {
       let destinationsBlock: string | null = null;
       // Garde-fou concurrents : initialisé plus bas, référencé par finish().
       let competitorGuard: CompetitorGuard | null = null;
+      // Réécriture immersive non bloquante : les cartes partent avec les phrases
+      // cache/déterministes, les phrases réécrites arrivent en fin de flux.
+      let hooksUpgrade: Promise<Map<string, string>> | null = null;
+      const deferHooks = (p: Promise<Map<string, string>>) => { hooksUpgrade = p; };
+      const emitHooksUpgrade = async () => {
+        const pending = hooksUpgrade;
+        hooksUpgrade = null;
+        if (!pending) return;
+        const m = await pending.catch(() => null);
+        if (m && m.size) {
+          emit(`\n\n<!--HOOKS_UPGRADE:${JSON.stringify(Object.fromEntries(m))}-->`);
+        }
+      };
+
 
       try {
         resolution = await resolveWithAdmin(admin, userMessage, lang);
@@ -444,7 +458,10 @@ Deno.serve(async (req) => {
 
         if (destinationsBlock) { emit(destinationsBlock); destinationsBlock = null; }
         if (articleTeaser) { emit(articleTeaser); articleTeaser = null; }
+        // Dernier segment du flux : phrases immersives réécrites (si en cours).
+        await emitHooksUpgrade();
         end();
+
 
         // Mesure bout-en-bout côté serveur (hors rendu client).
         console.log("[embed-ai-chat-v2] timing", JSON.stringify({
@@ -952,6 +969,7 @@ Deno.serve(async (req) => {
                     admin,
                     query: curated.label || userMessage,
                     apiKey: LOVABLE_API_KEY,
+                    deferUpgrade: deferHooks,
                   },
                 },
               ).catch((e) => {
@@ -987,6 +1005,7 @@ Deno.serve(async (req) => {
                   admin,
                   query: curated.label || userMessage,
                   apiKey: LOVABLE_API_KEY,
+                  deferUpgrade: deferHooks,
                 },
               },
             ).catch((e) => {
@@ -1041,6 +1060,7 @@ Deno.serve(async (req) => {
                 admin,
                 query: curated.label || userMessage,
                 apiKey: LOVABLE_API_KEY,
+                deferUpgrade: deferHooks,
               },
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] curated_filter_failed", String(e));
@@ -1091,7 +1111,7 @@ Deno.serve(async (req) => {
                 total: glovoIds.length,
                 poolIds: glovoIds,
                 competitorGuard,
-                immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY },
+                immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks },
               }).catch((e) => {
                 console.error("[embed-ai-chat-v2] glovo_cards_failed", String(e));
                 return null;
@@ -1386,7 +1406,7 @@ Deno.serve(async (req) => {
                   competitorGuard,
                   maxCards: 30,
                   poolIds: badgeBizIds,
-                  immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY },
+                  immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks },
                   // Cartes + en-tête tout de suite : le texte immersif suit dans le flux.
                   onCards: ({ heading, knownBusinesses, mapPayload }) => {
                     earlyEmitted = true;

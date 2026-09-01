@@ -557,6 +557,30 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_immersive_hooks: {
+        Row: {
+          business_id: string
+          lang: string
+          query_key: string
+          text: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          lang: string
+          query_key: string
+          text: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          lang?: string
+          query_key?: string
+          text?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_routes: {
         Row: {
           code: string
