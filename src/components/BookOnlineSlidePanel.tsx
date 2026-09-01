@@ -1519,6 +1519,10 @@ const BookOnlineSlidePanelInner = ({
   // Global sound preference must be resolved BEFORE the overlay mute/unmute effect
   // so the effect can restore the correct muted state when overlays close.
   const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
+  // Comme dans VideoSlidePanel, ne pas remettre en route les effets média quand
+  // le CTA Mute change seulement la préférence globale.
+  const globalSoundOnRef = useRef(globalSoundOn);
+  useEffect(() => { globalSoundOnRef.current = globalSoundOn; }, [globalSoundOn]);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -1655,7 +1659,7 @@ const BookOnlineSlidePanelInner = ({
     // Overlay closed → restore playback and re-apply the user's global sound preference
     // (previously the video always resumed muted, so the sound stayed OFF after closing
     // e.g. the Filters overlay even when the user had turned it ON before).
-    const shouldBeMuted = !globalSoundOn;
+    const shouldBeMuted = !globalSoundOnRef.current;
     const v = videoRef.current;
     if (v) {
       v.dataset.owmAutoMute = "1";
@@ -1676,7 +1680,7 @@ const BookOnlineSlidePanelInner = ({
     ytPost("playVideo");
 
 
-  }, [mediaBlockingOverlayOpen, globalSoundOn]);
+  }, [mediaBlockingOverlayOpen]);
 
   // ── Pont iframe IA (embed/ask) : fermeture et ready via postMessage
   useEffect(() => {
