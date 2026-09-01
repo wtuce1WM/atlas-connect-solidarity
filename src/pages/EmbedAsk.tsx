@@ -1675,6 +1675,21 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       (suggestionId ? suggestions.find((s) => s.id === suggestionId) : null) ||
       suggestions.find((s) => normLabel(s.label) === normalizedText) ||
       null;
+    // FEED PUR (périmètre strict : « Vie pratique ») : le flux vidéo du badge
+    // s'ouvre immédiatement, épinglés d'abord, et le tour s'arrête là — aucun
+    // appel au moteur IA, donc aucune réponse texte ni corpus fiches en fond.
+    if (feedSuggestion && PURE_FEED_SUGGESTION_IDS.includes(feedSuggestion.id) && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
+      setError(null);
+      setActiveSuggestionId(feedSuggestion.id);
+      void openPureBadgeFeed(
+        feedSuggestion.badge_ids as string[],
+        (feedSuggestion.business_ids as string[]) || [],
+      ).then((ok) => {
+        // Filet : feed vide → on repasse par le parcours standard.
+        if (!ok) send(text, undefined, followupId);
+      });
+      return;
+    }
     if (feedSuggestion?.mode === "video_feed" && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
       void openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]);
     }
