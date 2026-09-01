@@ -773,6 +773,9 @@ const VideoSlidePanel = ({
             window.setTimeout(() => { if (!disposed) attemptPlay(); }, 120);
             return;
           }
+          // Seul un vrai refus d'autoplay autorise le fallback mute. Les autres
+          // erreurs transitoires du média pendant un swipe ne changent jamais le son.
+          if (name !== "NotAllowedError" && name !== "SecurityError") return;
           // Vrai blocage navigateur : on mute pour démarrer, puis on rétablit
           // le son dès le premier geste utilisateur.
           autoMute = true;
