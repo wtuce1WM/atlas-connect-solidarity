@@ -2947,7 +2947,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             </form>
 
             <div className="w-full max-w-xl md:max-w-4xl mx-auto flex flex-col items-center gap-2">
-              <div ref={badgesRowRef} data-badges-row className="w-full flex flex-nowrap md:flex-wrap items-stretch justify-start md:justify-center gap-2 overflow-x-auto scrollbar-hide pb-1">
+              <div ref={badgesRowRef} data-badges-row className={`w-full flex ${showAllSuggestions ? "flex-wrap" : "flex-nowrap md:flex-wrap"} items-stretch justify-start md:justify-center gap-2 overflow-x-auto scrollbar-hide pb-1`}>
               {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
               {renderMapChip("home")}
               {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s, sIdx) => {
