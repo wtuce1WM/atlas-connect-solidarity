@@ -2542,6 +2542,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     }));
     const openOne = (id: string, siblings: string[], overlay: "reviews" | null) => {
       // Scroll vertical : résultats affichés d'abord, puis tout le feed vidéo du badge.
+      // Un clic sur une vignette de gauche ferme le flux vidéo (VideoSlidePanel)
+      // afin que la fiche ne s'ouvre pas derrière lui.
+      if (activeFeedVideoId) setActiveFeedVideoId(null);
       const seen = new Set(siblings);
       const full = [...siblings, ...feedBusinessIds.filter((bid) => !seen.has(bid))];
       setOpenSiblings(full);
