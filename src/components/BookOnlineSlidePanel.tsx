@@ -3732,8 +3732,11 @@ const BookOnlineSlidePanelInner = ({
                     </div>
                   )}
 
-                  {/* Widget Adresses à proximité — full width */}
-                  {!descOverlayContent && business?.slug && (
+                  {/* Widget Adresses à proximité — full width.
+                      Masqué si l'établissement n'a pas de coordonnées GPS, SAUF si sa Map
+                      est ancrée sur un POI master (ex. Tarik Belasri → Koutoubia). */}
+                  {!descOverlayContent && business?.slug
+                    && ((business?.latitude != null && business?.longitude != null) || !!poiMasterOverride) && (
                     <div className="mt-8 pt-6 border-t border-white/10">
                       <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">
                         {language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité"}
