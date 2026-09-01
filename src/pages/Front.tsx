@@ -794,22 +794,24 @@ const Front = () => {
 
 
         {!askLocked && !suggestionsExpanded && !conversationOpen && (
-          // Répartition 40/40/20 : le CTA vert est centré dans la zone basse
-          // (20 % du conteneur), sans chevaucher les suggestions.
-          <button
-            type="button"
-            onPointerEnter={prefetchDemo}
-            onTouchStart={prefetchDemo}
-            onClick={(e) => {
-              e.stopPropagation();
-              startDemo();
-            }}
-            disabled={demoLoading}
-            className="absolute left-1/2 z-30 -translate-x-1/2 rounded-full border border-[#25D366] bg-[#25D366] px-4 py-2 text-[13px] font-bold text-[#0b2e18] shadow-md transition-opacity hover:opacity-90 disabled:opacity-60"
-            style={{ bottom: "10%", transform: "translate(-50%, 50%)", fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.02em" }}
-          >
-            Découvrez l'App
-          </button>
+          // Répartition 40/40/20 : la zone basse (20 % du conteneur) est réservée
+          // dans EmbedAsk (hero=1) ; le CTA vert y est centré, sans chevauchement.
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex h-[20%] items-center justify-center">
+            <button
+              type="button"
+              onPointerEnter={prefetchDemo}
+              onTouchStart={prefetchDemo}
+              onClick={(e) => {
+                e.stopPropagation();
+                startDemo();
+              }}
+              disabled={demoLoading}
+              className="pointer-events-auto rounded-full border border-[#25D366] bg-[#25D366] px-4 py-2 text-[13px] font-bold text-[#0b2e18] shadow-md transition-opacity hover:opacity-90 disabled:opacity-60"
+              style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.02em" }}
+            >
+              Découvrez l'App
+            </button>
+          </div>
         )}
 
       </div>
