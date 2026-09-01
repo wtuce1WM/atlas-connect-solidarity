@@ -43,6 +43,10 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
   const isStart = align === "start";
   const successFiredRef = useRef(false);
   const startedAtRef = useRef<number>(0);
+  // True dès que l'utilisateur tape le micro pour lancer la recherche :
+  // fige les anneaux animés (ping/pulse) pendant le traitement.
+  const stoppingRef = useRef(false);
+  const [stopping, setStopping] = useState(false);
 
   useEffect(() => {
     startedAtRef.current = performance.now();
