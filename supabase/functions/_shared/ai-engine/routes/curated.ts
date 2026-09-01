@@ -131,7 +131,7 @@ export type CuratedTargets = {
 };
 
 const EMPTY_TARGETS: CuratedTargets = {
-  blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], serviceNames: [], badgeIds: [], commodities: [],
+  blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], serviceNames: [], badgeIds: [], badgesMatchAll: false, commodities: [],
   destinationIds: [], city: null, mode: null, routeOverride: null, radiusKm: null, label: null, aiTexts: [],
   proximity: null,
 };
