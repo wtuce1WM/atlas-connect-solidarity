@@ -799,7 +799,7 @@ const Front = () => {
         <div className="flex h-full w-full flex-col">
           <div className="h-full w-full flex-1 bg-transparent">
             <Suspense fallback={<div className="h-full w-full bg-transparent" />}>
-              <EmbedAskInline paramsOverride="scope=platform&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light" />
+              <EmbedAskInline paramsOverride="scope=platform&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light&persist=0" />
             </Suspense>
           </div>
         </div>
