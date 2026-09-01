@@ -2292,6 +2292,33 @@ const BookOnlineSlidePanelInner = ({
     onTouchEnd?.();
   }, [onTouchEnd, goMedia, effectiveHasNext, effectiveHasPrev, effectiveOnNext, effectiveOnPrev, anyOverlayOpen]);
 
+  // iOS : quand la navigation verticale entre fiches est disponible, un swipe
+  // vertical ne doit pas embarquer le viewport (scroll natif / rubber-band).
+  // React pose touchmove en passif → listener natif non passif requis.
+  const mediaScrollRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = mediaScrollRef.current;
+    if (!el) return;
+    if (!(effectiveHasPrev || effectiveHasNext)) return;
+    const onMove = (e: TouchEvent) => {
+      if (anyOverlayOpen) return;
+      const start = swipeStartRef.current;
+      const t = e.touches[0];
+      if (!start || !t) return;
+      const dx = t.clientX - start.x;
+      const dy = t.clientY - start.y;
+      if (Math.abs(dy) <= Math.abs(dx)) return;
+      const canScroll = el.scrollHeight - el.clientHeight > 2;
+      const atTop = el.scrollTop <= 0;
+      const atBottom = el.scrollTop >= el.scrollHeight - el.clientHeight - 1;
+      if (!canScroll || (dy < 0 && atBottom) || (dy > 0 && atTop)) {
+        if (e.cancelable) e.preventDefault();
+      }
+    };
+    el.addEventListener("touchmove", onMove, { passive: false });
+    return () => el.removeEventListener("touchmove", onMove);
+  }, [effectiveHasPrev, effectiveHasNext, anyOverlayOpen]);
+
 
   // Listen for YouTube "ended"
   useEffect(() => {
@@ -2695,6 +2722,7 @@ const BookOnlineSlidePanelInner = ({
         </div>
       )}
       <div
+        ref={mediaScrollRef}
         data-slidepanel-scroll="true"
         className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-16 md:p-6 md:pt-20 lg:pt-16 ${cardsHidden ? 'pb-0' : showSearchBar ? 'pb-[calc(96px+env(safe-area-inset-bottom))] md:pb-[95px]' : 'pb-[calc(2rem+env(safe-area-inset-bottom))]'} ${(effectiveMedia?.kind === "matterport" && cardsHidden) ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""} scrollbar-hide-mobile`}
         // Navigation verticale entre fiches disponible (feed/résultats IA) :
