@@ -1005,6 +1005,19 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
   }, [conversationOpenSignal]);
 
+  /** Le host (clic sur « One World Morocco ») demande le repli des suggestions
+      sans recharger la page. */
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      if (e.data?.type !== "owm-host:collapse-suggestions") return;
+      setShowAllSuggestions(false);
+      try { window.postMessage({ type: "owm-ask:suggestions-expanded", expanded: false }, window.location.origin); } catch { /* noop */ }
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
+
+
   /** Option B : accueil IA plein écran (logo + champ central + chips) vs conversation. */
   const homeState = isPlatform && !hasUserMessages && !streaming && assistantReady && splashPhase === "done";
   
