@@ -832,7 +832,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const storageKey = `embed-ask:thread:${isPlatform ? `platform:${ctxSlug || "global"}` : slug}:${lang}`;
   // L'assistant plateforme ouvert dans un panneau vidéo doit toujours repartir
   // sur l'accueil + les suggestions back-office, même après refresh/re-ouverture.
-  const shouldPersistThread = !(isPlatform && inFloatingPanel);
+  // `persist=0` (Home /front inline) : chaque visite repart sur un accueil frais —
+  // sinon la conversation restaurée masque le CTA « Découvrez l'App » (conversation-open).
+  const noPersist = /^(0|false|no)$/i.test(params.get("persist") || "");
+  const shouldPersistThread = !(isPlatform && inFloatingPanel) && !noPersist;
   const TTL_MS = 7 * 24 * 3600 * 1000;
   type PersistedThread = {
     sessionId: string;
