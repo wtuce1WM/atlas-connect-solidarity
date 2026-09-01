@@ -135,7 +135,12 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
         {/* Glass core button */}
         <button
           type="button"
-          onClick={liveTranscript && onFinish ? onFinish : onClose}
+          onClick={() => {
+            // Gel immédiat des anneaux animés dès le tap utilisateur.
+            if (!stopping) setStopping(true);
+            if (onFinish) onFinish();
+            else onClose();
+          }}
           className="relative w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/30 transition-transform hover:scale-105"
           style={{
             background: `linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08))`,
