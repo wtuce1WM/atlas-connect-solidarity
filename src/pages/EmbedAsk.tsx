@@ -2950,12 +2950,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               <div ref={badgesRowRef} data-badges-row className="w-full flex flex-nowrap md:flex-wrap items-stretch justify-start md:justify-center gap-2 overflow-x-auto scrollbar-hide pb-1">
               {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
               {renderMapChip("home")}
-              {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s) => {
+              {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s, sIdx) => {
                 const label = s.label;
                 const isYoutubePage = s.id === YOUTUBE_PAGE_SUGGESTION_ID || /youtube/i.test(label);
                 return (
+                  <Fragment key={s.id}>
                   <button
-                    key={s.id}
                     type="button"
                     onPointerEnter={warmAiEngineConnection}
                     onTouchStart={warmAiEngineConnection}
@@ -2965,6 +2965,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   >
                     {label}
                   </button>
+                  {sIdx === 2 && <div className="hidden md:block basis-full h-0 w-full pointer-events-none" />}
+                  </Fragment>
                 );
               })}
               </div>
