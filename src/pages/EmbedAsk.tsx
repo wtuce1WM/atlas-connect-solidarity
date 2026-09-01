@@ -1653,25 +1653,25 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     } catch { /* cross-origin */ }
     if (!overrideText) setInput("");
 
-    // Suggestion badgée en mode `video_feed` : le lecteur vidéo s'ouvre TOUT DE
-    // SUITE côté client (badge_ids connus en base), sans attendre la réponse du
-    // modèle. Le marqueur VIDEO_FEED du stream met ensuite la liste à jour
-    // (périmètre ville serveur) sans interrompre la lecture en cours.
-    const feedSuggestion =
-      (suggestionId ? suggestions.find((s) => s.id === suggestionId) : null) ||
-      suggestions.find((s) => normLabel(s.label) === normLabel(text)) ||
-      null;
-    if (feedSuggestion?.mode === "video_feed" && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
-      openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]);
-    }
-
-
     // Suggestion back-office en mode `booking` : aucun appel modèle. On injecte
     // localement le widget de disponibilité (dates + voyageurs) de la fiche,
     // la recherche SerpAPI ville est ensuite rendue inline dans la réponse.
     const normLabel = (s: string) =>
       s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
     const normalizedText = normLabel(text);
+
+    // Suggestion badgée en mode `video_feed` : le lecteur vidéo s'ouvre TOUT DE
+    // SUITE côté client (badge_ids connus en base), sans attendre la réponse du
+    // modèle. Le marqueur VIDEO_FEED du stream met ensuite la liste à jour
+    // (périmètre ville serveur) sans interrompre la lecture en cours.
+    const feedSuggestion =
+      (suggestionId ? suggestions.find((s) => s.id === suggestionId) : null) ||
+      suggestions.find((s) => normLabel(s.label) === normalizedText) ||
+      null;
+    if (feedSuggestion?.mode === "video_feed" && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
+      void openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]);
+    }
+
     const isBookingLabel = [
       "reserver une chambre",
       "book a room",
