@@ -1992,6 +1992,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setFeedVideoTime(0);
       setActiveFeedVideoId(payload.videos[0].id);
       preloadFirstFeedMedia(payload.videos[0]);
+      // Miniatures des vidéos suivantes : le swipe démarre sans écran noir.
+      for (const v of payload.videos.slice(1, 3)) {
+        try {
+          const thumb = (v as any).thumbnail_url || (v as any).thumbnail;
+          if (thumb) { const img = new Image(); img.src = String(thumb); }
+        } catch { /* best-effort */ }
+      }
       return;
     }
   }, [messages, streaming]);
