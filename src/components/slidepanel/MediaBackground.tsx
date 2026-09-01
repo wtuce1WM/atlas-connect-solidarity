@@ -38,6 +38,9 @@ const MediaBackground = React.memo(function MediaBackground({
   // redémarrer leur cycle cleanup → pause/mute → play à chaque clic.
   const soundOnRef = useRef(soundOn);
   useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
+  // Dernière vidéo fichier affichée (anti écran noir pendant le chargement).
+  const lastFileUrlRef = useRef<string | null>(null);
+
 
   // Vidéos natives : AUCUNE logique de lecture/son ici. Le moteur unique
   // (usePanelVideoPlayback, appelé par le panneau parent) est la seule source de
