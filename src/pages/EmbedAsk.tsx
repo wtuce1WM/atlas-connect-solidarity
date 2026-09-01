@@ -758,7 +758,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   }, []);
 
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null; is_platform_visible?: boolean };
-  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null; city?: string | null; subcategory_ids?: string[]; badge_ids?: string[] };
+  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null; city?: string | null; subcategory_ids?: string[]; badge_ids?: string[]; business_ids?: string[] };
   // Affichage immédiat : les suggestions du dernier chargement sont relues
   // synchrone (mémoire puis localStorage) pour que les chips soient peintes dès
   // la première frame ; la requête réseau rafraîchit ensuite la liste.
@@ -1464,6 +1464,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           mode: (r.mode as string | null) ?? null,
           subcategory_ids: Array.isArray(r.subcategory_ids) ? (r.subcategory_ids as string[]) : [],
           badge_ids: Array.isArray(r.badge_ids) ? (r.badge_ids as string[]) : [],
+          business_ids: Array.isArray(r.business_ids) ? (r.business_ids as string[]) : [],
           city: (r.city as string | null) ?? null,
         }))
         .filter((r) => r.label);
@@ -1674,6 +1675,30 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       (suggestionId ? suggestions.find((s) => s.id === suggestionId) : null) ||
       suggestions.find((s) => normLabel(s.label) === normalizedText) ||
       null;
+    // FEED PUR (périmètre strict : « Vie pratique ») : le flux vidéo du badge
+    // s'ouvre immédiatement, épinglés d'abord, et le tour s'arrête là — aucun
+    // appel au moteur IA, donc aucune réponse texte ni corpus fiches en fond.
+    if (
+      feedSuggestion &&
+      PURE_FEED_SUGGESTION_IDS.includes(feedSuggestion.id) &&
+      (feedSuggestion.badge_ids?.length ?? 0) > 0 &&
+      !pureFeedFallbackRef.current
+    ) {
+      setError(null);
+      setActiveSuggestionId(feedSuggestion.id);
+      void openPureBadgeFeed(
+        feedSuggestion.badge_ids as string[],
+        (feedSuggestion.business_ids as string[]) || [],
+      ).then((ok) => {
+        // Filet : feed vide → on repasse une seule fois par le parcours standard.
+        if (!ok) {
+          pureFeedFallbackRef.current = true;
+          send(text, suggestionId, followupId);
+          pureFeedFallbackRef.current = false;
+        }
+      });
+      return;
+    }
     if (feedSuggestion?.mode === "video_feed" && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
       void openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]);
     }
@@ -2014,6 +2039,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const autoOpenedFeedRef = useRef<string | null>(null);
   /** Feed déjà ouvert côté client avant la réponse du modèle (ouverture immédiate). */
   const earlyFeedOpenRef = useRef(false);
+  /** Garde anti-boucle du repli « feed pur » vers le parcours standard. */
+  const pureFeedFallbackRef = useRef(false);
 
   /**
    * Ouverture immédiate du feed vidéo d'une suggestion badgée, sans attendre le
@@ -2039,6 +2066,47 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         } catch { /* best-effort */ }
       }
     } catch { /* best-effort : le marqueur VIDEO_FEED du stream reste le filet */ }
+  }, []);
+
+  /**
+   * Suggestions « FEED PUR » (périmètre strict : « Vie pratique ») : aucune
+   * réponse IA, aucun corpus fiches badge en fond — uniquement le flux vidéo du
+   * badge, ordonné en commençant par les vidéos des établissements épinglés
+   * (`business_ids` de la suggestion).
+   */
+  const PURE_FEED_SUGGESTION_IDS = ["7f452ed9-52df-417f-b771-d478d3d74826"];
+  const openPureBadgeFeed = useCallback(async (badgeIds: string[], pinnedBusinessIds: string[]): Promise<boolean> => {
+    try {
+      const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
+      const seed = Math.random().toString(36).slice(2, 10);
+      // Pool large en un appel : les vidéos des établissements épinglés peuvent
+      // se trouver au-delà de la première page du mélange par seed.
+      const { items, total } = await fetchBadgesVideoFeed(badgeIds, { seed, limit: 180 });
+      if (!items.length) return false;
+      const pinned = new Set((pinnedBusinessIds || []).filter(Boolean));
+      const ordered = pinned.size
+        ? [
+            ...items.filter((v) => v.businessId && pinned.has(String(v.businessId))),
+            ...items.filter((v) => !v.businessId || !pinned.has(String(v.businessId))),
+          ]
+        : items;
+      earlyFeedOpenRef.current = true;
+      setVideoFeedList(ordered);
+      setVideoFeedCtx({ badgeIds, seed, total, cityIds: null });
+      feedLoadingMoreRef.current = false;
+      setFeedVideoTime(0);
+      setActiveFeedVideoId(ordered[0].id);
+      preloadFirstFeedMedia(ordered[0]);
+      for (const v of ordered.slice(1, 3)) {
+        try {
+          const thumb = (v as any).thumbnailUrl || (v as any).thumbnail_url;
+          if (thumb) { const img = new Image(); img.src = String(thumb); }
+        } catch { /* best-effort */ }
+      }
+      return true;
+    } catch {
+      return false;
+    }
   }, []);
   useEffect(() => {
     // Pas d'attente de fin de streaming : dès que le marqueur VIDEO_FEED est
