@@ -2946,7 +2946,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               </div>
             </form>
 
-            <div ref={badgesRowRef} data-badges-row className="w-full max-w-xl mx-auto flex flex-nowrap md:flex-wrap items-stretch md:items-center justify-start md:justify-center gap-2 overflow-x-auto md:overflow-visible scrollbar-hide pb-1">
+            <div className="w-full max-w-xl mx-auto flex flex-col items-center gap-2">
+              <div ref={badgesRowRef} data-badges-row className="w-full flex flex-nowrap items-stretch justify-start gap-2 overflow-x-auto scrollbar-hide pb-1">
               {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
               {renderMapChip("home")}
               {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s) => {
@@ -2966,6 +2967,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   </button>
                 );
               })}
+              </div>
 
               {visibleSuggestions.length > 5 && (
                 <button
