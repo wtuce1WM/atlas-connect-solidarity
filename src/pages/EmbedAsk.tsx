@@ -312,6 +312,8 @@ const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
 const VIDEOFEED_RE = /<!--VIDEO_FEED:([\s\S]*?)-->/g;
 const TIDES_RE = /<!--TIDES_FORECAST:([\s\S]*?)-->/g;
 const COMPETITOR_GUARD_RE = /<!--COMPETITOR_GUARD_ACTIVE-->/;
+/** Phrases immersives réécrites, livrées après les cartes (id → texte). */
+const HOOKS_UPGRADE_RE = /<!--HOOKS_UPGRADE:([\s\S]*?)-->/g;
 
 /** Préchargement best-effort du poster + flux de la 1re vidéo d'un feed curaté. */
 const preloadFirstFeedMedia = (item?: { url?: string | null; thumbnail_url?: string | null } | null) => {
@@ -405,6 +407,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   const tides: string[] = [];
   const bookings: BookingPayload[] = [];
   const destChips: ScopeChip[] = [];
+  const hookUpgrades: Record<string, string> = {};
   const competitorGuard = COMPETITOR_GUARD_RE.test(text);
   if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips };
   let clean = text.replace(MAP_RE, (_m, raw) => {
@@ -468,6 +471,14 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       if (p && (p.city || p.city_name)) tides.push(String(p.city || p.city_name));
     } catch { /* */ }
     return "";
+  }).replace(HOOKS_UPGRADE_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && typeof p === "object") for (const [id, v] of Object.entries(p)) {
+        if (id && typeof v === "string" && v.trim()) hookUpgrades[id] = v.trim();
+      }
+    } catch { /* */ }
+    return "";
   }).replace(HOTEL_BOOKING_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -492,7 +503,19 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--COMPETITOR_GUARD_ACTIVE-->/g, "")
     .replace(/<!--DESTINATION_CHIPS:[\s\S]*?-->/g, "")
     .replace(/<!--DESTINATION_CHIPS:[\s\S]*$/g, "")
+    .replace(/<!--HOOKS_UPGRADE:[\s\S]*?-->/g, "")
+    .replace(/<!--HOOKS_UPGRADE:[\s\S]*$/g, "")
     .trim();
+  // Les phrases réécrites remplacent le hook des cartes déjà affichées.
+  if (Object.keys(hookUpgrades).length) {
+    for (const m of maps) {
+      for (const b of (m.businesses || []) as any[]) {
+        const up = hookUpgrades[String(b?.id)];
+        if (!up) continue;
+        b.hook_fr = up; b.hook_en = up; b.hook_ar = up;
+      }
+    }
+  }
   clean = linkifyPhones(clean);
   return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips };
 }
