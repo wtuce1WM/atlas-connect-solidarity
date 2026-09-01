@@ -2960,7 +2960,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     onPointerEnter={warmAiEngineConnection}
                     onTouchStart={warmAiEngineConnection}
                     onClick={() => { if (isYoutubePage) { setYoutubeOpen(true); return; } send(label, s.id); }}
-                    className={`${sIdx >= 6 ? (showAllSuggestions ? "" : "hidden md:flex") : ""} shrink-0 whitespace-nowrap text-[13px] px-4 py-2 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
+                    className={`shrink-0 whitespace-nowrap text-[13px] px-4 py-2 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
                     style={{ ...chipStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
                   >
                     {label}
@@ -2979,9 +2979,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     window.postMessage({ type: "owm-ask:suggestions-expanded", expanded: next }, window.location.origin);
                     return next;
                   })}
-                  className="text-[13px] font-bold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity md:hidden"
-                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing:
-"0.02em", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37" }}
+                  className="text-[13px] font-bold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37" }}
 
                 >
                   {showAllSuggestions
