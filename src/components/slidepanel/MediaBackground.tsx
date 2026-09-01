@@ -96,8 +96,6 @@ const MediaBackground = React.memo(function MediaBackground({
           className="w-full h-full bg-black object-cover"
           loop
           playsInline
-          autoPlay={!anyOverlayOpen}
-          muted={!soundOn}
           onLoadedMetadata={onLoadedMetadata}
         />
       );
