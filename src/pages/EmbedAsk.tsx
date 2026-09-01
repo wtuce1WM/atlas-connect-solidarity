@@ -784,6 +784,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [splashPhase] = useState<"full" | "exit" | "done">("done");
   /** Accueil IA : n'affiche que 5 chips, le CTA déplie toutes les suggestions. */
   const [showAllSuggestions, setShowAllSuggestions] = useState(false);
+  /** Hauteur de la zone 1 (« Bonjour 👋 ») mesurée suggestions fermées :
+      figée à l'ouverture des suggestions pour que le texte garde exactement
+      sa place au lieu de remonter sous le header. */
+  const heroZone1Ref = useRef<HTMLDivElement | null>(null);
+  const [heroZone1H, setHeroZone1H] = useState<number | null>(null);
+
 
 
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
