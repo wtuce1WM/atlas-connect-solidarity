@@ -2744,7 +2744,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       className={
         autoHeight
           ? `flex flex-col ${surface} ${theme === "dark" ? "dark" : ""}`
-          : `fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""} transition-[right] duration-300 ease-out ${openBusinessId || showBookingOverlay ? "lg:right-1/2" : ""}`
+          : `fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""} transition-[right] duration-300 ease-out ${anyPanelOpen || showBookingOverlay ? "lg:right-1/2" : ""}`
       }
       style={
         // `?bg=transparent` = le fond de l'hôte doit apparaître : le conteneur
