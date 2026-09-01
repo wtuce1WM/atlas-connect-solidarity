@@ -2946,7 +2946,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               </div>
             </form>
 
-            <div ref={badgesRowRef} data-badges-row className="w-full max-w-xl mx-auto flex flex-wrap items-center justify-center gap-2" style={heroLayout ? { flex: "1 1 0%" } : undefined}>
+            <div ref={badgesRowRef} data-badges-row className="w-full max-w-xl mx-auto flex flex-wrap items-center justify-center gap-2">
               {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
               {renderMapChip("home")}
               {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s) => {
