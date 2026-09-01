@@ -2958,9 +2958,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 reste stable, mais le contenu (texte d'accueil long ou transcript)
                 peut s'étendre sans être coupé. */}
             <div
+              ref={heroZone1Ref}
               className={heroLayout ? (showAllSuggestions ? "w-full flex items-center justify-center overflow-visible" : "w-full flex items-center justify-center overflow-hidden") : "w-full flex items-center justify-center min-h-[200px] h-auto overflow-visible"}
-              style={heroLayout ? (showAllSuggestions ? { flex: "0 0 auto" } : { flex: "2 1 0%", minHeight: 0 }) : undefined}
+              style={heroLayout ? (showAllSuggestions
+                /* Suggestions ouvertes : hauteur figée = hauteur mesurée fermé,
+                   pour que « Bonjour 👋 » garde exactement sa place. */
+                ? (heroZone1H ? { flex: "0 0 auto", height: heroZone1H, overflow: "visible" } : { flex: "0 0 auto", minHeight: 0 })
+                : { flex: "2 1 0%", minHeight: 0 }) : undefined}
             >
+
             {voiceActive ? (
               /* Mode STT inline : animation micro bleue + texte blanc à la place
                  de l'icône IA + texte d'accueil (pas d'overlay fullscreen). */
