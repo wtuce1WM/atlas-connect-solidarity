@@ -236,6 +236,7 @@ export async function loadCuratedTargets(
 
       // Réinitialisation des filtres hérités du parent.
       out.badgeIds = [];
+      out.badgesMatchAll = false;
       out.commodities = [];
       out.destinationIds = [];
       out.subcategoryNames = [];
