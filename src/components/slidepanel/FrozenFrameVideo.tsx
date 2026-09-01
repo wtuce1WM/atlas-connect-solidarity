@@ -148,6 +148,8 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
       preload="auto"
       onLoadedMetadata={(e) => { if (activeRef.current === slot) onLoadedMetadata?.(e); }}
       onTimeUpdate={(e) => { if (activeRef.current === slot) onTimeUpdate?.(e); }}
+      onPlaying={() => { if (activeRef.current === slot) setPoster(null); }}
+      onCanPlay={() => { if (activeRef.current === slot) setPoster(null); }}
     />
   );
 
@@ -155,8 +157,17 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
     <div className="relative w-full h-full bg-black">
       {buffer(0, refA)}
       {buffer(1, refB)}
+      {poster && (
+        <img
+          src={poster}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        />
+      )}
     </div>
   );
+
 });
 
 export default FrozenFrameVideo;
