@@ -1524,11 +1524,11 @@ const BookOnlineSlidePanelInner = ({
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Sync video state — use MutationObserver-like approach via interval to catch key-based remounts
+  // Métrique de démarrage de lecture uniquement. L'état play/mute et l'autoplay
+  // sont gérés par usePanelVideoPlayback (moteur unique, plus bas).
   useEffect(() => {
     let lastEl: HTMLVideoElement | null = null;
     let cleanup: (() => void) | null = null;
-
     const attach = () => {
       const v = videoRef.current;
       if (v === lastEl) return;
@@ -1536,32 +1536,11 @@ const BookOnlineSlidePanelInner = ({
       cleanup = null;
       lastEl = v;
       if (!v) return;
-      const onPlay = () => {
-        setVideoPaused(false);
-        setVideoPlaybackStartedAt((prev) => prev ?? performance.now());
-      };
-      const onPause = () => setVideoPaused(true);
-
-      const onVolChange = () => {
-        setVideoMuted(v.muted);
-        // Même traitement que VideoSlidePanel : seul un changement réel depuis
-        // le CTA devient la préférence globale. Les mutes techniques sont balisés.
-        if (v.dataset.owmAutoMute !== "1") setGlobalSoundOn(!v.muted);
-      };
+      const onPlay = () => setVideoPlaybackStartedAt((prev) => prev ?? performance.now());
       v.addEventListener("play", onPlay);
-      v.addEventListener("pause", onPause);
-      v.addEventListener("volumechange", onVolChange);
-      setVideoPaused(v.paused);
-      setVideoMuted(v.muted);
-      cleanup = () => {
-        v.removeEventListener("play", onPlay);
-        v.removeEventListener("pause", onPause);
-        v.removeEventListener("volumechange", onVolChange);
-      };
+      cleanup = () => v.removeEventListener("play", onPlay);
     };
-
     attach();
-    // Poll briefly to catch React key-based remounts
     const id = setInterval(attach, 200);
     return () => {
       clearInterval(id);
