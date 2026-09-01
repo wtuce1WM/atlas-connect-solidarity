@@ -372,6 +372,50 @@ async function rewriteBatch(
   return out;
 }
 
+// ─────────────── Cache serveur des phrases réécrites (zéro token) ───────────
+// Table `ai_immersive_hooks` (query_key, business_id, lang) : une suggestion
+// déjà rédigée pour un établissement n'est jamais repayée ni réattendue.
+
+const HOOK_CACHE_TABLE = "ai_immersive_hooks";
+
+const cacheKeyOf = (query: string) => norm(query).replace(/\s+/g, " ").trim().slice(0, 160);
+
+async function readHookCache(admin: any, key: string, lang: Lang, ids: string[]): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  if (!key || !ids.length) return out;
+  try {
+    const { data, error } = await admin
+      .from(HOOK_CACHE_TABLE)
+      .select("business_id, text")
+      .eq("query_key", key)
+      .eq("lang", lang)
+      .in("business_id", ids);
+    if (error) throw error;
+    for (const r of (data ?? []) as any[]) {
+      const v = clean(r?.text);
+      if (r?.business_id && v) out.set(String(r.business_id), trimPhrase(v, MAX_RICH));
+    }
+  } catch (e) {
+    console.error("[immersive] cache_read_failed", String(e));
+  }
+  return out;
+}
+
+async function writeHookCache(admin: any, key: string, lang: Lang, phrases: Map<string, string>) {
+  if (!key || !phrases.size) return;
+  try {
+    const rows = [...phrases.entries()].map(([business_id, text]) => ({
+      query_key: key, business_id, lang, text, updated_at: new Date().toISOString(),
+    }));
+    const { error } = await admin
+      .from(HOOK_CACHE_TABLE)
+      .upsert(rows, { onConflict: "query_key,business_id,lang" });
+    if (error) throw error;
+  } catch (e) {
+    console.error("[immersive] cache_write_failed", String(e));
+  }
+}
+
 // ───────────────────────────── Entrée publique ─────────────────────────────
 
 export interface ImmersiveCtx {
@@ -383,7 +427,14 @@ export interface ImmersiveCtx {
   /** `false` sur les relances mécaniques (horaires, quartier…) → zéro token. */
   rewrite?: boolean;
   max?: number;
+  /**
+   * Réécriture NON bloquante : les cartes partent immédiatement avec les
+   * phrases cache/déterministes, et la promesse fournie ici livre les phrases
+   * réécrites plus tard dans le même flux (marqueur HOOKS_UPGRADE).
+   */
+  deferUpgrade?: (upgrade: Promise<Map<string, string>>) => void;
 }
+
 
 /**
  * Phrases immersives PAR ÉTABLISSEMENT (id → texte), sans en-tête (ni nom, ni
