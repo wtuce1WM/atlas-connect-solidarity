@@ -2968,8 +2968,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
             {/* Zone 2 (40 %) : champ question + suggestions */}
             <div
-              className={heroLayout ? "w-full flex flex-col items-center justify-center gap-3 overflow-y-auto scrollbar-hide" : "contents"}
-              style={heroLayout ? { flex: "2 1 0%", minHeight: 0 } : undefined}
+              className={heroLayout ? `w-full flex flex-col items-center justify-center gap-3 ${showAllSuggestions ? "overflow-visible" : "overflow-y-auto scrollbar-hide"}` : "contents"}
+              style={heroLayout ? (showAllSuggestions ? { flex: "0 0 auto", minHeight: 0 } : { flex: "2 1 0%", minHeight: 0 }) : undefined}
             >
             <form
               onSubmit={(e) => { e.preventDefault(); send(); }}
