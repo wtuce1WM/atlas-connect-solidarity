@@ -422,6 +422,20 @@ Deno.serve(async (req) => {
       let destinationsBlock: string | null = null;
       // Garde-fou concurrents : initialisé plus bas, référencé par finish().
       let competitorGuard: CompetitorGuard | null = null;
+      // Réécriture immersive non bloquante : les cartes partent avec les phrases
+      // cache/déterministes, les phrases réécrites arrivent en fin de flux.
+      let hooksUpgrade: Promise<Map<string, string>> | null = null;
+      const deferHooks = (p: Promise<Map<string, string>>) => { hooksUpgrade = p; };
+      const emitHooksUpgrade = async () => {
+        const pending = hooksUpgrade;
+        hooksUpgrade = null;
+        if (!pending) return;
+        const m = await pending.catch(() => null);
+        if (m && m.size) {
+          emit(`\n\n<!--HOOKS_UPGRADE:${JSON.stringify(Object.fromEntries(m))}-->`);
+        }
+      };
+
 
       try {
         resolution = await resolveWithAdmin(admin, userMessage, lang);
