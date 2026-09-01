@@ -1710,22 +1710,25 @@ const BookOnlineSlidePanelInner = ({
       if (!isTopMost()) return;
       const v = videoRef.current;
       if (v) {
-        if (v.paused) { v.play().catch(() => {}); ytPost("playVideo"); }
-        else { v.pause(); ytPost("pauseVideo"); }
+        // Moteur unique : même sémantique (pause explicite balisée) que le CTA.
+        toggleVideoPlay();
+        if (v.paused) ytPost("pauseVideo"); else ytPost("playVideo");
       } else {
         // YT-only media
-        if (videoPaused) { ytPost("playVideo"); setVideoPaused(false); }
-        else { ytPost("pauseVideo"); setVideoPaused(true); }
+        if (ytBgPlaying) { ytPost("pauseVideo"); setYtBgPlaying(false); }
+        else { ytPost("playVideo"); setYtBgPlaying(true); }
       }
       setTimeout(emitState, 50);
     };
     const onToggleMute = () => {
       if (!isTopMost()) return;
       const nextOn = !globalSoundOn;
-
-      setGlobalSoundOn(nextOn);
       const v = videoRef.current;
-      if (v) { v.muted = !nextOn; v.volume = nextOn ? 1 : 0; }
+      if (v) {
+        toggleVideoMute(); // écrit l'élément ET la préférence globale
+      } else {
+        setGlobalSoundOn(nextOn);
+      }
       if (nextOn) { ytPost("unMute"); ytPost("setVolume", [100]); }
       else { ytPost("mute"); ytPost("setVolume", [0]); }
       setTimeout(emitState, 50);
