@@ -1519,6 +1519,10 @@ const BookOnlineSlidePanelInner = ({
   // Global sound preference must be resolved BEFORE the overlay mute/unmute effect
   // so the effect can restore the correct muted state when overlays close.
   const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
+  // Comme dans VideoSlidePanel, ne pas remettre en route les effets média quand
+  // le CTA Mute change seulement la préférence globale.
+  const globalSoundOnRef = useRef(globalSoundOn);
+  useEffect(() => { globalSoundOnRef.current = globalSoundOn; }, [globalSoundOn]);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -1542,9 +1546,9 @@ const BookOnlineSlidePanelInner = ({
 
       const onVolChange = () => {
         setVideoMuted(v.muted);
-        // Le volumechange décrit l'état réel du lecteur, pas nécessairement un
-        // choix utilisateur (React, Safari et les fallbacks autoplay peuvent le
-        // déclencher). La préférence globale ne change que depuis les contrôles.
+        // Même traitement que VideoSlidePanel : seul un changement réel depuis
+        // le CTA devient la préférence globale. Les mutes techniques sont balisés.
+        if (v.dataset.owmAutoMute !== "1") setGlobalSoundOn(!v.muted);
       };
       v.addEventListener("play", onPlay);
       v.addEventListener("pause", onPause);
@@ -1655,7 +1659,7 @@ const BookOnlineSlidePanelInner = ({
     // Overlay closed → restore playback and re-apply the user's global sound preference
     // (previously the video always resumed muted, so the sound stayed OFF after closing
     // e.g. the Filters overlay even when the user had turned it ON before).
-    const shouldBeMuted = !globalSoundOn;
+    const shouldBeMuted = !globalSoundOnRef.current;
     const v = videoRef.current;
     if (v) {
       v.dataset.owmAutoMute = "1";
@@ -1676,7 +1680,7 @@ const BookOnlineSlidePanelInner = ({
     ytPost("playVideo");
 
 
-  }, [mediaBlockingOverlayOpen, globalSoundOn]);
+  }, [mediaBlockingOverlayOpen]);
 
   // ── Pont iframe IA (embed/ask) : fermeture et ready via postMessage
   useEffect(() => {
@@ -5014,7 +5018,6 @@ const BookOnlineSlidePanelInner = ({
                   videoRef: videoRef as React.RefObject<HTMLVideoElement>,
                   paused: videoPaused,
                   muted: videoMuted,
-                  onMutedChange: (m: boolean) => { setVideoMuted(m); setGlobalSoundOn(!m); },
                 } :
                 effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? {
                   type: "youtube",
