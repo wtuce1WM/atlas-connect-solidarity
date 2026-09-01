@@ -2967,6 +2967,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   </button>
                 );
               })}
+              </div>
 
               {visibleSuggestions.length > 5 && (
                 <button
