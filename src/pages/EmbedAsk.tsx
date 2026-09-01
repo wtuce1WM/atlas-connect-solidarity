@@ -1074,6 +1074,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
   /** Overlay inline « Le meilleur de YouTube sur le Maroc » (variante compacte de /youtube). */
   const [youtubeOpen, setYoutubeOpen] = useState(false);
+  // Signale au parent (/front) l'ouverture/fermeture de l'overlay YouTube :
+  // le header de l'hôte se masque pendant l'overlay (comme l'overlay Map).
+  useEffect(() => {
+    try { window.parent?.postMessage({ type: youtubeOpen ? "owm-ask:youtube-open" : "owm-ask:youtube-closed" }, "*"); } catch { /* cross-origin */ }
+  }, [youtubeOpen]);
   /** Overlay POI générique (chip « Map » permanent de l'accueil IA) : corpus complet
       des POI, ancré sur l'hôte ou sur un business `default_poi_is_master`. */
   const [openGenericPoi, setOpenGenericPoi] = useState(false);
