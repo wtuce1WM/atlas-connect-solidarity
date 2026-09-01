@@ -461,17 +461,34 @@ export async function buildImmersivePhrases(
 
   const query = String(ctx.query || "").trim();
   const keywords = queryKeywords(query);
+  const key = cacheKeyOf(query);
 
-  let rewritten = new Map<string, string>();
-  if (ctx.rewrite !== false && ctx.apiKey && query.length >= 6 && list.length >= RICH_MIN_ROWS) {
-    try {
-      const t0 = Date.now();
-      rewritten = await rewriteBatch(list, extras, lang, query, ctx.apiKey);
+  // 1. Cache : phrases déjà rédigées pour cette suggestion → zéro token, zéro attente.
+  const cached = await readHookCache(ctx.admin, key, lang, list.map((b: any) => String(b.id)));
+  const missing = list.filter((b: any) => !cached.has(String(b.id)));
+
+  let rewritten = new Map<string, string>(cached);
+  if (ctx.rewrite !== false && ctx.apiKey && query.length >= 6 && missing.length >= RICH_MIN_ROWS) {
+    const apiKey = ctx.apiKey;
+    const t0 = Date.now();
+    const run = (async () => {
+      const m = await rewriteBatch(missing, extras, lang, query, apiKey);
       console.log("[immersive] rewrite", JSON.stringify({
-        rows: list.length, got: rewritten.size, ms: Date.now() - t0, model: RICH_MODEL,
+        rows: missing.length, cached: cached.size, got: m.size,
+        ms: Date.now() - t0, model: RICH_MODEL, deferred: !!ctx.deferUpgrade,
       }));
-    } catch (e) {
+      if (m.size) await writeHookCache(ctx.admin, key, lang, m);
+      return m;
+    })().catch((e) => {
       console.error("[immersive] rewrite_error", String(e));
+      return new Map<string, string>();
+    });
+
+    if (ctx.deferUpgrade) {
+      // Non bloquant : les cartes partent tout de suite, la réécriture suit.
+      ctx.deferUpgrade(run);
+    } else {
+      for (const [id, v] of await run) rewritten.set(id, v);
     }
   }
 
@@ -482,6 +499,7 @@ export async function buildImmersivePhrases(
   }
   return out;
 }
+
 
 /** Phrases immersives déterministes (zéro token), id → texte. */
 export function buildImmersivePhrasesLocal(rows: any[], lang: Lang, max = 10): Map<string, string> {
