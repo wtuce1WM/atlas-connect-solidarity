@@ -682,6 +682,9 @@ const Front = () => {
   // Overlay Map ouvert depuis l'embed (ex. chip « Map » de l'accueil IA) :
   // l'iframe passe en pleine largeur pour que le panneau soit collé à droite.
   const [mapOpen, setMapOpen] = useState(false);
+  // Overlay YouTube ouvert depuis l'embed (suggestion « Le meilleur de YouTube sur le Maroc ») :
+  // le mini-header se masque pendant l'overlay plein cadre.
+  const [youtubeOpen, setYoutubeOpen] = useState(false);
   
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
@@ -704,7 +707,11 @@ const Front = () => {
         setMapOpen(true);
        } else if (e.data?.type === "owm-ask:map-closed") {
          setMapOpen(false);
-       }
+       } else if (e.data?.type === "owm-ask:youtube-open") {
+         setYoutubeOpen(true);
+       } else if (e.data?.type === "owm-ask:youtube-closed") {
+         setYoutubeOpen(false);
+        }
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
@@ -790,7 +797,7 @@ const Front = () => {
       <FrontHeader
         fixed
 
-        visible={!demoIntro}
+        visible={!demoIntro && !youtubeOpen}
         onLogoClick={() => {
           // Suggestions dépliées : simple repli, aucun rechargement (évite le flash #ECD6B8).
           if (suggestionsExpanded) {
