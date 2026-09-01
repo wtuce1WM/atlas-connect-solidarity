@@ -18,7 +18,7 @@ export const SURFACES: Record<Surface, SurfaceConfig> = {
   embed: {
     surface: "embed",
     confidenceThreshold: 0.45,
-    maxResults: 6,
+    maxResults: 8,
     historyTurns: 6,
     scope: "host_business",
     ton: "concierge de l'établissement hôte, direct, phrases courtes",
