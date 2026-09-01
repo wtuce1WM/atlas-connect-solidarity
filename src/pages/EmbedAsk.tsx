@@ -3069,9 +3069,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   type="button"
                   onClick={() => setShowAllSuggestions((v) => {
                     const next = !v;
+                    // Ouverture : on mesure la hauteur de la zone 1 tant qu'elle
+                    // est encore en layout fermé (flex 2 1 0%), pour la figer
+                    // ensuite et garder « Bonjour 👋 » à sa place exacte.
+                    if (next) {
+                      const h = heroZone1Ref.current?.offsetHeight ?? 0;
+                      if (h > 0) setHeroZone1H(h);
+                    }
                     window.postMessage({ type: "owm-ask:suggestions-expanded", expanded: next }, window.location.origin);
                     return next;
                   })}
+
                   className="text-[13px] font-bold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
                   style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37" }}
 
