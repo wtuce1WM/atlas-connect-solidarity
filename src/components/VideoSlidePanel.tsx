@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo, Suspense } from "react";
 import MediaViewerInfo, { buildFallbackTeaser } from "@/components/slidepanel/MediaViewerInfo";
+import FrozenFrameVideo from "@/components/slidepanel/FrozenFrameVideo";
+
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { toast } from "sonner";
 
