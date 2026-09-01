@@ -839,10 +839,12 @@ const Front = () => {
         </div>
 
 
-        {!askLocked && !suggestionsExpanded && !conversationOpen && (
+        {!askLocked && !suggestionsExpanded && !conversationOpen && !mapOpen && !youtubeOpen && (
           // Répartition 40/40/20 : la zone basse (20 % du conteneur) est réservée
           // dans EmbedAsk (hero=1) ; le CTA vert y est centré, sans chevauchement.
-          <div className={`pointer-events-none absolute inset-x-0 bottom-0 z-50 flex h-[20%] items-center justify-center transition-opacity duration-300 ${mapOpen ? "opacity-0" : "opacity-100"}`}>
+          // Overlay Map/YouTube ouvert : le CTA est démonté (pas seulement transparent).
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-50 flex h-[20%] items-center justify-center">
+
             <button
               type="button"
               onPointerEnter={prefetchDemo}
