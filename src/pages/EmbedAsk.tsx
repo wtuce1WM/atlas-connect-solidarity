@@ -3079,6 +3079,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         {(() => {
           // Sticky pill : reprend la dernière question de l'utilisateur pour rester
           // visible en haut à droite pendant qu'on lit la réponse / la relance.
+          // Home (hero=1) : pas de pill flottant, le header Front reste affiché.
+          if (heroLayout) return null;
           if (messages.length < 2) return null;
           let lastUser: UIMessage | null = null;
           for (let k = messages.length - 1; k >= 0; k--) {
