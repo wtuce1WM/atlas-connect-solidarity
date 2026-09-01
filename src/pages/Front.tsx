@@ -797,7 +797,7 @@ const Front = () => {
       <FrontHeader
         fixed
 
-        visible={!demoIntro}
+        visible={!demoIntro && !youtubeOpen}
         onLogoClick={() => {
           // Suggestions dépliées : simple repli, aucun rechargement (évite le flash #ECD6B8).
           if (suggestionsExpanded) {
