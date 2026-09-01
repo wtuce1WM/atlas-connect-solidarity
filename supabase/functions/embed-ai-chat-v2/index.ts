@@ -458,7 +458,10 @@ Deno.serve(async (req) => {
 
         if (destinationsBlock) { emit(destinationsBlock); destinationsBlock = null; }
         if (articleTeaser) { emit(articleTeaser); articleTeaser = null; }
+        // Dernier segment du flux : phrases immersives réécrites (si en cours).
+        await emitHooksUpgrade();
         end();
+
 
         // Mesure bout-en-bout côté serveur (hors rendu client).
         console.log("[embed-ai-chat-v2] timing", JSON.stringify({
