@@ -791,7 +791,6 @@ const Front = () => {
         fixed
 
         visible={!demoIntro}
-        solid={askLocked || conversationOpen}
         onLogoClick={() => {
           if (window.location.pathname === "/") {
             window.location.reload();
