@@ -1464,6 +1464,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           mode: (r.mode as string | null) ?? null,
           subcategory_ids: Array.isArray(r.subcategory_ids) ? (r.subcategory_ids as string[]) : [],
           badge_ids: Array.isArray(r.badge_ids) ? (r.badge_ids as string[]) : [],
+          business_ids: Array.isArray(r.business_ids) ? (r.business_ids as string[]) : [],
           city: (r.city as string | null) ?? null,
         }))
         .filter((r) => r.label);
