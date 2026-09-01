@@ -2946,11 +2946,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         {/* Option B : état « accueil IA » — logo, titre, champ central très visible,
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
-            {/* Suggestions dépliées : plus aucune zone fixe en hauteur —
-                tout passe en hauteur naturelle (ni clip, ni scroll interne),
-                le texte d'intro et toutes les puces restent visibles. */}
             <div className={heroLayout ? `flex w-full flex-col items-center ${showAllSuggestions ? "min-h-full overflow-visible" : "h-full overflow-hidden"}` : "flex flex-col items-center justify-center gap-5 md:gap-6 px-1 py-4 md:py-8 w-full"}>
             {/* Conteneur de hauteur minimale : le passage de l'accueil au panneau STT
+                reste stable, mais le contenu (texte d'accueil long ou transcript)
                 reste stable, mais le contenu (texte d'accueil long ou transcript)
                 peut s'étendre sans être coupé. */}
             <div
