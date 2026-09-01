@@ -1091,6 +1091,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       return () => clearTimeout(t);
     }
   }, [openGenericPoi]);
+  // L'overlay POI générique (chip « Map » de l'accueil) émet le même signal que
+  // l'overlay Map : le host masque alors le CTA vert dès l'ouverture (même pendant le chargement).
+  useEffect(() => {
+    try { window.parent?.postMessage({ type: openGenericPoi || openMap ? "owm-ask:map-open" : "owm-ask:map-closed" }, "*"); } catch { /* cross-origin */ }
+  }, [openGenericPoi, openMap]);
   const [poiMasterAnchorId, setPoiMasterAnchorId] = useState<string | null>(null);
   /** Ancre POI de la carte générique : le POI Koutoubia lui-même, pour que la carte
       soit centrée immédiatement sur ses coordonnées GPS (31.6237205, -7.9936196). */
