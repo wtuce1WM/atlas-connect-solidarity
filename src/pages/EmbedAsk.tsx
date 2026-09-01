@@ -2946,7 +2946,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               </div>
             </form>
 
-            <div ref={badgesRowRef} data-badges-row className="w-full max-w-xl mx-auto flex flex-wrap items-center justify-center gap-2">
+            <div ref={badgesRowRef} data-badges-row className="w-full max-w-xl mx-auto flex flex-nowrap md:flex-wrap items-stretch md:items-center justify-start md:justify-center gap-2 overflow-x-auto md:overflow-visible scrollbar-hide pb-1">
               {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
               {renderMapChip("home")}
               {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s) => {
@@ -2959,7 +2959,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     onPointerEnter={warmAiEngineConnection}
                     onTouchStart={warmAiEngineConnection}
                     onClick={() => { if (isYoutubePage) { setYoutubeOpen(true); return; } send(label, s.id); }}
-                    className={`text-[13px] px-4 py-2 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
+                    className={`shrink-0 whitespace-nowrap text-[13px] px-4 py-2 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
                     style={{ ...chipStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
                   >
                     {label}
