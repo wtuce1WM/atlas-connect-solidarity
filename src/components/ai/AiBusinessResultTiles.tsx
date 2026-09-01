@@ -66,7 +66,7 @@ function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: bool
     const el = ref.current;
     if (!el) return;
     const compute = (w: number) =>
-      setCols(setCols(w < 640 ? (compact ? 2 : 1) : w < 1024 ? 2 : compact ? 2 : 4);
+      setCols(w < 640 ? (compact ? 2 : 1) : w < 1024 ? 2 : compact ? 2 : 4);
     compute(el.clientWidth);
     const ro = new ResizeObserver((entries) => {
       for (const e of entries) compute(e.contentRect.width);
