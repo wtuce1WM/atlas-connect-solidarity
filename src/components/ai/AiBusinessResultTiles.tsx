@@ -65,14 +65,24 @@ function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: bool
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const compute = (w: number) =>
-      setCols(w < 640 ? (compact ? 2 : 1) : w < 1024 ? 2 : compact ? 2 : 4);
+    // Le panneau droit peut s'ouvrir avant que `compact` soit propagé à la
+    // réponse déjà rendue. Sur un viewport desktop, la colonne de conversation
+    // doit néanmoins rester immédiatement en 2 colonnes, même si elle mesure
+    // moins de 640 px après le partage 50/50.
+    const compute = (w: number) => {
+      const desktopViewport = window.matchMedia("(min-width: 768px)").matches;
+      setCols(w < 640 ? (desktopViewport ? 2 : 1) : w < 1024 ? 2 : compact ? 2 : 4);
+    };
     compute(el.clientWidth);
     const ro = new ResizeObserver((entries) => {
       for (const e of entries) compute(e.contentRect.width);
     });
     ro.observe(el);
-    return () => ro.disconnect();
+    window.addEventListener("resize", () => compute(el.clientWidth));
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", () => compute(el.clientWidth));
+    };
   }, [ref, compact]);
   return cols;
 }
