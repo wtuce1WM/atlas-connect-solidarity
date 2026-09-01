@@ -652,6 +652,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Panneau flottant : l'hôte demande une croix de fermeture dans le widget.
   const inFloatingPanel = /^(1|true)$/i.test(params.get("panel") || "");
   const chromeOff = /^(0|false|off)$/i.test(params.get("chrome") || "");
+  // Mode « Hero Home » : le bloc accueil (texte + champ + suggestions) se répartit
+  // 40 / 40 / 20 de la hauteur disponible (texte 40 %, champ 40 %, réserve CTA 20 %).
+  const heroLayout = /^(1|true)$/i.test(params.get("hero") || "");
   // Hauteur auto : le widget redimensionne l'iframe hôte pour éviter le scroll interne.
   const fit = params.get("fit") || "";
   const { fullHeight } = fitFlags(parseFit(fit));
@@ -2863,11 +2866,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         {/* Option B : état « accueil IA » — logo, titre, champ central très visible,
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
-          <div className="flex flex-col items-center justify-center gap-5 md:gap-6 px-1 py-4 md:py-8 w-full">
+          <div className={heroLayout ? "flex h-full w-full flex-col items-center" : "flex flex-col items-center justify-center gap-5 md:gap-6 px-1 py-4 md:py-8 w-full"}>
             {/* Conteneur de hauteur minimale : le passage de l'accueil au panneau STT
                 reste stable, mais le contenu (texte d'accueil long ou transcript)
                 peut s'étendre sans être coupé. */}
-            <div className="w-full flex items-center justify-center min-h-[200px] h-auto overflow-visible">
+            <div
+              className="w-full flex items-center justify-center min-h-[200px] h-auto overflow-visible"
+              style={heroLayout ? { flex: "2 1 0%" } : undefined}
+            >
             {voiceActive ? (
               /* Mode STT inline : animation micro bleue + texte blanc à la place
                  de l'icône IA + texte d'accueil (pas d'overlay fullscreen). */
@@ -2893,7 +2899,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
             <form
               onSubmit={(e) => { e.preventDefault(); send(); }}
-              className="w-full max-w-xl mx-auto"
+              className="flex w-full flex-col justify-center max-w-xl mx-auto"
+              style={heroLayout ? { flex: "2 1 0%" } : undefined}
             >
               <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-3 shadow-2xl`}>
                 <textarea
@@ -2937,7 +2944,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               </div>
             </form>
 
-            <div ref={badgesRowRef} data-badges-row className="w-full max-w-xl mx-auto flex flex-wrap items-center justify-center gap-2">
+            <div ref={badgesRowRef} data-badges-row className="w-full max-w-xl mx-auto flex flex-wrap items-center justify-center gap-2" style={heroLayout ? { flex: "1 1 0%" } : undefined}>
               {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
               {renderMapChip("home")}
               {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s) => {
