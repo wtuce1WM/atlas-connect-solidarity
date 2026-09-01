@@ -65,7 +65,7 @@ const LogoBlock = ({
   );
 };
 
-const FrontHeader = ({ fixed = false, visible = true, onMenuToggle, onLogoClick }: Props) => {
+const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggle, onLogoClick }: Props) => {
   const { language, setLanguage } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -88,7 +88,7 @@ const FrontHeader = ({ fixed = false, visible = true, onMenuToggle, onLogoClick 
       <div
         className={`${wrapperClass} flex items-center justify-between px-5 py-4 pt-safe md:px-10 transition-opacity duration-300 ${
           visible ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
+        } ${solid ? "bg-[rgba(6,5,4,0.92)] backdrop-blur-md border-b border-white/10" : ""}`}
         aria-hidden={!visible}
       >
         <LogoBlock onClick={handleLogoClick} />
