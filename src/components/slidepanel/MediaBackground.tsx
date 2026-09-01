@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from "react";
 import { CalendarCheck } from "lucide-react";
 import type { MediaItem } from "@/hooks/useMediaItems";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import FrozenFrameVideo from "./FrozenFrameVideo";
+
 
 interface MediaBackgroundProps {
   effectiveMedia: MediaItem | null;
@@ -89,17 +91,15 @@ const MediaBackground = React.memo(function MediaBackground({
   if (effectiveMedia.kind === "video") {
     if (videoInfo?.type === "file") {
       return (
-        <video
-          ref={videoRef}
-          key={effectiveMedia.url}
+        <FrozenFrameVideo
+          videoRef={videoRef}
           src={effectiveMedia.url}
-          className="w-full h-full bg-black object-cover"
-          loop
-          playsInline
+          videoKey={effectiveMedia.url}
           onLoadedMetadata={onLoadedMetadata}
         />
       );
     }
+
 
     const isYouTubeVertical = videoInfo?.type === "youtube" && isVerticalVideo;
     const finalEmbedUrl = anyOverlayOpen

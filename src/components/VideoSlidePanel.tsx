@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo, Suspense } from "react";
 import MediaViewerInfo, { buildFallbackTeaser } from "@/components/slidepanel/MediaViewerInfo";
+import FrozenFrameVideo from "@/components/slidepanel/FrozenFrameVideo";
+
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { toast } from "sonner";
 
@@ -1401,15 +1403,13 @@ const VideoSlidePanel = ({
             {showYoutubeOverlay ? (
               <div className="w-full h-full bg-black" />
             ) : embed.type === "file" ? (
-              <video
-                ref={videoRef}
-                key={videoId || videoUrl}
+              <FrozenFrameVideo
+                videoRef={videoRef}
                 src={videoUrl}
-                loop
-                playsInline
-                className="w-full h-full bg-black object-cover"
+                videoKey={videoId || videoUrl}
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />
+
             ) : (
               (() => {
                 const isYouTubeVertical = embed.type === "youtube" && embed.isVertical;
