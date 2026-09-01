@@ -2932,7 +2932,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         )}
 
       {/* scrollbar-hide : ascenseur masqué (scroll molette/tactile/clavier conservé). */}
-      <div ref={scrollRef} className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto scrollbar-hide"} px-4 pt-4 pb-8 space-y-3 ${bg} relative`}>
+      <div
+        ref={scrollRef}
+        className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto scrollbar-hide"} px-4 pt-4 pb-8 space-y-3 ${bg} relative`}
+        /* Home (hero=1) en conversation : le header reste transparent, le contenu
+           scrollé s'estompe progressivement sous lui (fondu de 0 à 88px). */
+        style={heroLayout && !homeState ? {
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, rgba(0,0,0,0.15) 34px, rgba(0,0,0,0.6) 62px, #000 88px)",
+          maskImage: "linear-gradient(to bottom, transparent 0px, rgba(0,0,0,0.15) 34px, rgba(0,0,0,0.6) 62px, #000 88px)",
+        } : undefined}
+      >
 
         {/* Option B : état « accueil IA » — logo, titre, champ central très visible,
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
