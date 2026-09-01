@@ -1025,10 +1025,34 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                       </div>
                     )}
                   </div>
+                  {r.badge_ids.length > 1 && (
+                    <div className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 p-2">
+                      <span className="text-xs font-medium">Combinaison des badges</span>
+                      {([
+                        { v: false, label: "OU (au moins un badge)" },
+                        { v: true, label: "ET (tous les badges requis)" },
+                      ] as const).map((o) => (
+                        <button
+                          key={String(o.v)}
+                          type="button"
+                          onClick={() => update(r.id, { badges_match_all: o.v })}
+                          className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                            (r.badges_match_all === true) === o.v
+                              ? "bg-emerald-600 text-white"
+                              : "bg-background text-muted-foreground border border-border hover:bg-muted"
+                          }`}
+                        >
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <p className="text-[11px] text-muted-foreground">
                     💡 Quand un ou plusieurs badges sont liés, l'IA court-circuite le LLM et affiche uniquement les établissements portant ces badges (croisé avec les sous-catégories si présentes).
+                    {r.badge_ids.length > 1 && " Mode ET = seuls les établissements portant TOUS les badges sont retenus (ex. « Où dormir ? » + « Avec Piscine »)."}
                   </p>
                 </div>
+
 
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground">
