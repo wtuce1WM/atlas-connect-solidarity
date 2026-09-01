@@ -1425,7 +1425,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     (async () => {
       const data = await publicSelect(
         "ai_suggestions",
-        "select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode,subcategory_ids&surface=eq.embed&is_active=eq.true&order=sort_order.asc",
+        "select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode,subcategory_ids,badge_ids&surface=eq.embed&is_active=eq.true&order=sort_order.asc",
       );
       if (cancelled) return;
       if (!data) {
