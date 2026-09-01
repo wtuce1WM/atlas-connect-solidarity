@@ -39,8 +39,23 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   const { soundOn } = useVideoSoundPreference();
   const soundOnRef = useRef(soundOn);
   useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
+  // Image gelée héritée du panneau précédent (transition sans écran noir au montage).
+  const [poster, setPoster] = useState<string | null>(() => getLastVideoFrame());
 
   const getEl = (slot: 0 | 1) => (slot === 0 ? refA.current : refB.current);
+
+  // Capture continue de l'image courante : sert de dernière image en cas de
+  // démontage (chargement de la fiche suivante) — cf. src/lib/lastVideoFrame.ts
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      captureLastVideoFrame(getEl(activeRef.current));
+    }, 700);
+    return () => {
+      captureLastVideoFrame(getEl(activeRef.current));
+      window.clearInterval(id);
+    };
+  }, []);
+
 
   // Bascule / chargement initial
   useEffect(() => {
