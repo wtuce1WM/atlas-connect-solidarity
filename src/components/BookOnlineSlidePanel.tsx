@@ -99,6 +99,8 @@ import { getVideoEmbed } from "@/lib/videoEmbed";
 import { useMediaItems, useVideoInfo } from "@/hooks/useMediaItems";
 import { useVimeoOEmbedThumbnails } from "@/hooks/useVimeoOEmbedThumbnails";
 import MediaBackground from "@/components/slidepanel/MediaBackground";
+import { getLastVideoFrame } from "@/lib/lastVideoFrame";
+
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import MediaViewerInfo, { buildFallbackTeaser } from "@/components/slidepanel/MediaViewerInfo";
 import BusinessPromotionsList from "@/components/slidepanel/BusinessPromotionsList";
