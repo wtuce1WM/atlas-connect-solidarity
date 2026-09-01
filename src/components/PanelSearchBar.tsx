@@ -99,11 +99,12 @@ const enrichParamsWithCityFromQuery = (params: Record<string, string>): Record<s
 // Single cell used inside the unified dock pill: round icon + small label below.
 // Declared at module scope so React doesn't remount it on every parent render
 // (which would otherwise drop click events between mousedown/mouseup).
-const Cell = ({ icon, label, onClick, ariaLabel, active, hoverClass = "hover:bg-white/10", iconHoverClass = "" }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string; active?: boolean; variant?: "media"; hoverClass?: string; iconHoverClass?: string }) => {
+const Cell = ({ icon, label, onClick, ariaLabel, active, soundToggle = false, hoverClass = "hover:bg-white/10", iconHoverClass = "" }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string; active?: boolean; variant?: "media"; soundToggle?: boolean; hoverClass?: string; iconHoverClass?: string }) => {
   return (
     <button
       type="button"
       data-cta-tap
+      data-sound-toggle={soundToggle ? "true" : undefined}
       onTouchStart={(event) => event.stopPropagation()}
       onTouchMove={(event) => event.stopPropagation()}
       onTouchEnd={(event) => event.stopPropagation()}
@@ -247,6 +248,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
           />
           <Cell
             variant="media"
+            soundToggle
             icon={muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
             label={muted ? "Sound" : "Mute"}
             ariaLabel={muted ? "Unmute" : "Mute"}
@@ -282,6 +284,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
         />
         <Cell
           variant="media"
+          soundToggle
           icon={muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
           label={muted ? "Sound" : "Mute"}
           ariaLabel={muted ? "Unmute" : "Mute"}

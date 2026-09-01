@@ -51,6 +51,7 @@ const MediaBackground = React.memo(function MediaBackground({
     let disposed = false;
     let autoplayFallbackMuted = false;
     const attemptPlay = () => {
+      if (disposed) return;
       const p = v.play();
       if (p && typeof p.catch === "function") {
         p.catch((error: unknown) => {
@@ -107,6 +108,10 @@ const MediaBackground = React.memo(function MediaBackground({
       // explicitement l'ancien élément capturé empêche son audio de continuer
       // après la fermeture ou pendant le remplacement d'une fiche.
       v.pause();
+      // Le mute de destruction est technique. Le listener volumechange du
+      // panneau parent peut encore être attaché pendant le démontage : sans ce
+      // drapeau il persistait parfois « son coupé » au passage au résultat 2.
+      v.dataset.owmAutoMute = "1";
       v.muted = true;
       v.removeEventListener("canplay", recover);
       v.removeEventListener("loadeddata", recover);
@@ -116,7 +121,13 @@ const MediaBackground = React.memo(function MediaBackground({
 
     // If the browser forced mute (autoplay policy), unmute on the next user gesture.
     if (!soundOnRef.current) return cleanupPlay;
-    const tryUnmute = () => {
+    const tryUnmute = (event: Event) => {
+      // Même garde que VideoSlidePanel : le geste sur le CTA Sound/Mute doit
+      // être traité uniquement par son onClick. Sans cela, le listener global
+      // dé-mute au touchstart puis le CTA inverse encore l'état au click,
+      // particulièrement après le remplacement de la vidéo lors d'un swipe.
+      const target = event.target as HTMLElement | null;
+      if (target?.closest?.('[data-sound-toggle="true"]')) return;
       if (!v.muted) return;
       autoplayFallbackMuted = false;
       v.muted = false;

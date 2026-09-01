@@ -993,6 +993,18 @@ const VideoSlidePanel = ({
     swipeHandled.current = false;
   };
 
+  // Un geste démarré sur un contrôle (Play/Mute liquid glass, CTA, lien) n'est
+  // jamais une navigation swipe : aligné sur BookOnlineSlidePanel
+  // (handleMediaTouchStart) — sans cette garde, un touchstart sur le CTA est
+  // quand même armé comme swipe, et le preventDefault() du onTouchMove suivant
+  // peut avaler le click synthétique iOS (bug constaté dès le 2e résultat,
+  // quand le re-render déclenché par le changement de vidéo retarde le
+  // stopPropagation du Cell de PanelSearchBar).
+  const isInteractiveTarget = (target: EventTarget | null) => {
+    if (!(target instanceof Element)) return false;
+    return !!target.closest('button, a, input, textarea, select, label, [role="button"], [data-cta], [data-cta-tap], [data-sound-toggle="true"]');
+  };
+
   const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: soundOn, controls: false });
   let embedUrl = embed.embedUrl;
   if (embed.type === "youtube") {
@@ -1029,6 +1041,7 @@ const VideoSlidePanel = ({
         style={swipeNavigationEnabled ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
         onTouchStart={swipeNavigationEnabled ? (e) => {
           if (e.touches.length !== 1) return;
+          if (isInteractiveTarget(e.target)) { resetSwipe(); return; }
           swipeStartY.current = e.touches[0].clientY;
           swipeStartX.current = e.touches[0].clientX;
           swipeHandled.current = false;
