@@ -107,6 +107,10 @@ const MediaBackground = React.memo(function MediaBackground({
       // explicitement l'ancien élément capturé empêche son audio de continuer
       // après la fermeture ou pendant le remplacement d'une fiche.
       v.pause();
+      // Le mute de destruction est technique. Le listener volumechange du
+      // panneau parent peut encore être attaché pendant le démontage : sans ce
+      // drapeau il persistait parfois « son coupé » au passage au résultat 2.
+      v.dataset.owmAutoMute = "1";
       v.muted = true;
       v.removeEventListener("canplay", recover);
       v.removeEventListener("loadeddata", recover);
