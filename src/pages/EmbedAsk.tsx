@@ -2873,6 +2873,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   <button
                     key={s.id}
                     type="button"
+                    onPointerEnter={warmAiEngineConnection}
+                    onTouchStart={warmAiEngineConnection}
                     onClick={() => { if (isYoutubePage) { setYoutubeOpen(true); return; } send(label, s.id); }}
                     className={`text-[13px] px-4 py-2 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
                     style={{ ...chipStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
