@@ -2887,7 +2887,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               />
             ) : (
             <div className="flex flex-col items-center gap-3 text-center pb-2 w-full">
-              <p className={`text-base md:text-lg leading-relaxed w-full max-w-[52ch] md:maxw-[64ch] whitespace-pre-line ${whiteInk || "opacity-80"}`} style={{ opacity: 0.85 }}>
+              <p className={`text-base md:text-lg leading-relaxed w-full max-w-[52ch] md:max-w-[64ch] whitespace-pre-line ${whiteInk || "opacity-80"}`} style={{ opacity: 0.85 }}>
                 {L.platformOpener().replace(/\*\*/g, "")}
               </p>
             </div>
