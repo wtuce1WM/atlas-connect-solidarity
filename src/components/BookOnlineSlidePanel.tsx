@@ -1383,7 +1383,7 @@ const BookOnlineSlidePanelInner = ({
   }, [showTransitionOverlay]);
 
   const {
-    cardsHidden, dragOffsetY, isDragging,
+    cardsHidden,
     showCards, hideCards, resetDrag,
     onTouchStart, onTouchMove, onTouchEnd, onMouseDownDrag,
   } = useDragToHide();
@@ -2725,9 +2725,9 @@ const BookOnlineSlidePanelInner = ({
         ref={mediaScrollRef}
         data-slidepanel-scroll="true"
         className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-16 md:p-6 md:pt-20 lg:pt-16 ${cardsHidden ? 'pb-0' : showSearchBar ? 'pb-[calc(96px+env(safe-area-inset-bottom))] md:pb-[95px]' : 'pb-[calc(2rem+env(safe-area-inset-bottom))]'} ${(effectiveMedia?.kind === "matterport" && cardsHidden) ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""} scrollbar-hide-mobile`}
-        // Navigation verticale entre fiches disponible (feed/résultats IA) :
-        // on ne suit PAS le pouce — le fond reste fixe comme dans VideoSlidePanel.
-        style={isDragging && !(effectiveHasPrev || effectiveHasNext) ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
+        // Le fond ne suit JAMAIS le pouce (comme VideoSlidePanel) : le geste
+        // masque/affiche les cartes, sans translation du conteneur.
+        style={undefined}
         onTouchStart={externalVideoInteractiveMode ? undefined : handleMediaTouchStart}
         onTouchMove={externalVideoInteractiveMode ? undefined : handleMediaTouchMove}
         onTouchEnd={externalVideoInteractiveMode ? undefined : handleMediaTouchEnd}
