@@ -969,6 +969,7 @@ Deno.serve(async (req) => {
                     admin,
                     query: curated.label || userMessage,
                     apiKey: LOVABLE_API_KEY,
+                    deferUpgrade: deferHooks,
                   },
                 },
               ).catch((e) => {
@@ -1004,6 +1005,7 @@ Deno.serve(async (req) => {
                   admin,
                   query: curated.label || userMessage,
                   apiKey: LOVABLE_API_KEY,
+                  deferUpgrade: deferHooks,
                 },
               },
             ).catch((e) => {
@@ -1058,6 +1060,7 @@ Deno.serve(async (req) => {
                 admin,
                 query: curated.label || userMessage,
                 apiKey: LOVABLE_API_KEY,
+                deferUpgrade: deferHooks,
               },
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] curated_filter_failed", String(e));
@@ -1108,7 +1111,7 @@ Deno.serve(async (req) => {
                 total: glovoIds.length,
                 poolIds: glovoIds,
                 competitorGuard,
-                immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY },
+                immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks },
               }).catch((e) => {
                 console.error("[embed-ai-chat-v2] glovo_cards_failed", String(e));
                 return null;
@@ -1403,7 +1406,7 @@ Deno.serve(async (req) => {
                   competitorGuard,
                   maxCards: 30,
                   poolIds: badgeBizIds,
-                  immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY },
+                  immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks },
                   // Cartes + en-tête tout de suite : le texte immersif suit dans le flux.
                   onCards: ({ heading, knownBusinesses, mapPayload }) => {
                     earlyEmitted = true;
