@@ -329,6 +329,28 @@ const preloadFirstFeedMedia = (item?: { url?: string | null; thumbnail_url?: str
     }
   } catch { /* best-effort */ }
 };
+/**
+ * Réchauffage réseau (DNS/TLS) de l'origine des fonctions au survol d'une chip
+ * de suggestion : la première réponse IA n'attend plus la négociation TLS.
+ * Aucun appel réseau applicatif → aucun coût d'invocation.
+ */
+let warmedFnOrigin = false;
+const warmAiEngineConnection = () => {
+  if (warmedFnOrigin) return;
+  warmedFnOrigin = true;
+  try {
+    const base = String(import.meta.env.VITE_SUPABASE_URL || "");
+    if (!base) return;
+    const origin = new URL(base).origin;
+    for (const rel of ["preconnect", "dns-prefetch"]) {
+      const link = document.createElement("link");
+      link.rel = rel;
+      link.href = origin;
+      link.crossOrigin = "anonymous";
+      document.head.appendChild(link);
+    }
+  } catch { /* best-effort */ }
+};
 const DEST_CHIPS_RE = /<!--DESTINATION_CHIPS:([\s\S]*?)-->/g;
 /** Widget de disponibilité hôtelière (suggestion back-office en mode `booking`). */
 const HOTEL_BOOKING_RE = /<!--HOTEL_BOOKING:([\s\S]*?)-->/g;
@@ -1970,6 +1992,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setFeedVideoTime(0);
       setActiveFeedVideoId(payload.videos[0].id);
       preloadFirstFeedMedia(payload.videos[0]);
+      // Miniatures des vidéos suivantes : le swipe démarre sans écran noir.
+      for (const v of payload.videos.slice(1, 3)) {
+        try {
+          const thumb = (v as any).thumbnail_url || (v as any).thumbnail;
+          if (thumb) { const img = new Image(); img.src = String(thumb); }
+        } catch { /* best-effort */ }
+      }
       return;
     }
   }, [messages, streaming]);
@@ -2844,6 +2873,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   <button
                     key={s.id}
                     type="button"
+                    onPointerEnter={warmAiEngineConnection}
+                    onTouchStart={warmAiEngineConnection}
                     onClick={() => { if (isYoutubePage) { setYoutubeOpen(true); return; } send(label, s.id); }}
                     className={`text-[13px] px-4 py-2 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
                     style={{ ...chipStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
