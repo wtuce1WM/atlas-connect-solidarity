@@ -3884,7 +3884,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   className="text-xs px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-sm shrink-0 hover:opacity-90 transition-opacity"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `${poolRemaining} autres résultats`}
+                  {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `+${poolRemaining} résultats`}
                 </button>
               )}
               <button
