@@ -30,6 +30,7 @@ import { buildOgShareUrl } from "@/lib/businessUrl";
 import { formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/homeHelpers";
 import { buildKpSearchUrl } from "@/lib/buildKpSearchUrl";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import { usePanelVideoPlayback } from "@/hooks/usePanelVideoPlayback";
 import { useVideoView } from "@/hooks/useVideoView";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
@@ -699,8 +700,19 @@ const VideoSlidePanel = ({
     isGeneric ? "generic" : "business",
     { autoLog: true },
   );
-  const [filePaused, setFilePaused] = useState(true);
-  const [fileMuted, setFileMuted] = useState(!soundOn);
+  // Moteur UNIQUE de lecture/son pour les vidéos natives (partagé avec
+  // BookOnlineSlidePanel) : voir src/hooks/usePanelVideoPlayback.ts
+  const {
+    paused: filePaused,
+    muted: fileMuted,
+    togglePlay: toggleFilePlay,
+    toggleMute: toggleFileMute,
+  } = usePanelVideoPlayback({
+    videoRef,
+    mediaKey: `${videoId || ""}|${videoUrl || ""}`,
+    enabled: open && !!videoUrl,
+    blocked: !!descBusinessId || aiOverlayOpen,
+  });
   const [ytPlaying, setYtPlaying] = useState(true);
   const [ytMuted, setYtMuted] = useState(!soundOn);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
@@ -750,86 +762,7 @@ const VideoSlidePanel = ({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose, locationDialogOpen]);
 
-  // Sync file video state
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    let disposed = false;
-    // Apply the user's persisted sound preference to this new video element
-    v.muted = !soundOnRef.current;
-
-    // Drapeau : un mute technique (autoplay bloqué / lecture interrompue par un
-    // swipe) ne doit JAMAIS être persisté comme un choix utilisateur.
-    let autoMute = false;
-    const attemptPlay = () => {
-      const p = v.play();
-      if (p && typeof p.catch === "function") {
-        p.catch((err: unknown) => {
-          if (disposed) return;
-          const name = (err as { name?: string })?.name;
-          // AbortError : la lecture a été interrompue par un nouveau chargement
-          // (swipe rapide). Ce n'est PAS un blocage autoplay : on retente sans muter.
-          if (name === "AbortError") {
-            window.setTimeout(() => { if (!disposed) attemptPlay(); }, 120);
-            return;
-          }
-          // Seul un vrai refus d'autoplay autorise le fallback mute. Les autres
-          // erreurs transitoires du média pendant un swipe ne changent jamais le son.
-          if (name !== "NotAllowedError" && name !== "SecurityError") return;
-          // Vrai blocage navigateur : on mute pour démarrer, puis on rétablit
-          // le son dès le premier geste utilisateur.
-          autoMute = true;
-          v.muted = true;
-          v.play().catch(() => {});
-          if (!soundOnRef.current) return;
-          const tryUnmute = (ev: Event) => {
-            // Si le geste vise le bouton son lui-même, on laisse son handler décider
-            // (sinon on dé-mute ici et le clic re-mute juste après).
-            const target = ev.target as HTMLElement | null;
-            if (target?.closest?.('[data-sound-toggle="true"]')) {
-              document.addEventListener("pointerdown", tryUnmute, opts);
-              document.addEventListener("touchstart", tryUnmute, opts);
-              return;
-            }
-            if (disposed || !v.muted) return;
-            autoMute = false;
-            v.muted = false;
-            v.play().catch(() => {});
-          };
-          const opts: AddEventListenerOptions = { once: true, capture: true };
-          document.addEventListener("pointerdown", tryUnmute, opts);
-          document.addEventListener("touchstart", tryUnmute, opts);
-        });
-      }
-    };
-    attemptPlay();
-    const onPlay = () => {
-      setFilePaused(false);
-      // Si la lecture démarre alors que le son est demandé mais que l'élément est
-      // resté muté (mute technique), on rétablit le son.
-      if (soundOnRef.current && v.muted && autoMute) {
-        autoMute = false;
-        v.muted = false;
-      }
-    };
-    const onPause = () => setFilePaused(true);
-    const onVol = () => {
-      setFileMuted(v.muted);
-      // Persist user's choice so subsequent videos respect it
-      if (!autoMute) setSoundOnRef.current(!v.muted);
-    };
-    v.addEventListener("play", onPlay);
-    v.addEventListener("pause", onPause);
-    v.addEventListener("volumechange", onVol);
-    setFilePaused(v.paused);
-    setFileMuted(v.muted);
-    return () => {
-      disposed = true;
-      v.removeEventListener("play", onPlay);
-      v.removeEventListener("pause", onPause);
-      v.removeEventListener("volumechange", onVol);
-    };
-  }, [videoUrl, videoId]);
+  // (Lecture/son des vidéos natives : entièrement délégué à usePanelVideoPlayback.)
 
 
   // L'URL d'embed force toujours mute=1 pour que l'autoplay démarre.
@@ -907,27 +840,18 @@ const VideoSlidePanel = ({
     };
   }, [open, videoUrl, videoId]);
 
-  // Pause + mute the background video when the Full Description overlay is open.
-  // Resume (with the user's sound preference) when it closes.
+  // Pause + mute du média YouTube quand un overlay couvre la vidéo.
+  // La vidéo native est gérée par usePanelVideoPlayback (prop `blocked`) :
+  // aucun second écrivain sur `video.muted` / `video.play()`.
   useEffect(() => {
     if (!open) return;
     if (descBusinessId || aiOverlayOpen) {
-      const v = videoRef.current;
-      if (v) {
-        v.pause();
-        v.muted = true;
-      }
       const iframe = iframeRef.current;
       if (iframe?.contentWindow) {
         iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "pauseVideo", args: [] }), "*");
         iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "mute", args: [] }), "*");
       }
     } else {
-      const v = videoRef.current;
-      if (v) {
-        v.muted = !soundOnRef.current;
-        v.play().catch(() => {});
-      }
       const iframe = iframeRef.current;
       if (iframe?.contentWindow) {
         iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "playVideo", args: [] }), "*");
@@ -1483,8 +1407,6 @@ const VideoSlidePanel = ({
                 src={videoUrl}
                 loop
                 playsInline
-                autoPlay
-                muted={!soundOn}
                 className="w-full h-full bg-black object-cover"
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />
@@ -1781,7 +1703,14 @@ const VideoSlidePanel = ({
                   onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
                   videoControls={
                     embed.type === "file"
-                      ? { type: "file", videoRef, paused: filePaused, muted: fileMuted }
+                      ? {
+                          type: "file",
+                          videoRef,
+                          paused: filePaused,
+                          muted: fileMuted,
+                          onTogglePlay: toggleFilePlay,
+                          onToggleMute: toggleFileMute,
+                        }
                       : embed.type === "youtube"
                         ? {
                             type: "youtube",
