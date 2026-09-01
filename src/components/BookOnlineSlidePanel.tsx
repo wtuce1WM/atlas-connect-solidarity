@@ -2257,7 +2257,7 @@ const BookOnlineSlidePanelInner = ({
   // requiring multiple taps to trigger CTAs.
   const isInteractiveTarget = (target: EventTarget | null) => {
     if (!(target instanceof Element)) return false;
-    return !!target.closest('button, a, input, textarea, select, label, [role="button"], [data-cta]');
+    return !!target.closest('button, a, input, textarea, select, label, [role="button"], [data-cta], [data-cta-tap], [data-sound-toggle="true"]');
   };
   const handleMediaTouchStart = useCallback((e: React.TouchEvent) => {
     if (anyOverlayOpen) { swipeStartRef.current = null; return; }

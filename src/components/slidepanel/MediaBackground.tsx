@@ -116,7 +116,13 @@ const MediaBackground = React.memo(function MediaBackground({
 
     // If the browser forced mute (autoplay policy), unmute on the next user gesture.
     if (!soundOnRef.current) return cleanupPlay;
-    const tryUnmute = () => {
+    const tryUnmute = (event: Event) => {
+      // Même garde que VideoSlidePanel : le geste sur le CTA Sound/Mute doit
+      // être traité uniquement par son onClick. Sans cela, le listener global
+      // dé-mute au touchstart puis le CTA inverse encore l'état au click,
+      // particulièrement après le remplacement de la vidéo lors d'un swipe.
+      const target = event.target as HTMLElement | null;
+      if (target?.closest?.('[data-sound-toggle="true"]')) return;
       if (!v.muted) return;
       autoplayFallbackMuted = false;
       v.muted = false;
