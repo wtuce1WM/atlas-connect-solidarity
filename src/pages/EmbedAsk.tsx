@@ -2039,6 +2039,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const autoOpenedFeedRef = useRef<string | null>(null);
   /** Feed déjà ouvert côté client avant la réponse du modèle (ouverture immédiate). */
   const earlyFeedOpenRef = useRef(false);
+  /** Garde anti-boucle du repli « feed pur » vers le parcours standard. */
+  const pureFeedFallbackRef = useRef(false);
 
   /**
    * Ouverture immédiate du feed vidéo d'une suggestion badgée, sans attendre le
