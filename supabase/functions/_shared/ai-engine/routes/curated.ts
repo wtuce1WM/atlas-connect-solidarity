@@ -681,6 +681,7 @@ export async function buildFilteredAnswer(
   },
 ): Promise<CuratedAnswer | null> {
   const badgeIds = (opts.badgeIds || []).filter(Boolean);
+  const badgesMatchAll = opts.badgesMatchAll === true;
   const subcategoryNames = (opts.subcategoryNames || []).filter(Boolean);
   const commodities = (opts.commodities || []).filter(Boolean);
   const serviceNames = (opts.serviceNames || []).filter(Boolean);
