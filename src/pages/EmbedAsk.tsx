@@ -1046,8 +1046,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Signale au parent (/front) l'ouverture/fermeture de l'overlay Map : le parent
   // passe alors l'iframe en pleine largeur pour que le panneau soit sans marge.
   useEffect(() => {
-    try { window.parent?.postMessage({ type: openMap ? "owm-ask:map-open" : "owm-ask:map-closed" }, "*"); } catch { /* cross-origin */ }
-  }, [openMap]);
+    // L'overlay POI générique (chip « Map » de l'accueil) est couvert par le même
+    // signal : le host masque alors le CTA vert dès l'ouverture (même pendant le chargement).
+    try { window.parent?.postMessage({ type: openMap || openGenericPoi ? "owm-ask:map-open" : "owm-ask:map-closed" }, "*"); } catch { /* cross-origin */ }
+  }, [openMap, openGenericPoi]);
   useEffect(() => {
     preloadFrontStructureTaxonomy();
   }, []);
