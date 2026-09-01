@@ -650,16 +650,6 @@ const Front = () => {
   // l'iframe passe en pleine largeur pour que le panneau soit collé à droite.
   const [mapOpen, setMapOpen] = useState(false);
   
-  // Position du bas de la ligne de badges signalée par l'iframe (accueil IA) :
-  // sert à placer « Découvrez l'App » à équidistance badges ↔ CTA Découvrir.
-  const [askBadgesBottom, setAskBadgesBottom] = useState<number | null>(null);
-  const [askViewportH, setAskViewportH] = useState<number>(() => (typeof window !== "undefined" ? window.innerHeight : 800));
-  useEffect(() => {
-    const onResize = () => setAskViewportH(window.innerHeight);
-    window.addEventListener("resize", onResize);
-    window.addEventListener("orientationchange", onResize);
-    return () => { window.removeEventListener("resize", onResize); window.removeEventListener("orientationchange", onResize); };
-  }, []);
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
       if (e.data?.type === "owm-ask:asked") {
@@ -679,11 +669,9 @@ const Front = () => {
         setSuggestionsExpanded(!!e.data.expanded);
       } else if (e.data?.type === "owm-ask:map-open") {
         setMapOpen(true);
-      } else if (e.data?.type === "owm-ask:map-closed") {
-        setMapOpen(false);
-      } else if (e.data?.type === "owm-ask:badges-bottom" && typeof e.data.bottom === "number") {
-        setAskBadgesBottom(e.data.bottom as number);
-      }
+       } else if (e.data?.type === "owm-ask:map-closed") {
+         setMapOpen(false);
+       }
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
