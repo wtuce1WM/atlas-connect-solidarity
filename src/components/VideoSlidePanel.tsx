@@ -1401,15 +1401,13 @@ const VideoSlidePanel = ({
             {showYoutubeOverlay ? (
               <div className="w-full h-full bg-black" />
             ) : embed.type === "file" ? (
-              <video
-                ref={videoRef}
-                key={videoId || videoUrl}
+              <FrozenFrameVideo
+                videoRef={videoRef}
                 src={videoUrl}
-                loop
-                playsInline
-                className="w-full h-full bg-black object-cover"
+                videoKey={videoId || videoUrl}
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />
+
             ) : (
               (() => {
                 const isYouTubeVertical = embed.type === "youtube" && embed.isVertical;
