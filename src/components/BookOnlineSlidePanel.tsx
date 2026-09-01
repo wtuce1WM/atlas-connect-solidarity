@@ -1574,7 +1574,7 @@ const BookOnlineSlidePanelInner = ({
   } = usePanelVideoPlayback({
     videoRef,
     mediaKey: `${businessId || ""}|${currentMediaIndex}`,
-    enabled: open,
+    enabled: true,
     blocked: mediaBlockingOverlayOpen,
   });
 
