@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import { captureLastVideoFrame, getLastVideoFrame } from "@/lib/lastVideoFrame";
+
 
 interface FrozenFrameVideoProps {
   /** Ref consommée par le moteur unique (usePanelVideoPlayback) : pointe toujours vers le buffer ACTIF. */
