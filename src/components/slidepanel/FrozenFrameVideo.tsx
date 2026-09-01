@@ -144,9 +144,8 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
       ref={ref}
       className={`absolute inset-0 ${className} ${active === slot ? "opacity-100" : "opacity-0"}`}
       loop
-      // `crossOrigin` autorise la capture canvas (dernière image) ; les vidéos
-      // du stockage renvoient `Access-Control-Allow-Origin: *`.
       crossOrigin="anonymous"
+
       playsInline
       preload="auto"
       onLoadedMetadata={(e) => { if (activeRef.current === slot) onLoadedMetadata?.(e); }}
