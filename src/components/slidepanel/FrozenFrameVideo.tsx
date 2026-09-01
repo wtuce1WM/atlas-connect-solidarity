@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 
 interface FrozenFrameVideoProps {
+  /** Ref consommée par le moteur unique (usePanelVideoPlayback) : pointe toujours vers le buffer ACTIF. */
   videoRef: React.RefObject<HTMLVideoElement>;
   src: string;
-  /** Clé de remount (souvent l'id ou l'url) */
+  /** Clé logique de la vidéo (id ou url) — utilisée pour la détection de changement. */
   videoKey: string;
   className?: string;
   onLoadedMetadata?: (e: React.SyntheticEvent<HTMLVideoElement>) => void;
@@ -11,10 +13,13 @@ interface FrozenFrameVideoProps {
 }
 
 /**
- * Vidéo de fond avec transition "frame gelée" :
- * la dernière image de la vidéo précédente reste affichée en surimpression
- * jusqu'à ce que la nouvelle vidéo commence réellement à jouer.
- * Cela supprime le flash noir lors du swipe vertical entre deux fiches.
+ * Double buffer A/B (technique TikTok/Reels) : deux éléments <video> persistants.
+ * La vidéo suivante est chargée dans le buffer caché, puis on bascule l'opacité
+ * dès qu'elle est prête → passage direct, sans écran noir ni remount.
+ *
+ * `videoRef.current` est réassigné vers le buffer actif : le moteur unique
+ * (usePanelVideoPlayback) détecte le nouvel élément et reste la seule source de
+ * vérité pour play/pause, mute et retries.
  */
 const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   videoRef,
@@ -24,76 +29,104 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   onLoadedMetadata,
   onTimeUpdate,
 }: FrozenFrameVideoProps) {
-  const snapshotRef = useRef<string | null>(null);
-  const prevSrcRef = useRef<string | null>(null);
-  const [frozen, setFrozen] = useState<string | null>(null);
+  const refA = useRef<HTMLVideoElement>(null);
+  const refB = useRef<HTMLVideoElement>(null);
+  const [active, setActive] = useState<0 | 1>(0);
+  const activeRef = useRef<0 | 1>(0);
+  const loadedKeyRef = useRef<string | null>(null);
+  const { soundOn } = useVideoSoundPreference();
+  const soundOnRef = useRef(soundOn);
+  useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
 
-  // Capture périodique (basse résolution) de l'image courante.
+  const getEl = (slot: 0 | 1) => (slot === 0 ? refA.current : refB.current);
+
+  // Bascule / chargement initial
   useEffect(() => {
-    const capture = () => {
-      const v = videoRef.current;
-      if (!v || v.readyState < 2 || !v.videoWidth) return;
-      try {
-        const w = 320;
-        const h = Math.max(1, Math.round((v.videoHeight / v.videoWidth) * w));
-        const canvas = document.createElement("canvas");
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-        ctx.drawImage(v, 0, 0, w, h);
-        snapshotRef.current = canvas.toDataURL("image/jpeg", 0.7);
-      } catch {
-        /* canvas tainted (cross-origin) : on renonce silencieusement */
+    if (!src) return;
+    if (loadedKeyRef.current === videoKey) return;
+
+    const first = loadedKeyRef.current === null;
+    loadedKeyRef.current = videoKey;
+
+    if (first) {
+      const el = getEl(activeRef.current);
+      if (el) {
+        el.src = src;
+        (videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = el;
       }
-    };
-    const id = window.setInterval(capture, 500);
-    return () => window.clearInterval(id);
-  }, [videoRef]);
-
-  // Au changement de source : on gèle la dernière image connue.
-  useEffect(() => {
-    const changed = prevSrcRef.current !== null && prevSrcRef.current !== src;
-    prevSrcRef.current = src;
-    if (!changed) return;
-    if (snapshotRef.current) setFrozen(snapshotRef.current);
-
-    const v = videoRef.current;
-    const clear = () => setFrozen(null);
-    const timeout = window.setTimeout(clear, 2000);
-    if (v) {
-      v.addEventListener("playing", clear, { once: true });
-      v.addEventListener("loadeddata", clear, { once: true });
+      return;
     }
-    return () => {
-      window.clearTimeout(timeout);
-      if (v) {
-        v.removeEventListener("playing", clear);
-        v.removeEventListener("loadeddata", clear);
+
+    const nextSlot: 0 | 1 = activeRef.current === 0 ? 1 : 0;
+    const incoming = getEl(nextSlot);
+    const outgoing = getEl(activeRef.current);
+    if (!incoming) return;
+
+    let done = false;
+    const swap = () => {
+      if (done) return;
+      done = true;
+      incoming.muted = !soundOnRef.current;
+      if (!incoming.muted && incoming.volume === 0) incoming.volume = 1;
+      incoming.play().catch(() => {});
+      activeRef.current = nextSlot;
+      setActive(nextSlot);
+      (videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = incoming;
+      if (outgoing) {
+        try {
+          outgoing.pause();
+          outgoing.muted = true;
+        } catch {/* ignore */}
       }
     };
-  }, [src, videoRef]);
+
+    try {
+      incoming.muted = true; // préchargement silencieux du buffer caché
+      incoming.src = src;
+      incoming.currentTime = 0;
+      incoming.load();
+    } catch {/* ignore */}
+
+    incoming.addEventListener("canplay", swap, { once: true });
+    incoming.addEventListener("loadeddata", swap, { once: true });
+    const fallback = window.setTimeout(swap, 1200);
+
+    return () => {
+      window.clearTimeout(fallback);
+      incoming.removeEventListener("canplay", swap);
+      incoming.removeEventListener("loadeddata", swap);
+    };
+  }, [src, videoKey, videoRef]);
+
+  // Sécurité : à la destruction, aucun buffer ne doit continuer à jouer.
+  useEffect(() => {
+    return () => {
+      [refA.current, refB.current].forEach((el) => {
+        if (!el) return;
+        try {
+          el.pause();
+          el.muted = true;
+        } catch {/* ignore */}
+      });
+    };
+  }, []);
+
+  const buffer = (slot: 0 | 1, ref: React.RefObject<HTMLVideoElement>) => (
+    <video
+      ref={ref}
+      className={`absolute inset-0 ${className} ${active === slot ? "opacity-100" : "opacity-0"}`}
+      loop
+      playsInline
+      preload="auto"
+      onLoadedMetadata={(e) => { if (activeRef.current === slot) onLoadedMetadata?.(e); }}
+      onTimeUpdate={(e) => { if (activeRef.current === slot) onTimeUpdate?.(e); }}
+    />
+  );
 
   return (
     <div className="relative w-full h-full bg-black">
-      <video
-        ref={videoRef}
-        key={videoKey}
-        src={src}
-        className={className}
-        loop
-        playsInline
-        onLoadedMetadata={onLoadedMetadata}
-        onTimeUpdate={onTimeUpdate}
-      />
-      {frozen && (
-        <img
-          src={frozen}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-        />
-      )}
+      {buffer(0, refA)}
+      {buffer(1, refB)}
     </div>
   );
 });
