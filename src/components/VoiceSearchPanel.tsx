@@ -1,5 +1,5 @@
 import { Mic } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const LABELS = {
@@ -43,6 +43,10 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
   const isStart = align === "start";
   const successFiredRef = useRef(false);
   const startedAtRef = useRef<number>(0);
+  // True dès que l'utilisateur tape le micro pour lancer la recherche :
+  // fige les anneaux animés (ping/pulse) pendant le traitement.
+  const stoppingRef = useRef(false);
+  const [stopping, setStopping] = useState(false);
 
   useEffect(() => {
     startedAtRef.current = performance.now();
@@ -97,9 +101,9 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
             opacity: 0.5 + audioLevel * 0.5,
           }}
         />
-        {/* Outer expanding glass ring */}
+        {/* Outer expanding glass ring — figé quand la recherche est lancée */}
         <div
-          className="absolute rounded-full animate-ping pointer-events-none backdrop-blur-2xl backdrop-saturate-150"
+          className={`absolute rounded-full pointer-events-none backdrop-blur-2xl backdrop-saturate-150 ${stopping ? "" : "animate-ping"}`}
           style={{
             inset: "-28px",
             background: `radial-gradient(circle, ${ACCENT}15 0%, transparent 70%)`,
@@ -131,7 +135,12 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
         {/* Glass core button */}
         <button
           type="button"
-          onClick={liveTranscript && onFinish ? onFinish : onClose}
+          onClick={() => {
+            // Gel immédiat des anneaux animés dès le tap utilisateur.
+            if (!stopping) setStopping(true);
+            if (onFinish) onFinish();
+            else onClose();
+          }}
           className="relative w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/30 transition-transform hover:scale-105"
           style={{
             background: `linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08))`,
