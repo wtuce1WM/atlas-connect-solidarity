@@ -37,6 +37,9 @@ export function usePanelVideoPlayback({
 
   const [paused, setPaused] = useState(true);
   const [muted, setMuted] = useState(!soundOn);
+  // Incrémenté dès qu'un NOUVEL élément <video> est détecté (remount par `key`) :
+  // garantit que le moteur de lecture se relance même si mediaKey n'a pas changé.
+  const [elVersion, setElVersion] = useState(0);
 
   // ── Reflet d'état (jamais d'écriture de préférence ici)
   useEffect(() => {
