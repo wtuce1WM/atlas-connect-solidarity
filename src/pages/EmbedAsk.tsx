@@ -3403,18 +3403,18 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
 
               {bookingCity && (
-                <div className="w-full max-w-[85%] flex flex-col gap-3">
-                <div className="flex justify-center">
-                  <div className="w-full max-w-sm">
-                    <AvailabilitySearchOverlay
+                <div className="w-full flex flex-col gap-3">
+                <AvailabilitySearchOverlay
                     inline
                     language={lang}
-                    isSearching={hotelSearchingMsgId === msgKey}
-                    initialCheckIn={bookingResult?.checkIn ?? bookingPayload?.checkIn ?? undefined}
+                    isSearching={hotelMsgId === msgKey}
+                    initialCheckIn={bookingResult?.`
+checkIn ?? bookingPayload?.checkIn ?? undefined}
                     initialCheckOut={bookingResult?.checkOut ?? bookingPayload?.checkOut ?? undefined}
                     initialAdults={bookingResult?.adults ?? bookingPayload?.adults ?? undefined}
                     onSearch={(checkIn, checkOut, adults) => {
-                      runCityHotelSearch(msgKey, bookingCity, checkIn, checkOut, adults);
+                      runCityHotelSearch(msgKey, bookingCity,
+ checkIn, checkOut, adults);
                     }}
                     onClose={() => {}}
                   />
