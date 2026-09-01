@@ -80,7 +80,20 @@ const MediaBackground = React.memo(function MediaBackground({
     };
   }, [effectiveMedia?.url, effectiveMedia?.kind, videoInfo?.type, iframeRef, anyOverlayOpen]);
 
+  // Transition sans écran noir : pendant le chargement de la fiche suivante,
+  // `effectiveMedia` peut être momentanément null. On conserve alors le dernier
+  // buffer vidéo à l'écran (le double buffer basculera dès la nouvelle source).
   if (!effectiveMedia) {
+    if (lastFileUrlRef.current) {
+      return (
+        <FrozenFrameVideo
+          videoRef={videoRef}
+          src={lastFileUrlRef.current}
+          videoKey={lastFileUrlRef.current}
+          onLoadedMetadata={onLoadedMetadata}
+        />
+      );
+    }
     return (
       <div className="w-full h-full flex items-center justify-center bg-muted">
         <CalendarCheck className="h-16 w-16 text-muted-foreground/40" />
@@ -90,6 +103,7 @@ const MediaBackground = React.memo(function MediaBackground({
 
   if (effectiveMedia.kind === "video") {
     if (videoInfo?.type === "file") {
+      lastFileUrlRef.current = effectiveMedia.url;
       return (
         <FrozenFrameVideo
           videoRef={videoRef}
@@ -99,6 +113,7 @@ const MediaBackground = React.memo(function MediaBackground({
         />
       );
     }
+
 
 
     const isYouTubeVertical = videoInfo?.type === "youtube" && isVerticalVideo;
