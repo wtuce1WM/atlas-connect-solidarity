@@ -51,6 +51,7 @@ const MediaBackground = React.memo(function MediaBackground({
     let disposed = false;
     let autoplayFallbackMuted = false;
     const attemptPlay = () => {
+      if (disposed) return;
       const p = v.play();
       if (p && typeof p.catch === "function") {
         p.catch((error: unknown) => {
