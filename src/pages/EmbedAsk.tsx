@@ -2900,6 +2900,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             <form
               onSubmit={(e) => { e.preventDefault(); send(); }}
               className="flex w-full flex-col justify-center max-w-xl mx-auto"
+              style={heroLayout ? { flex: "2 1 0%" } : undefined}
             >
               <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-3 shadow-2xl`}>
                 <textarea
