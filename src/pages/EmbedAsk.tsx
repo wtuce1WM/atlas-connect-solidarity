@@ -3407,18 +3407,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 <AvailabilitySearchOverlay
                     inline
                     language={lang}
-                    isSearching={hotelMsgId === msgKey}
-                    initialCheckIn={bookingResult?.`
-checkIn ?? bookingPayload?.checkIn ?? undefined}
-                    initialCheckOut={bookingResult?.checkOut ?? bookingPayload?.checkOut ?? undefined}
+                    isSearching={hotelSearchingMsgId === msgKey}
+                    initialCheckIn={bookingResult?.checkIn ?? bookingPayload?.checkIn ?? undefined}
+                    initialCheckOut={bookingResult?.checkOut
+ ?? bookingPayload?.checkOut ?? undefined}
                     initialAdults={bookingResult?.adults ?? bookingPayload?.adults ?? undefined}
                     onSearch={(checkIn, checkOut, adults) => {
-                      runCityHotelSearch(msgKey, bookingCity,
- checkIn, checkOut, adults);
+                      runCityHotelSearch(msgKey, bookingCity, checkIn, checkOut, adults);
                     }}
                     onClose={() => {}}
                   />
-                </div>
                 </div>
 
                 {bookingResult && (
