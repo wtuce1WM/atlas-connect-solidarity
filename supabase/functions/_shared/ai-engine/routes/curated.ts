@@ -153,7 +153,7 @@ export async function loadCuratedTargets(
     try {
       const { data: sugg } = await admin
         .from("ai_suggestions")
-        .select("subcategory_ids, service_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, route_override, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
+        .select("subcategory_ids, service_ids, badge_ids, badges_match_all, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, route_override, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
         .eq("id", suggestionId)
         .maybeSingle();
       if (sugg) {
@@ -163,6 +163,7 @@ export async function loadCuratedTargets(
         out.label = (sugg.label_fr || sugg.label_en || sugg.label_ar || null) as string | null;
 
         out.badgeIds = Array.isArray(sugg.badge_ids) ? sugg.badge_ids.filter(Boolean) : [];
+        out.badgesMatchAll = sugg.badges_match_all === true;
         out.commodities = Array.isArray(sugg.commodity_filters) ? sugg.commodity_filters.filter(Boolean) : [];
         out.destinationIds = Array.isArray(sugg.destination_ids) ? sugg.destination_ids.filter(Boolean) : [];
         if (!followupId) {
