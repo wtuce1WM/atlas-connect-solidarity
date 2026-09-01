@@ -1838,6 +1838,12 @@ const VideoSlidePanel = ({
                 initialOverlay={nestedOverlayKind}
                 loadingSurface="dark"
                 onClose={() => { setDescBusinessId(null); setNestedOverlayKind("description"); }}
+                showSearchBar
+                onFeedBadgeSelect={onFeedBadgeSelect}
+                onFeedCitySelect={onFeedCitySelect}
+                onFeedYouTubeSelect={onFeedYouTubeSelect}
+                onSearch={() => { /* barre liquid glass : CTAs + contrôles vidéo uniquement */ }}
+                onSearchBusinessSelect={() => { /* no-op dans le viewer */ }}
               />
             </Suspense>
           </div>
