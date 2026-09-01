@@ -2946,13 +2946,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         {/* Option B : état « accueil IA » — logo, titre, champ central très visible,
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
-          <div className={heroLayout ? "flex h-full w-full flex-col items-center overflow-hidden" : "flex flex-col items-center justify-center gap-5 md:gap-6 px-1 py-4 md:py-8 w-full"}>
+            <div className={heroLayout ? `flex w-full flex-col items-center ${showAllSuggestions ? "min-h-full overflow-visible" : "h-full overflow-hidden"}` : "flex flex-col items-center justify-center gap-5 md:gap-6 px-1 py-4 md:py-8 w-full"}>
             {/* Conteneur de hauteur minimale : le passage de l'accueil au panneau STT
+                reste stable, mais le contenu (texte d'accueil long ou transcript)
                 reste stable, mais le contenu (texte d'accueil long ou transcript)
                 peut s'étendre sans être coupé. */}
             <div
-              className={heroLayout ? "w-full flex items-center justify-center overflow-hidden" : "w-full flex items-center justify-center min-h-[200px] h-auto overflow-visible"}
-              style={heroLayout ? { flex: "2 1 0%", minHeight: 0 } : undefined}
+              className={heroLayout ? (showAllSuggestions ? "w-full flex items-center justify-center overflow-visible" : "w-full flex items-center justify-center overflow-hidden") : "w-full flex items-center justify-center min-h-[200px] h-auto overflow-visible"}
+              style={heroLayout ? (showAllSuggestions ? { flex: "0 0 auto" } : { flex: "2 1 0%", minHeight: 0 }) : undefined}
             >
             {voiceActive ? (
               /* Mode STT inline : animation micro bleue + texte blanc à la place
