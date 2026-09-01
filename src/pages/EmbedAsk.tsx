@@ -3416,7 +3416,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     }}
                     onClose={() => {}}
                   />
-                </div>
+
+
 
                 {bookingResult && (
                     <div className="flex flex-col gap-3">
