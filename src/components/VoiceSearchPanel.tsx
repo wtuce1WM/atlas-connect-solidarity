@@ -103,8 +103,11 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
         />
         {/* Outer expanding glass ring — figé quand la recherche est lancée */}
         <div
-          className={`absolute rounded-full pointer-events-none backdrop-blur-2xl backdrop-satur 
-ate-150 ${stopping ? "" : "animate-ping"}`}
+          className={`absolute rounded-full pointer-events-none backdrop-blur-2xl backdrop-saturate-150 ${stopping
+
+ ? ""
+
+ : "animate-ping"}`}
           style={{
             inset: "-28px",
             background: `radial-gradient(circle, ${ACCENT}15 0%, transparent 70%)`,
