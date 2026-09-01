@@ -137,7 +137,7 @@ export function usePanelVideoPlayback({
       // continuer après fermeture du panneau ou changement de fiche.
       v.pause();
     };
-  }, [videoRef, mediaKey, enabled, blocked]);
+  }, [videoRef, mediaKey, enabled, blocked, elVersion]);
 
   // ── CTA : seuls points d'écriture volontaires
   const togglePlay = useCallback(() => {
