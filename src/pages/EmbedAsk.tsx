@@ -3403,10 +3403,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
 
               {bookingCity && (
-                <div className="w-full max-w-[85%] flex flex-col gap-3">
-                <div className="flex justify-center">
-                  <div className="w-full max-w-sm">
-                    <AvailabilitySearchOverlay
+                <div className="w-full flex flex-col gap-3">
+                <AvailabilitySearchOverlay
                     inline
                     language={lang}
                     isSearching={hotelSearchingMsgId === msgKey}
@@ -3418,7 +3416,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     }}
                     onClose={() => {}}
                   />
-                </div>
                 </div>
 
                 {bookingResult && (
