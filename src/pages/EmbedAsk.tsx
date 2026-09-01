@@ -2006,6 +2006,34 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * au lieu d'attendre un clic sur une miniature. Une seule fois par message.
    */
   const autoOpenedFeedRef = useRef<string | null>(null);
+  /** Feed déjà ouvert côté client avant la réponse du modèle (ouverture immédiate). */
+  const earlyFeedOpenRef = useRef(false);
+
+  /**
+   * Ouverture immédiate du feed vidéo d'une suggestion badgée, sans attendre le
+   * modèle : même source de vérité (`fetchBadgesVideoFeed`) que le serveur.
+   */
+  const openEarlyBadgeFeed = useCallback(async (badgeIds: string[]) => {
+    try {
+      const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
+      const seed = Math.random().toString(36).slice(2, 10);
+      const { items, total } = await fetchBadgesVideoFeed(badgeIds, { seed, limit: 30 });
+      if (!items.length) return;
+      earlyFeedOpenRef.current = true;
+      setVideoFeedList(items);
+      setVideoFeedCtx({ badgeIds, seed, total, cityIds: null });
+      feedLoadingMoreRef.current = false;
+      setFeedVideoTime(0);
+      setActiveFeedVideoId(items[0].id);
+      preloadFirstFeedMedia(items[0]);
+      for (const v of items.slice(1, 3)) {
+        try {
+          const thumb = (v as any).thumbnail_url || (v as any).thumbnail;
+          if (thumb) { const img = new Image(); img.src = String(thumb); }
+        } catch { /* best-effort */ }
+      }
+    } catch { /* best-effort : le marqueur VIDEO_FEED du stream reste le filet */ }
+  }, []);
   useEffect(() => {
     // Pas d'attente de fin de streaming : dès que le marqueur VIDEO_FEED est
     // complet, le lecteur s'ouvre (le reste de la réponse continue en fond et
@@ -2019,6 +2047,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const key = String((m as any).id || `idx-${i}`);
       if (autoOpenedFeedRef.current === key) return;
       autoOpenedFeedRef.current = key;
+      // Le lecteur est déjà ouvert côté client (ouverture immédiate) : on garde
+      // la vidéo en cours et on ne réinitialise rien.
+      if (earlyFeedOpenRef.current) {
+        earlyFeedOpenRef.current = false;
+        return;
+      }
       setVideoFeedList(payload.videos);
       setVideoFeedCtx(
         payload.badgeIds?.length && payload.seed
