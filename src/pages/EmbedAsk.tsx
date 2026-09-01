@@ -652,6 +652,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Panneau flottant : l'hôte demande une croix de fermeture dans le widget.
   const inFloatingPanel = /^(1|true)$/i.test(params.get("panel") || "");
   const chromeOff = /^(0|false|off)$/i.test(params.get("chrome") || "");
+  // Mode « Hero Home » : le bloc accueil (texte + champ + suggestions) se répartit
+  // 40 / 40 / 20 de la hauteur disponible (texte 40 %, champ 40 %, réserve CTA 20 %).
+  const heroLayout = /^(1|true)$/i.test(params.get("hero") || "");
   // Hauteur auto : le widget redimensionne l'iframe hôte pour éviter le scroll interne.
   const fit = params.get("fit") || "";
   const { fullHeight } = fitFlags(parseFit(fit));
