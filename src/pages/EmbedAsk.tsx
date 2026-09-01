@@ -784,6 +784,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [splashPhase] = useState<"full" | "exit" | "done">("done");
   /** Accueil IA : n'affiche que 5 chips, le CTA déplie toutes les suggestions. */
   const [showAllSuggestions, setShowAllSuggestions] = useState(false);
+  /** Hauteur de la zone 1 (« Bonjour 👋 ») mesurée suggestions fermées :
+      figée à l'ouverture des suggestions pour que le texte garde exactement
+      sa place au lieu de remonter sous le header. */
+  const heroZone1Ref = useRef<HTMLDivElement | null>(null);
+  const [heroZone1H, setHeroZone1H] = useState<number | null>(null);
+
 
 
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
@@ -2952,9 +2958,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 reste stable, mais le contenu (texte d'accueil long ou transcript)
                 peut s'étendre sans être coupé. */}
             <div
+              ref={heroZone1Ref}
               className={heroLayout ? (showAllSuggestions ? "w-full flex items-center justify-center overflow-visible" : "w-full flex items-center justify-center overflow-hidden") : "w-full flex items-center justify-center min-h-[200px] h-auto overflow-visible"}
-              style={heroLayout ? (showAllSuggestions ? { flex: "0 0 auto" } : { flex: "2 1 0%", minHeight: 0 }) : undefined}
+              style={heroLayout ? (showAllSuggestions
+                /* Suggestions ouvertes : hauteur figée = hauteur mesurée fermé,
+                   pour que « Bonjour 👋 » garde exactement sa place. */
+                ? (heroZone1H ? { flex: "0 0 auto", height: heroZone1H, overflow: "visible" } : { flex: "0 0 auto", minHeight: 0 })
+                : { flex: "2 1 0%", minHeight: 0 }) : undefined}
             >
+
             {voiceActive ? (
               /* Mode STT inline : animation micro bleue + texte blanc à la place
                  de l'icône IA + texte d'accueil (pas d'overlay fullscreen). */
@@ -3057,9 +3069,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   type="button"
                   onClick={() => setShowAllSuggestions((v) => {
                     const next = !v;
+                    // Ouverture : on mesure la hauteur de la zone 1 tant qu'elle
+                    // est encore en layout fermé (flex 2 1 0%), pour la figer
+                    // ensuite et garder « Bonjour 👋 » à sa place exacte.
+                    if (next) {
+                      const h = heroZone1Ref.current?.offsetHeight ?? 0;
+                      if (h > 0) setHeroZone1H(h);
+                    }
                     window.postMessage({ type: "owm-ask:suggestions-expanded", expanded: next }, window.location.origin);
                     return next;
                   })}
+
                   className="text-[13px] font-bold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
                   style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37" }}
 
