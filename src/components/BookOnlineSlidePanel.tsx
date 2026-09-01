@@ -1617,20 +1617,10 @@ const BookOnlineSlidePanelInner = ({
       );
     };
 
+    // La vidéo native n'est PAS touchée ici : usePanelVideoPlayback la met en
+    // pause/mute via sa prop `blocked` et rétablit la préférence à la fermeture.
     if (overlayOpen) {
       const muteBackground = () => {
-        const v = videoRef.current;
-        if (v) {
-          // Ce mute est technique (overlay ouvert) : il ne doit JAMAIS être interprété
-          // comme un choix utilisateur par le listener volumechange, sinon la préférence
-          // globale passe à OFF et tout panel monté ensuite (ex : sous-fiche POI/Map)
-          // démarre sans son.
-          v.dataset.owmAutoMute = "1";
-          v.muted = true;
-          v.volume = 0;
-          v.pause();
-        }
-        setVideoMuted(true);
         setYtBgMuted(true);
         setYtBgPlaying(false);
         ytPost("mute");
@@ -1648,19 +1638,8 @@ const BookOnlineSlidePanelInner = ({
 ;
     }
 
-    // Overlay closed → restore playback and re-apply the user's global sound preference
-    // (previously the video always resumed muted, so the sound stayed OFF after closing
-    // e.g. the Filters overlay even when the user had turned it ON before).
+    // Overlay closed → restore YouTube playback with the user's sound preference.
     const shouldBeMuted = !globalSoundOnRef.current;
-    const v = videoRef.current;
-    if (v) {
-      v.dataset.owmAutoMute = "1";
-      v.muted = shouldBeMuted;
-      v.volume = shouldBeMuted ? 0 : 1;
-      if (v.paused) v.play().catch(() => {});
-      window.setTimeout(() => { delete v.dataset.owmAutoMute; }, 800);
-    }
-    setVideoMuted(shouldBeMuted);
     setYtBgMuted(shouldBeMuted);
     if (shouldBeMuted) {
       ytPost("mute");
