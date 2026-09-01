@@ -2116,6 +2116,7 @@ serve(async (req) => {
         if (!hasForcedMode && curatedHasTaxo) {
           const built = await buildFilteredAnswer(admin, pseudoHost, lang as any, {
             badgeIds: curated.badgeIds,
+            badgesMatchAll: curated.badgesMatchAll,
             subcategoryNames: curated.subcategoryNames,
             serviceNames: curated.serviceNames,
             commodities: curated.commodities,

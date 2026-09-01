@@ -1042,6 +1042,7 @@ Deno.serve(async (req) => {
               // le badge porte AUSSI le périmètre fiches.
               badgeIds: videoFeedCombined && (curated.subcategoryNames.length + curated.serviceNames.length + curated.commodities.length) > 0 ? [] : curated.badgeIds,
               badgesMatchAll: curated.badgesMatchAll,
+              badgesMatchAll: curated.badgesMatchAll,
               subcategoryNames: curated.subcategoryNames,
               serviceNames: curated.serviceNames,
               commodities: curated.commodities,
