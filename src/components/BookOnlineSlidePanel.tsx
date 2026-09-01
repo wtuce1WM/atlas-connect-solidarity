@@ -33,6 +33,7 @@ import BookingOverlay from "@/components/BookingOverlay";
 import DestinationSlidePanel from "@/components/DestinationSlidePanel";
 import PanelHashtagsOverlay from "@/components/overlays/PanelHashtagsOverlay";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import { usePanelVideoPlayback } from "@/hooks/usePanelVideoPlayback";
 import VideoSlidePanel from "@/components/VideoSlidePanel";
 import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
 import ContactFlipCard from "@/components/cards/ContactFlipCard";
