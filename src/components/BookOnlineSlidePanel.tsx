@@ -1514,8 +1514,6 @@ const BookOnlineSlidePanelInner = ({
     container.scrollTo({ left: targetScroll, behavior: 'smooth' });
   };
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoPaused, setVideoPaused] = useState(true);
-  const [videoMuted, setVideoMuted] = useState(false);
   // Global sound preference must be resolved BEFORE the overlay mute/unmute effect
   // so the effect can restore the correct muted state when overlays close.
   const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
