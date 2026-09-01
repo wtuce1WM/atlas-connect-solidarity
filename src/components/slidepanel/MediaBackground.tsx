@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from "react";
 import { CalendarCheck } from "lucide-react";
 import type { MediaItem } from "@/hooks/useMediaItems";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import FrozenFrameVideo from "./FrozenFrameVideo";
+
 
 interface MediaBackgroundProps {
   effectiveMedia: MediaItem | null;
