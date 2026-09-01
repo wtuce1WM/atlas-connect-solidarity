@@ -2960,7 +2960,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     onPointerEnter={warmAiEngineConnection}
                     onTouchStart={warmAiEngineConnection}
                     onClick={() => { if (isYoutubePage) { setYoutubeOpen(true); return; } send(label, s.id); }}
-                    className={`${sIdx >= 6 ? "hidden md:flex" : ""} shrink-0 whitespace-nowrap text-[13px] px-4 py-2 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
+                    className={`${sIdx >= 6 ? (showAllSuggestions ? "" : "hidden md:flex") : ""} shrink-0 whitespace-nowrap text-[13px] px-4 py-2 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
                     style={{ ...chipStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
                   >
                     {label}
