@@ -5013,7 +5013,7 @@ const BookOnlineSlidePanelInner = ({
                   playing: !videoPaused,
                   muted: videoMuted,
                   onPlayingChange: (p: boolean) => setVideoPaused(!p),
-                  onMutedChange: (m: boolean) => setVideoMuted(m),
+                  onMutedChange: (m: boolean) => { setVideoMuted(m); setGlobalSoundOn(!m); },
                 } : undefined
               }
             />

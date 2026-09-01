@@ -44,6 +44,7 @@ const MediaBackground = React.memo(function MediaBackground({
     delete v.dataset.owmUserPaused;
     v.muted = !soundOn;
     let disposed = false;
+    let autoplayFallbackMuted = false;
     const attemptPlay = () => {
       const p = v.play();
       if (p && typeof p.catch === "function") {
@@ -56,13 +57,24 @@ const MediaBackground = React.memo(function MediaBackground({
             window.setTimeout(() => { if (!disposed) attemptPlay(); }, 120);
             return;
           }
-          // Only fall back to muted playback when the browser really blocked playback.
+          // Only fall back to muted playback when the browser really blocked autoplay.
+          // Other transient media errors during a swipe must not change the sound state.
+          const errorName = (error as { name?: string })?.name;
+          if (errorName !== "NotAllowedError" && errorName !== "SecurityError") return;
           // If the video is already playing, re-muting here would silently override the
           // user's explicit Mute/Sound choice (single source of truth = soundOn).
           if (!v.paused) return;
+          autoplayFallbackMuted = true;
           v.dataset.owmAutoMute = "1";
           v.muted = true;
-          v.play().catch(() => {});
+          v.play().then(() => {
+            // A swipe is a user gesture: as soon as muted playback has started,
+            // restore the requested sound instead of leaving the next item muted.
+            if (disposed || !soundOn || !autoplayFallbackMuted) return;
+            autoplayFallbackMuted = false;
+            v.muted = false;
+            v.volume = 1;
+          }).catch(() => {});
           // volumechange est asynchrone : on garde le drapeau assez longtemps
           // pour que les listeners ne prennent pas ce mute automatique pour un choix utilisateur.
           window.setTimeout(() => { delete v.dataset.owmAutoMute; }, 800);
@@ -96,7 +108,9 @@ const MediaBackground = React.memo(function MediaBackground({
     if (!soundOn) return cleanupPlay;
     const tryUnmute = () => {
       if (!v.muted) return;
+      autoplayFallbackMuted = false;
       v.muted = false;
+      v.volume = 1;
       v.play().catch(() => {});
     };
     const opts: AddEventListenerOptions = { once: true, capture: true };
