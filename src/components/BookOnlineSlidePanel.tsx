@@ -2302,6 +2302,9 @@ const BookOnlineSlidePanelInner = ({
     if (!(effectiveHasPrev || effectiveHasNext)) return;
     const onMove = (e: TouchEvent) => {
       if (anyOverlayOpen) return;
+      // Un geste démarré sur un contrôle (Play/Mute, CTA, lien) n'est jamais
+      // une navigation : ne pas annuler l'événement, sinon le tap est perdu.
+      if (isInteractiveTarget(e.target)) return;
       const start = swipeStartRef.current;
       const t = e.touches[0];
       if (!start || !t) return;
