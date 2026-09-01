@@ -2866,7 +2866,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         {/* Option B : état « accueil IA » — logo, titre, champ central très visible,
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
-          <div className="flex flex-col items-center justify-center gap-5 md:gap-6 px-1 py-4 md:py-8 w-full">
+          <div className={heroLayout ? "flex h-full w-full flex-col items-center" : "flex flex-col items-center justify-center gap-5 gap-6 px-1 py-4 md:py-8 w-full"}>
             {/* Conteneur de hauteur minimale : le passage de l'accueil au panneau STT
                 reste stable, mais le contenu (texte d'accueil long ou transcript)
                 peut s'étendre sans être coupé. */}
