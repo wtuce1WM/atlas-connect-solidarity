@@ -1564,6 +1564,21 @@ const BookOnlineSlidePanelInner = ({
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
     showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || aiAssistantOpen || showDescriptionOverlay || !!forceMuted;
 
+  // Moteur UNIQUE de lecture/son des vidéos natives — identique à VideoSlidePanel.
+  const {
+    paused: videoPaused,
+    muted: videoMuted,
+    togglePlay: toggleVideoPlay,
+    toggleMute: toggleVideoMute,
+  } = usePanelVideoPlayback({
+    videoRef,
+    mediaKey: `${businessId || ""}|${currentMediaIndex}`,
+    enabled: open,
+    blocked: mediaBlockingOverlayOpen,
+  });
+
+
+
 
   // Expose overlay state to ancestors (e.g. SearchPage wheel/swipe handlers)
   // so they can disable business navigation while an overlay is open above the panel.
