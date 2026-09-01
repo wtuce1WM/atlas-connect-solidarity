@@ -654,6 +654,8 @@ export async function buildFilteredAnswer(
   lang: Lang,
   opts: {
     badgeIds?: string[];
+    /** Combinaison des badges : true = ET (tous les badges requis), false/absent = OU. */
+    badgesMatchAll?: boolean;
     subcategoryNames?: string[];
     serviceNames?: string[];
     commodities?: string[];
