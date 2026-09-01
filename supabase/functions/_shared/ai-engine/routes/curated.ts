@@ -109,6 +109,8 @@ export type CuratedTargets = {
   /** Noms de services curatés → filtre dur sur businesses.services */
   serviceNames: string[];
   badgeIds: string[];
+  /** true = badges combinés en ET (l'établissement doit porter TOUS les badges). */
+  badgesMatchAll: boolean;
   /** Valeurs de commodités (sans le préfixe « Logistique: ») → filtre dur sur businesses.engagements */
   commodities: string[];
   destinationIds: string[];
@@ -129,7 +131,7 @@ export type CuratedTargets = {
 };
 
 const EMPTY_TARGETS: CuratedTargets = {
-  blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], serviceNames: [], badgeIds: [], commodities: [],
+  blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], serviceNames: [], badgeIds: [], badgesMatchAll: false, commodities: [],
   destinationIds: [], city: null, mode: null, routeOverride: null, radiusKm: null, label: null, aiTexts: [],
   proximity: null,
 };
@@ -151,7 +153,7 @@ export async function loadCuratedTargets(
     try {
       const { data: sugg } = await admin
         .from("ai_suggestions")
-        .select("subcategory_ids, service_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, route_override, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
+        .select("subcategory_ids, service_ids, badge_ids, badges_match_all, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, route_override, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
         .eq("id", suggestionId)
         .maybeSingle();
       if (sugg) {
@@ -161,6 +163,7 @@ export async function loadCuratedTargets(
         out.label = (sugg.label_fr || sugg.label_en || sugg.label_ar || null) as string | null;
 
         out.badgeIds = Array.isArray(sugg.badge_ids) ? sugg.badge_ids.filter(Boolean) : [];
+        out.badgesMatchAll = sugg.badges_match_all === true;
         out.commodities = Array.isArray(sugg.commodity_filters) ? sugg.commodity_filters.filter(Boolean) : [];
         out.destinationIds = Array.isArray(sugg.destination_ids) ? sugg.destination_ids.filter(Boolean) : [];
         if (!followupId) {
@@ -233,6 +236,7 @@ export async function loadCuratedTargets(
 
       // Réinitialisation des filtres hérités du parent.
       out.badgeIds = [];
+      out.badgesMatchAll = false;
       out.commodities = [];
       out.destinationIds = [];
       out.subcategoryNames = [];
@@ -650,6 +654,8 @@ export async function buildFilteredAnswer(
   lang: Lang,
   opts: {
     badgeIds?: string[];
+    /** Combinaison des badges : true = ET (tous les badges requis), false/absent = OU. */
+    badgesMatchAll?: boolean;
     subcategoryNames?: string[];
     serviceNames?: string[];
     commodities?: string[];
@@ -675,6 +681,7 @@ export async function buildFilteredAnswer(
   },
 ): Promise<CuratedAnswer | null> {
   const badgeIds = (opts.badgeIds || []).filter(Boolean);
+  const badgesMatchAll = opts.badgesMatchAll === true;
   const subcategoryNames = (opts.subcategoryNames || []).filter(Boolean);
   const commodities = (opts.commodities || []).filter(Boolean);
   const serviceNames = (opts.serviceNames || []).filter(Boolean);
@@ -717,20 +724,35 @@ export async function buildFilteredAnswer(
     // VIDÉOS (internes / YouTube / génériques) et pas par la fiche — on croise
     // donc `business_badges` ET les 3 tables de badges vidéo (pont partagé).
     try {
-      const videoBizIds = await resolveBadgeBusinessIds(admin, badgeIds, null, 500);
-      const { data: links, error: linkErr } = await admin
-        .from("business_badges")
-        .select("business_id")
-        .in("badge_id", badgeIds)
-        .limit(2000);
-      if (linkErr) throw linkErr;
-      const bizIds = [
-        ...new Set([
+      /**
+       * Résolution par badge (fiche + pont vidéo), puis combinaison :
+       *  • OU (défaut)          → union des ensembles ;
+       *  • ET (`badgesMatchAll`) → intersection : un établissement doit porter
+       *    TOUS les badges de la suggestion (ex. « Où dormir ? » + « Avec Piscine »).
+       */
+      const perBadge: Array<Set<string>> = [];
+      for (const bid of badgeIds) {
+        const videoBizIds = await resolveBadgeBusinessIds(admin, [bid], null, 500);
+        const { data: links, error: linkErr } = await admin
+          .from("business_badges")
+          .select("business_id")
+          .eq("badge_id", bid)
+          .limit(2000);
+        if (linkErr) throw linkErr;
+        perBadge.push(new Set<string>([
           ...(links || []).map((l: any) => l.business_id).filter(Boolean).map(String),
-          ...videoBizIds,
-        ]),
-      ];
+          ...videoBizIds.map(String),
+        ]));
+      }
+      let bizIds: string[];
+      if (badgesMatchAll && perBadge.length > 1) {
+        const [first, ...rest] = perBadge;
+        bizIds = [...first].filter((id) => rest.every((s) => s.has(id)));
+      } else {
+        bizIds = [...new Set(perBadge.flatMap((s) => [...s]))];
+      }
       if (!bizIds.length) return null;
+
 
       // Lecture PAR LOTS : un `.in()` de plusieurs centaines d'UUID dépasse la
       // longueur d'URL acceptée et échouait silencieusement (corpus amputé).

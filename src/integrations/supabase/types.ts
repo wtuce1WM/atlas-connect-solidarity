@@ -629,6 +629,7 @@ export type Database = {
       ai_suggestions: {
         Row: {
           badge_ids: string[]
+          badges_match_all: boolean
           blog_post_ids: string[]
           business_ids: string[]
           category: string | null
@@ -669,6 +670,7 @@ export type Database = {
         }
         Insert: {
           badge_ids?: string[]
+          badges_match_all?: boolean
           blog_post_ids?: string[]
           business_ids?: string[]
           category?: string | null
@@ -709,6 +711,7 @@ export type Database = {
         }
         Update: {
           badge_ids?: string[]
+          badges_match_all?: boolean
           blog_post_ids?: string[]
           business_ids?: string[]
           category?: string | null

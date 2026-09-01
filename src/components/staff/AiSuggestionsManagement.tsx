@@ -43,6 +43,7 @@ type Row = {
   subcategory_ids: string[];
   service_ids: string[];
   badge_ids: string[];
+  badges_match_all: boolean;
   commodity_filters: string[];
   city: string | null;
   main_categories: string[];
@@ -137,7 +138,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
     const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: svcs }, { data: bdgs }, { data: fups }, { data: posts }, { data: vfeeds }, { data: cats }] = await Promise.all([
       supabase
         .from("ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,is_platform_visible,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,service_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,route_override,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids,category,prompt_fr,prompt_en,prompt_ar,fixed_response_fr,fixed_response_en,fixed_response_ar")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,is_platform_visible,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,service_ids,badge_ids,badges_match_all,commodity_filters,city,main_categories,disabled_followup_ids,mode,route_override,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids,category,prompt_fr,prompt_en,prompt_ar,fixed_response_fr,fixed_response_en,fixed_response_ar")
         .eq("surface", surface)
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
@@ -184,6 +185,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
         service_ids: Array.isArray(r.service_ids) ? r.service_ids : [],
         badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
+        badges_match_all: r.badges_match_all === true,
         commodity_filters: Array.isArray(r.commodity_filters) ? r.commodity_filters : [],
         main_categories: Array.isArray(r.main_categories) ? r.main_categories : [],
         disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
@@ -289,7 +291,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), is_platform_visible: false, followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], service_ids: [], badge_ids: [], commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, route_override: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [], category: null, prompt_fr: null, prompt_en: null, prompt_ar: null, fixed_response_fr: null, fixed_response_en: null, fixed_response_ar: null } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), is_platform_visible: false, followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], service_ids: [], badge_ids: [], badges_match_all: false, commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, route_override: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [], category: null, prompt_fr: null, prompt_en: null, prompt_ar: null, fixed_response_fr: null, fixed_response_en: null, fixed_response_ar: null } as Row]);
     setExpanded((prev) => new Set(prev).add((data as any).id));
 
   };
@@ -321,6 +323,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
           subcategory_ids: r.subcategory_ids || [],
           service_ids: r.service_ids || [],
           badge_ids: r.badge_ids || [],
+          badges_match_all: r.badges_match_all === true,
           commodity_filters: r.commodity_filters || [],
           city: r.city || null,
           main_categories: r.main_categories || [],
@@ -1025,10 +1028,34 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                       </div>
                     )}
                   </div>
+                  {r.badge_ids.length > 1 && (
+                    <div className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 p-2">
+                      <span className="text-xs font-medium">Combinaison des badges</span>
+                      {([
+                        { v: false, label: "OU (au moins un badge)" },
+                        { v: true, label: "ET (tous les badges requis)" },
+                      ] as const).map((o) => (
+                        <button
+                          key={String(o.v)}
+                          type="button"
+                          onClick={() => update(r.id, { badges_match_all: o.v })}
+                          className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                            (r.badges_match_all === true) === o.v
+                              ? "bg-emerald-600 text-white"
+                              : "bg-background text-muted-foreground border border-border hover:bg-muted"
+                          }`}
+                        >
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <p className="text-[11px] text-muted-foreground">
                     💡 Quand un ou plusieurs badges sont liés, l'IA court-circuite le LLM et affiche uniquement les établissements portant ces badges (croisé avec les sous-catégories si présentes).
+                    {r.badge_ids.length > 1 && " Mode ET = seuls les établissements portant TOUS les badges sont retenus (ex. « Où dormir ? » + « Avec Piscine »)."}
                   </p>
                 </div>
+
 
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground">

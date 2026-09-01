@@ -276,6 +276,7 @@ serve(async (req) => {
           if (!built && curatedHasTaxo) {
             built = await buildFilteredAnswer(sb, pseudoHost, lang, {
               badgeIds: curated.badgeIds,
+              badgesMatchAll: curated.badgesMatchAll,
               subcategoryNames: curated.subcategoryNames,
               serviceNames: curated.serviceNames,
               commodities: curated.commodities,
