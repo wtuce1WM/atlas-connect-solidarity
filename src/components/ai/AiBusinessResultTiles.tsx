@@ -78,10 +78,11 @@ function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: bool
       for (const e of entries) compute(e.contentRect.width);
     });
     ro.observe(el);
-    window.addEventListener("resize", () => compute(el.clientWidth));
+    const onResize = () => compute(el.clientWidth);
+    window.addEventListener("resize", onResize);
     return () => {
       ro.disconnect();
-      window.removeEventListener("resize", () => compute(el.clientWidth));
+      window.removeEventListener("resize", onResize);
     };
   }, [ref, compact]);
   return cols;
