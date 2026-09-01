@@ -1542,9 +1542,9 @@ const BookOnlineSlidePanelInner = ({
 
       const onVolChange = () => {
         setVideoMuted(v.muted);
-        // Le volumechange décrit l'état réel du lecteur, pas nécessairement un
-        // choix utilisateur (React, Safari et les fallbacks autoplay peuvent le
-        // déclencher). La préférence globale ne change que depuis les contrôles.
+        // Même traitement que VideoSlidePanel : seul un changement réel depuis
+        // le CTA devient la préférence globale. Les mutes techniques sont balisés.
+        if (v.dataset.owmAutoMute !== "1") setGlobalSoundOn(!v.muted);
       };
       v.addEventListener("play", onPlay);
       v.addEventListener("pause", onPause);
@@ -5014,7 +5014,6 @@ const BookOnlineSlidePanelInner = ({
                   videoRef: videoRef as React.RefObject<HTMLVideoElement>,
                   paused: videoPaused,
                   muted: videoMuted,
-                  onMutedChange: (m: boolean) => { setVideoMuted(m); setGlobalSoundOn(!m); },
                 } :
                 effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? {
                   type: "youtube",

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { CalendarCheck } from "lucide-react";
 import type { MediaItem } from "@/hooks/useMediaItems";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
@@ -31,6 +31,11 @@ const MediaBackground = React.memo(function MediaBackground({
   anyOverlayOpen = false,
 }: MediaBackgroundProps) {
   const { soundOn } = useVideoSoundPreference();
+  // Même stratégie que VideoSlidePanel : le CTA son met à jour le lecteur
+  // directement. La préférence reste lisible par les effets via une ref, sans
+  // redémarrer leur cycle cleanup → pause/mute → play à chaque clic.
+  const soundOnRef = useRef(soundOn);
+  useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
 
   // Try to honor the user's sound preference; fall back to muted if the browser
   // blocks autoplay-with-sound.
@@ -42,7 +47,7 @@ const MediaBackground = React.memo(function MediaBackground({
       return;
     }
     delete v.dataset.owmUserPaused;
-    v.muted = !soundOn;
+    v.muted = !soundOnRef.current;
     let disposed = false;
     let autoplayFallbackMuted = false;
     const attemptPlay = () => {
@@ -70,7 +75,7 @@ const MediaBackground = React.memo(function MediaBackground({
           v.play().then(() => {
             // A swipe is a user gesture: as soon as muted playback has started,
             // restore the requested sound instead of leaving the next item muted.
-            if (disposed || !soundOn || !autoplayFallbackMuted) return;
+            if (disposed || !soundOnRef.current || !autoplayFallbackMuted) return;
             autoplayFallbackMuted = false;
             v.muted = false;
             v.volume = 1;
@@ -110,7 +115,7 @@ const MediaBackground = React.memo(function MediaBackground({
     };
 
     // If the browser forced mute (autoplay policy), unmute on the next user gesture.
-    if (!soundOn) return cleanupPlay;
+    if (!soundOnRef.current) return cleanupPlay;
     const tryUnmute = () => {
       if (!v.muted) return;
       autoplayFallbackMuted = false;
@@ -128,14 +133,14 @@ const MediaBackground = React.memo(function MediaBackground({
       document.removeEventListener("touchstart", tryUnmute, true);
       document.removeEventListener("keydown", tryUnmute, true);
     };
-  }, [soundOn, effectiveMedia?.url, effectiveMedia?.kind, videoInfo?.type, videoRef, anyOverlayOpen]);
+  }, [effectiveMedia?.url, effectiveMedia?.kind, videoInfo?.type, videoRef, anyOverlayOpen]);
 
   // For YouTube iframes, proactively unmute on mount when the user preference is sound-on.
   // The embed URL is generated with mute=0 already, but browsers may still start muted; this
   // postMessage acts as a belt-and-braces guarantee that the slidepanel video plays with sound.
   useEffect(() => {
     if (effectiveMedia?.kind !== "video" || videoInfo?.type !== "youtube") return;
-    if (anyOverlayOpen || !soundOn) return;
+    if (anyOverlayOpen || !soundOnRef.current) return;
     const iframe = iframeRef.current;
     if (!iframe) return;
     const post = (func: string, args: unknown[] = []) => {
@@ -165,7 +170,7 @@ const MediaBackground = React.memo(function MediaBackground({
         post("pauseVideo");
       } catch {/* ignore */}
     };
-  }, [soundOn, effectiveMedia?.url, effectiveMedia?.kind, videoInfo?.type, iframeRef, anyOverlayOpen]);
+  }, [effectiveMedia?.url, effectiveMedia?.kind, videoInfo?.type, iframeRef, anyOverlayOpen]);
 
   if (!effectiveMedia) {
     return (
