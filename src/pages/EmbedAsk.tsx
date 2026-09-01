@@ -2870,7 +2870,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             {/* Conteneur de hauteur minimale : le passage de l'accueil au panneau STT
                 reste stable, mais le contenu (texte d'accueil long ou transcript)
                 peut s'étendre sans être coupé. */}
-            <div className="w-full flex items-center justify-center min-h-[200px] h-auto overflow-visible">
+            <div
+              className="w-full flex items-center justify-center min-h-[200px] h-auto overflow-visible"
+              style={heroLayout ? { flex: "2 1 0%" } : undefined}
+            >
             {voiceActive ? (
               /* Mode STT inline : animation micro bleue + texte blanc à la place
                  de l'icône IA + texte d'accueil (pas d'overlay fullscreen). */
