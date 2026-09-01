@@ -2308,12 +2308,9 @@ const BookOnlineSlidePanelInner = ({
       const dx = t.clientX - start.x;
       const dy = t.clientY - start.y;
       if (Math.abs(dy) <= Math.abs(dx)) return;
-      const canScroll = el.scrollHeight - el.clientHeight > 2;
-      const atTop = el.scrollTop <= 0;
-      const atBottom = el.scrollTop >= el.scrollHeight - el.clientHeight - 1;
-      if (!canScroll || (dy < 0 && atBottom) || (dy > 0 && atTop)) {
-        if (e.cancelable) e.preventDefault();
-      }
+      // Navigation verticale entre fiches active : aucun déplacement visuel du
+      // média ne doit accompagner le geste, ni vers le bas ni vers le haut.
+      if (e.cancelable) e.preventDefault();
     };
     el.addEventListener("touchmove", onMove, { passive: false });
     return () => el.removeEventListener("touchmove", onMove);
