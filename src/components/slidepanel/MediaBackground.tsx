@@ -37,114 +37,9 @@ const MediaBackground = React.memo(function MediaBackground({
   const soundOnRef = useRef(soundOn);
   useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
 
-  // Try to honor the user's sound preference; fall back to muted if the browser
-  // blocks autoplay-with-sound.
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v || effectiveMedia?.kind !== "video" || videoInfo?.type !== "file") return;
-    if (anyOverlayOpen) {
-      v.pause();
-      return;
-    }
-    delete v.dataset.owmUserPaused;
-    v.muted = !soundOnRef.current;
-    let disposed = false;
-    let autoplayFallbackMuted = false;
-    const attemptPlay = () => {
-      if (disposed) return;
-      const p = v.play();
-      if (p && typeof p.catch === "function") {
-        p.catch((error: unknown) => {
-          if (disposed) return;
-          // Un swipe rapide remplace la source pendant que play() est encore en
-          // attente. Safari renvoie alors AbortError : ce n'est pas un refus
-          // d'autoplay et il ne faut surtout pas basculer la vidéo en mute.
-          if ((error as { name?: string })?.name === "AbortError") {
-            window.setTimeout(() => { if (!disposed) attemptPlay(); }, 120);
-            return;
-          }
-          // Only fall back to muted playback when the browser really blocked autoplay.
-          // Other transient media errors during a swipe must not change the sound state.
-          const errorName = (error as { name?: string })?.name;
-          if (errorName !== "NotAllowedError" && errorName !== "SecurityError") return;
-          // If the video is already playing, re-muting here would silently override the
-          // user's explicit Mute/Sound choice (single source of truth = soundOn).
-          if (!v.paused) return;
-          autoplayFallbackMuted = true;
-          v.dataset.owmAutoMute = "1";
-          v.muted = true;
-          v.play().then(() => {
-            // A swipe is a user gesture: as soon as muted playback has started,
-            // restore the requested sound instead of leaving the next item muted.
-            if (disposed || !soundOnRef.current || !autoplayFallbackMuted) return;
-            autoplayFallbackMuted = false;
-            v.muted = false;
-            v.volume = 1;
-          }).catch(() => {});
-          // volumechange est asynchrone : on garde le drapeau assez longtemps
-          // pour que les listeners ne prennent pas ce mute automatique pour un choix utilisateur.
-          window.setTimeout(() => { delete v.dataset.owmAutoMute; }, 800);
-        });
-      }
-    };
-    attemptPlay();
-
-    // iOS/Safari met parfois la vidéo en pause lors d'un changement de source
-    // rapide (swipe entre fiches). On relance tant que l'utilisateur n'a pas
-    // explicitement appuyé sur Pause.
-    const recover = () => {
-      if (v.dataset.owmUserPaused === "1") return;
-      if (!v.paused) return;
-      attemptPlay();
-    };
-    v.addEventListener("canplay", recover);
-    v.addEventListener("loadeddata", recover);
-    v.addEventListener("pause", recover);
-    const timers = [300, 900, 2000].map((ms) => window.setTimeout(recover, ms));
-
-    const cleanupPlay = () => {
-      disposed = true;
-      // Le panneau peut être retiré du DOM sans passer par un overlay. Arrêter
-      // explicitement l'ancien élément capturé empêche son audio de continuer
-      // après la fermeture ou pendant le remplacement d'une fiche.
-      v.pause();
-      // Le mute de destruction est technique. Le listener volumechange du
-      // panneau parent peut encore être attaché pendant le démontage : sans ce
-      // drapeau il persistait parfois « son coupé » au passage au résultat 2.
-      v.dataset.owmAutoMute = "1";
-      v.muted = true;
-      v.removeEventListener("canplay", recover);
-      v.removeEventListener("loadeddata", recover);
-      v.removeEventListener("pause", recover);
-      timers.forEach((t) => window.clearTimeout(t));
-    };
-
-    // If the browser forced mute (autoplay policy), unmute on the next user gesture.
-    if (!soundOnRef.current) return cleanupPlay;
-    const tryUnmute = (event: Event) => {
-      // Même garde que VideoSlidePanel : le geste sur le CTA Sound/Mute doit
-      // être traité uniquement par son onClick. Sans cela, le listener global
-      // dé-mute au touchstart puis le CTA inverse encore l'état au click,
-      // particulièrement après le remplacement de la vidéo lors d'un swipe.
-      const target = event.target as HTMLElement | null;
-      if (target?.closest?.('[data-sound-toggle="true"]')) return;
-      if (!v.muted) return;
-      autoplayFallbackMuted = false;
-      v.muted = false;
-      v.volume = 1;
-      v.play().catch(() => {});
-    };
-    const opts: AddEventListenerOptions = { once: true, capture: true };
-    document.addEventListener("pointerdown", tryUnmute, opts);
-    document.addEventListener("touchstart", tryUnmute, opts);
-    document.addEventListener("keydown", tryUnmute, opts);
-    return () => {
-      cleanupPlay();
-      document.removeEventListener("pointerdown", tryUnmute, true);
-      document.removeEventListener("touchstart", tryUnmute, true);
-      document.removeEventListener("keydown", tryUnmute, true);
-    };
-  }, [effectiveMedia?.url, effectiveMedia?.kind, videoInfo?.type, videoRef, anyOverlayOpen]);
+  // Vidéos natives : AUCUNE logique de lecture/son ici. Le moteur unique
+  // (usePanelVideoPlayback, appelé par le panneau parent) est la seule source de
+  // vérité pour play/pause, mute et les retries d'autoplay.
 
   // For YouTube iframes, proactively unmute on mount when the user preference is sound-on.
   // The embed URL is generated with mute=0 already, but browsers may still start muted; this
@@ -201,8 +96,6 @@ const MediaBackground = React.memo(function MediaBackground({
           className="w-full h-full bg-black object-cover"
           loop
           playsInline
-          autoPlay={!anyOverlayOpen}
-          muted={!soundOn}
           onLoadedMetadata={onLoadedMetadata}
         />
       );

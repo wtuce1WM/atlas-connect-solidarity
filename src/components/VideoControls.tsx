@@ -1,5 +1,6 @@
 import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { RefObject } from "react";
+import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 
 interface FileVideoControlsProps {
   type: "file";
@@ -26,6 +27,9 @@ const btnClass =
 const iconClass = "h-5 w-5 md:h-6 md:w-6";
 
 const VideoControls = (props: VideoControlsProps) => {
+  // Le CTA est le SEUL écrivain de la préférence son globale (cf.
+  // usePanelVideoPlayback) : aucun listener volumechange ne la met à jour.
+  const { setSoundOn } = useVideoSoundPreference();
   if (props.type === "file") {
     const { videoRef, paused, muted } = props;
     return (
@@ -52,6 +56,7 @@ const VideoControls = (props: VideoControlsProps) => {
               const nextMuted = !videoRef.current.muted;
               if (!nextMuted && videoRef.current.volume === 0) videoRef.current.volume = 1;
               videoRef.current.muted = nextMuted;
+              setSoundOn(!nextMuted);
             }
           }}
           className={btnClass}

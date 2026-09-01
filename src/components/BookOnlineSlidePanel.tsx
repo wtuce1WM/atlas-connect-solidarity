@@ -33,6 +33,7 @@ import BookingOverlay from "@/components/BookingOverlay";
 import DestinationSlidePanel from "@/components/DestinationSlidePanel";
 import PanelHashtagsOverlay from "@/components/overlays/PanelHashtagsOverlay";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import { usePanelVideoPlayback } from "@/hooks/usePanelVideoPlayback";
 import VideoSlidePanel from "@/components/VideoSlidePanel";
 import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
 import ContactFlipCard from "@/components/cards/ContactFlipCard";
@@ -1514,8 +1515,6 @@ const BookOnlineSlidePanelInner = ({
     container.scrollTo({ left: targetScroll, behavior: 'smooth' });
   };
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoPaused, setVideoPaused] = useState(true);
-  const [videoMuted, setVideoMuted] = useState(false);
   // Global sound preference must be resolved BEFORE the overlay mute/unmute effect
   // so the effect can restore the correct muted state when overlays close.
   const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
@@ -1526,11 +1525,11 @@ const BookOnlineSlidePanelInner = ({
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Sync video state — use MutationObserver-like approach via interval to catch key-based remounts
+  // Métrique de démarrage de lecture uniquement. L'état play/mute et l'autoplay
+  // sont gérés par usePanelVideoPlayback (moteur unique, plus bas).
   useEffect(() => {
     let lastEl: HTMLVideoElement | null = null;
     let cleanup: (() => void) | null = null;
-
     const attach = () => {
       const v = videoRef.current;
       if (v === lastEl) return;
@@ -1538,32 +1537,11 @@ const BookOnlineSlidePanelInner = ({
       cleanup = null;
       lastEl = v;
       if (!v) return;
-      const onPlay = () => {
-        setVideoPaused(false);
-        setVideoPlaybackStartedAt((prev) => prev ?? performance.now());
-      };
-      const onPause = () => setVideoPaused(true);
-
-      const onVolChange = () => {
-        setVideoMuted(v.muted);
-        // Même traitement que VideoSlidePanel : seul un changement réel depuis
-        // le CTA devient la préférence globale. Les mutes techniques sont balisés.
-        if (v.dataset.owmAutoMute !== "1") setGlobalSoundOn(!v.muted);
-      };
+      const onPlay = () => setVideoPlaybackStartedAt((prev) => prev ?? performance.now());
       v.addEventListener("play", onPlay);
-      v.addEventListener("pause", onPause);
-      v.addEventListener("volumechange", onVolChange);
-      setVideoPaused(v.paused);
-      setVideoMuted(v.muted);
-      cleanup = () => {
-        v.removeEventListener("play", onPlay);
-        v.removeEventListener("pause", onPause);
-        v.removeEventListener("volumechange", onVolChange);
-      };
+      cleanup = () => v.removeEventListener("play", onPlay);
     };
-
     attach();
-    // Poll briefly to catch React key-based remounts
     const id = setInterval(attach, 200);
     return () => {
       clearInterval(id);
@@ -1586,6 +1564,21 @@ const BookOnlineSlidePanelInner = ({
     !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
     showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || aiAssistantOpen || showDescriptionOverlay || !!forceMuted;
+
+  // Moteur UNIQUE de lecture/son des vidéos natives — identique à VideoSlidePanel.
+  const {
+    paused: videoPaused,
+    muted: videoMuted,
+    togglePlay: toggleVideoPlay,
+    toggleMute: toggleVideoMute,
+  } = usePanelVideoPlayback({
+    videoRef,
+    mediaKey: `${businessId || ""}|${currentMediaIndex}`,
+    enabled: true,
+    blocked: mediaBlockingOverlayOpen,
+  });
+
+
 
 
   // Expose overlay state to ancestors (e.g. SearchPage wheel/swipe handlers)
@@ -1625,20 +1618,10 @@ const BookOnlineSlidePanelInner = ({
       );
     };
 
+    // La vidéo native n'est PAS touchée ici : usePanelVideoPlayback la met en
+    // pause/mute via sa prop `blocked` et rétablit la préférence à la fermeture.
     if (overlayOpen) {
       const muteBackground = () => {
-        const v = videoRef.current;
-        if (v) {
-          // Ce mute est technique (overlay ouvert) : il ne doit JAMAIS être interprété
-          // comme un choix utilisateur par le listener volumechange, sinon la préférence
-          // globale passe à OFF et tout panel monté ensuite (ex : sous-fiche POI/Map)
-          // démarre sans son.
-          v.dataset.owmAutoMute = "1";
-          v.muted = true;
-          v.volume = 0;
-          v.pause();
-        }
-        setVideoMuted(true);
         setYtBgMuted(true);
         setYtBgPlaying(false);
         ytPost("mute");
@@ -1656,19 +1639,8 @@ const BookOnlineSlidePanelInner = ({
 ;
     }
 
-    // Overlay closed → restore playback and re-apply the user's global sound preference
-    // (previously the video always resumed muted, so the sound stayed OFF after closing
-    // e.g. the Filters overlay even when the user had turned it ON before).
+    // Overlay closed → restore YouTube playback with the user's sound preference.
     const shouldBeMuted = !globalSoundOnRef.current;
-    const v = videoRef.current;
-    if (v) {
-      v.dataset.owmAutoMute = "1";
-      v.muted = shouldBeMuted;
-      v.volume = shouldBeMuted ? 0 : 1;
-      if (v.paused) v.play().catch(() => {});
-      window.setTimeout(() => { delete v.dataset.owmAutoMute; }, 800);
-    }
-    setVideoMuted(shouldBeMuted);
     setYtBgMuted(shouldBeMuted);
     if (shouldBeMuted) {
       ytPost("mute");
@@ -1739,22 +1711,25 @@ const BookOnlineSlidePanelInner = ({
       if (!isTopMost()) return;
       const v = videoRef.current;
       if (v) {
-        if (v.paused) { v.play().catch(() => {}); ytPost("playVideo"); }
-        else { v.pause(); ytPost("pauseVideo"); }
+        // Moteur unique : même sémantique (pause explicite balisée) que le CTA.
+        toggleVideoPlay();
+        if (v.paused) ytPost("pauseVideo"); else ytPost("playVideo");
       } else {
         // YT-only media
-        if (videoPaused) { ytPost("playVideo"); setVideoPaused(false); }
-        else { ytPost("pauseVideo"); setVideoPaused(true); }
+        if (ytBgPlaying) { ytPost("pauseVideo"); setYtBgPlaying(false); }
+        else { ytPost("playVideo"); setYtBgPlaying(true); }
       }
       setTimeout(emitState, 50);
     };
     const onToggleMute = () => {
       if (!isTopMost()) return;
       const nextOn = !globalSoundOn;
-
-      setGlobalSoundOn(nextOn);
       const v = videoRef.current;
-      if (v) { v.muted = !nextOn; v.volume = nextOn ? 1 : 0; }
+      if (v) {
+        toggleVideoMute(); // écrit l'élément ET la préférence globale
+      } else {
+        setGlobalSoundOn(nextOn);
+      }
       if (nextOn) { ytPost("unMute"); ytPost("setVolume", [100]); }
       else { ytPost("mute"); ytPost("setVolume", [0]); }
       setTimeout(emitState, 50);
@@ -5018,14 +4993,16 @@ const BookOnlineSlidePanelInner = ({
                   videoRef: videoRef as React.RefObject<HTMLVideoElement>,
                   paused: videoPaused,
                   muted: videoMuted,
+                  onTogglePlay: toggleVideoPlay,
+                  onToggleMute: toggleVideoMute,
                 } :
                 effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? {
                   type: "youtube",
                   iframeRef: iframeRef as React.RefObject<HTMLIFrameElement>,
-                  playing: !videoPaused,
-                  muted: videoMuted,
-                  onPlayingChange: (p: boolean) => setVideoPaused(!p),
-                  onMutedChange: (m: boolean) => { setVideoMuted(m); setGlobalSoundOn(!m); },
+                  playing: ytBgPlaying,
+                  muted: ytBgMuted,
+                  onPlayingChange: (p: boolean) => setYtBgPlaying(p),
+                  onMutedChange: (m: boolean) => { setYtBgMuted(m); setGlobalSoundOn(!m); },
                 } : undefined
               }
             />

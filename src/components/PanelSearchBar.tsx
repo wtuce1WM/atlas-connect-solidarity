@@ -54,7 +54,16 @@ interface PanelSearchBarProps {
   leadingControls?: ReactNode;
   /** Inline video play/mute controls rendered as labelled cells inside the unified dock pill */
   videoControls?:
-    | { type: "file"; videoRef: RefObject<HTMLVideoElement>; paused: boolean; muted: boolean; onMutedChange?: (m: boolean) => void }
+    | {
+        type: "file";
+        videoRef: RefObject<HTMLVideoElement>;
+        paused: boolean;
+        muted: boolean;
+        onMutedChange?: (m: boolean) => void;
+        /** Moteur unique (usePanelVideoPlayback) : prioritaire s'il est fourni. */
+        onTogglePlay?: () => void;
+        onToggleMute?: () => void;
+      }
     | { type: "youtube"; iframeRef: RefObject<HTMLIFrameElement>; playing: boolean; muted: boolean; onPlayingChange: (p: boolean) => void; onMutedChange: (m: boolean) => void };
   /** When true, hides the Sparkles (Suggestion IA) button from the floating bar */
 
@@ -228,7 +237,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
   const renderVideoCells = (): ReactNode => {
     if (!videoControls) return null;
     if (videoControls.type === "file") {
-      const { videoRef, paused, muted, onMutedChange } = videoControls;
+      const { videoRef, paused, muted, onMutedChange, onTogglePlay, onToggleMute } = videoControls;
       return (
         <>
           <Cell
@@ -237,10 +246,10 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             label={paused ? "Play" : "Pause"}
             ariaLabel={paused ? "Play" : "Pause"}
             onClick={() => {
+              // Moteur unique si fourni (usePanelVideoPlayback).
+              if (onTogglePlay) return onTogglePlay();
               const v = videoRef.current;
               if (!v) return;
-              // Même sémantique que VideoControls : marquer la pause explicite
-              // pour que la logique de récupération autoplay ne relance pas.
               if (v.paused) { delete v.dataset.owmUserPaused; v.play(); }
               else { v.dataset.owmUserPaused = "1"; v.pause(); }
             }}
@@ -253,6 +262,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             label={muted ? "Sound" : "Mute"}
             ariaLabel={muted ? "Unmute" : "Mute"}
             onClick={() => {
+              if (onToggleMute) return onToggleMute();
               const v = videoRef.current;
               const next = v ? !v.muted : !muted;
               if (v) {
