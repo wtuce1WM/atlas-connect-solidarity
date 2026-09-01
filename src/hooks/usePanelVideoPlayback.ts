@@ -52,6 +52,7 @@ export function usePanelVideoPlayback({
       detach = null;
       el = v;
       if (!v) return;
+      setElVersion((n) => n + 1);
       const onPlay = () => setPaused(false);
       const onPause = () => setPaused(true);
       const onVol = () => setMuted(v.muted);
