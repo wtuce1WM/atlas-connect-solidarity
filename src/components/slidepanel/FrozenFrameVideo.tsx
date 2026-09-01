@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import { captureLastVideoFrame, getLastVideoFrame } from "@/lib/lastVideoFrame";
+
 
 interface FrozenFrameVideoProps {
   /** Ref consommée par le moteur unique (usePanelVideoPlayback) : pointe toujours vers le buffer ACTIF. */
@@ -37,8 +39,23 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   const { soundOn } = useVideoSoundPreference();
   const soundOnRef = useRef(soundOn);
   useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
+  // Image gelée héritée du panneau précédent (transition sans écran noir au montage).
+  const [poster, setPoster] = useState<string | null>(() => getLastVideoFrame());
 
   const getEl = (slot: 0 | 1) => (slot === 0 ? refA.current : refB.current);
+
+  // Capture continue de l'image courante : sert de dernière image en cas de
+  // démontage (chargement de la fiche suivante) — cf. src/lib/lastVideoFrame.ts
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      captureLastVideoFrame(getEl(activeRef.current));
+    }, 700);
+    return () => {
+      captureLastVideoFrame(getEl(activeRef.current));
+      window.clearInterval(id);
+    };
+  }, []);
+
 
   // Bascule / chargement initial
   useEffect(() => {
@@ -127,19 +144,44 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
       ref={ref}
       className={`absolute inset-0 ${className} ${active === slot ? "opacity-100" : "opacity-0"}`}
       loop
+      crossOrigin="anonymous"
+
       playsInline
       preload="auto"
       onLoadedMetadata={(e) => { if (activeRef.current === slot) onLoadedMetadata?.(e); }}
       onTimeUpdate={(e) => { if (activeRef.current === slot) onTimeUpdate?.(e); }}
+      onPlaying={() => { if (activeRef.current === slot) setPoster(null); }}
+      onCanPlay={() => { if (activeRef.current === slot) setPoster(null); }}
+      onError={(e) => {
+        // Filet : hébergeur sans en-têtes CORS → on rejoue sans crossOrigin
+        // (on perd la capture d'image, jamais la lecture).
+        const el = e.currentTarget;
+        if (!el.crossOrigin) return;
+        const url = el.src;
+        el.removeAttribute("crossorigin");
+        el.src = url;
+        el.load();
+        if (activeRef.current === slot) el.play().catch(() => {});
+      }}
     />
+
   );
 
   return (
     <div className="relative w-full h-full bg-black">
       {buffer(0, refA)}
       {buffer(1, refB)}
+      {poster && (
+        <img
+          src={poster}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        />
+      )}
     </div>
   );
+
 });
 
 export default FrozenFrameVideo;

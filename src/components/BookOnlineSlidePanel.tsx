@@ -99,6 +99,8 @@ import { getVideoEmbed } from "@/lib/videoEmbed";
 import { useMediaItems, useVideoInfo } from "@/hooks/useMediaItems";
 import { useVimeoOEmbedThumbnails } from "@/hooks/useVimeoOEmbedThumbnails";
 import MediaBackground from "@/components/slidepanel/MediaBackground";
+import { getLastVideoFrame } from "@/lib/lastVideoFrame";
+
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import MediaViewerInfo, { buildFallbackTeaser } from "@/components/slidepanel/MediaViewerInfo";
 import BusinessPromotionsList from "@/components/slidepanel/BusinessPromotionsList";
@@ -2360,6 +2362,18 @@ const BookOnlineSlidePanelInner = ({
     if (isEmbedMapWidget || isPoiOnlyPanel || initialOverlay === "description") {
       return <div className="h-full w-full bg-transparent" />;
     }
+    // Swipe d'une fiche à l'autre : on garde la dernière image de la vidéo
+    // précédente à l'écran (même continuité que VideoSlidePanel) au lieu du
+    // squelette noir, jusqu'à ce que la nouvelle vidéo prenne le relais.
+    const frozen = getLastVideoFrame();
+    if (frozen) {
+      return (
+        <div className="h-full w-full relative bg-black overflow-hidden">
+          <img src={frozen} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
+        </div>
+      );
+    }
+
     return (
       <div className={`h-full overflow-y-auto p-6 space-y-6 ${loadingSurface === "dark" ? "bg-black" : "bg-background"}`}>
         <Skeleton className="w-full aspect-video rounded-xl" />
