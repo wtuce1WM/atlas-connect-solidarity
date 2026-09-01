@@ -109,6 +109,8 @@ export type CuratedTargets = {
   /** Noms de services curatés → filtre dur sur businesses.services */
   serviceNames: string[];
   badgeIds: string[];
+  /** true = badges combinés en ET (l'établissement doit porter TOUS les badges). */
+  badgesMatchAll: boolean;
   /** Valeurs de commodités (sans le préfixe « Logistique: ») → filtre dur sur businesses.engagements */
   commodities: string[];
   destinationIds: string[];
