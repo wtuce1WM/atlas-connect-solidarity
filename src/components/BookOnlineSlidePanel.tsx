@@ -4992,14 +4992,16 @@ const BookOnlineSlidePanelInner = ({
                   videoRef: videoRef as React.RefObject<HTMLVideoElement>,
                   paused: videoPaused,
                   muted: videoMuted,
+                  onTogglePlay: toggleVideoPlay,
+                  onToggleMute: toggleVideoMute,
                 } :
                 effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? {
                   type: "youtube",
                   iframeRef: iframeRef as React.RefObject<HTMLIFrameElement>,
-                  playing: !videoPaused,
-                  muted: videoMuted,
-                  onPlayingChange: (p: boolean) => setVideoPaused(!p),
-                  onMutedChange: (m: boolean) => { setVideoMuted(m); setGlobalSoundOn(!m); },
+                  playing: ytBgPlaying,
+                  muted: ytBgMuted,
+                  onPlayingChange: (p: boolean) => setYtBgPlaying(p),
+                  onMutedChange: (m: boolean) => { setYtBgMuted(m); setGlobalSoundOn(!m); },
                 } : undefined
               }
             />
