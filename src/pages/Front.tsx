@@ -792,6 +792,12 @@ const Front = () => {
 
         visible={!demoIntro}
         onLogoClick={() => {
+          // Suggestions dépliées : simple repli, aucun rechargement (évite le flash #ECD6B8).
+          if (suggestionsExpanded) {
+            try { window.postMessage({ type: "owm-host:collapse-suggestions" }, window.location.origin); } catch { /* noop */ }
+            setSuggestionsExpanded(false);
+            return;
+          }
           if (window.location.pathname === "/") {
             window.location.reload();
           } else {
