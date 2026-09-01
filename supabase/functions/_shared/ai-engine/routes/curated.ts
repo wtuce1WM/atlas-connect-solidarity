@@ -723,20 +723,35 @@ export async function buildFilteredAnswer(
     // VIDÉOS (internes / YouTube / génériques) et pas par la fiche — on croise
     // donc `business_badges` ET les 3 tables de badges vidéo (pont partagé).
     try {
-      const videoBizIds = await resolveBadgeBusinessIds(admin, badgeIds, null, 500);
-      const { data: links, error: linkErr } = await admin
-        .from("business_badges")
-        .select("business_id")
-        .in("badge_id", badgeIds)
-        .limit(2000);
-      if (linkErr) throw linkErr;
-      const bizIds = [
-        ...new Set([
+      /**
+       * Résolution par badge (fiche + pont vidéo), puis combinaison :
+       *  • OU (défaut)          → union des ensembles ;
+       *  • ET (`badgesMatchAll`) → intersection : un établissement doit porter
+       *    TOUS les badges de la suggestion (ex. « Où dormir ? » + « Avec Piscine »).
+       */
+      const perBadge: Array<Set<string>> = [];
+      for (const bid of badgeIds) {
+        const videoBizIds = await resolveBadgeBusinessIds(admin, [bid], null, 500);
+        const { data: links, error: linkErr } = await admin
+          .from("business_badges")
+          .select("business_id")
+          .eq("badge_id", bid)
+          .limit(2000);
+        if (linkErr) throw linkErr;
+        perBadge.push(new Set<string>([
           ...(links || []).map((l: any) => l.business_id).filter(Boolean).map(String),
-          ...videoBizIds,
-        ]),
-      ];
+          ...videoBizIds.map(String),
+        ]));
+      }
+      let bizIds: string[];
+      if (badgesMatchAll && perBadge.length > 1) {
+        const [first, ...rest] = perBadge;
+        bizIds = [...first].filter((id) => rest.every((s) => s.has(id)));
+      } else {
+        bizIds = [...new Set(perBadge.flatMap((s) => [...s]))];
+      }
       if (!bizIds.length) return null;
+
 
       // Lecture PAR LOTS : un `.in()` de plusieurs centaines d'UUID dépasse la
       // longueur d'URL acceptée et échouait silencieusement (corpus amputé).
