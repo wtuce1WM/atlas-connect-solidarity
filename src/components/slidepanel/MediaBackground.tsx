@@ -98,6 +98,11 @@ const MediaBackground = React.memo(function MediaBackground({
 
     const cleanupPlay = () => {
       disposed = true;
+      // Le panneau peut être retiré du DOM sans passer par un overlay. Arrêter
+      // explicitement l'ancien élément capturé empêche son audio de continuer
+      // après la fermeture ou pendant le remplacement d'une fiche.
+      v.pause();
+      v.muted = true;
       v.removeEventListener("canplay", recover);
       v.removeEventListener("loadeddata", recover);
       v.removeEventListener("pause", recover);
@@ -133,27 +138,33 @@ const MediaBackground = React.memo(function MediaBackground({
     if (anyOverlayOpen || !soundOn) return;
     const iframe = iframeRef.current;
     if (!iframe) return;
+    const post = (func: string, args: unknown[] = []) => {
+      iframe.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func, args }),
+        "*"
+      );
+    };
     const send = () => {
       try {
-        iframe.contentWindow?.postMessage(
-          JSON.stringify({ event: "command", func: "unMute", args: [] }),
-          "*"
-        );
-        iframe.contentWindow?.postMessage(
-          JSON.stringify({ event: "command", func: "setVolume", args: [100] }),
-          "*"
-        );
-        iframe.contentWindow?.postMessage(
-          JSON.stringify({ event: "command", func: "playVideo", args: [] }),
-          "*"
-        );
+        post("unMute");
+        post("setVolume", [100]);
+        post("playVideo");
       } catch {/* ignore */}
     };
     // Send a few times to cover the player's onReady timing window.
     const t1 = setTimeout(send, 200);
     const t2 = setTimeout(send, 800);
     const t3 = setTimeout(send, 1800);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      try {
+        post("mute");
+        post("setVolume", [0]);
+        post("pauseVideo");
+      } catch {/* ignore */}
+    };
   }, [soundOn, effectiveMedia?.url, effectiveMedia?.kind, videoInfo?.type, iframeRef, anyOverlayOpen]);
 
   if (!effectiveMedia) {
