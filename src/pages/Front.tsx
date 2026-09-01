@@ -650,16 +650,6 @@ const Front = () => {
   // l'iframe passe en pleine largeur pour que le panneau soit collé à droite.
   const [mapOpen, setMapOpen] = useState(false);
   
-  // Position du bas de la ligne de badges signalée par l'iframe (accueil IA) :
-  // sert à placer « Découvrez l'App » à équidistance badges ↔ CTA Découvrir.
-  const [askBadgesBottom, setAskBadgesBottom] = useState<number | null>(null);
-  const [askViewportH, setAskViewportH] = useState<number>(() => (typeof window !== "undefined" ? window.innerHeight : 800));
-  useEffect(() => {
-    const onResize = () => setAskViewportH(window.innerHeight);
-    window.addEventListener("resize", onResize);
-    window.addEventListener("orientationchange", onResize);
-    return () => { window.removeEventListener("resize", onResize); window.removeEventListener("orientationchange", onResize); };
-  }, []);
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
       if (e.data?.type === "owm-ask:asked") {
@@ -679,11 +669,9 @@ const Front = () => {
         setSuggestionsExpanded(!!e.data.expanded);
       } else if (e.data?.type === "owm-ask:map-open") {
         setMapOpen(true);
-      } else if (e.data?.type === "owm-ask:map-closed") {
-        setMapOpen(false);
-      } else if (e.data?.type === "owm-ask:badges-bottom" && typeof e.data.bottom === "number") {
-        setAskBadgesBottom(e.data.bottom as number);
-      }
+       } else if (e.data?.type === "owm-ask:map-closed") {
+         setMapOpen(false);
+       }
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
@@ -805,34 +793,24 @@ const Front = () => {
         </div>
 
 
-        {!askLocked && !suggestionsExpanded && !conversationOpen && (() => {
-          // Équidistance : le bouton est centré dans le gap entre la fin de la
-          // ligne de badges (iframe, coordonnées = haut de l'iframe) et le haut
-          // du CTA Découvrir. iframeTop = pt-16 (mobile) / pt-14 (md) du bloc.
-          const iframeTop = isMobile ? 64 : 56;
-          const ctaTopOffset = 70; // CTA Découvrir : bottom-6 + chevron + label
-          const badgesBottomAbs = askBadgesBottom != null ? iframeTop + askBadgesBottom : null;
-          const btnH = 40;
-          const bottom = badgesBottomAbs != null
-            ? Math.max(84, Math.round(askViewportH - (badgesBottomAbs + (askViewportH - ctaTopOffset)) / 2 - btnH / 2))
-            : 80;
-          return (
-            <button
-              type="button"
-              onPointerEnter={prefetchDemo}
-              onTouchStart={prefetchDemo}
-              onClick={(e) => {
-                e.stopPropagation();
-                startDemo();
-              }}
-              disabled={demoLoading}
-              className="absolute left-1/2 z-30 -translate-x-1/2 rounded-full border border-[#25D366] bg-[#25D366] px-4 py-2 text-[13px] font-bold text-[#0b2e18] shadow-md transition-[bottom,opacity] hover:opacity-90 disabled:opacity-60"
-              style={{ bottom, fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.02em" }}
-            >
-              Découvrez l'App
-            </button>
-          );
-        })()}
+        {!askLocked && !suggestionsExpanded && !conversationOpen && (
+          // Répartition 40/40/20 : le CTA vert est centré dans la zone basse
+          // (20 % du conteneur), sans chevaucher les suggestions.
+          <button
+            type="button"
+            onPointerEnter={prefetchDemo}
+            onTouchStart={prefetchDemo}
+            onClick={(e) => {
+              e.stopPropagation();
+              startDemo();
+            }}
+            disabled={demoLoading}
+            className="absolute left-1/2 z-30 -translate-x-1/2 rounded-full border border-[#25D366] bg-[#25D366] px-4 py-2 text-[13px] font-bold text-[#0b2e18] shadow-md transition-opacity hover:opacity-90 disabled:opacity-60"
+            style={{ bottom: "10%", transform: "translate(-50%, 50%)", fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.02em" }}
+          >
+            Découvrez l'App
+          </button>
+        )}
 
       </div>
 
