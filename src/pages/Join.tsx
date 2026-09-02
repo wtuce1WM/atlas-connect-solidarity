@@ -733,7 +733,7 @@ const Join = () => {
                 {WAYS.map((w) => (
                   <article
                     key={w.n}
-                    className="rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-5 backdrop-blur md:w-[300px] md:shrink-0"
+                    className="rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-5 backdrop-blur md:w-[400px] md:shrink-0 md:p-6"
                   >
                     <div className="flex items-center gap-3">
                       <span
@@ -742,23 +742,23 @@ const Join = () => {
                       >
                         {w.n}
                       </span>
-                      <h3 className="text-[16px] font-semibold leading-snug text-[#F4ECDF] md:text-[18px]" style={MONT}>
+                      <h3 className="text-[16px] font-semibold leading-snug text-[#F4ECDF] md:text-[20px]" style={MONT}>
                         {w.h}
                       </h3>
                     </div>
-                    <p className="mt-3 font-roboto text-[13.5px] leading-relaxed text-white/85 md:text-[14.5px]">
+                    <p className="mt-3 font-roboto text-[13.5px] leading-relaxed text-white/85 md:text-[16px]">
                       {w.intro}
                     </p>
                     <ul className="mt-3 space-y-2">
                       {w.lis.map((li) => (
-                        <li key={li} className="flex items-start gap-2 font-roboto text-[13px] leading-snug text-white/90 md:text-[14px]">
+                        <li key={li} className="flex items-start gap-2 font-roboto text-[13px] leading-snug text-white/90 md:text-[15px]">
                           <span className="mt-[2px] shrink-0"><Check color="#00a896" /></span>
                           <span>{li}</span>
                         </li>
                       ))}
                     </ul>
 
-                    <p className="mt-3 border-t border-[rgba(198,160,70,.24)] pt-3 text-[13px] font-bold text-[#C6A046]" style={MONT}>
+                    <p className="mt-3 border-t border-[rgba(198,160,70,.24)] pt-3 text-[13px] font-bold text-[#C6A046] md:text-[14.5px]" style={MONT}>
                       {w.tag}
                     </p>
                   </article>
