@@ -732,7 +732,7 @@ const Widgets = () => {
           <button
             type="button"
             onClick={() => setTarget(Math.round(progress) - 1)}
-            className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+            className="flex flex-col items-center gap-1 rounded-2xl bg-black/45 px-4 py-1.5 text-[rgba(244,238,228,0.85)] backdrop-blur-sm hover:text-gold"
             style={{ opacity: current > 0 ? 1 : 0, pointerEvents: current > 0 ? "auto" : "none" }}
             tabIndex={current > 0 ? 0 : -1}
             aria-hidden={current === 0}
@@ -744,7 +744,7 @@ const Widgets = () => {
           <button
             type="button"
             onClick={() => setTarget(Math.round(progress) + 1)}
-            className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+            className="flex flex-col items-center gap-1 rounded-2xl bg-black/45 px-4 py-1.5 text-[rgba(244,238,228,0.85)] backdrop-blur-sm hover:text-gold"
             style={{
               opacity: current < SCREENS - 1 ? 1 : 0,
               pointerEvents: current < SCREENS - 1 ? "auto" : "none",
