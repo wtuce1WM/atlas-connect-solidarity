@@ -1,20 +1,15 @@
-import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
-import Footer from "@/components/Footer";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import FrontHeader from "@/components/front/FrontHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { withLangPrefix } from "@/lib/localizedPath";
-import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
-import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
-import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
+import { useSEO } from "@/hooks/useSEO";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
-import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
-import hiwStep2Mockup from "@/assets/hiw-step2-app-mockup.webp";
-import hiwStep3Tourist from "@/assets/hiw-step3-tourist.png";
+import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
+import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
+import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
+import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 
-const heroImageDesktop = originalHeroAsset.url;
-const heroImageTablet = zelligeBrunAsset.url;
-const heroImageMobile = koutoubiaVerticalBgAsset.url;
 
 const LABELS = {
   fr: {
