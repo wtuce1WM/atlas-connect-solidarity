@@ -217,7 +217,25 @@
         } catch (e) {}
       })();
     </script>
+
+    <script>
+      // Home immersive (/ et /front) : fond sombre dès le premier paint.
+      // Sans ça, le beige #ECD6B8 du body/splash flashe avant le montage React.
+      (function () {
+        try {
+          var p = location.pathname.replace(/\/+$/, "") || "/";
+          if (p !== "/" && p !== "/front") return;
+          var s = document.createElement("style");
+          s.textContent =
+            "html,body{background-color:#0A0A0A!important}" +
+            "#root>div[aria-hidden='true']{background-color:#0A0A0A!important;color:#8a7c6f!important}";
+          document.head.appendChild(s);
+          document.documentElement.style.setProperty("color-scheme", "dark");
+        } catch (e) {}
+      })();
+    </script>
   </head>
+
 
   <body style="background-color: #ECD6B8">
     <div id="root">
