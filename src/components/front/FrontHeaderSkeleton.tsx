@@ -7,10 +7,14 @@ import { Menu } from "lucide-react";
  * plus d'effet "reload" au changement de page depuis le menu.
  */
 const FrontHeaderSkeleton = () => (
-  <div
-    className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 py-4 pt-safe md:px-10"
-    aria-hidden="true"
-  >
+  <>
+    {/* Fond sombre continu : évite le flash clair (#ECD6B8) du body pendant
+        le chargement du chunk de page. */}
+    <div className="fixed inset-0 z-40 bg-[hsl(0_0%_4%)]" aria-hidden="true" />
+    <div
+      className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 py-4 pt-safe md:px-10"
+      aria-hidden="true"
+    >
     <div className="flex items-center gap-3">
       <img
         src="/images/logo_blanc.webp"
@@ -24,7 +28,8 @@ const FrontHeaderSkeleton = () => (
     <div className="mt-2 rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4]">
       <Menu className="h-5 w-5" />
     </div>
-  </div>
+    </div>
+  </>
 );
 
 export default FrontHeaderSkeleton;
