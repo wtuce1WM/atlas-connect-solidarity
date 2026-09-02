@@ -351,6 +351,12 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
     for (const [term, targets] of src) {
       const key = stemPhrase(term);
       if (!key || key.length < 3) continue;
+      // Un stem qui retombe sur un mot-outil ne doit JAMAIS être indexé : « Danse »
+      // → stem « dans », donc « dans la médina » résolvait le service Danse et
+      // écrasait la catégorie du tour précédent. Le terme littéral (« danse »)
+      // reste résolvable via l'index non stemmé.
+      if (STOP_WORDS.has(key)) continue;
+
       const list = stemEntries.get(key) ?? [];
       for (const t of targets) {
         if (list.some((x) => x.type === t.type && x.value === t.value && x.lang === t.lang)) continue;
