@@ -2310,7 +2310,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     } finally {
       feedLoadingMoreRef.current = false;
     }
-  }, [videoFeedCtx, videoFeedList]);
+  }, [videoFeedCtx, videoFeedList, appendBusinessDefaultFeed]);
+
 
   /**
    * Complète le feed jusqu'à son total (par pages de 30, plafond 180) : la fiche
