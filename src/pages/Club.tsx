@@ -753,10 +753,10 @@ const Club = () => {
               src={phoneMockupAsset.url}
               alt=""
               aria-hidden="true"
-              className="pointer-events-none absolute left-[3%] top-1/2 hidden h-[58%] w-auto -translate-y-1/2 lg:block"
+              className="pointer-events-none absolute left-[3%] top-1/2 z-0 hidden h-[58%] w-auto -translate-y-1/2 lg:block"
             />
             <p
-              className="mb-6 max-w-3xl text-center text-[13px] font-medium uppercase tracking-[0.18em] text-white/85 md:text-[16px] md:tracking-[0.22em]"
+              className="relative z-10 mb-6 max-w-3xl text-center text-[13px] font-medium uppercase tracking-[0.18em] text-white/85 md:text-[16px] md:tracking-[0.22em]"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
               {t.platformHeadline}
