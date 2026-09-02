@@ -754,6 +754,15 @@ const Install = () => {
               </>
             )}
           </button>
+
+          <button
+            type="button"
+            onClick={hardRefresh}
+            className="mt-4 inline-flex items-center gap-2 rounded-full border border-[rgba(198,160,70,.5)] bg-black/45 px-7 py-3 font-roboto text-sm font-medium text-white backdrop-blur transition hover:bg-black/60"
+          >
+            <Download className="h-4 w-4" />
+            {t.checkUpdates}
+          </button>
         </div>
 
         {/* ============ Écran 2 — Étapes par plateforme ============ */}
