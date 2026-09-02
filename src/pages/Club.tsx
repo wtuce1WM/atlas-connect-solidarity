@@ -862,16 +862,13 @@ const Club = () => {
 
           {/* ============ Écran 3 — Connexion / Inscription ============ */}
           <div
-            className="absolute inset-0 z-10 flex items-center justify-center px-4 pt-20 pb-24 md:px-12"
+            className="absolute inset-0 z-10 flex items-start md:items-center justify-center px-4 pt-16 pb-16 md:px-12 md:pt-20 md:pb-20"
             style={{ opacity: s3.opacity, transform: s3.transform, pointerEvents: s3.pointerEvents }}
             aria-hidden={s3.ariaHidden}
           >
-            <div
-              data-owm-scroll
-              className="max-h-full w-full max-w-sm overflow-y-auto overscroll-contain scrollbar-hide"
-            >
+            <div className="w-full max-w-sm">
                 {/* Tabs — bleu du popup Club OWM */}
-                <div className="flex rounded-lg p-1 mb-4 bg-[#BED1FF]">
+                <div className="flex rounded-lg p-1 mb-3 bg-[#BED1FF]">
                   <button
                     type="button"
                     onClick={() => setMode("login")}
@@ -889,7 +886,7 @@ const Club = () => {
                 </div>
 
 
-                {mode === "register" && <p className="text-center text-xs text-white mb-4 font-semibold">{t.required}</p>}
+                {mode === "register" && <p className="text-center text-xs text-white mb-2 font-semibold">{t.required}</p>}
 
                 {isRegistered ? (
                   <div className="text-center py-12">
@@ -898,7 +895,7 @@ const Club = () => {
                     <p className="text-white/90">{t.successMsg}</p>
                   </div>
                 ) : mode === "login" ? (
-                  <div className="space-y-6">
+                  <div className="space-y-3">
                     <ClubSocialButtons redirectPath="/club" />
 
                     <div className="flex items-center gap-4">
@@ -907,7 +904,7 @@ const Club = () => {
                       <div className="flex-1 h-px bg-white/20" />
                     </div>
 
-                    <form onSubmit={handleLogin} className="space-y-4">
+                    <form onSubmit={handleLogin} className="space-y-3">
                       <div>
                         <label className="text-sm text-white font-semibold mb-1 block">{t.emailLabel}</label>
                         <Input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" className="bg-[#BED1FF] text-black" />
@@ -947,7 +944,7 @@ const Club = () => {
                       <Button
                         type="submit"
                         disabled={isLoggingIn || !loginEmail.trim() || !loginPassword}
-                        className="w-full bg-[#25D366] text-white hover:bg-[#25D366]/90 font-semibold uppercase tracking-wider py-6 text-base"
+                        className="w-full bg-[#25D366] text-white hover:bg-[#25D366]/90 font-semibold uppercase tracking-wider py-4 text-base"
                       >
                         {isLoggingIn ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Crown className="h-5 w-5 mr-2" />}
                         {tx.loginSubmit.toUpperCase()}
@@ -956,7 +953,7 @@ const Club = () => {
                     </form>
                   </div>
                 ) : (
-                  <div className="space-y-6">
+                  <div className="space-y-3">
                     <ClubSocialButtons redirectPath="/club" />
 
                     {/* Separator */}
@@ -967,7 +964,7 @@ const Club = () => {
                     </div>
 
                     {/* Email/Password Form */}
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-3">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-sm text-white font-semibold mb-1 block">
@@ -1054,7 +1051,7 @@ const Club = () => {
                       <Button
                         type="submit"
                         disabled={isSubmitting || !isFormValid}
-                        className="w-full bg-[#25D366] text-white hover:bg-[#25D366]/90 font-semibold uppercase tracking-wider py-6 text-base"
+                        className="w-full bg-[#25D366] text-white hover:bg-[#25D366]/90 font-semibold uppercase tracking-wider py-4 text-base"
                       >
                         {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Crown className="h-5 w-5 mr-2" />}
                         {t.submit.toUpperCase()}
