@@ -528,6 +528,10 @@ const Widgets = () => {
             >
               Map & App — <span className="font-bold text-[#C6A046]">adresses à proximité</span>
             </h2>
+            <p className="mt-2 max-w-3xl font-roboto text-[14px] leading-relaxed text-white/85 md:text-[15px]">
+              Les meilleures adresses autour d'un point, sur une carte Google Maps native, en mode vidéos
+              immersives — mis à jour automatiquement depuis la base One World Morocco.
+            </p>
             <ul className="mt-3 flex flex-wrap gap-2">
               {[
                 "Mise à jour automatique depuis la base One World Morocco",
