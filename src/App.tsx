@@ -122,7 +122,35 @@ const PreviewDiagnostic = lazy(() => import("./pages/PreviewDiagnostic"));
 
 const queryClient = new QueryClient();
 
-const renderLazyRoute = (page: JSX.Element) => <Suspense fallback={null}>{page}</Suspense>;
+/**
+ * Fallback global de Suspense : sur les pages publiques "front" (fond sombre
+ * immersif avec header), on rend le header statique pour éviter le flash de
+ * démontage. Ailleurs (backoffice, embeds), rien.
+ */
+const GlobalRouteFallback = () => {
+  const { pathname } = useLocation();
+  const p = stripLangPrefix(pathname);
+  const isFrontLike =
+    p === "/" ||
+    p === "/front" ||
+    p === "/home_v1" ||
+    p === "/corporate" ||
+    p === "/club" ||
+    p === "/install" ||
+    p === "/join" ||
+    p === "/devenir-affilie" ||
+    p === "/affiliates" ||
+    p === "/affiliates/login" ||
+    p === "/widgets" ||
+    p.startsWith("/blog");
+  if (!isFrontLike) return null;
+  return <FrontHeaderSkeleton />;
+};
+
+const renderLazyRoute = (page: JSX.Element) => (
+  <Suspense fallback={<GlobalRouteFallback />}>{page}</Suspense>
+);
+
 
 
 const BusinessRedirect = () => {
