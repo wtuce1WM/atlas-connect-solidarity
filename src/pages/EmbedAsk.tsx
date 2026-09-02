@@ -2352,6 +2352,53 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     }
   }, [videoFeedCtx, videoFeedList]);
 
+  /**
+   * Continuité du scroll vertical dans la fiche ouverte depuis la grille :
+   * quand on atteint le dernier établissement de la liste (résultats affichés,
+   * puis feed badge s'il existe), on prolonge avec le feed par défaut du DERNIER
+   * business (badges de sa FICHE). Une seule fois par business.
+   */
+  const siblingsSuffixDoneRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!openBusinessId || !openSiblings.length) return;
+    const idx = openSiblings.indexOf(openBusinessId);
+    if (idx < 0 || idx < openSiblings.length - 1) return;
+    const bizId = String(openSiblings[openSiblings.length - 1]);
+    if (siblingsSuffixDoneRef.current.has(bizId)) return;
+    siblingsSuffixDoneRef.current.add(bizId);
+    let cancelled = false;
+    (async () => {
+      try {
+        const { fetchBusinessDefaultFeedSuffix } = await import("@/lib/badgeVideoFeed");
+        const items = await fetchBusinessDefaultFeedSuffix(
+          bizId,
+          videoFeedList.map((v) => String(v.id)),
+          30,
+        );
+        if (cancelled || !items.length) return;
+        // Le feed alimente aussi `feedVideoUrlById` (vidéo affichée à l'ouverture).
+        setVideoFeedList((prev) => {
+          const seen = new Set(prev.map((v) => String(v.id)));
+          return [...prev, ...(items.filter((it) => !seen.has(String(it.id))) as never[])];
+        });
+        setOpenSiblings((prev) => {
+          const seen = new Set(prev);
+          const extra: string[] = [];
+          for (const it of items) {
+            const bid = (it as { businessId?: string | null }).businessId;
+            if (!bid || seen.has(String(bid))) continue;
+            seen.add(String(bid));
+            extra.push(String(bid));
+          }
+          return extra.length ? [...prev, ...extra] : prev;
+        });
+      } catch {
+        /* best-effort : la navigation reste utilisable */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [openBusinessId, openSiblings, videoFeedList]);
+
 
 
   /** Clic sur une chip badge dans le viewer → relance le feed sur ce badge. */
