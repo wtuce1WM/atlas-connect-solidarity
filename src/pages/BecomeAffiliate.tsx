@@ -804,11 +804,12 @@ const BecomeAffiliate = () => {
                 <Button
                   type="submit"
                   disabled={formLoading}
-                  className="h-12 w-full rounded-xl bg-gold text-base font-bold text-black shadow-lg shadow-gold/20 transition-all hover:bg-gold/90 hover:shadow-gold/40"
+                  className="h-12 w-full rounded-xl bg-gold text-base font-bold normal-case tracking-normal text-black shadow-lg shadow-gold/20 transition-all hover:bg-gold/90 hover:shadow-gold/40"
                 >
                   {formLoading ? "..." : t.submitBtn}
                   {!formLoading && <ArrowRight className="ml-2 h-5 w-5" />}
                 </Button>
+                <div className="h-20" aria-hidden />
               </form>
             </div>
           )}
