@@ -283,6 +283,7 @@ const Club = () => {
       };
       rafRef.current = requestAnimationFrame(tick);
     },
+
     [reduced],
   );
 
