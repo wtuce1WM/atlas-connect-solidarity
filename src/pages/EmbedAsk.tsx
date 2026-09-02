@@ -242,7 +242,7 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
       `Bonjour 👋 Je suis l'assistant de **${n}**. Mes recherches de proximité et de distance se calculent dans un rayon de **${r}** autour de **${n}** — vous pouvez changer ce rayon ci-dessous ou à la voix. Comment puis-je vous aider ?`,
     platformTitle: "Assistant IA One World Morocco",
     platformOpener: () =>
-      `Bonjour 👋\n\nJe suis l'assistant One World Morocco.\nJe puise dans toute la base 1WM — restaurants, riads, sorties, activités, événements, adresses authentiques — à Marrakech, Essaouira et bientôt partout au Maroc.\nComment puis-je vous aider ?`,
+      `Bonjour 👋\n\nJe suis l'assistant One World Morocco.\nJe cherche parmi les restaurants, riads, sorties, boutiques, activités, événements, adresses authentiques — à Marrakech, Essaouira et bientôt partout au Maroc.\n\nComment puis-je vous aider ?`,
 
     radiusLabel: "RAYON",
     radiusChanged: (r) => `D'accord 👍 Rayon de proximité réglé sur **${r}**. Les recherches de proximité et de distance utiliseront ce périmètre.`,
