@@ -176,7 +176,7 @@ export async function fetchBadgesVideoFeed(
   const { seed, limit = 60, offset = 0, cityIds } = options;
   const { data, error } = await (supabase as any).rpc("get_badges_video_feed", {
     _badge_ids: ids,
-    _seed: seed ?? getBadgeFeedSeed(ids.join(",")),
+    _seed: seed ?? (offset === 0 ? resetBadgeFeedSeed(ids.join(",")) : getBadgeFeedSeed(ids.join(","))),
     _limit: limit,
     _offset: offset,
     _city_ids: cityIds && cityIds.length > 0 ? cityIds : null,
