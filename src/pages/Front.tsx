@@ -711,10 +711,14 @@ const Front = () => {
   // Overlay YouTube ouvert depuis l'embed (suggestion « Le meilleur de YouTube sur le Maroc ») :
   // le mini-header se masque pendant l'overlay plein cadre.
   const [youtubeOpen, setYoutubeOpen] = useState(false);
-  
+  // Hero de l'embed révélé : le CTA vert rejoint la cascade d'apparition.
+  const [heroRevealed, setHeroRevealed] = useState(false);
+
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
-      if (e.data?.type === "owm-ask:asked") {
+      if (e.data?.type === "owm-ask:hero-ready") {
+        setHeroRevealed(true);
+      } else if (e.data?.type === "owm-ask:asked") {
         setAskLocked(true);
         // Conversation lancée : la vidéo de fond passe en pause.
         backgroundVideoRef.current?.pause();
