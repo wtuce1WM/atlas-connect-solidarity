@@ -888,8 +888,19 @@ const Front = () => {
                 startDemo();
               }}
               disabled={demoLoading}
-              className="pointer-events-auto rounded-full border border-[#25D366] bg-[#25D366] px-4 py-2 text-[13px] font-bold text-[#0b2e18] shadow-md transition-opacity hover:opacity-90 disabled:opacity-60"
-              style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.02em" }}
+              className="pointer-events-auto rounded-full border border-[#25D366] bg-[#25D366] px-4 py-2 text-[13px] font-bold text-[#0b2e18] shadow-md hover:opacity-90 disabled:opacity-60"
+              style={{
+                fontFamily: "'Montserrat', sans-serif",
+                letterSpacing: "0.02em",
+                // Même cascade que le hero de l'embed (dernier élément révélé).
+                opacity: heroRevealed ? 1 : 0,
+                transform: heroRevealed ? "none" : "translateY(14px)",
+                filter: heroRevealed ? "none" : "blur(6px)",
+                transition:
+                  "opacity 780ms cubic-bezier(.22,.61,.36,1), transform 780ms cubic-bezier(.22,.61,.36,1), filter 780ms cubic-bezier(.22,.61,.36,1)",
+                transitionDelay: heroRevealed ? "680ms" : "0ms",
+                willChange: "opacity, transform",
+              }}
             >
               Découvrez l'App
             </button>
