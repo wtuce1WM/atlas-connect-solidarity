@@ -340,7 +340,7 @@ const LegacyHtmlPost = ({
 
   return (
     <div className="min-h-screen bg-background">
-      <HomeMindtripHeader alwaysWhite />
+      <FrontHeader fixed solid={headerScrolled} onLogoClick={() => navigate("/")} />
       <div className="bg-black pt-28 pb-8">
         <div className="container mx-auto px-4">
           <button
