@@ -18,6 +18,7 @@ import AuthSessionSentinel from "./components/AuthSessionSentinel";
 const CookieBanner = lazy(() => import("./components/CookieBanner"));
 
 import RouteSeo from "./seo/RouteSeo";
+import FrontHeaderSkeleton from "./components/front/FrontHeaderSkeleton";
 import { PageMetaOverridesLoader } from "./seo/usePageMetaOverrides";
 import FrontEager from "./pages/Front";
 import HomeV1Eager from "./pages/HomeV1";
