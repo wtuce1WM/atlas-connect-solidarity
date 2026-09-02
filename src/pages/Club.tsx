@@ -585,6 +585,9 @@ const Club = () => {
     ar: { loginTab: "تسجيل الدخول", registerTab: "تسجيل", loginTitle: "الوصول إلى حسابك", loginSubmit: "تسجيل الدخول", loginError: "البريد أو كلمة المرور غير صحيحة.", forgotPassword: "نسيت كلمة المرور؟", resetSent: "تم إرسال بريد الاستعادة.", noAccount: "ليس لديك حساب؟", hasAccount: "عضو بالفعل؟" },
   }[language] || { loginTab: "Se connecter", registerTab: "S'inscrire", loginTitle: "Accéder à votre compte", loginSubmit: "Se connecter", loginError: "Email ou mot de passe incorrect.", forgotPassword: "Mot de passe oublié ?", resetSent: "Email de réinitialisation envoyé.", noAccount: "Pas encore de compte ?", hasAccount: "Déjà membre ?" };
 
+  const clubPopup = clubPopupTranslations[language as keyof typeof clubPopupTranslations] || clubPopupTranslations.fr;
+
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!loginEmail.trim() || !loginPassword) return;
