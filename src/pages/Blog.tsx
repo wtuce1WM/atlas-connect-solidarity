@@ -1,23 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import FrontHeader from "@/components/front/FrontHeader";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import HomeBottomBar from "@/components/HomeBottomBar";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Calendar, User, ArrowRight, MapPin, PlayCircle, ChevronDown } from "lucide-react";
+import { Loader2, Calendar, User, ArrowRight, MapPin, PlayCircle } from "lucide-react";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import { withLangPrefix } from "@/lib/localizedPath";
 import { compareBlogOrder } from "@/lib/blogOrder";
-import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
-import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
-import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
-import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
-import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
+
 
 
 interface BlogPost {
@@ -111,135 +107,13 @@ const Blog = () => {
     return fr;
   };
 
-  const navigate = useLocalizedNavigate();
-  // Hero immersif (modèle Home) : vidéo de fond portrait/paysage + FrontHeader pinné.
-  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
-  const listRef = useRef<HTMLDivElement | null>(null);
-  const [scrolled, setScrolled] = useState(false);
-  const [isPortrait, setIsPortrait] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches,
-  );
-  const [reduced, setReduced] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
 
-  useEffect(() => {
-    const mqO = window.matchMedia("(max-aspect-ratio: 1/1)");
-    const mqM = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onO = () => setIsPortrait(mqO.matches);
-    const onM = () => setReduced(mqM.matches);
-    mqO.addEventListener("change", onO);
-    mqM.addEventListener("change", onM);
-    const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.6);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      mqO.removeEventListener("change", onO);
-      mqM.removeEventListener("change", onM);
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, []);
 
-  // Safari iOS peut différer l'autoplay malgré muted + playsInline.
-  useEffect(() => {
-    const retry = () => {
-      const v = bgVideoRef.current;
-      if (v?.paused) void v.play().catch(() => undefined);
-    };
-    retry();
-    document.addEventListener("touchstart", retry, { passive: true, once: true });
-    document.addEventListener("click", retry, { once: true });
-    return () => {
-      document.removeEventListener("touchstart", retry);
-      document.removeEventListener("click", retry);
-    };
-  }, [isPortrait]);
-
-  const scrollToArticles = () => {
-    listRef.current?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
-  };
-
-  const BLOG_HERO_T = {
-    fr: {
-      eyebrow: "Le Journal",
-      title: "Histoires, adresses et coulisses du Maroc",
-      text: "Nos guides de Marrakech et Essaouira, nos rencontres avec les artisans, les riads et les maisons d'hôtes, et les coulisses de One World Morocco — écrits sur place, au fil des saisons.",
-    },
-    en: {
-      eyebrow: "The Journal",
-      title: "Stories, addresses and behind the scenes of Morocco",
-      text: "Our Marrakech and Essaouira guides, encounters with artisans, riads and guesthouses, and the making of One World Morocco — written on the ground, season after season.",
-    },
-    ar: {
-      eyebrow: "المدونة",
-      title: "حكايات وعناوين وكواليس المغرب",
-      text: "أدلتنا لمراكش والصويرة، لقاءاتنا مع الحرفيين والرياضات ودور الضيافة، وكواليس One World Morocco — مكتوبة على الأرض، موسمًا بعد موسم.",
-    },
-  } as const;
-  const heroT = BLOG_HERO_T[language] || BLOG_HERO_T.fr;
 
   return (
     <div className="min-h-screen bg-background">
-      <FrontHeader fixed visible solid={scrolled} onLogoClick={() => navigate("/")} />
-      <section
-        className="relative flex h-[100dvh] min-h-[560px] w-full items-center justify-center overflow-hidden bg-[hsl(0_0%_4%)]"
-      >
-        <video
-          ref={bgVideoRef}
-          key={isPortrait ? "portrait" : "landscape"}
-          className="absolute inset-0 h-full w-full object-cover"
-          src={isPortrait ? portraitVideoAsset.url : landscapeVideoAsset.url}
-          poster={isPortrait ? portraitVideoPoster.url : landscapeVideoPoster.url}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-        />
-        <div
-          className="absolute inset-0"
-          aria-hidden="true"
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(6,5,4,.55) 0%, rgba(6,5,4,.42) 35%, rgba(6,5,4,.72) 75%, rgba(6,5,4,.92) 100%)",
-          }}
-        />
-        <div
-          className="pointer-events-none absolute inset-0"
-          aria-hidden="true"
-          style={{
-            background:
-              "radial-gradient(50% 45% at 12% 8%, hsl(var(--primary) / 0.22), transparent 70%), radial-gradient(45% 40% at 88% 92%, hsl(var(--gold) / 0.16), transparent 70%)",
-          }}
-        />
-        <div className="relative z-10 flex max-w-3xl flex-col items-center px-5 pb-20 pt-24 text-center md:px-12">
-          <p
-            className="mb-6 text-[12px] font-medium uppercase tracking-[0.32em] text-[#C6A046] md:text-[14px]"
-            style={{ fontFamily: "'Montserrat', sans-serif" }}
-          >
-            {heroT.eyebrow}
-          </p>
-          <h1
-            className="text-[28px] leading-[1.15] text-[#F4ECDF] sm:text-[2.4rem] md:text-[3.2rem]"
-            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
-          >
-            {heroT.title}
-          </h1>
-          <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-white/90 md:text-[1.06rem]">
-            {heroT.text}
-          </p>
-          <button
-            type="button"
-            onClick={scrollToArticles}
-            className="mt-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/25 text-white/80 transition-colors hover:border-[#C6A046]/70 hover:text-[#E4C877]"
-            aria-label="Voir les articles"
-          >
-            <ChevronDown className="h-5 w-5 animate-bounce" />
-          </button>
-        </div>
-      </section>
-
-      <div ref={listRef} className="w-full scroll-mt-16 px-4 py-12">
+      <HomeMindtripHeader />
+      <div className="w-full px-4 pb-12 pt-16">
         {isLoading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
