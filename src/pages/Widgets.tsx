@@ -370,7 +370,7 @@ const Widgets = () => {
   const current = Math.round(progress);
 
   const askUrl = `${SITE}/embed/ask/${DEMO_SLUG}?lang=fr&bg=transparent`;
-  const nearbyUrl = `${SITE}/embed/nearby/${DEMO_SLUG}?lang=fr&bg=transparent`;
+  const nearbyUrl = `${SITE}/embed/nearby/${DEMO_SLUG}?lang=fr&bg=ECD6B8`;
 
   return (
     <>
@@ -505,7 +505,7 @@ const Widgets = () => {
 
         {/* ============ Écran 3 — Widget 02 Map & App (plein écran, sans marges) ============ */}
         <div
-          className="absolute inset-0 z-10 flex flex-col px-0 pt-20 pb-20 md:pt-24 md:pb-24"
+          className="absolute inset-0 z-10 flex flex-col px-0 pt-20 pb-2 md:pt-24 md:pb-3"
           style={{ opacity: s[2].opacity, transform: s[2].transform, pointerEvents: s[2].pointerEvents }}
           aria-hidden={s[2].ariaHidden}
         >
