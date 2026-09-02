@@ -44,6 +44,16 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
 
   const getEl = (slot: 0 | 1) => (slot === 0 ? refA.current : refB.current);
 
+  /** Arrêt dur d'un buffer : muet, en pause, et balisé contre toute reprise. */
+  const stopBuffer = (el: HTMLVideoElement | null) => {
+    if (!el) return;
+    try {
+      el.dataset.owmUserPaused = "1";
+      el.muted = true;
+      el.pause();
+    } catch {/* ignore */}
+  };
+
   // Capture continue de l'image courante : sert de dernière image en cas de
   // démontage (chargement de la fiche suivante) — cf. src/lib/lastVideoFrame.ts
   useEffect(() => {
@@ -90,10 +100,15 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
       setActive(nextSlot);
       (videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = incoming;
       if (outgoing) {
-        try {
-          outgoing.pause();
-          outgoing.muted = true;
-        } catch {/* ignore */}
+        // Marqueur lu par le moteur unique (usePanelVideoPlayback) : sans lui,
+        // ses timers de reprise (canplay/300/900/2000ms) relançaient le buffer
+        // sortant → deux vidéos audibles en même temps pendant un swipe.
+        stopBuffer(outgoing);
+        [0, 150, 400, 900, 2100].forEach((ms) =>
+          window.setTimeout(() => {
+            if (activeRef.current === nextSlot) stopBuffer(outgoing);
+          }, ms),
+        );
       }
     };
 
@@ -119,7 +134,7 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   useEffect(() => {
     const hidden = getEl(active === 0 ? 1 : 0);
     if (!hidden) return;
-    try { hidden.muted = true; hidden.pause(); } catch {/* ignore */}
+    stopBuffer(hidden);
   }, [active]);
 
   // Sécurité : à la destruction, aucun buffer ne doit continuer à jouer,
