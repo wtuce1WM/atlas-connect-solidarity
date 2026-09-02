@@ -507,8 +507,8 @@ const BecomeAffiliate = () => {
   const current = Math.round(progress);
 
   const inputCls =
-    "bg-white/10 border-white/20 text-white placeholder:text-white/40 h-11";
-  const labelCls = "block text-white/70 text-sm mb-1.5";
+    "bg-white/10 border-white/20 text-white placeholder:text-white/40 h-11 normal-case tracking-normal";
+  const labelCls = "block text-white/70 text-sm mb-1.5 normal-case tracking-normal font-normal";
 
   return (
     <>
