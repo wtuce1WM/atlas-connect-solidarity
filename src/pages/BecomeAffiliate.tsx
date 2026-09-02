@@ -652,7 +652,7 @@ const BecomeAffiliate = () => {
             </p>
             <div
               data-inner-scroll
-              className="mt-4 grid grid-cols-2 gap-px rounded-xl border border-[#C6A046]/25 bg-[#C6A046]/10 sm:mt-6 sm:max-h-[46vh] sm:overflow-y-auto sm:overscroll-contain lg:grid-cols-4"
+              className="mt-4 grid grid-cols-1 gap-px rounded-xl border border-[#C6A046]/25 bg-[#C6A046]/10 sm:mt-6 sm:max-h-[46vh] sm:grid-cols-2 sm:overflow-y-auto sm:overscroll-contain lg:grid-cols-4"
             >
               {TIERS.map((tier) => (
                 <div
