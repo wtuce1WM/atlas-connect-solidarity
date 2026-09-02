@@ -180,6 +180,15 @@ const Front = () => {
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
+
+  /* Intro immersive du fond : opacité + très léger dézoom au premier paint. */
+  const [introIn, setIntroIn] = useState(false);
+  useEffect(() => {
+    const r = requestAnimationFrame(() => requestAnimationFrame(() => setIntroIn(true)));
+    return () => cancelAnimationFrame(r);
+  }, []);
+
+
   
 
   const targetRef = useRef(0);
