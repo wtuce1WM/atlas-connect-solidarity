@@ -2876,8 +2876,15 @@ const BookOnlineSlidePanelInner = ({
           </div>
         )}
 
-        {/* CTA Bar — hidden when the POI/Map overlay is open to keep the map immersive */}
-        {!showPoiMapOverlay && (
+        {/* CTA Bar — hidden when the POI/Map overlay is open to keep the map immersive.
+            Barre info viewer : quand la description est affichée (et sans search bar),
+            la barre est ancrée au bas du panneau, HORS du conteneur scrollable —
+            même mécanique que VideoSlidePanel : elle ne suit JAMAIS le swipe vertical
+            ni le scroll natif du conteneur (repro mobile : la barre suivait le pouce). */}
+        {!showPoiMapOverlay && (() => {
+          const anchoredInfoBar = !!business && !business.hide_description && !showSearchBar;
+          return (
+            <div className={anchoredInfoBar ? "absolute left-4 right-4 md:left-6 md:right-6 bottom-[calc(2rem+env(safe-area-inset-bottom))] md:bottom-6 z-30 flex flex-col justify-end pointer-events-none [&>*]:pointer-events-auto" : "contents"}>
         <CtaBar
           business={business}
           language={language}
