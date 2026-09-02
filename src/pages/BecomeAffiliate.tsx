@@ -652,31 +652,31 @@ const BecomeAffiliate = () => {
             </p>
             <div
               data-inner-scroll
-              className="mt-6 grid max-h-[46vh] grid-cols-1 gap-px overflow-y-auto overscroll-contain rounded-xl border border-[#C6A046]/25 bg-[#C6A046]/10 sm:grid-cols-2 lg:grid-cols-4"
+              className="mt-4 grid grid-cols-2 gap-px rounded-xl border border-[#C6A046]/25 bg-[#C6A046]/10 sm:mt-6 sm:max-h-[46vh] sm:overflow-y-auto sm:overscroll-contain lg:grid-cols-4"
             >
               {TIERS.map((tier) => (
                 <div
                   key={tier.name}
-                  className={`relative flex flex-col p-6 md:p-7 ${tier.featured ? "bg-[#1a1512]" : "bg-[hsl(0_0%_6%)]"}`}
+                  className={`relative flex flex-col p-3 sm:p-6 md:p-7 ${tier.featured ? "bg-[#1a1512]" : "bg-[hsl(0_0%_6%)]"}`}
                 >
                   {tier.featured && (
-                    <span className="absolute right-3 top-3 rounded bg-[#C6A046] px-2 py-1 text-[9px] font-bold uppercase tracking-[0.2em] text-[#2b2b2b]">
+                    <span className="absolute right-2 top-2 sm:right-3 sm:top-3 rounded bg-[#C6A046] px-1.5 py-0.5 sm:px-2 sm:py-1 text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] text-[#2b2b2b]">
                       Signature
                     </span>
                   )}
-                  <div className="mb-4 text-xs font-bold uppercase tracking-[0.26em] text-[#C6A046]">
+                  <div className="mb-2 text-[10px] sm:mb-4 sm:text-xs font-bold uppercase tracking-[0.26em] text-[#C6A046]">
                     {tier.name}
                   </div>
                   <div
-                    className="mb-4 text-3xl font-bold leading-none text-white md:text-4xl"
+                    className="mb-2 text-xl font-bold leading-none text-white sm:mb-4 sm:text-3xl md:text-4xl"
                     style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
                     {tier.price}
                     {tier.suffix && (
-                      <small className="ml-1 text-sm font-normal text-white/70">/{t.month}</small>
+                      <small className="ml-1 text-xs font-normal text-white/70 sm:text-sm">/{t.month}</small>
                     )}
                   </div>
-                  <p className="font-roboto text-sm leading-relaxed text-white/80">{tier.desc}</p>
+                  <p className="font-roboto text-[11px] leading-snug text-white/80 sm:text-sm sm:leading-relaxed">{tier.desc}</p>
                 </div>
               ))}
             </div>
