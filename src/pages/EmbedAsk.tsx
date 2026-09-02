@@ -790,6 +790,59 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const heroZone1Ref = useRef<HTMLDivElement | null>(null);
   const [heroZone1H, setHeroZone1H] = useState<number | null>(null);
 
+  /* ── Apparition fluide du hero (Home) ────────────────────────────────────
+     Le hero est rendu (donc mesuré/mis en page) mais invisible jusqu'à ce que
+     tout soit prêt : polices chargées + suggestions résolues (cache ou fetch).
+     On révèle ensuite en cascade (opacity + translateY + blur), donc aucun
+     reflow n'est visible → plus de saut brutal au chargement. */
+  const [heroFontsReady, setHeroFontsReady] = useState(false);
+  const [heroReady, setHeroReady] = useState(false);
+  const heroReduced = useRef(false);
+  if (typeof window !== "undefined" && !heroReduced.current) {
+    heroReduced.current = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+  }
+
+  useEffect(() => {
+    const f = (document as Document & { fonts?: FontFaceSet }).fonts;
+    if (!f?.ready) { setHeroFontsReady(true); return; }
+    let alive = true;
+    f.ready.then(() => { if (alive) setHeroFontsReady(true); });
+    const t = window.setTimeout(() => { if (alive) setHeroFontsReady(true); }, 1200);
+    return () => { alive = false; window.clearTimeout(t); };
+  }, []);
+
+  useEffect(() => {
+    if (heroReady) return;
+    if (!heroLayout) { setHeroReady(true); return; }
+    if (!(heroFontsReady && dbSuggestions !== null)) {
+      // Filet de sécurité : on révèle quand même après 1,6 s (réseau lent/échec).
+      const t = window.setTimeout(() => setHeroReady(true), 1600);
+      return () => window.clearTimeout(t);
+    }
+    // Deux frames : la mise en page définitive est peinte avant le fondu.
+    let r2 = 0;
+    const r1 = requestAnimationFrame(() => { r2 = requestAnimationFrame(() => setHeroReady(true)); });
+    return () => { cancelAnimationFrame(r1); if (r2) cancelAnimationFrame(r2); };
+  }, [heroLayout, heroFontsReady, dbSuggestions, heroReady]);
+
+  /** Style de révélation en cascade d'un bloc du hero. */
+  const heroReveal = (delay: number): CSSProperties | undefined => {
+    if (!heroLayout) return undefined;
+    const off = heroReduced.current;
+    return {
+      opacity: heroReady ? 1 : 0,
+      transform: heroReady || off ? "none" : "translateY(14px)",
+      filter: heroReady || off ? "none" : "blur(6px)",
+      transition: off
+        ? "opacity 420ms ease-out"
+        : "opacity 780ms cubic-bezier(.22,.61,.36,1), transform 780ms cubic-bezier(.22,.61,.36,1), filter 780ms cubic-bezier(.22,.61,.36,1)",
+      transitionDelay: heroReady ? `${off ? 0 : delay}ms` : "0ms",
+      willChange: "opacity, transform",
+    };
+  };
+
+
+
 
 
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
