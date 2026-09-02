@@ -1,20 +1,15 @@
-import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
-import Footer from "@/components/Footer";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import FrontHeader from "@/components/front/FrontHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { withLangPrefix } from "@/lib/localizedPath";
-import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
-import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
-import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
+import { useSEO } from "@/hooks/useSEO";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
-import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
-import hiwStep2Mockup from "@/assets/hiw-step2-app-mockup.webp";
-import hiwStep3Tourist from "@/assets/hiw-step3-tourist.png";
+import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
+import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
+import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
+import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 
-const heroImageDesktop = originalHeroAsset.url;
-const heroImageTablet = zelligeBrunAsset.url;
-const heroImageMobile = koutoubiaVerticalBgAsset.url;
 
 const LABELS = {
   fr: {
@@ -319,156 +314,17 @@ const LABELS = {
   },
 } as const;
 
-const CSS = `
-  .join-page{--bg:#ECD6B8;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--orange:#ff6b35;--orange-deep:#e85a26;--green:#00a896;--gold:#ffc008;background:var(--bg);color:var(--ink);font-family:'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif,system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
-  .join-page *{box-sizing:border-box}
-  @keyframes hero-zoom-light{0%,100%{transform:scale(1.05)}50%{transform:scale(1.12)}}
-  @media (max-width:767px){.join-page .hero-bg{animation:hero-zoom-light 18s ease-in-out infinite !important}}
-  .join-page .wrap{max-width:1240px;margin:0 auto;padding:0 24px}
-  .join-page section{padding:80px 0;border-bottom:1px solid var(--line)}
-  .join-page .section-head{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:end;margin-bottom:56px}
-  .join-page .subtitle{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(34px,5vw,64px);line-height:1;letter-spacing:-.01em;text-transform:uppercase}
-  .join-page .lead{color:var(--muted);font-size:17px;max-width:520px}
-  @media (max-width:880px){.join-page .section-head{grid-template-columns:1fr;gap:20px}}
-  .join-page .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;position:relative}
-  @media (max-width:980px){.join-page .steps{grid-template-columns:1fr}}
-  .join-page .step{position:relative;border:1px solid var(--line);border-radius:24px;padding:32px 28px 36px;background:#fff;overflow:hidden;transition:transform .25s,box-shadow .25s}
-  .join-page .step:hover{transform:translateY(-4px);box-shadow:0 18px 40px -20px rgba(0,0,0,.18)}
-  .join-page .step .num{position:absolute;right:18px;top:-10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:180px;line-height:1;color:#f3f3f3;pointer-events:none;user-select:none}
-  .join-page .step .ico{width:48px;height:48px;display:flex;align-items:center;justify-content:center;margin-bottom:46px;position:relative;z-index:1}
-  .join-page .step .step-label{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;position:relative;z-index:1}
-  .join-page .step h3{font-family:'Montserrat',sans-serif;font-weight:700;font-size:22px;margin-bottom:10px;position:relative;z-index:1}
-  .join-page .step p{color:var(--muted);font-size:15px;position:relative;z-index:1}
-  .join-page .cta-row{display:flex;justify-content:center;margin-top:56px}
-  .join-page .btn-primary{display:inline-flex;align-items:center;gap:10px;background:#C04F17;color:#fff;padding:18px 44px;border-radius:999px;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:14px;box-shadow:0 14px 30px -12px rgba(192,79,23,.6);transition:transform .2s,background .2s}
-  .join-page .btn-primary:hover{background:#a84313;transform:translateY(-2px)}
-  .join-page .t-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-  @media (max-width:980px){.join-page .t-grid{grid-template-columns:1fr}}
-  .join-page .t-card{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/5;background:#222}
-  .join-page .t-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .join-page .t-card::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.35) 45%,rgba(0,0,0,0) 70%)}
-  .join-page .t-badge{position:absolute;top:24px;left:24px;color:#fff;font-family:'Montserrat',sans-serif;z-index:2;text-align:center;padding:10px 18px}
-  .join-page .t-badge::before{content:"";position:absolute;inset:0;border:2px solid #fff;border-radius:50%;transform:rotate(-8deg) scale(1.15);opacity:.95}
-  .join-page .t-badge strong{display:block;font-size:28px;font-weight:700;line-height:1}
-  .join-page .t-badge span{font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.9}
-  .join-page .t-body{position:absolute;left:24px;right:24px;bottom:24px;color:#fff;z-index:2}
-  .join-page .t-body p{font-size:15px;line-height:1.5;margin-bottom:14px}
-  .join-page .t-meta h4{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:600;margin-bottom:2px}
-  .join-page .t-meta span{font-size:12px;opacity:.85;letter-spacing:.1em;text-transform:uppercase}
-  .join-page .ways-head{text-align:center;max-width:780px;margin:0 auto 56px}
-  .join-page .ways-head h2{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
-  .join-page .ways-head p{color:var(--muted);font-size:17px}
-  .join-page .ways{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;max-width:980px;margin:0 auto}
-  @media (max-width:680px){.join-page .ways{grid-template-columns:1fr}}
-  .join-page .way{border-radius:28px;padding:44px 44px 36px;position:relative;overflow:hidden;display:flex;flex-direction:column}
-  .join-page .hiw-illu{margin:0 auto 22px;max-width:240px}
-  .join-page .hiw-illu svg{width:100%;height:auto;display:block}
-  .join-page .way.green{background:#194CFF;color:#fff}
-  .join-page .way.orange{background:#8F7950;color:#fff}
-  .join-page .way.teal{background:#C04F17;color:#fff}
-  .join-page .way.purple{background:#3B3B3B;color:#fff}
-  .join-page .way .badge{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:24px;color:#194CFF;background:#fff;margin-bottom:22px}
-  .join-page .way.orange .badge{background:#fff;color:#8F7950}
-  .join-page .way.teal .badge{background:#fff;color:#C04F17}
-  .join-page .way.purple .badge{background:#fff;color:#3B3B3B}
-  .join-page .way h3{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(24px,2.6vw,32px);line-height:1.15;margin-bottom:18px;color:#111}
-  .join-page .way.green h3{color:#fff}
-  .join-page .way.orange h3{color:#fff}
-  .join-page .way.teal h3{color:#fff}
-  .join-page .way.purple h3{color:#fff}
-  .join-page .way > p.intro{color:#3a3a3a;font-size:16px;line-height:1.6;margin-bottom:26px;max-width:520px}
-  .join-page .way.green > p.intro{color:rgba(255,255,255,.92)}
-  .join-page .way.orange > p.intro{color:rgba(255,255,255,.92)}
-  .join-page .way.teal > p.intro{color:rgba(255,255,255,.92)}
-  .join-page .way.purple > p.intro{color:rgba(255,255,255,.92)}
-  .join-page .way ul{list-style:none;padding:0;margin:0 0 28px;display:flex;flex-direction:column;gap:14px}
-  .join-page .way li{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:#222;line-height:1.45}
-  .join-page .way.green li{color:#fff}
-  .join-page .way.orange li{color:#fff}
-  .join-page .way.teal li{color:#fff}
-  .join-page .way.purple li{color:#fff}
-  .join-page .way li svg{flex:0 0 22px;margin-top:1px}
-  .join-page .way .way-cta{display:inline-flex;align-items:center;gap:10px;padding:16px 28px;border-radius:999px;color:#fff;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:.04em;transition:transform .2s,filter .2s}
-  .join-page .way .way-cta:hover{transform:translateY(-2px);filter:brightness(1.05)}
-  .join-page .way.green .way-cta{background:#fff;color:#194CFF}
-  .join-page .way.orange .way-cta{background:#fff;color:#8F7950}
-  .join-page .way.teal .way-cta{background:#fff;color:#C04F17}
-  .join-page .way.purple .way-cta{background:#fff;color:#3B3B3B}
-  .join-page .way .tag{margin-top:26px;padding-top:22px;border-top:1px solid rgba(0,0,0,.08);text-align:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px}
-  .join-page .way.green .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
-  .join-page .way.orange .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
-  .join-page .way.teal .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
-  .join-page .way.purple .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
-  .join-page .hiw-head{text-align:center;max-width:820px;margin:0 auto 56px}
-  .join-page .hiw-head h2{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
-  .join-page .hiw-head p{color:var(--muted);font-size:17px}
-  .join-page .hiw{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;gap:18px;align-items:stretch}
-  .join-page .hiw-arrow{display:flex;align-items:center;justify-content:center;color:var(--orange)}
-  .join-page .hiw-arrow svg{width:40px;height:40px;animation:hiwArrowSlide 1.6s ease-in-out infinite}
-  @keyframes hiwArrowSlide{0%,100%{transform:translateX(-6px);opacity:.55}50%{transform:translateX(6px);opacity:1}}
-  @media (prefers-reduced-motion:reduce){.join-page .hiw-arrow svg{animation:none}}
-  @media (max-width:980px){
-    .join-page .hiw{grid-template-columns:1fr;gap:28px}
-    .join-page .hiw-arrow{transform:rotate(90deg);margin:-6px 0}
-    .join-page .hiw-arrow svg{animation:hiwArrowSlideV 1.6s ease-in-out infinite}
-    @keyframes hiwArrowSlideV{0%,100%{transform:translateX(-6px);opacity:.55}50%{transform:translateX(6px);opacity:1}}
-  }
-  .join-page .hiw-step{background:#fff;border:1px solid var(--line);border-radius:24px;padding:36px 28px;text-align:center;position:relative;transition:transform .25s,box-shadow .25s}
-  .join-page .hiw-step:hover{transform:translateY(-4px);box-shadow:0 18px 40px -20px rgba(0,0,0,.18)}
-  .join-page .hiw-step .hiw-num{width:56px;height:56px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:24px;margin:0 auto 22px}
-  .join-page .hiw-step h3{font-family:'Montserrat',sans-serif;font-weight:700;font-size:20px;margin-bottom:12px;line-height:1.25}
-  .join-page .hiw-step p{color:var(--muted);font-size:15px;line-height:1.55}
-  .join-page .hiw-cta{display:flex;justify-content:center;margin-top:48px}
-  .join-page .hero{position:relative;padding:0;border-bottom:1px solid var(--line);overflow:hidden}
-  .join-page .hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .join-page .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.35) 40%,rgba(0,0,0,.65) 100%)}
-  .join-page .hero-inner{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:120px 24px 110px;text-align:center;color:#fff}
-  .join-page .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);color:#fff;padding:8px 18px;border-radius:999px;font-family:'Montserrat',sans-serif;font-weight:600;font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:28px;border:1px solid rgba(255,255,255,.18)}
-  .join-page .hero h1{font-family:'Montserrat',sans-serif;font-weight:700;line-height:1.2;letter-spacing:-.01em;margin:0 auto 22px;max-width:980px}
-  .join-page .hero h1 .hl{color:#ffc008}
-  .join-page .hero .hero-sub{font-size:clamp(16px,1.4vw,19px);color:rgba(255,255,255,.92);max-width:680px;margin:0 auto 34px;line-height:1.5}
-  .join-page .hero .hero-cta{display:inline-flex;align-items:center;gap:10px;background:#C04F17;color:#ffffff;padding:18px 44px;border-radius:999px;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:14px;box-shadow:0 14px 30px -12px rgba(192,79,23,.7);transition:transform .2s,background .2s}
-  .join-page .hero .hero-cta:hover{background:#a84313;transform:translateY(-2px)}
-  .join-page .hero-checks{display:flex;flex-wrap:wrap;justify-content:center;gap:22px;margin-top:22px;font-size:14px;color:rgba(255,255,255,.95)}
-  .join-page .hero-checks span{display:inline-flex;align-items:center;gap:8px}
-  .join-page .hero-checks svg{color:var(--green)}
-  @media (max-width: 640px) {
-    .join-page .hero-checks {
-      flex-direction: column;
-      align-items: flex-start;
-      width: fit-content;
-      margin-left: auto;
-      margin-right: auto;
-      gap: 12px;
-    }
-  }
-  .join-page .hero-stats{margin-top:38px;display:inline-flex;flex-wrap:wrap;justify-content:center;gap:0;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:10px 8px;font-size:13px}
-  .join-page .hero-stats div{padding:6px 22px;display:inline-flex;align-items:center;gap:8px;color:#fff;border-right:1px solid rgba(255,255,255,.18)}
-  .join-page .hero-stats div:last-child{border-right:none}
-  @media (max-width:700px){
-    .join-page .hero-inner{padding:90px 20px 80px}
-    .join-page .hero-stats{display:none !important}
-  }
-  .join-page .why-head{text-align:center;max-width:900px;margin:0 auto 48px}
-  .join-page .why-head h2{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:16px;text-transform:uppercase}
-  .join-page .why-head p{color:var(--muted);font-size:17px;max-width:620px;margin:0 auto}
-  .join-page .why-wrap{background:#BED1FF;border-radius:32px;padding:32px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .join-page .cmp{width:100%;background:#fff;border-radius:20px;overflow:hidden;border-collapse:separate;border-spacing:0;font-size:15px}
-  .join-page .cmp th,.join-page .cmp td{padding:18px 22px;text-align:center;border-bottom:1px solid #eef2f0;vertical-align:middle}
-  .join-page .cmp th:first-child,.join-page .cmp td:first-child{text-align:left;color:#444;font-weight:500}
-  .join-page .cmp thead th{font-family:'Montserrat',sans-serif;font-weight:600;font-size:16px;color:#1a1a1a;padding:24px 22px;background:#fff;border-bottom:1px solid #eef2f0}
-  .join-page .cmp thead th.us{background:#194CFF;color:#fff;position:relative;padding-top:42px}
-  .join-page .cmp thead th.us .reco{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:#C04F17;color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;padding:4px 12px;border-radius:999px;white-space:nowrap}
-  .join-page .cmp tbody td.us{background:#BED1FF;color:#194CFF;font-weight:700}
-  .join-page .cmp tbody tr:last-child td{border-bottom:none}
-  .join-page .cmp .wow{display:inline-block;margin-left:8px;background:#FF6B35;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 8px;border-radius:999px;vertical-align:middle}
-  .join-page .cmp .x{color:#9aa3a0}
-  .join-page .why-cta{display:flex;justify-content:center;margin-top:40px}
-  @media (max-width:760px){.join-page .why-wrap{padding:14px;border-radius:22px}.join-page .cmp{font-size:12px;min-width:640px}.join-page .cmp th,.join-page .cmp td{padding:12px 10px}.join-page .cmp thead th{font-size:13px}}
-`;
+const NAV = {
+  fr: { discover: "Découvrir", back: "Revenir" },
+  en: { discover: "Discover", back: "Back" },
+  ar: { discover: "اكتشف", back: "رجوع" },
+} as const;
+
+const SCREENS = 4;
+const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 const Check = ({ color }: { color: string }) => (
-  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+  <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
     <circle cx="11" cy="11" r="10" stroke={color} strokeWidth="1.6" />
     <path d="M6.5 11.3l3 3 6-6" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
@@ -476,399 +332,437 @@ const Check = ({ color }: { color: string }) => (
 
 const Join = () => {
   const { language } = useLanguage();
-  const L = LABELS[language] ?? LABELS.fr;
+  const L = (LABELS as any)[language] ?? LABELS.fr;
+  const N = (NAV as any)[language] ?? NAV.fr;
+  const navigate = useLocalizedNavigate();
+
+  useSEO({
+    title: "Rejoindre One World Morocco — Devenir partenaire",
+    description:
+      "Zéro commission, visibilité auprès des voyageurs et habitants, carte business QR et assistant IA : rejoignez l'écosystème One World Morocco.",
+    canonical: "/join",
+  });
+
+  const [progress, setProgress] = useState(0);
+  const [isPortrait, setIsPortrait] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches,
+  );
+  const [reduced, setReduced] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
+  const targetRef = useRef(0);
+  const currentRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const touchYRef = useRef<number | null>(null);
+  const wheelLockedRef = useRef(false);
+  const wheelUnlockRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!document.getElementById("join-fonts")) {
-      const l = document.createElement("link");
-      l.id = "join-fonts";
-      l.rel = "stylesheet";
-      l.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap";
-      document.head.appendChild(l);
-    }
-    document.title = L.pageTitle;
-  }, [L.pageTitle]);
+    const mqO = window.matchMedia("(max-aspect-ratio: 1/1)");
+    const mqM = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onO = () => setIsPortrait(mqO.matches);
+    const onM = () => setReduced(mqM.matches);
+    mqO.addEventListener("change", onO);
+    mqM.addEventListener("change", onM);
+    return () => {
+      mqO.removeEventListener("change", onO);
+      mqM.removeEventListener("change", onM);
+    };
+  }, []);
 
   useEffect(() => {
-    const el = document.querySelector<HTMLElement>(".join-page .why-wrap");
+    const retry = () => {
+      const v = bgVideoRef.current;
+      if (v?.paused) void v.play().catch(() => undefined);
+    };
+    retry();
+    document.addEventListener("touchstart", retry, { passive: true, once: true });
+    document.addEventListener("click", retry, { once: true });
+    return () => {
+      document.removeEventListener("touchstart", retry);
+      document.removeEventListener("click", retry);
+    };
+  }, [isPortrait]);
+
+  const setTarget = useCallback(
+    (v: number) => {
+      targetRef.current = clamp(v, 0, SCREENS - 1);
+      if (reduced) {
+        currentRef.current = targetRef.current;
+        setProgress(targetRef.current);
+        return;
+      }
+      if (rafRef.current !== null) return;
+      const tick = () => {
+        currentRef.current += (targetRef.current - currentRef.current) * 0.035;
+        if (Math.abs(targetRef.current - currentRef.current) < 0.002) {
+          currentRef.current = targetRef.current;
+          setProgress(currentRef.current);
+          rafRef.current = null;
+          return;
+        }
+        setProgress(currentRef.current);
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    },
+    [reduced],
+  );
+
+  useEffect(
+    () => () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const el = sectionRef.current;
     if (!el) return;
+    const inScrollable = (t: EventTarget | null) =>
+      t instanceof Element && !!t.closest("[data-owm-scroll]");
     const onWheel = (e: WheelEvent) => {
-      const canScrollX = el.scrollWidth > el.clientWidth;
-      if (!canScrollX) return;
-      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-      const atStart = el.scrollLeft <= 0 && e.deltaY < 0;
-      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1 && e.deltaY > 0;
-      if (atStart || atEnd) return;
+      if (inScrollable(e.target)) return;
       e.preventDefault();
-      el.scrollLeft += e.deltaY;
+      if (wheelLockedRef.current || Math.abs(e.deltaY) < 8) return;
+      wheelLockedRef.current = true;
+      setTarget(Math.round(targetRef.current) + (e.deltaY > 0 ? 1 : -1));
+      wheelUnlockRef.current = window.setTimeout(() => {
+        wheelLockedRef.current = false;
+        wheelUnlockRef.current = null;
+      }, 1400);
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      touchYRef.current = inScrollable(e.target) ? null : e.touches[0]?.clientY ?? null;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (inScrollable(e.target)) return;
+      const y = e.touches[0]?.clientY ?? null;
+      if (y === null || touchYRef.current === null) return;
+      e.preventDefault();
+      setTarget(targetRef.current + (touchYRef.current - y) / 320);
+      touchYRef.current = y;
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown" || e.key === "PageDown") {
+        e.preventDefault();
+        setTarget(Math.round(targetRef.current) + 1);
+      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+        e.preventDefault();
+        setTarget(Math.round(targetRef.current) - 1);
+      }
     };
     el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, []);
-
-  const heroSectionRef = useRef<HTMLElement>(null);
-  const heroBgRef = useRef<HTMLImageElement>(null);
-  useEffect(() => {
-    const hero = heroSectionRef.current;
-    if (!hero) return;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    let mx = 0, my = 0, tx = 0, ty = 0, sy = 0, ticking = false;
-    const update = () => {
-      tx += (mx - tx) * 0.08;
-      ty += (my - ty) * 0.08;
-      hero.style.setProperty('--mx', tx.toFixed(3));
-      hero.style.setProperty('--my', ty.toFixed(3));
-      hero.style.setProperty('--sy', sy.toFixed(3));
-      if (Math.abs(mx - tx) > 0.001 || Math.abs(my - ty) > 0.001) {
-        requestAnimationFrame(update);
-      } else ticking = false;
-    };
-    const kick = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
-    const onMove = (e: MouseEvent) => {
-      const r = hero.getBoundingClientRect();
-      mx = ((e.clientX - r.left) / r.width - 0.5) * 2;
-      my = ((e.clientY - r.top) / r.height - 0.5) * 2;
-      kick();
-    };
-    const onLeave = () => { mx = 0; my = 0; kick(); };
-    const onScroll = () => {
-      const r = hero.getBoundingClientRect();
-      sy = Math.max(-1, Math.min(1, -r.top / r.height));
-      kick();
-    };
-    hero.addEventListener('mousemove', onMove);
-    hero.addEventListener('mouseleave', onLeave);
-    window.addEventListener('scroll', onScroll, { passive: true });
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("keydown", onKey);
     return () => {
-      hero.removeEventListener('mousemove', onMove);
-      hero.removeEventListener('mouseleave', onLeave);
-      window.removeEventListener('scroll', onScroll);
+      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("keydown", onKey);
+      if (wheelUnlockRef.current !== null) {
+        window.clearTimeout(wheelUnlockRef.current);
+        wheelUnlockRef.current = null;
+      }
     };
-  }, []);
+  }, [setTarget]);
 
-  useEffect(() => {
-    const el = heroBgRef.current;
-    if (!el) return;
-    let raf = 0;
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        const y = window.scrollY;
-        el.style.transform = `translate3d(0, ${y * 0.3}px, 0)`;
-        raf = 0;
-      });
+  const layer = (index: number) => {
+    const d = progress - index;
+    const opacity = clamp(1 - Math.abs(d) * 1.6, 0, 1);
+    const active = Math.abs(d) < 0.45;
+    return {
+      opacity,
+      transform: reduced ? undefined : `translateY(${d * -48}px)`,
+      pointerEvents: active ? ("auto" as const) : ("none" as const),
+      transition: reduced ? "none" : undefined,
+      ariaHidden: !active,
     };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
+  };
+
+  const s1 = layer(0);
+  const s2 = layer(1);
+  const s3 = layer(2);
+  const s4 = layer(3);
+  const current = Math.round(progress);
+
+  const goSignup = () => navigate("/devenir-affilie");
+
+  const MONT = { fontFamily: "'Montserrat', sans-serif" } as const;
+
+  const ctaClass =
+    "inline-flex items-center gap-3 rounded-full bg-[#C04F17] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5";
+
+  const WAYS = [
+    { n: "1", h: L.way1H3, intro: L.way1Intro, tag: L.way1Tag },
+    { n: "2", h: L.way2H3, intro: L.way2Intro, tag: L.way2Tag },
+    { n: "3", h: L.way3H3, intro: L.way3Intro, tag: L.way3Tag },
+    { n: "4", h: L.way4H3, intro: L.way4Intro, tag: L.way4Tag },
+  ];
+
+  const HIW = [
+    { n: "1", h: L.hiw1H3, p: L.hiw1P },
+    { n: "2", h: L.hiw2H3, p: L.hiw2P },
+    { n: "3", h: L.hiw3H3, p: L.hiw3P },
+  ];
+
+  const CMP_ROWS: { f: string; us: string; b: string; g: string }[] = [
+    { f: L.cmpRow1Feature, us: L.cmpUs0, b: "15–25 %", g: "20–30 %" },
+    { f: L.cmpRow2Feature, us: L.cmpUsIncluded, b: L.cmpNo, g: L.cmpNo },
+    { f: L.cmpRow3Feature, us: L.cmpUsIncluded, b: L.cmpNo, g: L.cmpNo },
+    { f: L.cmpRow4Feature, us: L.cmpUsYes, b: L.cmpNo, g: L.cmpNo },
+    { f: L.cmpRow5Feature, us: L.cmpUsYes, b: L.cmpNo, g: L.cmpNo },
+    { f: L.cmpRow6Feature, us: L.cmpUsFree, b: L.cmpNo, g: L.cmpNo },
+    { f: L.cmpRow7Feature, us: L.cmpUsOptional, b: L.cmpNo, g: L.cmpNo },
+    { f: L.cmpRow8Feature, us: L.cmpUsIncluded, b: L.cmpNo, g: L.cmpNo },
+    { f: L.cmpRow9Feature, us: L.cmpUsIncluded, b: L.cmpNo, g: L.cmpNo },
+    { f: L.cmpRow10Feature, us: L.cmpRow10Us, b: L.cmpRow10Booking, g: L.cmpRow10Gyg },
+    { f: L.cmpRow11Feature, us: L.cmpUsYes, b: L.cmpNo, g: L.cmpNo },
+    { f: L.cmpRow12Feature, us: L.cmpUsYes, b: L.cmpNo, g: L.cmpNo },
+    { f: L.cmpRow13Feature, us: L.cmpUsYes, b: L.cmpNo, g: L.cmpNo },
+  ];
 
   return (
     <>
-      <HomeMindtripHeader />
-      <div className="join-page">
-        <style>{CSS}</style>
+      <FrontHeader fixed visible onLogoClick={() => navigate("/")} />
+      <section
+        ref={sectionRef}
+        className="relative h-[100dvh] min-h-[560px] w-full touch-none overflow-hidden bg-[hsl(0_0%_4%)]"
+      >
+        <video
+          ref={bgVideoRef}
+          key={isPortrait ? "portrait" : "landscape"}
+          className="absolute inset-0 h-full w-full object-cover"
+          src={isPortrait ? portraitVideoAsset.url : landscapeVideoAsset.url}
+          poster={isPortrait ? portraitVideoPoster.url : landscapeVideoPoster.url}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          style={{ filter: `brightness(${1 - clamp(progress / (SCREENS - 1), 0, 1) * 0.4})` }}
+        />
+        <div
+          className="absolute inset-0"
+          aria-hidden="true"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(6,5,4,.62) 0%, rgba(6,5,4,.48) 35%, rgba(6,5,4,.74) 75%, rgba(6,5,4,.92) 100%)",
+          }}
+        />
 
-      <section ref={heroSectionRef} className="hero hero-parallax relative min-h-[92vh] w-full overflow-hidden flex items-center justify-center border-b border-white/10" style={{ ['--mx' as any]: 0, ['--my' as any]: 0, ['--sy' as any]: 0 }} aria-label={L.heroAriaLabel}>
-        <picture>
-          <source media="(max-width: 767px)" srcSet={heroImageMobile} />
-          <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
+        {/* ============ Écran 1 — Hero ============ */}
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-24 pb-24 md:px-12"
+          style={{ opacity: s1.opacity, transform: s1.transform, pointerEvents: s1.pointerEvents }}
+          aria-hidden={s1.ariaHidden}
+        >
           <img
-            ref={heroBgRef}
-            src={heroImageDesktop}
-            alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-            className="hero-bg absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[100%]"
-            loading="eager"
-            fetchPriority="high"
+            src={phoneMockupAsset.url}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute left-[3%] top-1/2 z-0 hidden h-[58%] w-auto -translate-y-1/2 lg:block"
           />
-        </picture>
-        {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
-        <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/50 md:hidden z-10" />
-        <div className="absolute inset-x-0 bottom-0 h-[18vh] bg-gradient-to-t from-black/40 via-black/15 to-transparent md:hidden z-10" />
-
-        {/* Floating phone mockup — left side, desktop only */}
-        <img
-          src={phoneMockupAsset.url}
-          alt="Application One World Morocco sur iPhone"
-          aria-hidden="true"
-          className="hidden lg:block pointer-events-none select-none absolute left-[2%] xl:left-[5%] top-1/2 -translate-y-1/2 h-[64%] w-auto z-20 drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)] animate-[heroPhoneFloat_6s_ease-in-out_infinite]"
-        />
-        {/* Floating iPhone mockup — right side, tablet only (768px to 1023px) */}
-        <img
-          src={iphoneTabletMockupAsset.url}
-          alt="Application One World Morocco — Koutoubia"
-          aria-hidden="true"
-          className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 md:max-lg:top-[38%] md:max-lg:h-[48%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
-        />
-        <style>{`
-          @keyframes heroPhoneFloat {
-            0%, 100% { transform: translateY(calc(-50% - 8px)); }
-            50% { transform: translateY(calc(-50% + 8px)); }
-          }
-          .hero-parallax { perspective: 1200px; }
-          .hero-parallax .hero-content {
-            transform: translate3d(0, calc(var(--sy)*-30px), 0);
-            transition: transform .5s cubic-bezier(.2,.7,.2,1);
-            will-change: transform;
-          }
-          @keyframes heroRise { from { opacity: 0; transform: translateY(34px); } to { opacity: 1; transform: none; } }
-          .hero-rise { opacity: 0; animation: heroRise 1s forwards; }
-          @media (prefers-reduced-motion: reduce) {
-            section img[alt^="Application One World"] { animation: none !important; }
-            .hero-parallax .hero-content { transform: none !important; }
-          }
-        `}</style>
-
-         <div className="hero-content relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 pt-16 pb-12 sm:py-24 flex flex-col items-center justify-center text-center">
-          <h1 style={{ fontFamily: "Montserrat, sans-serif", animationDelay: '.45s', animationFillMode: 'forwards' }} className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] font-bold text-center mb-6 leading-[1.2] tracking-tight max-w-3xl text-[26px] sm:text-4xl md:text-5xl lg:text-6xl hero-rise">
+          <h1
+            className="relative z-10 max-w-4xl text-center text-[26px] font-bold leading-[1.2] tracking-tight text-[#F4ECDF] sm:text-4xl md:text-5xl lg:text-[3.5rem]"
+            style={MONT}
+          >
             {L.heroH1a} <span className="text-[#ffc008]">{L.heroH1b}</span> {L.heroH1c}
           </h1>
-          <p style={{ animationDelay: '.66s', animationFillMode: 'forwards' }} className="hero-sub text-white max-w-2xl text-center mb-4 text-base sm:text-lg opacity-95 hero-rise">{L.heroPara1}</p>
-          <p style={{ animationDelay: '.78s', animationFillMode: 'forwards' }} className="hero-sub text-white max-w-2xl text-center mb-8 text-base sm:text-lg opacity-95 hero-rise">{L.heroPara2}</p>
+          <p className="relative z-10 mt-5 max-w-2xl text-center font-roboto text-[15px] leading-relaxed text-white md:text-[1.0625rem]">
+            {L.heroPara1}
+          </p>
+          <p className="relative z-10 mt-2 max-w-2xl text-center font-roboto text-[15px] leading-relaxed text-white/90 md:text-[1.0625rem]">
+            {L.heroPara2}
+          </p>
 
-          <div className="hero-checks hero-rise" style={{ animationDelay: '.88s', animationFillMode: 'forwards' }}>
-            <span><Check color="#00a896" />{L.heroCheck1}</span>
-            <span><Check color="#00a896" />{L.heroCheck2}</span>
-            <span><Check color="#00a896" />{L.heroCheck3}</span>
-          </div>
-          <div className="hero-stats mb-8 hidden sm:inline-flex hero-rise" style={{ animationDelay: '.92s', animationFillMode: 'forwards' }}>
-            <div>{L.heroStat1}</div>
-            <div>{L.heroStat2}</div>
-            <div>{L.heroStat3}</div>
+          <div className="relative z-10 mt-6 flex flex-col items-start gap-2 text-[14px] text-white/95 sm:flex-row sm:items-center sm:gap-6">
+            <span className="inline-flex items-center gap-2"><Check color="#00a896" />{L.heroCheck1}</span>
+            <span className="inline-flex items-center gap-2"><Check color="#00a896" />{L.heroCheck2}</span>
+            <span className="inline-flex items-center gap-2"><Check color="#00a896" />{L.heroCheck3}</span>
           </div>
 
-          <Link to="/devenir-affilie" style={{ animationDelay: '.98s', animationFillMode: 'forwards' }} className="hero-cta mt-4 hero-rise">{L.heroCta}</Link>
+          <div className="relative z-10 mt-6 hidden items-center gap-0 rounded-full border border-[rgba(198,160,70,.34)] bg-black/40 px-2 py-2 text-[13px] backdrop-blur sm:inline-flex">
+            <span className="border-r border-white/20 px-5 text-white">{L.heroStat1}</span>
+            <span className="border-r border-white/20 px-5 text-white">{L.heroStat2}</span>
+            <span className="px-5 text-white">{L.heroStat3}</span>
+          </div>
+
+          <button type="button" onClick={goSignup} className={`relative z-10 mt-8 ${ctaClass}`} style={MONT}>
+            {L.heroCta}
+          </button>
         </div>
-      </section>
 
-      <section id="ways">
-        <div className="wrap">
-          <div className="ways-head">
-            <h2>{L.waysH2}</h2>
-            <p>{L.waysP}</p>
-          </div>
+        {/* ============ Écran 2 — Quatre moyens ============ */}
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-20 pb-24 md:px-12"
+          style={{ opacity: s2.opacity, transform: s2.transform, pointerEvents: s2.pointerEvents }}
+          aria-hidden={s2.ariaHidden}
+        >
+          <div className="max-h-full w-full max-w-6xl overflow-y-auto" data-owm-scroll>
+            <h2
+              className="text-center text-[clamp(22px,3.4vw,38px)] font-medium leading-[1.14] text-[#F4ECDF]"
+              style={MONT}
+            >
+              {L.waysH2}
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-center font-roboto text-[14px] text-white/80 md:text-[15px]">
+              {L.waysP}
+            </p>
 
-          <div className="ways">
-            <article className="way green">
-              <div className="badge">1</div>
-              <h3>{L.way1H3}</h3>
-              <p className="intro">{L.way1Intro}</p>
-              <ul>
-                <li><Check color="#ffffff" />{L.way1Li1}</li>
-                <li><Check color="#ffffff" /><span>{L.way1Li2label}<br /><strong style={{display:'block',marginTop:4}}>oneworldmorocco.com/votrenom</strong></span></li>
-                <li><Check color="#ffffff" />{L.way1Li3}</li>
-                <li><Check color="#ffffff" />{L.way1Li4}</li>
-                <li><Check color="#ffffff" />{L.way1Li5}</li>
-              </ul>
-              <div className="tag">{L.way1Tag}</div>
-            </article>
-
-            <article className="way orange">
-              <div className="badge">2</div>
-              <h3>{L.way2H3}</h3>
-              <p className="intro">{L.way2Intro}</p>
-              <ul>
-                <li><Check color="#ffffff" />{L.way2Li1}</li>
-                <li><Check color="#ffffff" /><span>{L.way2Li2label}<br /><strong style={{display:'block',marginTop:4}}>oneworldmorocco.com/votrenom</strong></span></li>
-                <li><Check color="#ffffff" />{L.way2Li3}</li>
-                <li><Check color="#ffffff" />{L.way2Li4}</li>
-                <li><Check color="#ffffff" />{L.way2Li5}</li>
-              </ul>
-              <Link to={withLangPrefix("/card", language)} className="way-cta" style={{ alignSelf: "center", marginTop: 4, marginBottom: 14 }}>{L.way2Cta}</Link>
-              <div className="tag">{L.way2Tag}</div>
-            </article>
-
-            <article className="way teal">
-              <div className="badge">3</div>
-              <h3>{L.way3H3}</h3>
-              <p className="intro">{L.way3Intro}</p>
-              <ul>
-                <li><Check color="#ffffff" />{L.way3Li1}</li>
-                <li><Check color="#ffffff" />{L.way3Li2}</li>
-                <li><Check color="#ffffff" />{L.way3Li3}</li>
-                <li><Check color="#ffffff" />{L.way3Li4}</li>
-                <li><Check color="#ffffff" />{L.way3Li5}</li>
-                <li><Check color="#ffffff" />{L.way3Li6}</li>
-              </ul>
-              <div className="tag">{L.way3Tag}</div>
-            </article>
-
-            <article className="way purple">
-              <div className="badge">4</div>
-              <h3>{L.way4H3}</h3>
-              <p className="intro">{L.way4Intro}</p>
-              <ul>
-                <li><Check color="#ffffff" />{L.way4Li1}</li>
-                <li><Check color="#ffffff" />{L.way4Li2}</li>
-                <li><Check color="#ffffff" />{L.way4Li3}</li>
-                <li><Check color="#ffffff" />{L.way4Li4}</li>
-                <li><Check color="#ffffff" />{L.way4Li5}</li>
-              </ul>
-              <div className="tag">{L.way4Tag}</div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section id="how-it-works">
-        <div className="wrap">
-          <div className="hiw-head">
-            <h2>{L.hiwH2}</h2>
-            <p>{L.hiwP}</p>
-          </div>
-
-          <div className="hiw">
-            <article className="hiw-step">
-              <div className="hiw-illu" aria-hidden="true">
-                <svg width="100%" height="100%" viewBox="0 0 327 196" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <g filter="url(#hd0)">
-                    <rect x="196.896" y="40.8579" width="106.075" height="106.075" rx="18.8578" transform="rotate(10 196.896 40.8579)" fill="#D1F2EB"/>
-                    <rect x="197.852" y="42.2233" width="103.718" height="103.718" rx="17.6792" transform="rotate(10 197.852 42.2233)" stroke="white" strokeWidth="2.35722"/>
-                  </g>
-                  <text x="244" y="105" textAnchor="middle" fontFamily="Montserrat, sans-serif" fontWeight="700" fontSize="22" fill="#C04F17" transform="rotate(10 244 105)">-20%</text>
-                  <g filter="url(#hd1)">
-                    <rect x="25.9977" y="59.2777" width="106.075" height="106.075" rx="18.8578" transform="rotate(-10 25.9977 59.2777)" fill="#FFF2CE"/>
-                    <rect x="27.363" y="60.2338" width="103.718" height="103.718" rx="17.6792" transform="rotate(-10 27.363 60.2338)" stroke="white" strokeWidth="2.35722"/>
-                  </g>
-                  <text x="82" y="118" textAnchor="middle" fontFamily="Montserrat, sans-serif" fontWeight="700" fontSize="22" fill="#8F7950" transform="rotate(-10 82 118)">-5%</text>
-                  <g filter="url(#hd2)">
-                    <rect x="103.785" y="22.0002" width="117.861" height="117.861" rx="18.8578" fill="#FFDDD3"/>
-                    <rect x="104.964" y="23.1789" width="115.504" height="115.504" rx="17.6792" stroke="white" strokeWidth="2.35722"/>
-                  </g>
-                  <text x="162.7" y="95" textAnchor="middle" fontFamily="Montserrat, sans-serif" fontWeight="700" fontSize="32" fill="#194CFF">-10%</text>
-                  <defs>
-                    <filter id="hd0" x="153" y="22" width="174" height="174" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="14"/><feOffset dy="7"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0"/><feBlend in="SourceGraphic"/></filter>
-                    <filter id="hd1" x="0" y="22" width="174" height="174" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="14"/><feOffset dy="7"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0"/><feBlend in="SourceGraphic"/></filter>
-                    <filter id="hd2" x="28" y="-53" width="269" height="269" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="14"/><feOffset dy="7"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.12 0"/><feBlend in="SourceGraphic"/></filter>
-                  </defs>
-                </svg>
-              </div>
-              <h3>{L.hiw1H3}</h3>
-              <p>{L.hiw1P}</p>
-            </article>
-            <div className="hiw-arrow" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {WAYS.map((w) => (
+                <article
+                  key={w.n}
+                  className="rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-5 backdrop-blur"
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="flex h-9 w-9 items-center justify-center rounded-full bg-[#C6A046] text-[15px] font-bold text-black"
+                      style={MONT}
+                    >
+                      {w.n}
+                    </span>
+                    <h3 className="text-[16px] font-semibold leading-snug text-[#F4ECDF] md:text-[18px]" style={MONT}>
+                      {w.h}
+                    </h3>
+                  </div>
+                  <p className="mt-3 font-roboto text-[13.5px] leading-relaxed text-white/85 md:text-[14.5px]">
+                    {w.intro}
+                  </p>
+                  <p className="mt-3 border-t border-[rgba(198,160,70,.24)] pt-3 text-[13px] font-bold text-[#C6A046]" style={MONT}>
+                    {w.tag}
+                  </p>
+                </article>
+              ))}
             </div>
-            <article className="hiw-step">
-              <div className="hiw-illu" aria-hidden="true">
-                <img src={hiwStep2Mockup} alt="" loading="lazy" width={512} height={512} style={{ width: "100%", height: "auto", display: "block" }} />
-              </div>
-              <h3>{L.hiw2H3}</h3>
-              <p>{L.hiw2P}</p>
-            </article>
-            <div className="hiw-arrow" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+          </div>
+        </div>
+
+        {/* ============ Écran 3 — Comment ça marche ============ */}
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-20 pb-24 md:px-12"
+          style={{ opacity: s3.opacity, transform: s3.transform, pointerEvents: s3.pointerEvents }}
+          aria-hidden={s3.ariaHidden}
+        >
+          <div className="max-h-full w-full max-w-5xl overflow-y-auto text-center" data-owm-scroll>
+            <h2
+              className="text-[clamp(22px,3.4vw,38px)] font-medium leading-[1.14] text-[#F4ECDF]"
+              style={MONT}
+            >
+              {L.hiwH2}
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl font-roboto text-[14px] text-white/80 md:text-[15px]">{L.hiwP}</p>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {HIW.map((s) => (
+                <article
+                  key={s.n}
+                  className="rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-5 text-left backdrop-blur"
+                >
+                  <span
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[#C04F17] text-[18px] font-bold text-white"
+                    style={MONT}
+                  >
+                    {s.n}
+                  </span>
+                  <h3 className="mt-4 text-[16px] font-semibold leading-snug text-[#F4ECDF]" style={MONT}>
+                    {s.h}
+                  </h3>
+                  <p className="mt-2 font-roboto text-[13.5px] leading-relaxed text-white/85">{s.p}</p>
+                </article>
+              ))}
             </div>
-            <article className="hiw-step">
-              <div className="hiw-illu" aria-hidden="true">
-                <img src={hiwStep3Tourist} alt="" loading="lazy" width={512} height={512} style={{ width: "100%", height: "auto", display: "block" }} />
-              </div>
-              <h3>{L.hiw3H3}</h3>
-              <p>{L.hiw3P}</p>
-            </article>
-          </div>
 
-          <div className="hiw-cta">
-            <Link className="btn-primary" to="/devenir-affilie">{L.hiwBtn}</Link>
+            <button type="button" onClick={goSignup} className={`mt-7 ${ctaClass}`} style={MONT}>
+              {L.hiwBtn}
+            </button>
           </div>
         </div>
-      </section>
 
-      <section id="join">
-        <div className="wrap">
-          <div className="section-head">
-            <h1 className="subtitle">{L.joinSubtitle}</h1>
-            <p className="lead">{L.joinLead}</p>
-          </div>
+        {/* ============ Écran 4 — Pourquoi nous (comparatif) ============ */}
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-20 pb-24 md:px-12"
+          style={{ opacity: s4.opacity, transform: s4.transform, pointerEvents: s4.pointerEvents }}
+          aria-hidden={s4.ariaHidden}
+        >
+          <div className="max-h-full w-full max-w-5xl overflow-y-auto text-center" data-owm-scroll>
+            <h2
+              className="text-[clamp(22px,3.4vw,38px)] font-medium uppercase leading-[1.14] text-[#F4ECDF]"
+              style={MONT}
+            >
+              {L.whyH2}
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl font-roboto text-[14px] text-white/80 md:text-[15px]">{L.whyP}</p>
 
-          <div className="steps">
-            <article className="step">
-              <span className="num">1</span>
-              <div className="ico">
-                <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><path d="M6 21.5C6 19.0147 8.01472 17 10.5 17C12.9853 17 15 19.0147 15 21.5C15 23.9853 12.9853 26 10.5 26C8.01472 26 6 23.9853 6 21.5ZM10.5 20C9.67 20 9 20.67 9 21.5C9 22.33 9.67 23 10.5 23C11.33 23 12 22.33 12 21.5C12 20.67 11.33 20 10.5 20ZM10.5 28C8.01 28 6 30.01 6 32.5C6 34.99 8.01 37 10.5 37C12.99 37 15 34.99 15 32.5C15 30.01 12.99 28 10.5 28ZM9 32.5C9 31.67 9.67 31 10.5 31C11.33 31 12 31.67 12 32.5C12 33.33 11.33 34 10.5 34C9.67 34 9 33.33 9 32.5ZM18 21.5C18 20.67 18.67 20 19.5 20H28.5C29.33 20 30 20.67 30 21.5C30 22.33 29.33 23 28.5 23H19.5C18.67 23 18 22.33 18 21.5ZM19.5 31C18.67 31 18 31.67 18 32.5C18 33.33 18.67 34 19.5 34H28.5C29.33 34 30 33.33 30 32.5C30 31.67 29.33 31 28.5 31H19.5ZM6 13.5C6 12.67 6.67 12 7.5 12H28.5C29.33 12 30 12.67 30 13.5C30 14.33 29.33 15 28.5 15H7.5C6.67 15 6 14.33 6 13.5ZM6.5 6C2.91 6 0 8.91 0 12.5V35.5C0 39.09 2.91 42 6.5 42H29.5C33.09 42 36 39.09 36 35.5V12.5C36 8.91 33.09 6 29.5 6H6.5ZM3 12.5C3 10.57 4.57 9 6.5 9H29.5C31.43 9 33 10.57 33 12.5V35.5C33 37.43 31.43 39 29.5 39H6.5C4.57 39 3 37.43 3 35.5V12.5Z" fill="#ff6b35"/></svg>
-              </div>
-              <p className="step-label">{L.step1Label}</p>
-              <h3>{L.step1H3}</h3>
-              <p>{L.step1P}</p>
-            </article>
+            <div className="mt-5 overflow-x-auto rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-2 backdrop-blur" data-owm-scroll>
+              <table className="w-full min-w-[560px] border-collapse text-left font-roboto text-[12px] md:text-[13px]">
+                <thead>
+                  <tr className="text-white/70">
+                    <th className="px-3 py-2 font-semibold">{L.cmpThFeature}</th>
+                    <th className="px-3 py-2 text-center font-semibold text-[#C6A046]">
+                      One World Morocco
+                    </th>
+                    <th className="px-3 py-2 text-center font-semibold">Booking · TripAdvisor</th>
+                    <th className="px-3 py-2 text-center font-semibold">GetYourGuide · Viator</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {CMP_ROWS.map((r) => (
+                    <tr key={r.f} className="border-t border-white/10">
+                      <td className="px-3 py-2 text-white/85">{r.f}</td>
+                      <td className="px-3 py-2 text-center font-bold text-[#C6A046]">{r.us}</td>
+                      <td className="px-3 py-2 text-center text-white/50">{r.b}</td>
+                      <td className="px-3 py-2 text-center text-white/50">{r.g}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-            <article className="step">
-              <span className="num">2</span>
-              <div className="ico">
-                <svg width="40" height="44" viewBox="0 0 35 40" fill="none"><path d="M27.5.5h-20C2.66.5 0 3.16 0 8v25.24c0 1.33.74 2.53 1.94 3.13 1.19.6 2.59.47 3.66-.33l2.72-2.04c.59-.44 1.43-.38 1.96.14l4.04 4.04c.88.88 2.03 1.32 3.18 1.32s2.3-.44 3.18-1.32l4.04-4.04c.53-.52 1.37-.58 1.96-.14l2.72 2.04c1.07.8 2.47.93 3.66.33C34.26 35.77 35 34.57 35 33.24V8c0-4.84-2.66-7.5-7.5-7.5zM32 33.24c0 .27-.17.4-.28.45-.1.05-.31.12-.52-.05l-2.72-2.04c-1.77-1.33-4.31-1.15-5.88.42L18.56 36.06c-.57.57-1.56.57-2.13 0L12.4 32.02C11.53 31.15 10.37 30.71 9.21 30.71c-.95 0-1.9.29-2.7.89l-2.72 2.04c-.21.16-.42.1-.52.05-.1-.05-.28-.18-.28-.45V8c0-3.15 1.35-4.5 4.5-4.5h20c3.15 0 4.5 1.35 4.5 4.5v25.24zM23.56 14.06l-10 10c-.29.29-.67.44-1.06.44s-.77-.15-1.06-.44c-.59-.59-.59-1.54 0-2.12l10-10c.59-.59 1.54-.59 2.12 0 .58.58.58 1.54 0 2.12zM10.53 13c0-1.1.88-2 1.99-2h.02c1.1 0 2 .9 2 2s-.9 2-2 2-1.99-.9-1.99-2zM24.54 23c0 1.1-.9 2-2 2s-1.99-.9-1.99-2c0-1.1.88-2 1.99-2h.02c1.1 0 1.99.9 1.99 2z" fill="#ffc008"/></svg>
-              </div>
-              <p className="step-label">{L.step2Label}</p>
-              <h3>{L.step2H3}</h3>
-              <p>{L.step2P}</p>
-            </article>
-
-            <article className="step">
-              <span className="num">3</span>
-              <div className="ico">
-                <svg width="48" height="48" viewBox="0 0 49 48" fill="none"><path d="M26.5 20c1.93 0 3.5 1.57 3.5 3.5v9.5c0 4.97-4.03 9-9 9s-9-4.03-9-9V23.5c0-1.93 1.57-3.5 3.5-3.5h11zm0 3h-11c-.28 0-.5.22-.5.5v9.5c0 3.31 2.69 6 6 6s6-2.69 6-6V23.5c0-.28-.22-.5-.5-.5zM4.5 20l6.76-.002C10.58 20.83 10.13 21.86 10.03 23H4.5c-.28 0-.5.22-.5.5V30c0 2.76 2.24 5 5 5 .4 0 .79-.05 1.16-.14.17 1.01.48 1.97.91 2.87C10.41 37.91 9.72 38 9 38c-4.42 0-8-3.58-8-8v-6.5C1 21.57 2.57 20 4.5 20zm26.25-.002L37.5 20c1.93 0 3.5 1.57 3.5 3.5V30c0 4.42-3.58 8-8 8-.71 0-1.4-.09-2.06-.27.43-.9.74-1.86.91-2.87.37.09.76.14 1.16.14 2.76 0 5-2.24 5-5v-6.5c0-.28-.22-.5-.5-.5l-5.51.001c-.1-1.14-.55-2.17-1.24-3zM21 6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6 2.69-6 6-6zM34 8c2.76 0 5 2.24 5 5s-2.24 5-5 5-5-2.24-5-5 2.24-5 5-5zM8 8c2.76 0 5 2.24 5 5s-2.24 5-5 5-5-2.24-5-5 2.24-5 5-5zM21 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="#00a896"/></svg>
-              </div>
-              <p className="step-label">{L.step3Label}</p>
-              <h3>{L.step3H3}</h3>
-              <p>{L.step3P}</p>
-            </article>
-          </div>
-
-          <div className="cta-row">
-            <Link className="btn-primary" to="/devenir-affilie">{L.joinBtn}</Link>
-          </div>
-        </div>
-      </section>
-
-      <section id="why-us">
-        <div className="wrap">
-          <div className="why-head">
-            <h2>{L.whyH2}</h2>
-            <p>{L.whyP}</p>
-          </div>
-
-          <div className="why-wrap">
-            <table className="cmp">
-              <thead>
-                <tr>
-                  <th>{L.cmpThFeature}</th>
-                  <th className="us"><span className="reco">{L.cmpReco}</span>One World Morocco</th>
-                  <th>Booking.com<br/>TripAdvisor</th>
-                  <th>GetYourGuide<br/>Viator</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>{L.cmpRow1Feature}</td><td className="us">{L.cmpUs0}</td><td>15–25 %</td><td>20–30 %</td></tr>
-                <tr><td>{L.cmpRow2Feature}</td><td className="us">{L.cmpUsIncluded}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
-                <tr><td>{L.cmpRow3Feature}</td><td className="us">{L.cmpUsIncluded}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
-                <tr><td>{L.cmpRow4Feature}</td><td className="us">{L.cmpUsYes}</td><td>{L.cmpNo}</td><td>{L.cmpNo}</td></tr>
-                <tr><td>{L.cmpRow5Feature}</td><td className="us">{L.cmpUsYes}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
-                <tr><td>{L.cmpRow6Feature}</td><td className="us">{L.cmpUsFree}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
-                <tr><td>{L.cmpRow7Feature}</td><td className="us">{L.cmpUsOptional}</td><td>{L.cmpNo}</td><td>{L.cmpNo}</td></tr>
-                <tr><td>{L.cmpRow8Feature}</td><td className="us">{L.cmpUsIncluded}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
-                <tr><td>{L.cmpRow9Feature}</td><td className="us">{L.cmpUsIncluded}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
-                <tr><td>{L.cmpRow10Feature}</td><td className="us">{L.cmpRow10Us}</td><td>{L.cmpRow10Booking}</td><td>{L.cmpRow10Gyg}</td></tr>
-                <tr><td>{L.cmpRow11Feature}</td><td className="us">{L.cmpUsYes}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
-                <tr><td>{L.cmpRow12Feature}</td><td className="us">{L.cmpUsYes}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
-                <tr><td>{L.cmpRow13Feature}</td><td className="us">{L.cmpUsYes}</td><td>{L.cmpNo}</td><td>{L.cmpNo}</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div className="why-cta">
-            <Link className="btn-primary" to="/devenir-affilie">{L.whyBtn}</Link>
+            <button type="button" onClick={goSignup} className={`mt-6 ${ctaClass}`} style={MONT}>
+              {L.whyBtn}
+            </button>
           </div>
         </div>
+
+        {/* ============ CTA Découvrir / Revenir ============ */}
+        <div className="absolute inset-x-0 bottom-5 z-20 flex items-end justify-center gap-10">
+          <button
+            type="button"
+            onClick={() => setTarget(Math.round(progress) - 1)}
+            className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+            style={{ opacity: current > 0 ? 1 : 0, pointerEvents: current > 0 ? "auto" : "none" }}
+            tabIndex={current > 0 ? 0 : -1}
+            aria-hidden={current === 0}
+          >
+            <ChevronUp className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">{N.back}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTarget(Math.round(progress) + 1)}
+            className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+            style={{
+              opacity: current < SCREENS - 1 ? 1 : 0,
+              pointerEvents: current < SCREENS - 1 ? "auto" : "none",
+            }}
+            tabIndex={current < SCREENS - 1 ? 0 : -1}
+            aria-hidden={current === SCREENS - 1}
+          >
+            <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">{N.discover}</span>
+          </button>
+        </div>
       </section>
-
-
-
-
-      </div>
-      <Footer variant="verified" />
     </>
   );
 };
