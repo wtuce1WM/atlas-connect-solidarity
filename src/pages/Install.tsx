@@ -708,15 +708,15 @@ const Install = () => {
             src={phoneMockupAsset.url}
             alt=""
             aria-hidden="true"
-            className="pointer-events-none absolute left-[3%] top-1/2 hidden h-[58%] w-auto -translate-y-1/2 lg:block"
+            className="pointer-events-none absolute left-[3%] top-1/2 z-0 hidden h-[58%] w-auto -translate-y-1/2 lg:block"
           />
           <h1
-            className="max-w-4xl text-center text-[28px] leading-[1.15] text-[#F4ECDF] sm:text-[2.25rem] md:text-[3rem] lg:text-[3.5rem]"
+            className="relative z-10 max-w-4xl text-center text-[28px] leading-[1.15] text-[#F4ECDF] sm:text-[2.25rem] md:text-[3rem] lg:text-[3.5rem]"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
           >
             {t.h1}
           </h1>
-          <p className="mt-5 max-w-2xl text-center font-roboto text-[15px] leading-relaxed text-white md:text-[1.125rem]">
+          <p className="relative z-10 mt-5 max-w-2xl text-center font-roboto text-[15px] leading-relaxed text-white md:text-[1.125rem]">
             {installEvent ? t.heroSubWithPrompt : t.heroSubDefault}
           </p>
 
