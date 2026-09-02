@@ -44,8 +44,12 @@ const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
 const heroImageMobile = koutoubiaVerticalBgAsset.url;
 
+const SCREENS = 4;
+const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+
 const Club = () => {
   const { language } = useLanguage();
+  const navigate = useLocalizedNavigate();
   const isMobile = useIsMobile();
   const [searchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "assistant";
