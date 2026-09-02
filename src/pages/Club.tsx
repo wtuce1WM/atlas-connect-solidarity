@@ -811,7 +811,7 @@ const Club = () => {
             </p>
             <button
               type="button"
-              onClick={() => setTarget(2)}
+              onClick={() => jumpTo(2)}
               className="relative z-10 mt-8 inline-flex items-center gap-3 rounded-full bg-[#C04F17] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
@@ -1102,7 +1102,7 @@ const Club = () => {
             </p>
             <button
               type="button"
-              onClick={() => setTarget(2)}
+              onClick={() => jumpTo(2)}
               className="inline-flex items-center gap-3 rounded-full bg-[#25D366] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
