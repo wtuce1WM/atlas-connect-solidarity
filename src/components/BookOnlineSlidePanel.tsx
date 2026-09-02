@@ -2946,7 +2946,9 @@ const BookOnlineSlidePanelInner = ({
             />
           ) : undefined}
         />
-        )}
+            </div>
+          );
+        })()}
 
       </div>
 
