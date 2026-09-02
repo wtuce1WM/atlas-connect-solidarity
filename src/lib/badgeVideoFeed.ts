@@ -119,7 +119,8 @@ export async function fetchBadgeVideoFeed(
   const rpcLimit = pinnedVideoId ? 300 : limit;
   const { data, error } = await (supabase as any).rpc("get_badge_video_feed", {
     _badge_id: badgeId,
-    _seed: seed ?? getBadgeFeedSeed(badgeId),
+    // Nouvel ordre à chaque ouverture (offset 0), stable ensuite pour la pagination.
+    _seed: seed ?? (offset === 0 ? resetBadgeFeedSeed(badgeId) : getBadgeFeedSeed(badgeId)),
     _limit: rpcLimit,
     _offset: offset,
     _city_ids: cityIds && cityIds.length > 0 ? cityIds : null,
