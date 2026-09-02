@@ -765,7 +765,11 @@ const Front = () => {
 
   const narrativeOpacity = 1 - range(progress, 0, 0.35);
   const narrativeActive = progress < 0.35;
-  const showHomeChrome = !demoIntro && !youtubeOpen && !mapOpen;
+  // Un panneau de l'assistant (feed vidéo, fiche business, POI) est rendu DANS le
+  // conteneur de l'embed : son z-index reste piégé sous le header de /front (z-50),
+  // qui interceptait les taps sur la croix de fermeture. On masque donc le chrome
+  // Home tant qu'un panneau est ouvert.
+  const showHomeChrome = !demoIntro && !youtubeOpen && !mapOpen && !askPanelOpen;
   
   const ctaP = range(progress, 0.25, 0.9);
   const ctaActive = progress > 0.575;
