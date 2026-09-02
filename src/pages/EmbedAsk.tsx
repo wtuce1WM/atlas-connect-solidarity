@@ -825,6 +825,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return () => { cancelAnimationFrame(r1); if (r2) cancelAnimationFrame(r2); };
   }, [heroLayout, heroFontsReady, dbSuggestions, heroReady]);
 
+  /* Informe l'hôte (/front) que le hero est révélé : le CTA vert « Découvrez l'App »
+     rejoint la même cascade d'apparition. */
+  useEffect(() => {
+    if (!heroReady || !heroLayout) return;
+    try {
+      window.parent?.postMessage({ type: "owm-ask:hero-ready" }, "*");
+      window.postMessage({ type: "owm-ask:hero-ready" }, window.location.origin);
+    } catch { /* noop */ }
+  }, [heroReady, heroLayout]);
+
   /** Style de révélation en cascade d'un bloc du hero. */
   const heroReveal = (delay: number): CSSProperties | undefined => {
     if (!heroLayout) return undefined;
