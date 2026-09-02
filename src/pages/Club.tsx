@@ -24,6 +24,7 @@ import ClubYoutubeRecommendations from "@/components/club/ClubYoutubeRecommendat
 import type { User } from "@supabase/supabase-js";
 import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
+import { clubPopupTranslations } from "@/components/club/ClubBlueAuthPopup";
 import ShareButton from "@/components/ShareButton";
 import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
 import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
@@ -584,6 +585,9 @@ const Club = () => {
     ar: { loginTab: "تسجيل الدخول", registerTab: "تسجيل", loginTitle: "الوصول إلى حسابك", loginSubmit: "تسجيل الدخول", loginError: "البريد أو كلمة المرور غير صحيحة.", forgotPassword: "نسيت كلمة المرور؟", resetSent: "تم إرسال بريد الاستعادة.", noAccount: "ليس لديك حساب؟", hasAccount: "عضو بالفعل؟" },
   }[language] || { loginTab: "Se connecter", registerTab: "S'inscrire", loginTitle: "Accéder à votre compte", loginSubmit: "Se connecter", loginError: "Email ou mot de passe incorrect.", forgotPassword: "Mot de passe oublié ?", resetSent: "Email de réinitialisation envoyé.", noAccount: "Pas encore de compte ?", hasAccount: "Déjà membre ?" };
 
+  const clubPopup = clubPopupTranslations[language as keyof typeof clubPopupTranslations] || clubPopupTranslations.fr;
+
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!loginEmail.trim() || !loginPassword) return;
@@ -851,32 +855,37 @@ const Club = () => {
           >
             <div
               data-owm-scroll
-              className="club-badge-shimmer max-h-full w-full max-w-md overflow-y-auto overscroll-contain rounded-2xl border border-white/30 bg-[#ECD6B8]/60 p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] backdrop-blur-xl sm:p-8"
+              className="club-badge-shimmer max-h-full w-full max-w-sm overflow-y-auto overscroll-contain rounded-2xl border border-white/30 bg-[#ECD6B8]/60 p-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] backdrop-blur-xl sm:p-5"
               style={{ "--shimmer-delay": "720ms" } as React.CSSProperties}
             >
 
-
+                {/* En-tête reprise du popup bleu Club */}
+                <div className="mb-4 text-center">
+                  <p className="text-xs font-semibold text-white/90">{clubPopup.welcome}</p>
+                  <p className="font-montserrat text-xl font-bold leading-tight text-white">{clubPopup.clubName}</p>
+                  <p className="mt-3 text-sm font-bold text-white">{clubPopup.memberTitle}</p>
+                  <p className="mt-1 text-xs leading-snug text-white/90">{clubPopup.memberDescGeneric}</p>
+                </div>
 
                 {/* Tabs */}
-                <div className="flex bg-[#ECD6B8] rounded-lg p-1 mb-6">
+                <div className="flex bg-[#ECD6B8] rounded-lg p-1 mb-4">
                   <button
                     type="button"
                     onClick={() => setMode("login")}
-                    className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "login" ? "bg-[#C04F17] text-white shadow-sm" : "text-[#C04F17] hover:text-[#C04F17]/80"}`}
+                    className={`flex-1 py-1.5 text-sm font-semibold rounded-md transition-all ${mode === "login" ? "bg-[#C04F17] text-white shadow-sm" : "text-[#C04F17] hover:text-[#C04F17]/80"}`}
                   >
                     {tx.loginTab}
                   </button>
                   <button
                     type="button"
                     onClick={() => setMode("register")}
-                    className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "register" ? "bg-[#C04F17] text-white shadow-sm" : "text-[#C04F17] hover:text-[#C04F17]/80"}`}
+                    className={`flex-1 py-1.5 text-sm font-semibold rounded-md transition-all ${mode === "register" ? "bg-[#C04F17] text-white shadow-sm" : "text-[#C04F17] hover:text-[#C04F17]/80"}`}
                   >
                     {tx.registerTab}
                   </button>
                 </div>
 
-                <h2 className="text-2xl font-bold text-center mb-2 text-white">{mode === "login" ? tx.loginTitle : t.register}</h2>
-                {mode === "register" && <p className="text-center text-xs text-white mb-6 font-semibold">{t.required}</p>}
+                {mode === "register" && <p className="text-center text-xs text-white mb-4 font-semibold">{t.required}</p>}
 
                 {isRegistered ? (
                   <div className="text-center py-12">
