@@ -479,9 +479,25 @@ const Join = () => {
     // sans débordement reste navigable au swipe vertical).
     const getScrollable = (t: EventTarget | null) => {
       if (!(t instanceof Element)) return null;
-      const sc = t.closest<HTMLElement>("[data-owm-scroll]");
-      return sc && sc.scrollWidth > sc.clientWidth + 1 ? sc : null;
+      let sc = t.closest<HTMLElement>("[data-owm-scroll]");
+      while (sc) {
+        if (sc.scrollWidth > sc.clientWidth + 1) return sc;
+        sc = sc.parentElement?.closest<HTMLElement>("[data-owm-scroll]") ?? null;
+      }
+      return null;
     };
+    // Idem pour l'axe vertical : un conteneur parent qui déborde en hauteur
+    // (grille des cartes mobile) doit garder le swipe vertical natif.
+    const getVScrollable = (t: EventTarget | null) => {
+      if (!(t instanceof Element)) return null;
+      let sc = t.closest<HTMLElement>("[data-owm-scroll]");
+      while (sc) {
+        if (sc.scrollHeight > sc.clientHeight + 1) return sc;
+        sc = sc.parentElement?.closest<HTMLElement>("[data-owm-scroll]") ?? null;
+      }
+      return null;
+    };
+
     const preWheelLeft = new WeakMap<HTMLElement, number>();
     // Phase capture : mémoriser le scrollLeft AVANT que le carrousel (useDragScroll)
     // ne le mute — sinon la molette qui amène exactement à bout lirait "déjà à bout"
