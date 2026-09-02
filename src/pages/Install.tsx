@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Apple, Smartphone, Monitor, Share, Plus, MoreVertical, Download, Check } from "lucide-react";
-import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
-import Footer from "@/components/Footer";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Apple, Smartphone, Monitor, Share, Plus, MoreVertical, Download, Check, ChevronDown, ChevronUp } from "lucide-react";
+import FrontHeader from "@/components/front/FrontHeader";
 import { resolveHomepageCity } from "@/lib/cityHomepage";
-import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
-import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
-import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
-import { useIsMobile } from "@/hooks/use-mobile";
+import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
+import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
+import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
+import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import appIconHamsaAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 import installIosRealStep1 from "@/assets/install-ios-real-step1.webp.asset.json";
 import installIosRealStep2 from "@/assets/install-ios-real-step2.webp.asset.json";
@@ -18,6 +18,7 @@ import installAndroidStep3 from "@/assets/android-step3.webp.asset.json";
 import installMacMockup from "@/assets/install-mac-mockup.png.asset.json";
 import installWindowsMockup from "@/assets/install-windows-mockup.png.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
+
 
 const MOCKUPS: Record<"mac" | "windows", { url: string; alt: Record<Lang, string> }> & {
   ios: { url: string; alt: Record<Lang, string>; label: Record<Lang, string> }[];
