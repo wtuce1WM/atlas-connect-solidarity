@@ -534,11 +534,13 @@ const Join = () => {
         setTarget(Math.round(targetRef.current) - 1);
       }
     };
+    el.addEventListener("wheel", onWheelCapture, true);
     el.addEventListener("wheel", onWheel, { passive: false });
     el.addEventListener("touchstart", onTouchStart, { passive: true });
     el.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("keydown", onKey);
     return () => {
+      el.removeEventListener("wheel", onWheelCapture, true);
       el.removeEventListener("wheel", onWheel);
       el.removeEventListener("touchstart", onTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
