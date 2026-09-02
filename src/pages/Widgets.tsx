@@ -729,6 +729,10 @@ const Widgets = () => {
 
         {/* ============ CTA Revenir / Découvrir ============ */}
         <div className="absolute inset-x-0 bottom-5 z-20 flex items-end justify-center gap-10">
+          {/* Pilule sombre : chevrons lisibles sur la carte sable plein écran (écran 3) */}
+          <div className="pointer-events-none absolute inset-x-10 bottom-0 flex justify-center">
+            <div className="rounded-full bg-black/55 px-8 py-1.5 backdrop-blur-sm" />
+          </div>
           <button
             type="button"
             onClick={() => setTarget(Math.round(progress) - 1)}
