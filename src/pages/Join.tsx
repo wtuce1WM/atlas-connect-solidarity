@@ -534,7 +534,13 @@ const Join = () => {
       }, 1400);
     };
     const onTouchStart = (e: TouchEvent) => {
-      const verticalScroller = getVScrollable(e.target);
+      // Sur mobile, tout geste commencé dans l'écran 2 appartient à sa liste
+      // de cartes : il ne doit jamais être interprété comme un changement
+      // d'écran, même si le navigateur cible un enfant non scrollable.
+      const verticalScroller =
+        isMobile && Math.abs(targetRef.current - 1) < 0.45
+          ? s2OuterRef.current
+          : getVScrollable(e.target);
       touchScrollRef.current = verticalScroller;
       touchYRef.current = e.touches[0]?.clientY ?? null;
     };
@@ -578,7 +584,7 @@ const Join = () => {
         wheelUnlockRef.current = null;
       }
     };
-  }, [setTarget]);
+  }, [isMobile, setTarget]);
 
   const layer = (index: number) => {
     const d = progress - index;
