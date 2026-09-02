@@ -537,9 +537,14 @@ const Join = () => {
       // Sur mobile, tout geste commencé dans l'écran 2 appartient à sa liste
       // de cartes : il ne doit jamais être interprété comme un changement
       // d'écran, même si le navigateur cible un enfant non scrollable.
+      const screen2 = s2OuterRef.current;
+      const startedInScreen2 = screen2
+        ? e.composedPath().includes(screen2) ||
+          (e.target instanceof Node && screen2.contains(e.target))
+        : false;
       const verticalScroller =
-        isMobile && Math.abs(targetRef.current - 1) < 0.45
-          ? s2OuterRef.current
+        isMobile && startedInScreen2
+          ? screen2
           : getVScrollable(e.target);
       touchScrollRef.current = verticalScroller;
       touchYRef.current = e.touches[0]?.clientY ?? null;
@@ -759,7 +764,12 @@ const Join = () => {
               : "overflow-hidden justify-center"
           }`}
           data-owm-scroll={isMobile || s2Fit.scrollable ? true : undefined}
-          style={{ opacity: s2.opacity, transform: s2.transform, pointerEvents: s2.pointerEvents }}
+          style={{
+            opacity: s2.opacity,
+            transform: s2.transform,
+            pointerEvents: s2.pointerEvents,
+            touchAction: isMobile ? "pan-y" : undefined,
+          }}
           aria-hidden={s2.ariaHidden}
         >
           <div
