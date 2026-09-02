@@ -5765,6 +5765,24 @@ export type Database = {
         }
         Relationships: []
       }
+      internal_service_tokens: {
+        Row: {
+          created_at: string
+          name: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          name: string
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          name?: string
+          token?: string
+        }
+        Relationships: []
+      }
       invoice_items: {
         Row: {
           created_at: string

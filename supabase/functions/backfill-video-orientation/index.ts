@@ -109,33 +109,59 @@ const orientationOf = (d: Dims) =>
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  const auth = await assertStaff(req, corsHeaders);
-  if (auth instanceof Response) return auth;
-
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), {
       status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+  // Deux modes d'appel : staff (backoffice) ou automatisé (trigger interne).
+  // Le jeton interne vient du secret d'env ou de la table `internal_service_tokens`.
+  const provided = req.headers.get("x-cron-secret") ?? "";
+  let isInternal = false;
+  if (provided) {
+    const envSecret = Deno.env.get("VIDEO_ORIENTATION_CRON_SECRET") ?? "";
+    isInternal = envSecret.length > 0 && provided === envSecret;
+    if (!isInternal) {
+      const { data: tok } = await supabase
+        .from("internal_service_tokens")
+        .select("token")
+        .eq("name", "video_orientation")
+        .maybeSingle();
+      isInternal = !!tok?.token && tok.token === provided;
+    }
+  }
+  if (!isInternal) {
+    const auth = await assertStaff(req, corsHeaders);
+    if (auth instanceof Response) return auth;
+  }
+
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
 
     const body = await req.json().catch(() => ({} as any));
     const limit = Math.min(Number(body.limit) || 120, 400);
     const concurrency = Math.min(Number(body.concurrency) || 8, 16);
+    const ids: string[] = Array.isArray(body.ids) ? body.ids.filter((v: unknown) => typeof v === "string") : [];
+    // `retry` : reprend aussi les vidéos déjà tentées mais restées sans orientation.
+    const retryFailed = body.mode === "retry" || body.retryFailed === true;
     const table: "business_documents" | "generic_videos" =
       body.table === "generic_videos" ? "generic_videos" : "business_documents";
 
-    let query = supabase
-      .from(table)
-      .select("id, url")
-      .is("orientation_checked_at", null)
-      .not("url", "is", null)
-      .limit(limit);
+    let query = supabase.from(table).select("id, url").not("url", "is", null).limit(limit);
+    if (ids.length > 0) query = query.in("id", ids);
+    else if (retryFailed) {
+      // On ne re-tente que les fichiers mesurables (MP4/MOV) : les URLs
+      // YouTube/TikTok/embeds resteront sans orientation par nature.
+      query = query
+        .is("orientation", null)
+        .or("url.ilike.%.mp4,url.ilike.%.mp4?%,url.ilike.%.m4v,url.ilike.%.mov,url.ilike.%.mov?%");
+    }
+    else query = query.is("orientation_checked_at", null);
     if (table === "business_documents") query = query.eq("type", "video");
 
     const { data: rows, error } = await query;
