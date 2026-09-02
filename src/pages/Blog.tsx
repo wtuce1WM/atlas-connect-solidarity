@@ -3,21 +3,17 @@ import { useSEO } from "@/hooks/useSEO";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import FrontHeader from "@/components/front/FrontHeader";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import HomeBottomBar from "@/components/HomeBottomBar";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Calendar, User, ArrowRight, MapPin, PlayCircle, ChevronDown } from "lucide-react";
+import { Loader2, Calendar, User, ArrowRight, MapPin, PlayCircle } from "lucide-react";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import { withLangPrefix } from "@/lib/localizedPath";
 import { compareBlogOrder } from "@/lib/blogOrder";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
-import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
-import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
-import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
-import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 
 
 interface BlogPost {
