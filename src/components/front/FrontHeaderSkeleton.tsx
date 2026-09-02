@@ -28,7 +28,8 @@ const FrontHeaderSkeleton = () => (
     <div className="mt-2 rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4]">
       <Menu className="h-5 w-5" />
     </div>
-  </div>
+    </div>
+  </>
 );
 
 export default FrontHeaderSkeleton;
