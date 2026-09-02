@@ -115,19 +115,33 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  // Deux modes d'appel : staff (backoffice) ou automatisé (cron interne).
-  const cronSecret = Deno.env.get("VIDEO_ORIENTATION_CRON_SECRET") ?? "";
-  const isCron = cronSecret.length > 0 && req.headers.get("x-cron-secret") === cronSecret;
-  if (!isCron) {
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+  // Deux modes d'appel : staff (backoffice) ou automatisé (trigger interne).
+  // Le jeton interne vient du secret d'env ou de la table `internal_service_tokens`.
+  const provided = req.headers.get("x-cron-secret") ?? "";
+  let isInternal = false;
+  if (provided) {
+    const envSecret = Deno.env.get("VIDEO_ORIENTATION_CRON_SECRET") ?? "";
+    isInternal = envSecret.length > 0 && provided === envSecret;
+    if (!isInternal) {
+      const { data: tok } = await supabase
+        .from("internal_service_tokens")
+        .select("token")
+        .eq("name", "video_orientation")
+        .maybeSingle();
+      isInternal = !!tok?.token && tok.token === provided;
+    }
+  }
+  if (!isInternal) {
     const auth = await assertStaff(req, corsHeaders);
     if (auth instanceof Response) return auth;
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
 
     const body = await req.json().catch(() => ({} as any));
     const limit = Math.min(Number(body.limit) || 120, 400);
