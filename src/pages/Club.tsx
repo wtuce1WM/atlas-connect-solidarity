@@ -213,6 +213,152 @@ const Club = () => {
     };
   }, []);
 
+  // ===== Modèle immersif /corporate : 4 écrans en calques + navigation molette/tactile/clavier =====
+  const [progress, setProgress] = useState(0);
+  const [isPortrait, setIsPortrait] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches,
+  );
+  const [reduced, setReduced] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
+  const targetRef = useRef(0);
+  const currentRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const touchYRef = useRef<number | null>(null);
+  const wheelLockedRef = useRef(false);
+  const wheelUnlockRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const mqO = window.matchMedia("(max-aspect-ratio: 1/1)");
+    const mqM = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onO = () => setIsPortrait(mqO.matches);
+    const onM = () => setReduced(mqM.matches);
+    mqO.addEventListener("change", onO);
+    mqM.addEventListener("change", onM);
+    return () => {
+      mqO.removeEventListener("change", onO);
+      mqM.removeEventListener("change", onM);
+    };
+  }, []);
+
+  // Safari iOS peut différer l'autoplay malgré muted + playsInline.
+  useEffect(() => {
+    const retry = () => {
+      const v = bgVideoRef.current;
+      if (v?.paused) void v.play().catch(() => undefined);
+    };
+    retry();
+    document.addEventListener("touchstart", retry, { passive: true, once: true });
+    document.addEventListener("click", retry, { once: true });
+    return () => {
+      document.removeEventListener("touchstart", retry);
+      document.removeEventListener("click", retry);
+    };
+  }, [isPortrait, user]);
+
+  const setTarget = useCallback(
+    (v: number) => {
+      targetRef.current = clamp(v, 0, SCREENS - 1);
+      if (reduced) {
+        currentRef.current = targetRef.current;
+        setProgress(targetRef.current);
+        return;
+      }
+      if (rafRef.current !== null) return;
+      const tick = () => {
+        currentRef.current += (targetRef.current - currentRef.current) * 0.035;
+        if (Math.abs(targetRef.current - currentRef.current) < 0.002) {
+          currentRef.current = targetRef.current;
+          setProgress(currentRef.current);
+          rafRef.current = null;
+          return;
+        }
+        setProgress(currentRef.current);
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    },
+    [reduced],
+  );
+
+  useEffect(
+    () => () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    // Les zones marquées data-owm-scroll (carte auth) conservent leur scroll natif.
+    const inScrollable = (target: EventTarget | null) =>
+      !!(target instanceof Element && target.closest("[data-owm-scroll]"));
+    const onWheel = (e: WheelEvent) => {
+      if (inScrollable(e.target)) return;
+      e.preventDefault();
+      if (wheelLockedRef.current || Math.abs(e.deltaY) < 8) return;
+      wheelLockedRef.current = true;
+      setTarget(Math.round(targetRef.current) + (e.deltaY > 0 ? 1 : -1));
+      wheelUnlockRef.current = window.setTimeout(() => {
+        wheelLockedRef.current = false;
+        wheelUnlockRef.current = null;
+      }, 1400);
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      touchYRef.current = inScrollable(e.target) ? null : e.touches[0]?.clientY ?? null;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (inScrollable(e.target)) return;
+      const y = e.touches[0]?.clientY ?? null;
+      if (y === null || touchYRef.current === null) return;
+      e.preventDefault();
+      setTarget(targetRef.current + (touchYRef.current - y) / 320);
+      touchYRef.current = y;
+    };
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (e.key === "ArrowDown" || e.key === "PageDown") {
+        e.preventDefault();
+        setTarget(Math.round(targetRef.current) + 1);
+      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+        e.preventDefault();
+        setTarget(Math.round(targetRef.current) - 1);
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("keydown", onKey);
+      if (wheelUnlockRef.current !== null) {
+        window.clearTimeout(wheelUnlockRef.current);
+        wheelUnlockRef.current = null;
+      }
+    };
+  }, [setTarget, user, authLoading]);
+
+  const layer = (index: number) => {
+    const d = progress - index;
+    const opacity = clamp(1 - Math.abs(d) * 1.6, 0, 1);
+    const active = Math.abs(d) < 0.45;
+    return {
+      opacity,
+      transform: reduced ? undefined : `translateY(${d * -48}px)`,
+      pointerEvents: active ? ("auto" as const) : ("none" as const),
+      ariaHidden: !active,
+    };
+  };
+
 
   const countryFlag = (code: string | null) => {
     if (!code || code.length !== 2 || !/^[A-Za-z]{2}$/.test(code)) return null;
