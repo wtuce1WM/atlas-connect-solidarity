@@ -221,12 +221,11 @@ const BlogPost = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-[hsl(0_0%_4%)]">
         <FrontHeader fixed />
         <div className="flex justify-center items-center py-40">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="h-8 w-8 animate-spin text-gold" />
         </div>
-        <Footer />
       </div>
     );
   }
