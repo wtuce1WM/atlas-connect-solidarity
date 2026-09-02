@@ -531,10 +531,12 @@ const Join = () => {
       }, 1400);
     };
     const onTouchStart = (e: TouchEvent) => {
-      touchYRef.current = getScrollable(e.target) ? null : e.touches[0]?.clientY ?? null;
+      const skip = getScrollable(e.target) || getVScrollable(e.target);
+      touchYRef.current = skip ? null : e.touches[0]?.clientY ?? null;
     };
     const onTouchMove = (e: TouchEvent) => {
-      if (getScrollable(e.target)) return;
+      if (getScrollable(e.target) || getVScrollable(e.target)) return;
+
       const y = e.touches[0]?.clientY ?? null;
       if (y === null || touchYRef.current === null) return;
       e.preventDefault();
