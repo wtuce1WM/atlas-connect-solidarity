@@ -510,8 +510,8 @@ const BecomeAffiliate = () => {
   const current = Math.round(progress);
 
   const inputCls =
-    "bg-white/10 border-white/20 text-white placeholder:text-white/40 h-11 normal-case tracking-normal";
-  const labelCls = "block text-white/70 text-sm mb-1.5 normal-case tracking-normal font-normal";
+    "bg-white/10 border-white/20 text-white placeholder:text-white/40 h-11 lg:h-10 normal-case tracking-normal";
+  const labelCls = "block text-white/70 text-sm mb-1.5 lg:mb-1 lg:text-xs normal-case tracking-normal font-normal";
 
   return (
     <>
@@ -705,7 +705,7 @@ const BecomeAffiliate = () => {
               </p>
             </div>
           ) : (
-            <div className="w-full max-w-lg">
+            <div className="w-full max-w-lg lg:max-w-5xl">
               <h2
                 className="text-center text-[clamp(20px,3.4vw,34px)] leading-tight text-[#F4ECDF]"
                 style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
@@ -715,14 +715,14 @@ const BecomeAffiliate = () => {
               <form
                 onSubmit={handleSubmit}
                 data-inner-scroll
-                className="mt-4 max-h-[58vh] space-y-4 overflow-y-auto overscroll-contain pr-1"
+                className="mt-4 max-h-[58vh] space-y-4 overflow-y-auto overscroll-contain pr-1 lg:grid lg:max-h-none lg:grid-cols-3 lg:gap-x-6 lg:gap-y-2 lg:space-y-0 lg:overflow-visible lg:pr-0"
               >
-                <p className="font-roboto text-xs italic text-white/60">{t.requiredNote}</p>
+                <p className="font-roboto text-xs italic text-white/60 lg:col-span-3">{t.requiredNote}</p>
                 <div>
                   <label className={labelCls}>{t.labelName}</label>
                   <Input value={form.businessName} onChange={(e) => setForm({ ...form, businessName: e.target.value })} className={inputCls} />
                 </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:contents">
                   <div>
                     <label className={labelCls}>{t.labelFirstName}</label>
                     <Input value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className={inputCls} />
@@ -732,7 +732,7 @@ const BecomeAffiliate = () => {
                     <Input value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className={inputCls} />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:contents">
                   <div>
                     <label className={labelCls}>{t.labelPhone}</label>
                     <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputCls} type="tel" />
@@ -742,7 +742,7 @@ const BecomeAffiliate = () => {
                     <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputCls} type="email" />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:contents">
                   <div>
                     <label className={labelCls}>{t.labelCity}</label>
                     <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputCls} />
@@ -750,7 +750,7 @@ const BecomeAffiliate = () => {
                   <div>
                     <label className={labelCls}>{t.labelCountry}</label>
                     <Select value={form.countryCode} onValueChange={(val) => setForm({ ...form, countryCode: val })}>
-                      <SelectTrigger className="h-11 border-white/20 bg-white/10 text-white normal-case tracking-normal">
+                      <SelectTrigger className="h-11 lg:h-10 border-white/20 bg-white/10 text-white normal-case tracking-normal">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="max-h-64">
@@ -767,11 +767,11 @@ const BecomeAffiliate = () => {
                   <label className={labelCls}>{t.labelWebsite}</label>
                   <Input value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} className={inputCls} type="url" />
                 </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:contents">
                   <div>
                     <label className={labelCls}>{t.labelMultipleListings}</label>
                     <Select value={form.multipleListings} onValueChange={(val) => setForm({ ...form, multipleListings: val })}>
-                      <SelectTrigger className="h-11 border-white/20 bg-white/10 text-white">
+                      <SelectTrigger className="h-11 lg:h-10 border-white/20 bg-white/10 text-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -783,7 +783,7 @@ const BecomeAffiliate = () => {
                   <div>
                     <label className={labelCls}>{t.labelContentReady}</label>
                     <Select value={form.contentReady} onValueChange={(val) => setForm({ ...form, contentReady: val })}>
-                      <SelectTrigger className="h-11 border-white/20 bg-white/10 text-white">
+                      <SelectTrigger className="h-11 lg:h-10 border-white/20 bg-white/10 text-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -793,23 +793,23 @@ const BecomeAffiliate = () => {
                     </Select>
                   </div>
                 </div>
-                <div>
+                <div className="lg:col-span-2">
                   <label className={labelCls}>{t.labelMessage}</label>
                   <Textarea
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className="min-h-[90px] border-white/20 bg-white/10 text-white placeholder:text-white/40"
+                    className="min-h-[90px] border-white/20 bg-white/10 text-white placeholder:text-white/40 lg:min-h-[44px]"
                   />
                 </div>
                 <Button
                   type="submit"
                   disabled={formLoading}
-                  className="h-12 w-full rounded-xl bg-gold text-base font-bold normal-case tracking-normal text-black shadow-lg shadow-gold/20 transition-all hover:bg-gold/90 hover:shadow-gold/40"
+                  className="h-12 w-full rounded-xl bg-gold lg:col-span-3 lg:mt-2 text-base font-bold normal-case tracking-normal text-black shadow-lg shadow-gold/20 transition-all hover:bg-gold/90 hover:shadow-gold/40"
                 >
                   {formLoading ? "..." : t.submitBtn}
                   {!formLoading && <ArrowRight className="ml-2 h-5 w-5" />}
                 </Button>
-                <div className="h-20" aria-hidden />
+                <div className="h-20 lg:hidden" aria-hidden />
               </form>
             </div>
           )}
