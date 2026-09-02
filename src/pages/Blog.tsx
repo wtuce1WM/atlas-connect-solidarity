@@ -111,17 +111,133 @@ const Blog = () => {
     return fr;
   };
 
+  const navigate = useLocalizedNavigate();
+  // Hero immersif (modèle Home) : vidéo de fond portrait/paysage + FrontHeader pinné.
+  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches,
+  );
+  const [reduced, setReduced] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+
+  useEffect(() => {
+    const mqO = window.matchMedia("(max-aspect-ratio: 1/1)");
+    const mqM = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onO = () => setIsPortrait(mqO.matches);
+    const onM = () => setReduced(mqM.matches);
+    mqO.addEventListener("change", onO);
+    mqM.addEventListener("change", onM);
+    const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.6);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      mqO.removeEventListener("change", onO);
+      mqM.removeEventListener("change", onM);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
+  // Safari iOS peut différer l'autoplay malgré muted + playsInline.
+  useEffect(() => {
+    const retry = () => {
+      const v = bgVideoRef.current;
+      if (v?.paused) void v.play().catch(() => undefined);
+    };
+    retry();
+    document.addEventListener("touchstart", retry, { passive: true, once: true });
+    document.addEventListener("click", retry, { once: true });
+    return () => {
+      document.removeEventListener("touchstart", retry);
+      document.removeEventListener("click", retry);
+    };
+  }, [isPortrait]);
+
+  const scrollToArticles = () => {
+    listRef.current?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+  };
+
+  const BLOG_HERO_T = {
+    fr: {
+      eyebrow: "Le Journal",
+      title: "Histoires, adresses et coulisses du Maroc",
+      text: "Nos guides de Marrakech et Essaouira, nos rencontres avec les artisans, les riads et les maisons d'hôtes, et les coulisses de One World Morocco — écrits sur place, au fil des saisons.",
+    },
+    en: {
+      eyebrow: "The Journal",
+      title: "Stories, addresses and behind the scenes of Morocco",
+      text: "Our Marrakech and Essaouira guides, encounters with artisans, riads and guesthouses, and the making of One World Morocco — written on the ground, season after season.",
+    },
+    ar: {
+      eyebrow: "المدونة",
+      title: "حكايات وعناوين وكواليس المغرب",
+      text: "أدلتنا لمراكش والصويرة، لقاءاتنا مع الحرفيين والرياضات ودور الضيافة، وكواليس One World Morocco — مكتوبة على الأرض، موسمًا بعد موسم.",
+    },
+  } as const;
+  const heroT = BLOG_HERO_T[language] || BLOG_HERO_T.fr;
+
   return (
     <div className="min-h-screen bg-background">
-      <HomeMindtripHeader alwaysWhite />
-      <div className="bg-black pt-28 pb-12">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
-            {t("blog.title")}
+      <FrontHeader fixed visible solid={scrolled} onLogoClick={() => navigate("/")} />
+      <section
+        className="relative flex h-[100dvh] min-h-[560px] w-full items-center justify-center overflow-hidden bg-[hsl(0_0%_4%)]"
+      >
+        <video
+          ref={bgVideoRef}
+          key={isPortrait ? "portrait" : "landscape"}
+          className="absolute inset-0 h-full w-full object-cover"
+          src={isPortrait ? portraitVideoAsset.url : landscapeVideoAsset.url}
+          poster={isPortrait ? portraitVideoPoster.url : landscapeVideoPoster.url}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-0"
+          aria-hidden="true"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(6,5,4,.55) 0%, rgba(6,5,4,.42) 35%, rgba(6,5,4,.72) 75%, rgba(6,5,4,.92) 100%)",
+          }}
+        />
+        <div
+          className="pointer-events-none absolute inset-0"
+          aria-hidden="true"
+          style={{
+            background:
+              "radial-gradient(50% 45% at 12% 8%, hsl(var(--primary) / 0.22), transparent 70%), radial-gradient(45% 40% at 88% 92%, hsl(var(--gold) / 0.16), transparent 70%)",
+          }}
+        />
+        <div className="relative z-10 flex max-w-3xl flex-col items-center px-5 pb-20 pt-24 text-center md:px-12">
+          <p
+            className="mb-6 text-[12px] font-medium uppercase tracking-[0.32em] text-[#C6A046] md:text-[14px]"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            {heroT.eyebrow}
+          </p>
+          <h1
+            className="text-[28px] leading-[1.15] text-[#F4ECDF] sm:text-[2.4rem] md:text-[3.2rem]"
+            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
+          >
+            {heroT.title}
           </h1>
-          <p className="text-white/60 mt-2">{t("blog.subtitle")}</p>
+          <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-white/90 md:text-[1.06rem]">
+            {heroT.text}
+          </p>
+          <button
+            type="button"
+            onClick={scrollToArticles}
+            className="mt-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/25 text-white/80 transition-colors hover:border-[#C6A046]/70 hover:text-[#E4C877]"
+            aria-label="Voir les articles"
+          >
+            <ChevronDown className="h-5 w-5 animate-bounce" />
+          </button>
         </div>
-      </div>
+      </section>
 
       <div className="w-full px-4 py-12">
         {isLoading ? (
