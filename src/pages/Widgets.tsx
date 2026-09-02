@@ -535,22 +535,18 @@ const Widgets = () => {
                 immersives. Établissements actifs classés par catégorie, fiches détaillées, itinéraires et
                 contact direct — mis à jour automatiquement depuis la base One World Morocco.
               </p>
-              <div className="mt-5 flex flex-wrap gap-3">
+              <ul className="mt-5 grid gap-2 sm:grid-cols-2">
                 {[
-                  ["1 178", "Marrakech · Imlil · Agafay"],
-                  ["339", "Essaouira & littoral"],
-                ].map(([n, label]) => (
-                  <div
-                    key={label}
-                    className="rounded-2xl border border-white/12 bg-white/[0.05] px-5 py-3 text-center backdrop-blur-md"
-                  >
-                    <div className="text-[26px] font-bold leading-none text-[#E4C877]">{n}</div>
-                    <div className="mt-1 font-roboto text-[11px] uppercase tracking-[0.14em] text-white/80">
-                      {label}
-                    </div>
-                  </div>
+                  ["Toujours à jour", "Mise à jour automatique depuis la base One World Morocco"],
+                  ["Intégration", "Intégration iframe en 1 ligne de code"],
+                ].map(([k, v]) => (
+                  <li key={k} className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 backdrop-blur-md">
+                    <div className="text-[13px] font-bold text-[#E4C877]">{k}</div>
+                    <div className="mt-0.5 font-roboto text-[12.5px] leading-snug text-white/80">{v}</div>
+                  </li>
                 ))}
-              </div>
+              </ul>
+
               <a
                 href={toPreview(nearbyUrl)}
                 target="_blank"
