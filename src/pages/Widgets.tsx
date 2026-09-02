@@ -479,11 +479,10 @@ const Widgets = () => {
               </p>
               <ul className="mt-5 grid gap-2 sm:grid-cols-2">
                 {[
-                  ["Vocal", "Question au micro, réponse lue à voix haute"],
-                  ["Vidéos immersives", "Chaque adresse s'anime en vidéo verticale"],
-                  ["Inspirationnel", "Suggestions et relances, pas des listes"],
-                  ["L'App dans l'embed", "Carte, itinéraires et réservation actifs"],
+                  ["Réponses ancrées", "Réponses ancrées sur nos données réelles"],
+                  ["Intégration", "Intégration iframe en 1 ligne de code"],
                 ].map(([k, v]) => (
+
                   <li key={k} className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 backdrop-blur-md">
                     <div className="text-[13px] font-bold text-[#E4C877]">{k}</div>
                     <div className="mt-0.5 font-roboto text-[12.5px] leading-snug text-white/80">{v}</div>
