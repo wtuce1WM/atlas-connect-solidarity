@@ -96,7 +96,9 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
   const setOpen = (open: boolean) => {
     setMenuOpen(open);
     onMenuToggle?.(open);
+    if (open) CTAS.forEach((cta) => preloadRoute(cta.to));
   };
+
 
   const handleLogoClick = () => {
     if (menuOpen) setOpen(false);
