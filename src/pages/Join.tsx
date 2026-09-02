@@ -474,10 +474,28 @@ const Join = () => {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-    const inScrollable = (t: EventTarget | null) =>
-      t instanceof Element && !!t.closest("[data-owm-scroll]");
+    // Un conteneur [data-owm-scroll] ne compte comme scrollable que s'il
+    // déborde réellement (ex. carrousel des cartes en desktop, grille mobile
+    // sans débordement reste navigable au swipe vertical).
+    const getScrollable = (t: EventTarget | null) => {
+      if (!(t instanceof Element)) return null;
+      const sc = t.closest<HTMLElement>("[data-owm-scroll]");
+      return sc && sc.scrollWidth > sc.clientWidth + 1 ? sc : null;
+    };
     const onWheel = (e: WheelEvent) => {
-      if (inScrollable(e.target)) return;
+      const sc = getScrollable(e.target);
+      if (sc) {
+        // Intention horizontale (trackpad) : laisser le carrousel gérer,
+        // jamais de changement d'écran.
+        const absX = Math.abs(e.deltaX);
+        const absY = Math.abs(e.deltaY);
+        if (absX > 1 && absX >= absY * 0.5) return;
+        // Molette verticale au-dessus du carrousel : naviguer uniquement
+        // quand le carrousel est déjà à bout dans le sens du scroll.
+        const atStart = sc.scrollLeft <= 1;
+        const atEnd = sc.scrollLeft >= sc.scrollWidth - sc.clientWidth - 1;
+        if ((e.deltaY > 0 && !atEnd) || (e.deltaY < 0 && !atStart)) return;
+      }
       e.preventDefault();
       if (wheelLockedRef.current || Math.abs(e.deltaY) < 8) return;
       wheelLockedRef.current = true;
@@ -488,10 +506,10 @@ const Join = () => {
       }, 1400);
     };
     const onTouchStart = (e: TouchEvent) => {
-      touchYRef.current = inScrollable(e.target) ? null : e.touches[0]?.clientY ?? null;
+      touchYRef.current = getScrollable(e.target) ? null : e.touches[0]?.clientY ?? null;
     };
     const onTouchMove = (e: TouchEvent) => {
-      if (inScrollable(e.target)) return;
+      if (getScrollable(e.target)) return;
       const y = e.touches[0]?.clientY ?? null;
       if (y === null || touchYRef.current === null) return;
       e.preventDefault();
@@ -727,6 +745,7 @@ const Join = () => {
 
               <div
                 ref={s2CardsRef}
+                data-owm-scroll
                 className="mt-6 grid gap-4 md:flex md:gap-4 md:overflow-x-auto md:scrollbar-hide md:pb-2"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
               >
