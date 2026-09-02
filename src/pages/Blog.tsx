@@ -239,7 +239,7 @@ const Blog = () => {
         </div>
       </section>
 
-      <div className="w-full px-4 py-12">
+      <div ref={listRef} className="w-full scroll-mt-16 px-4 py-12">
         {isLoading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
