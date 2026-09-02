@@ -1206,11 +1206,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Couvre les DEUX parcours viewer : VideoSlidePanel (feed vidéo) ET
   // BookOnlineSlidePanel (fiche business, carte des résultats, POI générique).
   const anyPanelOpen = !!activeFeedVideoId || !!openBusinessId || !!openMap || openGenericPoi;
-  useEffect(() => {
-    const payload = { type: "owm-ask:video-panel", open: anyPanelOpen };
-    try { window.postMessage(payload, "*"); } catch { /* noop */ }
-    try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
-  }, [anyPanelOpen]);
+
 
   const [openSiblings, setOpenSiblings] = useState<string[]>([]);
   // Overlay de réservation déclenché par les liens "Réservez" du markdown IA.
