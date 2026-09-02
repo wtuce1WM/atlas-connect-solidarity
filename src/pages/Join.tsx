@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import FrontHeader from "@/components/front/FrontHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
+import { useDragScroll } from "@/hooks/useDragScroll";
 import { useSEO } from "@/hooks/useSEO";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
@@ -429,6 +430,7 @@ const Join = () => {
   // sécurité si même l'échelle plancher ne suffit pas).
   const s2OuterRef = useRef<HTMLDivElement | null>(null);
   const s2ContentRef = useRef<HTMLDivElement | null>(null);
+  const s2CardsRef = useDragScroll<HTMLDivElement>();
   const [s2Fit, setS2Fit] = useState({ scale: 1, height: 0, scrollable: false });
 
   useLayoutEffect(() => {
@@ -719,15 +721,19 @@ const Join = () => {
               >
                 {L.waysH2}
               </h2>
-              <p className="mx-auto mt-3 max-w-2xl text-center font-roboto text-[14px] text-white/80 md:text-[15px]">
+              <p className="mx-auto mt-3 max-w-3xl text-center font-roboto text-[14px] text-white/80 md:text-[17px] lg:text-[19px]">
                 {L.waysP}
               </p>
 
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div
+                ref={s2CardsRef}
+                className="mt-6 grid gap-4 md:flex md:gap-4 md:overflow-x-auto md:scrollbar-hide md:pb-2"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
                 {WAYS.map((w) => (
                   <article
                     key={w.n}
-                    className="rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-5 backdrop-blur"
+                    className="rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-5 backdrop-blur md:w-[300px] md:shrink-0"
                   >
                     <div className="flex items-center gap-3">
                       <span
