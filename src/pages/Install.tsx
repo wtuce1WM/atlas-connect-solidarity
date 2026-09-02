@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Apple, Smartphone, Monitor, Share, Plus, MoreVertical, Download, Check } from "lucide-react";
-import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
-import Footer from "@/components/Footer";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Apple, Smartphone, Monitor, Share, Plus, MoreVertical, Download, Check, ChevronDown, ChevronUp } from "lucide-react";
+import FrontHeader from "@/components/front/FrontHeader";
 import { resolveHomepageCity } from "@/lib/cityHomepage";
-import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
-import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
-import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
-import { useIsMobile } from "@/hooks/use-mobile";
+import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
+import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
+import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
+import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import appIconHamsaAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 import installIosRealStep1 from "@/assets/install-ios-real-step1.webp.asset.json";
 import installIosRealStep2 from "@/assets/install-ios-real-step2.webp.asset.json";
@@ -18,6 +18,7 @@ import installAndroidStep3 from "@/assets/android-step3.webp.asset.json";
 import installMacMockup from "@/assets/install-mac-mockup.png.asset.json";
 import installWindowsMockup from "@/assets/install-windows-mockup.png.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
+
 
 const MOCKUPS: Record<"mac" | "windows", { url: string; alt: Record<Lang, string> }> & {
   ios: { url: string; alt: Record<Lang, string>; label: Record<Lang, string> }[];
@@ -105,9 +106,6 @@ const MOCKUP_CAPTION: Record<Lang, string> = {
   ar: "توضيح مؤقت — لقطات الشاشة الحقيقية قريباً.",
 };
 
-const heroImageDesktop = originalHeroAsset.url;
-const heroImageTablet = zelligeBrunAsset.url;
-const heroImageMobile = zelligeBrunAsset.url;
 
 type Lang = "fr" | "en" | "ar";
 
@@ -352,28 +350,171 @@ const detectPlatform = (): Platform => {
   return "windows";
 };
 
+const SCREENS = 4;
+const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+
+const hardRefresh = async () => {
+  try {
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((r) => r.update()));
+    }
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+  } catch {}
+  window.location.reload();
+};
+
 const Install = () => {
   const [platform, setPlatform] = useState<Platform>("ios");
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState(false);
-  const guideRef = useRef<HTMLElement>(null);
-  const isMobile = useIsMobile();
   const { language } = useLanguage();
+  const navigate = useLocalizedNavigate();
   const lang: Lang = (["fr", "en", "ar"].includes(language) ? language : "fr") as Lang;
   const t = I18N[lang];
 
+  // ---------- Défilement écran par écran (modèle /corporate) ----------
+  const [progress, setProgress] = useState(0);
+  const [isPortrait, setIsPortrait] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches,
+  );
+  const [reduced, setReduced] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
+  const targetRef = useRef(0);
+  const currentRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const touchYRef = useRef<number | null>(null);
+  const wheelLockedRef = useRef(false);
+  const wheelUnlockRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const mqO = window.matchMedia("(max-aspect-ratio: 1/1)");
+    const mqM = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onO = () => setIsPortrait(mqO.matches);
+    const onM = () => setReduced(mqM.matches);
+    mqO.addEventListener("change", onO);
+    mqM.addEventListener("change", onM);
+    return () => {
+      mqO.removeEventListener("change", onO);
+      mqM.removeEventListener("change", onM);
+    };
+  }, []);
+
+  useEffect(() => {
+    const retry = () => {
+      const v = bgVideoRef.current;
+      if (v?.paused) void v.play().catch(() => undefined);
+    };
+    retry();
+    document.addEventListener("touchstart", retry, { passive: true, once: true });
+    document.addEventListener("click", retry, { once: true });
+    return () => {
+      document.removeEventListener("touchstart", retry);
+      document.removeEventListener("click", retry);
+    };
+  }, [isPortrait]);
+
+  const setTarget = useCallback(
+    (v: number) => {
+      targetRef.current = clamp(v, 0, SCREENS - 1);
+      if (reduced) {
+        currentRef.current = targetRef.current;
+        setProgress(targetRef.current);
+        return;
+      }
+      if (rafRef.current !== null) return;
+      const tick = () => {
+        currentRef.current += (targetRef.current - currentRef.current) * 0.035;
+        if (Math.abs(targetRef.current - currentRef.current) < 0.002) {
+          currentRef.current = targetRef.current;
+          setProgress(currentRef.current);
+          rafRef.current = null;
+          return;
+        }
+        setProgress(currentRef.current);
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    },
+    [reduced],
+  );
+
+  useEffect(
+    () => () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const inScrollable = (target: EventTarget | null) =>
+      target instanceof Element && Boolean(target.closest("[data-owm-scroll]"));
+    const onWheel = (e: WheelEvent) => {
+      if (inScrollable(e.target)) return;
+      e.preventDefault();
+      if (wheelLockedRef.current || Math.abs(e.deltaY) < 8) return;
+      wheelLockedRef.current = true;
+      setTarget(Math.round(targetRef.current) + (e.deltaY > 0 ? 1 : -1));
+      wheelUnlockRef.current = window.setTimeout(() => {
+        wheelLockedRef.current = false;
+        wheelUnlockRef.current = null;
+      }, 1400);
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      touchYRef.current = inScrollable(e.target) ? null : e.touches[0]?.clientY ?? null;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const y = e.touches[0]?.clientY ?? null;
+      if (y === null || touchYRef.current === null) return;
+      e.preventDefault();
+      setTarget(targetRef.current + (touchYRef.current - y) / 320);
+      touchYRef.current = y;
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown" || e.key === "PageDown") {
+        e.preventDefault();
+        setTarget(Math.round(targetRef.current) + 1);
+      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+        e.preventDefault();
+        setTarget(Math.round(targetRef.current) - 1);
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("keydown", onKey);
+      if (wheelUnlockRef.current !== null) {
+        window.clearTimeout(wheelUnlockRef.current);
+        wheelUnlockRef.current = null;
+      }
+    };
+  }, [setTarget]);
+
+  // ---------- Logique PWA (inchangée) ----------
   useEffect(() => {
     setPlatform(detectPlatform());
     document.title = t.docTitle;
 
-    // Mark as installed if in standalone mode, but stay on this page
-    // (the user explicitly navigated here from the footer link)
     const isStandalone =
-      window.matchMedia?.("(display-mode: standalone)").matches || Boolean((navigator as NavigatorWithStandalone).standalone);
-    if (isStandalone) {
-      setInstalled(true);
-    }
+      window.matchMedia?.("(display-mode: standalone)").matches ||
+      Boolean((navigator as NavigatorWithStandalone).standalone);
+    if (isStandalone) setInstalled(true);
 
     const readCapturedInstallPrompt = () => {
       const capturedEvent = (window as WindowWithInstallPrompt).__owmInstallPromptEvent;
@@ -389,8 +530,6 @@ const Install = () => {
     window.addEventListener("owm-installprompt-ready", readCapturedInstallPrompt);
     window.addEventListener("appinstalled", installedHandler);
 
-    // Detect outdated version: if a Service Worker has a waiting/installed update,
-    // invite the user to refresh.
     let cleanupSw: (() => void) | undefined;
     if ("serviceWorker" in navigator) {
       const trackWorker = (worker: ServiceWorker | null) => {
@@ -402,18 +541,18 @@ const Install = () => {
         };
         worker.addEventListener("statechange", onStateChange);
       };
-      navigator.serviceWorker.getRegistration().then((reg) => {
-        if (!reg) return;
-        if (reg.waiting && navigator.serviceWorker.controller) {
-          setUpdateAvailable(true);
-        }
-        trackWorker(reg.installing);
-        const onUpdateFound = () => trackWorker(reg.installing);
-        reg.addEventListener("updatefound", onUpdateFound);
-        cleanupSw = () => reg.removeEventListener("updatefound", onUpdateFound);
-        // Ask the browser to check for an update immediately.
-        reg.update().catch(() => {});
-      }).catch(() => {});
+      navigator.serviceWorker
+        .getRegistration()
+        .then((reg) => {
+          if (!reg) return;
+          if (reg.waiting && navigator.serviceWorker.controller) setUpdateAvailable(true);
+          trackWorker(reg.installing);
+          const onUpdateFound = () => trackWorker(reg.installing);
+          reg.addEventListener("updatefound", onUpdateFound);
+          cleanupSw = () => reg.removeEventListener("updatefound", onUpdateFound);
+          reg.update().catch(() => {});
+        })
+        .catch(() => {});
     }
 
     return () => {
@@ -423,15 +562,17 @@ const Install = () => {
     };
   }, []);
 
-  useEffect(() => { document.title = t.docTitle; }, [t.docTitle]);
+  useEffect(() => {
+    document.title = t.docTitle;
+  }, [t.docTitle]);
 
   const handleIconClick = async () => {
     if (installEvent) {
       await installEvent.prompt();
       const { outcome } = await installEvent.userChoice;
-      import("@/lib/analytics").then(({ trackEvent }) =>
-        trackEvent("pwa_install_outcome", { outcome })
-      ).catch(() => {});
+      import("@/lib/analytics")
+        .then(({ trackEvent }) => trackEvent("pwa_install_outcome", { outcome }))
+        .catch(() => {});
       if (outcome === "accepted") {
         setInstalled(true);
         setInstallEvent(null);
@@ -439,42 +580,42 @@ const Install = () => {
       }
       return;
     }
-    // Fallback or installed: scroll to platform-specific guide
-    guideRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setTarget(1);
   };
 
-  const tabs: { id: Platform; label: string; Icon: React.ComponentType<{ className?: string }> }[] = useMemo(
-    () => [
-      { id: "ios", label: t.tabs.ios, Icon: Apple },
-      { id: "android", label: t.tabs.android, Icon: Smartphone },
-      { id: "mac", label: t.tabs.mac, Icon: Apple },
-      { id: "windows", label: t.tabs.windows, Icon: Monitor },
-    ],
-    [t]
-  );
+  const tabs: { id: Platform; label: string; Icon: React.ComponentType<{ className?: string }> }[] =
+    useMemo(
+      () => [
+        { id: "ios", label: t.tabs.ios, Icon: Apple },
+        { id: "android", label: t.tabs.android, Icon: Smartphone },
+        { id: "mac", label: t.tabs.mac, Icon: Apple },
+        { id: "windows", label: t.tabs.windows, Icon: Monitor },
+      ],
+      [t],
+    );
 
   const STEP_ICONS: Record<Platform, JSX.Element[]> = {
     ios: [
-      <Apple className="h-5 w-5 text-[#C04F17]" />,
-      <Share className="h-5 w-5 text-[#C04F17]" />,
-      <Plus className="h-5 w-5 text-[#C04F17]" />,
-      <Check className="h-5 w-5 text-[#C04F17]" />,
+      <Apple className="h-5 w-5 text-[#C6A046]" />,
+      <Share className="h-5 w-5 text-[#C6A046]" />,
+      <Plus className="h-5 w-5 text-[#C6A046]" />,
+      <Check className="h-5 w-5 text-[#C6A046]" />,
     ],
     android: [
-      <Smartphone className="h-5 w-5 text-[#C04F17]" />,
-      <MoreVertical className="h-5 w-5 text-[#C04F17]" />,
-      <Download className="h-5 w-5 text-[#C04F17]" />,
-      <Check className="h-5 w-5 text-[#C04F17]" />,
+      <Smartphone className="h-5 w-5 text-[#C6A046]" />,
+      <MoreVertical className="h-5 w-5 text-[#C6A046]" />,
+      <Download className="h-5 w-5 text-[#C6A046]" />,
+      <Check className="h-5 w-5 text-[#C6A046]" />,
     ],
     mac: [
-      <Monitor className="h-5 w-5 text-[#C04F17]" />,
-      <Download className="h-5 w-5 text-[#C04F17]" />,
-      <Check className="h-5 w-5 text-[#C04F17]" />,
+      <Monitor className="h-5 w-5 text-[#C6A046]" />,
+      <Download className="h-5 w-5 text-[#C6A046]" />,
+      <Check className="h-5 w-5 text-[#C6A046]" />,
     ],
     windows: [
-      <Monitor className="h-5 w-5 text-[#C04F17]" />,
-      <Download className="h-5 w-5 text-[#C04F17]" />,
-      <Check className="h-5 w-5 text-[#C04F17]" />,
+      <Monitor className="h-5 w-5 text-[#C6A046]" />,
+      <Download className="h-5 w-5 text-[#C6A046]" />,
+      <Check className="h-5 w-5 text-[#C6A046]" />,
     ],
   };
 
@@ -485,337 +626,368 @@ const Install = () => {
     note: (localizedGuide as { note?: string }).note,
   };
 
+  const layer = (index: number) => {
+    const d = progress - index;
+    const opacity = clamp(1 - Math.abs(d) * 1.6, 0, 1);
+    const active = Math.abs(d) < 0.45;
+    return {
+      opacity,
+      transform: reduced ? undefined : `translateY(${d * -48}px)`,
+      pointerEvents: active ? ("auto" as const) : ("none" as const),
+      ariaHidden: !active,
+    };
+  };
+
+  const s1 = layer(0);
+  const s2 = layer(1);
+  const s3 = layer(2);
+  const s4 = layer(3);
+  const current = Math.round(progress);
+
+  const platformTabs = (
+    <div className="flex flex-wrap justify-center gap-2">
+      {tabs.map((tab) => {
+        const isActive = platform === tab.id;
+        return (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setPlatform(tab.id)}
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 font-roboto text-sm font-bold transition-all ${
+              isActive
+                ? "bg-[#C04F17] text-white shadow-md"
+                : "border border-[rgba(198,160,70,.34)] bg-black/40 text-white/80 backdrop-blur hover:bg-black/60"
+            }`}
+          >
+            <tab.Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-[#C6A046]"}`} />
+            {tab.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
     <>
-    <main className="min-h-dvh bg-background text-foreground">
-      <HomeMindtripHeader alwaysWhite />
+      <FrontHeader fixed visible onLogoClick={() => navigate("/")} />
+      <section
+        ref={sectionRef}
+        className="relative h-[100dvh] min-h-[560px] w-full touch-none overflow-hidden bg-[hsl(0_0%_4%)]"
+      >
+        {/* Vidéo de fond — reprise de la homepage */}
+        <video
+          ref={bgVideoRef}
+          key={isPortrait ? "portrait" : "landscape"}
+          className="absolute inset-0 h-full w-full object-cover"
+          src={isPortrait ? portraitVideoAsset.url : landscapeVideoAsset.url}
+          poster={isPortrait ? portraitVideoPoster.url : landscapeVideoPoster.url}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          style={{ filter: `brightness(${1 - clamp(progress / (SCREENS - 1), 0, 1) * 0.4})` }}
+        />
+        <div
+          className="absolute inset-0"
+          aria-hidden="true"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(6,5,4,.62) 0%, rgba(6,5,4,.48) 35%, rgba(6,5,4,.74) 75%, rgba(6,5,4,.92) 100%)",
+          }}
+        />
 
-      {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
-      <div>
-        <section className="relative min-h-[92vh] w-full overflow-hidden">
-          <picture>
-            <source media="(max-width: 767px)" srcSet={heroImageMobile} />
-            <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
+        {/* ============ Écran 1 — Hero installation ============ */}
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-24 pb-24 md:px-12"
+          style={{ opacity: s1.opacity, transform: s1.transform, pointerEvents: s1.pointerEvents }}
+          aria-hidden={s1.ariaHidden}
+        >
+          <img
+            src={phoneMockupAsset.url}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute left-[3%] top-1/2 hidden h-[58%] w-auto -translate-y-1/2 lg:block"
+          />
+          <h1
+            className="max-w-4xl text-center text-[28px] leading-[1.15] text-[#F4ECDF] sm:text-[2.25rem] md:text-[3rem] lg:text-[3.5rem]"
+            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
+          >
+            {t.h1}
+          </h1>
+          <p className="mt-5 max-w-2xl text-center font-roboto text-[15px] leading-relaxed text-white md:text-[1.125rem]">
+            {installEvent ? t.heroSubWithPrompt : t.heroSubDefault}
+          </p>
+
+          <button
+            type="button"
+            onClick={handleIconClick}
+            className="btn-shimmer group relative mt-9 block h-20 w-20 overflow-hidden rounded-[1.25rem] border border-white/35 bg-white/5 shadow-[0_12px_32px_rgba(0,0,0,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] transition-transform hover:scale-105 active:scale-95 md:h-24 md:w-24"
+            aria-label={
+              installed ? t.ariaInstalled : installEvent ? t.ariaInstallNow : t.ariaSeeInstructions
+            }
+          >
+            <span className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-tr from-white/0 via-white/5 to-white/15" />
             <img
-              src={heroImageDesktop}
-              alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-              className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
-              loading="eager"
-              fetchPriority="high"
+              src={appIconHamsaAsset.url}
+              alt="ONE WORLD MOROCCO"
+              className="relative z-0 h-full w-full object-cover"
             />
-          </picture>
-          {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
-          <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 z-10" />
-          <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-black/85 via-black/45 to-transparent md:hidden z-10" />
+          </button>
 
-          {/* Floating phone mockup — left side, desktop only */}
-          <img
-            src={phoneMockupAsset.url}
-            alt="Application One World Morocco sur iPhone"
-            aria-hidden="true"
-            className="hidden lg:block pointer-events-none select-none absolute left-[2%] xl:left-[5%] top-1/2 -translate-y-1/2 h-[64%] w-auto z-20 drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)] animate-[heroPhoneFloat_6s_ease-in-out_infinite]"
-          />
-          {/* Floating iPhone mockup — right side, tablet only (768px to 1023px) */}
-          <img
-            src={iphoneTabletMockupAsset.url}
-            alt="Application One World Morocco — Koutoubia"
-            aria-hidden="true"
-            className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 md:max-lg:top-[38%] md:max-lg:h-[48%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
-          />
-          {/* Centered iPhone mockup — mobile only */}
-          <img
-            src={phoneMockupAsset.url}
-            alt="Application One World Morocco sur iPhone"
-            aria-hidden="true"
-            className="block md:hidden pointer-events-none select-none absolute top-[10%] left-0 right-0 h-[85%] w-full object-contain object-bottom origin-top scale-[0.95] z-10 opacity-85 animate-[mobilePhoneFloat_5s_ease-in-out_infinite]"
-          />
-          <style>{`
-            @keyframes heroPhoneFloat {
-              0%, 100% { transform: translateY(calc(-50% - 8px)); }
-              50% { transform: translateY(calc(-50% + 8px)); }
-            }
-            @keyframes mobilePhoneFloat {
-              0%, 100% { transform: scale(0.95) translateY(0); }
-              50% { transform: scale(0.95) translateY(-12px); }
-            }
-            @media (prefers-reduced-motion: reduce) {
-              section img[alt^="Application One World"] { animation: none !important; }
-            }
-          `}</style>
-
-          <div className="relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col items-center max-md:justify-start max-md:pt-[140px] pb-28 text-center px-6 md:justify-center md:items-start lg:items-center md:text-left lg:text-center md:pt-24 md:pb-6 md:py-24 md:px-12 w-full">
-            <div className="w-full md:max-lg:max-w-[75%] md:max-lg:mb-6">
-              {/* Mobile Title */}
-              <h1 style={{ lineHeight: 1.2 }} className="md:hidden font-josefin text-[1.625rem] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
-                {t.h1}
-              </h1>
-              {/* Desktop/Tablet Title */}
-              <h1 style={{ lineHeight: 1.2 }} className="hidden md:block font-josefin md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2">
-                {t.h1}
-              </h1>
-
-              <p className="mt-6 md:mt-2 max-w-2xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
-                {installEvent ? t.heroSubWithPrompt : t.heroSubDefault}
-              </p>
-            </div>
-
-            {/* Install CTA container — équivalent au search container de la home */}
-            <div className="max-md:mt-auto max-md:pt-10 mt-10 w-full max-w-2xl md:max-lg:mt-6 md:max-lg:mx-0 mx-auto md:max-lg:p-6 md:max-lg:bg-white/[0.08] md:max-lg:backdrop-blur-2xl md:max-lg:border md:max-lg:border-white/20 md:max-lg:rounded-3xl md:max-lg:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_20px_60px_-15px_rgba(0,0,0,0.5)]">
-              <div className="flex flex-col items-center gap-5">
-                <div
-                  className="relative group overflow-hidden rounded-[1.25rem] w-20 h-20 md:w-24 md:h-24 block border border-white/35 shadow-[0_12px_32px_rgba(0,0,0,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 bg-white/5 backdrop-blur-[2px] btn-shimmer cursor-pointer"
-                  onClick={handleIconClick}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/15 z-10 pointer-events-none" />
-                  <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-white/25 to-transparent rounded-t-[1.25rem] pointer-events-none z-10" />
-                  <img
-                    src={appIconHamsaAsset.url}
-                    alt="ONE WORLD MOROCCO"
-                    className="w-full h-full object-cover relative z-0"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={handleIconClick}
-                  className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C04F17] text-white text-sm font-roboto font-medium shadow-lg hover:opacity-95 transition-all active:scale-95 cursor-pointer btn-shimmer"
-                  aria-label={
-                    installed
-                      ? t.ariaInstalled
-                      : installEvent
-                        ? t.ariaInstallNow
-                        : t.ariaSeeInstructions
-                  }
-                >
-                  {!installed ? (
-                    <>
-                      <Download className="h-4 w-4" />
-                      {installEvent ? t.install : updateAvailable ? t.installUpdate : t.howToInstall}
-                    </>
-                  ) : (
-                    <>
-                      <Check className="h-4 w-4" />
-                      {t.installed}
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-
-      <div className="mx-auto max-w-2xl px-6 pt-10 pb-12">
-
-
-        {/* Platform tabs */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {tabs.map((tab) => {
-            const isActive = platform === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setPlatform(tab.id)}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-roboto font-bold transition-all ${
-                  isActive
-                    ? "bg-[#C04F17] text-white shadow-md"
-                    : "bg-muted text-muted-foreground hover:bg-muted/70"
-                }`}
-              >
-                <tab.Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-[#C04F17]"}`} />
-                {tab.label}
-              </button>
-            );
-          })}
+          <button
+            type="button"
+            onClick={handleIconClick}
+            className="mt-6 inline-flex items-center gap-3 rounded-full bg-[#C04F17] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            {!installed ? (
+              <>
+                <Download className="h-4 w-4" />
+                {installEvent ? t.install : updateAvailable ? t.installUpdate : t.howToInstall}
+              </>
+            ) : (
+              <>
+                <Check className="h-4 w-4" />
+                {t.installed}
+              </>
+            )}
+          </button>
         </div>
 
-        {/* Guide card */}
-        <section ref={guideRef} className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-sm scroll-mt-6">
-          <h2 className="font-josefin text-xl md:text-2xl font-light mb-6 text-center">
+        {/* ============ Écran 2 — Étapes par plateforme ============ */}
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-5 px-5 pt-20 pb-24 md:px-12"
+          style={{ opacity: s2.opacity, transform: s2.transform, pointerEvents: s2.pointerEvents }}
+          aria-hidden={s2.ariaHidden}
+        >
+          {platformTabs}
+          <h2
+            className="text-center text-[clamp(22px,3.4vw,38px)] leading-[1.15] text-[#F4ECDF]"
+            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
+          >
             {guide.title}
           </h2>
+          <div
+            data-owm-scroll
+            className="max-h-[52vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-[rgba(198,160,70,.34)] bg-black/45 p-5 backdrop-blur md:p-7"
+          >
+            <ol className="space-y-4">
+              {guide.steps.map((step, i) => (
+                <li key={i} className="flex items-start gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(198,160,70,.34)] bg-black/40">
+                    {step.icon}
+                  </div>
+                  <div className="flex-1 pt-1.5">
+                    <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#C04F17] text-xs font-semibold text-white">
+                      {i + 1}
+                    </span>
+                    <span className="font-roboto leading-relaxed text-white/90">{step.text}</span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            {guide.note && (
+              <p className="mt-5 border-t border-[rgba(198,160,70,.2)] pt-4 font-roboto text-sm italic text-white/70">
+                💡 {guide.note}
+              </p>
+            )}
+          </div>
+        </div>
 
-          {/* Illustration provisoire — sera remplacée par de vraies captures */}
-          <figure className="mb-6 flex flex-col items-center">
+        {/* ============ Écran 3 — Captures / illustrations ============ */}
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 px-5 pt-20 pb-24 md:px-12"
+          style={{ opacity: s3.opacity, transform: s3.transform, pointerEvents: s3.pointerEvents }}
+          aria-hidden={s3.ariaHidden}
+        >
+          {platformTabs}
+          <div
+            data-owm-scroll
+            className="max-h-[62vh] w-full max-w-sm overflow-y-auto rounded-3xl border border-[rgba(198,160,70,.34)] bg-black/45 p-4 backdrop-blur md:max-w-md"
+          >
             {platform === "ios" || platform === "android" ? (
-              <div className="grid grid-cols-1 gap-6 w-full max-w-sm mx-auto">
+              <div className="grid grid-cols-1 gap-6">
                 {MOCKUPS[platform].map((m, i) => {
-                  const badgePos = platform === "ios"
-                    ? [
-                        { left: "90%", top: "94%" },
-                        { left: "74%", top: "57%" },
-                        { left: "76%", top: "80%" },
-                      ][i]
-                    : [
-                        { left: "93%", top: "13%" },  // étape 1 : badge sous le menu ⋮
-                        { left: "86%", top: "48%" },  // étape 2 : sur la ligne de « Installer et créer… »
-                        { left: "92%", top: "66%" },  // étape 3 : vers le bouton « Installer »
-                      ][i];
+                  const badgePos =
+                    platform === "ios"
+                      ? [
+                          { left: "90%", top: "94%" },
+                          { left: "74%", top: "57%" },
+                          { left: "76%", top: "80%" },
+                        ][i]
+                      : [
+                          { left: "93%", top: "13%" },
+                          { left: "86%", top: "48%" },
+                          { left: "92%", top: "66%" },
+                        ][i];
                   return (
-                    <div key={i} className="flex flex-col items-center">
-                      {(platform === "android" || platform === "ios") ? (
-                        <>
-                          <span className="text-sm font-roboto font-medium text-[#C04F17]">
-                            {m.label[lang]}
-                          </span>
-                          {guide.steps[i] && (
-                            <p className="mt-1 mb-3 w-full font-roboto text-foreground/90 leading-relaxed text-center">
-                              {guide.steps[i].text}
-                            </p>
-                          )}
-                        </>
-                      ) : null}
-                      <div className="relative w-full">
+                    <figure key={i} className="flex flex-col items-center">
+                      <span className="font-roboto text-sm font-medium text-[#C6A046]">
+                        {m.label[lang]}
+                      </span>
+                      <div className="relative mt-2 w-full">
                         <img
                           src={m.url}
                           alt={m.alt[lang]}
                           width={1024}
                           height={1024}
                           loading="lazy"
-                          className="w-full h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
+                          className="h-auto w-full rounded-2xl border border-white/10 bg-[#F5EFE6]"
                         />
                         {platform === "android" && i === 0 && (
                           <>
-                            {/* Halo autour du ⋮ */}
                             <span
-                              className="absolute h-8 w-8 rounded-full border-2 border-[#C04F17] bg-transparent shadow-[0_0_0_2px_rgba(255,255,255,0.95)]"
+                              className="absolute h-8 w-8 rounded-full border-2 border-[#C04F17] shadow-[0_0_0_2px_rgba(255,255,255,0.95)]"
                               style={{ left: "93.7%", top: "7%", transform: "translate(-50%, -50%)" }}
                               aria-hidden="true"
                             />
-                            {/* Tige reliant le halo au badge 1 */}
                             <span
                               className="absolute w-0.5 bg-[#C04F17]"
-                              style={{ left: "93.7%", top: "8.6%", height: "2.9%", transform: "translateX(-50%)" }}
+                              style={{
+                                left: "93.7%",
+                                top: "8.6%",
+                                height: "2.9%",
+                                transform: "translateX(-50%)",
+                              }}
                               aria-hidden="true"
                             />
                           </>
                         )}
                         <span
-                          className={`absolute flex items-center justify-center h-7 w-7 rounded-full bg-[#C04F17] text-white text-sm font-bold shadow-md ${platform === "android" && i === 0 ? "ring-2 ring-white" : ""}`}
-                          style={{ left: badgePos.left, top: badgePos.top, transform: "translate(-50%, -50%)" }}
+                          className={`absolute flex h-7 w-7 items-center justify-center rounded-full bg-[#C04F17] text-sm font-bold text-white shadow-md ${
+                            platform === "android" && i === 0 ? "ring-2 ring-white" : ""
+                          }`}
+                          style={{
+                            left: badgePos.left,
+                            top: badgePos.top,
+                            transform: "translate(-50%, -50%)",
+                          }}
                         >
                           {i + 1}
                         </span>
                       </div>
-                    </div>
+                    </figure>
                   );
                 })}
               </div>
             ) : (
-              <img
-                src={MOCKUPS[platform].url}
-                alt={MOCKUPS[platform].alt[lang]}
-                width={1024}
-                height={1024}
-                loading="lazy"
-                className="w-full max-w-sm md:max-w-md h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
-              />
+              <figure className="flex flex-col items-center">
+                <img
+                  src={MOCKUPS[platform].url}
+                  alt={MOCKUPS[platform].alt[lang]}
+                  width={1024}
+                  height={1024}
+                  loading="lazy"
+                  className="h-auto w-full rounded-2xl border border-white/10 bg-[#F5EFE6]"
+                />
+                <figcaption className="mt-3 text-center font-roboto text-xs italic text-white/60">
+                  {MOCKUP_CAPTION[lang]}
+                </figcaption>
+              </figure>
             )}
-            {platform !== "ios" && platform !== "android" && (
-              <figcaption className="mt-3 text-xs text-muted-foreground/70 font-roboto italic text-center">
-                {MOCKUP_CAPTION[lang]}
-              </figcaption>
-            )}
-          </figure>
-
-
-
-          {platform !== "android" && platform !== "ios" && (
-            <ol className="space-y-5">
-              {guide.steps.map((step, i) => (
-                <li key={i} className="flex gap-4 items-start">
-                  <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-gold/10 text-gold border border-gold/20">
-                    {step.icon}
-                  </div>
-                  <div className="flex-1 pt-1.5">
-                    <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/10 text-primary text-xs font-semibold mr-2">
-                      {i + 1}
-                    </span>
-                    <span className="font-roboto text-foreground/90 leading-relaxed">{step.text}</span>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          )}
-
-          {guide.note && (
-            <p className="mt-6 pt-5 border-t border-border text-sm text-muted-foreground italic font-roboto">
-              💡 {guide.note}
-            </p>
-          )}
-        </section>
-
-        {/* Update available banner — shown only when an outdated version is detected */}
-        {updateAvailable && (
-          <div className="mt-10 rounded-2xl border border-primary/40 bg-primary/10 p-5 text-center">
-            <p className="font-roboto text-sm text-foreground">
-              <strong>{t.updateBannerStrong}</strong><br />
-              {t.updateBannerText}
-            </p>
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  if ("serviceWorker" in navigator) {
-                    const regs = await navigator.serviceWorker.getRegistrations();
-                    await Promise.all(regs.map((r) => r.update()));
-                  }
-                  if ("caches" in window) {
-                    const keys = await caches.keys();
-                    await Promise.all(keys.map((k) => caches.delete(k)));
-                  }
-                } catch {}
-                window.location.reload();
-              }}
-              className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-roboto font-medium shadow-md hover:opacity-90 transition"
-            >
-              <Download className="h-4 w-4" />
-              {t.updateNow}
-            </button>
           </div>
-        )}
+        </div>
 
-        {/* Update button */}
-        <div className="mt-10 text-center">
+        {/* ============ Écran 4 — Mise à jour & infos ============ */}
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-5 px-5 pt-20 pb-24 text-center md:px-12"
+          style={{ opacity: s4.opacity, transform: s4.transform, pointerEvents: s4.pointerEvents }}
+          aria-hidden={s4.ariaHidden}
+        >
+          <p
+            className="text-center text-[clamp(1.5rem,min(7.5vw,5vh),3.2rem)] uppercase leading-[1.12] tracking-tight"
+            style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 900,
+              color: "transparent",
+              WebkitTextStrokeWidth: "2px",
+              WebkitTextStrokeColor: "#FFFFFF",
+            }}
+          >
+            One World Morocco
+          </p>
+
+          {updateAvailable && (
+            <div className="w-full max-w-md rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/45 p-5 backdrop-blur">
+              <p className="font-roboto text-sm text-white/90">
+                <strong className="text-[#C6A046]">{t.updateBannerStrong}</strong>
+                <br />
+                {t.updateBannerText}
+              </p>
+              <button
+                type="button"
+                onClick={hardRefresh}
+                className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#C04F17] px-5 py-2.5 font-roboto text-sm font-medium text-white shadow-md transition hover:opacity-90"
+              >
+                <Download className="h-4 w-4" />
+                {t.updateNow}
+              </button>
+            </div>
+          )}
+
           <button
             type="button"
-            onClick={async () => {
-              try {
-                if ("serviceWorker" in navigator) {
-                  const regs = await navigator.serviceWorker.getRegistrations();
-                  await Promise.all(regs.map((r) => r.update()));
-                }
-                if ("caches" in window) {
-                  const keys = await caches.keys();
-                  await Promise.all(keys.map((k) => caches.delete(k)));
-                }
-              } catch {}
-              window.location.reload();
-            }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-roboto font-medium shadow-md hover:opacity-90 transition"
+            onClick={hardRefresh}
+            className="inline-flex items-center gap-2 rounded-full border border-[rgba(198,160,70,.5)] bg-black/45 px-6 py-3 font-roboto text-sm font-medium text-white backdrop-blur transition hover:bg-black/60"
           >
             <Download className="h-4 w-4" />
             {t.checkUpdates}
           </button>
-          <p className="mt-3 text-xs text-muted-foreground/70 font-roboto">
-            {t.checkUpdatesHint}
-          </p>
+          <p className="font-roboto text-xs text-white/60">{t.checkUpdatesHint}</p>
+
+          <div className="mt-4 space-y-2">
+            <p className="font-roboto text-sm text-white/80">
+              {t.urlToOpen}{" "}
+              <a href="https://oneworldmorocco.com" className="text-[#C6A046] hover:underline">
+                oneworldmorocco.com
+              </a>
+            </p>
+            <p className="font-roboto text-xs text-white/60">{t.sameDataNote}</p>
+          </div>
         </div>
 
-        {/* Footer info */}
-        <footer className="mt-10 text-center space-y-3">
-          <p className="text-sm text-muted-foreground font-roboto">
-            {t.urlToOpen} <a href="https://oneworldmorocco.com" className="text-gold hover:underline">oneworldmorocco.com</a>
-          </p>
-          <p className="text-xs text-muted-foreground/70 font-roboto">
-            {t.sameDataNote}
-          </p>
-        </footer>
-      </div>
-    </main>
-    <Footer variant="verified" />
+        {/* ============ CTA Découvrir / Revenir ============ */}
+        <div className="absolute inset-x-0 bottom-5 z-20 flex items-end justify-center gap-10">
+          <button
+            type="button"
+            onClick={() => setTarget(Math.round(progress) - 1)}
+            className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+            style={{
+              opacity: current > 0 ? 1 : 0,
+              pointerEvents: current > 0 ? "auto" : "none",
+            }}
+            tabIndex={current > 0 ? 0 : -1}
+            aria-hidden={current === 0}
+          >
+            <ChevronUp className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
+              {lang === "fr" ? "Revenir" : lang === "en" ? "Back" : "رجوع"}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTarget(Math.round(progress) + 1)}
+            className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+            style={{
+              opacity: current < SCREENS - 1 ? 1 : 0,
+              pointerEvents: current < SCREENS - 1 ? "auto" : "none",
+            }}
+            tabIndex={current < SCREENS - 1 ? 0 : -1}
+            aria-hidden={current === SCREENS - 1}
+          >
+            <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
+              {lang === "fr" ? "Découvrir" : lang === "en" ? "Discover" : "اكتشف"}
+            </span>
+          </button>
+        </div>
+      </section>
     </>
   );
 };
 
 export default Install;
+
