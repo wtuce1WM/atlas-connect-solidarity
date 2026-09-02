@@ -2,7 +2,7 @@ import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } 
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
-import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import FrontHeader from "@/components/front/FrontHeader";
 import Footer from "@/components/Footer";
 import HomeBottomBar from "@/components/HomeBottomBar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -157,6 +157,14 @@ const BlogArticleTemplate = ({
 }: BlogArticleTemplateProps) => {
 
   const navigate = useNavigate();
+  // Header de Home (FrontHeader) : fond opaque dès que la page défile sous le hero.
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setHeaderScrolled(window.scrollY > 60);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   const { language } = useLanguage();
   const { translateSubcategory } = useTaxonomyTranslations();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
@@ -570,7 +578,7 @@ const BlogArticleTemplate = ({
     <div className="min-h-screen bg-background">
       <div className={`transition-[width,max-width,margin] duration-300 ease-out ${panelOpen ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:mr-auto lg:ml-0" : "w-full"}`}>
 
-      {!embedBackSlug && <HomeMindtripHeader alwaysWhite />}
+      {!embedBackSlug && <FrontHeader fixed solid={headerScrolled} onLogoClick={() => navigate(withLangPrefix("/", language))} />}
 
       {/* Hero */}
       <div className="relative h-[60vh] min-h-[420px] overflow-hidden">
