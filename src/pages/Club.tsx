@@ -1034,11 +1034,81 @@ const Club = () => {
             </div>
             {/* end auth card */}
           </div>
-          {/* end hero content */}
+
+          {/* ============ Écran 4 — Signature ============ */}
+          <div
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-6 px-5 pt-20 pb-24 md:px-12"
+            style={{ opacity: s4.opacity, transform: s4.transform, pointerEvents: s4.pointerEvents }}
+            aria-hidden={s4.ariaHidden}
+          >
+            <p
+              className="text-center text-[clamp(1.75rem,min(8.5vw,5.5vh),3.8rem)] uppercase leading-[1.12] tracking-tight"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900, color: "transparent", WebkitTextStrokeWidth: "2px", WebkitTextStrokeColor: "#FFFFFF" }}
+            >
+              One World Morocco
+            </p>
+            <p className="max-w-2xl text-center font-roboto text-[15px] leading-relaxed text-[#F4EEE4] md:text-[1.125rem]">
+              {t.platformHeadline}
+            </p>
+            <p
+              className="text-center text-[clamp(1.75rem,min(8.5vw,5.5vh),3.8rem)] uppercase leading-[1.12] tracking-tight"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900, color: "transparent", WebkitTextStrokeWidth: "2px", WebkitTextStrokeColor: "#FFFFFF" }}
+            >
+              <span className="block">LOCAL</span>
+              <span className="block">DIGITAL</span>
+              <span className="block">SOLIDAIRE</span>
+            </p>
+            <button
+              type="button"
+              onClick={() => setTarget(2)}
+              className="inline-flex items-center gap-3 rounded-full bg-[#25D366] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              <Crown className="h-4 w-4" />
+              {t.register}
+            </button>
+          </div>
+
+          {/* ============ Navigation verticale ============ */}
+          <div className="absolute inset-x-0 bottom-5 z-20 flex items-end justify-center gap-10">
+            <button
+              type="button"
+              onClick={() => setTarget(Math.round(progress) - 1)}
+              className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+              style={{ opacity: current > 0 ? 1 : 0, pointerEvents: current > 0 ? "auto" : "none" }}
+              tabIndex={current > 0 ? 0 : -1}
+              aria-hidden={current === 0}
+            >
+              <ChevronUp className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+              <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
+                {language === "en" ? "Back" : language === "ar" ? "رجوع" : "Revenir"}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTarget(Math.round(progress) + 1)}
+              className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+              style={{ opacity: current < SCREENS - 1 ? 1 : 0, pointerEvents: current < SCREENS - 1 ? "auto" : "none" }}
+              tabIndex={current < SCREENS - 1 ? 0 : -1}
+              aria-hidden={current === SCREENS - 1}
+            >
+              <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+              <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
+                {language === "en" ? "Discover" : language === "ar" ? "اكتشف" : "Découvrir"}
+              </span>
+            </button>
+          </div>
         </section>
-      )}
+      </>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#C04F17] text-white overflow-x-hidden">
+      <HomeMindtripHeader alwaysWhite forceHamburger={!!user} customMobileLinks={clubMobileLinks} />
 
       {user && (
+
         <main className={activeTab === "assistant" ? "" : "pb-40 md:pb-24"}>
           {/* Identité de session : l'utilisateur voit toujours avec quel compte il est connecté */}
           <div className="w-full pt-20 px-4">
