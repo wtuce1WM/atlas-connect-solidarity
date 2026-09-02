@@ -1,15 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Lock, Mail, Eye, EyeOff } from "lucide-react";
-import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
-import Footer from "@/components/Footer";
+import FrontHeader from "@/components/front/FrontHeader";
+import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
+import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
+import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
+import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
+
 
 const AffiliatesLogin = () => {
   const navigate = useNavigate();
@@ -21,6 +24,33 @@ const AffiliatesLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSendingReset, setIsSendingReset] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [isPortrait, setIsPortrait] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches,
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-aspect-ratio: 1/1)");
+    const on = () => setIsPortrait(mq.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+
+  // Safari iOS peut différer l'autoplay malgré muted + playsInline.
+  useEffect(() => {
+    const retry = () => {
+      const v = bgVideoRef.current;
+      if (v?.paused) void v.play().catch(() => undefined);
+    };
+    retry();
+    document.addEventListener("touchstart", retry, { passive: true, once: true });
+    document.addEventListener("click", retry, { once: true });
+    return () => {
+      document.removeEventListener("touchstart", retry);
+      document.removeEventListener("click", retry);
+    };
+  }, [isPortrait, isCheckingAuth]);
+
 
   const translations = {
     fr: {
@@ -186,92 +216,125 @@ const AffiliatesLogin = () => {
     }
   };
 
+  const bgVideo = (
+    <>
+      <video
+        ref={bgVideoRef}
+        key={isPortrait ? "portrait" : "landscape"}
+        className="absolute inset-0 h-full w-full object-cover"
+        src={isPortrait ? portraitVideoAsset.url : landscapeVideoAsset.url}
+        poster={isPortrait ? portraitVideoPoster.url : landscapeVideoPoster.url}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0"
+        aria-hidden="true"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(6,5,4,.62) 0%, rgba(6,5,4,.48) 35%, rgba(6,5,4,.74) 75%, rgba(6,5,4,.92) 100%)",
+        }}
+      />
+    </>
+  );
+
   if (isCheckingAuth) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gold" />
-      </div>
+      <section className="relative h-[100dvh] min-h-[560px] w-full overflow-hidden bg-[hsl(0_0%_4%)]">
+        {bgVideo}
+        <div className="absolute inset-0 z-10 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-gold" />
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      <HomeMindtripHeader alwaysWhite />
-      
-      <main className="container mx-auto px-4 pt-32 pb-16">
-        <div className="flex flex-col items-center justify-center">
-          <Card className="w-full max-w-md bg-card border-border">
-            <CardHeader className="text-center space-y-4">
-              <CardTitle className="text-2xl text-foreground">{t.title}</CardTitle>
-              <CardDescription className="text-muted-foreground">
-                {t.subtitle}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-foreground">{t.email}</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 bg-background border-border"
-                      required
-                    />
-                  </div>
+    <>
+      <FrontHeader fixed visible onLogoClick={() => navigate("/")} />
+      <section className="relative h-[100dvh] min-h-[560px] w-full overflow-hidden bg-[hsl(0_0%_4%)]">
+        {bgVideo}
+
+        <div className="absolute inset-0 z-10 flex items-center justify-center px-4 pt-24 pb-12 md:px-12">
+          <div
+            data-owm-scroll
+            className="max-h-full w-full max-w-md overflow-y-auto overscroll-contain rounded-2xl border border-white/25 bg-white/10 p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.35)] backdrop-blur-xl sm:p-8"
+          >
+            <h1
+              className="text-center text-[26px] leading-tight text-[#F4ECDF] md:text-[2rem]"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600 }}
+            >
+              {t.title}
+            </h1>
+            <p className="mt-3 text-center font-roboto text-[14px] leading-relaxed text-white/85">
+              {t.subtitle}
+            </p>
+
+            <form onSubmit={handleLogin} className="mt-7 space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-white/90">{t.email}</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 bg-white/10 border-white/25 text-white placeholder:text-white/50 focus-visible:ring-gold"
+                    required
+                  />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-foreground">{t.password}</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10 bg-background border-border"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-white/90">{t.password}</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10 bg-white/10 border-white/25 text-white placeholder:text-white/50 focus-visible:ring-gold"
+                    required
+                  />
                   <button
                     type="button"
-                    onClick={handleForgotPassword}
-                    disabled={isSendingReset}
-                    className="text-sm text-gold hover:text-gold/80 underline underline-offset-2"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
                   >
-                    {isSendingReset ? <Loader2 className="h-3 w-3 animate-spin inline mr-1" /> : null}
-                    {t.forgotPassword}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-gold text-gold-foreground hover:bg-gold/90"
-                  disabled={isLoading}
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  disabled={isSendingReset}
+                  className="text-sm text-gold hover:text-gold/80 underline underline-offset-2"
                 >
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : null}
-                  {t.login}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+                  {isSendingReset ? <Loader2 className="h-3 w-3 animate-spin inline mr-1" /> : null}
+                  {t.forgotPassword}
+                </button>
+              </div>
+              <Button
+                type="submit"
+                className="w-full rounded-full bg-gold py-6 text-[12.5px] font-bold uppercase tracking-[0.16em] text-gold-foreground hover:bg-gold/90"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+                disabled={isLoading}
+              >
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                {t.login}
+              </Button>
+            </form>
+          </div>
         </div>
-      </main>
-
-      <Footer variant="affiliate" />
-    </div>
+      </section>
+    </>
   );
 };
+
 
 export default AffiliatesLogin;
