@@ -12,6 +12,30 @@ const CTAS: { label: string; to: string }[] = [
   { label: "Blog", to: "/blog" },
 ];
 
+/**
+ * Préchargement des chunks lazy des pages du menu.
+ * Évite le "flash" de rechargement (Suspense fallback vide → header démonté)
+ * lors du passage d'une page à l'autre depuis le menu.
+ */
+const ROUTE_PRELOADERS: Record<string, () => Promise<unknown>> = {
+  "/install": () => import("@/pages/Install"),
+  "/club": () => import("@/pages/Club"),
+  "/corporate": () => import("@/pages/Corporate"),
+  "/join": () => import("@/pages/Join"),
+  "/widgets": () => import("@/pages/Widgets"),
+  "/blog": () => import("@/pages/Blog"),
+};
+
+const preloaded = new Set<string>();
+const preloadRoute = (to: string) => {
+  if (preloaded.has(to)) return;
+  const loader = ROUTE_PRELOADERS[to];
+  if (!loader) return;
+  preloaded.add(to);
+  loader().catch(() => preloaded.delete(to));
+};
+
+
 const FRONT_LANGS = [
   { code: "fr", flag: "🇫🇷", label: "Français" },
   { code: "en", flag: "🇬🇧", label: "English" },
@@ -72,7 +96,9 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
   const setOpen = (open: boolean) => {
     setMenuOpen(open);
     onMenuToggle?.(open);
+    if (open) CTAS.forEach((cta) => preloadRoute(cta.to));
   };
+
 
   const handleLogoClick = () => {
     if (menuOpen) setOpen(false);
@@ -126,7 +152,10 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
             <Link
               key={cta.to}
               to={cta.to}
+              onPointerEnter={() => preloadRoute(cta.to)}
+              onFocus={() => preloadRoute(cta.to)}
               onClick={() => setOpen(false)}
+
               className="group relative overflow-hidden rounded-xl border border-[rgba(244,238,228,0.15)] bg-black/35 p-5 backdrop-blur-md transition-all hover:border-gold/60 focus-visible:border-gold/60 focus-visible:outline-none"
             >
               <span
