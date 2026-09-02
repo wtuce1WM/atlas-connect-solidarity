@@ -27,6 +27,7 @@ const LABELS = {
     heroStat2: "🤝 Partenaires locaux",
     heroStat3: "✓ 0% de commission",
     heroCta: "REJOINDRE →",
+    heroLoginCta: "Déjà inscrit ? Login",
     waysH2: "Quatre moyens puissants d'attirer plus de clients sans intermédiaire.",
     waysP: "Soyez référencé dans notre catalogue\u00a0et obtenez votre carte business avec QR code. Deux outils complémentaires pour convertir les utilisateurs en clients.",
     way1H3: "Publiez vos offres sur One World Morocco",
@@ -127,6 +128,7 @@ const LABELS = {
     heroStat2: "🤝 Local partners",
     heroStat3: "✓ 0% commission",
     heroCta: "JOIN →",
+    heroLoginCta: "Already registered? Login",
     waysH2: "Four powerful ways to attract more customers with no middleman.",
     waysP: "Get listed in our catalogue\u00a0and receive your business card with QR code. Two complementary tools to turn users into customers.",
     way1H3: "Publish your offers on One World Morocco",
@@ -227,6 +229,7 @@ const LABELS = {
     heroStat2: "🤝 شركاء محليون",
     heroStat3: "✓ 0% عمولة",
     heroCta: "انضم ←",
+    heroLoginCta: "مسجل بالفعل؟ تسجيل الدخول",
     waysH2: "أربع طرق فعّالة لجذب المزيد من العملاء بدون وسطاء.",
     waysP: "سجِّل في كتالوجنا\u00a0واحصل على بطاقة عملك مع رمز QR. أداتان متكاملتان لتحويل المستخدمين إلى عملاء.",
     way1H3: "انشر عروضك على One World Morocco",
@@ -667,9 +670,19 @@ const Join = () => {
             <span className="px-5 text-white">{L.heroStat3}</span>
           </div>
 
-          <button type="button" onClick={goSignup} className={`relative z-10 mt-8 ${ctaClass}`} style={MONT}>
-            {L.heroCta}
-          </button>
+          <div className="relative z-10 mt-8 flex flex-wrap items-center gap-3">
+            <button type="button" onClick={goSignup} className={ctaClass} style={MONT}>
+              {L.heroCta}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/affiliates")}
+              className="inline-flex items-center gap-3 rounded-full bg-[#D4AF37] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-[#1a1a1a] shadow-lg transition-transform hover:-translate-y-0.5"
+              style={MONT}
+            >
+              {L.heroLoginCta}
+            </button>
+          </div>
         </div>
 
         {/* ============ Écran 2 — Quatre moyens ============ */}
