@@ -713,6 +713,8 @@ const Front = () => {
   const [youtubeOpen, setYoutubeOpen] = useState(false);
   // Hero de l'embed révélé : le CTA vert rejoint la cascade d'apparition.
   const [heroRevealed, setHeroRevealed] = useState(false);
+  // Panneau de l'assistant ouvert (feed vidéo / fiche business / POI).
+  const [askPanelOpen, setAskPanelOpen] = useState(false);
 
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
