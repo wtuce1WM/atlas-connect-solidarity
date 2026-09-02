@@ -298,10 +298,20 @@ export function CtaBar({
   const firstCta = ctaItems[0];
   const restCtas = ctaItems.slice(1);
 
+  // Barre info viewer ancrée au bas du viewport (mobile) : comme VideoSlidePanel,
+  // elle ne doit PAS suivre le swipe vertical quand le conteneur scrollable
+  // (data-slidepanel-scroll) défile. Offsets alignés sur le padding-bottom du
+  // conteneur pour reproduire exactement la géométrie de fin de scroll.
+  const infoAnchor = infoSlot && !(cardsHidden && showSearchBar)
+    ? (showSearchBar
+        ? "max-lg:sticky max-lg:bottom-[calc(96px+env(safe-area-inset-bottom))] max-lg:z-[70]"
+        : "max-lg:sticky max-lg:bottom-[calc(2rem+env(safe-area-inset-bottom))] max-lg:z-[70]")
+    : "";
+
   return (
     <div
       dir="ltr"
-      className={`${cardsHidden && showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`}
+      className={`${cardsHidden && showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} ${infoAnchor} flex flex-col items-center gap-2 ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`}
       style={hideStyle}
     >
       {!cardsHidden && appStoreLinks && appStoreLinks.length > 0 && (
