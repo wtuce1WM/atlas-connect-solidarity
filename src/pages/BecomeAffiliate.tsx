@@ -739,9 +739,26 @@ const BecomeAffiliate = () => {
                     <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputCls} type="email" />
                   </div>
                 </div>
-                <div>
-                  <label className={labelCls}>{t.labelCity}</label>
-                  <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputCls} />
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className={labelCls}>{t.labelCity}</label>
+                    <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls}>{t.labelCountry}</label>
+                    <Select value={form.countryCode} onValueChange={(val) => setForm({ ...form, countryCode: val })}>
+                      <SelectTrigger className="h-11 border-white/20 bg-white/10 text-white normal-case tracking-normal">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-64">
+                        {(countries.length ? countries : [{ code: "MA", label: language === "en" ? "Morocco" : "Maroc" }]).map((c) => (
+                          <SelectItem key={c.code} value={c.code} className="normal-case tracking-normal">
+                            {c.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <div>
                   <label className={labelCls}>{t.labelWebsite}</label>
