@@ -180,6 +180,15 @@ const Front = () => {
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
+
+  /* Intro immersive du fond : opacité + très léger dézoom au premier paint. */
+  const [introIn, setIntroIn] = useState(false);
+  useEffect(() => {
+    const r = requestAnimationFrame(() => requestAnimationFrame(() => setIntroIn(true)));
+    return () => cancelAnimationFrame(r);
+  }, []);
+
+
   
 
   const targetRef = useRef(0);
@@ -787,9 +796,13 @@ const Front = () => {
         preload="auto"
         aria-hidden="true"
         style={{
+          // Intro immersive : le fond monte en douceur depuis le noir (pas de pop).
+          opacity: introIn ? 1 : 0,
           filter: `brightness(${1 - progress * 0.45})`,
-          transform: reduced ? undefined : `scale(${1 + progress * 0.06})`,
-          transition: motion,
+          transform: reduced
+            ? undefined
+            : `scale(${(introIn ? 1 : 1.06) * (1 + progress * 0.06)})`,
+          transition: `${motion}, opacity 1200ms ease-out, transform 2600ms cubic-bezier(.22,.61,.36,1)`,
         }}
       />
 

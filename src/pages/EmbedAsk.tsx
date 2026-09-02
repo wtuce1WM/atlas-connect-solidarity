@@ -4,7 +4,7 @@
 // - Streams via the Vercel AI SDK UIMessageStream protocol (useChat).
 // - Parses trailing markers (SHOW_ON_MAP, EVENTS_SNAPSHOT, KNOWN_BUSINESSES)
 //   from the assistant text to render the same panels as /club.
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense, type CSSProperties } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { useChat } from "@ai-sdk/react";
@@ -789,6 +789,59 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       sa place au lieu de remonter sous le header. */
   const heroZone1Ref = useRef<HTMLDivElement | null>(null);
   const [heroZone1H, setHeroZone1H] = useState<number | null>(null);
+
+  /* ── Apparition fluide du hero (Home) ────────────────────────────────────
+     Le hero est rendu (donc mesuré/mis en page) mais invisible jusqu'à ce que
+     tout soit prêt : polices chargées + suggestions résolues (cache ou fetch).
+     On révèle ensuite en cascade (opacity + translateY + blur), donc aucun
+     reflow n'est visible → plus de saut brutal au chargement. */
+  const [heroFontsReady, setHeroFontsReady] = useState(false);
+  const [heroReady, setHeroReady] = useState(false);
+  const heroReduced = useRef(false);
+  if (typeof window !== "undefined" && !heroReduced.current) {
+    heroReduced.current = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+  }
+
+  useEffect(() => {
+    const f = (document as Document & { fonts?: FontFaceSet }).fonts;
+    if (!f?.ready) { setHeroFontsReady(true); return; }
+    let alive = true;
+    f.ready.then(() => { if (alive) setHeroFontsReady(true); });
+    const t = window.setTimeout(() => { if (alive) setHeroFontsReady(true); }, 1200);
+    return () => { alive = false; window.clearTimeout(t); };
+  }, []);
+
+  useEffect(() => {
+    if (heroReady) return;
+    if (!heroLayout) { setHeroReady(true); return; }
+    if (!(heroFontsReady && dbSuggestions !== null)) {
+      // Filet de sécurité : on révèle quand même après 1,6 s (réseau lent/échec).
+      const t = window.setTimeout(() => setHeroReady(true), 1600);
+      return () => window.clearTimeout(t);
+    }
+    // Deux frames : la mise en page définitive est peinte avant le fondu.
+    let r2 = 0;
+    const r1 = requestAnimationFrame(() => { r2 = requestAnimationFrame(() => setHeroReady(true)); });
+    return () => { cancelAnimationFrame(r1); if (r2) cancelAnimationFrame(r2); };
+  }, [heroLayout, heroFontsReady, dbSuggestions, heroReady]);
+
+  /** Style de révélation en cascade d'un bloc du hero. */
+  const heroReveal = (delay: number): CSSProperties | undefined => {
+    if (!heroLayout) return undefined;
+    const off = heroReduced.current;
+    return {
+      opacity: heroReady ? 1 : 0,
+      transform: heroReady || off ? "none" : "translateY(14px)",
+      filter: heroReady || off ? "none" : "blur(6px)",
+      transition: off
+        ? "opacity 420ms ease-out"
+        : "opacity 780ms cubic-bezier(.22,.61,.36,1), transform 780ms cubic-bezier(.22,.61,.36,1), filter 780ms cubic-bezier(.22,.61,.36,1)",
+      transitionDelay: heroReady ? `${off ? 0 : delay}ms` : "0ms",
+      willChange: "opacity, transform",
+    };
+  };
+
+
 
 
 
@@ -2999,7 +3052,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 textClassName={theme === "light" ? "text-black" : "text-white"}
               />
             ) : (
-            <div className="flex flex-col items-center gap-3 text-center pb-2 w-full">
+            <div className="flex flex-col items-center gap-3 text-center pb-2 w-full" style={heroReveal(120)}>
               <p className={`text-base md:text-lg leading-relaxed w-full max-w-[52ch] md:max-w-[64ch] whitespace-pre-line ${whiteInk || "opacity-80"}`} style={{ opacity: 0.85 }}>
                 {L.platformOpener().replace(/\*\*/g, "")}
               </p>
@@ -3016,6 +3069,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             <form
               onSubmit={(e) => { e.preventDefault(); send(); }}
               className="flex w-full flex-col justify-center max-w-xl mx-auto"
+              style={heroReveal(260)}
             >
               <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-3 shadow-2xl`}>
                 <textarea
@@ -3060,7 +3114,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             </form>
 
             <div className="w-full max-w-xl md:max-w-4xl mx-auto flex flex-col items-center gap-2">
-              <div ref={badgesRowRef} data-badges-row className={`w-full flex ${showAllSuggestions ? "flex-wrap" : "flex-nowrap md:flex-wrap"} items-stretch justify-start md:justify-center gap-2 overflow-x-auto scrollbar-hide pb-1`}>
+              <div ref={badgesRowRef} data-badges-row className={`w-full flex ${showAllSuggestions ? "flex-wrap" : "flex-nowrap md:flex-wrap"} items-stretch justify-start md:justify-center gap-2 overflow-x-auto scrollbar-hide pb-1`} style={heroReveal(400)}>
               {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
               {renderMapChip("home")}
               {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s, sIdx) => {
@@ -3101,7 +3155,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   })}
 
                   className="text-[13px] font-bold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
-                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37", ...heroReveal(540) }}
 
                 >
                   {showAllSuggestions
