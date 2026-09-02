@@ -35,7 +35,7 @@ const toPreview = (url: string) => url.replace(SITE, "");
 const SCREENS = 6;
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
-/* ---------------- Widgets secondaires (03 → 09) ---------------- */
+/* ---------------- Widgets secondaires (03 → 07) ---------------- */
 
 type SmallWidget = {
   n: number;
@@ -85,7 +85,7 @@ const SMALL_WIDGETS: SmallWidget[] = [
     height: 380,
   },
   {
-    n: 8,
+    n: 7,
     icon: <LayoutPanelTop className="h-5 w-5" />,
     title: "Votre ID numérique (type Linktree)",
     tagline: "Tous vos canaux numériques rassemblés au même endroit.",
@@ -531,7 +531,7 @@ const Widgets = () => {
           </div>
         </div>
 
-        {/* ============ Écran 4 — Widgets 03 → 08 (carrousel horizontal) ============ */}
+        {/* ============ Écran 4 — Widgets 03 → 07 (carrousel horizontal) ============ */}
         <div
           className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pt-24 pb-24 md:px-10"
           style={{ opacity: s[3].opacity, transform: s[3].transform, pointerEvents: s[3].pointerEvents }}
@@ -542,7 +542,7 @@ const Widgets = () => {
               className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#C6A046]"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              Widgets 03 → 08
+              Widgets 03 → 07
 
             </span>
             <h2
