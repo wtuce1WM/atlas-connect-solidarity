@@ -104,15 +104,6 @@ const SMALL_WIDGETS: SmallWidget[] = [
     url: `${SITE}/b/${DEMO_SLUG}?embed=1&lang=fr`,
     height: 720,
   },
-  {
-    n: 9,
-    icon: <Newspaper className="h-5 w-5" />,
-    title: "Export d'article de blog",
-    tagline: "Votre article éditorial, republié sur votre propre domaine.",
-    price: "Prix : sur devis",
-    url: "",
-    height: 300,
-  },
 ];
 
 const EMAIL_SIGNATURE_HTML = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;max-width:420px">
