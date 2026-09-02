@@ -2242,13 +2242,55 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * que le premier lot, servis par la source de vérité unique côté base.
    * Déclenchée pendant le swipe, à 10 vidéos de la fin.
    */
+  /**
+   * Suffixe de feed : prolonge le scroll vertical avec le feed par défaut du
+   * DERNIER business affiché (badges de sa FICHE), une seule fois par business.
+   */
+  const feedSuffixDoneRef = useRef<Set<string>>(new Set());
+  const appendBusinessDefaultFeed = useCallback(async (currentId: string) => {
+    if (feedLoadingMoreRef.current) return;
+    const list = videoFeedList;
+    const idx = list.findIndex((v) => v.id === currentId);
+    // Déclenché à 2 vidéos de la fin, pour ne pas couper le swipe.
+    if (idx < 0 || idx < list.length - 2) return;
+    const bizId = (() => {
+      for (let i = list.length - 1; i >= 0; i--) {
+        const b = (list[i] as any)?.businessId;
+        if (b) return String(b);
+      }
+      return null;
+    })();
+    if (!bizId || feedSuffixDoneRef.current.has(bizId)) return;
+    feedSuffixDoneRef.current.add(bizId);
+    feedLoadingMoreRef.current = true;
+    try {
+      const { fetchBusinessDefaultFeedSuffix } = await import("@/lib/badgeVideoFeed");
+      const items = await fetchBusinessDefaultFeedSuffix(bizId, list.map((v) => String(v.id)), 30);
+      if (items.length) {
+        setVideoFeedList((prev) => {
+          const seen = new Set(prev.map((v) => String(v.id)));
+          return [...prev, ...(items.filter((it) => !seen.has(String(it.id))) as any)];
+        });
+      }
+    } catch {
+      /* best-effort : le feed reste utilisable */
+    } finally {
+      feedLoadingMoreRef.current = false;
+    }
+  }, [videoFeedList]);
+
   const maybeLoadMoreFeed = useCallback(async (currentId: string) => {
     const ctx = videoFeedCtx;
-    if (!ctx || feedLoadingMoreRef.current) return;
+    if (feedLoadingMoreRef.current) return;
     const idx = videoFeedList.findIndex((v) => v.id === currentId);
     if (idx < 0 || idx < videoFeedList.length - 10) return;
-    if (videoFeedList.length >= ctx.total) return;
+    // Feed épuisé (ou sans contexte de pagination) → suffixe business.
+    if (!ctx || videoFeedList.length >= ctx.total) {
+      await appendBusinessDefaultFeed(currentId);
+      return;
+    }
     feedLoadingMoreRef.current = true;
+
     try {
       const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
       const { items } = await fetchBadgesVideoFeed(ctx.badgeIds, {
