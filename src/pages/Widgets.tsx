@@ -8,7 +8,6 @@ import {
   ThumbsUp,
   Mail,
   LayoutPanelTop,
-  Newspaper,
   Check,
   ChevronDown,
   ChevronUp,
@@ -26,9 +25,13 @@ import { useDragScroll } from "@/hooks/useDragScroll";
 const SITE = "https://oneworldmorocco.com";
 const DEMO_SLUG = "riad-dar-najat";
 
-/** Les aperçus in-page utilisent l'origine courante (preview/prod) pour rester valides. */
-const PREVIEW_ORIGIN = typeof window !== "undefined" ? window.location.origin : SITE;
-const toPreview = (url: string) => url.replace(SITE, PREVIEW_ORIGIN);
+/**
+ * Les aperçus in-page sont chargés en URL RELATIVE : ils sont donc toujours
+ * résolus sur le document courant (preview comme prod), sans dépendre du
+ * domaine public ni d'une éventuelle restriction d'iframe cross-origin.
+ */
+const toPreview = (url: string) => url.replace(SITE, "");
+
 
 const SCREENS = 6;
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
@@ -99,15 +102,6 @@ const SMALL_WIDGETS: SmallWidget[] = [
     price: "Prix : sur devis",
     url: `${SITE}/b/${DEMO_SLUG}?embed=1&lang=fr`,
     height: 720,
-  },
-  {
-    n: 9,
-    icon: <Newspaper className="h-5 w-5" />,
-    title: "Export d'article de blog",
-    tagline: "Votre article éditorial, republié sur votre propre domaine.",
-    price: "Prix : sur devis",
-    url: "",
-    height: 300,
   },
 ];
 
@@ -484,11 +478,10 @@ const Widgets = () => {
               </p>
               <ul className="mt-5 grid gap-2 sm:grid-cols-2">
                 {[
-                  ["Vocal", "Question au micro, réponse lue à voix haute"],
-                  ["Vidéos immersives", "Chaque adresse s'anime en vidéo verticale"],
-                  ["Inspirationnel", "Suggestions et relances, pas des listes"],
-                  ["L'App dans l'embed", "Carte, itinéraires et réservation actifs"],
+                  ["Réponses ancrées", "Réponses ancrées sur nos données réelles"],
+                  ["Intégration", "Intégration iframe en 1 ligne de code"],
                 ].map(([k, v]) => (
+
                   <li key={k} className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 backdrop-blur-md">
                     <div className="text-[13px] font-bold text-[#E4C877]">{k}</div>
                     <div className="mt-0.5 font-roboto text-[12.5px] leading-snug text-white/80">{v}</div>
@@ -541,22 +534,18 @@ const Widgets = () => {
                 immersives. Établissements actifs classés par catégorie, fiches détaillées, itinéraires et
                 contact direct — mis à jour automatiquement depuis la base One World Morocco.
               </p>
-              <div className="mt-5 flex flex-wrap gap-3">
+              <ul className="mt-5 grid gap-2 sm:grid-cols-2">
                 {[
-                  ["1 178", "Marrakech · Imlil · Agafay"],
-                  ["339", "Essaouira & littoral"],
-                ].map(([n, label]) => (
-                  <div
-                    key={label}
-                    className="rounded-2xl border border-white/12 bg-white/[0.05] px-5 py-3 text-center backdrop-blur-md"
-                  >
-                    <div className="text-[26px] font-bold leading-none text-[#E4C877]">{n}</div>
-                    <div className="mt-1 font-roboto text-[11px] uppercase tracking-[0.14em] text-white/80">
-                      {label}
-                    </div>
-                  </div>
+                  ["Toujours à jour", "Mise à jour automatique depuis la base One World Morocco"],
+                  ["Intégration", "Intégration iframe en 1 ligne de code"],
+                ].map(([k, v]) => (
+                  <li key={k} className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 backdrop-blur-md">
+                    <div className="text-[13px] font-bold text-[#E4C877]">{k}</div>
+                    <div className="mt-0.5 font-roboto text-[12.5px] leading-snug text-white/80">{v}</div>
+                  </li>
                 ))}
-              </div>
+              </ul>
+
               <a
                 href={toPreview(nearbyUrl)}
                 target="_blank"
@@ -572,7 +561,7 @@ const Widgets = () => {
           </div>
         </div>
 
-        {/* ============ Écran 4 — Widgets 03 → 09 (carrousel horizontal) ============ */}
+        {/* ============ Écran 4 — Widgets 03 → 08 (carrousel horizontal) ============ */}
         <div
           className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pt-24 pb-24 md:px-10"
           style={{ opacity: s[3].opacity, transform: s[3].transform, pointerEvents: s[3].pointerEvents }}
@@ -583,7 +572,8 @@ const Widgets = () => {
               className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#C6A046]"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              Widgets 03 → 09
+              Widgets 03 → 08
+
             </span>
             <h2
               className="mt-2 text-[clamp(22px,3.4vw,38px)] leading-[1.12] text-[#F4ECDF]"
@@ -625,23 +615,18 @@ const Widgets = () => {
                 </div>
                 <p className="mt-3 font-roboto text-[14.5px] leading-relaxed text-white/85">{w.tagline}</p>
 
-                <div className="mt-4 max-h-[42vh] overflow-y-auto scrollbar-hide">
+                {/* Aucun scroll vertical interne : l'aperçu s'adapte à la hauteur disponible. */}
+                <div className="mt-4 overflow-hidden">
                   {w.n === 7 ? (
                     <div
                       className="rounded-2xl border border-white/12 bg-white p-4"
                       dangerouslySetInnerHTML={{ __html: EMAIL_SIGNATURE_HTML }}
                     />
-                  ) : w.n === 9 ? (
-                    <ol className="space-y-2 rounded-2xl border border-white/12 bg-white/[0.05] p-4 font-roboto text-[13.5px] text-white/85">
-                      <li>Espace affilié &gt; Présence &gt; onglet Outils.</li>
-                      <li>Section « Vos articles de blog ».</li>
-                      <li>Choisissez l'article et la langue (FR / EN / AR).</li>
-                      <li>Copiez le HTML complet ou téléchargez le fichier.</li>
-                    </ol>
                   ) : (
-                    <WidgetFrame src={w.url} title={w.title} height={Math.min(w.height, 420)} />
+                    <WidgetFrame src={w.url} title={w.title} height={Math.min(w.height, 340)} />
                   )}
                 </div>
+
 
                 {w.url && (
                   <a
