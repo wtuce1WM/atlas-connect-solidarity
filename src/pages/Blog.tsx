@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +13,7 @@ import { fr, enUS, ar } from "date-fns/locale";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import { withLangPrefix } from "@/lib/localizedPath";
 import { compareBlogOrder } from "@/lib/blogOrder";
-import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
+
 
 
 interface BlogPost {
@@ -107,7 +107,8 @@ const Blog = () => {
     return fr;
   };
 
-  const navigate = useLocalizedNavigate();
+
+
 
   return (
     <div className="min-h-screen bg-background">
