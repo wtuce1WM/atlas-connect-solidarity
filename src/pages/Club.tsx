@@ -678,16 +678,30 @@ const Club = () => {
   const isFormValid = form.first_name.trim() && form.email.trim() && password.length >= 6 && password === confirmPassword;
 
   if (authLoading) {
+    // Écran d'attente neutre, aligné sur le fond immersif (évite le flash orange + header/footer)
     return (
-      <div className="min-h-screen bg-[#C04F17] text-white overflow-x-hidden">
-        <HomeMindtripHeader alwaysWhite />
-        <main className="pt-24 pb-16 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </main>
-        <Footer variant="verified" />
-      </div>
+      <section
+        className="relative h-[100dvh] min-h-[560px] w-full overflow-hidden bg-[hsl(0_0%_4%)]"
+        aria-busy="true"
+      >
+        <img
+          src={isPortrait ? portraitVideoPoster.url : landscapeVideoPoster.url}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div
+          className="absolute inset-0"
+          aria-hidden="true"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(6,5,4,.62) 0%, rgba(6,5,4,.48) 35%, rgba(6,5,4,.74) 75%, rgba(6,5,4,.92) 100%)",
+          }}
+        />
+      </section>
     );
   }
+
 
   const clubMobileLinks = user
     ? [
