@@ -499,12 +499,39 @@ const Join = () => {
   const ctaClass =
     "inline-flex items-center gap-3 rounded-full bg-[#C04F17] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5";
 
+  const VANITY = "oneworldmorocco.com/votrenom";
+
   const WAYS = [
-    { n: "1", h: L.way1H3, intro: L.way1Intro, tag: L.way1Tag },
-    { n: "2", h: L.way2H3, intro: L.way2Intro, tag: L.way2Tag },
-    { n: "3", h: L.way3H3, intro: L.way3Intro, tag: L.way3Tag },
-    { n: "4", h: L.way4H3, intro: L.way4Intro, tag: L.way4Tag },
+    {
+      n: "1",
+      h: L.way1H3,
+      intro: L.way1Intro,
+      tag: L.way1Tag,
+      lis: [L.way1Li1, `${L.way1Li2label} ${VANITY}`, L.way1Li3, L.way1Li4, L.way1Li5],
+    },
+    {
+      n: "2",
+      h: L.way2H3,
+      intro: L.way2Intro,
+      tag: L.way2Tag,
+      lis: [L.way2Li1, `${L.way2Li2label} ${VANITY}`, L.way2Li3, L.way2Li4, L.way2Li5],
+    },
+    {
+      n: "3",
+      h: L.way3H3,
+      intro: L.way3Intro,
+      tag: L.way3Tag,
+      lis: [L.way3Li1, L.way3Li2, L.way3Li3, L.way3Li4, L.way3Li5, L.way3Li6],
+    },
+    {
+      n: "4",
+      h: L.way4H3,
+      intro: L.way4Intro,
+      tag: L.way4Tag,
+      lis: [L.way4Li1, L.way4Li2, L.way4Li3, L.way4Li4, L.way4Li5],
+    },
   ];
+
 
   const HIW = [
     { n: "1", h: L.hiw1H3, p: L.hiw1P },
@@ -637,6 +664,15 @@ const Join = () => {
                   <p className="mt-3 font-roboto text-[13.5px] leading-relaxed text-white/85 md:text-[14.5px]">
                     {w.intro}
                   </p>
+                  <ul className="mt-3 space-y-2">
+                    {w.lis.map((li) => (
+                      <li key={li} className="flex items-start gap-2 font-roboto text-[13px] leading-snug text-white/90 md:text-[14px]">
+                        <span className="mt-[2px] shrink-0"><Check color="#00a896" /></span>
+                        <span>{li}</span>
+                      </li>
+                    ))}
+                  </ul>
+
                   <p className="mt-3 border-t border-[rgba(198,160,70,.24)] pt-3 text-[13px] font-bold text-[#C6A046]" style={MONT}>
                     {w.tag}
                   </p>
