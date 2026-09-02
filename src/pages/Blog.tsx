@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { Link } from "react-router-dom";
+import { preloadBlogPostRoute } from "@/components/front/FrontHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import FrontHeader from "@/components/front/FrontHeader";
@@ -272,7 +273,7 @@ const Blog = () => {
                 if (entry.kind === "post") {
                   const post = entry.item;
                   return (
-                    <Link key={`post-${post.id}`} to={withLangPrefix(`/blog/${post.slug}`, language)}>
+                    <Link key={`post-${post.id}`} to={withLangPrefix(`/blog/${post.slug}`, language)} onPointerEnter={preloadBlogPostRoute} onFocus={preloadBlogPostRoute}>
                       <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full relative">
                         {(post.custom_hero_image_url || post.cover_image_url) && (
                           <div className="aspect-video overflow-hidden">
@@ -374,7 +375,7 @@ const Blog = () => {
               })}
 
             {/* Page custom (pas un article éditorial) — classement dynamique des établissements les mieux notés */}
-            <Link to={withLangPrefix("/blog/etablissements-notes", language)}>
+            <Link to={withLangPrefix("/blog/etablissements-notes", language)} onPointerEnter={preloadBlogPostRoute} onFocus={preloadBlogPostRoute}>
               <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/30 dark:to-amber-950/30">
                 <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
                   <img

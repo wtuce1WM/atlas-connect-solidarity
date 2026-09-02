@@ -678,8 +678,11 @@ const Club = () => {
   const isFormValid = form.first_name.trim() && form.email.trim() && password.length >= 6 && password === confirmPassword;
 
   if (authLoading) {
-    // Écran d'attente neutre, aligné sur le fond immersif (évite le flash orange + header/footer)
+    // Écran d'attente neutre, aligné sur le fond immersif (évite le flash orange + footer).
+    // Le header reste monté pour supprimer l'effet "reload" au changement de page.
     return (
+      <>
+        <FrontHeader fixed visible onLogoClick={() => navigate("/")} />
       <section
         className="relative h-[100dvh] min-h-[560px] w-full overflow-hidden bg-[hsl(0_0%_4%)]"
         aria-busy="true"
@@ -699,6 +702,7 @@ const Club = () => {
           }}
         />
       </section>
+      </>
     );
   }
 
