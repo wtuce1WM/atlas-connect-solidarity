@@ -62,6 +62,7 @@ const BecomeAffiliate = () => {
       labelPhone: "Téléphone *",
       labelEmail: "Email",
       labelCity: "Ville *",
+      labelCountry: "Pays",
       labelProjectName: "Nom de votre projet",
       labelWebsite: "Site Web",
       labelPaymentMethod: "Méthode de paiement",
@@ -121,6 +122,7 @@ const BecomeAffiliate = () => {
       labelPhone: "Phone *",
       labelEmail: "Email",
       labelCity: "City *",
+      labelCountry: "Country",
       labelProjectName: "Project name",
       labelWebsite: "Website",
       labelPaymentMethod: "Payment method",
@@ -180,6 +182,7 @@ const BecomeAffiliate = () => {
       labelPhone: "الهاتف *",
       labelEmail: "البريد الإلكتروني",
       labelCity: "المدينة *",
+      labelCountry: "البلد",
       labelProjectName: "اسم مشروعك",
       labelWebsite: "الموقع الإلكتروني",
       labelPaymentMethod: "طريقة الدفع",
@@ -272,6 +275,7 @@ const BecomeAffiliate = () => {
     phone: "",
     email: "",
     city: "",
+    countryCode: "MA",
     projectName: "",
     website: "",
     paymentMethod: "",
@@ -280,6 +284,24 @@ const BecomeAffiliate = () => {
     paymentPlan: "",
     message: "",
   });
+
+  const [countries, setCountries] = useState<{ code: string; label: string }[]>([]);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("countries")
+        .select("code, name_fr, name_en")
+        .order(language === "en" ? "name_en" : "name_fr");
+      if (!alive || !data) return;
+      setCountries(
+        data
+          .filter((c: any) => c.code)
+          .map((c: any) => ({ code: c.code, label: (language === "en" ? c.name_en : c.name_fr) || c.name_fr || c.code })),
+      );
+    })();
+    return () => { alive = false; };
+  }, [language]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -298,6 +320,8 @@ const BecomeAffiliate = () => {
           phone: form.phone,
           email: form.email,
           city: form.city,
+          countryCode: form.countryCode,
+          country: countries.find((c) => c.code === form.countryCode)?.label || form.countryCode,
           projectName: form.projectName,
           website: form.website,
           paymentMethod: form.paymentMethod,
@@ -486,8 +510,8 @@ const BecomeAffiliate = () => {
   const current = Math.round(progress);
 
   const inputCls =
-    "bg-white/10 border-white/20 text-white placeholder:text-white/40 h-11";
-  const labelCls = "block text-white/70 text-sm mb-1.5";
+    "bg-white/10 border-white/20 text-white placeholder:text-white/40 h-11 normal-case tracking-normal";
+  const labelCls = "block text-white/70 text-sm mb-1.5 normal-case tracking-normal font-normal";
 
   return (
     <>
@@ -718,9 +742,26 @@ const BecomeAffiliate = () => {
                     <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputCls} type="email" />
                   </div>
                 </div>
-                <div>
-                  <label className={labelCls}>{t.labelCity}</label>
-                  <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputCls} />
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className={labelCls}>{t.labelCity}</label>
+                    <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls}>{t.labelCountry}</label>
+                    <Select value={form.countryCode} onValueChange={(val) => setForm({ ...form, countryCode: val })}>
+                      <SelectTrigger className="h-11 border-white/20 bg-white/10 text-white normal-case tracking-normal">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-64">
+                        {(countries.length ? countries : [{ code: "MA", label: language === "en" ? "Morocco" : "Maroc" }]).map((c) => (
+                          <SelectItem key={c.code} value={c.code} className="normal-case tracking-normal">
+                            {c.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <div>
                   <label className={labelCls}>{t.labelWebsite}</label>
@@ -763,11 +804,12 @@ const BecomeAffiliate = () => {
                 <Button
                   type="submit"
                   disabled={formLoading}
-                  className="h-12 w-full rounded-xl bg-gold text-base font-bold text-black shadow-lg shadow-gold/20 transition-all hover:bg-gold/90 hover:shadow-gold/40"
+                  className="h-12 w-full rounded-xl bg-gold text-base font-bold normal-case tracking-normal text-black shadow-lg shadow-gold/20 transition-all hover:bg-gold/90 hover:shadow-gold/40"
                 >
                   {formLoading ? "..." : t.submitBtn}
                   {!formLoading && <ArrowRight className="ml-2 h-5 w-5" />}
                 </Button>
+                <div className="h-20" aria-hidden />
               </form>
             </div>
           )}

@@ -9,6 +9,8 @@ const BodySchema = z.object({
   phone: z.string().min(1).max(60),
   email: z.string().email().max(255),
   city: z.string().max(160).optional().nullable(),
+  country: z.string().max(160).optional().nullable(),
+  countryCode: z.string().max(8).optional().nullable(),
   projectName: z.string().max(255).optional().nullable(),
   website: z.string().max(500).optional().nullable(),
   paymentMethod: z.string().max(60).optional().nullable(),
@@ -51,12 +53,21 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Pays par défaut : Maroc
-    const { data: country } = await supabase
+    // Pays choisi dans le formulaire, sinon Maroc par défaut
+    const wantedCode = (f.countryCode || "MA").toUpperCase();
+    let { data: country } = await supabase
       .from("countries")
       .select("id")
-      .eq("code", "MA")
+      .eq("code", wantedCode)
       .maybeSingle();
+
+    if (!country && wantedCode !== "MA") {
+      ({ data: country } = await supabase
+        .from("countries")
+        .select("id")
+        .eq("code", "MA")
+        .maybeSingle());
+    }
 
     if (!country) {
       return new Response(JSON.stringify({ error: "default_country_missing" }), {
@@ -94,6 +105,7 @@ Deno.serve(async (req) => {
       "Candidature via /devenir-affilie",
       `Reçue le : ${new Date().toISOString()}`,
       `Ville : ${f.city || "-"}`,
+      `Pays : ${f.country || f.countryCode || "-"}`,
       `Nom du projet : ${f.projectName || "-"}`,
       `Site web : ${f.website || "-"}`,
       `Moyen de paiement : ${f.paymentMethod || "-"}`,
