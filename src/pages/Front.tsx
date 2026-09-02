@@ -336,20 +336,37 @@ const Front = () => {
   }, [demoIntro, demoActiveId, demoCardsOnly, isPortrait]);
 
   // Onglet en arrière-plan : on met tout en pause (aucun son, aucun décodage inutile).
+  // Au retour, on relance ce qu'on a mis en pause soi-même (viewer vidéo compris),
+  // sinon le feed revient figé/noir.
   useEffect(() => {
+    let pausedByUs: HTMLMediaElement[] = [];
     const onVis = () => {
       const video = backgroundVideoRef.current;
       if (document.hidden) {
+        pausedByUs = [];
         document.querySelectorAll("video, audio").forEach((el) => {
-          try { (el as HTMLMediaElement).pause(); } catch { /* ignore */ }
+          const m = el as HTMLMediaElement;
+          try {
+            if (!m.paused) {
+              pausedByUs.push(m);
+              m.pause();
+            }
+          } catch { /* ignore */ }
         });
-      } else if (video && !demoOpenRef.current) {
-        void video.play().catch(() => undefined);
+      } else {
+        if (video && !demoOpenRef.current) void video.play().catch(() => undefined);
+        pausedByUs.forEach((m) => {
+          if (m === video) return;
+          if (!m.isConnected || !m.getAttribute("src")) return;
+          try { void m.play().catch(() => undefined); } catch { /* ignore */ }
+        });
+        pausedByUs = [];
       }
     };
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
   }, []);
+
 
 
   const toPanelVideo = (v: BadgeVideoFeedItem) => ({
