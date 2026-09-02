@@ -768,7 +768,7 @@ const Join = () => {
           style={{ opacity: s3.opacity, transform: s3.transform, pointerEvents: s3.pointerEvents }}
           aria-hidden={s3.ariaHidden}
         >
-          <div className="max-h-full w-full max-w-5xl overflow-y-auto text-center [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" data-owm-scroll>
+          <div className="scrollbar-hide max-h-full w-full max-w-5xl overflow-y-auto text-center" data-owm-scroll>
             <h2
               className="text-[clamp(22px,3.4vw,38px)] font-medium leading-[1.14] text-[#F4ECDF]"
               style={MONT}
@@ -809,7 +809,7 @@ const Join = () => {
           style={{ opacity: s4.opacity, transform: s4.transform, pointerEvents: s4.pointerEvents }}
           aria-hidden={s4.ariaHidden}
         >
-          <div className="max-h-full w-full max-w-5xl overflow-y-auto text-center [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" data-owm-scroll>
+          <div className="scrollbar-hide max-h-full w-full max-w-5xl overflow-y-auto text-center" data-owm-scroll>
             <h2
               className="text-[clamp(22px,3.4vw,38px)] font-medium leading-[1.14] text-[#F4ECDF]"
               style={MONT}
@@ -818,7 +818,7 @@ const Join = () => {
             </h2>
             <p className="mx-auto mt-3 max-w-2xl font-roboto text-[14px] text-white/80 md:text-[15px]">{L.whyP}</p>
 
-            <div className="mt-5 overflow-x-auto rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-2 backdrop-blur [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" data-owm-scroll>
+            <div className="scrollbar-hide mt-5 overflow-x-auto rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-2 backdrop-blur" data-owm-scroll>
               <table className="w-full min-w-[560px] border-collapse text-left font-roboto text-[12px] md:text-[13px]">
                 <thead>
                   <tr className="text-white/70">
