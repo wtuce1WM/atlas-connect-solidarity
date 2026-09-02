@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { embedBusinessQuery, getEmbedAnonClient } from "@/lib/embedBusinessQuery";
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import FrontHeader from "@/components/front/FrontHeader";
 import Footer from "@/components/Footer";
 import HomeBottomBar from "@/components/HomeBottomBar";
 import { Loader2, Calendar, User, ArrowLeft, MapPin } from "lucide-react";
@@ -222,7 +222,7 @@ const BlogPost = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <HomeMindtripHeader alwaysWhite />
+        <FrontHeader fixed />
         <div className="flex justify-center items-center py-40">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -234,7 +234,7 @@ const BlogPost = () => {
   if (!post) {
     return (
       <div className="min-h-screen bg-background">
-        <HomeMindtripHeader alwaysWhite />
+        <FrontHeader fixed />
         <div className="container mx-auto px-4 py-40 text-center">
           <p className="text-muted-foreground">{t("blog.notFound")}</p>
           <button onClick={() => navigate("/blog")} className="mt-4 text-primary hover:underline">
