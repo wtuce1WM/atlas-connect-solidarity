@@ -664,6 +664,15 @@ const Join = () => {
                   <p className="mt-3 font-roboto text-[13.5px] leading-relaxed text-white/85 md:text-[14.5px]">
                     {w.intro}
                   </p>
+                  <ul className="mt-3 space-y-2">
+                    {w.lis.map((li) => (
+                      <li key={li} className="flex items-start gap-2 font-roboto text-[13px] leading-snug text-white/90 md:text-[14px]">
+                        <span className="mt-[2px] shrink-0"><Check color="#00a896" /></span>
+                        <span>{li}</span>
+                      </li>
+                    ))}
+                  </ul>
+
                   <p className="mt-3 border-t border-[rgba(198,160,70,.24)] pt-3 text-[13px] font-bold text-[#C6A046]" style={MONT}>
                     {w.tag}
                   </p>
