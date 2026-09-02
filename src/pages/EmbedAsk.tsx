@@ -3052,7 +3052,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 textClassName={theme === "light" ? "text-black" : "text-white"}
               />
             ) : (
-            <div className="flex flex-col items-center gap-3 text-center pb-2 w-full">
+            <div className="flex flex-col items-center gap-3 text-center pb-2 w-full" style={heroReveal(120)}>
               <p className={`text-base md:text-lg leading-relaxed w-full max-w-[52ch] md:max-w-[64ch] whitespace-pre-line ${whiteInk || "opacity-80"}`} style={{ opacity: 0.85 }}>
                 {L.platformOpener().replace(/\*\*/g, "")}
               </p>
@@ -3069,6 +3069,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             <form
               onSubmit={(e) => { e.preventDefault(); send(); }}
               className="flex w-full flex-col justify-center max-w-xl mx-auto"
+              style={heroReveal(260)}
             >
               <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-3 shadow-2xl`}>
                 <textarea
@@ -3113,7 +3114,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             </form>
 
             <div className="w-full max-w-xl md:max-w-4xl mx-auto flex flex-col items-center gap-2">
-              <div ref={badgesRowRef} data-badges-row className={`w-full flex ${showAllSuggestions ? "flex-wrap" : "flex-nowrap md:flex-wrap"} items-stretch justify-start md:justify-center gap-2 overflow-x-auto scrollbar-hide pb-1`}>
+              <div ref={badgesRowRef} data-badges-row className={`w-full flex ${showAllSuggestions ? "flex-wrap" : "flex-nowrap md:flex-wrap"} items-stretch justify-start md:justify-center gap-2 overflow-x-auto scrollbar-hide pb-1`} style={heroReveal(400)}>
               {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
               {renderMapChip("home")}
               {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s, sIdx) => {
@@ -3154,7 +3155,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   })}
 
                   className="text-[13px] font-bold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
-                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37", ...heroReveal(540) }}
 
                 >
                   {showAllSuggestions
