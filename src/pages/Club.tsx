@@ -702,6 +702,7 @@ const Club = () => {
           }}
         />
       </section>
+      </>
     );
   }
 
