@@ -24,7 +24,6 @@ import ClubYoutubeRecommendations from "@/components/club/ClubYoutubeRecommendat
 import type { User } from "@supabase/supabase-js";
 import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
-import { clubPopupTranslations } from "@/components/club/ClubBlueAuthPopup";
 import ShareButton from "@/components/ShareButton";
 import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
 import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
@@ -600,7 +599,6 @@ const Club = () => {
     ar: { loginTab: "تسجيل الدخول", registerTab: "تسجيل", loginTitle: "الوصول إلى حسابك", loginSubmit: "تسجيل الدخول", loginError: "البريد أو كلمة المرور غير صحيحة.", forgotPassword: "نسيت كلمة المرور؟", resetSent: "تم إرسال بريد الاستعادة.", noAccount: "ليس لديك حساب؟", hasAccount: "عضو بالفعل؟" },
   }[language] || { loginTab: "Se connecter", registerTab: "S'inscrire", loginTitle: "Accéder à votre compte", loginSubmit: "Se connecter", loginError: "Email ou mot de passe incorrect.", forgotPassword: "Mot de passe oublié ?", resetSent: "Email de réinitialisation envoyé.", noAccount: "Pas encore de compte ?", hasAccount: "Déjà membre ?" };
 
-  const clubPopup = clubPopupTranslations[language as keyof typeof clubPopupTranslations] || clubPopupTranslations.fr;
 
 
   const handleLogin = async (e: React.FormEvent) => {
