@@ -320,6 +320,14 @@ const LegacyHtmlPost = ({
   language: string;
   slug: string | undefined;
 }) => {
+  // Header de Home (FrontHeader) : fond opaque dès que la page défile.
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setHeaderScrolled(window.scrollY > 60);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   useSEO({
     title: getTitle() || "Article",
     description: getTitle() ? `${getTitle()} – Blog ONE WORLD MOROCCO.` : undefined,
