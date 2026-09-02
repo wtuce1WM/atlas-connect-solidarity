@@ -1,10 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import FrontHeader from "@/components/front/FrontHeader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HomeBottomBar from "@/components/HomeBottomBar";
-import { Crown, Loader2, Mail, Eye, EyeOff, Home, ArrowUp } from "lucide-react";
+import { Crown, Loader2, Mail, Eye, EyeOff, Home, ArrowUp, ChevronDown, ChevronUp } from "lucide-react";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
+import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
+import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
+import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
+import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
