@@ -2792,17 +2792,31 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       glovo_url: (business as MapPanelBusiness & { glovo_url?: string | null }).glovo_url || glovoUrlsById[business.id] || null,
     }));
     const openOne = (id: string, siblings: string[], overlay: "reviews" | null) => {
-      // Scroll vertical : résultats affichés d'abord, puis tout le feed vidéo du badge.
+      // Scroll vertical, dans l'ordre de découverte du moteur :
+      //   1) fiches affichées (ordre de la réponse) ;
+      //   2) RESTE DU CORPUS COMPLET du tour (marqueur POOL_BUSINESS_IDS, ex. 60
+      //      rooftops trouvés pour 8 affichés) — même source que l'overlay Map ;
+      //   3) feed badge éventuel ;
+      //   4) (dernier recours, ailleurs) feed par défaut du dernier business.
       // Un clic sur une vignette de gauche ferme le flux vidéo (VideoSlidePanel)
       // afin que la fiche ne s'ouvre pas derrière lui.
       if (activeFeedVideoId) setActiveFeedVideoId(null);
       const seen = new Set(siblings);
-      const full = [...siblings, ...feedBusinessIds.filter((bid) => !seen.has(bid))];
+      const full = [...siblings];
+      const pool = poolInfo.ids.length && siblings.some((sid) => poolInfo.ids.includes(sid))
+        ? poolInfo.ids
+        : [];
+      for (const bid of [...pool, ...feedBusinessIds]) {
+        if (!bid || seen.has(bid)) continue;
+        seen.add(bid);
+        full.push(bid);
+      }
       setOpenSiblings(full);
       setOpenBusinessOverlay(overlay);
       setOpenBusinessId(id);
       void completeVideoFeed();
     };
+
 
     return (
       // Grille de miniatures carrées : colonnes recalculées sur la largeur réelle
