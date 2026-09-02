@@ -1206,11 +1206,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Couvre les DEUX parcours viewer : VideoSlidePanel (feed vidéo) ET
   // BookOnlineSlidePanel (fiche business, carte des résultats, POI générique).
   const anyPanelOpen = !!activeFeedVideoId || !!openBusinessId || !!openMap || openGenericPoi;
-  useEffect(() => {
-    const payload = { type: "owm-ask:video-panel", open: anyPanelOpen };
-    try { window.postMessage(payload, "*"); } catch { /* noop */ }
-    try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
-  }, [anyPanelOpen]);
+
 
   const [openSiblings, setOpenSiblings] = useState<string[]>([]);
   // Overlay de réservation déclenché par les liens "Réservez" du markdown IA.
@@ -1218,6 +1214,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string>("");
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // Signal « panneau ouvert/fermé » : l'hôte (/front) met sa vidéo de fond en pause
+  // ET masque son header + CTA vert, qui sinon interceptent les taps au-dessus de
+  // l'iframe (croix de fermeture des panneaux / de l'overlay Réservation).
+  useEffect(() => {
+    const payload = { type: "owm-ask:video-panel", open: anyPanelOpen || showBookingOverlay };
+    try { window.postMessage(payload, "*"); } catch { /* noop */ }
+    try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
+  }, [anyPanelOpen, showBookingOverlay]);
+
 
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
 
