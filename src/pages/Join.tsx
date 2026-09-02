@@ -365,6 +365,7 @@ const Join = () => {
   const currentRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const touchYRef = useRef<number | null>(null);
+  const touchScrollRef = useRef<HTMLElement | null>(null);
   const wheelLockedRef = useRef(false);
   const wheelUnlockRef = useRef<number | null>(null);
 
@@ -533,14 +534,21 @@ const Join = () => {
       }, 1400);
     };
     const onTouchStart = (e: TouchEvent) => {
-      const skip = getScrollable(e.target) || getVScrollable(e.target);
-      touchYRef.current = skip ? null : e.touches[0]?.clientY ?? null;
+      const verticalScroller = getVScrollable(e.target);
+      touchScrollRef.current = verticalScroller;
+      touchYRef.current = e.touches[0]?.clientY ?? null;
     };
     const onTouchMove = (e: TouchEvent) => {
-      if (getScrollable(e.target) || getVScrollable(e.target)) return;
-
       const y = e.touches[0]?.clientY ?? null;
       if (y === null || touchYRef.current === null) return;
+      const verticalScroller = touchScrollRef.current;
+      if (verticalScroller) {
+        e.preventDefault();
+        verticalScroller.scrollTop += touchYRef.current - y;
+        touchYRef.current = y;
+        return;
+      }
+      if (getScrollable(e.target)) return;
       e.preventDefault();
       setTarget(targetRef.current + (touchYRef.current - y) / 320);
       touchYRef.current = y;
