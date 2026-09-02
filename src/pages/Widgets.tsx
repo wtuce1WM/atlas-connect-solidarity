@@ -21,7 +21,7 @@ import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg
 import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useSEO } from "@/hooks/useSEO";
-import useDragScroll from "@/hooks/useDragScroll";
+import { useDragScroll } from "@/hooks/useDragScroll";
 
 const SITE = "https://oneworldmorocco.com";
 const DEMO_SLUG = "riad-dar-najat";
