@@ -711,10 +711,14 @@ const Front = () => {
   // Overlay YouTube ouvert depuis l'embed (suggestion « Le meilleur de YouTube sur le Maroc ») :
   // le mini-header se masque pendant l'overlay plein cadre.
   const [youtubeOpen, setYoutubeOpen] = useState(false);
-  
+  // Hero de l'embed révélé : le CTA vert rejoint la cascade d'apparition.
+  const [heroRevealed, setHeroRevealed] = useState(false);
+
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
-      if (e.data?.type === "owm-ask:asked") {
+      if (e.data?.type === "owm-ask:hero-ready") {
+        setHeroRevealed(true);
+      } else if (e.data?.type === "owm-ask:asked") {
         setAskLocked(true);
         // Conversation lancée : la vidéo de fond passe en pause.
         backgroundVideoRef.current?.pause();
@@ -835,6 +839,9 @@ const Front = () => {
             setSuggestionsExpanded(false);
             return;
           }
+          // Conversation IA fermée : le logo ne renvoie plus vers la homepage
+          // (aucun rechargement) — on est déjà sur l'accueil.
+          if (!conversationOpen) return;
           if (window.location.pathname === "/") {
             window.location.reload();
           } else {
@@ -884,8 +891,19 @@ const Front = () => {
                 startDemo();
               }}
               disabled={demoLoading}
-              className="pointer-events-auto rounded-full border border-[#25D366] bg-[#25D366] px-4 py-2 text-[13px] font-bold text-[#0b2e18] shadow-md transition-opacity hover:opacity-90 disabled:opacity-60"
-              style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.02em" }}
+              className="pointer-events-auto rounded-full border border-[#25D366] bg-[#25D366] px-4 py-2 text-[13px] font-bold text-[#0b2e18] shadow-md hover:opacity-90 disabled:opacity-60"
+              style={{
+                fontFamily: "'Montserrat', sans-serif",
+                letterSpacing: "0.02em",
+                // Même cascade que le hero de l'embed (dernier élément révélé).
+                opacity: heroRevealed ? 1 : 0,
+                transform: heroRevealed ? "none" : "translateY(14px)",
+                filter: heroRevealed ? "none" : "blur(6px)",
+                transition:
+                  "opacity 780ms cubic-bezier(.22,.61,.36,1), transform 780ms cubic-bezier(.22,.61,.36,1), filter 780ms cubic-bezier(.22,.61,.36,1)",
+                transitionDelay: heroRevealed ? "680ms" : "0ms",
+                willChange: "opacity, transform",
+              }}
             >
               Découvrez l'App
             </button>
