@@ -2876,6 +2876,8 @@ const BookOnlineSlidePanelInner = ({
           </div>
         )}
 
+
+      </div>
         {/* CTA Bar — hidden when the POI/Map overlay is open to keep the map immersive.
             Barre info viewer : quand la description est affichée (et sans search bar),
             la barre est ancrée au bas du panneau, HORS du conteneur scrollable —
@@ -2949,8 +2951,6 @@ const BookOnlineSlidePanelInner = ({
             </div>
           );
         })()}
-
-      </div>
 
       {/* Spotify Overlay */}
       {showSpotifyOverlay && business?.spotify_url && (
