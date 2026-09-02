@@ -86,15 +86,6 @@ const SMALL_WIDGETS: SmallWidget[] = [
     height: 380,
   },
   {
-    n: 7,
-    icon: <Mail className="h-5 w-5" />,
-    title: "Signature email « Laisser un avis »",
-    tagline: "Version email statique, compatible Gmail, Outlook et Apple Mail.",
-    price: "Inclus dans l'abonnement",
-    url: "",
-    height: 300,
-  },
-  {
     n: 8,
     icon: <LayoutPanelTop className="h-5 w-5" />,
     title: "Votre ID numérique (type Linktree)",
@@ -611,14 +602,7 @@ const Widgets = () => {
 
                 {/* Aucun scroll vertical interne : l'aperçu s'adapte à la hauteur disponible. */}
                 <div className="mt-4 overflow-hidden">
-                  {w.n === 7 ? (
-                    <div
-                      className="rounded-2xl border border-white/12 bg-white p-4"
-                      dangerouslySetInnerHTML={{ __html: EMAIL_SIGNATURE_HTML }}
-                    />
-                  ) : (
-                    <WidgetFrame src={w.url} title={w.title} height={Math.min(w.height, 340)} />
-                  )}
+                  <WidgetFrame src={w.url} title={w.title} height={Math.min(w.height, 340)} />
                 </div>
 
 
