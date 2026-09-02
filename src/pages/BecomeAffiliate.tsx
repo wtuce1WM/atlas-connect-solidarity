@@ -272,6 +272,7 @@ const BecomeAffiliate = () => {
     phone: "",
     email: "",
     city: "",
+    countryCode: "MA",
     projectName: "",
     website: "",
     paymentMethod: "",
@@ -280,6 +281,24 @@ const BecomeAffiliate = () => {
     paymentPlan: "",
     message: "",
   });
+
+  const [countries, setCountries] = useState<{ code: string; label: string }[]>([]);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("countries")
+        .select("code, name_fr, name_en")
+        .order(language === "en" ? "name_en" : "name_fr");
+      if (!alive || !data) return;
+      setCountries(
+        data
+          .filter((c: any) => c.code)
+          .map((c: any) => ({ code: c.code, label: (language === "en" ? c.name_en : c.name_fr) || c.name_fr || c.code })),
+      );
+    })();
+    return () => { alive = false; };
+  }, [language]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
