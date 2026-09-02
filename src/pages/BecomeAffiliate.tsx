@@ -403,6 +403,17 @@ const BecomeAffiliate = () => {
     };
   }, [isPortrait]);
 
+  const jumpTo = useCallback((v: number) => {
+    const target = clamp(v, 0, SCREENS - 1);
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    targetRef.current = target;
+    currentRef.current = target;
+    setProgress(target);
+  }, []);
+
   const setTarget = useCallback(
     (v: number) => {
       targetRef.current = clamp(v, 0, SCREENS - 1);
