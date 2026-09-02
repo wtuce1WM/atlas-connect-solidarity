@@ -12,6 +12,30 @@ const CTAS: { label: string; to: string }[] = [
   { label: "Blog", to: "/blog" },
 ];
 
+/**
+ * Préchargement des chunks lazy des pages du menu.
+ * Évite le "flash" de rechargement (Suspense fallback vide → header démonté)
+ * lors du passage d'une page à l'autre depuis le menu.
+ */
+const ROUTE_PRELOADERS: Record<string, () => Promise<unknown>> = {
+  "/install": () => import("@/pages/Install"),
+  "/club": () => import("@/pages/Club"),
+  "/corporate": () => import("@/pages/Corporate"),
+  "/join": () => import("@/pages/Join"),
+  "/widgets": () => import("@/pages/Widgets"),
+  "/blog": () => import("@/pages/Blog"),
+};
+
+const preloaded = new Set<string>();
+const preloadRoute = (to: string) => {
+  if (preloaded.has(to)) return;
+  const loader = ROUTE_PRELOADERS[to];
+  if (!loader) return;
+  preloaded.add(to);
+  loader().catch(() => preloaded.delete(to));
+};
+
+
 const FRONT_LANGS = [
   { code: "fr", flag: "🇫🇷", label: "Français" },
   { code: "en", flag: "🇬🇧", label: "English" },
