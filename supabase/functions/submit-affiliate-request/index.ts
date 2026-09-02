@@ -53,12 +53,21 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Pays par défaut : Maroc
-    const { data: country } = await supabase
+    // Pays choisi dans le formulaire, sinon Maroc par défaut
+    const wantedCode = (f.countryCode || "MA").toUpperCase();
+    let { data: country } = await supabase
       .from("countries")
       .select("id")
-      .eq("code", "MA")
+      .eq("code", wantedCode)
       .maybeSingle();
+
+    if (!country && wantedCode !== "MA") {
+      ({ data: country } = await supabase
+        .from("countries")
+        .select("id")
+        .eq("code", "MA")
+        .maybeSingle());
+    }
 
     if (!country) {
       return new Response(JSON.stringify({ error: "default_country_missing" }), {
