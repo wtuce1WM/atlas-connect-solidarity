@@ -152,7 +152,10 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
             <Link
               key={cta.to}
               to={cta.to}
+              onPointerEnter={() => preloadRoute(cta.to)}
+              onFocus={() => preloadRoute(cta.to)}
               onClick={() => setOpen(false)}
+
               className="group relative overflow-hidden rounded-xl border border-[rgba(244,238,228,0.15)] bg-black/35 p-5 backdrop-blur-md transition-all hover:border-gold/60 focus-visible:border-gold/60 focus-visible:outline-none"
             >
               <span
