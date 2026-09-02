@@ -584,7 +584,7 @@ const BecomeAffiliate = () => {
             </p>
             <button
               type="button"
-              onClick={() => setTarget(3)}
+              onClick={() => jumpTo(3)}
               className="mt-8 inline-flex items-center gap-3 rounded-full bg-[#C04F17] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
