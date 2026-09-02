@@ -572,3 +572,41 @@ export async function fetchDiscoveryVideoFeedForCard(
 }
 
 
+/* ------------------------------------------------------------------ *
+ * Suffixe de feed : « feed-vidéo par défaut d'un business »
+ * ------------------------------------------------------------------ *
+ * Quand un feed est épuisé (dernière vidéo atteinte), on prolonge le scroll
+ * vertical avec le feed par défaut du DERNIER business affiché : ses badges de
+ * FICHE (`business_badges`, jamais les badges vidéo) servent de pool, via la
+ * même source de vérité `get_badges_video_feed`. Pas de nouveau moteur, pas de
+ * nouveau champ en base — seulement un suffixe.
+ *
+ * Garde-fous :
+ *  - business sans badge de fiche → aucun suffixe (comportement inchangé) ;
+ *  - vidéos déjà vues exclues ;
+ *  - suffixe borné (`limit`, 30 par défaut).
+ */
+export async function fetchBusinessDefaultFeedSuffix(
+  businessId: string,
+  excludeVideoIds: string[] = [],
+  limit = 30,
+): Promise<BadgeVideoFeedItem[]> {
+  if (!businessId) return [];
+  const { data } = await (supabase as any)
+    .from("business_badges")
+    .select("badge_id")
+    .eq("business_id", String(businessId));
+  const badgeIds = Array.from(
+    new Set(((data as any[]) || []).map((r) => String(r.badge_id)).filter(Boolean)),
+  );
+  if (!badgeIds.length) return [];
+
+  const exclude = new Set(excludeVideoIds.map(String));
+  // Pool élargi puis filtrage : les vidéos déjà vues occupent souvent le début
+  // du mélange (elles viennent du même périmètre).
+  const { items } = await fetchBadgesVideoFeed(badgeIds, {
+    seed: randomSeed(),
+    limit: Math.min(Math.max(limit * 3, 60), 180),
+  });
+  return items.filter((v) => !exclude.has(String(v.id))).slice(0, limit);
+}
