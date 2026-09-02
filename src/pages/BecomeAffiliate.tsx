@@ -769,18 +769,6 @@ const BecomeAffiliate = () => {
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:contents">
                   <div>
-                    <label className={labelCls}>{t.labelMultipleListings}</label>
-                    <Select value={form.multipleListings} onValueChange={(val) => setForm({ ...form, multipleListings: val })}>
-                      <SelectTrigger className="h-11 lg:h-10 border-white/20 bg-white/10 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="single">{t.optionSingle}</SelectItem>
-                        <SelectItem value="multiple">{t.optionMultiple}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
                     <label className={labelCls}>{t.labelContentReady}</label>
                     <Select value={form.contentReady} onValueChange={(val) => setForm({ ...form, contentReady: val })}>
                       <SelectTrigger className="h-11 lg:h-10 border-white/20 bg-white/10 text-white">
@@ -793,22 +781,26 @@ const BecomeAffiliate = () => {
                     </Select>
                   </div>
                 </div>
-                <div className="lg:col-span-2">
-                  <label className={labelCls}>{t.labelMessage}</label>
-                  <Textarea
-                    value={form.message}
-                    onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className="min-h-[90px] border-white/20 bg-white/10 text-white placeholder:text-white/40 lg:min-h-[44px]"
-                  />
+                <div className="lg:col-span-3">
+                  <div className="mx-auto w-full lg:max-w-md">
+                    <label className={labelCls}>{t.labelMessage}</label>
+                    <Textarea
+                      value={form.message}
+                      onChange={(e) => setForm({ ...form, message: e.target.value })}
+                      className="min-h-[90px] border-white/20 bg-white/10 text-white placeholder:text-white/40 lg:min-h-[44px]"
+                    />
+                  </div>
                 </div>
-                <Button
-                  type="submit"
-                  disabled={formLoading}
-                  className="h-12 w-full rounded-xl bg-gold lg:col-span-3 lg:mt-2 text-base font-bold normal-case tracking-normal text-black shadow-lg shadow-gold/20 transition-all hover:bg-gold/90 hover:shadow-gold/40"
-                >
-                  {formLoading ? "..." : t.submitBtn}
-                  {!formLoading && <ArrowRight className="ml-2 h-5 w-5" />}
-                </Button>
+                <div className="flex justify-center lg:col-span-3 lg:mt-2">
+                  <Button
+                    type="submit"
+                    disabled={formLoading}
+                    className="h-12 w-fit rounded-xl bg-gold px-10 text-base font-bold normal-case tracking-normal text-black shadow-lg shadow-gold/20 transition-all hover:bg-gold/90 hover:shadow-gold/40"
+                  >
+                    {formLoading ? "..." : t.submitBtn}
+                    {!formLoading && <ArrowRight className="ml-2 h-5 w-5" />}
+                  </Button>
+                </div>
                 <div className="h-20 lg:hidden" aria-hidden />
               </form>
             </div>
