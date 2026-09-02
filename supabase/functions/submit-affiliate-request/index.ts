@@ -105,6 +105,7 @@ Deno.serve(async (req) => {
       "Candidature via /devenir-affilie",
       `Reçue le : ${new Date().toISOString()}`,
       `Ville : ${f.city || "-"}`,
+      `Pays : ${f.country || f.countryCode || "-"}`,
       `Nom du projet : ${f.projectName || "-"}`,
       `Site web : ${f.website || "-"}`,
       `Moyen de paiement : ${f.paymentMethod || "-"}`,
