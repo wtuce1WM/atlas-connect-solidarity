@@ -106,9 +106,6 @@ const MOCKUP_CAPTION: Record<Lang, string> = {
   ar: "توضيح مؤقت — لقطات الشاشة الحقيقية قريباً.",
 };
 
-const heroImageDesktop = originalHeroAsset.url;
-const heroImageTablet = zelligeBrunAsset.url;
-const heroImageMobile = zelligeBrunAsset.url;
 
 type Lang = "fr" | "en" | "ar";
 
