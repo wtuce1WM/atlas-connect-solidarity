@@ -732,6 +732,7 @@ const Front = () => {
        setConversationOpen(!!e.data.open);
       } else if (e.data?.type === "owm-ask:video-panel") {
          // VideoSlidePanel OU BookOnlineSlidePanel ouvert : vidéo de fond en pause.
+         setAskPanelOpen(!!e.data.open);
          if (e.data.open) backgroundVideoRef.current?.pause();
       } else if (e.data?.type === "owm-ask:suggestions-expanded") {
         setSuggestionsExpanded(!!e.data.expanded);
