@@ -8,7 +8,6 @@ import {
   ThumbsUp,
   Mail,
   LayoutPanelTop,
-  Newspaper,
   Check,
   ChevronDown,
   ChevronUp,
