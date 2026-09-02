@@ -26,9 +26,13 @@ import { useDragScroll } from "@/hooks/useDragScroll";
 const SITE = "https://oneworldmorocco.com";
 const DEMO_SLUG = "riad-dar-najat";
 
-/** Les aperçus in-page utilisent l'origine courante (preview/prod) pour rester valides. */
-const PREVIEW_ORIGIN = typeof window !== "undefined" ? window.location.origin : SITE;
-const toPreview = (url: string) => url.replace(SITE, PREVIEW_ORIGIN);
+/**
+ * Les aperçus in-page sont chargés en URL RELATIVE : ils sont donc toujours
+ * résolus sur le document courant (preview comme prod), sans dépendre du
+ * domaine public ni d'une éventuelle restriction d'iframe cross-origin.
+ */
+const toPreview = (url: string) => url.replace(SITE, "");
+
 
 const SCREENS = 6;
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
