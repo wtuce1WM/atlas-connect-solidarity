@@ -482,6 +482,14 @@ const Join = () => {
       const sc = t.closest<HTMLElement>("[data-owm-scroll]");
       return sc && sc.scrollWidth > sc.clientWidth + 1 ? sc : null;
     };
+    const preWheelLeft = new WeakMap<HTMLElement, number>();
+    // Phase capture : mémoriser le scrollLeft AVANT que le carrousel (useDragScroll)
+    // ne le mute — sinon la molette qui amène exactement à bout lirait "déjà à bout"
+    // et changerait d'écran en même temps, coupant la vue de la dernière carte.
+    const onWheelCapture = (e: WheelEvent) => {
+      const sc = e.target instanceof Element ? e.target.closest<HTMLElement>("[data-owm-scroll]") : null;
+      if (sc) preWheelLeft.set(sc, sc.scrollLeft);
+    };
     const onWheel = (e: WheelEvent) => {
       const sc = getScrollable(e.target);
       if (sc) {
@@ -490,10 +498,11 @@ const Join = () => {
         const absX = Math.abs(e.deltaX);
         const absY = Math.abs(e.deltaY);
         if (absX > 1 && absX >= absY * 0.5) return;
-        // Molette verticale au-dessus du carrousel : naviguer uniquement
-        // quand le carrousel est déjà à bout dans le sens du scroll.
-        const atStart = sc.scrollLeft <= 1;
-        const atEnd = sc.scrollLeft >= sc.scrollWidth - sc.clientWidth - 1;
+        // Molette verticale au-dessus du carrousel : naviguer uniquement si le
+        // carrousel était DÉJÀ à bout avant cette molette, dans le sens du scroll.
+        const before = preWheelLeft.get(sc) ?? sc.scrollLeft;
+        const atStart = before <= 1;
+        const atEnd = before >= sc.scrollWidth - sc.clientWidth - 1;
         if ((e.deltaY > 0 && !atEnd) || (e.deltaY < 0 && !atStart)) return;
       }
       e.preventDefault();
