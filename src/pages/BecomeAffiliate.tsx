@@ -317,6 +317,8 @@ const BecomeAffiliate = () => {
           phone: form.phone,
           email: form.email,
           city: form.city,
+          countryCode: form.countryCode,
+          country: countries.find((c) => c.code === form.countryCode)?.label || form.countryCode,
           projectName: form.projectName,
           website: form.website,
           paymentMethod: form.paymentMethod,
