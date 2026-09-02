@@ -24,6 +24,7 @@ import ClubYoutubeRecommendations from "@/components/club/ClubYoutubeRecommendat
 import type { User } from "@supabase/supabase-js";
 import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
+import { clubPopupTranslations } from "@/components/club/ClubBlueAuthPopup";
 import ShareButton from "@/components/ShareButton";
 import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
 import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
