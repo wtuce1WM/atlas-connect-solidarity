@@ -1,10 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import FrontHeader from "@/components/front/FrontHeader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HomeBottomBar from "@/components/HomeBottomBar";
-import { Crown, Loader2, Mail, Eye, EyeOff, Home, ArrowUp } from "lucide-react";
+import { Crown, Loader2, Mail, Eye, EyeOff, Home, ArrowUp, ChevronDown, ChevronUp } from "lucide-react";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
+import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
+import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
+import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
+import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -38,8 +44,12 @@ const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
 const heroImageMobile = koutoubiaVerticalBgAsset.url;
 
+const SCREENS = 4;
+const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+
 const Club = () => {
   const { language } = useLanguage();
+  const navigate = useLocalizedNavigate();
   const isMobile = useIsMobile();
   const [searchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "assistant";
@@ -202,6 +212,152 @@ const Club = () => {
       if (raf) cancelAnimationFrame(raf);
     };
   }, []);
+
+  // ===== Modèle immersif /corporate : 4 écrans en calques + navigation molette/tactile/clavier =====
+  const [progress, setProgress] = useState(0);
+  const [isPortrait, setIsPortrait] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches,
+  );
+  const [reduced, setReduced] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
+  const targetRef = useRef(0);
+  const currentRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const touchYRef = useRef<number | null>(null);
+  const wheelLockedRef = useRef(false);
+  const wheelUnlockRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const mqO = window.matchMedia("(max-aspect-ratio: 1/1)");
+    const mqM = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onO = () => setIsPortrait(mqO.matches);
+    const onM = () => setReduced(mqM.matches);
+    mqO.addEventListener("change", onO);
+    mqM.addEventListener("change", onM);
+    return () => {
+      mqO.removeEventListener("change", onO);
+      mqM.removeEventListener("change", onM);
+    };
+  }, []);
+
+  // Safari iOS peut différer l'autoplay malgré muted + playsInline.
+  useEffect(() => {
+    const retry = () => {
+      const v = bgVideoRef.current;
+      if (v?.paused) void v.play().catch(() => undefined);
+    };
+    retry();
+    document.addEventListener("touchstart", retry, { passive: true, once: true });
+    document.addEventListener("click", retry, { once: true });
+    return () => {
+      document.removeEventListener("touchstart", retry);
+      document.removeEventListener("click", retry);
+    };
+  }, [isPortrait, user]);
+
+  const setTarget = useCallback(
+    (v: number) => {
+      targetRef.current = clamp(v, 0, SCREENS - 1);
+      if (reduced) {
+        currentRef.current = targetRef.current;
+        setProgress(targetRef.current);
+        return;
+      }
+      if (rafRef.current !== null) return;
+      const tick = () => {
+        currentRef.current += (targetRef.current - currentRef.current) * 0.035;
+        if (Math.abs(targetRef.current - currentRef.current) < 0.002) {
+          currentRef.current = targetRef.current;
+          setProgress(currentRef.current);
+          rafRef.current = null;
+          return;
+        }
+        setProgress(currentRef.current);
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    },
+    [reduced],
+  );
+
+  useEffect(
+    () => () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    // Les zones marquées data-owm-scroll (carte auth) conservent leur scroll natif.
+    const inScrollable = (target: EventTarget | null) =>
+      !!(target instanceof Element && target.closest("[data-owm-scroll]"));
+    const onWheel = (e: WheelEvent) => {
+      if (inScrollable(e.target)) return;
+      e.preventDefault();
+      if (wheelLockedRef.current || Math.abs(e.deltaY) < 8) return;
+      wheelLockedRef.current = true;
+      setTarget(Math.round(targetRef.current) + (e.deltaY > 0 ? 1 : -1));
+      wheelUnlockRef.current = window.setTimeout(() => {
+        wheelLockedRef.current = false;
+        wheelUnlockRef.current = null;
+      }, 1400);
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      touchYRef.current = inScrollable(e.target) ? null : e.touches[0]?.clientY ?? null;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (inScrollable(e.target)) return;
+      const y = e.touches[0]?.clientY ?? null;
+      if (y === null || touchYRef.current === null) return;
+      e.preventDefault();
+      setTarget(targetRef.current + (touchYRef.current - y) / 320);
+      touchYRef.current = y;
+    };
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (e.key === "ArrowDown" || e.key === "PageDown") {
+        e.preventDefault();
+        setTarget(Math.round(targetRef.current) + 1);
+      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+        e.preventDefault();
+        setTarget(Math.round(targetRef.current) - 1);
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("keydown", onKey);
+      if (wheelUnlockRef.current !== null) {
+        window.clearTimeout(wheelUnlockRef.current);
+        wheelUnlockRef.current = null;
+      }
+    };
+  }, [setTarget, user, authLoading]);
+
+  const layer = (index: number) => {
+    const d = progress - index;
+    const opacity = clamp(1 - Math.abs(d) * 1.6, 0, 1);
+    const active = Math.abs(d) < 0.45;
+    return {
+      opacity,
+      transform: reduced ? undefined : `translateY(${d * -48}px)`,
+      pointerEvents: active ? ("auto" as const) : ("none" as const),
+      ariaHidden: !active,
+    };
+  };
 
 
   const countryFlag = (code: string | null) => {
@@ -548,86 +704,139 @@ const Club = () => {
       ]
     : undefined;
 
-  return (
-    <div className="min-h-screen bg-[#C04F17] text-white overflow-x-hidden">
-      <HomeMindtripHeader alwaysWhite forceHamburger={!!user} customMobileLinks={clubMobileLinks} />
+  // ============ État déconnecté : modèle immersif 4 écrans (/corporate) ============
+  if (!user) {
+    const s1 = layer(0);
+    const s2 = layer(1);
+    const s3 = layer(2);
+    const s4 = layer(3);
+    const current = Math.round(progress);
 
-      {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
-      {!user && (
-        <section className="club-hero relative min-h-[92vh] w-full overflow-hidden">
-          <picture>
-            <source media="(max-width: 767px)" srcSet={heroImageMobile} />
-            <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
+    return (
+      <>
+        <FrontHeader fixed visible onLogoClick={() => navigate("/")} />
+        <section
+          ref={sectionRef}
+          className="relative h-[100dvh] min-h-[560px] w-full touch-none overflow-hidden bg-[hsl(0_0%_4%)]"
+        >
+          {/* Vidéo de fond — reprise de la homepage */}
+          <video
+            ref={bgVideoRef}
+            key={isPortrait ? "portrait" : "landscape"}
+            className="absolute inset-0 h-full w-full object-cover"
+            src={isPortrait ? portraitVideoAsset.url : landscapeVideoAsset.url}
+            poster={isPortrait ? portraitVideoPoster.url : landscapeVideoPoster.url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-hidden="true"
+            style={{ filter: `brightness(${1 - clamp(progress / (SCREENS - 1), 0, 1) * 0.4})` }}
+          />
+          <div
+            className="absolute inset-0"
+            aria-hidden="true"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(6,5,4,.62) 0%, rgba(6,5,4,.48) 35%, rgba(6,5,4,.74) 75%, rgba(6,5,4,.92) 100%)",
+            }}
+          />
+
+          {/* ============ Écran 1 — Hero ============ */}
+          <div
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-24 pb-24 md:px-12"
+            style={{ opacity: s1.opacity, transform: s1.transform, pointerEvents: s1.pointerEvents }}
+            aria-hidden={s1.ariaHidden}
+          >
             <img
-              src={heroImageDesktop}
-              alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-              className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
-              style={{
-                transform: `translate(calc(var(--mx, 0) * 12px), calc(var(--sy, 0) * 24px)) scale(1.05)`,
-              }}
-              loading="eager"
-              fetchPriority="high"
+              src={phoneMockupAsset.url}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute left-[3%] top-1/2 hidden h-[58%] w-auto -translate-y-1/2 lg:block"
             />
-          </picture>
-          {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
-          <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 z-10" />
-          <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-black/85 via-black/45 to-transparent md:hidden z-10" />
+            <p
+              className="mb-6 max-w-3xl text-center text-[13px] font-medium uppercase tracking-[0.18em] text-white/85 md:text-[16px] md:tracking-[0.22em]"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              {t.platformHeadline}
+            </p>
+            <h1
+              className="max-w-4xl text-center text-[26px] leading-[1.2] text-[#F4ECDF] sm:text-[2.25rem] md:text-[3rem] lg:text-[3.5rem]"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
+            >
+              {t.title}
+              <br />
+              <span className="font-bold text-[#C6A046]">{t.subtitle}</span>
+            </h1>
+            <p className="mt-5 max-w-2xl text-center font-roboto text-[15px] leading-relaxed text-white md:text-[1.125rem]">
+              {t.desc}
+            </p>
+            <button
+              type="button"
+              onClick={() => setTarget(2)}
+              className="mt-8 inline-flex items-center gap-3 rounded-full bg-[#C04F17] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              <Crown className="h-4 w-4" />
+              {t.register}
+            </button>
+          </div>
 
-          {/* Floating phone mockup — left side, desktop only */}
-          <img
-            src={phoneMockupAsset.url}
-            alt="Application One World Morocco sur iPhone"
-            aria-hidden="true"
-            className="hidden lg:block pointer-events-none select-none absolute left-[2%] xl:left-[5%] top-1/2 -translate-y-1/2 h-[64%] w-auto z-20 drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)] animate-[heroPhoneFloat_6s_ease-in-out_infinite]"
-          />
-          {/* Floating iPhone mockup — right side, tablet only (768px to 1023px) */}
-          <img
-            src={iphoneTabletMockupAsset.url}
-            alt="Application One World Morocco — Koutoubia"
-            aria-hidden="true"
-            className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 md:max-lg:top-[38%] md:max-lg:h-[48%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
-          />
-          <style>{`
-            @keyframes heroPhoneFloat {
-              0%, 100% { transform: translateY(calc(-50% - 8px)); }
-              50% { transform: translateY(calc(-50% + 8px)); }
-            }
-            @media (prefers-reduced-motion: reduce) {
-              section img[alt^="Application One World"] { animation: none !important; }
-            }
-          `}</style>
+          {/* ============ Écran 2 — Avantages membres ============ */}
+          <div
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-20 pb-24 md:px-12"
+            style={{ opacity: s2.opacity, transform: s2.transform, pointerEvents: s2.pointerEvents }}
+            aria-hidden={s2.ariaHidden}
+          >
+            <span
+              className="block text-[12px] uppercase tracking-[0.42em] text-[#C6A046]"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              One World Morocco
+            </span>
+            <h2
+              className="mt-5 text-center text-[clamp(24px,4.6vw,48px)] leading-[1.12] text-[#F4ECDF]"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
+            >
+              {t.benefits}
+            </h2>
 
-          {/* Auth card overlaid */}
-          <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col items-center justify-center gap-8 min-h-[92vh]">
-            {/* Member benefits heading + 6 CTA badges above auth card */}
-            <div className="w-full max-w-3xl md:max-w-4xl mx-auto text-center">
-              <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-[26px] sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl mx-auto [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2">
-                {t.platformHeadline}
-              </h1>
-              <h2 style={{ lineHeight: 1.2 }} className="font-josefin text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white/85 max-w-3xl mx-auto [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] mb-3">
-                {t.benefits}
-              </h2>
-              <p className="text-sm sm:text-base text-white/90 mb-6 max-w-2xl mx-auto leading-relaxed">
-                {t.desc}
-              </p>
-              <div className="flex flex-col items-center sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full max-w-3xl sm:max-w-4xl lg:max-w-5xl mx-auto">
-                {t.badges.map((label, index) => (
-                  <div
-                    key={label}
-                    className="club-badge-glass club-badge-shimmer inline-flex items-center justify-center gap-2 text-white px-5 sm:px-6 md:px-7 lg:px-8 py-2.5 rounded-full text-xs sm:text-sm md:text-sm lg:text-base font-semibold w-fit sm:w-full whitespace-nowrap"
-                    style={{ "--shimmer-delay": `${index * 120}ms` } as React.CSSProperties}
-                  >
-                    <Check color="#00a896" />
-                    <span className="relative z-10">{label}</span>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-8 grid w-full max-w-4xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {t.badges.map((label, index) => (
+                <div
+                  key={label}
+                  className="club-badge-glass club-badge-shimmer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2.5 text-xs font-semibold text-white sm:text-sm lg:text-base"
+                  style={{ "--shimmer-delay": `${index * 120}ms` } as React.CSSProperties}
+                >
+                  <Check color="#00a896" />
+                  <span className="relative z-10">{label}</span>
+                </div>
+              ))}
             </div>
 
+            <ul className="mt-8 grid w-full max-w-3xl grid-cols-1 gap-2 sm:grid-cols-2">
+              {benefits.map((b) => (
+                <li key={b} className="flex items-start gap-2 font-roboto text-[14px] text-white/90 md:text-[15px]">
+                  <Check color="#C6A046" />
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* ============ Écran 3 — Connexion / Inscription ============ */}
+          <div
+            className="absolute inset-0 z-10 flex items-center justify-center px-4 pt-20 pb-24 md:px-12"
+            style={{ opacity: s3.opacity, transform: s3.transform, pointerEvents: s3.pointerEvents }}
+            aria-hidden={s3.ariaHidden}
+          >
             <div
-              className="club-badge-shimmer w-full max-w-md bg-[#ECD6B8]/60 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]"
+              data-owm-scroll
+              className="club-badge-shimmer max-h-full w-full max-w-md overflow-y-auto overscroll-contain rounded-2xl border border-white/30 bg-[#ECD6B8]/60 p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] backdrop-blur-xl sm:p-8"
               style={{ "--shimmer-delay": "720ms" } as React.CSSProperties}
             >
+
 
 
                 {/* Tabs */}
@@ -825,11 +1034,81 @@ const Club = () => {
             </div>
             {/* end auth card */}
           </div>
-          {/* end hero content */}
+
+          {/* ============ Écran 4 — Signature ============ */}
+          <div
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-6 px-5 pt-20 pb-24 md:px-12"
+            style={{ opacity: s4.opacity, transform: s4.transform, pointerEvents: s4.pointerEvents }}
+            aria-hidden={s4.ariaHidden}
+          >
+            <p
+              className="text-center text-[clamp(1.75rem,min(8.5vw,5.5vh),3.8rem)] uppercase leading-[1.12] tracking-tight"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900, color: "transparent", WebkitTextStrokeWidth: "2px", WebkitTextStrokeColor: "#FFFFFF" }}
+            >
+              One World Morocco
+            </p>
+            <p className="max-w-2xl text-center font-roboto text-[15px] leading-relaxed text-[#F4EEE4] md:text-[1.125rem]">
+              {t.platformHeadline}
+            </p>
+            <p
+              className="text-center text-[clamp(1.75rem,min(8.5vw,5.5vh),3.8rem)] uppercase leading-[1.12] tracking-tight"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900, color: "transparent", WebkitTextStrokeWidth: "2px", WebkitTextStrokeColor: "#FFFFFF" }}
+            >
+              <span className="block">LOCAL</span>
+              <span className="block">DIGITAL</span>
+              <span className="block">SOLIDAIRE</span>
+            </p>
+            <button
+              type="button"
+              onClick={() => setTarget(2)}
+              className="inline-flex items-center gap-3 rounded-full bg-[#25D366] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              <Crown className="h-4 w-4" />
+              {t.register}
+            </button>
+          </div>
+
+          {/* ============ Navigation verticale ============ */}
+          <div className="absolute inset-x-0 bottom-5 z-20 flex items-end justify-center gap-10">
+            <button
+              type="button"
+              onClick={() => setTarget(Math.round(progress) - 1)}
+              className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+              style={{ opacity: current > 0 ? 1 : 0, pointerEvents: current > 0 ? "auto" : "none" }}
+              tabIndex={current > 0 ? 0 : -1}
+              aria-hidden={current === 0}
+            >
+              <ChevronUp className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+              <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
+                {language === "en" ? "Back" : language === "ar" ? "رجوع" : "Revenir"}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTarget(Math.round(progress) + 1)}
+              className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+              style={{ opacity: current < SCREENS - 1 ? 1 : 0, pointerEvents: current < SCREENS - 1 ? "auto" : "none" }}
+              tabIndex={current < SCREENS - 1 ? 0 : -1}
+              aria-hidden={current === SCREENS - 1}
+            >
+              <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+              <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">
+                {language === "en" ? "Discover" : language === "ar" ? "اكتشف" : "Découvrir"}
+              </span>
+            </button>
+          </div>
         </section>
-      )}
+      </>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#C04F17] text-white overflow-x-hidden">
+      <HomeMindtripHeader alwaysWhite forceHamburger={!!user} customMobileLinks={clubMobileLinks} />
 
       {user && (
+
         <main className={activeTab === "assistant" ? "" : "pb-40 md:pb-24"}>
           {/* Identité de session : l'utilisateur voit toujours avec quel compte il est connecté */}
           <div className="w-full pt-20 px-4">
