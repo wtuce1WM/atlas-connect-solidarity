@@ -4,6 +4,7 @@ import FrontHeader from "@/components/front/FrontHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useDragScroll } from "@/hooks/useDragScroll";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useSEO } from "@/hooks/useSEO";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
@@ -339,6 +340,7 @@ const Join = () => {
   const L = (LABELS as any)[language] ?? LABELS.fr;
   const N = (NAV as any)[language] ?? NAV.fr;
   const navigate = useLocalizedNavigate();
+  const isMobile = useIsMobile();
 
   useSEO({
     title: "Rejoindre One World Morocco — Devenir partenaire",
@@ -657,7 +659,7 @@ const Join = () => {
       <FrontHeader fixed visible onLogoClick={() => navigate("/")} />
       <section
         ref={sectionRef}
-        className="relative h-[100dvh] min-h-[560px] w-full touch-none overflow-hidden bg-[hsl(0_0%_4%)]"
+        className="relative h-[100dvh] min-h-[560px] w-full overflow-hidden bg-[hsl(0_0%_4%)]"
       >
         <video
           ref={bgVideoRef}
@@ -737,19 +739,19 @@ const Join = () => {
         {/* ============ Écran 2 — Quatre moyens ============ */}
         <div
           ref={s2OuterRef}
-          className={`absolute inset-0 z-10 flex flex-col items-center px-5 pt-20 pb-24 md:px-12 ${
-            s2Fit.scrollable
+          className={`scrollbar-hide absolute inset-x-0 top-0 bottom-24 z-10 flex flex-col items-center overscroll-contain px-5 pt-20 pb-4 md:inset-0 md:px-12 md:pb-24 ${
+            isMobile || s2Fit.scrollable
               ? "overflow-y-auto justify-start"
               : "overflow-hidden justify-center"
           }`}
-          data-owm-scroll={s2Fit.scrollable ? true : undefined}
+          data-owm-scroll={isMobile || s2Fit.scrollable ? true : undefined}
           style={{ opacity: s2.opacity, transform: s2.transform, pointerEvents: s2.pointerEvents }}
           aria-hidden={s2.ariaHidden}
         >
           <div
             className="w-full max-w-6xl"
             style={
-              !s2Fit.scrollable && s2Fit.scale < 1
+              !isMobile && !s2Fit.scrollable && s2Fit.scale < 1
                 ? { height: s2Fit.height, overflow: "hidden" }
                 : undefined
             }
@@ -757,7 +759,7 @@ const Join = () => {
             <div
               ref={s2ContentRef}
               style={
-                !s2Fit.scrollable && s2Fit.scale < 1
+                !isMobile && !s2Fit.scrollable && s2Fit.scale < 1
                   ? { transform: `scale(${s2Fit.scale})`, transformOrigin: "top center" }
                   : undefined
               }
