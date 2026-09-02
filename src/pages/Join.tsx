@@ -434,6 +434,7 @@ const Join = () => {
   const s2OuterRef = useRef<HTMLDivElement | null>(null);
   const s2ContentRef = useRef<HTMLDivElement | null>(null);
   const s2CardsRef = useDragScroll<HTMLDivElement>();
+  const s3CardsRef = useDragScroll<HTMLDivElement>();
   const [s2Fit, setS2Fit] = useState({ scale: 1, height: 0, scrollable: false });
 
   useLayoutEffect(() => {
