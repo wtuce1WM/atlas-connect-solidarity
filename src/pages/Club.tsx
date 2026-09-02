@@ -287,6 +287,20 @@ const Club = () => {
     [reduced],
   );
 
+  /** Saut direct à un écran, sans traverser les écrans intermédiaires. */
+  const jumpTo = useCallback((v: number) => {
+    const next = clamp(v, 0, SCREENS - 1);
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    targetRef.current = next;
+    currentRef.current = next;
+    setProgress(next);
+  }, []);
+
+
+
   useEffect(
     () => () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
