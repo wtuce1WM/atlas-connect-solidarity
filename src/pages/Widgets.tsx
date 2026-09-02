@@ -503,61 +503,55 @@ const Widgets = () => {
           </div>
         </div>
 
-        {/* ============ Écran 3 — Widget 02 Map & App ============ */}
+        {/* ============ Écran 3 — Widget 02 Map & App (plein écran, sans marges) ============ */}
         <div
-          className="absolute inset-0 z-10 flex items-center justify-center px-4 pt-24 pb-24 md:px-10"
+          className="absolute inset-0 z-10 flex flex-col px-0 pt-20 pb-20 md:pt-24 md:pb-24"
           style={{ opacity: s[2].opacity, transform: s[2].transform, pointerEvents: s[2].pointerEvents }}
           aria-hidden={s[2].ariaHidden}
         >
-          <div className="grid max-h-full w-full max-w-6xl gap-6 overflow-y-auto scrollbar-hide md:grid-cols-[minmax(300px,1fr)_1.15fr] md:items-center md:gap-10">
-            <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#C6A046]/15 text-[#E4C877]">
-                  <MapPin className="h-5 w-5" />
-                </span>
-                <span
-                  className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#C6A046]"
-                  style={{ fontFamily: "'Montserrat', sans-serif" }}
-                >
-                  Widget 02
-                </span>
-                <PriceTag price="Prix : sur devis" />
-              </div>
-              <h2
-                className="mt-4 text-[clamp(24px,3.6vw,42px)] leading-[1.12] text-[#F4ECDF]"
-                style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
+          <div className="mx-auto w-full max-w-6xl shrink-0 px-5 md:px-10">
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#C6A046]/15 text-[#E4C877]">
+                <MapPin className="h-5 w-5" />
+              </span>
+              <span
+                className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#C6A046]"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
               >
-                Map & App — <span className="font-bold text-[#C6A046]">adresses à proximité</span>
-              </h2>
-              <p className="mt-3 font-roboto text-[15px] leading-relaxed text-white/90 md:text-[17px]">
-                Les meilleures adresses autour d'un point, sur une carte Google Maps native, en mode vidéos
-                immersives. Établissements actifs classés par catégorie, fiches détaillées, itinéraires et
-                contact direct — mis à jour automatiquement depuis la base One World Morocco.
-              </p>
-              <ul className="mt-5 grid gap-2 sm:grid-cols-2">
-                {[
-                  ["Toujours à jour", "Mise à jour automatique depuis la base One World Morocco"],
-                  ["Intégration", "Intégration iframe en 1 ligne de code"],
-                ].map(([k, v]) => (
-                  <li key={k} className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 backdrop-blur-md">
-                    <div className="text-[13px] font-bold text-[#E4C877]">{k}</div>
-                    <div className="mt-0.5 font-roboto text-[12.5px] leading-snug text-white/80">{v}</div>
-                  </li>
-                ))}
-              </ul>
-
-              <a
-                href={toPreview(nearbyUrl)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-5 inline-flex items-center gap-1.5 font-roboto text-sm text-[#E4C877] hover:underline"
-              >
-                Ouvrir en plein écran <ExternalLink className="h-3.5 w-3.5" />
-              </a>
+                Widget 02
+              </span>
+              <PriceTag price="Prix : sur devis" />
             </div>
-            <div className={`${glass} p-3`}>
-              <WidgetFrame src={nearbyUrl} title="Adresses à proximité — Riad Dar Najat" height={560} />
-            </div>
+            <h2
+              className="mt-3 text-[clamp(22px,3.2vw,36px)] leading-[1.12] text-[#F4ECDF]"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
+            >
+              Map & App — <span className="font-bold text-[#C6A046]">adresses à proximité</span>
+            </h2>
+            <p className="mt-2 max-w-3xl font-roboto text-[14px] leading-relaxed text-white/85 md:text-[15px]">
+              Les meilleures adresses autour d'un point, sur une carte Google Maps native, en mode vidéos
+              immersives — mis à jour automatiquement depuis la base One World Morocco.
+            </p>
+            <ul className="mt-3 flex flex-wrap gap-2">
+              {[
+                "Mise à jour automatique depuis la base One World Morocco",
+                "Intégration iframe en 1 ligne de code",
+              ].map((v) => (
+                <li key={v} className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2 backdrop-blur-md">
+                  <span className="font-roboto text-[12.5px] leading-snug text-white/80">{v}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          {/* Widget plein écran, bord à bord — comme le CTA Map de Home */}
+          <div className="mt-4 min-h-0 w-full flex-1">
+            <iframe
+              src={toPreview(nearbyUrl)}
+              title="Adresses à proximité — Riad Dar Najat"
+              loading="lazy"
+              className="h-full w-full"
+              style={{ border: 0, background: "transparent" }}
+            />
           </div>
         </div>
 
