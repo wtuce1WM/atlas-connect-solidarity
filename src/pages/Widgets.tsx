@@ -567,7 +567,7 @@ const Widgets = () => {
           </div>
         </div>
 
-        {/* ============ Écran 4 — Widgets 03 → 09 (carrousel horizontal) ============ */}
+        {/* ============ Écran 4 — Widgets 03 → 08 (carrousel horizontal) ============ */}
         <div
           className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pt-24 pb-24 md:px-10"
           style={{ opacity: s[3].opacity, transform: s[3].transform, pointerEvents: s[3].pointerEvents }}
