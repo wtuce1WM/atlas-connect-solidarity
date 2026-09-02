@@ -206,9 +206,8 @@ const Widgets = () => {
   const touchYRef = useRef<number | null>(null);
   const wheelLockedRef = useRef(false);
   const wheelUnlockRef = useRef<number | null>(null);
-  const carouselRef = useRef<HTMLDivElement | null>(null);
+  const carouselRef = useDragScroll<HTMLDivElement>();
   const preWheelLeftRef = useRef<number | null>(null);
-  useDragScroll(carouselRef as any);
 
   useEffect(() => {
     const mqO = window.matchMedia("(max-aspect-ratio: 1/1)");
