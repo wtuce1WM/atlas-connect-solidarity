@@ -620,23 +620,18 @@ const Widgets = () => {
                 </div>
                 <p className="mt-3 font-roboto text-[14.5px] leading-relaxed text-white/85">{w.tagline}</p>
 
-                <div className="mt-4 max-h-[42vh] overflow-y-auto scrollbar-hide">
+                {/* Aucun scroll vertical interne : l'aperçu s'adapte à la hauteur disponible. */}
+                <div className="mt-4 overflow-hidden">
                   {w.n === 7 ? (
                     <div
                       className="rounded-2xl border border-white/12 bg-white p-4"
                       dangerouslySetInnerHTML={{ __html: EMAIL_SIGNATURE_HTML }}
                     />
-                  ) : w.n === 9 ? (
-                    <ol className="space-y-2 rounded-2xl border border-white/12 bg-white/[0.05] p-4 font-roboto text-[13.5px] text-white/85">
-                      <li>Espace affilié &gt; Présence &gt; onglet Outils.</li>
-                      <li>Section « Vos articles de blog ».</li>
-                      <li>Choisissez l'article et la langue (FR / EN / AR).</li>
-                      <li>Copiez le HTML complet ou téléchargez le fichier.</li>
-                    </ol>
                   ) : (
-                    <WidgetFrame src={w.url} title={w.title} height={Math.min(w.height, 420)} />
+                    <WidgetFrame src={w.url} title={w.title} height={Math.min(w.height, 340)} />
                   )}
                 </div>
+
 
                 {w.url && (
                   <a
