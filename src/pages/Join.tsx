@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import FrontHeader from "@/components/front/FrontHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
+import { useDragScroll } from "@/hooks/useDragScroll";
 import { useSEO } from "@/hooks/useSEO";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
