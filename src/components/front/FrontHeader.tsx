@@ -35,6 +35,14 @@ const preloadRoute = (to: string) => {
   loader().catch(() => preloaded.delete(to));
 };
 
+/** Précharge le chunk d'un article de blog (/blog/:slug) avant navigation. */
+export const preloadBlogPostRoute = () => {
+  if (preloaded.has("__blogpost")) return;
+  preloaded.add("__blogpost");
+  import("@/pages/BlogPost").catch(() => preloaded.delete("__blogpost"));
+};
+
+
 
 const FRONT_LANGS = [
   { code: "fr", flag: "🇫🇷", label: "Français" },
