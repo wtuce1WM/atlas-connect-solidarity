@@ -6,7 +6,6 @@ import {
   Waves,
   Star,
   ThumbsUp,
-  Mail,
   LayoutPanelTop,
   Check,
   ChevronDown,
@@ -86,15 +85,6 @@ const SMALL_WIDGETS: SmallWidget[] = [
     height: 380,
   },
   {
-    n: 7,
-    icon: <Mail className="h-5 w-5" />,
-    title: "Signature email « Laisser un avis »",
-    tagline: "Version email statique, compatible Gmail, Outlook et Apple Mail.",
-    price: "Inclus dans l'abonnement",
-    url: "",
-    height: 300,
-  },
-  {
     n: 8,
     icon: <LayoutPanelTop className="h-5 w-5" />,
     title: "Votre ID numérique (type Linktree)",
@@ -104,20 +94,6 @@ const SMALL_WIDGETS: SmallWidget[] = [
     height: 720,
   },
 ];
-
-const EMAIL_SIGNATURE_HTML = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;max-width:420px">
-  <tr>
-    <td style="padding:14px 16px;background:#111111;border-radius:12px;color:#ffffff">
-      <div style="font-size:15px;font-weight:bold;color:#ffffff">Riad Dar Najat</div>
-      <div style="font-size:14px;color:#ffffff;padding-top:4px">Votre avis compte pour nous</div>
-      <div style="font-size:12px;color:#cccccc;padding-top:2px">Un mot sur votre expérience aide énormément notre équipe.</div>
-      <div style="padding-top:10px">
-        <span style="display:inline-block;background:#25D366;color:#ffffff;font-size:13px;font-weight:bold;padding:9px 16px;border-radius:8px">Laisser un avis ★★★★★</span>
-      </div>
-      <div style="font-size:10px;color:#888888;padding-top:8px">oneworldmorocco.com</div>
-    </td>
-  </tr>
-</table>`;
 
 const COMPATIBLE: [string, string][] = [
   ["WordPress", "Bloc « HTML personnalisé » ou plugin iframe"],
@@ -611,14 +587,7 @@ const Widgets = () => {
 
                 {/* Aucun scroll vertical interne : l'aperçu s'adapte à la hauteur disponible. */}
                 <div className="mt-4 overflow-hidden">
-                  {w.n === 7 ? (
-                    <div
-                      className="rounded-2xl border border-white/12 bg-white p-4"
-                      dangerouslySetInnerHTML={{ __html: EMAIL_SIGNATURE_HTML }}
-                    />
-                  ) : (
-                    <WidgetFrame src={w.url} title={w.title} height={Math.min(w.height, 340)} />
-                  )}
+                  <WidgetFrame src={w.url} title={w.title} height={Math.min(w.height, 340)} />
                 </div>
 
 
