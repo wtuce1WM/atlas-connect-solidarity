@@ -796,7 +796,7 @@ const Join = () => {
         >
           <div className="max-h-full w-full max-w-5xl overflow-y-auto text-center" data-owm-scroll>
             <h2
-              className="text-[clamp(22px,3.4vw,38px)] font-medium uppercase leading-[1.14] text-[#F4ECDF]"
+              className="text-[clamp(22px,3.4vw,38px)] font-medium leading-[1.14] text-[#F4ECDF]"
               style={MONT}
             >
               {L.whyH2}
