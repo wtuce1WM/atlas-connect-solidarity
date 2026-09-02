@@ -670,9 +670,19 @@ const Join = () => {
             <span className="px-5 text-white">{L.heroStat3}</span>
           </div>
 
-          <button type="button" onClick={goSignup} className={`relative z-10 mt-8 ${ctaClass}`} style={MONT}>
-            {L.heroCta}
-          </button>
+          <div className="relative z-10 mt-8 flex flex-wrap items-center gap-3">
+            <button type="button" onClick={goSignup} className={ctaClass} style={MONT}>
+              {L.heroCta}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/affiliates")}
+              className="inline-flex items-center gap-3 rounded-full bg-[#D4AF37] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-[#1a1a1a] shadow-lg transition-transform hover:-translate-y-0.5"
+              style={MONT}
+            >
+              {L.heroLoginCta}
+            </button>
+          </div>
         </div>
 
         {/* ============ Écran 2 — Quatre moyens ============ */}
