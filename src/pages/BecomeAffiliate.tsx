@@ -715,7 +715,7 @@ const BecomeAffiliate = () => {
               <form
                 onSubmit={handleSubmit}
                 data-inner-scroll
-                className="mt-4 max-h-[58vh] space-y-4 overflow-y-auto overscroll-contain pr-1 lg:grid lg:max-h-none lg:grid-cols-3 lg:gap-x-6 lg:gap-y-2 lg:space-y-0 lg:overflow-visible lg:pr-0"
+                className="mt-4 max-h-[58vh] space-y-4 overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:max-h-none lg:grid-cols-3 lg:gap-x-6 lg:gap-y-2 lg:space-y-0 lg:overflow-visible"
               >
                 <p className="font-roboto text-xs italic text-white/60 lg:col-span-3">{t.requiredNote}</p>
                 <div>
