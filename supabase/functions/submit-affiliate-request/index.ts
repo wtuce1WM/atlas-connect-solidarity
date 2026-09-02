@@ -9,6 +9,8 @@ const BodySchema = z.object({
   phone: z.string().min(1).max(60),
   email: z.string().email().max(255),
   city: z.string().max(160).optional().nullable(),
+  country: z.string().max(160).optional().nullable(),
+  countryCode: z.string().max(8).optional().nullable(),
   projectName: z.string().max(255).optional().nullable(),
   website: z.string().max(500).optional().nullable(),
   paymentMethod: z.string().max(60).optional().nullable(),
