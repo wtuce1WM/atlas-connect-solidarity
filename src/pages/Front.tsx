@@ -839,6 +839,9 @@ const Front = () => {
             setSuggestionsExpanded(false);
             return;
           }
+          // Conversation IA fermée : le logo ne renvoie plus vers la homepage
+          // (aucun rechargement) — on est déjà sur l'accueil.
+          if (!conversationOpen) return;
           if (window.location.pathname === "/") {
             window.location.reload();
           } else {
