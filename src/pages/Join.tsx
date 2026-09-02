@@ -434,6 +434,7 @@ const Join = () => {
   const s2OuterRef = useRef<HTMLDivElement | null>(null);
   const s2ContentRef = useRef<HTMLDivElement | null>(null);
   const s2CardsRef = useDragScroll<HTMLDivElement>();
+  const s3CardsRef = useDragScroll<HTMLDivElement>();
   const [s2Fit, setS2Fit] = useState({ scale: 1, height: 0, scrollable: false });
 
   useLayoutEffect(() => {
@@ -844,11 +845,16 @@ const Join = () => {
             </h2>
             <p className="mx-auto mt-3 max-w-2xl font-roboto text-[14px] text-white/80 md:text-[15px]">{L.hiwP}</p>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div
+              ref={s3CardsRef}
+              data-owm-scroll
+              className="scrollbar-hide mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:overflow-visible"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none", touchAction: "pan-x" }}
+            >
               {HIW.map((s) => (
                 <article
                   key={s.n}
-                  className="rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-5 text-left backdrop-blur"
+                  className="w-[calc(100vw-40px)] max-w-[400px] shrink-0 snap-start rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-5 text-left backdrop-blur md:w-auto md:max-w-none md:p-5"
                 >
                   <span
                     className="flex h-11 w-11 items-center justify-center rounded-full bg-[#C04F17] text-[18px] font-bold text-white"
