@@ -534,19 +534,7 @@ const Join = () => {
       }, 1400);
     };
     const onTouchStart = (e: TouchEvent) => {
-      // Sur mobile, tout geste commencé dans l'écran 2 appartient à sa liste
-      // de cartes : il ne doit jamais être interprété comme un changement
-      // d'écran, même si le navigateur cible un enfant non scrollable.
-      const screen2 = s2OuterRef.current;
-      const startedInScreen2 = screen2
-        ? e.composedPath().includes(screen2) ||
-          (e.target instanceof Node && screen2.contains(e.target))
-        : false;
-      const verticalScroller =
-        isMobile && startedInScreen2
-          ? screen2
-          : getVScrollable(e.target);
-      touchScrollRef.current = verticalScroller;
+      touchScrollRef.current = getVScrollable(e.target);
       touchYRef.current = e.touches[0]?.clientY ?? null;
     };
     const onTouchMove = (e: TouchEvent) => {
@@ -589,7 +577,7 @@ const Join = () => {
         wheelUnlockRef.current = null;
       }
     };
-  }, [isMobile, setTarget]);
+  }, [setTarget]);
 
   const layer = (index: number) => {
     const d = progress - index;
@@ -759,16 +747,15 @@ const Join = () => {
         <div
           ref={s2OuterRef}
           className={`scrollbar-hide absolute inset-x-0 top-0 bottom-24 z-10 flex flex-col items-center overscroll-contain px-5 pt-20 pb-4 md:inset-0 md:px-12 md:pb-24 ${
-            isMobile || s2Fit.scrollable
+            s2Fit.scrollable
               ? "overflow-y-auto justify-start"
               : "overflow-hidden justify-center"
           }`}
-          data-owm-scroll={isMobile || s2Fit.scrollable ? true : undefined}
+          data-owm-scroll={s2Fit.scrollable ? true : undefined}
           style={{
             opacity: s2.opacity,
             transform: s2.transform,
             pointerEvents: s2.pointerEvents,
-            touchAction: isMobile ? "pan-y" : undefined,
           }}
           aria-hidden={s2.ariaHidden}
         >
@@ -801,13 +788,13 @@ const Join = () => {
               <div
                 ref={s2CardsRef}
                 data-owm-scroll
-                className="mt-6 grid gap-4 md:flex md:gap-4 md:overflow-x-auto md:scrollbar-hide md:pb-2"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                className="scrollbar-hide mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none", touchAction: "pan-x" }}
               >
                 {WAYS.map((w) => (
                   <article
                     key={w.n}
-                    className="rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-5 backdrop-blur md:w-[400px] md:shrink-0 md:p-6"
+                    className="w-[calc(100vw-40px)] max-w-[400px] shrink-0 snap-start rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-5 backdrop-blur md:w-[400px] md:p-6"
                   >
                     <div className="flex items-center gap-3">
                       <span
