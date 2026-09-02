@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import FrontHeader from "@/components/front/FrontHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -421,6 +421,51 @@ const Join = () => {
     [],
   );
 
+  // Écran 2 : auto-fit — le contenu est mis à l'échelle pour tenir dans la
+  // hauteur disponible, sans ascenseur (le scroll ne reste qu'un filet de
+  // sécurité si même l'échelle plancher ne suffit pas).
+  const s2OuterRef = useRef<HTMLDivElement | null>(null);
+  const s2ContentRef = useRef<HTMLDivElement | null>(null);
+  const [s2Fit, setS2Fit] = useState({ scale: 1, height: 0, scrollable: false });
+
+  useLayoutEffect(() => {
+    const outer = s2OuterRef.current;
+    const content = s2ContentRef.current;
+    if (!outer || !content) return;
+    let raf = 0;
+    const fit = () => {
+      const cs = getComputedStyle(outer);
+      const avail =
+        outer.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      const needed = content.scrollHeight;
+      if (avail <= 0 || needed <= 0) return;
+      const raw = Math.min(1, avail / needed);
+      const scale = raw < 1 ? Math.max(raw, 0.55) : 1;
+      // La boîte du wrapper vaut toujours l'espace disponible ; le scale est
+      // appliqué au contenu (pas au wrapper) pour que le contenu scalé
+      // (needed × scale) tienne exactement dans la boîte.
+      const scrollable = needed * scale > avail + 1;
+      setS2Fit((prev) =>
+        Math.abs(prev.scale - scale) < 0.005 &&
+        Math.abs(prev.height - avail) < 1 &&
+        prev.scrollable === scrollable
+          ? prev
+          : { scale, height: avail, scrollable },
+      );
+    };
+    fit();
+    const ro = new ResizeObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(fit);
+    });
+    ro.observe(outer);
+    ro.observe(content);
+    return () => {
+      ro.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
@@ -629,55 +674,75 @@ const Join = () => {
 
         {/* ============ Écran 2 — Quatre moyens ============ */}
         <div
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-20 pb-24 md:px-12"
+          ref={s2OuterRef}
+          className={`absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-20 pb-24 md:px-12 ${
+            s2Fit.scrollable ? "overflow-y-auto" : "overflow-hidden"
+          }`}
+          data-owm-scroll={s2Fit.scrollable ? true : undefined}
           style={{ opacity: s2.opacity, transform: s2.transform, pointerEvents: s2.pointerEvents }}
           aria-hidden={s2.ariaHidden}
         >
-          <div className="max-h-full w-full max-w-6xl overflow-y-auto" data-owm-scroll>
-            <h2
-              className="text-center text-[clamp(22px,3.4vw,38px)] font-medium leading-[1.14] text-[#F4ECDF]"
-              style={MONT}
+          <div
+            className="w-full max-w-6xl"
+            style={
+              !s2Fit.scrollable && s2Fit.scale < 1
+                ? { height: s2Fit.height, overflow: "hidden" }
+                : undefined
+            }
+          >
+            <div
+              ref={s2ContentRef}
+              style={
+                !s2Fit.scrollable && s2Fit.scale < 1
+                  ? { transform: `scale(${s2Fit.scale})`, transformOrigin: "top center" }
+                  : undefined
+              }
             >
-              {L.waysH2}
-            </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-center font-roboto text-[14px] text-white/80 md:text-[15px]">
-              {L.waysP}
-            </p>
+              <h2
+                className="text-center text-[clamp(22px,3.4vw,38px)] font-medium leading-[1.14] text-[#F4ECDF]"
+                style={MONT}
+              >
+                {L.waysH2}
+              </h2>
+              <p className="mx-auto mt-3 max-w-2xl text-center font-roboto text-[14px] text-white/80 md:text-[15px]">
+                {L.waysP}
+              </p>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {WAYS.map((w) => (
-                <article
-                  key={w.n}
-                  className="rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-5 backdrop-blur"
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="flex h-9 w-9 items-center justify-center rounded-full bg-[#C6A046] text-[15px] font-bold text-black"
-                      style={MONT}
-                    >
-                      {w.n}
-                    </span>
-                    <h3 className="text-[16px] font-semibold leading-snug text-[#F4ECDF] md:text-[18px]" style={MONT}>
-                      {w.h}
-                    </h3>
-                  </div>
-                  <p className="mt-3 font-roboto text-[13.5px] leading-relaxed text-white/85 md:text-[14.5px]">
-                    {w.intro}
-                  </p>
-                  <ul className="mt-3 space-y-2">
-                    {w.lis.map((li) => (
-                      <li key={li} className="flex items-start gap-2 font-roboto text-[13px] leading-snug text-white/90 md:text-[14px]">
-                        <span className="mt-[2px] shrink-0"><Check color="#00a896" /></span>
-                        <span>{li}</span>
-                      </li>
-                    ))}
-                  </ul>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                {WAYS.map((w) => (
+                  <article
+                    key={w.n}
+                    className="rounded-2xl border border-[rgba(198,160,70,.34)] bg-black/40 p-5 backdrop-blur"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="flex h-9 w-9 items-center justify-center rounded-full bg-[#C6A046] text-[15px] font-bold text-black"
+                        style={MONT}
+                      >
+                        {w.n}
+                      </span>
+                      <h3 className="text-[16px] font-semibold leading-snug text-[#F4ECDF] md:text-[18px]" style={MONT}>
+                        {w.h}
+                      </h3>
+                    </div>
+                    <p className="mt-3 font-roboto text-[13.5px] leading-relaxed text-white/85 md:text-[14.5px]">
+                      {w.intro}
+                    </p>
+                    <ul className="mt-3 space-y-2">
+                      {w.lis.map((li) => (
+                        <li key={li} className="flex items-start gap-2 font-roboto text-[13px] leading-snug text-white/90 md:text-[14px]">
+                          <span className="mt-[2px] shrink-0"><Check color="#00a896" /></span>
+                          <span>{li}</span>
+                        </li>
+                      ))}
+                    </ul>
 
-                  <p className="mt-3 border-t border-[rgba(198,160,70,.24)] pt-3 text-[13px] font-bold text-[#C6A046]" style={MONT}>
-                    {w.tag}
-                  </p>
-                </article>
-              ))}
+                    <p className="mt-3 border-t border-[rgba(198,160,70,.24)] pt-3 text-[13px] font-bold text-[#C6A046]" style={MONT}>
+                      {w.tag}
+                    </p>
+                  </article>
+                ))}
+              </div>
             </div>
           </div>
         </div>
