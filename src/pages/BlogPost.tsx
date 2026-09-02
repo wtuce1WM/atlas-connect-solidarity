@@ -220,15 +220,28 @@ const BlogPost = () => {
   // -- Loading / not found -------------------------------------------------
 
   if (isLoading) {
+    // Squelette calqué sur la structure finale (même fond, même hero, même
+    // rythme vertical) : aucun changement de layout à l'arrivée des données,
+    // donc plus d'effet "reload" au chargement de l'article.
     return (
-      <div className="min-h-screen bg-[hsl(0_0%_4%)]">
+      <div className="min-h-screen bg-background">
         <FrontHeader fixed />
-        <div className="flex justify-center items-center py-40">
-          <Loader2 className="h-8 w-8 animate-spin text-gold" />
+        <div className="bg-black pt-28 pb-8">
+          <div className="container mx-auto px-4">
+            <div className="mb-4 h-4 w-28 rounded bg-white/10" />
+            <div className="h-8 w-3/4 rounded bg-white/10 md:h-10" />
+            <div className="mt-3 h-4 w-40 rounded bg-white/5" />
+          </div>
+        </div>
+        <div className="container mx-auto px-4 py-8 space-y-3">
+          <div className="h-4 w-full rounded bg-foreground/5" />
+          <div className="h-4 w-11/12 rounded bg-foreground/5" />
+          <div className="h-4 w-10/12 rounded bg-foreground/5" />
         </div>
       </div>
     );
   }
+
 
   if (!post) {
     return (
