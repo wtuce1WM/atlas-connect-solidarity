@@ -1067,6 +1067,7 @@ Deno.serve(async (req) => {
               scopeCity: explicitCity || curated.city || (host ? scopeCity : null),
               maxResults: CFG.maxResults,
               competitorGuard,
+              restrictToIds: curatedPoolRestrict,
               supabaseUrl: SUPABASE_URL,
               serviceKey: SERVICE,
               immersive: {
