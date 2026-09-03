@@ -1,5 +1,5 @@
 /**
- * Shared video assignment panels (POI / Businesses / Destinations & Cities / Tags=Badges+Subcat+Cities).
+ * Shared video assignment panels (POI / Businesses / Destinations & Cities / Badges+Cities).
  *
  * Used by both the generic videos backoffice panel and the YouTube backoffice panel.
  * The "source" prop controls which junction tables are read from / written to.
@@ -30,7 +30,6 @@ interface TableMap {
   destination: string;
   city: string;
   badge: string;
-  subcategory: string;
   /** FK column on the junction tables that points to the video */
   fk: string;
 }
@@ -42,7 +41,6 @@ const TABLES: Record<AssignmentSource, TableMap> = {
     destination: "generic_video_destinations",
     city: "generic_video_cities",
     badge: "generic_video_badges",
-    subcategory: "generic_video_subcategories",
     fk: "generic_video_id",
   },
   youtube: {
@@ -51,7 +49,6 @@ const TABLES: Record<AssignmentSource, TableMap> = {
     destination: "business_youtube_video_destinations",
     city: "business_youtube_video_cities",
     badge: "business_youtube_video_badges",
-    subcategory: "business_youtube_video_subcategories",
     fk: "youtube_video_id",
   },
 };
@@ -646,7 +643,6 @@ export const InlineDestinationCityAssignment = ({
 
 /* ─────────────────── Badges + Subcategories + Cities ─────────────────── */
 interface BadgeItem { id: string; name_fr: string; color_hex: string | null; }
-interface SubcatItem { id: string; name_fr: string; category_id: string | null; }
 interface CityItem { id: string; name_fr: string; }
 
 export const InlineBadgeSubcatCityAssignment = ({
@@ -665,7 +661,6 @@ export const InlineBadgeSubcatCityAssignment = ({
   const [selectedCityIds, setSelectedCityIds] = useState<string[]>([]);
   const [initialCityIds, setInitialCityIds] = useState<string[]>([]);
 
-  const [subcatSearch, setSubcatSearch] = useState("");
   const [citySearch, setCitySearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
