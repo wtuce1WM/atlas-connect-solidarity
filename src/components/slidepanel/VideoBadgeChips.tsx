@@ -268,7 +268,7 @@ const VideoBadgeChips = ({
                       onClose?.();
                       navigate("/youtube");
                     }}
-                    className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 whitespace-nowrap rounded-full border border-white/25 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
+                    className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
                     style={{ backgroundColor: "#FF0000", fontFamily: "'Montserrat',system-ui,sans-serif" }}
                     title="Voir le feed YouTube"
                   >
@@ -289,7 +289,7 @@ const VideoBadgeChips = ({
                 setChipsExpanded(false);
                 onFeedCitySelect?.(city);
               }}
-              className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 whitespace-nowrap rounded-full border border-white/25 bg-black/70 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
+              className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
               style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
               title={onFeedCitySelect ? `Voir les vidéos à ${city.name}` : city.name}
             >
