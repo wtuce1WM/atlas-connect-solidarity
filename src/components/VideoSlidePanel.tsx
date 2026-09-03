@@ -25,7 +25,6 @@ import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineO
 import { useNavigate } from "react-router-dom";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
-import LocationPickerDialog from "@/components/LocationPickerDialog";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { buildOgShareUrl } from "@/lib/businessUrl";
@@ -395,13 +394,6 @@ const VideoSlidePanel = ({
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [eventInfo, setEventInfo] = useState<{ name: string; logo_url: string | null; description: string | null; start_date: string | null; end_date: string | null; days_of_week: string[] | null; start_time: string | null; end_time: string | null } | null>(null);
   const [poiOverlayBusinessId, setPoiOverlayBusinessId] = useState<string | null>(null);
-  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
-  const geo = useGeolocation();
-  useEffect(() => {
-    const h = () => setLocationDialogOpen(true);
-    window.addEventListener("open-location-picker", h);
-    return () => window.removeEventListener("open-location-picker", h);
-  }, []);
   useEffect(() => { if (!open) setPoiOverlayBusinessId(null); }, [open]);
 
   const effectiveDescription = (description && description.trim())
@@ -756,13 +748,11 @@ const VideoSlidePanel = ({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      // LocationPickerDialog (portal Radix hors du panel) gère sa propre fermeture :
-      // Escape ne doit pas fermer le viewer en dessous.
-      if (e.key === "Escape" && !locationDialogOpen) onClose();
+      if (e.key === "Escape" && !document.querySelector("[role='dialog']")) onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose, locationDialogOpen]);
+  }, [open, onClose]);
 
   // (Lecture/son des vidéos natives : entièrement délégué à usePanelVideoPlayback.)
 
@@ -955,7 +945,7 @@ const VideoSlidePanel = ({
         // hors de panelRef, mais React fait remonter leurs clics jusqu'ici.
         // On ne ferme donc QUE si le clic vise réellement ce conteneur (zone vide
         // à côté du panneau), jamais un descendant portalisé.
-        if (locationDialogOpen) return;
+        if (document.querySelector("[role='dialog']")) return;
         if (e.target !== e.currentTarget) return;
         onClose();
       }}
@@ -1743,25 +1733,6 @@ const VideoSlidePanel = ({
             />
           </Suspense>
         )}
-        <LocationPickerDialog
-          open={locationDialogOpen}
-          onOpenChange={setLocationDialogOpen}
-          coords={geo.coords}
-          detectedCity={geo.confirmedAddress || geo.detectedCity}
-          isEnabled={geo.isEnabled}
-          isDetecting={geo.isDetecting}
-          onUseCurrentPosition={() => { if (!geo.isEnabled) geo.accept(); }}
-          onConfirm={(confirmedCoords, address) => {
-            geo.setManualLocation(confirmedCoords, address);
-          }}
-          onDisableGeo={() => {
-            try {
-              localStorage.removeItem("geo_manual_coords");
-              localStorage.removeItem("geo_manual_address");
-            } catch { /* noop */ }
-            geo.decline();
-          }}
-        />
         {showYoutubeOverlay && ctaBusiness?.youtube_url && (
           <YouTubeOverlay
             business={{ id: ctaBusiness.id, name: ctaBusiness.name, youtube_url: ctaBusiness.youtube_url } as unknown as BookOnlineBusiness}
