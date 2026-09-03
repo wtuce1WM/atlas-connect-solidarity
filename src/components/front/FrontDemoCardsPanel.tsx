@@ -47,6 +47,18 @@ const FrontDemoCardsPanel = ({
   const [loading, setLoading] = useState(true);
   /** Nombre réel de vidéos du feed de chaque carte (clé = card.key). */
   const [videoCounts, setVideoCounts] = useState<Record<string, number>>({});
+  /** Sortie en fondu avant la fermeture réelle (évite le saut visuel). */
+  const [closing, setClosing] = useState(false);
+
+  useEffect(() => {
+    if (open) setClosing(false);
+  }, [open]);
+
+  const requestClose = () => {
+    if (closing) return;
+    setClosing(true);
+    window.setTimeout(() => onClose?.(), 320);
+  };
 
   useEffect(() => {
     if (!open) return;
