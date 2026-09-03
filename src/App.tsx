@@ -143,6 +143,8 @@ const GlobalRouteFallback = () => {
     p === "/affiliates" ||
     p === "/affiliates/login" ||
     p === "/widgets" ||
+    p === "/contact" ||
+
     p.startsWith("/blog");
   if (!isFrontLike) return null;
   return <FrontHeaderSkeleton />;
