@@ -722,7 +722,6 @@ export const InlineBadgeSubcatCityAssignment = ({
     }
     toast.success("Affectations enregistrées");
     setInitialBadgeIds([...selectedBadgeIds]);
-    setInitialSubcatIds([...selectedSubcatIds]);
     setInitialCityIds([...selectedCityIds]);
     onSaved(); setSaving(false);
   };
