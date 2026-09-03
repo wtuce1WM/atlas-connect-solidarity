@@ -349,6 +349,14 @@ const Join = () => {
     canonical: "/join",
   });
 
+  /* Précharge le chunk /affiliates : évite le flash du fallback de Suspense
+     lors du clic sur le CTA Gold du Hero. */
+  useEffect(() => {
+    import("@/pages/AffiliatesLogin").catch(() => {});
+  }, []);
+
+
+
   const [progress, setProgress] = useState(0);
   const [isPortrait, setIsPortrait] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches,
