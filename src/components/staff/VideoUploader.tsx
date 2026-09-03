@@ -32,6 +32,8 @@ const VideoUploader = ({
   businessId,
   maxSizeMB = 100,
   compact = false,
+  multiple = false,
+  onMultipleUploaded,
 }: VideoUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -41,59 +43,64 @@ const VideoUploader = ({
   const handleFileUpload = useCallback(
     async (files: FileList | null) => {
       if (!files || files.length === 0) return;
-      const file = files[0];
-
-      if (!file.type.startsWith("video/")) {
-        toast({
-          variant: "destructive",
-          title: "Type de fichier invalide",
-          description: "Seuls les fichiers vidéo sont acceptés (MP4, WebM, MOV).",
-        });
-        return;
-      }
+      const list = multiple ? Array.from(files) : [files[0]];
 
       const maxBytes = maxSizeMB * 1024 * 1024;
-      if (file.size > maxBytes) {
-        toast({
-          variant: "destructive",
-          title: "Fichier trop volumineux",
-          description: `La vidéo dépasse la limite de ${maxSizeMB}MB (${formatFileSize(file.size)}).`,
-        });
-        return;
-      }
+      const valid = list.filter((file) => {
+        if (!file.type.startsWith("video/")) {
+          toast({
+            variant: "destructive",
+            title: "Type de fichier invalide",
+            description: `${file.name} : seuls les fichiers vidéo sont acceptés (MP4, WebM, MOV).`,
+          });
+          return false;
+        }
+        if (file.size > maxBytes) {
+          toast({
+            variant: "destructive",
+            title: "Fichier trop volumineux",
+            description: `${file.name} dépasse la limite de ${maxSizeMB}MB (${formatFileSize(file.size)}).`,
+          });
+          return false;
+        }
+        return true;
+      });
+      if (valid.length === 0) return;
 
       setUploading(true);
       setUploadProgress(0);
 
+      const uploaded: string[] = [];
       try {
-        const fileExt = file.name.split(".").pop()?.toLowerCase() || "mp4";
-        const fileName = `${businessId || "new"}-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `businesses/${fileName}`;
+        for (const file of valid) {
+          const fileExt = file.name.split(".").pop()?.toLowerCase() || "mp4";
+          const fileName = `${businessId || "new"}-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+          const filePath = `businesses/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from("business-videos")
-          .upload(filePath, file, {
-            cacheControl: "3600",
-            upsert: false,
-          });
+          const { error: uploadError } = await supabase.storage
+            .from("business-videos")
+            .upload(filePath, file, { cacheControl: "3600", upsert: false });
 
-        if (uploadError) {
-          throw uploadError;
+          if (uploadError) throw uploadError;
+
+          const { data: urlData } = supabase.storage
+            .from("business-videos")
+            .getPublicUrl(filePath);
+
+          if (urlData?.publicUrl) uploaded.push(urlData.publicUrl);
         }
 
-        const { data: urlData } = supabase.storage
-          .from("business-videos")
-          .getPublicUrl(filePath);
-
-        if (urlData?.publicUrl) {
-          onChange(urlData.publicUrl);
+        if (uploaded.length > 0) {
+          if (multiple && onMultipleUploaded) onMultipleUploaded(uploaded);
+          else onChange(uploaded[0]);
           toast({
             title: "Succès",
-            description: `Vidéo uploadée (${formatFileSize(file.size)}).`,
+            description: uploaded.length > 1 ? `${uploaded.length} vidéos uploadées.` : "Vidéo uploadée.",
           });
         }
       } catch (error: any) {
         console.error("Video upload error:", error);
+        if (uploaded.length > 0 && multiple && onMultipleUploaded) onMultipleUploaded(uploaded);
         toast({
           variant: "destructive",
           title: "Erreur d'upload",
@@ -104,7 +111,7 @@ const VideoUploader = ({
         setUploadProgress(0);
       }
     },
-    [businessId, maxSizeMB, onChange, toast]
+    [businessId, maxSizeMB, onChange, toast, multiple, onMultipleUploaded]
   );
 
   const handleRemove = useCallback(async () => {
