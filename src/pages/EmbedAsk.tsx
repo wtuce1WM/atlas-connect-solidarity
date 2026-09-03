@@ -1201,6 +1201,20 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const feedLoadingMoreRef = useRef(false);
   const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
   const [feedVideoTime, setFeedVideoTime] = useState(0);
+  /**
+   * Suggestion en mode `video_feed` : le lecteur vidéo doit apparaître AVANT le
+   * panneau de gauche (sur mobile, ce panneau occupe tout l'écran). Tant que le
+   * lecteur n'est pas ouvert, on n'affiche pas le flux de conversation.
+   */
+  const [feedOpening, setFeedOpening] = useState(false);
+  useEffect(() => {
+    if (!feedOpening) return;
+    if (activeFeedVideoId) { setFeedOpening(false); return; }
+    // Filet : si le lecteur ne s'ouvre pas (feed vide, erreur réseau), on
+    // rétablit l'affichage normal de la conversation.
+    const t = setTimeout(() => setFeedOpening(false), 8000);
+    return () => clearTimeout(t);
+  }, [feedOpening, activeFeedVideoId]);
 
   // Signal « panneau ouvert/fermé » : l'hôte (/front) met sa vidéo de fond en pause.
   // Couvre les DEUX parcours viewer : VideoSlidePanel (feed vidéo) ET
@@ -1781,12 +1795,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     ) {
       setError(null);
       setActiveSuggestionId(feedSuggestion.id);
+      setFeedOpening(true);
       void openPureBadgeFeed(
         feedSuggestion.badge_ids as string[],
         (feedSuggestion.business_ids as string[]) || [],
       ).then((ok) => {
         // Filet : feed vide → on repasse une seule fois par le parcours standard.
         if (!ok) {
+          setFeedOpening(false);
           pureFeedFallbackRef.current = true;
           send(text, suggestionId, followupId);
           pureFeedFallbackRef.current = false;
@@ -1795,7 +1811,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       return;
     }
     if (feedSuggestion?.mode === "video_feed" && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
-      void openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]);
+      // Le panneau de gauche reste masqué jusqu'à l'ouverture du lecteur vidéo.
+      setFeedOpening(true);
+      void openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]).then((ok) => {
+        // Feed vide / erreur : rien ne s'ouvre → on rétablit la conversation.
+        if (!ok) setFeedOpening(false);
+      });
     }
 
     const isBookingLabel = [
@@ -2141,12 +2162,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * Ouverture immédiate du feed vidéo d'une suggestion badgée, sans attendre le
    * modèle : même source de vérité (`fetchBadgesVideoFeed`) que le serveur.
    */
-  const openEarlyBadgeFeed = useCallback(async (badgeIds: string[]) => {
+  const openEarlyBadgeFeed = useCallback(async (badgeIds: string[]): Promise<boolean> => {
     try {
       const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
       const seed = Math.random().toString(36).slice(2, 10);
       const { items, total } = await fetchBadgesVideoFeed(badgeIds, { seed, limit: 30 });
-      if (!items.length) return;
+      if (!items.length) return false;
       earlyFeedOpenRef.current = true;
       setVideoFeedList(items);
       setVideoFeedCtx({ badgeIds, seed, total, cityIds: null });
@@ -2160,7 +2181,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           if (thumb) { const img = new Image(); img.src = String(thumb); }
         } catch { /* best-effort */ }
       }
+      return true;
     } catch { /* best-effort : le marqueur VIDEO_FEED du stream reste le filet */ }
+    return false;
   }, []);
 
   /**
@@ -3338,7 +3361,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             </div>
           );
         })()}
-        {!homeState && messages.map((m, i) => {
+        {!homeState && !feedOpening && messages.map((m, i) => {
           if (m.role === "user") {
             return (
               <div key={m.id || i} className="flex justify-end">
