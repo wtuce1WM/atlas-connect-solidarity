@@ -438,8 +438,9 @@ const Front = () => {
       // Première page courte : affichage rapide, complément en arrière-plan.
       const { items, ctx } = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
       if (!items.length) { setDemoIntro(false); return; }
-      demoSnapshotRef.current = { items, ctx };
-      setCached(DEMO_FEED_CACHE_KEY, { items, ctx, ts: Date.now() });
+      // Flux affiché immédiatement : il n'est pas conservé comme snapshot
+      // réutilisable (chaque ouverture doit repartir sur un nouveau seed).
+      demoSnapshotRef.current = null;
       setDemoList(items.map(toPanelVideo));
       setDemoCtx(ctx);
       setDemoTime(0);
