@@ -533,6 +533,11 @@ const GenericVideosPanel = () => {
   const [videos, setVideos] = useState<GenericVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadedUrl, setUploadedUrl] = useState("");
+  const [pendingUrls, setPendingUrls] = useState<string[]>([]);
+  const [newPlatform, setNewPlatform] = useState<"instagram" | "tiktok" | "youtube">("instagram");
+  const [newSocialAccount, setNewSocialAccount] = useState("");
+  const [newSocialUrl, setNewSocialUrl] = useState("");
+  const [sortMode, setSortMode] = useState<"recent" | "manual">("recent");
   const [creating, setCreating] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [socialVideo, setSocialVideo] = useState<GenericVideo | null>(null);
@@ -672,26 +677,41 @@ const GenericVideosPanel = () => {
   }, []);
 
   const handleCreate = useCallback(async () => {
-    if (!uploadedUrl) return;
+    if (pendingUrls.length === 0) return;
     setCreating(true);
-    const nextOrder = videos.length > 0 ? Math.max(...videos.map(v => v.sort_order)) + 1 : 0;
+    let nextOrder = videos.length > 0 ? Math.max(...videos.map(v => v.sort_order)) + 1 : 0;
 
-    // Auto-generate thumbnail (YouTube/Vimeo/hosted) — never blocking the insert.
-    let thumbnailUrl: string | null = null;
-    try {
-      const { resolveVideoThumbnailUrl } = await import("@/lib/videoThumbnail");
-      thumbnailUrl = await resolveVideoThumbnailUrl(uploadedUrl, "generic");
-    } catch (e) {
-      console.warn("[generic-video] thumbnail generation failed:", e);
+    const socialFields: Record<string, string | null> = {};
+    if (newSocialAccount.trim() || newSocialUrl.trim()) {
+      socialFields[`${newPlatform}_account`] = newSocialAccount.trim() || null;
+      socialFields[`${newPlatform}_url`] = newSocialUrl.trim() || null;
     }
 
-    const { error } = await supabase
-      .from("generic_videos" as any)
-      .insert({ url: uploadedUrl, sort_order: nextOrder, thumbnail_url: thumbnailUrl } as any);
+    const rows: any[] = [];
+    for (const url of pendingUrls) {
+      // Auto-generate thumbnail (YouTube/Vimeo/hosted) — never blocking the insert.
+      let thumbnailUrl: string | null = null;
+      try {
+        const { resolveVideoThumbnailUrl } = await import("@/lib/videoThumbnail");
+        thumbnailUrl = await resolveVideoThumbnailUrl(url, "generic");
+      } catch (e) {
+        console.warn("[generic-video] thumbnail generation failed:", e);
+      }
+      rows.push({ url, sort_order: nextOrder++, thumbnail_url: thumbnailUrl, ...socialFields });
+    }
+
+    const { error } = await supabase.from("generic_videos" as any).insert(rows as any);
     if (error) toast.error(error.message);
-    else { toast.success(thumbnailUrl ? "Vidéo générique ajoutée + vignette générée" : "Vidéo générique ajoutée (vignette à générer manuellement)"); setUploadedUrl(""); await loadVideos(); }
+    else {
+      toast.success(`${rows.length} vidéo${rows.length > 1 ? "s" : ""} générique${rows.length > 1 ? "s" : ""} ajoutée${rows.length > 1 ? "s" : ""}`);
+      setUploadedUrl("");
+      setPendingUrls([]);
+      setNewSocialAccount("");
+      setNewSocialUrl("");
+      await loadVideos();
+    }
     setCreating(false);
-  }, [uploadedUrl, videos, loadVideos]);
+  }, [pendingUrls, videos, loadVideos, newPlatform, newSocialAccount, newSocialUrl]);
 
   const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -767,12 +787,56 @@ const GenericVideosPanel = () => {
       >
         {/* Upload zone */}
         <div className="max-w-2xl space-y-3">
-          <VideoUploader videoUrl={uploadedUrl} onChange={setUploadedUrl} businessId="generic" />
-          {uploadedUrl && (
-            <Button onClick={handleCreate} disabled={creating}>
-              {creating && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              <Upload className="h-4 w-4 mr-2" />Ajouter comme vidéo générique
-            </Button>
+          <VideoUploader
+            videoUrl={uploadedUrl}
+            onChange={(u) => { if (u) setPendingUrls(p => [...p, u]); }}
+            multiple
+            onMultipleUploaded={(urls) => setPendingUrls(p => [...p, ...urls])}
+            businessId="generic"
+          />
+          {pendingUrls.length > 0 && (
+            <div className="space-y-3 p-3 rounded-lg border bg-muted/20">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">{pendingUrls.length} vidéo{pendingUrls.length > 1 ? "s" : ""} prête{pendingUrls.length > 1 ? "s" : ""} à ajouter</p>
+                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setPendingUrls([])}>Vider</Button>
+              </div>
+              <ul className="space-y-1 max-h-32 overflow-y-auto">
+                {pendingUrls.map((u, i) => (
+                  <li key={`${u}-${i}`} className="flex items-center gap-2 text-xs">
+                    <span className="flex-1 truncate font-mono text-muted-foreground" title={u}>{u}</span>
+                    <button className="text-destructive hover:underline" onClick={() => setPendingUrls(p => p.filter((_, j) => j !== i))}>retirer</button>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-muted-foreground">Réseau :</span>
+                  {(["instagram", "tiktok", "youtube"] as const).map(p => (
+                    <Button
+                      key={p}
+                      type="button"
+                      size="sm"
+                      variant={newPlatform === p ? "default" : "outline"}
+                      className="h-7 text-xs capitalize"
+                      onClick={() => setNewPlatform(p)}
+                    >
+                      {p}
+                    </Button>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input className="h-8 text-xs" placeholder="Social name (@compte)" value={newSocialAccount} onChange={e => setNewSocialAccount(e.target.value)} />
+                  <Input className="h-8 text-xs" placeholder="Social URL (profil)" value={newSocialUrl} onChange={e => setNewSocialUrl(e.target.value)} />
+                </div>
+                <p className="text-[11px] text-muted-foreground">Appliqué à toutes les vidéos ajoutées ci-dessus.</p>
+              </div>
+
+              <Button onClick={handleCreate} disabled={creating}>
+                {creating && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                <Upload className="h-4 w-4 mr-2" />Ajouter comme vidéo{pendingUrls.length > 1 ? "s" : ""} générique{pendingUrls.length > 1 ? "s" : ""}
+              </Button>
+            </div>
           )}
         </div>
 
@@ -784,11 +848,14 @@ const GenericVideosPanel = () => {
           const igAccounts = Array.from(new Set(videos.map(v => v.instagram_account).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
           const ttAccounts = Array.from(new Set(videos.map(v => v.tiktok_account).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
           const ytAccounts = Array.from(new Set(videos.map(v => v.youtube_account).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
-          const filteredVideos = videos.filter(v =>
+          const baseVideos = videos.filter(v =>
             (filterIg === ALL_SOCIAL || v.instagram_account === filterIg) &&
             (filterTt === ALL_SOCIAL || v.tiktok_account === filterTt) &&
             (filterYt === ALL_SOCIAL || v.youtube_account === filterYt)
           );
+          const filteredVideos = sortMode === "recent"
+            ? [...baseVideos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            : baseVideos;
           return (
           <>
             <div className="flex items-center gap-3 flex-wrap">
@@ -798,6 +865,11 @@ const GenericVideosPanel = () => {
                 onImported={loadVideos}
                 getNextSortOrder={() => (videos.length > 0 ? Math.max(...videos.map(v => v.sort_order)) + 1 : 0)}
               />
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-medium text-muted-foreground mr-1">Tri :</span>
+                <Button size="sm" variant={sortMode === "recent" ? "default" : "outline"} className="h-7 text-xs" onClick={() => setSortMode("recent")}>Plus récentes</Button>
+                <Button size="sm" variant={sortMode === "manual" ? "default" : "outline"} className="h-7 text-xs" onClick={() => setSortMode("manual")}>Ordre manuel</Button>
+              </div>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-medium text-muted-foreground">Nom social :</span>
@@ -828,7 +900,7 @@ const GenericVideosPanel = () => {
                 </Button>
               )}
             </div>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <DndContext sensors={sortMode === "manual" ? sensors : undefined} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={filteredVideos.map(v => v.id)} strategy={rectSortingStrategy}>
                 <div className="flex flex-wrap gap-4">
                   {filteredVideos.map(video => (
