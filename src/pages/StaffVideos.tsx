@@ -122,6 +122,11 @@ const StaffVideos = () => {
               <Youtube className="h-4 w-4" />
               YouTube
             </TabsTrigger>
+            <TabsTrigger value="generic" className="gap-2">
+              <Film className="h-4 w-4" />
+              Génériques
+            </TabsTrigger>
+
             <TabsTrigger value="video-id" className="gap-2">
               <Video className="h-4 w-4" />
               Vidéo ID
