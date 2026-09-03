@@ -586,14 +586,28 @@ const GenericVideosPanel = () => {
   }, []);
 
   const loadCounts = useCallback(async () => {
-    const [{ data: poiLinks }, { data: bizLinks }, { data: destLinks }, { data: badgeLinks }, { data: subcatLinks }, { data: cityLinks }] = await Promise.all([
-      supabase.from("generic_video_pois" as any).select("generic_video_id, start_time, end_time") as any,
-      supabase.from("generic_video_businesses" as any).select("generic_video_id, start_time, end_time") as any,
-      supabase.from("generic_video_destinations" as any).select("generic_video_id, start_time, end_time") as any,
-      supabase.from("generic_video_badges" as any).select("generic_video_id") as any,
-      supabase.from("generic_video_subcategories" as any).select("generic_video_id") as any,
-      supabase.from("generic_video_cities" as any).select("generic_video_id") as any,
+    const fetchAllLinks = async (table: string, select: string) => {
+      const rows: any[] = [];
+      let offset = 0;
+      const batch = 1000;
+      while (true) {
+        const { data } = await (supabase.from(table as any).select(select).order("generic_video_id").range(offset, offset + batch - 1) as any);
+        if (!data || data.length === 0) break;
+        rows.push(...data);
+        if (data.length < batch) break;
+        offset += batch;
+      }
+      return rows;
+    };
+    const [poiLinks, bizLinks, destLinks, badgeLinks, subcatLinks, cityLinks] = await Promise.all([
+      fetchAllLinks("generic_video_pois", "generic_video_id, start_time, end_time"),
+      fetchAllLinks("generic_video_businesses", "generic_video_id, start_time, end_time"),
+      fetchAllLinks("generic_video_destinations", "generic_video_id, start_time, end_time"),
+      fetchAllLinks("generic_video_badges", "generic_video_id"),
+      fetchAllLinks("generic_video_subcategories", "generic_video_id"),
+      fetchAllLinks("generic_video_cities", "generic_video_id"),
     ]);
+
     const pc: Record<string, number> = {};
     const tf: Record<string, boolean> = {};
     ((poiLinks as any[]) || []).forEach((l: any) => { pc[l.generic_video_id] = (pc[l.generic_video_id] || 0) + 1; if (l.start_time != null || l.end_time != null) tf[l.generic_video_id] = true; });
