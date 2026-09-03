@@ -342,7 +342,7 @@ const Widgets = () => {
     };
   };
 
-  const s = [0, 1, 2, 3, 4, 5].map(layer);
+  const s = [0, 1, 2, 3, 4].map(layer);
   const current = Math.round(progress);
 
   const askUrl = `${SITE}/embed/ask/${DEMO_SLUG}?lang=fr&bg=transparent`;
