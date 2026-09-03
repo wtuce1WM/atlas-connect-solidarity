@@ -456,6 +456,7 @@ const SortableVideoCard = ({
   const isStorageVideo = video.url.includes("supabase.co/storage");
   const hasSocial = video.instagram_account || video.tiktok_account || video.youtube_account;
   const hasDesc = video.description && video.description.replace(/<[^>]*>/g, "").trim().length > 0;
+  const hasTitle = !!(video.name && video.name.trim().length > 0);
 
   return (
     <div
