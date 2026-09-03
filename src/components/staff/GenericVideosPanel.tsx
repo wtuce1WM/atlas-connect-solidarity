@@ -767,12 +767,56 @@ const GenericVideosPanel = () => {
       >
         {/* Upload zone */}
         <div className="max-w-2xl space-y-3">
-          <VideoUploader videoUrl={uploadedUrl} onChange={setUploadedUrl} businessId="generic" />
-          {uploadedUrl && (
-            <Button onClick={handleCreate} disabled={creating}>
-              {creating && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              <Upload className="h-4 w-4 mr-2" />Ajouter comme vidéo générique
-            </Button>
+          <VideoUploader
+            videoUrl={uploadedUrl}
+            onChange={(u) => { if (u) setPendingUrls(p => [...p, u]); }}
+            multiple
+            onMultipleUploaded={(urls) => setPendingUrls(p => [...p, ...urls])}
+            businessId="generic"
+          />
+          {pendingUrls.length > 0 && (
+            <div className="space-y-3 p-3 rounded-lg border bg-muted/20">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">{pendingUrls.length} vidéo{pendingUrls.length > 1 ? "s" : ""} prête{pendingUrls.length > 1 ? "s" : ""} à ajouter</p>
+                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setPendingUrls([])}>Vider</Button>
+              </div>
+              <ul className="space-y-1 max-h-32 overflow-y-auto">
+                {pendingUrls.map((u, i) => (
+                  <li key={`${u}-${i}`} className="flex items-center gap-2 text-xs">
+                    <span className="flex-1 truncate font-mono text-muted-foreground" title={u}>{u}</span>
+                    <button className="text-destructive hover:underline" onClick={() => setPendingUrls(p => p.filter((_, j) => j !== i))}>retirer</button>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-muted-foreground">Réseau :</span>
+                  {(["instagram", "tiktok", "youtube"] as const).map(p => (
+                    <Button
+                      key={p}
+                      type="button"
+                      size="sm"
+                      variant={newPlatform === p ? "default" : "outline"}
+                      className="h-7 text-xs capitalize"
+                      onClick={() => setNewPlatform(p)}
+                    >
+                      {p}
+                    </Button>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input className="h-8 text-xs" placeholder="Social name (@compte)" value={newSocialAccount} onChange={e => setNewSocialAccount(e.target.value)} />
+                  <Input className="h-8 text-xs" placeholder="Social URL (profil)" value={newSocialUrl} onChange={e => setNewSocialUrl(e.target.value)} />
+                </div>
+                <p className="text-[11px] text-muted-foreground">Appliqué à toutes les vidéos ajoutées ci-dessus.</p>
+              </div>
+
+              <Button onClick={handleCreate} disabled={creating}>
+                {creating && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                <Upload className="h-4 w-4 mr-2" />Ajouter comme vidéo{pendingUrls.length > 1 ? "s" : ""} générique{pendingUrls.length > 1 ? "s" : ""}
+              </Button>
+            </div>
           )}
         </div>
 
