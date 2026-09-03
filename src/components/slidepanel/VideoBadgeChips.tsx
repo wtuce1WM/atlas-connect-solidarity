@@ -103,20 +103,6 @@ const VideoBadgeChips = ({
   const chipsBadges = badges;
   const setChipsExpanded = onExpandedChange;
   const [pinnedBadge, setPinnedBadge] = useState<{ id: string; name: string; color?: string | null; textColor?: string | null } | null>(null);
-  /** Largeur unique des chips : mesurée sur le libellé le plus long. */
-  const chipSizerRef = useRef<HTMLSpanElement>(null);
-  const [chipWidth, setChipWidth] = useState<number | null>(null);
-  useEffect(() => {
-    const measure = () => {
-      const w = chipSizerRef.current?.offsetWidth;
-      if (w) setChipWidth(w);
-    };
-    measure();
-    document.fonts?.ready?.then(() => { if (chipSizerRef.current) measure(); });
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [expanded]);
-
   /** Couleurs des badges du menu fixe, lues en back-office (aucune couleur codée en dur). */
   const [menuBadgeColors, setMenuBadgeColors] = useState<Record<string, { color: string | null; textColor: string | null }>>({});
   const [menuBadgeActive, setMenuBadgeActive] = useState<Record<string, boolean> | null>(null);
@@ -145,14 +131,6 @@ const VideoBadgeChips = ({
 
   return (
     <div className="absolute top-16 left-1.5 right-1.5 md:left-3 md:right-3 z-[100] pointer-events-none">
-      <span
-        ref={chipSizerRef}
-        aria-hidden
-        className="invisible absolute px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal"
-        style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
-      >
-        Rooftop Restaurant & Bars
-      </span>
       {!expanded && (() => {
         // Badge « vitrine » : en priorité un badge avec une couleur spécifique
         // (back-office), sinon n'importe lequel.
