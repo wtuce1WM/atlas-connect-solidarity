@@ -161,143 +161,153 @@ const VideoBadgeChips = ({
         );
       })()}
       {expanded && (
-        <div className="grid grid-cols-3 gap-2">
-          {visibleLeftColumnBadges.filter(
-            (b) => !(chipsBadges?.[0]?.id && b.id === chipsBadges[0].id)
-          ).map((b) => {
-            const isSelected = selectedBadgeId && b.id === selectedBadgeId;
-            return (
-              <button
-                key={b.id}
-                type="button"
-                disabled={!onFeedBadgeSelect}
-                onClick={() => {
-                  setPinnedBadge({ id: b.id, name: b.label, color: menuBadgeColors[b.id]?.color, textColor: menuBadgeColors[b.id]?.textColor });
-                  setChipsExpanded(false);
-                  onFeedBadgeSelect?.({ id: b.id, name: b.label });
-                }}
-                className={`pointer-events-auto w-full whitespace-nowrap items-center justify-center rounded-full text-center border px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
-                  isSelected ? "border-gold bg-gold text-gold-foreground" : "border-white/25"
-                }`}
-                style={{
-                  ...(isSelected
-                    ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
-                    : {
-                        backgroundColor: menuBadgeColors[b.id]?.color || "rgba(0,0,0,0.7)",
-                        color: menuBadgeColors[b.id]?.textColor || "#FFFFFF",
-                        fontFamily: "'Montserrat',system-ui,sans-serif",
-                      }),
-                }}
-                title={onFeedBadgeSelect ? `Voir les vidéos ${b.label}` : b.label}
-              >
-                {b.label}
-              </button>
-            );
-          })}
-          {(() => {
-            const firstVideoBadge = chipsBadges?.[0];
-            const dynamicBadges = chipsBadges?.slice(1).filter((b) => {
-              const left = LEFT_COLUMN_BADGES.find((lb) => lb.id === b.id);
-              if (left) return false;
-              return !LEFT_COLUMN_BADGES.some((lb) => lb.label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === b.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
-            }) ?? [];
-            return (
-              <>
-                {firstVideoBadge && (
-                  <button
-                    key={firstVideoBadge.id}
-                    type="button"
-                    disabled={!onFeedBadgeSelect}
-                    onClick={() => {
-                      setPinnedBadge({ id: firstVideoBadge.id, name: firstVideoBadge.name, color: firstVideoBadge.color, textColor: firstVideoBadge.text_color });
-                      setChipsExpanded(false);
-                      onFeedBadgeSelect?.({ id: firstVideoBadge.id, name: firstVideoBadge.name });
-                    }}
-                    className="pointer-events-auto inline-flex w-full max-w-full items-center justify-center rounded-full text-center border border-white/25 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95"
-                    style={{
-                      backgroundColor: firstVideoBadge.color || "rgba(0,0,0,0.7)",
-                      color: firstVideoBadge.text_color || "#FFFFFF",
-                      fontFamily: "'Montserrat',system-ui,sans-serif",
-                    }}
-                    title={onFeedBadgeSelect ? `Voir les vidéos ${firstVideoBadge.name}` : firstVideoBadge.name}
-                  >
-                    {capFirstBadgeLabel(firstVideoBadge.name)}
-                  </button>
-                )}
-                {dynamicBadges.map((b) => {
-                  const isSelected = selectedBadgeId && b.id === selectedBadgeId;
-                  return (
+        <div className="grid grid-cols-3 gap-2 items-start">
+          {/* Colonne gauche : menu fixe */}
+          <div className="flex flex-col gap-2">
+            {visibleLeftColumnBadges.filter(
+              (b) => !(chipsBadges?.[0]?.id && b.id === chipsBadges[0].id)
+            ).map((b) => {
+              const isSelected = selectedBadgeId && b.id === selectedBadgeId;
+              return (
+                <button
+                  key={b.id}
+                  type="button"
+                  disabled={!onFeedBadgeSelect}
+                  onClick={() => {
+                    setPinnedBadge({ id: b.id, name: b.label, color: menuBadgeColors[b.id]?.color, textColor: menuBadgeColors[b.id]?.textColor });
+                    setChipsExpanded(false);
+                    onFeedBadgeSelect?.({ id: b.id, name: b.label });
+                  }}
+                  className={`pointer-events-auto w-full whitespace-nowrap items-center justify-center rounded-full text-center border px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
+                    isSelected ? "border-gold bg-gold text-gold-foreground" : "border-white/25"
+                  }`}
+                  style={{
+                    ...(isSelected
+                      ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
+                      : {
+                          backgroundColor: menuBadgeColors[b.id]?.color || "rgba(0,0,0,0.7)",
+                          color: menuBadgeColors[b.id]?.textColor || "#FFFFFF",
+                          fontFamily: "'Montserrat',system-ui,sans-serif",
+                        }),
+                  }}
+                  title={onFeedBadgeSelect ? `Voir les vidéos ${b.label}` : b.label}
+                >
+                  {b.label}
+                </button>
+              );
+            })}
+          </div>
+          {/* Colonne centrale : badges dynamiques de la vidéo */}
+          <div className="flex flex-col gap-2">
+            {(() => {
+              const firstVideoBadge = chipsBadges?.[0];
+              const dynamicBadges = chipsBadges?.slice(1).filter((b) => {
+                const left = LEFT_COLUMN_BADGES.find((lb) => lb.id === b.id);
+                if (left) return false;
+                return !LEFT_COLUMN_BADGES.some((lb) => lb.label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === b.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+              }) ?? [];
+              return (
+                <>
+                  {firstVideoBadge && (
                     <button
-                      key={b.id}
+                      key={firstVideoBadge.id}
                       type="button"
                       disabled={!onFeedBadgeSelect}
                       onClick={() => {
-                        setPinnedBadge({ id: b.id, name: b.name, color: b.color, textColor: b.text_color });
+                        setPinnedBadge({ id: firstVideoBadge.id, name: firstVideoBadge.name, color: firstVideoBadge.color, textColor: firstVideoBadge.text_color });
                         setChipsExpanded(false);
-                        onFeedBadgeSelect?.({ id: b.id, name: b.name });
+                        onFeedBadgeSelect?.({ id: firstVideoBadge.id, name: firstVideoBadge.name });
                       }}
-                      className={`pointer-events-auto w-full whitespace-nowrap items-center justify-center rounded-full text-center border px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
-                        isSelected ? "border-gold bg-gold text-gold-foreground" : "border-white/25 text-white"
-                      }`}
+                      className="pointer-events-auto inline-flex w-full max-w-full whitespace-nowrap items-center justify-center rounded-full text-center border border-white/25 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95"
                       style={{
-                        ...(isSelected
-                          ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
-                          : {
-                              backgroundColor: b.color || "rgba(0,0,0,0.7)",
-                              color: b.text_color || "#FFFFFF",
-                              fontFamily: "'Montserrat',system-ui,sans-serif",
-                            }),
+                        backgroundColor: firstVideoBadge.color || "rgba(0,0,0,0.7)",
+                        color: firstVideoBadge.text_color || "#FFFFFF",
+                        fontFamily: "'Montserrat',system-ui,sans-serif",
                       }}
-                      title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
+                      title={onFeedBadgeSelect ? `Voir les vidéos ${firstVideoBadge.name}` : firstVideoBadge.name}
                     >
-                      {capFirstBadgeLabel(b.name)}
+                      {capFirstBadgeLabel(firstVideoBadge.name)}
                     </button>
-                  );
-                })}
-                {isYouTubeUrl && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPinnedBadge({ id: "youtube", name: "YouTube", color: "#FF0000", textColor: "#FFFFFF" });
-                      setChipsExpanded(false);
-                      if (onFeedYouTubeSelect) {
-                        onFeedYouTubeSelect();
-                        return;
-                      }
-                      onClose?.();
-                      navigate("/youtube");
-                    }}
-                    className="pointer-events-auto w-full whitespace-nowrap inline-flex items-center justify-center gap-1 rounded-full border border-white/25 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
-                    style={{ backgroundColor: "#FF0000", fontFamily: "'Montserrat',system-ui,sans-serif" }}
-                    title="Voir le feed YouTube"
-                  >
-                    <YouTubeIcon className="h-3.5 w-3.5 shrink-0" />
-                    YouTube
-                  </button>
-                )}
-              </>
-            );
-          })()}
-          {CITY_FEED_BADGES.map((city) => (
-            <button
-              key={city.id}
-              type="button"
-              disabled={!onFeedCitySelect}
-              onClick={() => {
-                setPinnedBadge({ id: city.id, name: city.name, color: null, textColor: null });
-                setChipsExpanded(false);
-                onFeedCitySelect?.(city);
-              }}
-              className="pointer-events-auto w-full whitespace-nowrap inline-flex items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
-              style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
-              title={onFeedCitySelect ? `Voir les vidéos à ${city.name}` : city.name}
-            >
-              <MapPin className="h-3.5 w-3.5 shrink-0" />
-              {city.name}
-            </button>
-          ))}
+                  )}
+                  {dynamicBadges.map((b) => {
+                    const isSelected = selectedBadgeId && b.id === selectedBadgeId;
+                    return (
+                      <button
+                        key={b.id}
+                        type="button"
+                        disabled={!onFeedBadgeSelect}
+                        onClick={() => {
+                          setPinnedBadge({ id: b.id, name: b.name, color: b.color, textColor: b.text_color });
+                          setChipsExpanded(false);
+                          onFeedBadgeSelect?.({ id: b.id, name: b.name });
+                        }}
+                        className={`pointer-events-auto w-full whitespace-nowrap items-center justify-center rounded-full text-center border px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
+                          isSelected ? "border-gold bg-gold text-gold-foreground" : "border-white/25 text-white"
+                        }`}
+                        style={{
+                          ...(isSelected
+                            ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
+                            : {
+                                backgroundColor: b.color || "rgba(0,0,0,0.7)",
+                                color: b.text_color || "#FFFFFF",
+                                fontFamily: "'Montserrat',system-ui,sans-serif",
+                              }),
+                        }}
+                        title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
+                      >
+                        {capFirstBadgeLabel(b.name)}
+                      </button>
+                    );
+                  })}
+                  {isYouTubeUrl && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPinnedBadge({ id: "youtube", name: "YouTube", color: "#FF0000", textColor: "#FFFFFF" });
+                        setChipsExpanded(false);
+                        if (onFeedYouTubeSelect) {
+                          onFeedYouTubeSelect();
+                          return;
+                        }
+                        onClose?.();
+                        navigate("/youtube");
+                      }}
+                      className="pointer-events-auto w-full whitespace-nowrap inline-flex items-center justify-center gap-1 rounded-full border border-white/25 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
+                      style={{ backgroundColor: "#FF0000", fontFamily: "'Montserrat',system-ui,sans-serif" }}
+                      title="Voir le feed YouTube"
+                    >
+                      <YouTubeIcon className="h-3.5 w-3.5 shrink-0" />
+                      YouTube
+                    </button>
+                  )}
+                </>
+              );
+            })()}
+          </div>
+          {/* Colonne droite : les 2 villes */}
+          <div className="flex flex-col gap-2">
+            {CITY_FEED_BADGES.map((city) => (
+              <button
+                key={city.id}
+                type="button"
+                disabled={!onFeedCitySelect}
+                onClick={() => {
+                  setPinnedBadge({ id: city.id, name: city.name, color: null, textColor: null });
+                  setChipsExpanded(false);
+                  onFeedCitySelect?.(city);
+                }}
+                className="pointer-events-auto w-full whitespace-nowrap inline-flex items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
+                style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
+                title={onFeedCitySelect ? `Voir les vidéos à ${city.name}` : city.name}
+              >
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                {city.name}
+              </button>
+            ))}
+          </div>
         </div>
       )}
+
       {expanded && (
         <div className="mt-2 flex flex-col items-center">
           <button
