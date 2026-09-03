@@ -323,7 +323,7 @@ export function CtaBar({
           contenu (hauteur de la barre de CTAs liquid glass) est donc un padding SANS marge
           négative — sinon le bloc redescend et le teaser « … plus » repasse derrière les CTAs. */}
       {infoSlot && !aiOverlayActive ? (
-        <div className={`relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto rounded-t-2xl border-x border-b-0 border-white/10 md:w-[calc(100%-1rem)] md:max-w-[450px] pointer-events-auto bg-gradient-to-b from-black/55 to-black/85 backdrop-blur-[14px] shadow-[0_8px_32px_rgba(0,0,0,0.45)] pb-[calc(104px+env(safe-area-inset-bottom))] md:pb-[104px]`}>
+        <div className={`relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto rounded-t-2xl border-x border-b-0 border-white/10 md:w-[calc(100%-1rem)] md:max-w-[450px] pointer-events-auto bg-gradient-to-b from-black/55 to-black/85 backdrop-blur-[14px] shadow-[0_8px_32px_rgba(0,0,0,0.45)] ${restCtas.length > 0 ? 'pb-[calc(12px+env(safe-area-inset-bottom))] md:pb-3' : 'pb-[calc(104px+env(safe-area-inset-bottom))] md:pb-[104px]'}`}>
           {infoSlot}
 
           {restCtas.length > 0 && (
