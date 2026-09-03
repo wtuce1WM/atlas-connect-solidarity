@@ -533,6 +533,11 @@ const GenericVideosPanel = () => {
   const [videos, setVideos] = useState<GenericVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadedUrl, setUploadedUrl] = useState("");
+  const [pendingUrls, setPendingUrls] = useState<string[]>([]);
+  const [newPlatform, setNewPlatform] = useState<"instagram" | "tiktok" | "youtube">("instagram");
+  const [newSocialAccount, setNewSocialAccount] = useState("");
+  const [newSocialUrl, setNewSocialUrl] = useState("");
+  const [sortMode, setSortMode] = useState<"recent" | "manual">("recent");
   const [creating, setCreating] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [socialVideo, setSocialVideo] = useState<GenericVideo | null>(null);
