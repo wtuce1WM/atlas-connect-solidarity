@@ -2160,12 +2160,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * Ouverture immédiate du feed vidéo d'une suggestion badgée, sans attendre le
    * modèle : même source de vérité (`fetchBadgesVideoFeed`) que le serveur.
    */
-  const openEarlyBadgeFeed = useCallback(async (badgeIds: string[]) => {
+  const openEarlyBadgeFeed = useCallback(async (badgeIds: string[]): Promise<boolean> => {
     try {
       const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
       const seed = Math.random().toString(36).slice(2, 10);
       const { items, total } = await fetchBadgesVideoFeed(badgeIds, { seed, limit: 30 });
-      if (!items.length) return;
+      if (!items.length) return false;
       earlyFeedOpenRef.current = true;
       setVideoFeedList(items);
       setVideoFeedCtx({ badgeIds, seed, total, cityIds: null });
