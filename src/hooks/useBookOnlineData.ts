@@ -292,25 +292,12 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
 
     const fetchData = async (): Promise<void> => {
 
-      // Only show loading skeleton & reset state when there's no cache (avoids flicker)
-      if (!cached) {
-        setIsLoading(true);
-        setDestinations([]);
-        setPoiBusinesses([]);
-        setKpRelated([]);
-        setKpSubcategoryItems([]);
-        setKpSubcategoryLabel(null);
-        setIsKp1Only(false);
-        setVideoDocs([]);
-        setReviewTexts([]);
-        setExternalLinks([]);
-        setMenuSummaries([]);
-        setMenuDocsRaw([]);
-        setCategoryIcon(null);
-        setShowGoogleMap(true);
-        setLiteApiHotelId(null);
-        setSerpApiMapping(null);
-      }
+      // Continuité visuelle du viewer (aligné sur VideoSlidePanel) : on ne vide
+      // JAMAIS les données déjà affichées. Le panneau reste rendu tel quel (rail
+      // de CTAs, CTAs du header, chevrons, barre info) pendant le chargement de
+      // la fiche suivante ; tout est remplacé d'un bloc à l'arrivée des données.
+      if (!cached) setIsLoading(true);
+
 
       const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes, videoDocsRes] = await Promise.all([
         db

@@ -2364,7 +2364,10 @@ const BookOnlineSlidePanelInner = ({
     setIsFileVideoSquare(ratio >= 0.9 && ratio <= 1.1);
   }, [setIsFileVideoVertical, setIsFileVideoSquare]);
 
-  if (isLoading) {
+  // Chargement : on ne remplace l'écran QUE s'il n'y a rien à montrer. En
+  // navigation verticale entre résultats, la fiche précédente reste rendue
+  // (avec tous les éléments posés au-dessus du viewer) jusqu'au basculement.
+  if (isLoading && !business) {
     // Widget carte embarqué : pas de squelette de fiche (on n'affiche jamais l'accueil du Master).
     // Depuis la barre info du viewer, conserver la vidéo visible jusqu'à ce que
     // la Full Description soit prête : le squelette noir était l'écran furtif
