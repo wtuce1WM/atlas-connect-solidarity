@@ -1260,28 +1260,33 @@ const VideoSlidePanel = ({
         })()}
 
 
-        {!feedLayout && (onPrev || onNext) && (
-          <div className="absolute top-1/2 -translate-y-1/2 right-3 z-30 flex flex-col gap-6 pointer-events-none">
+        {/* Pilule chevrons haut/bas — identique à BookOnlineSlidePanel (desktop + mobile) */}
+        {(hasPrev || hasNext) && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
+          && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1 rounded-l-full border border-r-0 border-white/10 bg-black/80 backdrop-blur-md shadow-[-4px_4px_12px_rgba(0,0,0,0.3)] py-2 px-1 pointer-events-auto">
             <button
               type="button"
-              onClick={onPrev}
-              disabled={!hasPrev}
-              className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
+              data-cta-tap
               aria-label="Vidéo précédente"
+              disabled={!hasPrev}
+              onClick={(e) => { e.stopPropagation(); onPrev?.(); }}
+              className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white active:scale-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronUp className="h-5 w-5" />
             </button>
             <button
               type="button"
-              onClick={onNext}
-              disabled={!hasNext}
-              className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
+              data-cta-tap
               aria-label="Vidéo suivante"
+              disabled={!hasNext}
+              onClick={(e) => { e.stopPropagation(); onNext?.(); }}
+              className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white active:scale-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronDown className="h-5 w-5" />
             </button>
           </div>
         )}
+
 
         {/* Tableau de 3 colonnes de chips badges en haut de la vidéo — feed uniquement.
             Colonne 1 : menu fixe de 10 filtres (Points d'intérêt, Guide, Famille,
