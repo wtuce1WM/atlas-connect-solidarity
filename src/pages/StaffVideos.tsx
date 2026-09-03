@@ -122,6 +122,11 @@ const StaffVideos = () => {
               <Youtube className="h-4 w-4" />
               YouTube
             </TabsTrigger>
+            <TabsTrigger value="generic" className="gap-2">
+              <Film className="h-4 w-4" />
+              Génériques
+            </TabsTrigger>
+
             <TabsTrigger value="video-id" className="gap-2">
               <Video className="h-4 w-4" />
               Vidéo ID
@@ -155,8 +160,8 @@ const StaffVideos = () => {
                 <TabsTrigger value="poi-videos">POI</TabsTrigger>
                 <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
                 <TabsTrigger value="pois-videos">POIS</TabsTrigger>
-                <TabsTrigger value="generic-videos">Génériques</TabsTrigger>
                 <TabsTrigger value="db-structure">Toutes</TabsTrigger>
+
               </TabsList>
               <TabsContent value="front-videos">
                 <Tabs defaultValue="marrakech">
@@ -190,9 +195,6 @@ const StaffVideos = () => {
               <TabsContent value="pois-videos">
                 <VideoPoiAssignmentPanel />
               </TabsContent>
-              <TabsContent value="generic-videos">
-                <GenericVideosPanel />
-              </TabsContent>
               <TabsContent value="fs-videos">
                 <FrontStructureVideosPanel />
               </TabsContent>
@@ -205,6 +207,11 @@ const StaffVideos = () => {
           <TabsContent value="youtube">
             <YouTubeBackofficePanel />
           </TabsContent>
+
+          <TabsContent value="generic">
+            <GenericVideosPanel />
+          </TabsContent>
+
 
           <TabsContent value="video-id">
             <VideoThumbnailLocker />
