@@ -677,26 +677,41 @@ const GenericVideosPanel = () => {
   }, []);
 
   const handleCreate = useCallback(async () => {
-    if (!uploadedUrl) return;
+    if (pendingUrls.length === 0) return;
     setCreating(true);
-    const nextOrder = videos.length > 0 ? Math.max(...videos.map(v => v.sort_order)) + 1 : 0;
+    let nextOrder = videos.length > 0 ? Math.max(...videos.map(v => v.sort_order)) + 1 : 0;
 
-    // Auto-generate thumbnail (YouTube/Vimeo/hosted) — never blocking the insert.
-    let thumbnailUrl: string | null = null;
-    try {
-      const { resolveVideoThumbnailUrl } = await import("@/lib/videoThumbnail");
-      thumbnailUrl = await resolveVideoThumbnailUrl(uploadedUrl, "generic");
-    } catch (e) {
-      console.warn("[generic-video] thumbnail generation failed:", e);
+    const socialFields: Record<string, string | null> = {};
+    if (newSocialAccount.trim() || newSocialUrl.trim()) {
+      socialFields[`${newPlatform}_account`] = newSocialAccount.trim() || null;
+      socialFields[`${newPlatform}_url`] = newSocialUrl.trim() || null;
     }
 
-    const { error } = await supabase
-      .from("generic_videos" as any)
-      .insert({ url: uploadedUrl, sort_order: nextOrder, thumbnail_url: thumbnailUrl } as any);
+    const rows: any[] = [];
+    for (const url of pendingUrls) {
+      // Auto-generate thumbnail (YouTube/Vimeo/hosted) — never blocking the insert.
+      let thumbnailUrl: string | null = null;
+      try {
+        const { resolveVideoThumbnailUrl } = await import("@/lib/videoThumbnail");
+        thumbnailUrl = await resolveVideoThumbnailUrl(url, "generic");
+      } catch (e) {
+        console.warn("[generic-video] thumbnail generation failed:", e);
+      }
+      rows.push({ url, sort_order: nextOrder++, thumbnail_url: thumbnailUrl, ...socialFields });
+    }
+
+    const { error } = await supabase.from("generic_videos" as any).insert(rows as any);
     if (error) toast.error(error.message);
-    else { toast.success(thumbnailUrl ? "Vidéo générique ajoutée + vignette générée" : "Vidéo générique ajoutée (vignette à générer manuellement)"); setUploadedUrl(""); await loadVideos(); }
+    else {
+      toast.success(`${rows.length} vidéo${rows.length > 1 ? "s" : ""} générique${rows.length > 1 ? "s" : ""} ajoutée${rows.length > 1 ? "s" : ""}`);
+      setUploadedUrl("");
+      setPendingUrls([]);
+      setNewSocialAccount("");
+      setNewSocialUrl("");
+      await loadVideos();
+    }
     setCreating(false);
-  }, [uploadedUrl, videos, loadVideos]);
+  }, [pendingUrls, videos, loadVideos, newPlatform, newSocialAccount, newSocialUrl]);
 
   const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event;
