@@ -678,6 +678,11 @@ export async function buildFilteredAnswer(
     serviceKey: string;
     /** Contexte du bloc immersif enrichi (voir `buildPinnedAnswer`). */
     immersive?: ImmersiveCtx;
+    /**
+     * Périmètre imposé par le tour précédent (pool mémorisé) : la réponse doit
+     * rester DANS ces ids. Repli sur le corpus curaté si l'intersection est vide.
+     */
+    restrictToIds?: string[];
   },
 ): Promise<CuratedAnswer | null> {
   const badgeIds = (opts.badgeIds || []).filter(Boolean);
