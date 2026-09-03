@@ -813,6 +813,90 @@ Deno.serve(async (req) => {
            */
           const curatedPoolRestrict = !explicitCity && poolIds.length ? poolIds : [];
 
+          /**
+           * AFFINAGE « VUE » SUR LE POOL — priorité sur la route curatée.
+           * Ex. « location villa essaouira » (14 adresses) puis « vue sur mer » :
+           * on filtre LES 14 sur les attributs/preuves de vue (services, badges,
+           * texte, géométrie pour les repères ponctuels) au lieu d'ouvrir le
+           * corpus curaté global « Les adresses avec vue sur mer ».
+           */
+          if (!explicitCity && poolIds.length) {
+            const vi = detectViewIntent(userMessage);
+            if (vi.hasViewIntent && (vi.panoramas.length || vi.points.length)) {
+              const rows: any[] = [];
+              for (let i = 0; i < poolIds.length; i += 80) {
+                const { data } = await admin
+                  .from("businesses")
+                  .select("id, name, hook_fr, hook_en, description, services, latitude, longitude")
+                  .eq("is_active", true)
+                  .in("id", poolIds.slice(i, i + 80));
+                rows.push(...(data || []));
+              }
+              // Badges de fiche : deuxième source d'attributs de vue.
+              const badgesByBiz = new Map<string, string[]>();
+              try {
+                const { data: bb } = await admin
+                  .from("business_badges")
+                  .select("business_id, badges(name)")
+                  .in("business_id", poolIds.slice(0, 200));
+                for (const l of bb || []) {
+                  const n = (l as any)?.badges?.name;
+                  if (!n) continue;
+                  const k = String((l as any).business_id);
+                  badgesByBiz.set(k, [...(badgesByBiz.get(k) || []), String(n)]);
+                }
+              } catch (e) {
+                console.error("[embed-ai-chat-v2] pool_view_badges_failed", String(e));
+              }
+
+              const keptIds = rows.filter((b: any) => {
+                const text = [b.name, b.hook_fr, b.hook_en, b.description].filter(Boolean).join(" ");
+                const attrs = { services: b.services, badgeNames: badgesByBiz.get(String(b.id)) || [] };
+                const panoOk = vi.panoramas.some((p) => hasPanoramaAttribute(p, attrs) || hasPanoramaProof(p, text));
+                const pointOk = vi.points.some((p) =>
+                  (withinPointRadius(p, b.latitude, b.longitude) && hasVantage(attrs, text)) ||
+                  hasPointViewProof(p, text)
+                );
+                return panoOk || pointOk;
+              }).map((b: any) => String(b.id));
+
+              console.log("[embed-ai-chat-v2] pool_view_refine", JSON.stringify({
+                pool: poolIds.length, kept: keptIds.length,
+                panoramas: vi.panoramas.map((p) => p.slug), points: vi.points.map((p) => p.slug),
+              }));
+
+              if (keptIds.length) {
+                // Ordre du pool préservé.
+                const order = new Map(poolIds.map((id, i) => [String(id), i]));
+                const ordered = keptIds.sort((a, b) => (order.get(a) ?? 0) - (order.get(b) ?? 0));
+                const built = await buildPinnedAnswer(admin, ordered, host, lang, null, {
+                  route: "pool_view_refine",
+                  competitorGuard,
+                  poolIds: ordered,
+                  immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks },
+                }).catch((e) => {
+                  console.error("[embed-ai-chat-v2] pool_view_refine_failed", String(e));
+                  return null;
+                });
+                if (built) {
+                  route = built.route;
+                  resultsCount = built.shown;
+                  emit(built.text);
+                  if (built.mapPayload?.businesses?.length) {
+                    emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
+                  }
+                  emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
+                  emit("\n\n" + await poolMarker(admin, ordered, scopeCity));
+                  await emitDestChips(ordered);
+                  await finish(true);
+                  return;
+                }
+              }
+            }
+          }
+
+
+
           
 
 
