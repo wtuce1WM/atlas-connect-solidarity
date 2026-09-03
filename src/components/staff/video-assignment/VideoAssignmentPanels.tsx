@@ -11,7 +11,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Loader2, Play, X, MapPin, MapPinned, Building2, Search, Globe, Tag, Layers,
+  Loader2, Play, X, MapPin, MapPinned, Building2, Search, Globe, Tag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -641,7 +641,7 @@ export const InlineDestinationCityAssignment = ({
   );
 };
 
-/* ─────────────────── Badges + Subcategories + Cities ─────────────────── */
+/* ─────────────────── Badges + Cities ─────────────────── */
 interface BadgeItem { id: string; name_fr: string; color_hex: string | null; }
 interface CityItem { id: string; name_fr: string; }
 
