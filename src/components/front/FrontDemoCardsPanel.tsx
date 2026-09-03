@@ -122,7 +122,11 @@ const FrontDemoCardsPanel = ({
       className={`absolute left-0 top-0 bottom-0 z-30 flex flex-col bg-black transition-[width] duration-500 ${
         fullWidth ? "w-full" : "hidden w-1/2 shadow-[8px_0_40px_rgba(0,0,0,0.35)] md:flex"
       }`}
-      style={{ animation: "owmFrontCardsSlideIn 420ms cubic-bezier(.22,1,.36,1) both" }}
+      style={{
+        animation: closing
+          ? "owmFrontCardsFadeOut 320ms ease-out both"
+          : "owmFrontCardsSlideIn 420ms cubic-bezier(.22,1,.36,1) both",
+      }}
       onClick={(e) => e.stopPropagation()}
     >
 
@@ -131,13 +135,17 @@ const FrontDemoCardsPanel = ({
           from { transform: translateX(-100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
         }
+        @keyframes owmFrontCardsFadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
       `}</style>
 
       {/* Header /front (logo + hamburger) uniquement en mode grille plein écran.
           Fond noir opaque pour masquer la grille qui scroll en dessous. */}
       {fullWidth && (
         <div className="fixed inset-x-0 top-0 z-50 bg-black">
-          <FrontHeader visible onLogoClick={onClose} />
+          <FrontHeader visible onLogoClick={requestClose} />
         </div>
       )}
 
