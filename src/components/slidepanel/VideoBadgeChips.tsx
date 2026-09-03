@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -106,9 +106,16 @@ const VideoBadgeChips = ({
   /** Largeur unique des chips : mesurée sur le libellé le plus long. */
   const chipSizerRef = useRef<HTMLSpanElement>(null);
   const [chipWidth, setChipWidth] = useState<number | null>(null);
-  /** Largeur unique des chips : mesurée sur le libellé le plus long. */
-  const chipSizerRef = useRef<HTMLSpanElement>(null);
-  const [chipWidth, setChipWidth] = useState<number | null>(null);
+  useEffect(() => {
+    const measure = () => {
+      const w = chipSizerRef.current?.offsetWidth;
+      if (w) setChipWidth(w);
+    };
+    measure();
+    document.fonts?.ready?.then(() => { if (chipSizerRef.current) measure(); });
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [expanded]);
 
   /** Couleurs des badges du menu fixe, lues en back-office (aucune couleur codée en dur). */
   const [menuBadgeColors, setMenuBadgeColors] = useState<Record<string, { color: string | null; textColor: string | null }>>({});
