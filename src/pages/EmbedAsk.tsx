@@ -2747,6 +2747,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return out;
   }, [videoFeedList]);
 
+  /** Fiche dont l'ouverture vient d'un clic dans le feed vidéo ouvert : seule
+      elle hérite du pin `feedVideoUrlById` (continuité visuelle). Toute autre
+      ouverture (carte/miniature) démarre sur la 1re vidéo au `sort_order`. */
+  const [feedPinnedBusinessId, setFeedPinnedBusinessId] = useState<string | null>(null);
   /** Vidéo du feed par établissement : sert de repli à `badge_video_url`. */
   const feedVideoUrlById = useMemo(() => {
     const out: Record<string, string> = {};
