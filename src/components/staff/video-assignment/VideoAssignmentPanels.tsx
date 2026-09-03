@@ -1,5 +1,5 @@
 /**
- * Shared video assignment panels (POI / Businesses / Destinations & Cities / Tags=Badges+Subcat+Cities).
+ * Shared video assignment panels (POI / Businesses / Destinations & Cities / Badges+Cities).
  *
  * Used by both the generic videos backoffice panel and the YouTube backoffice panel.
  * The "source" prop controls which junction tables are read from / written to.
@@ -11,7 +11,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Loader2, Play, X, MapPin, MapPinned, Building2, Search, Globe, Tag, Layers,
+  Loader2, Play, X, MapPin, MapPinned, Building2, Search, Globe, Tag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +30,6 @@ interface TableMap {
   destination: string;
   city: string;
   badge: string;
-  subcategory: string;
   /** FK column on the junction tables that points to the video */
   fk: string;
 }
@@ -42,7 +41,6 @@ const TABLES: Record<AssignmentSource, TableMap> = {
     destination: "generic_video_destinations",
     city: "generic_video_cities",
     badge: "generic_video_badges",
-    subcategory: "generic_video_subcategories",
     fk: "generic_video_id",
   },
   youtube: {
@@ -51,7 +49,6 @@ const TABLES: Record<AssignmentSource, TableMap> = {
     destination: "business_youtube_video_destinations",
     city: "business_youtube_video_cities",
     badge: "business_youtube_video_badges",
-    subcategory: "business_youtube_video_subcategories",
     fk: "youtube_video_id",
   },
 };
@@ -644,9 +641,8 @@ export const InlineDestinationCityAssignment = ({
   );
 };
 
-/* ─────────────────── Badges + Subcategories + Cities ─────────────────── */
+/* ─────────────────── Badges + Cities ─────────────────── */
 interface BadgeItem { id: string; name_fr: string; color_hex: string | null; }
-interface SubcatItem { id: string; name_fr: string; category_id: string | null; }
 interface CityItem { id: string; name_fr: string; }
 
 export const InlineBadgeSubcatCityAssignment = ({
@@ -659,18 +655,12 @@ export const InlineBadgeSubcatCityAssignment = ({
 }) => {
   const T = TABLES[source];
   const [allBadges, setAllBadges] = useState<BadgeItem[]>([]);
-  const [allSubcats, setAllSubcats] = useState<SubcatItem[]>([]);
   const [allCities, setAllCities] = useState<CityItem[]>([]);
-  const [categories, setCategories] = useState<Record<string, string>>({});
-
   const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
   const [initialBadgeIds, setInitialBadgeIds] = useState<string[]>([]);
-  const [selectedSubcatIds, setSelectedSubcatIds] = useState<string[]>([]);
-  const [initialSubcatIds, setInitialSubcatIds] = useState<string[]>([]);
   const [selectedCityIds, setSelectedCityIds] = useState<string[]>([]);
   const [initialCityIds, setInitialCityIds] = useState<string[]>([]);
 
-  const [subcatSearch, setSubcatSearch] = useState("");
   const [citySearch, setCitySearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -679,28 +669,19 @@ export const InlineBadgeSubcatCityAssignment = ({
     const load = async () => {
       setLoading(true);
       const [
-        { data: badges }, { data: subcats }, { data: cities }, { data: cats },
-        { data: badgeLinks }, { data: subcatLinks }, { data: cityLinks },
+        { data: badges }, { data: cities },
+        { data: badgeLinks }, { data: cityLinks },
       ] = await Promise.all([
         supabase.from("badges").select("id, name_fr, color_hex").order("name_fr"),
-        supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
         supabase.from("cities").select("id, name_fr").order("name_fr"),
-        supabase.from("categories" as any).select("id, name_fr") as any,
         supabase.from(T.badge as any).select("badge_id").eq(T.fk, video.id) as unknown as { data: any[] | null },
-        supabase.from(T.subcategory as any).select("subcategory_id").eq(T.fk, video.id) as unknown as { data: any[] | null },
         supabase.from(T.city as any).select("city_id").eq(T.fk, video.id) as unknown as { data: any[] | null },
       ]);
       setAllBadges((badges as BadgeItem[]) || []);
-      setAllSubcats((subcats as SubcatItem[]) || []);
       setAllCities((cities as CityItem[]) || []);
-      const cMap: Record<string, string> = {};
-      ((cats as any[]) || []).forEach((c: any) => { cMap[c.id] = c.name_fr; });
-      setCategories(cMap);
       const bIds = (badgeLinks || []).map((l: any) => l.badge_id);
-      const sIds = (subcatLinks || []).map((l: any) => l.subcategory_id);
       const ciIds = (cityLinks || []).map((l: any) => l.city_id);
       setSelectedBadgeIds(bIds); setInitialBadgeIds(bIds);
-      setSelectedSubcatIds(sIds); setInitialSubcatIds(sIds);
       setSelectedCityIds(ciIds); setInitialCityIds(ciIds);
       setLoading(false);
     };
@@ -708,14 +689,12 @@ export const InlineBadgeSubcatCityAssignment = ({
   }, [video.id, source]);
 
   const toggleBadge = (id: string) => setSelectedBadgeIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
-  const toggleSubcat = (id: string) => setSelectedSubcatIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
   const toggleCity = (id: string) => setSelectedCityIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
 
   const sortedKey = (a: string[]) => JSON.stringify([...a].sort());
   const isBadgeDirty = sortedKey(selectedBadgeIds) !== sortedKey(initialBadgeIds);
-  const isSubcatDirty = sortedKey(selectedSubcatIds) !== sortedKey(initialSubcatIds);
   const isCityDirty = sortedKey(selectedCityIds) !== sortedKey(initialCityIds);
-  const isDirty = isBadgeDirty || isSubcatDirty || isCityDirty;
+  const isDirty = isBadgeDirty || isCityDirty;
 
   const save = async () => {
     setSaving(true);
@@ -725,14 +704,6 @@ export const InlineBadgeSubcatCityAssignment = ({
       if (toRemove.length > 0) await supabase.from(T.badge as any).delete().eq(T.fk, video.id).in("badge_id", toRemove);
       if (toAdd.length > 0) await supabase.from(T.badge as any).insert(
         toAdd.map(badge_id => ({ [T.fk]: video.id, badge_id })) as any
-      );
-    }
-    if (isSubcatDirty) {
-      const toAdd = selectedSubcatIds.filter(id => !initialSubcatIds.includes(id));
-      const toRemove = initialSubcatIds.filter(id => !selectedSubcatIds.includes(id));
-      if (toRemove.length > 0) await supabase.from(T.subcategory as any).delete().eq(T.fk, video.id).in("subcategory_id", toRemove);
-      if (toAdd.length > 0) await supabase.from(T.subcategory as any).insert(
-        toAdd.map(subcategory_id => ({ [T.fk]: video.id, subcategory_id })) as any
       );
     }
     if (isCityDirty) {
@@ -745,26 +716,10 @@ export const InlineBadgeSubcatCityAssignment = ({
     }
     toast.success("Affectations enregistrées");
     setInitialBadgeIds([...selectedBadgeIds]);
-    setInitialSubcatIds([...selectedSubcatIds]);
     setInitialCityIds([...selectedCityIds]);
     onSaved(); setSaving(false);
   };
 
-  const filteredSubcats = useMemo(() => {
-    if (!subcatSearch.trim()) return allSubcats;
-    const q = subcatSearch.toLowerCase();
-    return allSubcats.filter(s => s.name_fr.toLowerCase().includes(q));
-  }, [allSubcats, subcatSearch]);
-
-  const subcatsByCategory = useMemo(() => {
-    const m: Record<string, SubcatItem[]> = {};
-    filteredSubcats.forEach(s => {
-      const cat = (s.category_id && categories[s.category_id]) || "Sans catégorie";
-      if (!m[cat]) m[cat] = [];
-      m[cat].push(s);
-    });
-    return Object.entries(m).sort(([a], [b]) => a.localeCompare(b));
-  }, [filteredSubcats, categories]);
 
   const filteredCities = useMemo(() => {
     if (!citySearch.trim()) return allCities;
@@ -776,7 +731,7 @@ export const InlineBadgeSubcatCityAssignment = ({
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between p-3 border-b bg-muted/30">
         <h3 className="text-sm font-semibold flex items-center gap-2">
-          <Tag className="h-4 w-4" />Badges, Sous-catégories & Villes
+          <Tag className="h-4 w-4" />Badges & Villes
         </h3>
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
       </div>
@@ -817,43 +772,6 @@ export const InlineBadgeSubcatCityAssignment = ({
               )}
             </div>
 
-            <Separator />
-
-            {/* Subcategories */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <Layers className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-xs font-medium text-muted-foreground">Sous-catégories ({selectedSubcatIds.length})</span>
-                </div>
-                <Input placeholder="Rechercher…" value={subcatSearch} onChange={e => setSubcatSearch(e.target.value)}
-                  className="h-7 text-xs max-w-[180px]" />
-              </div>
-              {subcatsByCategory.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-3">Aucune sous-catégorie</p>
-              ) : (
-                <div className="space-y-3">
-                  {subcatsByCategory.map(([catName, items]) => (
-                    <div key={catName}>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">{catName}</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {items.map(s => (
-                          <Badge key={s.id}
-                            variant={selectedSubcatIds.includes(s.id) ? "default" : "outline"}
-                            className="cursor-pointer transition-colors text-[10px]"
-                            onClick={() => toggleSubcat(s.id)}>
-                            {s.name_fr}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <Separator />
-
             {/* Cities */}
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2">
@@ -879,6 +797,11 @@ export const InlineBadgeSubcatCityAssignment = ({
                 </div>
               )}
             </div>
+
+            <Button size="sm" onClick={save} disabled={!isDirty || saving} className="w-full">
+              {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Enregistrer
+            </Button>
           </div>
         )}
       </div>
