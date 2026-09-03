@@ -195,9 +195,6 @@ const StaffVideos = () => {
               <TabsContent value="pois-videos">
                 <VideoPoiAssignmentPanel />
               </TabsContent>
-              <TabsContent value="generic-videos">
-                <GenericVideosPanel />
-              </TabsContent>
               <TabsContent value="fs-videos">
                 <FrontStructureVideosPanel />
               </TabsContent>
@@ -210,6 +207,11 @@ const StaffVideos = () => {
           <TabsContent value="youtube">
             <YouTubeBackofficePanel />
           </TabsContent>
+
+          <TabsContent value="generic">
+            <GenericVideosPanel />
+          </TabsContent>
+
 
           <TabsContent value="video-id">
             <VideoThumbnailLocker />
