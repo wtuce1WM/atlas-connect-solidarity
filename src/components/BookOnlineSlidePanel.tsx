@@ -2897,11 +2897,11 @@ const BookOnlineSlidePanelInner = ({
             même mécanique que VideoSlidePanel : elle ne suit JAMAIS le swipe vertical
             ni le scroll natif du conteneur (repro mobile : la barre suivait le pouce). */}
         {!showPoiMapOverlay && (() => {
-          // Ancrage identique sur Desktop et Mobile : la barre est collée au bas du viewer
-          // (comme dans VideoSlidePanel) et c'est CtaBar qui réserve la hauteur de la barre
-          // de CTAs liquid glass.
+          // Quand la barre Play/Mute/IA/Lieu/Profil est montée, la barre info est ancrée
+          // juste au-dessus d'elle — même mécanique que VideoSlidePanel. CtaBar ne doit
+          // pas simuler cet espace avec un padding interne (source de l'espace vide).
           return (
-            <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col justify-end pointer-events-none [&>*]:pointer-events-auto">
+            <div className={`absolute inset-x-0 z-30 flex flex-col justify-end pointer-events-none [&>*]:pointer-events-auto ${showSearchBar ? 'bottom-[calc(72px+env(safe-area-inset-bottom))] md:bottom-[72px]' : 'bottom-0'}`}>
         <CtaBar
           business={business}
           language={language}
