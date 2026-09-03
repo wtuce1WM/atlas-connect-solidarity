@@ -2786,10 +2786,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   };
 
   const openBookingOverlay = (url: string, label: string) => {
+    // L'overlay (En savoir + / Réservez) doit passer devant : on ferme d'abord
+    // la fiche business ouverte depuis l'assistant, sinon il s'affiche derrière.
+    setOpenBusinessId(null);
+    setOpenBusinessOverlay(null);
     setBookingOverlayUrl(url);
     setBookingOverlayTitle(label);
     setShowBookingOverlay(true);
   };
+
 
   // Présentation unique des établissements cités par l'IA (cartes résultat partagées).
   const renderCarousel = (businesses: MapPanelBusiness[], onOpenMap?: () => void, rankOrder?: string | null) => {
