@@ -2884,11 +2884,10 @@ const BookOnlineSlidePanelInner = ({
             même mécanique que VideoSlidePanel : elle ne suit JAMAIS le swipe vertical
             ni le scroll natif du conteneur (repro mobile : la barre suivait le pouce). */}
         {!showPoiMapOverlay && (() => {
-          const anchoredInfoBar = !!business && !business.hide_description && !showSearchBar;
+          // Ancrage identique sur Desktop et Mobile : la barre est collée au bas du viewer
+          // (comme dans VideoSlidePanel) et c'est CtaBar qui réserve la hauteur de la barre
+          // de CTAs liquid glass.
           return (
-            {/* Ancrage identique sur Desktop et Mobile : la barre est collée au bas du
-                viewer (comme dans VideoSlidePanel) et c'est CtaBar qui réserve la hauteur
-                de la barre de CTAs liquid glass. */}
             <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col justify-end pointer-events-none [&>*]:pointer-events-auto">
         <CtaBar
           business={business}
