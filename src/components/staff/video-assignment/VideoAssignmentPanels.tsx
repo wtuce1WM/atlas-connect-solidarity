@@ -659,9 +659,10 @@ export const InlineBadgeSubcatCityAssignment = ({
 }) => {
   const T = TABLES[source];
   const [allBadges, setAllBadges] = useState<BadgeItem[]>([]);
-  const [allSubcats, setAllSubcats] = useState<SubcatItem[]>([]);
-  const [allCities, setAllCities] = useState<CityItem[]>([]);
-  const [categories, setCategories] = useState<Record<string, string>>({});
+  const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
+  const [initialBadgeIds, setInitialBadgeIds] = useState<string[]>([]);
+  const [selectedCityIds, setSelectedCityIds] = useState<string[]>([]);
+  const [initialCityIds, setInitialCityIds] = useState<string[]>([]);
 
   const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
   const [initialBadgeIds, setInitialBadgeIds] = useState<string[]>([]);
@@ -713,9 +714,8 @@ export const InlineBadgeSubcatCityAssignment = ({
 
   const sortedKey = (a: string[]) => JSON.stringify([...a].sort());
   const isBadgeDirty = sortedKey(selectedBadgeIds) !== sortedKey(initialBadgeIds);
-  const isSubcatDirty = sortedKey(selectedSubcatIds) !== sortedKey(initialSubcatIds);
   const isCityDirty = sortedKey(selectedCityIds) !== sortedKey(initialCityIds);
-  const isDirty = isBadgeDirty || isSubcatDirty || isCityDirty;
+  const isDirty = isBadgeDirty || isCityDirty;
 
   const save = async () => {
     setSaving(true);
