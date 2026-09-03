@@ -2263,15 +2263,25 @@ const BookOnlineSlidePanelInner = ({
     const absY = Math.abs(dy);
     if (absX > 60 && absX > absY * 1.5) {
       goMedia(dx < 0 ? 1 : -1);
-    } else if (absY > 60 && absY > absX * 1.5) {
+      // Changement de média : geste consommé par la navigation, pas de bascule
+      // masquer/afficher des cartes (aligné sur VideoSlidePanel).
+      resetDrag();
+      return;
+    }
+    if (absY > 60 && absY > absX * 1.5 && (effectiveHasPrev || effectiveHasNext)) {
       if (dy < 0 && effectiveHasNext) {
         effectiveOnNext?.();
       } else if (dy > 0 && effectiveHasPrev) {
         effectiveOnPrev?.();
       }
+      // Scroll vertical entre résultats : les éléments posés au-dessus du
+      // viewer (rail de CTAs, CTAs du header, chevrons, barre info) restent
+      // affichés — le geste ne doit JAMAIS déclencher `hideCards`.
+      resetDrag();
+      return;
     }
     onTouchEnd?.();
-  }, [onTouchEnd, goMedia, effectiveHasNext, effectiveHasPrev, effectiveOnNext, effectiveOnPrev, anyOverlayOpen]);
+  }, [onTouchEnd, goMedia, resetDrag, effectiveHasNext, effectiveHasPrev, effectiveOnNext, effectiveOnPrev, anyOverlayOpen]);
 
   // iOS : quand la navigation verticale entre fiches est disponible, un swipe
   // vertical ne doit pas embarquer le viewport (scroll natif / rubber-band).
