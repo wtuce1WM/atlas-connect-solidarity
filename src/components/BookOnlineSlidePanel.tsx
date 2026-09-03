@@ -4960,7 +4960,7 @@ const BookOnlineSlidePanelInner = ({
         </OverlayShell>
       )}
       {/* Chips badges de la vidéo courante (source partagée avec le viewer immersif) */}
-      {effectiveMedia?.kind === "video" && (currentVideoBadges?.length ?? 0) > 0 && !anyOverlay && (
+      {effectiveMedia?.kind === "video" && (currentVideoBadges?.length ?? 0) > 0 && !anyOverlay && !showDescriptionOverlay && (
         <VideoBadgeChips
           badges={currentVideoBadges}
           expanded={chipsExpanded}
