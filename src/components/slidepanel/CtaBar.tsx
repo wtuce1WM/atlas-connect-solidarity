@@ -319,10 +319,10 @@ export function CtaBar({
 
 
       {/* Barre info viewer (+ éventuels CTAs propres à la fiche).
-          La barre de navigation Play/Mute/IA/Lieu/Profil est un composant frère : son espace
-          est réservé par l'ancrage du parent dans BookOnlineSlidePanel, jamais ici. */}
+          Le fond se prolonge derrière la barre Play/Mute/IA/Lieu/Profil sans ajouter
+          de hauteur visible : le padding inférieur est compensé par la marge négative. */}
       {infoSlot && !aiOverlayActive ? (
-        <div className="relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto rounded-t-2xl border-x border-b-0 border-white/10 md:w-[calc(100%-1rem)] md:max-w-[450px] pointer-events-auto bg-gradient-to-b from-black/55 to-black/85 backdrop-blur-[14px] shadow-[0_8px_32px_rgba(0,0,0,0.45)] pb-3">
+        <div className="relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto rounded-t-2xl border-x border-b-0 border-white/10 md:w-[calc(100%-1rem)] md:max-w-[450px] pointer-events-auto bg-gradient-to-b from-black/55 to-black/85 backdrop-blur-[14px] shadow-[0_8px_32px_rgba(0,0,0,0.45)] pb-[calc(72px+env(safe-area-inset-bottom))] -mb-[calc(72px+env(safe-area-inset-bottom))] md:pb-[72px] md:-mb-[72px]">
           {infoSlot}
 
           {restCtas.length > 0 && (
