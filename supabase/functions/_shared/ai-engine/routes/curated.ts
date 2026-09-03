@@ -907,6 +907,23 @@ export async function buildFilteredAnswer(
   }
   if (!ids.length) return null;
 
+  /**
+   * RELANCE SUR LE POOL PRÉCÉDENT : quand le tour précédent porte un corpus
+   * (ex. « location villa essaouira » → 14 adresses), une relance curatée
+   * (« vue sur mer ») AFFINE ce corpus au lieu d'ouvrir un corpus neuf.
+   * Repli explicite (jamais silencieux) : aucune intersection → corpus curaté
+   * complet, comportement historique.
+   */
+  const restrict = (opts.restrictToIds || []).filter(Boolean).map(String);
+  if (restrict.length) {
+    const allowed = new Set(restrict);
+    const inPool = ids.filter((id) => allowed.has(String(id)));
+    console.log("[curated] pool_restrict", JSON.stringify({
+      pool: restrict.length, curated: ids.length, kept: inPool.length,
+    }));
+    if (inPool.length) ids = inPool;
+  }
+
   const total = ids.length;
   const shownIds = ids.slice(0, Math.max(max, pinned.length));
 
