@@ -748,13 +748,11 @@ const VideoSlidePanel = ({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      // LocationPickerDialog (portal Radix hors du panel) gère sa propre fermeture :
-      // Escape ne doit pas fermer le viewer en dessous.
-      if (e.key === "Escape" && !locationDialogOpen) onClose();
+      if (e.key === "Escape" && !document.querySelector("[role='dialog']")) onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose, locationDialogOpen]);
+  }, [open, onClose]);
 
   // (Lecture/son des vidéos natives : entièrement délégué à usePanelVideoPlayback.)
 
@@ -947,7 +945,7 @@ const VideoSlidePanel = ({
         // hors de panelRef, mais React fait remonter leurs clics jusqu'ici.
         // On ne ferme donc QUE si le clic vise réellement ce conteneur (zone vide
         // à côté du panneau), jamais un descendant portalisé.
-        if (locationDialogOpen) return;
+        if (document.querySelector("[role='dialog']")) return;
         if (e.target !== e.currentTarget) return;
         onClose();
       }}
