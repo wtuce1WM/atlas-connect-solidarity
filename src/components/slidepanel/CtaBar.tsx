@@ -318,9 +318,12 @@ export function CtaBar({
       )}
 
 
-      {/* Barre info viewer (+ CTAs liquid glass si présents) : fond continu jusqu'au bas du panneau */}
+      {/* Barre info viewer (+ CTAs liquid glass si présents) : réglage identique à
+          VideoSlidePanel (source de vérité visuelle) — même largeur, même fond, et même
+          réserve de place sous le contenu pour que le teaser « … plus » ne passe jamais
+          derrière la barre de CTAs liquid glass. */}
       {infoSlot && !aiOverlayActive ? (
-        <div className={`relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto rounded-t-2xl border-x border-b-0 border-white/10 md:w-[calc(100%-1rem)] md:max-w-[450px] md:mx-auto md:rounded-t-2xl md:border-x md:border-b-0 md:border-white/10 pointer-events-auto bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] ${showSearchBar ? 'pb-[calc(104px+env(safe-area-inset-bottom))] -mb-[calc(104px+env(safe-area-inset-bottom))] md:pb-[103px] md:-mb-[103px]' : 'pb-[40px] -mb-[40px]'}`}>
+        <div className={`relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto rounded-t-2xl border-x border-b-0 border-white/10 md:w-[calc(100%-1rem)] md:max-w-[450px] pointer-events-auto bg-gradient-to-b from-black/55 to-black/85 backdrop-blur-[14px] shadow-[0_8px_32px_rgba(0,0,0,0.45)] ${showSearchBar ? 'pb-[calc(104px+env(safe-area-inset-bottom))] -mb-[calc(104px+env(safe-area-inset-bottom))] md:pb-[103px] md:-mb-[103px]' : 'pb-[calc(96px+env(safe-area-inset-bottom))] -mb-[calc(96px+env(safe-area-inset-bottom))] lg:pb-[5.5rem] lg:-mb-[5.5rem]'}`}>
           {infoSlot}
 
           {restCtas.length > 0 && (
