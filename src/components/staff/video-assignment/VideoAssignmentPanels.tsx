@@ -694,7 +694,6 @@ export const InlineBadgeSubcatCityAssignment = ({
   }, [video.id, source]);
 
   const toggleBadge = (id: string) => setSelectedBadgeIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
-  const toggleSubcat = (id: string) => setSelectedSubcatIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
   const toggleCity = (id: string) => setSelectedCityIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
 
   const sortedKey = (a: string[]) => JSON.stringify([...a].sort());
