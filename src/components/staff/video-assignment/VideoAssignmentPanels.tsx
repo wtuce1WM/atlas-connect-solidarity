@@ -674,28 +674,19 @@ export const InlineBadgeSubcatCityAssignment = ({
     const load = async () => {
       setLoading(true);
       const [
-        { data: badges }, { data: subcats }, { data: cities }, { data: cats },
-        { data: badgeLinks }, { data: subcatLinks }, { data: cityLinks },
+        { data: badges }, { data: cities },
+        { data: badgeLinks }, { data: cityLinks },
       ] = await Promise.all([
         supabase.from("badges").select("id, name_fr, color_hex").order("name_fr"),
-        supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
         supabase.from("cities").select("id, name_fr").order("name_fr"),
-        supabase.from("categories" as any).select("id, name_fr") as any,
         supabase.from(T.badge as any).select("badge_id").eq(T.fk, video.id) as unknown as { data: any[] | null },
-        supabase.from(T.subcategory as any).select("subcategory_id").eq(T.fk, video.id) as unknown as { data: any[] | null },
         supabase.from(T.city as any).select("city_id").eq(T.fk, video.id) as unknown as { data: any[] | null },
       ]);
       setAllBadges((badges as BadgeItem[]) || []);
-      setAllSubcats((subcats as SubcatItem[]) || []);
       setAllCities((cities as CityItem[]) || []);
-      const cMap: Record<string, string> = {};
-      ((cats as any[]) || []).forEach((c: any) => { cMap[c.id] = c.name_fr; });
-      setCategories(cMap);
       const bIds = (badgeLinks || []).map((l: any) => l.badge_id);
-      const sIds = (subcatLinks || []).map((l: any) => l.subcategory_id);
       const ciIds = (cityLinks || []).map((l: any) => l.city_id);
       setSelectedBadgeIds(bIds); setInitialBadgeIds(bIds);
-      setSelectedSubcatIds(sIds); setInitialSubcatIds(sIds);
       setSelectedCityIds(ciIds); setInitialCityIds(ciIds);
       setLoading(false);
     };
