@@ -20,7 +20,7 @@ export type VideoChipBadge = {
 const capFirstBadgeLabel = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 /** Tronque le libellé affiché à 20 caractères (ellipse), sans modifier le nom d'origine. */
-const truncateBadgeLabel = (s: string, max = 20) => {
+const truncateBadgeLabel = (s: string, max = 14) => {
   const trimmed = (s || "").trim();
   return trimmed.length > max ? `${trimmed.slice(0, max).trimEnd()}…` : trimmed;
 };
