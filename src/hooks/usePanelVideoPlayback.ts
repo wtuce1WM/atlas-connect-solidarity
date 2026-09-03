@@ -35,46 +35,36 @@ export function usePanelVideoPlayback({
   const soundOnRef = useRef(soundOn);
   useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
 
-  const [paused, setPaused] = useState(true);
-  const [muted, setMuted] = useState(!soundOn);
+  // ── État d'INTENTION (jamais l'état DOM transitoire du double buffer).
+  // Les CTA affichent l'intention : autoplay sauf pause explicite, et son selon
+  // la préférence globale. Les micro-états du buffer entrant (préchargement
+  // muet, pause avant play()) ne doivent JAMAIS faire clignoter les icônes.
+  const [userPaused, setUserPaused] = useState(false);
+  const paused = blocked ? true : userPaused;
+  const muted = !soundOn;
   // Incrémenté dès qu'un NOUVEL élément <video> est détecté (remount par `key`) :
   // garantit que le moteur de lecture se relance même si mediaKey n'a pas changé.
   const [elVersion, setElVersion] = useState(0);
 
-  // ── Reflet d'état (jamais d'écriture de préférence ici)
+  // ── Détection du buffer actif uniquement (aucun reflet d'état ici)
   useEffect(() => {
     let el: HTMLVideoElement | null = null;
-    let detach: (() => void) | null = null;
     const attach = () => {
       const v = videoRef.current;
       if (v === el) return;
-      detach?.();
-      detach = null;
       el = v;
       if (!v) return;
       setElVersion((n) => n + 1);
-      const onPlay = () => setPaused(false);
-      const onPause = () => setPaused(true);
-      const onVol = () => setMuted(v.muted);
-      v.addEventListener("play", onPlay);
-      v.addEventListener("pause", onPause);
-      v.addEventListener("volumechange", onVol);
-      setPaused(v.paused);
-      setMuted(v.muted);
-      detach = () => {
-        v.removeEventListener("play", onPlay);
-        v.removeEventListener("pause", onPause);
-        v.removeEventListener("volumechange", onVol);
-      };
     };
     attach();
     // Les panneaux remontent l'élément via `key` : on récupère la nouvelle ref.
     const id = window.setInterval(attach, 200);
-    return () => {
-      window.clearInterval(id);
-      detach?.();
-    };
+    return () => window.clearInterval(id);
   }, [videoRef, mediaKey, enabled]);
+
+  // Nouvelle vidéo : l'intention revient à « autoplay ».
+  useEffect(() => { setUserPaused(false); }, [mediaKey]);
+
 
   // ── Lecture : un seul moteur, un seul endroit qui écrit `muted`
   useEffect(() => {
