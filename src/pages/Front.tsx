@@ -514,6 +514,21 @@ const Front = () => {
     void openDemoFeed();
   }, [openDemoFeed]);
 
+  // En PWA installée (mode standalone), l'app s'ouvre directement en mode
+  // « Découvrez l'App ». La version navigateur reste sur l'accueil classique.
+  const autoDemoRef = useRef(false);
+  useEffect(() => {
+    if (autoDemoRef.current) return;
+    const standalone =
+      window.matchMedia?.("(display-mode: standalone)")?.matches ||
+      (window.navigator as any).standalone === true;
+    if (!standalone) return;
+    autoDemoRef.current = true;
+    // Léger délai : laisse le prefetch idle + les polices se mettre en place.
+    const t = window.setTimeout(() => startDemo(), 600);
+    return () => window.clearTimeout(t);
+  }, [startDemo]);
+
 
   const maybeLoadMoreDemo = useCallback(async (currentId: string) => {
     const ctx = demoCtx;
