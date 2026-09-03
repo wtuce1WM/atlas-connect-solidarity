@@ -103,6 +103,12 @@ const VideoBadgeChips = ({
   const chipsBadges = badges;
   const setChipsExpanded = onExpandedChange;
   const [pinnedBadge, setPinnedBadge] = useState<{ id: string; name: string; color?: string | null; textColor?: string | null } | null>(null);
+  /** Largeur unique des chips : mesurée sur le libellé le plus long. */
+  const chipSizerRef = useRef<HTMLSpanElement>(null);
+  const [chipWidth, setChipWidth] = useState<number | null>(null);
+  /** Largeur unique des chips : mesurée sur le libellé le plus long. */
+  const chipSizerRef = useRef<HTMLSpanElement>(null);
+  const [chipWidth, setChipWidth] = useState<number | null>(null);
 
   /** Couleurs des badges du menu fixe, lues en back-office (aucune couleur codée en dur). */
   const [menuBadgeColors, setMenuBadgeColors] = useState<Record<string, { color: string | null; textColor: string | null }>>({});
@@ -132,6 +138,14 @@ const VideoBadgeChips = ({
 
   return (
     <div className="absolute top-16 left-1.5 right-1.5 md:left-3 md:right-3 z-[100] pointer-events-none">
+      <span
+        ref={chipSizerRef}
+        aria-hidden
+        className="invisible absolute px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal"
+        style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
+      >
+        Rooftop Restaurant & Bars
+      </span>
       {!expanded && (() => {
         // Badge « vitrine » : en priorité un badge avec une couleur spécifique
         // (back-office), sinon n'importe lequel.
@@ -162,7 +176,7 @@ const VideoBadgeChips = ({
         );
       })()}
       {expanded && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="flex flex-wrap justify-center gap-2">
           {visibleLeftColumnBadges.filter(
             (b) => !(chipsBadges?.[0]?.id && b.id === chipsBadges[0].id)
           ).map((b) => {
@@ -177,18 +191,19 @@ const VideoBadgeChips = ({
                   setChipsExpanded(false);
                   onFeedBadgeSelect?.({ id: b.id, name: b.label });
                 }}
-                className={`pointer-events-auto inline-flex w-full max-w-full items-center justify-center rounded-full text-center border px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
+                className={`pointer-events-auto inline-flex shrink-0 whitespace-nowrap items-center justify-center rounded-full text-center border px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
                   isSelected ? "border-gold bg-gold text-gold-foreground" : "border-white/25"
                 }`}
-                style={
-                  isSelected
+                style={{
+                  width: chipWidth ?? undefined,
+                  ...(isSelected
                     ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
                     : {
                         backgroundColor: menuBadgeColors[b.id]?.color || "rgba(0,0,0,0.7)",
                         color: menuBadgeColors[b.id]?.textColor || "#FFFFFF",
                         fontFamily: "'Montserrat',system-ui,sans-serif",
-                      }
-                }
+                      }),
+                }}
                 title={onFeedBadgeSelect ? `Voir les vidéos ${b.label}` : b.label}
               >
                 {b.label}
@@ -237,18 +252,19 @@ const VideoBadgeChips = ({
                         setChipsExpanded(false);
                         onFeedBadgeSelect?.({ id: b.id, name: b.name });
                       }}
-                      className={`pointer-events-auto inline-flex w-full max-w-full items-center justify-center rounded-full text-center border px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
+                      className={`pointer-events-auto inline-flex shrink-0 whitespace-nowrap items-center justify-center rounded-full text-center border px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
                         isSelected ? "border-gold bg-gold text-gold-foreground" : "border-white/25 text-white"
                       }`}
-                      style={
-                        isSelected
+                      style={{
+                        width: chipWidth ?? undefined,
+                        ...(isSelected
                           ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
                           : {
                               backgroundColor: b.color || "rgba(0,0,0,0.7)",
                               color: b.text_color || "#FFFFFF",
                               fontFamily: "'Montserrat',system-ui,sans-serif",
-                            }
-                      }
+                            }),
+                      }}
                       title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
                     >
                       {capFirstBadgeLabel(b.name)}
@@ -268,8 +284,8 @@ const VideoBadgeChips = ({
                       onClose?.();
                       navigate("/youtube");
                     }}
-                    className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
-                    style={{ backgroundColor: "#FF0000", fontFamily: "'Montserrat',system-ui,sans-serif" }}
+                    className="pointer-events-auto inline-flex shrink-0 whitespace-nowrap items-center justify-center gap-1 rounded-full border border-white/25 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
+                    style={{ width: chipWidth ?? undefined, backgroundColor: "#FF0000", fontFamily: "'Montserrat',system-ui,sans-serif" }}
                     title="Voir le feed YouTube"
                   >
                     <YouTubeIcon className="h-3.5 w-3.5 shrink-0" />
@@ -289,8 +305,11 @@ const VideoBadgeChips = ({
                 setChipsExpanded(false);
                 onFeedCitySelect?.(city);
               }}
-              className="pointer-events-auto inline-flex max-w-full items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
-              style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
+              className="pointer-events-auto inline-flex shrink-0 whitespace-nowrap items-center justify-center gap-1 rounded-full border border-white/25 bg-black/70 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
+              style={{
+                width: chipWidth ?? undefined,
+                fontFamily: "'Montserrat',system-ui,sans-serif",
+              }}
               title={onFeedCitySelect ? `Voir les vidéos à ${city.name}` : city.name}
             >
               <MapPin className="h-3.5 w-3.5 shrink-0" />
