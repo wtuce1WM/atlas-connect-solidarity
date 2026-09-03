@@ -2787,9 +2787,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
   const openBookingOverlay = (url: string, label: string) => {
     // L'overlay (En savoir + / Réservez) doit passer devant : on ferme d'abord
-    // la fiche business ouverte depuis l'assistant, sinon il s'affiche derrière.
+    // la fiche business et le flux vidéo (VideoSlidePanel) ouverts depuis
+    // l'assistant, sinon il s'affiche derrière.
     setOpenBusinessId(null);
     setOpenBusinessOverlay(null);
+    if (activeFeedVideoId) setActiveFeedVideoId(null);
     setBookingOverlayUrl(url);
     setBookingOverlayTitle(label);
     setShowBookingOverlay(true);
