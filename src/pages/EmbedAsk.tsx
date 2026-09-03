@@ -3338,7 +3338,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             </div>
           );
         })()}
-        {!homeState && messages.map((m, i) => {
+        {!homeState && !feedOpening && messages.map((m, i) => {
           if (m.role === "user") {
             return (
               <div key={m.id || i} className="flex justify-end">
