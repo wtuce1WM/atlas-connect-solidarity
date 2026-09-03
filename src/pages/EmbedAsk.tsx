@@ -1809,7 +1809,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       return;
     }
     if (feedSuggestion?.mode === "video_feed" && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
-      void openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]);
+      // Le panneau de gauche reste masqué jusqu'à l'ouverture du lecteur vidéo.
+      setFeedOpening(true);
+      void openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]).finally(() => {
+        // Feed vide / erreur : openEarlyBadgeFeed n'ouvre rien → on rétablit.
+        setFeedOpening((prev) => (prev && !activeFeedVideoIdRef.current ? false : prev));
+      });
     }
 
     const isBookingLabel = [
