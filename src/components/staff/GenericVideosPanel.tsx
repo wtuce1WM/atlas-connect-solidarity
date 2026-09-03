@@ -691,6 +691,7 @@ const GenericVideosPanel = () => {
 
   useEffect(() => {
     loadVideos();
+
     loadCounts();
   }, [loadVideos, loadCounts]);
 
@@ -785,7 +786,9 @@ const GenericVideosPanel = () => {
     ]);
 
 
+    setLastModifiedId(selectedVideo.id);
     toast.success("Ordre et time frames enregistrés");
+
     setPanelItemsInitial(JSON.stringify(panelItems));
     setPanelSaving(false);
   }, [selectedVideo, panelItems]);
