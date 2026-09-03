@@ -12,6 +12,9 @@ interface VideoUploaderProps {
   businessId?: string;
   maxSizeMB?: number;
   compact?: boolean;
+  /** Accept several files at once; every uploaded URL is pushed through onMultipleUploaded */
+  multiple?: boolean;
+  onMultipleUploaded?: (urls: string[]) => void;
 }
 
 const formatFileSize = (bytes: number) => {
