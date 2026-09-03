@@ -1743,25 +1743,6 @@ const VideoSlidePanel = ({
             />
           </Suspense>
         )}
-        <LocationPickerDialog
-          open={locationDialogOpen}
-          onOpenChange={setLocationDialogOpen}
-          coords={geo.coords}
-          detectedCity={geo.confirmedAddress || geo.detectedCity}
-          isEnabled={geo.isEnabled}
-          isDetecting={geo.isDetecting}
-          onUseCurrentPosition={() => { if (!geo.isEnabled) geo.accept(); }}
-          onConfirm={(confirmedCoords, address) => {
-            geo.setManualLocation(confirmedCoords, address);
-          }}
-          onDisableGeo={() => {
-            try {
-              localStorage.removeItem("geo_manual_coords");
-              localStorage.removeItem("geo_manual_address");
-            } catch { /* noop */ }
-            geo.decline();
-          }}
-        />
         {showYoutubeOverlay && ctaBusiness?.youtube_url && (
           <YouTubeOverlay
             business={{ id: ctaBusiness.id, name: ctaBusiness.name, youtube_url: ctaBusiness.youtube_url } as unknown as BookOnlineBusiness}
