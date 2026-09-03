@@ -129,29 +129,31 @@ export function usePanelVideoPlayback({
     };
   }, [videoRef, mediaKey, enabled, blocked, elVersion]);
 
-  // ── CTA : seuls points d'écriture volontaires
+  // ── CTA : seuls points d'écriture volontaires (intention + DOM)
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
+    const next = !paused; // prochaine valeur de « en pause »
+    setUserPaused(next);
     if (!v) return;
-    if (v.paused) {
-      delete v.dataset.owmUserPaused;
-      v.play().catch(() => {});
-    } else {
+    if (next) {
       v.dataset.owmUserPaused = "1";
       v.pause();
+    } else {
+      delete v.dataset.owmUserPaused;
+      v.play().catch(() => {});
     }
-  }, [videoRef]);
+  }, [videoRef, paused]);
 
   const toggleMute = useCallback(() => {
+    const nextMuted = !muted;
     const v = videoRef.current;
-    const nextMuted = v ? !v.muted : !muted;
     if (v) {
       if (!nextMuted && v.volume === 0) v.volume = 1;
       v.muted = nextMuted;
     }
-    setMuted(nextMuted);
     setSoundOn(!nextMuted); // unique écriture de la préférence globale
   }, [videoRef, muted, setSoundOn]);
+
 
   /** Applique la préférence son courante (ex. reprise après overlay). */
   const applySoundPreference = useCallback(() => {
