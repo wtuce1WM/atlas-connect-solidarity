@@ -848,11 +848,14 @@ const GenericVideosPanel = () => {
           const igAccounts = Array.from(new Set(videos.map(v => v.instagram_account).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
           const ttAccounts = Array.from(new Set(videos.map(v => v.tiktok_account).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
           const ytAccounts = Array.from(new Set(videos.map(v => v.youtube_account).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
-          const filteredVideos = videos.filter(v =>
+          const baseVideos = videos.filter(v =>
             (filterIg === ALL_SOCIAL || v.instagram_account === filterIg) &&
             (filterTt === ALL_SOCIAL || v.tiktok_account === filterTt) &&
             (filterYt === ALL_SOCIAL || v.youtube_account === filterYt)
           );
+          const filteredVideos = sortMode === "recent"
+            ? [...baseVideos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            : baseVideos;
           return (
           <>
             <div className="flex items-center gap-3 flex-wrap">
