@@ -103,7 +103,7 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
 
   const card = (
       <div
-        className={`${transparent ? "" : "backdrop-blur-md"} border border-white/20 rounded-2xl p-4 md:p-5 text-white ${inline ? "w-full max-w-full" : "w-[22rem] max-w-[95vw] animate-zoom-out-center"}`}
+        className={`${transparent ? "" : "backdrop-blur-md"} border border-white/20 rounded-2xl p-4 md:p-5 ${inline ? "w-full max-w-[22rem] mr-auto" : "w-[22rem] max-w-[95vw]"}`}
         style={{ backgroundColor: transparent ? "transparent" : "#3B3B3B" }}
         onClick={e => e.stopPropagation()}
       >
