@@ -555,12 +555,28 @@ export async function buildPinnedAnswer(
      */
     badgeIds?: string[];
 
-
+    /**
+     * Périmètre imposé par le tour précédent (pool mémorisé) : les épinglés
+     * hors pool sont écartés. Repli sur la liste complète si intersection vide.
+     */
+    restrictToIds?: string[];
 
   },
 ): Promise<CuratedAnswer | null> {
 
-  const wanted = ids.filter(Boolean).slice(0, Math.max(1, overrides?.maxCards ?? 20));
+  const restrictPinned = (overrides?.restrictToIds || []).filter(Boolean).map(String);
+  const scopedIds = restrictPinned.length
+    ? (() => {
+        const allowed = new Set(restrictPinned);
+        const kept = ids.filter((id) => allowed.has(String(id)));
+        console.log("[curated] pinned_pool_restrict", JSON.stringify({
+          pool: restrictPinned.length, pinned: ids.length, kept: kept.length,
+        }));
+        return kept.length ? kept : ids;
+      })()
+    : ids;
+
+  const wanted = scopedIds.filter(Boolean).slice(0, Math.max(1, overrides?.maxCards ?? 20));
 
   if (!wanted.length) return null;
   const { data } = await admin
