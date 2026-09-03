@@ -412,7 +412,8 @@ const Widgets = () => {
             </button>
             <button
               type="button"
-              onClick={() => setTarget(SCREENS - 1)}
+              onClick={() => navigate("/contact")}
+
               className="inline-flex items-center gap-3 rounded-full border border-[#C6A046]/70 bg-[#C6A046]/10 px-8 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-[#E4C877] backdrop-blur-md transition-transform hover:-translate-y-0.5"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
