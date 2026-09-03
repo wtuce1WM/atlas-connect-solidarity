@@ -2747,6 +2747,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return out;
   }, [videoFeedList]);
 
+  /** Fiche dont l'ouverture vient d'un clic dans le feed vidéo ouvert : seule
+      elle hérite du pin `feedVideoUrlById` (continuité visuelle). Toute autre
+      ouverture (carte/miniature) démarre sur la 1re vidéo au `sort_order`. */
+  const [feedPinnedBusinessId, setFeedPinnedBusinessId] = useState<string | null>(null);
   /** Vidéo du feed par établissement : sert de repli à `badge_video_url`. */
   const feedVideoUrlById = useMemo(() => {
     const out: Record<string, string> = {};
@@ -2836,6 +2840,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       //   4) (dernier recours, ailleurs) feed par défaut du dernier business.
       // Un clic sur une vignette de gauche ferme le flux vidéo (VideoSlidePanel)
       // afin que la fiche ne s'ouvre pas derrière lui.
+      // Pin vidéo du feed : UNIQUEMENT quand l'utilisateur a cliqué depuis le
+      // feed ouvert (continuité visuelle). Ouverte depuis une carte/miniature
+      // business, la fiche démarre sur sa 1re vidéo au `sort_order` back-office.
+      setFeedPinnedBusinessId(activeFeedVideoId ? id : null);
       if (activeFeedVideoId) setActiveFeedVideoId(null);
       const seen = new Set(siblings);
       const full = [...siblings];
@@ -4385,8 +4393,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             key={openBusinessId}
             businessId={openBusinessId}
             initialOverlay={openBusinessOverlay ?? undefined}
-            initialVideoUrl={badgeVideoUrlById[openBusinessId] || feedVideoUrlById[openBusinessId] || undefined}
-            onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); }}
+            initialVideoUrl={badgeVideoUrlById[openBusinessId] || (feedPinnedBusinessId === openBusinessId ? feedVideoUrlById[openBusinessId] : undefined) || undefined}
+            onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); setFeedPinnedBusinessId(null); }}
             onPrev={goPrev}
             onNext={goNext}
             hasPrev={hasPrev}
