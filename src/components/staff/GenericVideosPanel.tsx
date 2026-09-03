@@ -865,6 +865,11 @@ const GenericVideosPanel = () => {
                 onImported={loadVideos}
                 getNextSortOrder={() => (videos.length > 0 ? Math.max(...videos.map(v => v.sort_order)) + 1 : 0)}
               />
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-medium text-muted-foreground mr-1">Tri :</span>
+                <Button size="sm" variant={sortMode === "recent" ? "default" : "outline"} className="h-7 text-xs" onClick={() => setSortMode("recent")}>Plus récentes</Button>
+                <Button size="sm" variant={sortMode === "manual" ? "default" : "outline"} className="h-7 text-xs" onClick={() => setSortMode("manual")}>Ordre manuel</Button>
+              </div>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-medium text-muted-foreground">Nom social :</span>
