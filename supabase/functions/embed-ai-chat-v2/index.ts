@@ -803,6 +803,16 @@ Deno.serve(async (req) => {
           const norm = (s: string) => normalize(s).replace(/[?!.\s]+$/g, "").trim();
           const isInitialClick = !!(curated?.label && norm(userMessage) === norm(curated.label));
           const keepCurated = !!curated && (!!followupId || isInitialClick || suggestionFromText || !priorIds.length);
+
+          /**
+           * RELANCE = AFFINAGE DU POOL. Quand le tour précédent a mémorisé un
+           * corpus (`poolIds`) et que la relance ne change pas de ville, la
+           * réponse curatée doit rester DANS ce corpus (ex. « location villa
+           * essaouira » → 14 adresses, puis « vue sur mer » → sous-ensemble).
+           * Repli explicite côté builder si l'intersection est vide.
+           */
+          const curatedPoolRestrict = !explicitCity && poolIds.length ? poolIds : [];
+
           
 
 
