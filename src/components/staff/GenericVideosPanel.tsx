@@ -438,6 +438,8 @@ const SortableVideoCard = ({
   badgeCount: number;
   cityCount: number;
   hasTimeframes: boolean;
+  justModified: boolean;
+
   isSelected: boolean;
   onSelect: (v: GenericVideo) => void;
   onPreview: (url: string) => void;
