@@ -434,7 +434,6 @@ const SortableVideoCard = ({
   bizCount: number;
   destCount: number;
   badgeCount: number;
-  subcatCount: number;
   cityCount: number;
   hasTimeframes: boolean;
   isSelected: boolean;
