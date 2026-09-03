@@ -232,7 +232,7 @@ const VideoBadgeChips = ({
                       }}
                       title={onFeedBadgeSelect ? `Voir les vidéos ${firstVideoBadge.name}` : firstVideoBadge.name}
                     >
-                      {capFirstBadgeLabel(firstVideoBadge.name)}
+                      {truncateBadgeLabel(capFirstBadgeLabel(firstVideoBadge.name))}
                     </button>
                   )}
                   {dynamicBadges.map((b) => {
@@ -261,7 +261,7 @@ const VideoBadgeChips = ({
                         }}
                         title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
                       >
-                        {capFirstBadgeLabel(b.name)}
+                        {truncateBadgeLabel(capFirstBadgeLabel(b.name))}
                       </button>
                     );
                   })}
