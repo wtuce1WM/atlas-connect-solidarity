@@ -2591,6 +2591,19 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
+  /** Le host (clic sur « One World Morocco » avec conversation ouverte) demande
+      un retour à l'accueil IA sans rechargement de page (évite le saut visuel). */
+  const startNewConversationRef = useRef(startNewConversation);
+  startNewConversationRef.current = startNewConversation;
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      if (e.data?.type !== "owm-host:reset-conversation") return;
+      startNewConversationRef.current();
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
+
 
   // After a "Nouvelle conversation" reset, if the user had typed a question,
   // send it as the first message of the new thread.
