@@ -258,11 +258,10 @@ const VideoBadgeChips = ({
                         setChipsExpanded(false);
                         onFeedBadgeSelect?.({ id: b.id, name: b.name });
                       }}
-                      className={`pointer-events-auto inline-flex shrink-0 whitespace-nowrap items-center justify-center rounded-full text-center border px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
+                      className={`pointer-events-auto w-full whitespace-nowrap items-center justify-center rounded-full text-center border px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal shadow-lg backdrop-blur-md transition-transform active:scale-95 ${
                         isSelected ? "border-gold bg-gold text-gold-foreground" : "border-white/25 text-white"
                       }`}
                       style={{
-                        width: chipWidth ?? undefined,
                         ...(isSelected
                           ? { fontFamily: "'Montserrat',system-ui,sans-serif" }
                           : {
