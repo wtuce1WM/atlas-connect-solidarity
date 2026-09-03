@@ -79,7 +79,7 @@ const EmbedBookPanelWrapper = ({
 }: {
   businessId: string;
   initialOverlay?: "reviews";
-  /** Vidéo badgée de l'établissement : la fiche démarre dessus. */
+  /** Vidéo cliquée dans un feed ouvert : la fiche conserve cette vidéo. */
   initialVideoUrl?: string;
   onClose: () => void;
   onPrev: () => void;
@@ -2717,18 +2717,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return { richByName: rich, knownByName: known, destByName: dests, allDestinations: destList, eventsByName: evs };
   }, [messages]);
 
-  // Vidéo réellement badgée par établissement (`badge_video_url` porté par les
-  // cartes SHOW_ON_MAP) : la fiche ouverte depuis la réponse IA démarre dessus,
-  // au lieu de sa 1re vidéo au tri interne (souvent hors sujet du badge).
-  const badgeVideoUrlById = useMemo(() => {
-    const out: Record<string, string> = {};
-    for (const b of richByName.values()) {
-      const url = (b as MapPanelBusiness & { badge_video_url?: string | null }).badge_video_url;
-      if (b?.id && url) out[String(b.id)] = String(url);
-    }
-    return out;
-  }, [richByName]);
-
   /**
    * Établissements du FEED VIDÉO badges (mode `video_feed`), dans l'ordre du feed.
    * Le scroll vertical de la fiche ouverte depuis la grille de résultats ne doit
@@ -4393,7 +4381,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             key={openBusinessId}
             businessId={openBusinessId}
             initialOverlay={openBusinessOverlay ?? undefined}
-            initialVideoUrl={badgeVideoUrlById[openBusinessId] || (feedPinnedBusinessId === openBusinessId ? feedVideoUrlById[openBusinessId] : undefined) || undefined}
+            initialVideoUrl={feedPinnedBusinessId === openBusinessId ? feedVideoUrlById[openBusinessId] : undefined}
             onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); setFeedPinnedBusinessId(null); }}
             onPrev={goPrev}
             onNext={goNext}
