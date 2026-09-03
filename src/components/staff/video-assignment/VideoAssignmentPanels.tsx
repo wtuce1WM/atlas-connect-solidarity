@@ -726,21 +726,6 @@ export const InlineBadgeSubcatCityAssignment = ({
     onSaved(); setSaving(false);
   };
 
-  const filteredSubcats = useMemo(() => {
-    if (!subcatSearch.trim()) return allSubcats;
-    const q = subcatSearch.toLowerCase();
-    return allSubcats.filter(s => s.name_fr.toLowerCase().includes(q));
-  }, [allSubcats, subcatSearch]);
-
-  const subcatsByCategory = useMemo(() => {
-    const m: Record<string, SubcatItem[]> = {};
-    filteredSubcats.forEach(s => {
-      const cat = (s.category_id && categories[s.category_id]) || "Sans catégorie";
-      if (!m[cat]) m[cat] = [];
-      m[cat].push(s);
-    });
-    return Object.entries(m).sort(([a], [b]) => a.localeCompare(b));
-  }, [filteredSubcats, categories]);
 
   const filteredCities = useMemo(() => {
     if (!citySearch.trim()) return allCities;
