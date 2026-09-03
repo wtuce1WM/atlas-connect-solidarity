@@ -864,11 +864,14 @@ const Front = () => {
           // Conversation IA fermée : le logo ne renvoie plus vers la homepage
           // (aucun rechargement) — on est déjà sur l'accueil.
           if (!conversationOpen) return;
-          if (window.location.pathname === "/") {
-            window.location.reload();
-          } else {
-            window.location.assign("/");
-          }
+          // Conversation ouverte : retour à l'accueil IA sans rechargement
+          // (le reload provoquait un saut visuel).
+          try {
+            window.postMessage({ type: "owm-host:reset-conversation" }, window.location.origin);
+          } catch { /* noop */ }
+          setConversationOpen(false);
+          const video = backgroundVideoRef.current;
+          if (video?.paused) void video.play().catch(() => undefined);
         }}
       />
 
