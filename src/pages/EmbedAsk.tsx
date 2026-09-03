@@ -1201,6 +1201,20 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const feedLoadingMoreRef = useRef(false);
   const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
   const [feedVideoTime, setFeedVideoTime] = useState(0);
+  /**
+   * Suggestion en mode `video_feed` : le lecteur vidéo doit apparaître AVANT le
+   * panneau de gauche (sur mobile, ce panneau occupe tout l'écran). Tant que le
+   * lecteur n'est pas ouvert, on n'affiche pas le flux de conversation.
+   */
+  const [feedOpening, setFeedOpening] = useState(false);
+  useEffect(() => {
+    if (!feedOpening) return;
+    if (activeFeedVideoId) { setFeedOpening(false); return; }
+    // Filet : si le lecteur ne s'ouvre pas (feed vide, erreur réseau), on
+    // rétablit l'affichage normal de la conversation.
+    const t = setTimeout(() => setFeedOpening(false), 8000);
+    return () => clearTimeout(t);
+  }, [feedOpening, activeFeedVideoId]);
 
   // Signal « panneau ouvert/fermé » : l'hôte (/front) met sa vidéo de fond en pause.
   // Couvre les DEUX parcours viewer : VideoSlidePanel (feed vidéo) ET
