@@ -10,6 +10,7 @@ const CTAS: { label: string; to: string }[] = [
   { label: "Ajoutez votre entreprise", to: "/join" },
   { label: "Widgets", to: "/widgets" },
   { label: "Blog", to: "/blog" },
+  { label: "Contact", to: "/contact" },
 ];
 
 /**
