@@ -132,7 +132,7 @@ const Contact = () => {
           >
             Parlons de votre <span className="font-bold text-[#C6A046]">projet</span>
           </h1>
-          <p className="mt-4 max-w-2xl font-roboto text-[15px] leading-relaxed text-white/88 md:text-[1.0625rem]">
+          <p className="mt-4 max-w-2xl font-roboto text-[15px] leading-relaxed text-white md:text-[1.0625rem]">
             Une question sur la plateforme, une adresse à référencer, une intégration sur mesure ou un
             partenariat : écrivez-nous, nous répondons rapidement.
           </p>
