@@ -2179,7 +2179,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           if (thumb) { const img = new Image(); img.src = String(thumb); }
         } catch { /* best-effort */ }
       }
+      return true;
     } catch { /* best-effort : le marqueur VIDEO_FEED du stream reste le filet */ }
+    return false;
   }, []);
 
   /**
