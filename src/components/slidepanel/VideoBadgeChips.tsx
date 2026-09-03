@@ -57,9 +57,11 @@ export function useVideoBadges(enabled: boolean, videoId?: string | null) {
       if (cancelled) return;
       const out = new Map<string, VideoChipBadge>();
       for (const res of [docs, gens, yts]) {
-        const b = row.badges;
-        if (!b?.id || !b.is_active_on_front) continue;
-        out.set(String(b.id), { id: String(b.id), name: String(b.name_fr || ""), color: b.color_hex ?? null, text_color: b.text_color_hex ?? null });
+        for (const row of ((res as any)?.data || []) as any[]) {
+          const b = row.badges;
+          if (!b?.id || !b.is_active_on_front) continue;
+          out.set(String(b.id), { id: String(b.id), name: String(b.name_fr || ""), color: b.color_hex ?? null, text_color: b.text_color_hex ?? null });
+        }
       }
       setSelfBadges({ videoId: String(videoId), badges: Array.from(out.values()) });
     })();
