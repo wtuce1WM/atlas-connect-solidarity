@@ -4393,8 +4393,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             key={openBusinessId}
             businessId={openBusinessId}
             initialOverlay={openBusinessOverlay ?? undefined}
-            initialVideoUrl={badgeVideoUrlById[openBusinessId] || feedVideoUrlById[openBusinessId] || undefined}
-            onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); }}
+            initialVideoUrl={badgeVideoUrlById[openBusinessId] || (feedPinnedBusinessId === openBusinessId ? feedVideoUrlById[openBusinessId] : undefined) || undefined}
+            onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); setFeedPinnedBusinessId(null); }}
             onPrev={goPrev}
             onNext={goNext}
             hasPrev={hasPrev}
