@@ -2836,6 +2836,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       //   4) (dernier recours, ailleurs) feed par défaut du dernier business.
       // Un clic sur une vignette de gauche ferme le flux vidéo (VideoSlidePanel)
       // afin que la fiche ne s'ouvre pas derrière lui.
+      // Pin vidéo du feed : UNIQUEMENT quand l'utilisateur a cliqué depuis le
+      // feed ouvert (continuité visuelle). Ouverte depuis une carte/miniature
+      // business, la fiche démarre sur sa 1re vidéo au `sort_order` back-office.
+      setFeedPinnedBusinessId(activeFeedVideoId ? id : null);
       if (activeFeedVideoId) setActiveFeedVideoId(null);
       const seen = new Set(siblings);
       const full = [...siblings];
