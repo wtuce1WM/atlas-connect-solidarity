@@ -471,9 +471,15 @@ const SortableVideoCard = ({
       className={cn(
         "group relative rounded-lg border bg-card overflow-hidden transition-shadow hover:shadow-md cursor-pointer transition-[outline]",
         isDragging && "opacity-50 z-50",
-        isSelected && "ring-2 ring-primary border-primary"
+        isSelected && "ring-2 ring-primary border-primary",
+        justModified && "ring-[6px] ring-emerald-500 border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.35),0_0_28px_8px_rgba(16,185,129,0.55)] animate-pulse"
       )}
     >
+      {justModified && (
+        <div className="absolute inset-x-0 top-0 z-30 bg-emerald-500 text-white text-[13px] font-extrabold tracking-wide text-center py-1.5 shadow-md">
+          ✓ MODIFIÉE À L'INSTANT
+        </div>
+      )}
       <button className="relative w-full bg-black" style={{ aspectRatio: "16/9" }} onClick={(e) => { e.stopPropagation(); onPreview(video.url); }}>
         {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> :
           isStorageVideo ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" /> :
@@ -484,6 +490,7 @@ const SortableVideoCard = ({
         {hasDesc && <span className="absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-primary text-primary-foreground">TXT</span>}
         {hasTimeframes && <span className="absolute bottom-2 left-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-amber-500 text-white flex items-center gap-0.5"><Clock className="h-3 w-3" />TIME</span>}
         {(poiCount > 0 || bizCount > 0 || destCount > 0) && (
+
           <button
             className="absolute top-9 right-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
             onClick={(e) => { e.stopPropagation(); onPreviewOverlay(video); }}
