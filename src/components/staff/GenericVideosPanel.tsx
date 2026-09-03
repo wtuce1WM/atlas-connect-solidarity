@@ -417,6 +417,8 @@ const SortableVideoCard = ({
   
   cityCount,
   hasTimeframes,
+  justModified,
+
   isSelected,
   onSelect,
   onPreview,
