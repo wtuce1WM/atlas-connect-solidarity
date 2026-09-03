@@ -731,7 +731,7 @@ export const InlineBadgeSubcatCityAssignment = ({
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between p-3 border-b bg-muted/30">
         <h3 className="text-sm font-semibold flex items-center gap-2">
-          <Tag className="h-4 w-4" />Badges, Sous-catégories & Villes
+          <Tag className="h-4 w-4" />Badges & Villes
         </h3>
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
       </div>
