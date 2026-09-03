@@ -1011,6 +1011,7 @@ Deno.serve(async (req) => {
               admin, curated.pinnedBusinessIds, host, lang, curated.label,
               {
                 competitorGuard,
+                restrictToIds: curatedPoolRestrict,
                 immersive: {
                   admin,
                   query: curated.label || userMessage,
