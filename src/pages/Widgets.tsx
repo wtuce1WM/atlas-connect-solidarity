@@ -659,42 +659,8 @@ const Widgets = () => {
           </div>
         </div>
 
-        {/* ============ Écran 6 — Intégration sur mesure ============ */}
-        <div
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-24 pb-24 text-center md:px-12"
-          style={{ opacity: s[5].opacity, transform: s[5].transform, pointerEvents: s[5].pointerEvents }}
-          aria-hidden={s[5].ariaHidden}
-        >
-          <div className={`${glass} w-full max-w-3xl px-6 py-10 md:px-12`}>
-            <h2
-              className="text-[clamp(22px,3.4vw,38px)] leading-[1.14] text-[#F4ECDF]"
-              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
-            >
-              Besoin d'une intégration <span className="font-bold text-[#C6A046]">sur mesure</span> ?
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl font-roboto text-[15px] leading-relaxed text-white/88">
-              Les établissements partenaires génèrent leurs propres codes, adaptés à leur fiche, depuis
-              l'onglet Outils de leur espace. Pour un format spécifique ou un accès aux données en JSON,
-              écrivez-nous.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <a
-                href="/affiliates/presence"
-                className="inline-flex items-center gap-3 rounded-full bg-[#C04F17] px-8 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5"
-                style={{ fontFamily: "'Montserrat', sans-serif" }}
-              >
-                Espace partenaire
-              </a>
-              <a
-                href="/contact"
-                className="inline-flex items-center gap-3 rounded-full border border-[#C6A046]/70 bg-[#C6A046]/10 px-8 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-[#E4C877] backdrop-blur-md transition-transform hover:-translate-y-0.5"
-                style={{ fontFamily: "'Montserrat', sans-serif" }}
-              >
-                Nous contacter
-              </a>
-            </div>
-          </div>
-        </div>
+
+
 
         {/* ============ CTA Revenir / Découvrir ============ */}
         <div className="absolute inset-x-0 bottom-5 z-20 flex items-end justify-center gap-10">
