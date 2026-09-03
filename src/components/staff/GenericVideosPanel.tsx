@@ -543,6 +543,8 @@ const SortableVideoCard = ({
 const GenericVideosPanel = () => {
   const [videos, setVideos] = useState<GenericVideo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lastModifiedId, setLastModifiedId] = useState<string | null>(null);
+
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [pendingUrls, setPendingUrls] = useState<string[]>([]);
   const [newPlatform, setNewPlatform] = useState<"instagram" | "tiktok" | "youtube">("instagram");
@@ -938,6 +940,8 @@ const GenericVideosPanel = () => {
                         badgeCount={videoBadgeCounts[video.id] || 0}
                         cityCount={videoCityCounts[video.id] || 0}
                         hasTimeframes={!!videoHasTimeframes[video.id]}
+                        justModified={lastModifiedId === video.id}
+
                         isSelected={selectedVideo?.id === video.id}
                         onSelect={handleSelectVideo}
                         onPreview={setLightboxUrl}
@@ -984,28 +988,30 @@ const GenericVideosPanel = () => {
       )}
       {poiVideo && (
         <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
-          <InlinePoiAssignment video={poiVideo} onClose={() => setPoiVideo(null)} onSaved={() => { loadCounts(); }} />
+          <InlinePoiAssignment video={poiVideo} onClose={() => setPoiVideo(null)} onSaved={() => { setLastModifiedId(poiVideo.id); loadCounts(); }} />
         </div>
       )}
       {businessVideo && (
         <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
-          <InlineBusinessAssignment video={businessVideo} onClose={() => setBusinessVideo(null)} onSaved={() => { loadCounts(); }} />
+          <InlineBusinessAssignment video={businessVideo} onClose={() => setBusinessVideo(null)} onSaved={() => { setLastModifiedId(businessVideo.id); loadCounts(); }} />
         </div>
       )}
       {destinationVideo && (
         <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
-          <InlineDestinationCityAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { loadCounts(); }} />
+          <InlineDestinationCityAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { setLastModifiedId(destinationVideo.id); loadCounts(); }} />
         </div>
       )}
       {tagsVideo && (
         <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
-          <InlineBadgeSubcatCityAssignment video={tagsVideo} onClose={() => setTagsVideo(null)} onSaved={() => { loadCounts(); }} />
+          <InlineBadgeSubcatCityAssignment video={tagsVideo} onClose={() => setTagsVideo(null)} onSaved={() => { setLastModifiedId(tagsVideo.id); loadCounts(); }} />
         </div>
       )}
 
+
       {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
-      {socialVideo && <SocialLinksDialog video={socialVideo} open={!!socialVideo} onOpenChange={(o) => !o && setSocialVideo(null)} onSaved={loadVideos} />}
-      {descVideo && <DescriptionDialog video={descVideo} open={!!descVideo} onOpenChange={(o) => !o && setDescVideo(null)} onSaved={loadVideos} />}
+      {socialVideo && <SocialLinksDialog video={socialVideo} open={!!socialVideo} onOpenChange={(o) => !o && setSocialVideo(null)} onSaved={() => { setLastModifiedId(socialVideo.id); loadVideos(); }} />}
+      {descVideo && <DescriptionDialog video={descVideo} open={!!descVideo} onOpenChange={(o) => !o && setDescVideo(null)} onSaved={() => { setLastModifiedId(descVideo.id); loadVideos(); }} />}
+
       {previewOverlayVideo && <GenericVideoPreviewOverlay video={previewOverlayVideo} onClose={() => setPreviewOverlayVideo(null)} />}
 
       <AlertDialog open={!!deleteConfirmVideo} onOpenChange={(o) => !o && !deleting && setDeleteConfirmVideo(null)}>
