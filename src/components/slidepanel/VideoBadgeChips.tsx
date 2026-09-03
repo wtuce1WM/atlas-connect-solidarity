@@ -25,6 +25,14 @@ const truncateBadgeLabel = (s: string, max = 14) => {
   return trimmed.length > max ? `${trimmed.slice(0, max).trimEnd()}…` : trimmed;
 };
 
+/** Libellé de chip tronqué : 11 caractères sur mobile, 14 sur desktop. */
+const ChipLabel = ({ text }: { text: string }) => (
+  <>
+    <span className="md:hidden">{truncateBadgeLabel(text, 11)}</span>
+    <span className="hidden md:inline">{truncateBadgeLabel(text, 14)}</span>
+  </>
+);
+
 /** Menu fixe de filtres : seuls les libellés sont figés, les couleurs viennent du back-office (table badges). */
 export const LEFT_COLUMN_BADGES = [
   { id: "09c54af9-2263-4ee5-aaf4-43d520a95fdc", label: "Points d'intérêt" },
@@ -198,7 +206,7 @@ const VideoBadgeChips = ({
                   }}
                   title={onFeedBadgeSelect ? `Voir les vidéos ${b.label}` : b.label}
                 >
-                  {truncateBadgeLabel(capFirstBadgeLabel(b.label))}
+                  <ChipLabel text={capFirstBadgeLabel(b.label)} />
                 </button>
               );
             })}
@@ -232,7 +240,7 @@ const VideoBadgeChips = ({
                       }}
                       title={onFeedBadgeSelect ? `Voir les vidéos ${firstVideoBadge.name}` : firstVideoBadge.name}
                     >
-                      {truncateBadgeLabel(capFirstBadgeLabel(firstVideoBadge.name))}
+                      <ChipLabel text={capFirstBadgeLabel(firstVideoBadge.name)} />
                     </button>
                   )}
                   {dynamicBadges.map((b) => {
@@ -261,7 +269,7 @@ const VideoBadgeChips = ({
                         }}
                         title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
                       >
-                        {truncateBadgeLabel(capFirstBadgeLabel(b.name))}
+                        <ChipLabel text={capFirstBadgeLabel(b.name)} />
                       </button>
                     );
                   })}
