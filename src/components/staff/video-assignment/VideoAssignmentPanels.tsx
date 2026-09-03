@@ -712,14 +712,6 @@ export const InlineBadgeSubcatCityAssignment = ({
         toAdd.map(badge_id => ({ [T.fk]: video.id, badge_id })) as any
       );
     }
-    if (isSubcatDirty) {
-      const toAdd = selectedSubcatIds.filter(id => !initialSubcatIds.includes(id));
-      const toRemove = initialSubcatIds.filter(id => !selectedSubcatIds.includes(id));
-      if (toRemove.length > 0) await supabase.from(T.subcategory as any).delete().eq(T.fk, video.id).in("subcategory_id", toRemove);
-      if (toAdd.length > 0) await supabase.from(T.subcategory as any).insert(
-        toAdd.map(subcategory_id => ({ [T.fk]: video.id, subcategory_id })) as any
-      );
-    }
     if (isCityDirty) {
       const toAdd = selectedCityIds.filter(id => !initialCityIds.includes(id));
       const toRemove = initialCityIds.filter(id => !selectedCityIds.includes(id));
