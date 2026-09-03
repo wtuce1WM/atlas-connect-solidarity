@@ -797,6 +797,11 @@ export const InlineBadgeSubcatCityAssignment = ({
                 </div>
               )}
             </div>
+
+            <Button size="sm" onClick={save} disabled={!isDirty || saving} className="w-full">
+              {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Enregistrer
+            </Button>
           </div>
         )}
       </div>
