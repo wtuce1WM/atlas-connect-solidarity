@@ -160,7 +160,7 @@ const StaffVideos = () => {
                 <TabsTrigger value="poi-videos">POI</TabsTrigger>
                 <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
                 <TabsTrigger value="pois-videos">POIS</TabsTrigger>
-                <TabsTrigger value="generic-videos">Génériques</TabsTrigger>
+                <TabsTrigger value="db-structure">Toutes</TabsTrigger>
                 <TabsTrigger value="db-structure">Toutes</TabsTrigger>
               </TabsList>
               <TabsContent value="front-videos">
