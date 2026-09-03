@@ -183,7 +183,7 @@ const VideoBadgeChips = ({
         );
       })()}
       {expanded && (
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {visibleLeftColumnBadges.filter(
             (b) => !(chipsBadges?.[0]?.id && b.id === chipsBadges[0].id)
           ).map((b) => {
