@@ -1811,9 +1811,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     if (feedSuggestion?.mode === "video_feed" && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
       // Le panneau de gauche reste masqué jusqu'à l'ouverture du lecteur vidéo.
       setFeedOpening(true);
-      void openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]).finally(() => {
-        // Feed vide / erreur : openEarlyBadgeFeed n'ouvre rien → on rétablit.
-        setFeedOpening((prev) => (prev && !activeFeedVideoIdRef.current ? false : prev));
+      void openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]).then((ok) => {
+        // Feed vide / erreur : rien ne s'ouvre → on rétablit la conversation.
+        if (!ok) setFeedOpening(false);
       });
     }
 
