@@ -1795,12 +1795,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     ) {
       setError(null);
       setActiveSuggestionId(feedSuggestion.id);
+      setFeedOpening(true);
       void openPureBadgeFeed(
         feedSuggestion.badge_ids as string[],
         (feedSuggestion.business_ids as string[]) || [],
       ).then((ok) => {
         // Filet : feed vide → on repasse une seule fois par le parcours standard.
         if (!ok) {
+          setFeedOpening(false);
           pureFeedFallbackRef.current = true;
           send(text, suggestionId, followupId);
           pureFeedFallbackRef.current = false;
