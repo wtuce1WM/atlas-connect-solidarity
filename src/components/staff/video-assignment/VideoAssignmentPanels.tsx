@@ -813,38 +813,7 @@ export const InlineBadgeSubcatCityAssignment = ({
 
             <Separator />
 
-            {/* Subcategories */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <Layers className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-xs font-medium text-muted-foreground">Sous-catégories ({selectedSubcatIds.length})</span>
-                </div>
-                <Input placeholder="Rechercher…" value={subcatSearch} onChange={e => setSubcatSearch(e.target.value)}
-                  className="h-7 text-xs max-w-[180px]" />
-              </div>
-              {subcatsByCategory.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-3">Aucune sous-catégorie</p>
-              ) : (
-                <div className="space-y-3">
-                  {subcatsByCategory.map(([catName, items]) => (
-                    <div key={catName}>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">{catName}</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {items.map(s => (
-                          <Badge key={s.id}
-                            variant={selectedSubcatIds.includes(s.id) ? "default" : "outline"}
-                            className="cursor-pointer transition-colors text-[10px]"
-                            onClick={() => toggleSubcat(s.id)}>
-                            {s.name_fr}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Cities */}
 
             <Separator />
 
