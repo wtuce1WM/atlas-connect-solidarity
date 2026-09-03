@@ -120,12 +120,6 @@ const Contact = () => {
         />
 
         <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col justify-center px-5 pb-16 pt-28 md:px-10 md:pt-32">
-          <p
-            className="mb-4 text-[12px] font-medium uppercase tracking-[0.32em] text-[#F4ECDF] md:text-[14px]"
-            style={MONT}
-          >
-            One World Morocco
-          </p>
           <h1
             className="max-w-3xl text-[28px] leading-[1.15] text-[#F4ECDF] sm:text-[2.2rem] md:text-[2.9rem]"
             style={{ ...MONT, fontWeight: 500 }}
