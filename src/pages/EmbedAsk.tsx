@@ -3163,7 +3163,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       {/* scrollbar-hide : ascenseur masqué (scroll molette/tactile/clavier conservé). */}
       <div
         ref={scrollRef}
-        className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto scrollbar-hide"} px-4 pt-4 pb-8 space-y-3 ${bg} relative`}
+        className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto scrollbar-hide"} px-4 ${heroLayout && !homeState ? "pt-16 md:pt-20" : "pt-4"} pb-8 space-y-3 ${bg} relative`}
         /* Home (hero=1) en conversation : le header reste transparent, le contenu
            scrollé s'estompe progressivement sous lui (fondu de 0 à 88px). */
         style={heroLayout && !homeState ? {
