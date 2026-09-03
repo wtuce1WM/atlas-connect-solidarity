@@ -414,7 +414,7 @@ const SortableVideoCard = ({
   bizCount,
   destCount,
   badgeCount,
-  subcatCount,
+  
   cityCount,
   hasTimeframes,
   isSelected,
