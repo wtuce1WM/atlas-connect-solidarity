@@ -402,45 +402,45 @@ const Front = () => {
     setDemoLoading(true);
     try {
       const mod = await import("@/lib/badgeVideoFeed");
-      // Cache mémoire : réouverture instantanée de la démo (alimenté aussi par le prefetch idle).
-      const cached = demoSnapshotRef.current;
-      if (cached && cached.items.length) {
-        setDemoList(cached.items.map(toPanelVideo));
-        setDemoCtx(cached.ctx);
+      // Un snapshot (mémoire ou localStorage) sert à l'affichage instantané, mais
+      // il est consommé une seule fois : chaque ouverture de « Découvrez l'App »
+      // doit lancer un flux différent (nouveau seed). Après usage, on invalide et
+      // on reconstitue un snapshot frais en arrière-plan pour l'ouverture suivante.
+      const snapshot =
+        (demoSnapshotRef.current?.items?.length ? demoSnapshotRef.current : null) ??
+        (() => {
+          const persisted = getCached<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext; ts?: number }>(DEMO_FEED_CACHE_KEY);
+          return persisted?.items?.length && Date.now() - (persisted.ts ?? 0) <= DEMO_FEED_TTL_MS
+            ? { items: persisted.items, ctx: persisted.ctx }
+            : null;
+        })();
+
+      if (snapshot) {
+        setDemoList(snapshot.items.map(toPanelVideo));
+        setDemoCtx(snapshot.ctx);
         setDemoTime(0);
         demoLoadingMoreRef.current = false;
-        setDemoActiveId(cached.items[0].id);
-        preloadFirstMedia(cached.items[0] as any);
-        return;
-      }
-      // Cache persistant (localStorage) : affichage immédiat au retour sur la page,
-      // puis revalidation réseau uniquement si l'entrée dépasse le TTL.
-      const persisted = getCached<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext; ts?: number }>(DEMO_FEED_CACHE_KEY);
-      if (persisted?.items?.length) {
-        demoSnapshotRef.current = { items: persisted.items, ctx: persisted.ctx };
-        setDemoList(persisted.items.map(toPanelVideo));
-        setDemoCtx(persisted.ctx);
-        setDemoTime(0);
-        demoLoadingMoreRef.current = false;
-        setDemoActiveId(persisted.items[0].id);
-        preloadFirstMedia(persisted.items[0] as any);
-        const age = Date.now() - (persisted.ts ?? 0);
-        if (age > DEMO_FEED_TTL_MS) {
-          void (async () => {
-            try {
-              const fresh = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
-              if (!fresh.items.length) return;
-              setCached(DEMO_FEED_CACHE_KEY, { ...fresh, ts: Date.now() });
-            } catch { /* silencieux */ }
-          })();
-        }
+        setDemoActiveId(snapshot.items[0].id);
+        preloadFirstMedia(snapshot.items[0] as any);
+        // Snapshot consommé : on prépare un nouveau flux pour la prochaine ouverture.
+        demoSnapshotRef.current = null;
+        void (async () => {
+          try {
+            const fresh = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
+            if (!fresh.items.length) return;
+            demoSnapshotRef.current = { items: fresh.items, ctx: fresh.ctx };
+            setCached(DEMO_FEED_CACHE_KEY, { ...fresh, ts: Date.now() });
+            preloadFirstMedia(fresh.items[0] as any);
+          } catch { /* silencieux */ }
+        })();
         return;
       }
       // Première page courte : affichage rapide, complément en arrière-plan.
       const { items, ctx } = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
       if (!items.length) { setDemoIntro(false); return; }
-      demoSnapshotRef.current = { items, ctx };
-      setCached(DEMO_FEED_CACHE_KEY, { items, ctx, ts: Date.now() });
+      // Flux affiché immédiatement : il n'est pas conservé comme snapshot
+      // réutilisable (chaque ouverture doit repartir sur un nouveau seed).
+      demoSnapshotRef.current = null;
       setDemoList(items.map(toPanelVideo));
       setDemoCtx(ctx);
       setDemoTime(0);
