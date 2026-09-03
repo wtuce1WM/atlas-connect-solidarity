@@ -2886,7 +2886,10 @@ const BookOnlineSlidePanelInner = ({
         {!showPoiMapOverlay && (() => {
           const anchoredInfoBar = !!business && !business.hide_description && !showSearchBar;
           return (
-            <div className={anchoredInfoBar ? "absolute left-4 right-4 md:left-6 md:right-6 bottom-[calc(2rem+env(safe-area-inset-bottom))] md:bottom-6 z-30 flex flex-col justify-end pointer-events-none [&>*]:pointer-events-auto" : "absolute inset-x-0 bottom-0 z-30 flex flex-col justify-end pointer-events-none [&>*]:pointer-events-auto"}>
+            {/* Ancrage identique sur Desktop et Mobile : la barre est collée au bas du
+                viewer (comme dans VideoSlidePanel) et c'est CtaBar qui réserve la hauteur
+                de la barre de CTAs liquid glass. */}
+            <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col justify-end pointer-events-none [&>*]:pointer-events-auto">
         <CtaBar
           business={business}
           language={language}
