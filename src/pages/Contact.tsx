@@ -121,7 +121,7 @@ const Contact = () => {
 
         <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col justify-center px-5 pb-16 pt-28 md:px-10 md:pt-32">
           <p
-            className="mb-4 text-[12px] font-medium uppercase tracking-[0.32em] text-[#C6A046] md:text-[14px]"
+            className="mb-4 text-[12px] font-medium uppercase tracking-[0.32em] text-[#F4ECDF] md:text-[14px]"
             style={MONT}
           >
             One World Morocco
