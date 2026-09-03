@@ -19,6 +19,12 @@ export type VideoChipBadge = {
 
 const capFirstBadgeLabel = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
+/** Tronque le libellé affiché à 20 caractères (ellipse), sans modifier le nom d'origine. */
+const truncateBadgeLabel = (s: string, max = 20) => {
+  const trimmed = (s || "").trim();
+  return trimmed.length > max ? `${trimmed.slice(0, max).trimEnd()}…` : trimmed;
+};
+
 /** Menu fixe de filtres : seuls les libellés sont figés, les couleurs viennent du back-office (table badges). */
 export const LEFT_COLUMN_BADGES = [
   { id: "09c54af9-2263-4ee5-aaf4-43d520a95fdc", label: "Points d'intérêt" },
