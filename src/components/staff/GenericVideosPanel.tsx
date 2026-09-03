@@ -900,7 +900,7 @@ const GenericVideosPanel = () => {
                 </Button>
               )}
             </div>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <DndContext sensors={sortMode === "manual" ? sensors : undefined} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={filteredVideos.map(v => v.id)} strategy={rectSortingStrategy}>
                 <div className="flex flex-wrap gap-4">
                   {filteredVideos.map(video => (
