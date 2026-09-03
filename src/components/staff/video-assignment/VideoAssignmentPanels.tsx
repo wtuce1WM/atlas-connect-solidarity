@@ -659,15 +659,10 @@ export const InlineBadgeSubcatCityAssignment = ({
 }) => {
   const T = TABLES[source];
   const [allBadges, setAllBadges] = useState<BadgeItem[]>([]);
+  const [allBadges, setAllBadges] = useState<BadgeItem[]>([]);
+  const [allCities, setAllCities] = useState<CityItem[]>([]);
   const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
   const [initialBadgeIds, setInitialBadgeIds] = useState<string[]>([]);
-  const [selectedCityIds, setSelectedCityIds] = useState<string[]>([]);
-  const [initialCityIds, setInitialCityIds] = useState<string[]>([]);
-
-  const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
-  const [initialBadgeIds, setInitialBadgeIds] = useState<string[]>([]);
-  const [selectedSubcatIds, setSelectedSubcatIds] = useState<string[]>([]);
-  const [initialSubcatIds, setInitialSubcatIds] = useState<string[]>([]);
   const [selectedCityIds, setSelectedCityIds] = useState<string[]>([]);
   const [initialCityIds, setInitialCityIds] = useState<string[]>([]);
 
