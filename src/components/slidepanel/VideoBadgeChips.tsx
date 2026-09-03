@@ -198,7 +198,7 @@ const VideoBadgeChips = ({
                   }}
                   title={onFeedBadgeSelect ? `Voir les vidéos ${b.label}` : b.label}
                 >
-                  {b.label}
+                  {truncateBadgeLabel(capFirstBadgeLabel(b.label))}
                 </button>
               );
             })}
