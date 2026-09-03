@@ -924,7 +924,6 @@ const GenericVideosPanel = () => {
                         bizCount={videoBizCounts[video.id] || 0}
                         destCount={videoDestCounts[video.id] || 0}
                         badgeCount={videoBadgeCounts[video.id] || 0}
-                        subcatCount={videoSubcatCounts[video.id] || 0}
                         cityCount={videoCityCounts[video.id] || 0}
                         hasTimeframes={!!videoHasTimeframes[video.id]}
                         isSelected={selectedVideo?.id === video.id}
