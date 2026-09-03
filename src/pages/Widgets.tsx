@@ -32,7 +32,7 @@ const DEMO_SLUG = "riad-dar-najat";
 const toPreview = (url: string) => url.replace(SITE, "");
 
 
-const SCREENS = 6;
+const SCREENS = 5;
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 /* ---------------- Widgets secondaires (03 → 07) ---------------- */
