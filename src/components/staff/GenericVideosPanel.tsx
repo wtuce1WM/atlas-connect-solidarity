@@ -695,6 +695,15 @@ const GenericVideosPanel = () => {
     loadCounts();
   }, [loadVideos, loadCounts]);
 
+  // Après une sauvegarde : ramène la vignette modifiée dans le viewport
+  useEffect(() => {
+    if (!lastModifiedId || loading) return;
+    const el = document.querySelector(`[data-video-id="${lastModifiedId}"]`);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [lastModifiedId, loading]);
+
+
+
   useEffect(() => {
     if (selectedVideo) loadPanelItems(selectedVideo.id);
   }, [selectedVideo, loadPanelItems]);
