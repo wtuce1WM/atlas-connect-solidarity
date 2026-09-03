@@ -417,6 +417,8 @@ const SortableVideoCard = ({
   
   cityCount,
   hasTimeframes,
+  justModified,
+
   isSelected,
   onSelect,
   onPreview,
@@ -436,6 +438,8 @@ const SortableVideoCard = ({
   badgeCount: number;
   cityCount: number;
   hasTimeframes: boolean;
+  justModified: boolean;
+
   isSelected: boolean;
   onSelect: (v: GenericVideo) => void;
   onPreview: (url: string) => void;
@@ -467,9 +471,15 @@ const SortableVideoCard = ({
       className={cn(
         "group relative rounded-lg border bg-card overflow-hidden transition-shadow hover:shadow-md cursor-pointer transition-[outline]",
         isDragging && "opacity-50 z-50",
-        isSelected && "ring-2 ring-primary border-primary"
+        isSelected && "ring-2 ring-primary border-primary",
+        justModified && "ring-[6px] ring-emerald-500 border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.35),0_0_28px_8px_rgba(16,185,129,0.55)] animate-pulse"
       )}
     >
+      {justModified && (
+        <div className="absolute inset-x-0 top-0 z-30 bg-emerald-500 text-white text-[13px] font-extrabold tracking-wide text-center py-1.5 shadow-md">
+          ✓ MODIFIÉE À L'INSTANT
+        </div>
+      )}
       <button className="relative w-full bg-black" style={{ aspectRatio: "16/9" }} onClick={(e) => { e.stopPropagation(); onPreview(video.url); }}>
         {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> :
           isStorageVideo ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" /> :
@@ -480,6 +490,7 @@ const SortableVideoCard = ({
         {hasDesc && <span className="absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-primary text-primary-foreground">TXT</span>}
         {hasTimeframes && <span className="absolute bottom-2 left-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-amber-500 text-white flex items-center gap-0.5"><Clock className="h-3 w-3" />TIME</span>}
         {(poiCount > 0 || bizCount > 0 || destCount > 0) && (
+
           <button
             className="absolute top-9 right-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
             onClick={(e) => { e.stopPropagation(); onPreviewOverlay(video); }}
@@ -532,6 +543,8 @@ const SortableVideoCard = ({
 const GenericVideosPanel = () => {
   const [videos, setVideos] = useState<GenericVideo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lastModifiedId, setLastModifiedId] = useState<string | null>(null);
+
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [pendingUrls, setPendingUrls] = useState<string[]>([]);
   const [newPlatform, setNewPlatform] = useState<"instagram" | "tiktok" | "youtube">("instagram");
@@ -678,8 +691,18 @@ const GenericVideosPanel = () => {
 
   useEffect(() => {
     loadVideos();
+
     loadCounts();
   }, [loadVideos, loadCounts]);
+
+  // Après une sauvegarde : ramène la vignette modifiée dans le viewport
+  useEffect(() => {
+    if (!lastModifiedId || loading) return;
+    const el = document.querySelector(`[data-video-id="${lastModifiedId}"]`);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [lastModifiedId, loading]);
+
+
 
   useEffect(() => {
     if (selectedVideo) loadPanelItems(selectedVideo.id);
@@ -772,7 +795,9 @@ const GenericVideosPanel = () => {
     ]);
 
 
+    setLastModifiedId(selectedVideo.id);
     toast.success("Ordre et time frames enregistrés");
+
     setPanelItemsInitial(JSON.stringify(panelItems));
     setPanelSaving(false);
   }, [selectedVideo, panelItems]);
@@ -927,6 +952,8 @@ const GenericVideosPanel = () => {
                         badgeCount={videoBadgeCounts[video.id] || 0}
                         cityCount={videoCityCounts[video.id] || 0}
                         hasTimeframes={!!videoHasTimeframes[video.id]}
+                        justModified={lastModifiedId === video.id}
+
                         isSelected={selectedVideo?.id === video.id}
                         onSelect={handleSelectVideo}
                         onPreview={setLightboxUrl}
@@ -973,28 +1000,30 @@ const GenericVideosPanel = () => {
       )}
       {poiVideo && (
         <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
-          <InlinePoiAssignment video={poiVideo} onClose={() => setPoiVideo(null)} onSaved={() => { loadCounts(); }} />
+          <InlinePoiAssignment video={poiVideo} onClose={() => setPoiVideo(null)} onSaved={() => { setLastModifiedId(poiVideo.id); loadCounts(); }} />
         </div>
       )}
       {businessVideo && (
         <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
-          <InlineBusinessAssignment video={businessVideo} onClose={() => setBusinessVideo(null)} onSaved={() => { loadCounts(); }} />
+          <InlineBusinessAssignment video={businessVideo} onClose={() => setBusinessVideo(null)} onSaved={() => { setLastModifiedId(businessVideo.id); loadCounts(); }} />
         </div>
       )}
       {destinationVideo && (
         <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
-          <InlineDestinationCityAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { loadCounts(); }} />
+          <InlineDestinationCityAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { setLastModifiedId(destinationVideo.id); loadCounts(); }} />
         </div>
       )}
       {tagsVideo && (
         <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
-          <InlineBadgeSubcatCityAssignment video={tagsVideo} onClose={() => setTagsVideo(null)} onSaved={() => { loadCounts(); }} />
+          <InlineBadgeSubcatCityAssignment video={tagsVideo} onClose={() => setTagsVideo(null)} onSaved={() => { setLastModifiedId(tagsVideo.id); loadCounts(); }} />
         </div>
       )}
 
+
       {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
-      {socialVideo && <SocialLinksDialog video={socialVideo} open={!!socialVideo} onOpenChange={(o) => !o && setSocialVideo(null)} onSaved={loadVideos} />}
-      {descVideo && <DescriptionDialog video={descVideo} open={!!descVideo} onOpenChange={(o) => !o && setDescVideo(null)} onSaved={loadVideos} />}
+      {socialVideo && <SocialLinksDialog video={socialVideo} open={!!socialVideo} onOpenChange={(o) => !o && setSocialVideo(null)} onSaved={() => { setLastModifiedId(socialVideo.id); loadVideos(); }} />}
+      {descVideo && <DescriptionDialog video={descVideo} open={!!descVideo} onOpenChange={(o) => !o && setDescVideo(null)} onSaved={() => { setLastModifiedId(descVideo.id); loadVideos(); }} />}
+
       {previewOverlayVideo && <GenericVideoPreviewOverlay video={previewOverlayVideo} onClose={() => setPreviewOverlayVideo(null)} />}
 
       <AlertDialog open={!!deleteConfirmVideo} onOpenChange={(o) => !o && !deleting && setDeleteConfirmVideo(null)}>
