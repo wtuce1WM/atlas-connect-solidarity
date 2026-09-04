@@ -2767,7 +2767,6 @@ const BookOnlineSlidePanelInner = ({
               type="button"
               data-cta-tap
               aria-label="Ouvrir la navigation"
-              onMouseEnter={() => setNavPillExpanded(true)}
               onClick={(e) => { e.stopPropagation(); setNavPillExpanded(true); }}
               className="flex items-center justify-center h-7 w-7 text-white/90 hover:text-white active:scale-90 transition-all"
             >
