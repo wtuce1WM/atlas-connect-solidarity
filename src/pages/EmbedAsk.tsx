@@ -665,7 +665,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // assistant 1WM global, conversation NON liée à un établissement hôte.
   // `ctx` = slug du business d'origine (vidéo/fiche) : ne sert qu'à filtrer
   // les suggestions par ville/catégorie côté client — jamais envoyé au moteur.
-  const isPlatform = !slug && /^(1|true|platform)$/i.test(params.get("scope") || "");
+  const isPlatform = !slug && /^(1|true|platform|club)$/i.test(params.get("scope") || "");
+  // Surface Club (/club) : mêmes mécanismes que la surface plateforme (aucun business
+  // hôte), mais suggestions et relances lues sur la surface `club` en base.
+  const isClubScope = !slug && /^club$/i.test((params.get("scope") || "").trim());
+  const suggestionSurface = isClubScope ? "club" : "embed";
   // Dans la Home, cette route vit dans une iframe. Si le preview est actualisé
   // directement sur son URL, proposer une sortie explicite sans modifier les embeds externes.
   const isTopLevelPlatform = isPlatform && !paramsOverride && typeof window !== "undefined" && window.self === window.top;
