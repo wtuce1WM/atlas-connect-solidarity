@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import type { AssignmentSource } from "./VideoAssignmentPanels";
@@ -13,35 +13,20 @@ import type { AssignmentSource } from "./VideoAssignmentPanels";
  */
 export interface RelationCounts { poi: number; dest: number }
 
-interface CtxValue {
-  counts: Map<string, RelationCounts>;
-  refresh: () => void;
-}
-
-const RelationCountsCtx = createContext<CtxValue>({ counts: new Map(), refresh: () => {} });
-
 const CHUNK = 200;
 
-export const VideoRelationCountsProvider = ({
-  items,
-  children,
-}: {
-  items: { id: string; source: AssignmentSource }[];
-  children: React.ReactNode;
-}) => {
+export const useVideoRelationCounts = (items: { id: string; source: AssignmentSource }[]) => {
   const [counts, setCounts] = useState<Map<string, RelationCounts>>(new Map());
   const [tick, setTick] = useState(0);
 
-  const docIds = useMemo(
-    () => items.filter(i => i.source === "document").map(i => i.id),
+  const docKey = useMemo(
+    () => items.filter(i => i.source === "document").map(i => i.id).join(","),
     [items],
   );
-  const genIds = useMemo(
-    () => items.filter(i => i.source === "generic").map(i => i.id),
+  const genKey = useMemo(
+    () => items.filter(i => i.source === "generic").map(i => i.id).join(","),
     [items],
   );
-  const docKey = docIds.join(",");
-  const genKey = genIds.join(",");
 
   useEffect(() => {
     let cancelled = false;
@@ -83,13 +68,9 @@ export const VideoRelationCountsProvider = ({
     return () => { cancelled = true; };
   }, [docKey, genKey, tick]);
 
-  const refresh = useCallback(() => setTick(t => t + 1), []);
-  const value = useMemo(() => ({ counts, refresh }), [counts, refresh]);
-
-  return <RelationCountsCtx.Provider value={value}>{children}</RelationCountsCtx.Provider>;
+  const refreshCounts = useCallback(() => setTick(t => t + 1), []);
+  return { counts, refreshCounts };
 };
-
-export const useVideoRelationCounts = () => useContext(RelationCountsCtx);
 
 const chipClass = (active: boolean, tone: "emerald" | "rose" | "cyan") =>
   cn(
@@ -105,19 +86,17 @@ const chipClass = (active: boolean, tone: "emerald" | "rose" | "cyan") =>
 
 /** Rangée de chips POI / Dest. / Tags sous la miniature. */
 export const VideoRelationChips = ({
-  videoId,
+  counts,
   onOpenPoi,
   onOpenDest,
   onOpenTags,
 }: {
-  videoId: string;
+  counts?: RelationCounts;
   onOpenPoi: () => void;
   onOpenDest: () => void;
   onOpenTags?: () => void;
 }) => {
-  const { counts } = useVideoRelationCounts();
-  const c = counts.get(videoId) || { poi: 0, dest: 0 };
-
+  const c = counts || { poi: 0, dest: 0 };
   return (
     <div className="flex flex-wrap gap-1 pt-1">
       <button type="button" onClick={(e) => { e.stopPropagation(); onOpenPoi(); }} className={chipClass(c.poi > 0, "emerald")}>
@@ -128,7 +107,7 @@ export const VideoRelationChips = ({
       </button>
       {onOpenTags && (
         <button type="button" onClick={(e) => { e.stopPropagation(); onOpenTags(); }} className={chipClass(false, "cyan")}>
-          + Tags
+          Badges
         </button>
       )}
     </div>
