@@ -748,6 +748,11 @@ const GenericVideosPanel = () => {
     loadCounts();
   }, [loadVideos, loadCounts]);
 
+  useEffect(() => {
+    loadSocialAccounts();
+  }, [loadSocialAccounts]);
+
+
   // Après une sauvegarde : ramène la vignette modifiée dans le viewport
   useEffect(() => {
     if (!lastModifiedId || loading) return;
