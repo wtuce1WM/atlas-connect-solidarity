@@ -190,11 +190,19 @@ const TestNoteViewer = () => {
     const selected = selectedKey === g.key;
     const names = Array.from(new Set(g.members.map(m => m.business_name)));
     const allCities = Array.from(new Set(g.members.flatMap(m => m.cities)));
+    const justModified = lastModifiedKey === g.key;
     return (
       <div
+        data-video-key={g.key}
         onClick={() => setSelectedKey(g.key)}
-        className={`flex flex-col rounded-lg border bg-background p-1.5 cursor-pointer transition-colors ${selected ? "border-primary ring-2 ring-primary" : "hover:border-muted-foreground/30"}`}
+        className={`relative flex flex-col rounded-lg border bg-background p-1.5 cursor-pointer transition-colors ${selected ? "border-primary ring-2 ring-primary" : "hover:border-muted-foreground/30"} ${justModified ? "ring-[6px] ring-emerald-500 border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.35),0_0_28px_8px_rgba(16,185,129,0.55)] animate-pulse" : ""}`}
       >
+        {justModified && (
+          <div className="absolute inset-x-0 top-0 z-30 bg-emerald-500 text-white text-[13px] font-extrabold tracking-wide text-center py-1.5 shadow-md rounded-t-lg">
+            ✓ MODIFIÉE À L'INSTANT
+          </div>
+        )}
+
         <button
           className="relative bg-black rounded overflow-hidden group flex-shrink-0 w-full"
           style={{ height: 110 }}
