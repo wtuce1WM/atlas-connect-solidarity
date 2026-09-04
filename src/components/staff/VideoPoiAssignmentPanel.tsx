@@ -15,6 +15,8 @@ import {
   JustModifiedBanner,
   justModifiedCardClass,
 } from "./video-assignment/BadgeAssignmentSidebar";
+import type { SidebarMode } from "./video-assignment/BadgeAssignmentSidebar";
+import { VideoRelationChips, useVideoRelationCounts } from "./video-assignment/VideoRelationChips";
 
 interface VideoDoc {
   id: string;
@@ -79,6 +81,12 @@ const VideoPoiAssignmentPanel = () => {
     poi_names: string[];
   }
   const [multiPoiVideos, setMultiPoiVideos] = useState<MultiPoiVideo[]>([]);
+  const [sidebarMode, setSidebarMode] = useState<SidebarMode>("tags");
+  const relationItems = useMemo(
+    () => multiPoiVideos.map(v => ({ id: v.id, source: "document" as const })),
+    [multiPoiVideos],
+  );
+  const { counts: relationCounts, refreshCounts } = useVideoRelationCounts(relationItems);
   const badgeSidebarVideo = useMemo(
     () => multiPoiVideos.find(v => v.id === badgeVideoId) || null,
     [multiPoiVideos, badgeVideoId],
@@ -698,7 +706,7 @@ const VideoPoiAssignmentPanel = () => {
                     key={mv.id}
                     className={`group relative rounded-lg border bg-card overflow-hidden hover:shadow-md transition-shadow cursor-pointer ${badgeVideoId === mv.id ? "border-primary ring-2 ring-primary" : ""} ${lastModifiedId === mv.id ? justModifiedCardClass : ""}`}
                     style={{ width: 260 }}
-                    onClick={() => { setBadgeVideoId(mv.id); }}
+                    onClick={() => { setSidebarMode("tags"); setBadgeVideoId(mv.id); }}
                   >
                     {lastModifiedId === mv.id && <JustModifiedBanner />}
                     <button
@@ -740,6 +748,11 @@ const VideoPoiAssignmentPanel = () => {
                           <Badge variant="outline" className="text-[9px] px-1 py-0">+{mv.poi_names.length - 4}</Badge>
                         )}
                       </div>
+                      <VideoRelationChips
+                        counts={relationCounts.get(mv.id)}
+                        onOpenPoi={() => { setSidebarMode("poi"); setBadgeVideoId(mv.id); }}
+                        onOpenDest={() => { setSidebarMode("dest"); setBadgeVideoId(mv.id); }}
+                      />
                     </div>
                   </div>
                 ))}
@@ -754,9 +767,11 @@ const VideoPoiAssignmentPanel = () => {
                     thumbnail_url: badgeSidebarVideo.thumbnail_url,
                     city: badgeSidebarVideo.city,
                   }}
+                  mode={sidebarMode}
                   onClose={() => setBadgeVideoId(null)}
                   onSaved={() => {
                     setLastModifiedId(badgeSidebarVideo.id);
+                    refreshCounts();
                     setBadgeVideoId(null);
                   }}
                 />
