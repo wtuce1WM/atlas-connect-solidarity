@@ -389,7 +389,13 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
     setSelectedSubcategory(ALL_VALUE);
   }, [selectedCategory]);
 
+  const selectedBadgeVideo = useMemo(
+    () => videos.find(v => v.id === selectedVideoId) || null,
+    [videos, selectedVideoId],
+  );
+
   const filteredVideos = useMemo(() => {
+
     if (!selectedCity) return [];
     let result = videos;
 
