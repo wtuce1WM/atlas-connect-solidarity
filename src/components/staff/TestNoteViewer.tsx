@@ -427,7 +427,10 @@ const TestNoteViewer = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [activeTab, city, loadedCity, videosLoading, videosLoadError, videosLoadAttempt]);
+  // Ne pas dépendre de videosLoading/videosLoadError : cet effet les modifie
+  // lui-même. Les inclure déclenchait immédiatement le cleanup, annulait la
+  // requête en cours et laissait videosLoading bloqué à true.
+  }, [activeTab, city, loadedCity, videosLoadAttempt]);
 
   // Chargement global conservé uniquement pour « À badger ».
   useEffect(() => {
@@ -719,11 +722,6 @@ const TestNoteViewer = () => {
                   ))}
                 </SelectContent>
               </Select>
-              {videosLoading && city !== "none" && (
-                <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Chargement des badges…
-                </span>
-              )}
             </div>
           </div>
 
