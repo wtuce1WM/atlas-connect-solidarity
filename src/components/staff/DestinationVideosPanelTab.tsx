@@ -38,9 +38,8 @@ interface DestVideo {
   has_linked?: boolean;
 }
 
-interface CityOption { name: string; sort_order: number; }
 
-const NONE_CITY = "__none__";
+
 const ALL = "__all__";
 
 const SortableVideoCard = ({ video, index, onPlay }: { video: DestVideo; index: number; onPlay: (url: string) => void }) => {
@@ -111,8 +110,6 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: DestVideo; index: 
 
 const DestinationVideosPanelTab = () => {
   const [videos, setVideos] = useState<DestVideo[]>([]);
-  const [cities, setCities] = useState<CityOption[]>([]);
-  const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedDest, setSelectedDest] = useState<string>(ALL);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -123,16 +120,6 @@ const DestinationVideosPanelTab = () => {
 
   const load = useCallback(async () => {
     setLoading(true);
-
-    const { data: citiesData } = await supabase
-      .from("cities")
-      .select("name_fr, sort_order")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true });
-
-    if (citiesData) {
-      setCities(citiesData.map(c => ({ name: c.name_fr, sort_order: c.sort_order ?? 0 })));
-    }
 
     // Fetch all business_documents videos with a destination_id
     const allDocs: any[] = [];
@@ -288,41 +275,24 @@ const DestinationVideosPanelTab = () => {
 
   useEffect(() => { load(); }, [load]);
 
-  const videoCities = useMemo(() => {
-    const citySet = new Set<string>();
-    videos.forEach(v => v.cities.forEach(c => citySet.add(c)));
-    const cityOrder = new Map(cities.map(c => [c.name, c.sort_order]));
-    return [...citySet].sort((a, b) => (cityOrder.get(a) ?? 9999) - (cityOrder.get(b) ?? 9999));
-  }, [videos, cities]);
-
-  const cityFilteredVideos = useMemo(() => {
-    if (!selectedCity) return [];
-    if (selectedCity === NONE_CITY) return videos.filter(v => v.cities.length === 0);
-    return videos.filter(v => v.cities.includes(selectedCity));
-  }, [videos, selectedCity]);
-
   const videoDests = useMemo(() => {
     const destSet = new Map<string, string>();
-    cityFilteredVideos.forEach(v => {
+    videos.forEach(v => {
       if (v.destination_id && !destSet.has(v.destination_id)) destSet.set(v.destination_id, v.destination_name);
     });
     return [...destSet.entries()]
       .map(([id, name]) => ({ id, name }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [cityFilteredVideos]);
-
-  useEffect(() => { setSelectedDest(ALL); }, [selectedCity]);
+  }, [videos]);
 
   useEffect(() => { pendingOrderRef.current = null; }, [selectedDest]);
 
   const filteredVideos = useMemo(() => {
-    // When a destination is selected, show ALL its videos regardless of the city filter.
-    // The city filter only narrows the destination dropdown choices.
     const result = selectedDest !== ALL
       ? videos.filter(v => v.destination_id === selectedDest)
-      : cityFilteredVideos;
+      : videos;
     return [...result].sort((a, b) => ((a.sort_order ?? 0) - (b.sort_order ?? 0)) || a.id.localeCompare(b.id));
-  }, [videos, cityFilteredVideos, selectedDest]);
+  }, [videos, selectedDest]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -400,25 +370,10 @@ const DestinationVideosPanelTab = () => {
       <div className="flex items-center gap-4 flex-wrap">
         <VideoIdSearchInput videoIds={filteredVideos.map(v => v.id)} />
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">Ville :</span>
-          <Select value={selectedCity || ""} onValueChange={v => setSelectedCity(v)}>
-            <SelectTrigger className="w-[220px]">
-              <SelectValue placeholder="Sélectionner une ville" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NONE_CITY}>Aucune</SelectItem>
-              {videoCities.map(c => (
-                <SelectItem key={c} value={c}>{c}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center gap-2">
           <span className="text-sm font-medium">Destination :</span>
-          <Select value={selectedDest} onValueChange={setSelectedDest} disabled={!selectedCity}>
+          <Select value={selectedDest} onValueChange={setSelectedDest}>
             <SelectTrigger className="w-[260px]">
-              <SelectValue placeholder={!selectedCity ? "Choisir une ville" : "Toutes"} />
+              <SelectValue placeholder="Toutes" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={ALL}>Toutes</SelectItem>
@@ -430,23 +385,19 @@ const DestinationVideosPanelTab = () => {
         </div>
       </div>
 
-      {selectedCity && (
-        <>
-          <p className="text-sm text-muted-foreground">{filteredVideos.length} vidéo{filteredVideos.length !== 1 ? "s" : ""}</p>
-          {filteredVideos.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">Aucune vidéo pour cette sélection.</p>
-          ) : (
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={filteredVideos.map(v => v.id)} strategy={rectSortingStrategy}>
-                <div className="flex flex-wrap gap-2">
-                  {filteredVideos.map((v, i) => (
-                    <SortableVideoCard key={v.id} video={v} index={i} onPlay={setLightboxUrl} />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          )}
-        </>
+      <p className="text-sm text-muted-foreground">{filteredVideos.length} vidéo{filteredVideos.length !== 1 ? "s" : ""}</p>
+      {filteredVideos.length === 0 ? (
+        <p className="text-sm text-muted-foreground py-8 text-center">Aucune vidéo pour cette sélection.</p>
+      ) : (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={filteredVideos.map(v => v.id)} strategy={rectSortingStrategy}>
+            <div className="flex flex-wrap gap-2">
+              {filteredVideos.map((v, i) => (
+                <SortableVideoCard key={v.id} video={v} index={i} onPlay={setLightboxUrl} />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
