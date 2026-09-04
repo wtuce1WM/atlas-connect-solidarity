@@ -66,10 +66,6 @@ const VideoPoiAssignmentPanel = () => {
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [badgeVideoId, setBadgeVideoId] = useState<string | null>(null);
   const [lastModifiedId, setLastModifiedId] = useState<string | null>(null);
-  const badgeSidebarVideo = useMemo(
-    () => multiPoiVideos.find(v => v.id === badgeVideoId) || null,
-    [multiPoiVideos, badgeVideoId],
-  );
 
   // Multi-POI videos list
   interface MultiPoiVideo {
@@ -83,6 +79,10 @@ const VideoPoiAssignmentPanel = () => {
     poi_names: string[];
   }
   const [multiPoiVideos, setMultiPoiVideos] = useState<MultiPoiVideo[]>([]);
+  const badgeSidebarVideo = useMemo(
+    () => multiPoiVideos.find(v => v.id === badgeVideoId) || null,
+    [multiPoiVideos, badgeVideoId],
+  );
   const [loadingMulti, setLoadingMulti] = useState(true);
 
   // Upload section state
