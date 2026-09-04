@@ -142,33 +142,8 @@ const StaffVideos = () => {
             <LatestVideosPanel />
           </TabsContent>
 
-          <TabsContent value="country-videos">
-            <Tabs defaultValue="">
-              <TabsList className="flex flex-wrap h-auto gap-1">
-                <TabsTrigger value="sub-videos">Avec sous-catégorie</TabsTrigger>
-                <TabsTrigger value="poi-videos">POI</TabsTrigger>
-                <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
-                <TabsTrigger value="pois-videos">POIS</TabsTrigger>
-                <TabsTrigger value="db-structure">Toutes</TabsTrigger>
 
-              </TabsList>
-              <TabsContent value="sub-videos">
-                <CountryVideosPanel withSubcategory={true} />
-              </TabsContent>
-              <TabsContent value="poi-videos">
-                <PoiVideosPanel />
-              </TabsContent>
-              <TabsContent value="dest-videos">
-                <DestinationVideosPanelTab />
-              </TabsContent>
-              <TabsContent value="pois-videos">
-                <VideoPoiAssignmentPanel />
-              </TabsContent>
-              <TabsContent value="db-structure">
-                <VideoDbStructurePanel />
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
+
 
           <TabsContent value="youtube">
             <YouTubeBackofficePanel />
