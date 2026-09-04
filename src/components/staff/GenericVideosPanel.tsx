@@ -815,6 +815,7 @@ const GenericVideosPanel = () => {
 
     setPanelItemsInitial(JSON.stringify(panelItems));
     setPanelSaving(false);
+    setSelectedVideo(null);
   }, [selectedVideo, panelItems]);
 
   const hasRightPanel = !!(selectedVideo || poiVideo || businessVideo || destinationVideo || tagsVideo);
