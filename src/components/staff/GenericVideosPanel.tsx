@@ -563,11 +563,13 @@ const GenericVideosPanel = () => {
   const [deleteConfirmVideo, setDeleteConfirmVideo] = useState<GenericVideo | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Filtres "Nom Social" — un par réseau
+  // Filtres "Nom Social" — un par réseau + sous-onglet de source sociale
   const ALL_SOCIAL = "__all__";
+  const [platformTab, setPlatformTab] = useState<"instagram" | "tiktok" | "youtube">("instagram");
   const [filterIg, setFilterIg] = useState<string>(ALL_SOCIAL);
   const [filterTt, setFilterTt] = useState<string>(ALL_SOCIAL);
   const [filterYt, setFilterYt] = useState<string>(ALL_SOCIAL);
+
 
   // Selected video for right panel
   const [selectedVideo, setSelectedVideo] = useState<GenericVideo | null>(null);
@@ -593,10 +595,16 @@ const GenericVideosPanel = () => {
 
   const loadVideos = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from("generic_videos" as any).select("*").order("sort_order", { ascending: true });
+    // Ne charge que les 50 dernières vidéos créées (perf backoffice)
+    const { data } = await supabase
+      .from("generic_videos" as any)
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50);
     setVideos((data as unknown as GenericVideo[]) || []);
     setLoading(false);
   }, []);
+
 
   const loadCounts = useCallback(async () => {
     const fetchAllLinks = async (table: string, select: string) => {
@@ -884,21 +892,24 @@ const GenericVideosPanel = () => {
         ) : videos.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">Aucune vidéo générique</p>
         ) : (() => {
-          const igAccounts = Array.from(new Set(videos.map(v => v.instagram_account).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
-          const ttAccounts = Array.from(new Set(videos.map(v => v.tiktok_account).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
-          const ytAccounts = Array.from(new Set(videos.map(v => v.youtube_account).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
-          const baseVideos = videos.filter(v =>
-            (filterIg === ALL_SOCIAL || v.instagram_account === filterIg) &&
-            (filterTt === ALL_SOCIAL || v.tiktok_account === filterTt) &&
-            (filterYt === ALL_SOCIAL || v.youtube_account === filterYt)
-          );
+          const accountField = platformTab === "instagram" ? "instagram_account" : platformTab === "tiktok" ? "tiktok_account" : "youtube_account";
+          const platformVideos = videos.filter(v => !!(v as any)[accountField]);
+          const accounts = Array.from(new Set(platformVideos.map(v => (v as any)[accountField] as string | null).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+          const activeFilter = platformTab === "instagram" ? filterIg : platformTab === "tiktok" ? filterTt : filterYt;
+          const setActiveFilter = platformTab === "instagram" ? setFilterIg : platformTab === "tiktok" ? setFilterTt : setFilterYt;
+          const counts = {
+            instagram: videos.filter(v => !!v.instagram_account).length,
+            tiktok: videos.filter(v => !!v.tiktok_account).length,
+            youtube: videos.filter(v => !!v.youtube_account).length,
+          };
+          const baseVideos = platformVideos.filter(v => activeFilter === ALL_SOCIAL || (v as any)[accountField] === activeFilter);
           const filteredVideos = sortMode === "recent"
             ? [...baseVideos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
             : baseVideos;
           return (
           <>
             <div className="flex items-center gap-3 flex-wrap">
-              <p className="text-sm text-muted-foreground">{filteredVideos.length}/{videos.length} vidéo{videos.length > 1 ? "s" : ""} • Cliquez pour voir les entités liées</p>
+              <p className="text-sm text-muted-foreground">{filteredVideos.length}/{videos.length} vidéo{videos.length > 1 ? "s" : ""} (50 dernières) • Cliquez pour voir les entités liées</p>
               <VideoIdSearchInput videoIds={filteredVideos.map(v => v.id)} />
               <ImportFromBusinessDocInput
                 onImported={loadVideos}
@@ -911,34 +922,33 @@ const GenericVideosPanel = () => {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-medium text-muted-foreground">Nom social :</span>
-              <Select value={filterIg} onValueChange={setFilterIg}>
-                <SelectTrigger className="h-7 text-xs w-[180px]"><SelectValue placeholder="Instagram" /></SelectTrigger>
+              <span className="text-xs font-medium text-muted-foreground">Source sociale :</span>
+              {(["instagram", "tiktok", "youtube"] as const).map(p => (
+                <Button
+                  key={p}
+                  size="sm"
+                  variant={platformTab === p ? "default" : "outline"}
+                  className="h-7 text-xs capitalize"
+                  onClick={() => setPlatformTab(p)}
+                >
+                  {p} ({counts[p]})
+                </Button>
+              ))}
+              <span className="text-xs font-medium text-muted-foreground ml-2">Nom social :</span>
+              <Select value={activeFilter} onValueChange={setActiveFilter}>
+                <SelectTrigger className="h-7 text-xs w-[200px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL_SOCIAL}>Instagram — Tous</SelectItem>
-                  {igAccounts.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+                  <SelectItem value={ALL_SOCIAL}>Tous les comptes</SelectItem>
+                  {accounts.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <Select value={filterTt} onValueChange={setFilterTt}>
-                <SelectTrigger className="h-7 text-xs w-[180px]"><SelectValue placeholder="TikTok" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL_SOCIAL}>TikTok — Tous</SelectItem>
-                  {ttAccounts.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={filterYt} onValueChange={setFilterYt}>
-                <SelectTrigger className="h-7 text-xs w-[180px]"><SelectValue placeholder="YouTube" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL_SOCIAL}>YouTube — Tous</SelectItem>
-                  {ytAccounts.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              {(filterIg !== ALL_SOCIAL || filterTt !== ALL_SOCIAL || filterYt !== ALL_SOCIAL) && (
-                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => { setFilterIg(ALL_SOCIAL); setFilterTt(ALL_SOCIAL); setFilterYt(ALL_SOCIAL); }}>
+              {activeFilter !== ALL_SOCIAL && (
+                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setActiveFilter(ALL_SOCIAL)}>
                   Réinitialiser
                 </Button>
               )}
             </div>
+
             <DndContext sensors={sortMode === "manual" ? sensors : undefined} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={filteredVideos.map(v => v.id)} strategy={rectSortingStrategy}>
                 <div className="flex flex-wrap gap-4">
