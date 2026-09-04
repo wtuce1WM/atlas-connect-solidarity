@@ -341,6 +341,18 @@ const BookOnlineSlidePanelInner = ({
   const businessId = activeBusinessId;
   const [cameFromFallback, setCameFromFallback] = useState(false);
   const [navPillExpanded, setNavPillExpanded] = useState(false);
+  const navPillRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!navPillExpanded) return;
+    const close = (e: PointerEvent | MouseEvent | TouchEvent) => {
+      const target = "target" in e ? (e.target as Node) : null;
+      if (navPillRef.current && target && !navPillRef.current.contains(target)) {
+        setNavPillExpanded(false);
+      }
+    };
+    document.addEventListener("pointerdown", close, { passive: true });
+    return () => document.removeEventListener("pointerdown", close);
+  }, [navPillExpanded]);
   const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -2745,8 +2757,9 @@ const BookOnlineSlidePanelInner = ({
       {/* Pilule chevrons — compacte à l'ouverture, déplie au hover/tap */}
       {!cardsHidden && !showPoiMapOverlay && !showDirections && (effectiveHasPrev || effectiveHasNext || totalMedia > 1) && (
         <div
+          ref={navPillRef}
           className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center rounded-l-full border border-r-0 border-white/10 bg-black/80 backdrop-blur-md shadow-[-4px_4px_12px_rgba(0,0,0,0.3)] py-1 px-1 pointer-events-auto transition-all duration-300"
-          onMouseEnter={() => setNavPillExpanded(true)}
+          onMouseOver={() => setNavPillExpanded(true)}
           onMouseLeave={() => setNavPillExpanded(false)}
         >
           {!navPillExpanded ? (
@@ -2761,16 +2774,6 @@ const BookOnlineSlidePanelInner = ({
             </button>
           ) : (
             <div className="flex flex-col items-center gap-0.5 animate-fade-in">
-              <button
-                type="button"
-                data-cta-tap
-                aria-label="Fermer la navigation"
-                onClick={(e) => { e.stopPropagation(); setNavPillExpanded(false); }}
-                className="flex items-center justify-center h-7 w-7 text-white/70 hover:text-white active:scale-90 transition-all"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-
               <button
                 type="button"
                 data-cta-tap
