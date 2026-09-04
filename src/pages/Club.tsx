@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import FrontHeader from "@/components/front/FrontHeader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
