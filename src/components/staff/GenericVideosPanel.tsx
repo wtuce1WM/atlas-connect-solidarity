@@ -593,23 +593,61 @@ const GenericVideosPanel = () => {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
+  // Liste complète des comptes sociaux (toute la table, pas seulement les vidéos chargées)
+  const [socialAccounts, setSocialAccounts] = useState<{ instagram: string[]; tiktok: string[]; youtube: string[] }>({ instagram: [], tiktok: [], youtube: [] });
+
+  const loadSocialAccounts = useCallback(async () => {
+    const fetchAll = async (field: string) => {
+      const values = new Set<string>();
+      let offset = 0;
+      const batch = 1000;
+      while (true) {
+        const { data } = await (supabase.from("generic_videos" as any).select(field).not(field, "is", null).order("id").range(offset, offset + batch - 1) as any);
+        if (!data || data.length === 0) break;
+        for (const row of data) {
+          const v = (row as any)[field];
+          if (typeof v === "string" && v.trim()) values.add(v.trim());
+        }
+        if (data.length < batch) break;
+        offset += batch;
+      }
+      return Array.from(values).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+    };
+    const [instagram, tiktok, youtube] = await Promise.all([
+      fetchAll("instagram_account"),
+      fetchAll("tiktok_account"),
+      fetchAll("youtube_account"),
+    ]);
+    setSocialAccounts({ instagram, tiktok, youtube });
+  }, []);
+
   const loadVideos = useCallback(async () => {
     setLoading(true);
-    // 50 dernières vidéos par source sociale (Instagram / TikTok / YouTube) + 50 dernières globales
-    const q = () => supabase.from("generic_videos" as any).select("*").order("created_at", { ascending: false }).limit(50);
-    const [all, ig, tt, yt] = await Promise.all([
-      q(),
-      q().not("instagram_account", "is", null),
-      q().not("tiktok_account", "is", null),
-      q().not("youtube_account", "is", null),
-    ]);
+    const accountField = platformTab === "instagram" ? "instagram_account" : platformTab === "tiktok" ? "tiktok_account" : "youtube_account";
+    const activeFilter = platformTab === "instagram" ? filterIg : platformTab === "tiktok" ? filterTt : filterYt;
     const merged = new Map<string, GenericVideo>();
-    for (const res of [all, ig, tt, yt]) {
-      for (const v of ((res.data as unknown as GenericVideo[]) || [])) merged.set(v.id, v);
+
+    if (activeFilter !== ALL_SOCIAL) {
+      // Filtre par compte : on charge toutes les vidéos de ce compte
+      const { data } = await (supabase.from("generic_videos" as any).select("*").eq(accountField, activeFilter).order("created_at", { ascending: false }).limit(500) as any);
+      for (const v of ((data as unknown as GenericVideo[]) || [])) merged.set(v.id, v);
+    } else {
+      // 50 dernières vidéos globales + 50 dernières par source sociale
+      const q = () => supabase.from("generic_videos" as any).select("*").order("created_at", { ascending: false }).limit(50);
+      const [all, ig, tt, yt] = await Promise.all([
+        q(),
+        q().not("instagram_account", "is", null),
+        q().not("tiktok_account", "is", null),
+        q().not("youtube_account", "is", null),
+      ]);
+      for (const res of [all, ig, tt, yt]) {
+        for (const v of ((res.data as unknown as GenericVideo[]) || [])) merged.set(v.id, v);
+      }
     }
     setVideos(Array.from(merged.values()));
     setLoading(false);
-  }, []);
+  }, [platformTab, filterIg, filterTt, filterYt]);
+
 
 
 
