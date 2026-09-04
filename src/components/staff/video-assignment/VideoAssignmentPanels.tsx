@@ -658,11 +658,17 @@ interface CityItem { id: string; name_fr: string; }
 export const InlineBadgeSubcatCityAssignment = ({
   source, video, onClose, onSaved,
 }: {
+export const InlineBadgeSubcatCityAssignment = ({
+  source, video, onClose, onSaved, siblings,
+}: {
   source: AssignmentSource;
   video: AssignableVideo;
   onClose: () => void;
   onSaved: () => void;
+  /** Autres video_id pointant vers le même fichier : reçoivent les mêmes deltas. */
+  siblings?: { id: string; source: AssignmentSource }[];
 }) => {
+
   const T = TABLES[source];
   const [allBadges, setAllBadges] = useState<BadgeItem[]>([]);
   const [allCities, setAllCities] = useState<CityItem[]>([]);
