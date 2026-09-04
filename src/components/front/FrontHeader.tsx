@@ -61,6 +61,10 @@ interface Props {
   onMenuToggle?: (open: boolean) => void;
   /** Callback clic sur le logo / nom (retour écran 1). */
   onLogoClick?: () => void;
+  /** Remplace les entrées du menu hamburger (ex : menu membre /club). */
+  links?: { label: string; to?: string; onClick?: () => void; danger?: boolean }[];
+  /** Masque le sélecteur de langue dans le menu. */
+  hideLanguageSwitch?: boolean;
 }
 
 /**
@@ -98,14 +102,14 @@ const LogoBlock = ({
   );
 };
 
-const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggle, onLogoClick }: Props) => {
+const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggle, onLogoClick, links, hideLanguageSwitch = false }: Props) => {
   const { language, setLanguage } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const setOpen = (open: boolean) => {
     setMenuOpen(open);
     onMenuToggle?.(open);
-    if (open) CTAS.forEach((cta) => preloadRoute(cta.to));
+    if (open && !links) CTAS.forEach((cta) => preloadRoute(cta.to));
   };
 
 
@@ -157,32 +161,63 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
           </button>
         </div>
         <nav className="flex flex-1 flex-col justify-center gap-3 px-5 pb-10 md:px-10">
-          {CTAS.map((cta) => (
-            <Link
-              key={cta.to}
-              to={cta.to}
-              onPointerEnter={() => preloadRoute(cta.to)}
-              onFocus={() => preloadRoute(cta.to)}
-              onClick={() => setOpen(false)}
-
-              className="group relative overflow-hidden rounded-xl border border-[rgba(244,238,228,0.15)] bg-black/35 p-5 backdrop-blur-md transition-all hover:border-gold/60 focus-visible:border-gold/60 focus-visible:outline-none"
-            >
-              <span
-                className="absolute inset-x-0 top-0 h-[3px]"
-                style={{
-                  background:
-                    "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--gold)))",
+          {(links ?? CTAS).map((cta) => {
+            const itemClass = `group relative overflow-hidden rounded-xl border bg-black/35 p-5 text-left backdrop-blur-md transition-all focus-visible:outline-none ${
+              cta.danger
+                ? "border-red-400/40 hover:border-red-400/80 focus-visible:border-red-400/80"
+                : "border-[rgba(244,238,228,0.15)] hover:border-gold/60 focus-visible:border-gold/60"
+            }`;
+            const inner = (
+              <>
+                <span
+                  className="absolute inset-x-0 top-0 h-[3px]"
+                  style={{
+                    background: cta.danger
+                      ? "linear-gradient(90deg, #ef4444, #f97316)"
+                      : "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--gold)))",
+                  }}
+                  aria-hidden="true"
+                />
+                <ArrowUpRight className="absolute right-4 top-5 h-4 w-4 text-[rgba(244,238,228,0.6)] transition-colors group-hover:text-gold" />
+                <span className="block pr-8 font-roboto text-base font-bold text-[#F4EEE4] md:text-lg">
+                  {cta.label}
+                </span>
+              </>
+            );
+            if (!cta.to) {
+              return (
+                <button
+                  key={cta.label}
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    cta.onClick?.();
+                  }}
+                  className={itemClass}
+                >
+                  {inner}
+                </button>
+              );
+            }
+            return (
+              <Link
+                key={`${cta.label}-${cta.to}`}
+                to={cta.to}
+                onPointerEnter={() => preloadRoute(cta.to!)}
+                onFocus={() => preloadRoute(cta.to!)}
+                onClick={() => {
+                  setOpen(false);
+                  cta.onClick?.();
                 }}
-                aria-hidden="true"
-              />
-              <ArrowUpRight className="absolute right-4 top-5 h-4 w-4 text-[rgba(244,238,228,0.6)] transition-colors group-hover:text-gold" />
-              <span className="block pr-8 font-roboto text-base font-bold text-[#F4EEE4] md:text-lg">
-                {cta.label}
-              </span>
-            </Link>
-          ))}
+                className={itemClass}
+              >
+                {inner}
+              </Link>
+            );
+          })}
 
           {/* Switch de langues */}
+          {!hideLanguageSwitch && (
           <div className="mt-2 grid grid-cols-2 gap-3">
             {FRONT_LANGS.map((lang) => (
               <button
@@ -207,6 +242,7 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
               </button>
             ))}
           </div>
+          )}
         </nav>
       </div>
     </>
