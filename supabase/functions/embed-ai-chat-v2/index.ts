@@ -333,7 +333,9 @@ Deno.serve(async (req) => {
   }
   // Garde-fou plateforme : une suggestion explicitement cliquée doit être flaggée
   // « Visible plateforme 1WM » en back-office, sinon elle suppose un hôte.
-  if (platformMode && suggestionId) {
+  // La surface `club` a son propre jeu de suggestions (surface=club) : le flag
+  // `is_platform_visible` ne la concerne pas.
+  if (platformMode && suggestionId && surface !== "club") {
     const { data: sg } = await admin
       .from("ai_suggestions")
       .select("is_platform_visible")
@@ -348,7 +350,7 @@ Deno.serve(async (req) => {
   }
   // Même garde-fou pour les relances : une relance cliquée en mode plateforme
   // doit être flaggée, sinon elle peut dépendre d'un établissement hôte.
-  if (platformMode && followupId) {
+  if (platformMode && followupId && surface !== "club") {
     const { data: fu } = await admin
       .from("ai_followups")
       .select("is_platform_visible")

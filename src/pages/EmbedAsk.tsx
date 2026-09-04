@@ -1000,6 +1000,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         // Mode plateforme : pas d'hôte — le moteur travaille sur la ville active
         // (fallback Marrakech côté moteur), surface embed conservée.
         platform: isPlatform || undefined,
+        // Surface club : suggestions/relances propres à /club (le flag
+        // `is_platform_visible` ne pilote que la surface embed/plateforme).
+        surface: isClubScope ? "club" : undefined,
         activeCity: isPlatform ? platformCity : undefined,
         language: lang,
         sessionId: sessionIdRef.current,
@@ -1015,7 +1018,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         radiusKm: radiusRef.current,
       },
     }),
-  }), [slug, lang, isPlatform, platformCity]);
+  }), [slug, lang, isPlatform, platformCity, isClubScope]);
 
 
   const { messages, sendMessage, status, setMessages } = useChat({
