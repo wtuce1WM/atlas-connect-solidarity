@@ -656,9 +656,7 @@ interface BadgeItem { id: string; name_fr: string; color_hex: string | null; }
 interface CityItem { id: string; name_fr: string; }
 
 export const InlineBadgeSubcatCityAssignment = ({
-  source, video, onClose, onSaved,
-}: {
-export const InlineBadgeSubcatCityAssignment = ({
+
   source, video, onClose, onSaved, siblings,
 }: {
   source: AssignmentSource;
