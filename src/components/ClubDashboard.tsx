@@ -11,7 +11,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { User as UserIcon, MapPin, Plane, Lightbulb, Bell, Home, Bot } from "lucide-react";
 import ClubTrips from "@/components/club/ClubTrips";
 import BookmarkTripLinker from "@/components/club/BookmarkTripLinker";
-import ClubAiAssistant from "@/components/club/ClubAiAssistant";
+// Onglet « Assistant IA » du Club : même moteur que l'assistant de la Home
+// (EmbedAsk), monté en surface `club` — les suggestions/relances sont lues sur
+// la surface `club` en base. Remplace le fork ClubAiAssistant.
+const EmbedAskInline = lazy(() => import("@/pages/EmbedAsk"));
 import AiChatsList from "@/components/club/AiChatsList";
 import { MessageCircle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
