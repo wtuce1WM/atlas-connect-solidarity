@@ -77,7 +77,7 @@ const SortableVideoCard = ({ video, index, onPlay, onSelect, selected = false, j
       <button
         className="relative bg-black rounded overflow-hidden group flex-shrink-0 w-full"
         style={{ height: 110 }}
-        onClick={() => onPlay(video.url)}
+        onClick={(e) => { e.stopPropagation(); onPlay(video.url); }}
       >
         {video.thumbnail_url ? (
           <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
@@ -128,6 +128,10 @@ const DestinationVideosPanelTab = () => {
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   const [lastModifiedId, setLastModifiedId] = useState<string | null>(null);
+  const selectedBadgeVideo = useMemo(
+    () => videos.find(v => v.id === selectedVideoId) || null,
+    [videos, selectedVideoId],
+  );
   const pendingOrderRef = useRef<DestVideo[] | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
