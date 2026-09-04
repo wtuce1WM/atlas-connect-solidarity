@@ -687,6 +687,56 @@ const VideoSlidePanel = ({
   useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
   useEffect(() => { setSoundOnRef.current = setSoundOn; }, [setSoundOn]);
 
+  // ─── Médias du business hôte (navigation horizontale, comme BookOnlineSlidePanel) ───
+  const hostBusinessId = owner?.id || pageBusinessId || null;
+  const [hostBiz, setHostBiz] = useState<any>(null);
+  const [hostVideoDocs, setHostVideoDocs] = useState<any[]>([]);
+  useEffect(() => {
+    if (!open || !hostBusinessId) { setHostBiz(null); setHostVideoDocs([]); return; }
+    let cancelled = false;
+    (async () => {
+      const [bizRes, docsRes] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select("id, images, prioritize_images, show_videos, matterport_url")
+          .eq("id", hostBusinessId)
+          .maybeSingle(),
+        supabase
+          .from("business_documents")
+          .select("id, url, thumbnail_url, sort_order")
+          .eq("business_id", hostBusinessId)
+          .eq("type", "video")
+          .order("sort_order"),
+      ]);
+      if (cancelled) return;
+      setHostBiz(bizRes.data || null);
+      const seen = new Set<string>();
+      setHostVideoDocs(((docsRes.data || []) as any[]).filter((d) => {
+        if (!d.url || seen.has(d.url)) return false;
+        seen.add(d.url);
+        return true;
+      }));
+    })();
+    return () => { cancelled = true; };
+  }, [open, hostBusinessId]);
+  const hostVideoUrls = useMemo(() => hostVideoDocs.map((d) => d.url as string), [hostVideoDocs]);
+  const { mediaItems: hostMediaItems } = useMediaItems(hostBiz, hostVideoUrls, hostVideoDocs);
+  const mediaList = useMemo(() => {
+    const base: any[] = videoUrl ? [{ kind: "video", url: videoUrl }] : [];
+    return [...base, ...hostMediaItems.filter((m) => m.url !== videoUrl)];
+  }, [videoUrl, hostMediaItems]);
+  const totalMedia = mediaList.length;
+  const [mediaIdx, setMediaIdx] = useState(0);
+  useEffect(() => { setMediaIdx(0); }, [videoId, videoUrl]);
+  const activeMedia = totalMedia > 0 ? mediaList[Math.min(mediaIdx, totalMedia - 1)] : null;
+  const goMedia = useCallback((dir: 1 | -1) => {
+    if (totalMedia <= 1) return;
+    setMediaIdx((prev) => (prev + dir + totalMedia) % totalMedia);
+  }, [totalMedia]);
+  const viewUrl = activeMedia?.kind === "video" ? (activeMedia.url as string) : videoUrl;
+
+
+
 
   // Log a view whenever a video becomes active in the panel.
   // Generic videos have an id; for business "internal" videos we fall back to the URL.
