@@ -973,10 +973,10 @@ const VideoSlidePanel = ({
     return !!target.closest('button, a, input, textarea, select, label, [role="button"], [data-cta], [data-cta-tap], [data-sound-toggle="true"]');
   };
 
-  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: soundOn, controls: false });
+  const embed = getVideoEmbed(viewUrl || videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: soundOn, controls: false });
   let embedUrl = embed.embedUrl;
   if (embed.type === "youtube") {
-    const ytId = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
+    const ytId = (viewUrl || videoUrl).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
     embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`);
     // On garde toujours mute=1 dans l'URL : un autoplay non muté est bloqué par
     // Chrome/Safari et le lecteur reste alors en "unstarted" (iframe non cliquable).
@@ -1452,8 +1452,8 @@ const VideoSlidePanel = ({
             ) : embed.type === "file" ? (
               <FrozenFrameVideo
                 videoRef={videoRef}
-                src={videoUrl}
-                videoKey={videoId || videoUrl}
+                src={viewUrl || videoUrl}
+                videoKey={`${videoId || videoUrl}|${mediaIdx}`}
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />
 
@@ -1470,7 +1470,7 @@ const VideoSlidePanel = ({
                     )}
                     <iframe
                       ref={iframeRef}
-                      key={videoId || videoUrl}
+                      key={`${videoId || videoUrl}|${mediaIdx}`}
                       src={embedUrl}
                       className={
                         embed.type === "youtube"
