@@ -23,6 +23,13 @@ import type { SidebarMode } from "./video-assignment/BadgeAssignmentSidebar";
 import { VideoRelationChips, useVideoRelationCounts, type RelationCounts } from "./video-assignment/VideoRelationChips";
 import type { AssignmentSource } from "./video-assignment/VideoAssignmentPanels";
 
+/**
+ * Les lignes « générique » sont dédoublées par lien (id composite `gv-<videoId>-<relId>`).
+ * Les panneaux d'affectation doivent utiliser l'ID réel de l'entité.
+ */
+const realEntityId = (v: { id: string; source: string; business_id: string }) =>
+  v.source === "generic" ? v.business_id : v.id;
+
 interface PoiVideo {
   id: string;
   url: string;
