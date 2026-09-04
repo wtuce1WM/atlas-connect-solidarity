@@ -371,25 +371,10 @@ const DestinationVideosPanelTab = () => {
       <div className="flex items-center gap-4 flex-wrap">
         <VideoIdSearchInput videoIds={filteredVideos.map(v => v.id)} />
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">Ville :</span>
-          <Select value={selectedCity || ""} onValueChange={v => setSelectedCity(v)}>
-            <SelectTrigger className="w-[220px]">
-              <SelectValue placeholder="Sélectionner une ville" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NONE_CITY}>Aucune</SelectItem>
-              {videoCities.map(c => (
-                <SelectItem key={c} value={c}>{c}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center gap-2">
           <span className="text-sm font-medium">Destination :</span>
-          <Select value={selectedDest} onValueChange={setSelectedDest} disabled={!selectedCity}>
+          <Select value={selectedDest} onValueChange={setSelectedDest}>
             <SelectTrigger className="w-[260px]">
-              <SelectValue placeholder={!selectedCity ? "Choisir une ville" : "Toutes"} />
+              <SelectValue placeholder="Toutes" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={ALL}>Toutes</SelectItem>
@@ -401,23 +386,19 @@ const DestinationVideosPanelTab = () => {
         </div>
       </div>
 
-      {selectedCity && (
-        <>
-          <p className="text-sm text-muted-foreground">{filteredVideos.length} vidéo{filteredVideos.length !== 1 ? "s" : ""}</p>
-          {filteredVideos.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">Aucune vidéo pour cette sélection.</p>
-          ) : (
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={filteredVideos.map(v => v.id)} strategy={rectSortingStrategy}>
-                <div className="flex flex-wrap gap-2">
-                  {filteredVideos.map((v, i) => (
-                    <SortableVideoCard key={v.id} video={v} index={i} onPlay={setLightboxUrl} />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          )}
-        </>
+      <p className="text-sm text-muted-foreground">{filteredVideos.length} vidéo{filteredVideos.length !== 1 ? "s" : ""}</p>
+      {filteredVideos.length === 0 ? (
+        <p className="text-sm text-muted-foreground py-8 text-center">Aucune vidéo pour cette sélection.</p>
+      ) : (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={filteredVideos.map(v => v.id)} strategy={rectSortingStrategy}>
+            <div className="flex flex-wrap gap-2">
+              {filteredVideos.map((v, i) => (
+                <SortableVideoCard key={v.id} video={v} index={i} onPlay={setLightboxUrl} />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
