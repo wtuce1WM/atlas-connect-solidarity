@@ -121,6 +121,17 @@ const TestNoteViewer = () => {
   const [cityOptions, setCityOptions] = useState<string[]>([]);
   const [loadedCity, setLoadedCity] = useState<string | null>(null);
 
+  const selectCity = (nextCity: string) => {
+    setVideosLoading(false);
+    setVideosLoadError(null);
+    setLoadedCity(null);
+    setVideosLoaded(false);
+    setVideos([]);
+    setBadge("none");
+    setSelectedKey(null);
+    setCity(nextCity);
+  };
+
   // Villes ayant au moins 1 business actif avec une vidéo interne
   useEffect(() => {
     if (activeTab !== "badgees" || cityOptions.length > 0) return;
@@ -420,7 +431,7 @@ const TestNoteViewer = () => {
 
   // Chargement global conservé uniquement pour « À badger ».
   useEffect(() => {
-    if (videosLoaded || videosLoading || videosLoadError) return;
+    if ((videosLoaded && loadedCity === null) || videosLoading || videosLoadError) return;
     if (activeTab !== "tobadge") return;
 
     (async () => {
@@ -551,6 +562,7 @@ const TestNoteViewer = () => {
         });
 
         setVideos([...businessVideos, ...genericVideos]);
+        setLoadedCity(null);
         setVideosLoaded(true);
 
         // Récupération asynchrone des tailles de fichiers pour tri par poids
@@ -585,7 +597,7 @@ const TestNoteViewer = () => {
         setVideosLoading(false);
       }
     })();
-  }, [activeTab, city, videosLoaded, videosLoading, videosLoadError, videosLoadAttempt]);
+  }, [activeTab, city, videosLoaded, loadedCity, videosLoading, videosLoadError, videosLoadAttempt]);
 
   const retryVideosLoad = () => {
     setVideosLoadError(null);
@@ -679,7 +691,7 @@ const TestNoteViewer = () => {
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-foreground">Ville :</span>
-              <Select value={city} onValueChange={setCity}>
+              <Select value={city} onValueChange={selectCity}>
                 <SelectTrigger className="w-[260px]"><SelectValue /></SelectTrigger>
                 <SelectContent className="max-h-[60vh]">
                   <SelectItem value="none">Aucun</SelectItem>
