@@ -363,7 +363,7 @@ const TestNoteViewer = () => {
       setBadge("none");
       setSelectedKey(null);
       try {
-        const [rawDocs, badgesRes, subsRes, servicesRes] = await Promise.all([
+        const [rawDocs, badgesRes, subsRes, servicesRes, citiesRes] = await Promise.all([
           fetchAllPaged((f, t) =>
             (supabase
               .from("business_documents")
@@ -376,6 +376,7 @@ const TestNoteViewer = () => {
           supabase.from("badges").select("id, name_fr"),
           supabase.from("subcategories").select("id, name_fr"),
           supabase.from("services").select("id, name_fr"),
+          supabase.from("cities").select("id, name_fr"),
         ]);
 
         const docs = rawDocs.filter((d: any) => isInternalVideoUrl(d.url));
@@ -389,6 +390,46 @@ const TestNoteViewer = () => {
           if (error) throw error;
           badgeLinks.push(...(data || []));
         }
+        if (cancelled) return;
+
+        // Vidéos génériques de la même ville (liaison generic_video_cities + colonne city)
+        const norm = (s: any) => String(s || "").trim().toLowerCase();
+        const cityIds = ((citiesRes.data as any[]) || [])
+          .filter(c => norm(c.name_fr) === norm(city))
+          .map(c => c.id);
+        let genericDocs: any[] = [];
+        const genericBadgeMap = new Map<string, string[]>();
+        try {
+          const genIdSet = new Set<string>();
+          if (cityIds.length > 0) {
+            const { data: genCityRows } = await (supabase.from("generic_video_cities" as any) as any)
+              .select("generic_video_id, city_id")
+              .in("city_id", cityIds);
+            (genCityRows || []).forEach((r: any) => genIdSet.add(r.generic_video_id));
+          }
+          const { data: genByCity } = await (supabase.from("generic_videos" as any) as any)
+            .select("id, url, name, thumbnail_url, city, neighborhood, instagram_account, tiktok_account, youtube_account")
+            .ilike("city", city);
+          const byId = new Map<string, any>();
+          (genByCity || []).forEach((g: any) => byId.set(g.id, g));
+          const missing = [...genIdSet].filter(id => !byId.has(id));
+          for (let i = 0; i < missing.length; i += 200) {
+            const { data } = await (supabase.from("generic_videos" as any) as any)
+              .select("id, url, name, thumbnail_url, city, neighborhood, instagram_account, tiktok_account, youtube_account")
+              .in("id", missing.slice(i, i + 200));
+            (data || []).forEach((g: any) => byId.set(g.id, g));
+          }
+          genericDocs = [...byId.values()].filter((g: any) => isInternalVideoUrl(g.url));
+          const genIds = genericDocs.map((g: any) => g.id);
+          for (let i = 0; i < genIds.length; i += 200) {
+            const { data } = await (supabase.from("generic_video_badges" as any) as any)
+              .select("generic_video_id, badge_id")
+              .in("generic_video_id", genIds.slice(i, i + 200));
+            (data || []).forEach((l: any) => {
+              genericBadgeMap.set(l.generic_video_id, [...(genericBadgeMap.get(l.generic_video_id) || []), l.badge_id]);
+            });
+          }
+        } catch { /* les génériques sont un complément : ne bloque pas la ville */ }
         if (cancelled) return;
 
         const badgeMap = new Map<string, string[]>();
@@ -413,9 +454,26 @@ const TestNoteViewer = () => {
           source: "business",
         }));
 
+        const genericCityVideos: VideoDoc[] = genericDocs.map((g: any) => ({
+          id: g.id,
+          url: g.url,
+          name: g.name,
+          thumbnail_url: g.thumbnail_url,
+          city: g.city || city,
+          cities: [city],
+          neighborhood: g.neighborhood,
+          business_id: null,
+          business_name: g.instagram_account || g.tiktok_account || g.youtube_account || "— Générique —",
+          badge_ids: genericBadgeMap.get(g.id) || [],
+          subcategory_name: null,
+          service_name: null,
+          source: "generic",
+        }));
+
         setBadges([...(badgesRes.data || [])].sort((a, b) => a.name_fr.localeCompare(b.name_fr, "fr")));
-        setVideos(cityVideos);
+        setVideos([...cityVideos, ...genericCityVideos]);
         setLoadedCity(city);
+
         setVideosLoaded(true);
       } catch (e: any) {
         if (cancelled) return;
