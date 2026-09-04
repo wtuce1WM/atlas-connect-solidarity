@@ -148,6 +148,9 @@ export const InlinePoiAssignment = ({
   const [saving, setSaving] = useState(false);
   const [cityFilter, setCityFilter] = useState<string>("");
 
+  /** Vidéos de fiche : POI stocké dans la colonne unique business_documents.poi_id. */
+  const singleValue = source === "document";
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -156,22 +159,29 @@ export const InlinePoiAssignment = ({
           .select("id, name, neighborhood, city")
           .eq("is_poi", true).eq("is_active", true)
           .order("city").order("neighborhood").order("name"),
-        supabase.from(T.poi as any).select("poi_id" + (source === "youtube" ? ":point_of_interest_id" : ""))
-          .eq(T.fk, video.id) as any,
+        singleValue
+          ? (supabase.from("business_documents").select("poi_id").eq("id", video.id) as any)
+          : (supabase.from(T.poi as any).select("poi_id" + (source === "youtube" ? ":point_of_interest_id" : ""))
+              .eq(T.fk, video.id) as any),
       ]);
       setPoiBusinesses((pois as PoiBiz[]) || []);
-      const ids = ((links as any[]) || []).map((l: any) =>
-        source === "youtube" ? l.point_of_interest_id : l.poi_id
-      );
+      const ids = ((links as any[]) || [])
+        .map((l: any) => (source === "youtube" ? l.point_of_interest_id : l.poi_id))
+        .filter(Boolean);
       setSelectedIds(ids); setInitialIds(ids); setLoading(false);
     };
     load();
-  }, [video.id, source]);
+  }, [video.id, source, singleValue]);
 
   const togglePoi = (poiId: string) =>
-    setSelectedIds(prev => prev.includes(poiId) ? prev.filter(id => id !== poiId) : [...prev, poiId]);
+    setSelectedIds(prev =>
+      prev.includes(poiId)
+        ? prev.filter(id => id !== poiId)
+        : singleValue ? [poiId] : [...prev, poiId]
+    );
 
   const toggleGroup = (pois: PoiBiz[]) => {
+    if (singleValue) return;
     const ids = pois.map(p => p.id);
     const allSelected = ids.every(id => selectedIds.includes(id));
     setSelectedIds(prev => allSelected ? prev.filter(id => !ids.includes(id)) : [...new Set([...prev, ...ids])]);
@@ -183,15 +193,21 @@ export const InlinePoiAssignment = ({
 
   const save = async () => {
     setSaving(true);
-    const toAdd = selectedIds.filter(id => !initialIds.includes(id));
-    const toRemove = initialIds.filter(id => !selectedIds.includes(id));
-    if (toRemove.length > 0) {
-      await supabase.from(T.poi as any).delete().eq(T.fk, video.id).in(poiColumn, toRemove);
-    }
-    if (toAdd.length > 0) {
-      await supabase.from(T.poi as any).insert(
-        toAdd.map(id => ({ [T.fk]: video.id, [poiColumn]: id })) as any
-      );
+    if (singleValue) {
+      await supabase.from("business_documents")
+        .update({ poi_id: selectedIds[0] ?? null } as any)
+        .eq("id", video.id);
+    } else {
+      const toAdd = selectedIds.filter(id => !initialIds.includes(id));
+      const toRemove = initialIds.filter(id => !selectedIds.includes(id));
+      if (toRemove.length > 0) {
+        await supabase.from(T.poi as any).delete().eq(T.fk, video.id).in(poiColumn, toRemove);
+      }
+      if (toAdd.length > 0) {
+        await supabase.from(T.poi as any).insert(
+          toAdd.map(id => ({ [T.fk]: video.id, [poiColumn]: id })) as any
+        );
+      }
     }
     toast.success(`${selectedIds.length} POI(s) affecté(s)`);
     setInitialIds([...selectedIds]); onSaved(); setSaving(false);
