@@ -227,81 +227,53 @@ const TestNoteViewer = () => {
     );
   };
 
-  const BadgePanel = ({ members, deselectAfterSave }: { members: VideoDoc[]; deselectAfterSave?: boolean }) => {
-    const original = new Set(members.flatMap(m => m.badge_ids));
-    const draft = new Set(draftBadgeIds);
-    const dirty = original.size !== draft.size || [...draft].some(id => !original.has(id));
+  /** Recharge les badges des IDs d'un groupe après sauvegarde depuis le panneau partagé. */
+  const refreshGroupBadges = async (members: VideoDoc[]) => {
+    const bizIds = members.filter(m => m.source === "business").map(m => m.id);
+    const genIds = members.filter(m => m.source === "generic").map(m => m.id);
+    const [biz, gen] = await Promise.all([
+      bizIds.length > 0
+        ? supabase.from("business_document_badges").select("document_id, badge_id").in("document_id", bizIds)
+        : Promise.resolve({ data: [] as any[] }),
+      genIds.length > 0
+        ? (supabase.from("generic_video_badges" as any) as any).select("generic_video_id, badge_id").in("generic_video_id", genIds)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+    const map = new Map<string, string[]>();
+    ((biz as any).data || []).forEach((l: any) => {
+      map.set(l.document_id, [...(map.get(l.document_id) || []), l.badge_id]);
+    });
+    ((gen as any).data || []).forEach((l: any) => {
+      map.set(l.generic_video_id, [...(map.get(l.generic_video_id) || []), l.badge_id]);
+    });
+    const ids = new Set(members.map(m => m.id));
+    setVideos(prev => prev.map(v => (ids.has(v.id) ? { ...v, badge_ids: map.get(v.id) || [] } : v)));
+  };
 
-    const handleSave = async () => {
-      setAssigning(true);
-      const err = await saveBadgesGroup(members, draft);
-      setAssigning(false);
-      if (err) { toast.error("Erreur : " + err.message); return; }
-      const ids = new Set(members.map(m => m.id));
-      setVideos(prev => prev.map(v => ids.has(v.id) ? { ...v, badge_ids: [...draft] } : v));
-      if (deselectAfterSave) setSelectedKey(null);
-      toast.success(members.length > 1 ? `Badges enregistrés sur ${members.length} IDs` : "Badges enregistrés");
-    };
+  const badgeSource = (v: VideoDoc): AssignmentSource => (v.source === "generic" ? "generic" : "document");
 
-    const SaveButton = ({ className = "" }: { className?: string }) => (
-      <button
-        disabled={!dirty || assigning || members.length === 0}
-        onClick={handleSave}
-        className={`text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40 ${className}`}
-      >
-        {assigning ? "..." : "Enregistrer"}
-      </button>
-    );
-
+  /** Panneau de droite "Badges & Villes" partagé avec l'onglet Génériques. */
+  const RightBadgePanel = ({ deselectAfterSave }: { deselectAfterSave?: boolean }) => {
+    if (!selectedKey) return null;
+    const members = videos.filter(v => v.url === selectedKey);
+    if (members.length === 0) return null;
+    const [primary, ...rest] = members;
     return (
-      <div className="flex flex-col h-full -m-3 p-3">
-        <div className="shrink-0 flex items-center justify-between pb-2 gap-2 sticky top-0 z-10 bg-muted/20">
-          <p className="text-xs font-medium text-foreground">
-            Badges {members.length > 1 && <span className="text-primary">({members.length} IDs)</span>}
-          </p>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setSelectedKey(null)}
-              className="text-xs px-2 py-1 rounded hover:bg-accent text-muted-foreground"
-            >
-              Fermer
-            </button>
-            <SaveButton />
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto min-h-0 py-2">
-          <div className="flex flex-wrap gap-1">
-            {badges.map(b => {
-              const isSelected = draft.has(b.id);
-              return (
-                <button
-                  key={b.id}
-                  type="button"
-                  className={`text-xs px-2 py-1 rounded-full border transition-colors ${isSelected ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:border-primary/50"}`}
-                  onClick={() => setDraftBadgeIds(prev => isSelected ? prev.filter(id => id !== b.id) : [...prev, b.id])}
-                >
-                  {b.name_fr}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="shrink-0 flex items-center justify-between gap-2 sticky bottom-0 z-10 bg-muted/20 pt-2">
-          <button
-            type="button"
-            disabled={draft.size === 0}
-            onClick={() => setDraftBadgeIds([])}
-            className="text-xs px-3 py-1 rounded border border-border bg-background hover:border-primary/50 disabled:opacity-40 text-muted-foreground"
-          >
-            Tout désélectionner
-          </button>
-          <SaveButton />
-        </div>
+      <div className="w-1/2 shrink-0 sticky top-24 h-[calc(100vh-7rem)] overflow-hidden border-l bg-card rounded-lg">
+        <InlineBadgeSubcatCityAssignment
+          source={badgeSource(primary)}
+          video={{ id: primary.id, url: primary.url, name: primary.name, thumbnail_url: primary.thumbnail_url, city: primary.city }}
+          siblings={rest.map(m => ({ id: m.id, source: badgeSource(m) }))}
+          onClose={() => setSelectedKey(null)}
+          onSaved={async () => {
+            await refreshGroupBadges(members);
+            if (deselectAfterSave) setSelectedKey(null);
+          }}
+        />
       </div>
     );
   };
+
 
 
 
