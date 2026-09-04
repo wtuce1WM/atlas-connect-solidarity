@@ -1312,32 +1312,76 @@ const VideoSlidePanel = ({
         })()}
 
 
-        {/* Pilule chevrons haut/bas — identique à BookOnlineSlidePanel (desktop + mobile) */}
-        {(hasPrev || hasNext) && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
+        {/* Pilule 4 chevrons repliable — identique à BookOnlineSlidePanel */}
+        {(hasPrev || hasNext || totalMedia > 1) && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1 rounded-l-full border border-r-0 border-white/10 bg-black/80 backdrop-blur-md shadow-[-4px_4px_12px_rgba(0,0,0,0.3)] py-2 px-1 pointer-events-auto">
-            <button
-              type="button"
-              data-cta-tap
-              aria-label="Vidéo précédente"
-              disabled={!hasPrev}
-              onClick={(e) => { e.stopPropagation(); onPrev?.(); }}
-              className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white active:scale-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <ChevronUp className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              data-cta-tap
-              aria-label="Vidéo suivante"
-              disabled={!hasNext}
-              onClick={(e) => { e.stopPropagation(); onNext?.(); }}
-              className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white active:scale-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <ChevronDown className="h-5 w-5" />
-            </button>
+          <div
+            ref={navPillRef}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center rounded-l-full border border-r-0 border-white/10 bg-black/80 backdrop-blur-md shadow-[-4px_4px_12px_rgba(0,0,0,0.3)] py-1 px-1 pointer-events-auto transition-all duration-300"
+            onMouseOver={() => setNavPillExpanded(true)}
+            onMouseLeave={() => setNavPillExpanded(false)}
+          >
+            {!navPillExpanded ? (
+              <button
+                type="button"
+                data-cta-tap
+                aria-label="Ouvrir la navigation"
+                onClick={(e) => { e.stopPropagation(); setNavPillExpanded(true); }}
+                className="flex items-center justify-center h-7 w-7 text-white/90 hover:text-white active:scale-90 transition-all"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+            ) : (
+              <div className="flex flex-col items-center gap-0.5 animate-fade-in">
+                <button
+                  type="button"
+                  data-cta-tap
+                  aria-label="Vidéo précédente"
+                  disabled={!hasPrev}
+                  onClick={(e) => { e.stopPropagation(); onPrev?.(); }}
+                  className="flex items-center justify-center h-8 w-8 text-white/90 hover:text-white disabled:text-white/25 active:scale-90 transition-all"
+                >
+                  <ChevronUp className="h-5 w-5" />
+                </button>
+
+                {totalMedia > 1 && (
+                  <div className="flex items-center gap-0.5">
+                    <button
+                      type="button"
+                      data-cta-tap
+                      aria-label="Média précédent"
+                      onClick={(e) => { e.stopPropagation(); goMedia(-1); }}
+                      className="flex items-center justify-center h-8 w-8 text-white/90 hover:text-white active:scale-90 transition-all"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      type="button"
+                      data-cta-tap
+                      aria-label="Média suivant"
+                      onClick={(e) => { e.stopPropagation(); goMedia(1); }}
+                      className="flex items-center justify-center h-8 w-8 text-white/90 hover:text-white active:scale-90 transition-all"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  data-cta-tap
+                  aria-label="Vidéo suivante"
+                  disabled={!hasNext}
+                  onClick={(e) => { e.stopPropagation(); onNext?.(); }}
+                  className="flex items-center justify-center h-8 w-8 text-white/90 hover:text-white disabled:text-white/25 active:scale-90 transition-all"
+                >
+                  <ChevronDown className="h-5 w-5" />
+                </button>
+              </div>
+            )}
           </div>
         )}
+
 
 
         {/* Tableau de 3 colonnes de chips badges en haut de la vidéo — feed uniquement.
