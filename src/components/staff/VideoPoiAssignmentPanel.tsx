@@ -10,6 +10,11 @@ import VideoLightbox from "./VideoLightbox";
 import VideoUploader from "./VideoUploader";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  BadgeAssignmentSidebar,
+  JustModifiedBanner,
+  justModifiedCardClass,
+} from "./video-assignment/BadgeAssignmentSidebar";
 
 interface VideoDoc {
   id: string;
@@ -61,6 +66,10 @@ const VideoPoiAssignmentPanel = () => {
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [badgeVideoId, setBadgeVideoId] = useState<string | null>(null);
   const [lastModifiedId, setLastModifiedId] = useState<string | null>(null);
+  const badgeSidebarVideo = useMemo(
+    () => multiPoiVideos.find(v => v.id === badgeVideoId) || null,
+    [multiPoiVideos, badgeVideoId],
+  );
 
   // Multi-POI videos list
   interface MultiPoiVideo {
