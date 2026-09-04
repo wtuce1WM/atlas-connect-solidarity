@@ -457,11 +457,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <h2 className="text-2xl font-bold">{t.title}</h2>
         <div className="flex flex-row md:flex-col gap-2 items-center md:items-end w-full md:w-auto justify-start md:justify-end">
-          <Button variant="outline" size="sm" onClick={onLogout} className="gap-2 border-white/30 text-white bg-transparent hover:bg-white/10 hover:text-white shrink-0">
-            <LogOut className="h-4 w-4" />
-            {t.logout}
-          </Button>
-          <ShareButton 
+          <ShareButton
             shareUrl={form.nickname ? `https://oneworldmorocco.com/u/${form.nickname}` : `https://oneworldmorocco.com/u/`}
             title={language === "en" ? "My One World Morocco profile" : language === "ar" ? "ملفي على One World Morocco" : "Mon profil One World Morocco"}
             previewImage={hamsaBlueAsset.url}
