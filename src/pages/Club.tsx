@@ -1145,13 +1145,6 @@ const Club = () => {
                 {language === "en" ? "Signed in as" : language === "ar" ? "متصل باسم" : "Connecté en tant que"}{" "}
                 <strong className="text-white break-all">{user.email || user.phone}</strong>
               </span>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="shrink-0 underline underline-offset-2 text-white/80 hover:text-white"
-              >
-                {language === "en" ? "Sign out" : language === "ar" ? "تسجيل الخروج" : "Se déconnecter"}
-              </button>
             </div>
           </div>
           <section className="w-full pt-6 pb-12 px-4">
