@@ -1086,6 +1086,9 @@ const VideoSlidePanel = ({
             if (absY > 60 && absY > absX * 1.5) {
               if (dy < 0 && hasNext) onNext?.();
               else if (dy > 0 && hasPrev) onPrev?.();
+            } else if (absX > 50 && absX > absY * 1.5 && totalMedia > 1) {
+              // Swipe horizontal → média précédent/suivant du business hôte
+              goMedia(dx < 0 ? 1 : -1);
             }
           }
           resetSwipe();
