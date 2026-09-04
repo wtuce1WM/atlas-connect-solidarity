@@ -66,10 +66,16 @@ const SortableVideoCard = ({
   video,
   index,
   onPlay,
+  onSelect,
+  selected = false,
+  justModified = false,
 }: {
   video: CountryVideo;
   index: number;
   onPlay: (url: string) => void;
+  onSelect?: (id: string) => void;
+  selected?: boolean;
+  justModified?: boolean;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: video.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
@@ -81,7 +87,15 @@ const SortableVideoCard = ({
   ].filter(Boolean);
 
   return (
-    <div ref={setNodeRef} style={{ ...style, width: 220 }} data-video-id={video.id} className="flex flex-col rounded-lg border bg-background p-1.5 transition-[outline]">
+    <div
+      ref={setNodeRef}
+      style={{ ...style, width: 220 }}
+      data-video-id={video.id}
+      onClick={() => onSelect?.(video.id)}
+      className={`relative flex flex-col rounded-lg border bg-background p-1.5 transition-colors ${onSelect ? "cursor-pointer" : ""} ${selected ? "border-primary ring-2 ring-primary" : "hover:border-muted-foreground/30"} ${justModified ? justModifiedCardClass : ""}`}
+    >
+      {justModified && <JustModifiedBanner />}
+
       <div className="flex items-center gap-1 mb-1">
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground">
           <GripVertical className="h-4 w-4" />
