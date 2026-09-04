@@ -119,6 +119,7 @@ const TestNoteViewer = () => {
   const [draftBadgeIds, setDraftBadgeIds] = useState<string[]>([]);
   const [lastModifiedKey, setLastModifiedKey] = useState<string | null>(null);
   const [cityOptions, setCityOptions] = useState<string[]>([]);
+  const [loadedCity, setLoadedCity] = useState<string | null>(null);
 
   // Villes ayant au moins 1 business actif avec une vidéo interne
   useEffect(() => {
@@ -338,41 +339,89 @@ const TestNoteViewer = () => {
     })();
   }, []);
 
-  // Refresh badge links when switching to a video sub-tab
+  // Charge uniquement les vidéos de la ville choisie. L'ancien parcours
+  // téléchargeait toutes les vidéos et toutes les liaisons avant de filtrer.
   useEffect(() => {
-    if (!videosLoaded) return;
-    if (activeTab !== "badgees" && activeTab !== "tobadge") return;
+    if (activeTab !== "badgees" || city === "none" || city === "__none__") return;
+    if (videosLoading || videosLoadError || loadedCity === city) return;
+
+    let cancelled = false;
     (async () => {
+      setVideosLoading(true);
+      setVideosLoadError(null);
+      setBadge("none");
+      setSelectedKey(null);
       try {
-        const [bizLinks, genLinks] = await Promise.all([
+        const [rawDocs, badgesRes, subsRes, servicesRes] = await Promise.all([
           fetchAllPaged((f, t) =>
-            supabase.from("business_document_badges").select("document_id, badge_id").order("document_id").order("badge_id").range(f, t)),
-          fetchAllPaged((f, t) =>
-            (supabase.from("generic_video_badges" as any) as any).select("generic_video_id, badge_id").order("generic_video_id").order("badge_id").range(f, t)),
+            (supabase
+              .from("business_documents")
+              .select("id, url, name, thumbnail_url, city, neighborhood, business_id, subcategory_id, service_id, businesses!business_documents_business_id_fkey!inner(name, city, is_active)")
+              .eq("type", "video")
+              .eq("businesses.is_active", true)
+              .eq("businesses.city", city)
+              .order("id")
+              .range(f, t)) as any),
+          supabase.from("badges").select("id, name_fr"),
+          supabase.from("subcategories").select("id, name_fr"),
+          supabase.from("services").select("id, name_fr"),
         ]);
+
+        const docs = rawDocs.filter((d: any) => isInternalVideoUrl(d.url));
+        const docIds = docs.map((d: any) => d.id);
+        const badgeLinks: any[] = [];
+        for (let i = 0; i < docIds.length; i += 200) {
+          const { data, error } = await supabase
+            .from("business_document_badges")
+            .select("document_id, badge_id")
+            .in("document_id", docIds.slice(i, i + 200));
+          if (error) throw error;
+          badgeLinks.push(...(data || []));
+        }
+        if (cancelled) return;
+
         const badgeMap = new Map<string, string[]>();
-        bizLinks.forEach((l: any) => {
-          const arr = badgeMap.get(l.document_id) || [];
-          arr.push(l.badge_id);
-          badgeMap.set(l.document_id, arr);
+        badgeLinks.forEach((link: any) => {
+          badgeMap.set(link.document_id, [...(badgeMap.get(link.document_id) || []), link.badge_id]);
         });
-        genLinks.forEach((l: any) => {
-          const arr = badgeMap.get(l.generic_video_id) || [];
-          arr.push(l.badge_id);
-          badgeMap.set(l.generic_video_id, arr);
-        });
-        setVideos(prev => prev.map(v => ({ ...v, badge_ids: badgeMap.get(v.id) || [] })));
+        const subMap = new Map<string, string>((subsRes.data || []).map((s: any) => [s.id, s.name_fr]));
+        const svcMap = new Map<string, string>((servicesRes.data || []).map((s: any) => [s.id, s.name_fr]));
+        const cityVideos: VideoDoc[] = docs.map((d: any) => ({
+          id: d.id,
+          url: d.url,
+          name: d.name,
+          thumbnail_url: d.thumbnail_url,
+          city: d.businesses?.city || d.city || city,
+          cities: [d.businesses?.city || city],
+          neighborhood: d.neighborhood,
+          business_id: d.business_id,
+          business_name: d.businesses?.name || "—",
+          badge_ids: badgeMap.get(d.id) || [],
+          subcategory_name: d.subcategory_id ? subMap.get(d.subcategory_id) || null : null,
+          service_name: d.service_id ? svcMap.get(d.service_id) || null : null,
+          source: "business",
+        }));
+
+        setBadges([...(badgesRes.data || [])].sort((a, b) => a.name_fr.localeCompare(b.name_fr, "fr")));
+        setVideos(cityVideos);
+        setLoadedCity(city);
+        setVideosLoaded(true);
       } catch (e: any) {
-        toast.error("Erreur de rafraîchissement des badges : " + (e?.message || e));
+        if (cancelled) return;
+        const message = e?.message || String(e);
+        setVideosLoadError(message);
+        toast.error("Erreur de chargement des vidéos : " + message);
+      } finally {
+        if (!cancelled) setVideosLoading(false);
       }
     })();
-  }, [activeTab, videosLoaded]);
+    return () => { cancelled = true; };
+  }, [activeTab, city, loadedCity, videosLoading, videosLoadError, videosLoadAttempt]);
 
-  // Heavy fetch: only when entering a sub-tab that needs videos
+  // Chargement global conservé uniquement pour « À badger ».
   useEffect(() => {
     if (videosLoaded || videosLoading || videosLoadError) return;
-    if (activeTab === "badgees" && city === "none") return;
-    if (activeTab !== "badgees" && activeTab !== "tobadge") return;
+    if (activeTab !== "tobadge") return;
 
     (async () => {
       setVideosLoading(true);
