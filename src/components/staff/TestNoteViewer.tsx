@@ -12,6 +12,12 @@ import {
   InlineBadgeSubcatCityAssignment,
   type AssignmentSource,
 } from "./video-assignment/VideoAssignmentPanels";
+import CountryVideosPanel from "./CountryVideosPanel";
+import PoiVideosPanel from "./PoiVideosPanel";
+import DestinationVideosPanelTab from "./DestinationVideosPanelTab";
+import VideoPoiAssignmentPanel from "./VideoPoiAssignmentPanel";
+import VideoDbStructurePanel from "./VideoDbStructurePanel";
+
 
 
 const NOTE_ID = "919622ac-3bfe-4e3e-ab64-0dfeb3bd1696";
