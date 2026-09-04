@@ -232,6 +232,9 @@ function parseRadiusCommand(text: string): number | null {
 /** Cas unique : suggestion embed "Le meilleur de YouTube sur le Maroc" → page /youtube. */
 const YOUTUBE_PAGE_SUGGESTION_ID = "63d6d717-e344-4e1b-9865-850ac1ca9126";
 
+/** Accueil dédié au scope Club (surface /club). */
+const CLUB_OPENER = "Bonjour 👋\n\nDemandez-moi la météo, retrouvez une adresse sauvegardée, ou explorez le Maroc.";
+
 
 
 const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string, radius: string) => string; platformTitle: string; platformOpener: () => string; radiusLabel: string; radiusChanged: (r: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
@@ -1406,7 +1409,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   }, [businessId, poiMasterAnchorId]);
 
   const openerText = isPlatform
-    ? L.platformOpener()
+    ? (isClubScope ? CLUB_OPENER : L.platformOpener())
     : L.opener(businessName, radiusLabel(radiusKm, lang));
 
 
@@ -3220,7 +3223,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             ) : (
             <div className="flex flex-col items-center gap-3 text-center pb-2 w-full" style={heroReveal(120)}>
               <p className={`text-base md:text-lg leading-relaxed w-full max-w-[52ch] md:max-w-[64ch] whitespace-pre-line ${whiteInk || "opacity-80"}`} style={{ opacity: 0.85 }}>
-                {L.platformOpener().replace(/\*\*/g, "")}
+                {(isClubScope ? CLUB_OPENER : L.platformOpener()).replace(/\*\*/g, "")}
               </p>
             </div>
 
