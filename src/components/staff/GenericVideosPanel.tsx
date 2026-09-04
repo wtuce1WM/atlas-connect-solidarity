@@ -593,10 +593,16 @@ const GenericVideosPanel = () => {
 
   const loadVideos = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from("generic_videos" as any).select("*").order("sort_order", { ascending: true });
+    // Ne charge que les 50 dernières vidéos créées (perf backoffice)
+    const { data } = await supabase
+      .from("generic_videos" as any)
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50);
     setVideos((data as unknown as GenericVideo[]) || []);
     setLoading(false);
   }, []);
+
 
   const loadCounts = useCallback(async () => {
     const fetchAllLinks = async (table: string, select: string) => {
