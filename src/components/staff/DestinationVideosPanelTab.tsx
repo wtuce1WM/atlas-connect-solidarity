@@ -40,7 +40,6 @@ interface DestVideo {
 
 
 
-const NONE_CITY = "__none__";
 const ALL = "__all__";
 
 const SortableVideoCard = ({ video, index, onPlay }: { video: DestVideo; index: number; onPlay: (url: string) => void }) => {
