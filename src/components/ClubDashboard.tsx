@@ -894,13 +894,20 @@ const ClubDashboard = ({ user }: ClubDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="assistant" className="mt-6">
-          {/* Shell immersif type Home : fond sombre, assistant plein cadre. */}
-          <div className="relative h-[calc(100dvh-13rem)] min-h-[480px] w-full overflow-hidden rounded-2xl bg-[hsl(0_0%_4%)]">
+          {/* Shell immersif type Home : fond sombre, assistant plein cadre.
+              `transform: translateZ(0)` crée un bloc conteneur : tous les
+              enfants `position: fixed` de EmbedAsk (assistant, overlays,
+              panneaux) restent enfermés dans ce cadre noir. */}
+          <div
+            className="relative h-[calc(100dvh-13rem)] min-h-[480px] w-full overflow-hidden rounded-2xl bg-[hsl(0_0%_4%)]"
+            style={{ transform: "translateZ(0)", contain: "paint" }}
+          >
             <Suspense fallback={<div className="h-full w-full bg-[hsl(0_0%_4%)]" />}>
               <EmbedAskInline paramsOverride="scope=club&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light&persist=0" />
             </Suspense>
           </div>
         </TabsContent>
+
 
         <TabsContent value="notifications" className="mt-6">
           <div className="rounded-lg border border-dashed border-white/30 bg-white/10 p-10 text-center text-sm text-white/90">
