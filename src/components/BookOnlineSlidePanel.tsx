@@ -342,6 +342,17 @@ const BookOnlineSlidePanelInner = ({
   const [cameFromFallback, setCameFromFallback] = useState(false);
   const [navPillExpanded, setNavPillExpanded] = useState(false);
   const navPillRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!navPillExpanded) return;
+    const close = (e: PointerEvent | MouseEvent | TouchEvent) => {
+      const target = "target" in e ? (e.target as Node) : null;
+      if (navPillRef.current && target && !navPillRef.current.contains(target)) {
+        setNavPillExpanded(false);
+      }
+    };
+    document.addEventListener("pointerdown", close, { passive: true });
+    return () => document.removeEventListener("pointerdown", close);
+  }, [navPillExpanded]);
   const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
