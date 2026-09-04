@@ -898,7 +898,12 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="assistant" className="mt-6">
-          <ClubAiAssistant userId={user.id} />
+          {/* Shell immersif type Home : fond sombre, assistant plein cadre. */}
+          <div className="relative h-[calc(100dvh-13rem)] min-h-[480px] w-full overflow-hidden rounded-2xl bg-[hsl(0_0%_4%)]">
+            <Suspense fallback={<div className="h-full w-full bg-[hsl(0_0%_4%)]" />}>
+              <EmbedAskInline paramsOverride="scope=club&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light&persist=0" />
+            </Suspense>
+          </div>
         </TabsContent>
 
         <TabsContent value="notifications" className="mt-6">
