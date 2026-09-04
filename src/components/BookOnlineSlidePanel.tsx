@@ -341,6 +341,7 @@ const BookOnlineSlidePanelInner = ({
   const businessId = activeBusinessId;
   const [cameFromFallback, setCameFromFallback] = useState(false);
   const [navPillExpanded, setNavPillExpanded] = useState(false);
+  const navPillRef = useRef<HTMLDivElement>(null);
   const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
