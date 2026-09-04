@@ -11,7 +11,7 @@ import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { X, ChevronUp, ChevronDown, Youtube, MapPin, ExternalLink } from "lucide-react";
+import { X, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Youtube, MapPin, ExternalLink } from "lucide-react";
 import { GiWalkingBoot } from "react-icons/gi";
 import { InstagramIcon, YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
@@ -735,6 +735,17 @@ const VideoSlidePanel = ({
     setMediaIdx((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
   const viewUrl = activeMedia?.kind === "video" ? (activeMedia.url as string) : videoUrl;
+  const [navPillExpanded, setNavPillExpanded] = useState(false);
+  const navPillRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!navPillExpanded) return;
+    const close = (e: PointerEvent) => {
+      const target = e.target as Node | null;
+      if (navPillRef.current && target && !navPillRef.current.contains(target)) setNavPillExpanded(false);
+    };
+    document.addEventListener("pointerdown", close, { passive: true });
+    return () => document.removeEventListener("pointerdown", close);
+  }, [navPillExpanded]);
 
 
 
