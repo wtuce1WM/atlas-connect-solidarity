@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 /* ─── Source-aware table mapping ─── */
-export type AssignmentSource = "generic" | "youtube";
+export type AssignmentSource = "generic" | "youtube" | "document";
 
 interface TableMap {
   poi: string;
@@ -51,7 +51,17 @@ const TABLES: Record<AssignmentSource, TableMap> = {
     badge: "business_youtube_video_badges",
     fk: "youtube_video_id",
   },
+  // Vidéos de fiche (business_documents) : seules les tables Badges & Villes existent.
+  document: {
+    poi: "",
+    business: "",
+    destination: "",
+    city: "business_document_cities",
+    badge: "business_document_badges",
+    fk: "document_id",
+  },
 };
+
 
 /** Minimal video shape needed by the panels. */
 export interface AssignableVideo {
@@ -646,13 +656,17 @@ interface BadgeItem { id: string; name_fr: string; color_hex: string | null; }
 interface CityItem { id: string; name_fr: string; }
 
 export const InlineBadgeSubcatCityAssignment = ({
-  source, video, onClose, onSaved,
+
+  source, video, onClose, onSaved, siblings,
 }: {
   source: AssignmentSource;
   video: AssignableVideo;
   onClose: () => void;
   onSaved: () => void;
+  /** Autres video_id pointant vers le même fichier : reçoivent les mêmes deltas. */
+  siblings?: { id: string; source: AssignmentSource }[];
 }) => {
+
   const T = TABLES[source];
   const [allBadges, setAllBadges] = useState<BadgeItem[]>([]);
   const [allCities, setAllCities] = useState<CityItem[]>([]);
@@ -698,27 +712,36 @@ export const InlineBadgeSubcatCityAssignment = ({
 
   const save = async () => {
     setSaving(true);
-    if (isBadgeDirty) {
-      const toAdd = selectedBadgeIds.filter(id => !initialBadgeIds.includes(id));
-      const toRemove = initialBadgeIds.filter(id => !selectedBadgeIds.includes(id));
-      if (toRemove.length > 0) await supabase.from(T.badge as any).delete().eq(T.fk, video.id).in("badge_id", toRemove);
-      if (toAdd.length > 0) await supabase.from(T.badge as any).insert(
-        toAdd.map(badge_id => ({ [T.fk]: video.id, badge_id })) as any
-      );
+    const badgeAdd = selectedBadgeIds.filter(id => !initialBadgeIds.includes(id));
+    const badgeRemove = initialBadgeIds.filter(id => !selectedBadgeIds.includes(id));
+    const cityAdd = selectedCityIds.filter(id => !initialCityIds.includes(id));
+    const cityRemove = initialCityIds.filter(id => !selectedCityIds.includes(id));
+
+    const targets = [{ id: video.id, source }, ...(siblings || [])];
+    for (const target of targets) {
+      const TT = TABLES[target.source];
+      if (isBadgeDirty && TT.badge) {
+        if (badgeRemove.length > 0) await supabase.from(TT.badge as any).delete().eq(TT.fk, target.id).in("badge_id", badgeRemove);
+        if (badgeAdd.length > 0) await supabase.from(TT.badge as any).upsert(
+          badgeAdd.map(badge_id => ({ [TT.fk]: target.id, badge_id })) as any,
+          { onConflict: `${TT.fk},badge_id`, ignoreDuplicates: true },
+        );
+      }
+      if (isCityDirty && TT.city) {
+        if (cityRemove.length > 0) await supabase.from(TT.city as any).delete().eq(TT.fk, target.id).in("city_id", cityRemove);
+        if (cityAdd.length > 0) await supabase.from(TT.city as any).upsert(
+          cityAdd.map(city_id => ({ [TT.fk]: target.id, city_id })) as any,
+          { onConflict: `${TT.fk},city_id`, ignoreDuplicates: true },
+        );
+      }
     }
-    if (isCityDirty) {
-      const toAdd = selectedCityIds.filter(id => !initialCityIds.includes(id));
-      const toRemove = initialCityIds.filter(id => !selectedCityIds.includes(id));
-      if (toRemove.length > 0) await supabase.from(T.city as any).delete().eq(T.fk, video.id).in("city_id", toRemove);
-      if (toAdd.length > 0) await supabase.from(T.city as any).insert(
-        toAdd.map(city_id => ({ [T.fk]: video.id, city_id })) as any
-      );
-    }
-    toast.success("Affectations enregistrées");
+
+    toast.success(targets.length > 1 ? `Affectations enregistrées sur ${targets.length} IDs` : "Affectations enregistrées");
     setInitialBadgeIds([...selectedBadgeIds]);
     setInitialCityIds([...selectedCityIds]);
     onSaved(); setSaving(false);
   };
+
 
 
   const filteredCities = useMemo(() => {
