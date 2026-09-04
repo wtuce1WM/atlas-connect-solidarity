@@ -1562,6 +1562,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           // Mode plateforme 1WM : le périmètre est la base entière. Seul le flag
           // « Visible plateforme 1WM » décide — aucun filtre ville/catégorie
           // hérité du business `ctx` (sinon la liste tombait à 4 puces).
+          // Surface club : toutes les suggestions actives de la surface sont visibles
+          // (le flag `is_platform_visible` ne pilote que la surface embed/plateforme).
+          if (isClubScope) return true;
           if (isPlatform) return r.is_platform_visible === true;
           const c = normCity(r.city);
           if (c && c !== bizCity) return false;
