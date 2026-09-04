@@ -722,11 +722,17 @@ const TestNoteViewer = () => {
   return (
     <div className="w-full p-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList>
+        <TabsList className="flex flex-wrap h-auto gap-1">
           <TabsTrigger value="note">Note</TabsTrigger>
           <TabsTrigger value="badgees">Badgées</TabsTrigger>
           <TabsTrigger value="tobadge">À badger</TabsTrigger>
+          <TabsTrigger value="sub-videos">Avec sous-catégorie</TabsTrigger>
+          <TabsTrigger value="poi-videos">POI</TabsTrigger>
+          <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
+          <TabsTrigger value="pois-videos">POIS</TabsTrigger>
+          <TabsTrigger value="db-structure">Toutes</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="note" className="mt-4">
           {!content ? (
