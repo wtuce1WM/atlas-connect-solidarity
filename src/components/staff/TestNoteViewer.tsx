@@ -890,7 +890,24 @@ const TestNoteViewer = () => {
             );
           })()}
         </TabsContent>
+
+        <TabsContent value="sub-videos" className="mt-4">
+          <CountryVideosPanel withSubcategory={true} />
+        </TabsContent>
+        <TabsContent value="poi-videos" className="mt-4">
+          <PoiVideosPanel />
+        </TabsContent>
+        <TabsContent value="dest-videos" className="mt-4">
+          <DestinationVideosPanelTab />
+        </TabsContent>
+        <TabsContent value="pois-videos" className="mt-4">
+          <VideoPoiAssignmentPanel />
+        </TabsContent>
+        <TabsContent value="db-structure" className="mt-4">
+          <VideoDbStructurePanel />
+        </TabsContent>
       </Tabs>
+
 
       {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </div>
