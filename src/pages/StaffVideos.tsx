@@ -111,10 +111,6 @@ const StaffVideos = () => {
               <Film className="h-4 w-4" />
               Dernières vidéos
             </TabsTrigger>
-            <TabsTrigger value="country-videos" className="gap-2">
-              <Play className="h-4 w-4" />
-              Vidéos
-            </TabsTrigger>
             <TabsTrigger value="youtube" className="gap-2">
               <Youtube className="h-4 w-4" />
               YouTube
