@@ -7,6 +7,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import VideoLightbox from "./VideoLightbox";
 import { isInternalVideoUrl } from "@/lib/videoSourceFilter";
+import {
+  InlineBadgeSubcatCityAssignment,
+  type AssignmentSource,
+} from "./video-assignment/VideoAssignmentPanels";
+
 
 const NOTE_ID = "919622ac-3bfe-4e3e-ab64-0dfeb3bd1696";
 
