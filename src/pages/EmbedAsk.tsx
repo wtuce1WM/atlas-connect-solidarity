@@ -4400,7 +4400,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         const goNext = () => { if (hasNext) setOpenBusinessId(openSiblings[idx + 1]); };
         return (
           <EmbedBookPanelWrapper
-            key={openBusinessId}
+            /* Pas de `key={openBusinessId}` : un remontage à chaque navigation
+               verticale faisait clignoter le chrome posé au-dessus du viewer
+               (CTAs du header, badge, rail de gauche, chevrons, barre info).
+               BookOnlineSlidePanel réinitialise déjà son état interne sur
+               changement de `businessId` — même continuité que VideoSlidePanel. */
             businessId={openBusinessId}
             initialOverlay={openBusinessOverlay ?? undefined}
             initialVideoUrl={feedPinnedBusinessId === openBusinessId ? feedVideoUrlById[openBusinessId] : undefined}
