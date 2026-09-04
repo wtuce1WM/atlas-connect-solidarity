@@ -2742,23 +2742,50 @@ const BookOnlineSlidePanelInner = ({
       )}
 
       {/* Pilule chevrons haut/bas — navigation verticale rapide (sans quitter le swipe) */}
-      {!cardsHidden && !showPoiMapOverlay && !showDirections && (effectiveHasPrev || effectiveHasNext) && (
+      {!cardsHidden && !showPoiMapOverlay && !showDirections && (effectiveHasPrev || effectiveHasNext || totalMedia > 1) && (
         <div className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1 rounded-l-full border border-r-0 border-white/10 bg-black/80 backdrop-blur-md shadow-[-4px_4px_12px_rgba(0,0,0,0.3)] py-2 px-1 pointer-events-auto">
           <button
             type="button"
             data-cta-tap
             aria-label="Next"
+            disabled={!effectiveHasNext}
             onClick={(e) => { e.stopPropagation(); effectiveOnNext?.(); }}
-            className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white active:scale-90 transition-all"
+            className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white disabled:text-white/25 active:scale-90 transition-all"
           >
             <ChevronUp className="h-5 w-5" />
           </button>
+
+          {/* Chevrons gauche/droite — navigation entre médias internes */}
+          {totalMedia > 1 && (
+            <div className="flex items-center gap-0.5">
+              <button
+                type="button"
+                data-cta-tap
+                aria-label="Média précédent"
+                onClick={(e) => { e.stopPropagation(); goMedia(-1); }}
+                className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white active:scale-90 transition-all"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                data-cta-tap
+                aria-label="Média suivant"
+                onClick={(e) => { e.stopPropagation(); goMedia(1); }}
+                className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white active:scale-90 transition-all"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          )}
+
           <button
             type="button"
             data-cta-tap
             aria-label="Previous"
+            disabled={!effectiveHasPrev}
             onClick={(e) => { e.stopPropagation(); effectiveOnPrev?.(); }}
-            className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white active:scale-90 transition-all"
+            className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white disabled:text-white/25 active:scale-90 transition-all"
           >
             <ChevronDown className="h-5 w-5" />
           </button>
