@@ -7,8 +7,12 @@ import { toast } from "sonner";
 import VideoLightbox from "./VideoLightbox";
 import {
   InlineBadgeSubcatCityAssignment,
+  InlinePoiAssignment,
+  InlineDestinationCityAssignment,
   type AssignmentSource,
 } from "./video-assignment/VideoAssignmentPanels";
+import type { SidebarMode } from "./video-assignment/BadgeAssignmentSidebar";
+import { VideoRelationChips, useVideoRelationCounts } from "./video-assignment/VideoRelationChips";
 
 interface VideoRow {
   id: string;
@@ -45,6 +49,36 @@ const groupByUrl = (list: VideoRow[]): VideoGroup[] => {
   return [...map.entries()].map(([key, members]) => ({ key, primary: members[0], members }));
 };
 
+
+/** Panneau droit : Badges & Villes, POI ou Destinations selon le mode. */
+const AssignmentPanelByMode = ({
+  mode,
+  source,
+  video,
+  siblings,
+  onClose,
+  onSaved,
+}: {
+  mode: SidebarMode;
+  source: AssignmentSource;
+  video: { id: string; url: string; name: string | null; thumbnail_url: string | null; city: string | null };
+  siblings?: { id: string; source: AssignmentSource }[];
+  onClose: () => void;
+  onSaved: () => void;
+}) => {
+  if (mode === "poi") return <InlinePoiAssignment source={source} video={video} onClose={onClose} onSaved={onSaved} />;
+  if (mode === "dest") return <InlineDestinationCityAssignment source={source} video={video} onClose={onClose} onSaved={onSaved} />;
+  return (
+    <InlineBadgeSubcatCityAssignment
+      source={source}
+      video={video}
+      siblings={siblings}
+      onClose={onClose}
+      onSaved={onSaved}
+    />
+  );
+};
+
 const VideoDbStructurePanel = () => {
   const [rows, setRows] = useState<VideoRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +87,7 @@ const VideoDbStructurePanel = () => {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [lastModifiedKey, setLastModifiedKey] = useState<string | null>(null);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [sidebarMode, setSidebarMode] = useState<SidebarMode>("tags");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -162,6 +197,12 @@ const VideoDbStructurePanel = () => {
 
   const badgeSource = (v: VideoRow): AssignmentSource => (v.source === "generic" ? "generic" : "document");
 
+  const relationItems = useMemo(
+    () => groups.map(g => ({ id: g.primary.id, source: badgeSource(g.primary) })),
+    [groups],
+  );
+  const { counts: relationCounts, refreshCounts } = useVideoRelationCounts(relationItems);
+
   if (loading) {
     return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
   }
@@ -180,7 +221,7 @@ const VideoDbStructurePanel = () => {
     return (
       <div
         data-video-key={g.key}
-        onClick={() => setSelectedKey(g.key)}
+        onClick={() => { setSidebarMode("tags"); setSelectedKey(g.key); }}
         className={`relative flex flex-col rounded-lg border bg-background p-1.5 cursor-pointer transition-colors ${selected ? "border-primary ring-2 ring-primary" : "hover:border-muted-foreground/30"} ${justModified ? "ring-[6px] ring-emerald-500 border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.35),0_0_28px_8px_rgba(16,185,129,0.55)] animate-pulse" : ""}`}
       >
         {justModified && (
@@ -248,6 +289,11 @@ const VideoDbStructurePanel = () => {
             <Copy className="h-3 w-3 flex-shrink-0" />
             {v.id}{g.members.length > 1 ? ` +${g.members.length - 1}` : ""}
           </button>
+          <VideoRelationChips
+            counts={relationCounts.get(v.id)}
+            onOpenPoi={() => { setSidebarMode("poi"); setSelectedKey(g.key); }}
+            onOpenDest={() => { setSidebarMode("dest"); setSelectedKey(g.key); }}
+          />
         </div>
       </div>
     );
@@ -290,7 +336,8 @@ const VideoDbStructurePanel = () => {
 
         {selectedKey && selectedMembers.length > 0 && (
           <div className="w-1/2 shrink-0 sticky top-24 h-[calc(100vh-7rem)] overflow-hidden border-l bg-card rounded-lg">
-            <InlineBadgeSubcatCityAssignment
+            <AssignmentPanelByMode
+              mode={sidebarMode}
               source={badgeSource(selectedMembers[0])}
               video={{
                 id: selectedMembers[0].id,
@@ -303,6 +350,7 @@ const VideoDbStructurePanel = () => {
               onClose={() => setSelectedKey(null)}
               onSaved={() => {
                 setLastModifiedKey(selectedKey);
+                refreshCounts();
                 setSelectedKey(null);
               }}
             />
