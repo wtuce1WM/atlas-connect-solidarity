@@ -11,12 +11,7 @@ import VideoGeneratePanel from "@/components/staff/VideoGeneratePanel";
 import VideoStoryboardPanel from "@/components/staff/VideoStoryboardPanel";
 import YouTubeBackofficePanel from "@/components/staff/YouTubeBackofficePanel";
 import VideoThumbnailLocker from "@/components/staff/VideoThumbnailLocker";
-import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
-import PoiVideosPanel from "@/components/staff/PoiVideosPanel";
-import DestinationVideosPanelTab from "@/components/staff/DestinationVideosPanelTab";
-import VideoPoiAssignmentPanel from "@/components/staff/VideoPoiAssignmentPanel";
 import GenericVideosPanel from "@/components/staff/GenericVideosPanel";
-import VideoDbStructurePanel from "@/components/staff/VideoDbStructurePanel";
 import TestNoteViewer from "@/components/staff/TestNoteViewer";
 
 
@@ -111,10 +106,6 @@ const StaffVideos = () => {
               <Film className="h-4 w-4" />
               Dernières vidéos
             </TabsTrigger>
-            <TabsTrigger value="country-videos" className="gap-2">
-              <Play className="h-4 w-4" />
-              Vidéos
-            </TabsTrigger>
             <TabsTrigger value="youtube" className="gap-2">
               <Youtube className="h-4 w-4" />
               YouTube
@@ -146,33 +137,8 @@ const StaffVideos = () => {
             <LatestVideosPanel />
           </TabsContent>
 
-          <TabsContent value="country-videos">
-            <Tabs defaultValue="">
-              <TabsList className="flex flex-wrap h-auto gap-1">
-                <TabsTrigger value="sub-videos">Avec sous-catégorie</TabsTrigger>
-                <TabsTrigger value="poi-videos">POI</TabsTrigger>
-                <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
-                <TabsTrigger value="pois-videos">POIS</TabsTrigger>
-                <TabsTrigger value="db-structure">Toutes</TabsTrigger>
 
-              </TabsList>
-              <TabsContent value="sub-videos">
-                <CountryVideosPanel withSubcategory={true} />
-              </TabsContent>
-              <TabsContent value="poi-videos">
-                <PoiVideosPanel />
-              </TabsContent>
-              <TabsContent value="dest-videos">
-                <DestinationVideosPanelTab />
-              </TabsContent>
-              <TabsContent value="pois-videos">
-                <VideoPoiAssignmentPanel />
-              </TabsContent>
-              <TabsContent value="db-structure">
-                <VideoDbStructurePanel />
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
+
 
           <TabsContent value="youtube">
             <YouTubeBackofficePanel />

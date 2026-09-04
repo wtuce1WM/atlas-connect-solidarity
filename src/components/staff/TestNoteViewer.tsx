@@ -12,6 +12,12 @@ import {
   InlineBadgeSubcatCityAssignment,
   type AssignmentSource,
 } from "./video-assignment/VideoAssignmentPanels";
+import CountryVideosPanel from "./CountryVideosPanel";
+import PoiVideosPanel from "./PoiVideosPanel";
+import DestinationVideosPanelTab from "./DestinationVideosPanelTab";
+import VideoPoiAssignmentPanel from "./VideoPoiAssignmentPanel";
+import VideoDbStructurePanel from "./VideoDbStructurePanel";
+
 
 
 const NOTE_ID = "919622ac-3bfe-4e3e-ab64-0dfeb3bd1696";
@@ -716,11 +722,17 @@ const TestNoteViewer = () => {
   return (
     <div className="w-full p-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList>
+        <TabsList className="flex flex-wrap h-auto gap-1">
           <TabsTrigger value="note">Note</TabsTrigger>
           <TabsTrigger value="badgees">Badgées</TabsTrigger>
           <TabsTrigger value="tobadge">À badger</TabsTrigger>
+          <TabsTrigger value="sub-videos">Avec sous-catégorie</TabsTrigger>
+          <TabsTrigger value="poi-videos">POI</TabsTrigger>
+          <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
+          <TabsTrigger value="pois-videos">POIS</TabsTrigger>
+          <TabsTrigger value="db-structure">Toutes</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="note" className="mt-4">
           {!content ? (
@@ -890,7 +902,24 @@ const TestNoteViewer = () => {
             );
           })()}
         </TabsContent>
+
+        <TabsContent value="sub-videos" className="mt-4">
+          <CountryVideosPanel withSubcategory={true} />
+        </TabsContent>
+        <TabsContent value="poi-videos" className="mt-4">
+          <PoiVideosPanel />
+        </TabsContent>
+        <TabsContent value="dest-videos" className="mt-4">
+          <DestinationVideosPanelTab />
+        </TabsContent>
+        <TabsContent value="pois-videos" className="mt-4">
+          <VideoPoiAssignmentPanel />
+        </TabsContent>
+        <TabsContent value="db-structure" className="mt-4">
+          <VideoDbStructurePanel />
+        </TabsContent>
       </Tabs>
+
 
       {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </div>
