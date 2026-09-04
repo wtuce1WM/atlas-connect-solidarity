@@ -28,6 +28,12 @@ const DEMO_FEED_CACHE_KEY = "front:demo:feed:v1";
 /** Durée pendant laquelle la première page en cache est considérée fraîche (pas de refetch). */
 const DEMO_FEED_TTL_MS = 10 * 60 * 1000;
 
+const isInstalledApp = () =>
+  typeof window !== "undefined" && (
+    window.matchMedia?.("(display-mode: standalone)")?.matches ||
+    (window.navigator as Navigator & { standalone?: boolean }).standalone === true
+  );
+
 /** Préchargement du média de la première vidéo dès que la liste est connue. */
 const preloadFirstMedia = (item?: { url?: string | null; thumbnail_url?: string | null } | null) => {
   if (!item) return;
@@ -299,7 +305,9 @@ const Front = () => {
   /* ---- CTA Demo : feed vidéo « découverte » (viewer unifié HomeVideoSlidePanel) ---- */
   const [demoLoading, setDemoLoading] = useState(false);
   /* Transition « Demo » : ne laisse que le slogan, recentré plein écran */
-  const [demoIntro, setDemoIntro] = useState(false);
+  // En App installée, masquer l'accueil dès le tout premier rendu : le flux
+  // immersif se charge directement, sans écran intermédiaire ni texte d'accueil.
+  const [demoIntro, setDemoIntro] = useState(isInstalledApp);
   const [demoList, setDemoList] = useState<any[]>([]);
   const [demoCtx, setDemoCtx] = useState<DiscoveryFeedContext | null>(null);
   const [demoActiveId, setDemoActiveId] = useState<string | null>(null);
@@ -519,14 +527,9 @@ const Front = () => {
   const autoDemoRef = useRef(false);
   useEffect(() => {
     if (autoDemoRef.current) return;
-    const standalone =
-      window.matchMedia?.("(display-mode: standalone)")?.matches ||
-      (window.navigator as any).standalone === true;
-    if (!standalone) return;
+    if (!isInstalledApp()) return;
     autoDemoRef.current = true;
-    // Léger délai : laisse le prefetch idle + les polices se mettre en place.
-    const t = window.setTimeout(() => startDemo(), 600);
-    return () => window.clearTimeout(t);
+    startDemo();
   }, [startDemo]);
 
 
@@ -881,14 +884,14 @@ const Front = () => {
         ref={narrativeBoxRef}
         className={`absolute inset-0 z-0 flex flex-col ${askLocked ? "pt-14 pb-0 md:pt-14 md:pb-0" : "pt-16 pb-16 md:pt-14 md:pb-10"} ${askLocked || mapOpen ? "px-0" : "px-2 md:px-10 lg:px-16"}`}
         style={{
-          opacity: demoActiveId || demoCardsOnly ? 0 : narrativeOpacity,
+          opacity: demoIntro || demoActiveId || demoCardsOnly ? 0 : narrativeOpacity,
           transform: reduced
             ? undefined
             : `translateY(${-range(progress, 0, 0.35) * 40}px)`,
-          pointerEvents: demoActiveId || demoCardsOnly ? "none" : (narrativeActive ? "auto" : "none"),
+          pointerEvents: demoIntro || demoActiveId || demoCardsOnly ? "none" : (narrativeActive ? "auto" : "none"),
           transition: motion,
         }}
-        aria-hidden={!!(demoActiveId || demoCardsOnly || !narrativeActive)}
+        aria-hidden={!!(demoIntro || demoActiveId || demoCardsOnly || !narrativeActive)}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Assistant IA — monté directement (plus d'iframe : un seul bundle, pas de flash) */}
