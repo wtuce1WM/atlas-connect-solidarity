@@ -59,6 +59,8 @@ const VideoPoiAssignmentPanel = () => {
   const [initialDefaultPoiId, setInitialDefaultPoiId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [badgeVideoId, setBadgeVideoId] = useState<string | null>(null);
+  const [lastModifiedId, setLastModifiedId] = useState<string | null>(null);
 
   // Multi-POI videos list
   interface MultiPoiVideo {
@@ -680,14 +682,16 @@ const VideoPoiAssignmentPanel = () => {
             ) : multiPoiVideos.length === 0 ? (
               <p className="text-sm text-muted-foreground py-4">Aucune vidéo avec plusieurs POI</p>
             ) : (
-              <div className="flex flex-wrap gap-4">
+              <div className="flex gap-4 items-start">
+              <div className={`flex flex-wrap gap-4 ${badgeVideoId ? "w-1/2" : "w-full"}`}>
                 {multiPoiVideos.map(mv => (
                   <div
                     key={mv.id}
-                    className="group rounded-lg border bg-card overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                    className={`group relative rounded-lg border bg-card overflow-hidden hover:shadow-md transition-shadow cursor-pointer ${badgeVideoId === mv.id ? "border-primary ring-2 ring-primary" : ""} ${lastModifiedId === mv.id ? justModifiedCardClass : ""}`}
                     style={{ width: 260 }}
-                    onClick={() => { setSearchId(mv.id); }}
+                    onClick={() => { setBadgeVideoId(mv.id); }}
                   >
+                    {lastModifiedId === mv.id && <JustModifiedBanner />}
                     <button
                       className="relative w-full bg-black"
                       style={{ aspectRatio: "16/9" }}
@@ -730,6 +734,24 @@ const VideoPoiAssignmentPanel = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+              {badgeSidebarVideo && (
+                <BadgeAssignmentSidebar
+                  source="document"
+                  video={{
+                    id: badgeSidebarVideo.id,
+                    url: badgeSidebarVideo.url,
+                    name: badgeSidebarVideo.name,
+                    thumbnail_url: badgeSidebarVideo.thumbnail_url,
+                    city: badgeSidebarVideo.city,
+                  }}
+                  onClose={() => setBadgeVideoId(null)}
+                  onSaved={() => {
+                    setLastModifiedId(badgeSidebarVideo.id);
+                    setBadgeVideoId(null);
+                  }}
+                />
+              )}
               </div>
             )}
           </div>
