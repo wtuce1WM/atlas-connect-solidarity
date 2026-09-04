@@ -137,6 +137,37 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
     stopBuffer(hidden);
   }, [active]);
 
+  // ── Chien de garde audio : un seul buffer audible, à tout instant.
+  // Les fenêtres de course entre le swap (canplay/loadeddata/fallback 1200ms) et
+  // le moteur unique pouvaient laisser le buffer sortant en lecture non mutée
+  // (« une vidéo reste activée en fond »). Ici on ne se fie plus à un instant T :
+  // dès qu'un buffer NON actif se met à jouer ou à sortir du mute, il est arrêté.
+  useEffect(() => {
+    const enforce = () => {
+      ([0, 1] as const).forEach((slot) => {
+        if (slot === activeRef.current) return;
+        const el = getEl(slot);
+        if (!el) return;
+        if (!el.paused || !el.muted) stopBuffer(el);
+      });
+    };
+    const els = [refA.current, refB.current].filter(Boolean) as HTMLVideoElement[];
+    els.forEach((el) => {
+      el.addEventListener("play", enforce);
+      el.addEventListener("playing", enforce);
+      el.addEventListener("volumechange", enforce);
+    });
+    const id = window.setInterval(enforce, 300);
+    return () => {
+      window.clearInterval(id);
+      els.forEach((el) => {
+        el.removeEventListener("play", enforce);
+        el.removeEventListener("playing", enforce);
+        el.removeEventListener("volumechange", enforce);
+      });
+    };
+  }, []);
+
   // Sécurité : à la destruction, aucun buffer ne doit continuer à jouer,
   // et la source est libérée pour rendre la mémoire / couper le téléchargement.
   useEffect(() => {
