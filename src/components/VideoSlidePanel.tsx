@@ -1628,7 +1628,8 @@ const VideoSlidePanel = ({
                       if (effectiveDescription) startDescMorph(rect);
                     }}
                   />
-                </div>
+                </ViewerInfoBar>
+
               )}
 
 
