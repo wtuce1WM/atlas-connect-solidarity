@@ -563,11 +563,13 @@ const GenericVideosPanel = () => {
   const [deleteConfirmVideo, setDeleteConfirmVideo] = useState<GenericVideo | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Filtres "Nom Social" — un par réseau
+  // Filtres "Nom Social" — un par réseau + sous-onglet de source sociale
   const ALL_SOCIAL = "__all__";
+  const [platformTab, setPlatformTab] = useState<"instagram" | "tiktok" | "youtube">("instagram");
   const [filterIg, setFilterIg] = useState<string>(ALL_SOCIAL);
   const [filterTt, setFilterTt] = useState<string>(ALL_SOCIAL);
   const [filterYt, setFilterYt] = useState<string>(ALL_SOCIAL);
+
 
   // Selected video for right panel
   const [selectedVideo, setSelectedVideo] = useState<GenericVideo | null>(null);
