@@ -2310,6 +2310,43 @@ const BookOnlineSlidePanelInner = ({
     return () => el.removeEventListener("touchmove", onMove);
   }, [effectiveHasPrev, effectiveHasNext, anyOverlayOpen]);
 
+  // Desktop : pendant strict du swipe horizontal tactile. Touchpad (geste deux
+  // doigts → wheel deltaX) et flèches ←/→ changent de média. Verrou de 400 ms
+  // pour éviter qu'un seul geste enchaîne plusieurs médias.
+  const mediaWheelLockRef = useRef(0);
+  useEffect(() => {
+    const el = mediaScrollRef.current;
+    if (!el) return;
+    if (totalMedia <= 1) return;
+    const onWheelX = (e: WheelEvent) => {
+      if (anyOverlayOpen) return;
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      if (Math.abs(e.deltaX) < 40) return;
+      const now = Date.now();
+      if (now - mediaWheelLockRef.current < 400) { if (e.cancelable) e.preventDefault(); return; }
+      mediaWheelLockRef.current = now;
+      if (e.cancelable) e.preventDefault();
+      goMedia(e.deltaX > 0 ? 1 : -1);
+    };
+    el.addEventListener("wheel", onWheelX, { passive: false });
+    return () => el.removeEventListener("wheel", onWheelX);
+  }, [totalMedia, anyOverlayOpen, goMedia]);
+
+  useEffect(() => {
+    if (totalMedia <= 1) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (anyOverlayOpen) return;
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      e.preventDefault();
+      goMedia(e.key === "ArrowRight" ? 1 : -1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [totalMedia, anyOverlayOpen, goMedia]);
+
+
 
   // Listen for YouTube "ended"
   useEffect(() => {
