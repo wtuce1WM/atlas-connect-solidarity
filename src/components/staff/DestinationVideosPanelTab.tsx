@@ -19,6 +19,9 @@ import {
   JustModifiedBanner,
   justModifiedCardClass,
 } from "./video-assignment/BadgeAssignmentSidebar";
+import type { SidebarMode } from "./video-assignment/BadgeAssignmentSidebar";
+import { VideoRelationChips, useVideoRelationCounts, type RelationCounts } from "./video-assignment/VideoRelationChips";
+import type { AssignmentSource } from "./video-assignment/VideoAssignmentPanels";
 
 interface DestVideo {
   id: string;
@@ -47,7 +50,7 @@ interface DestVideo {
 
 const ALL = "__all__";
 
-const SortableVideoCard = ({ video, index, onPlay, onSelect, selected = false, justModified = false }: { video: DestVideo; index: number; onPlay: (url: string) => void; onSelect?: (id: string) => void; selected?: boolean; justModified?: boolean }) => {
+const SortableVideoCard = ({ video, index, onPlay, onSelect, onOpenPanel, counts, selected = false, justModified = false }: { video: DestVideo; index: number; onPlay: (url: string) => void; onSelect?: (id: string) => void; onOpenPanel?: (id: string, mode: SidebarMode) => void; counts?: RelationCounts; selected?: boolean; justModified?: boolean }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: video.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
@@ -115,6 +118,13 @@ const SortableVideoCard = ({ video, index, onPlay, onSelect, selected = false, j
             {video.youtube_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">YT: {video.youtube_account}</Badge>}
           </div>
         )}
+        {onOpenPanel && (
+          <VideoRelationChips
+            counts={counts}
+            onOpenPoi={() => onOpenPanel(video.id, "poi")}
+            onOpenDest={() => onOpenPanel(video.id, "dest")}
+          />
+        )}
       </div>
     </div>
   );
@@ -128,6 +138,12 @@ const DestinationVideosPanelTab = () => {
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   const [lastModifiedId, setLastModifiedId] = useState<string | null>(null);
+  const [sidebarMode, setSidebarMode] = useState<SidebarMode>("tags");
+  const relationItems = useMemo(
+    () => videos.map(v => ({ id: v.id, source: (v.source === "generic" ? "generic" : "document") as AssignmentSource })),
+    [videos],
+  );
+  const { counts: relationCounts, refreshCounts } = useVideoRelationCounts(relationItems);
   const selectedBadgeVideo = useMemo(
     () => videos.find(v => v.id === selectedVideoId) || null,
     [videos, selectedVideoId],
@@ -417,7 +433,9 @@ const DestinationVideosPanelTab = () => {
                     video={v}
                     index={i}
                     onPlay={setLightboxUrl}
-                    onSelect={setSelectedVideoId}
+                    onSelect={(id) => { setSidebarMode("tags"); setSelectedVideoId(id); }}
+                    onOpenPanel={(id, mode) => { setSidebarMode(mode); setSelectedVideoId(id); }}
+                    counts={relationCounts.get(v.id)}
                     selected={selectedVideoId === v.id}
                     justModified={lastModifiedId === v.id}
                   />
@@ -435,9 +453,11 @@ const DestinationVideosPanelTab = () => {
                 thumbnail_url: selectedBadgeVideo.thumbnail_url,
                 city: selectedBadgeVideo.city,
               }}
+              mode={sidebarMode}
               onClose={() => setSelectedVideoId(null)}
               onSaved={() => {
                 setLastModifiedId(selectedBadgeVideo.id);
+                refreshCounts();
                 setSelectedVideoId(null);
               }}
             />

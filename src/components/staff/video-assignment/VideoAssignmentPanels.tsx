@@ -148,6 +148,9 @@ export const InlinePoiAssignment = ({
   const [saving, setSaving] = useState(false);
   const [cityFilter, setCityFilter] = useState<string>("");
 
+  /** Vidéos de fiche : POI stocké dans la colonne unique business_documents.poi_id. */
+  const singleValue = source === "document";
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -156,22 +159,29 @@ export const InlinePoiAssignment = ({
           .select("id, name, neighborhood, city")
           .eq("is_poi", true).eq("is_active", true)
           .order("city").order("neighborhood").order("name"),
-        supabase.from(T.poi as any).select("poi_id" + (source === "youtube" ? ":point_of_interest_id" : ""))
-          .eq(T.fk, video.id) as any,
+        singleValue
+          ? (supabase.from("business_documents").select("poi_id").eq("id", video.id) as any)
+          : (supabase.from(T.poi as any).select("poi_id" + (source === "youtube" ? ":point_of_interest_id" : ""))
+              .eq(T.fk, video.id) as any),
       ]);
       setPoiBusinesses((pois as PoiBiz[]) || []);
-      const ids = ((links as any[]) || []).map((l: any) =>
-        source === "youtube" ? l.point_of_interest_id : l.poi_id
-      );
+      const ids = ((links as any[]) || [])
+        .map((l: any) => (source === "youtube" ? l.point_of_interest_id : l.poi_id))
+        .filter(Boolean);
       setSelectedIds(ids); setInitialIds(ids); setLoading(false);
     };
     load();
-  }, [video.id, source]);
+  }, [video.id, source, singleValue]);
 
   const togglePoi = (poiId: string) =>
-    setSelectedIds(prev => prev.includes(poiId) ? prev.filter(id => id !== poiId) : [...prev, poiId]);
+    setSelectedIds(prev =>
+      prev.includes(poiId)
+        ? prev.filter(id => id !== poiId)
+        : singleValue ? [poiId] : [...prev, poiId]
+    );
 
   const toggleGroup = (pois: PoiBiz[]) => {
+    if (singleValue) return;
     const ids = pois.map(p => p.id);
     const allSelected = ids.every(id => selectedIds.includes(id));
     setSelectedIds(prev => allSelected ? prev.filter(id => !ids.includes(id)) : [...new Set([...prev, ...ids])]);
@@ -183,15 +193,21 @@ export const InlinePoiAssignment = ({
 
   const save = async () => {
     setSaving(true);
-    const toAdd = selectedIds.filter(id => !initialIds.includes(id));
-    const toRemove = initialIds.filter(id => !selectedIds.includes(id));
-    if (toRemove.length > 0) {
-      await supabase.from(T.poi as any).delete().eq(T.fk, video.id).in(poiColumn, toRemove);
-    }
-    if (toAdd.length > 0) {
-      await supabase.from(T.poi as any).insert(
-        toAdd.map(id => ({ [T.fk]: video.id, [poiColumn]: id })) as any
-      );
+    if (singleValue) {
+      await supabase.from("business_documents")
+        .update({ poi_id: selectedIds[0] ?? null } as any)
+        .eq("id", video.id);
+    } else {
+      const toAdd = selectedIds.filter(id => !initialIds.includes(id));
+      const toRemove = initialIds.filter(id => !selectedIds.includes(id));
+      if (toRemove.length > 0) {
+        await supabase.from(T.poi as any).delete().eq(T.fk, video.id).in(poiColumn, toRemove);
+      }
+      if (toAdd.length > 0) {
+        await supabase.from(T.poi as any).insert(
+          toAdd.map(id => ({ [T.fk]: video.id, [poiColumn]: id })) as any
+        );
+      }
     }
     toast.success(`${selectedIds.length} POI(s) affecté(s)`);
     setInitialIds([...selectedIds]); onSaved(); setSaving(false);
@@ -494,17 +510,22 @@ export const InlineDestinationCityAssignment = ({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  /** Vidéos de fiche : destination stockée dans business_documents.destination_id. */
+  const singleDest = source === "document";
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       const [{ data: dests }, { data: destLinks }, { data: cities }, { data: cityLinks }] = await Promise.all([
         supabase.from("destinations").select("id, name_fr, city_ids").order("name_fr"),
-        supabase.from(T.destination as any).select("destination_id").eq(T.fk, video.id) as unknown as { data: any[] | null },
+        singleDest
+          ? (supabase.from("business_documents").select("destination_id").eq("id", video.id) as unknown as { data: any[] | null })
+          : (supabase.from(T.destination as any).select("destination_id").eq(T.fk, video.id) as unknown as { data: any[] | null }),
         supabase.from("cities").select("id, name_fr").order("name_fr"),
         supabase.from(T.city as any).select("city_id").eq(T.fk, video.id) as unknown as { data: any[] | null },
       ]);
       setAllDests((dests as DestItem[]) || []);
-      const dIds = ((destLinks as any[]) || []).map((l: any) => l.destination_id);
+      const dIds = ((destLinks as any[]) || []).map((l: any) => l.destination_id).filter(Boolean);
       setSelectedDestIds(dIds); setInitialDestIds(dIds);
       const cMap: Record<string, string> = {};
       ((cities as any[]) || []).forEach((c: any) => { cMap[c.id] = c.name_fr; });
@@ -515,10 +536,14 @@ export const InlineDestinationCityAssignment = ({
       setLoading(false);
     };
     load();
-  }, [video.id, source]);
+  }, [video.id, source, singleDest]);
 
   const toggleDest = (destId: string) =>
-    setSelectedDestIds(prev => prev.includes(destId) ? prev.filter(id => id !== destId) : [...prev, destId]);
+    setSelectedDestIds(prev =>
+      prev.includes(destId)
+        ? prev.filter(id => id !== destId)
+        : singleDest ? [destId] : [...prev, destId]
+    );
   const toggleCity = (cityId: string) =>
     setSelectedCityIds(prev => prev.includes(cityId) ? prev.filter(id => id !== cityId) : [...prev, cityId]);
   const isDestDirty = JSON.stringify([...selectedDestIds].sort()) !== JSON.stringify([...initialDestIds].sort());
@@ -528,12 +553,18 @@ export const InlineDestinationCityAssignment = ({
   const save = async () => {
     setSaving(true);
     if (isDestDirty) {
-      const toAdd = selectedDestIds.filter(id => !initialDestIds.includes(id));
-      const toRemove = initialDestIds.filter(id => !selectedDestIds.includes(id));
-      if (toRemove.length > 0) await supabase.from(T.destination as any).delete().eq(T.fk, video.id).in("destination_id", toRemove);
-      if (toAdd.length > 0) await supabase.from(T.destination as any).insert(
-        toAdd.map(destination_id => ({ [T.fk]: video.id, destination_id })) as any
-      );
+      if (singleDest) {
+        await supabase.from("business_documents")
+          .update({ destination_id: selectedDestIds[0] ?? null } as any)
+          .eq("id", video.id);
+      } else {
+        const toAdd = selectedDestIds.filter(id => !initialDestIds.includes(id));
+        const toRemove = initialDestIds.filter(id => !selectedDestIds.includes(id));
+        if (toRemove.length > 0) await supabase.from(T.destination as any).delete().eq(T.fk, video.id).in("destination_id", toRemove);
+        if (toAdd.length > 0) await supabase.from(T.destination as any).insert(
+          toAdd.map(destination_id => ({ [T.fk]: video.id, destination_id })) as any
+        );
+      }
     }
     if (isCityDirty) {
       const toAdd = selectedCityIds.filter(id => !initialCityIds.includes(id));
