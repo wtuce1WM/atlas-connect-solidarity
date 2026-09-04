@@ -27,6 +27,8 @@ import {
   JustModifiedBanner,
   justModifiedCardClass,
 } from "./video-assignment/BadgeAssignmentSidebar";
+import type { SidebarMode } from "./video-assignment/BadgeAssignmentSidebar";
+import { VideoRelationChips, useVideoRelationCounts, type RelationCounts } from "./video-assignment/VideoRelationChips";
 
 interface CountryVideo {
   id: string;
@@ -72,6 +74,8 @@ const SortableVideoCard = ({
   index,
   onPlay,
   onSelect,
+  onOpenPanel,
+  counts,
   selected = false,
   justModified = false,
 }: {
@@ -79,6 +83,8 @@ const SortableVideoCard = ({
   index: number;
   onPlay: (url: string) => void;
   onSelect?: (id: string) => void;
+  onOpenPanel?: (id: string, mode: SidebarMode) => void;
+  counts?: RelationCounts;
   selected?: boolean;
   justModified?: boolean;
 }) => {
@@ -146,6 +152,13 @@ const SortableVideoCard = ({
           </p>
         )}
         {video.name && <p className="text-[11px] text-muted-foreground/70 truncate">{video.name}</p>}
+        {onOpenPanel && (
+          <VideoRelationChips
+            counts={counts}
+            onOpenPoi={() => onOpenPanel(video.id, "poi")}
+            onOpenDest={() => onOpenPanel(video.id, "dest")}
+          />
+        )}
       </div>
     </div>
   );
@@ -161,6 +174,7 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
   const [videoBadges, setVideoBadges] = useState<Map<string, string[]>>(new Map());
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   const [lastModifiedId, setLastModifiedId] = useState<string | null>(null);
+  const [sidebarMode, setSidebarMode] = useState<SidebarMode>("tags");
   const [draftSubcategoryId, setDraftSubcategoryId] = useState<string>("");
   const [draftBadgeIds, setDraftBadgeIds] = useState<string[]>([]);
   const [subcategorySearch, setSubcategorySearch] = useState("");
@@ -388,6 +402,12 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
     setSelectedSubcategory(ALL_VALUE);
   }, [selectedCategory]);
 
+  const relationItems = useMemo(
+    () => videos.map(v => ({ id: v.id, source: "document" as const })),
+    [videos],
+  );
+  const { counts: relationCounts, refreshCounts } = useVideoRelationCounts(relationItems);
+
   const selectedBadgeVideo = useMemo(
     () => videos.find(v => v.id === selectedVideoId) || null,
     [videos, selectedVideoId],
@@ -530,7 +550,9 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
                         video={v}
                         index={i}
                         onPlay={setLightboxUrl}
-                        onSelect={setSelectedVideoId}
+                        onSelect={(id) => { setSidebarMode("tags"); setSelectedVideoId(id); }}
+                        onOpenPanel={(id, mode) => { setSidebarMode(mode); setSelectedVideoId(id); }}
+                        counts={relationCounts.get(v.id)}
                         selected={selectedVideoId === v.id}
                         justModified={lastModifiedId === v.id}
                       />
@@ -548,9 +570,11 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
                     thumbnail_url: selectedBadgeVideo.thumbnail_url,
                     city: selectedBadgeVideo.city,
                   }}
+                  mode={sidebarMode}
                   onClose={() => setSelectedVideoId(null)}
                   onSaved={() => {
                     setLastModifiedId(selectedBadgeVideo.id);
+                    refreshCounts();
                     setSelectedVideoId(null);
                   }}
                 />
