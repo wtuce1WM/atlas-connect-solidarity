@@ -11,14 +11,11 @@ import VideoGeneratePanel from "@/components/staff/VideoGeneratePanel";
 import VideoStoryboardPanel from "@/components/staff/VideoStoryboardPanel";
 import YouTubeBackofficePanel from "@/components/staff/YouTubeBackofficePanel";
 import VideoThumbnailLocker from "@/components/staff/VideoThumbnailLocker";
-import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
 import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
-import ServiceVideosPanel from "@/components/staff/ServiceVideosPanel";
 import PoiVideosPanel from "@/components/staff/PoiVideosPanel";
 import DestinationVideosPanelTab from "@/components/staff/DestinationVideosPanelTab";
 import VideoPoiAssignmentPanel from "@/components/staff/VideoPoiAssignmentPanel";
 import GenericVideosPanel from "@/components/staff/GenericVideosPanel";
-import FrontStructureVideosPanel from "@/components/staff/FrontStructureVideosPanel";
 import VideoDbStructurePanel from "@/components/staff/VideoDbStructurePanel";
 import TestNoteViewer from "@/components/staff/TestNoteViewer";
 
@@ -152,39 +149,15 @@ const StaffVideos = () => {
           <TabsContent value="country-videos">
             <Tabs defaultValue="">
               <TabsList className="flex flex-wrap h-auto gap-1">
-                <TabsTrigger value="front-videos">Homepage</TabsTrigger>
-                <TabsTrigger value="fs-videos">Structure du front</TabsTrigger>
                 <TabsTrigger value="sub-videos">Avec sous-catégorie</TabsTrigger>
-                <TabsTrigger value="no-sub-videos">Sans sous-catégorie</TabsTrigger>
-                <TabsTrigger value="service-videos">Services</TabsTrigger>
                 <TabsTrigger value="poi-videos">POI</TabsTrigger>
                 <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
                 <TabsTrigger value="pois-videos">POIS</TabsTrigger>
                 <TabsTrigger value="db-structure">Toutes</TabsTrigger>
 
               </TabsList>
-              <TabsContent value="front-videos">
-                <Tabs defaultValue="marrakech">
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
-                    <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="marrakech">
-                    <DestinationVideosPanel cityName="Marrakech" />
-                  </TabsContent>
-                  <TabsContent value="essaouira">
-                    <DestinationVideosPanel cityName="Essaouira" />
-                  </TabsContent>
-                </Tabs>
-              </TabsContent>
               <TabsContent value="sub-videos">
                 <CountryVideosPanel withSubcategory={true} />
-              </TabsContent>
-              <TabsContent value="no-sub-videos">
-                <CountryVideosPanel withSubcategory={false} />
-              </TabsContent>
-              <TabsContent value="service-videos">
-                <ServiceVideosPanel />
               </TabsContent>
               <TabsContent value="poi-videos">
                 <PoiVideosPanel />
@@ -194,9 +167,6 @@ const StaffVideos = () => {
               </TabsContent>
               <TabsContent value="pois-videos">
                 <VideoPoiAssignmentPanel />
-              </TabsContent>
-              <TabsContent value="fs-videos">
-                <FrontStructureVideosPanel />
               </TabsContent>
               <TabsContent value="db-structure">
                 <VideoDbStructurePanel />
