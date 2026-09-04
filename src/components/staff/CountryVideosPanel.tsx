@@ -22,6 +22,11 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import {
+  BadgeAssignmentSidebar,
+  JustModifiedBanner,
+  justModifiedCardClass,
+} from "./video-assignment/BadgeAssignmentSidebar";
 
 interface CountryVideo {
   id: string;
@@ -113,7 +118,7 @@ const SortableVideoCard = ({
       <button
         className="relative bg-black rounded overflow-hidden group flex-shrink-0 w-full"
         style={{ height: 110 }}
-        onClick={() => onPlay(video.url)}
+        onClick={(e) => { e.stopPropagation(); onPlay(video.url); }}
       >
         {video.thumbnail_url ? (
           <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
@@ -155,6 +160,7 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
   const [allBadges, setAllBadges] = useState<{ id: string; name_fr: string }[]>([]);
   const [videoBadges, setVideoBadges] = useState<Map<string, string[]>>(new Map());
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [lastModifiedId, setLastModifiedId] = useState<string | null>(null);
   const [draftSubcategoryId, setDraftSubcategoryId] = useState<string>("");
   const [draftBadgeIds, setDraftBadgeIds] = useState<string[]>([]);
   const [subcategorySearch, setSubcategorySearch] = useState("");
@@ -509,15 +515,42 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
           {filteredVideos.length === 0 ? (
             <p className="text-sm text-muted-foreground py-8 text-center">Aucune vidéo pour cette sélection.</p>
           ) : withSubcategory ? (
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={filteredVideos.map(v => v.id)} strategy={verticalListSortingStrategy}>
-                <div className="flex flex-wrap gap-2">
-                  {filteredVideos.map((v, i) => (
-                    <SortableVideoCard key={v.id} video={v} index={i} onPlay={setLightboxUrl} />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
+            <div className="flex gap-4 items-start">
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={filteredVideos.map(v => v.id)} strategy={verticalListSortingStrategy}>
+                  <div className={`flex flex-wrap gap-2 ${selectedVideoId ? "w-1/2" : "w-full"}`}>
+                    {filteredVideos.map((v, i) => (
+                      <SortableVideoCard
+                        key={v.id}
+                        video={v}
+                        index={i}
+                        onPlay={setLightboxUrl}
+                        onSelect={setSelectedVideoId}
+                        selected={selectedVideoId === v.id}
+                        justModified={lastModifiedId === v.id}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+              {selectedBadgeVideo && (
+                <BadgeAssignmentSidebar
+                  source="document"
+                  video={{
+                    id: selectedBadgeVideo.id,
+                    url: selectedBadgeVideo.url,
+                    name: selectedBadgeVideo.name,
+                    thumbnail_url: selectedBadgeVideo.thumbnail_url,
+                    city: selectedBadgeVideo.city,
+                  }}
+                  onClose={() => setSelectedVideoId(null)}
+                  onSaved={() => {
+                    setLastModifiedId(selectedBadgeVideo.id);
+                    setSelectedVideoId(null);
+                  }}
+                />
+              )}
+            </div>
           ) : (
             <div
               className="grid w-full gap-3 items-start"
