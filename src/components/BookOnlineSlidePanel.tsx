@@ -2812,7 +2812,7 @@ const BookOnlineSlidePanelInner = ({
                 type="button"
                 data-cta-tap
                 aria-label="Previous"
-                disabled={!effectiveHasNext}
+                disabled={!effectiveHasPrev}
                 onClick={(e) => { e.stopPropagation(); effectiveOnPrev?.(); }}
                 className="flex items-center justify-center h-8 w-8 text-white/90 hover:text-white disabled:text-white/25 active:scale-90 transition-all"
               >
