@@ -48,6 +48,13 @@ interface DestVideo {
 
 
 
+/**
+ * Les lignes « générique » sont dédoublées par lien (id composite `gv-<videoId>-<relId>`).
+ * Les panneaux d'affectation doivent utiliser l'ID réel de l'entité.
+ */
+const realEntityId = (v: { id: string; source: string; business_id: string }) =>
+  v.source === "generic" ? v.business_id : v.id;
+
 const ALL = "__all__";
 
 const SortableVideoCard = ({ video, index, onPlay, onSelect, onOpenPanel, counts, selected = false, justModified = false }: { video: DestVideo; index: number; onPlay: (url: string) => void; onSelect?: (id: string) => void; onOpenPanel?: (id: string, mode: SidebarMode) => void; counts?: RelationCounts; selected?: boolean; justModified?: boolean }) => {
@@ -140,7 +147,7 @@ const DestinationVideosPanelTab = () => {
   const [lastModifiedId, setLastModifiedId] = useState<string | null>(null);
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("tags");
   const relationItems = useMemo(
-    () => videos.map(v => ({ id: v.id, source: (v.source === "generic" ? "generic" : "document") as AssignmentSource })),
+    () => videos.map(v => ({ id: realEntityId(v), source: (v.source === "generic" ? "generic" : "document") as AssignmentSource })),
     [videos],
   );
   const { counts: relationCounts, refreshCounts } = useVideoRelationCounts(relationItems);
@@ -435,7 +442,7 @@ const DestinationVideosPanelTab = () => {
                     onPlay={setLightboxUrl}
                     onSelect={(id) => { setSidebarMode("tags"); setSelectedVideoId(id); }}
                     onOpenPanel={(id, mode) => { setSidebarMode(mode); setSelectedVideoId(id); }}
-                    counts={relationCounts.get(v.id)}
+                    counts={relationCounts.get(realEntityId(v))}
                     selected={selectedVideoId === v.id}
                     justModified={lastModifiedId === v.id}
                   />
@@ -447,7 +454,7 @@ const DestinationVideosPanelTab = () => {
             <BadgeAssignmentSidebar
               source={selectedBadgeVideo.source === "generic" ? "generic" : "document"}
               video={{
-                id: selectedBadgeVideo.id,
+                id: realEntityId(selectedBadgeVideo),
                 url: selectedBadgeVideo.url,
                 name: selectedBadgeVideo.name,
                 thumbnail_url: selectedBadgeVideo.thumbnail_url,
