@@ -1449,6 +1449,22 @@ const VideoSlidePanel = ({
           <div className="relative bg-black overflow-hidden w-full h-full">
             {showYoutubeOverlay ? (
               <div className="w-full h-full bg-black" />
+            ) : activeMedia && activeMedia.kind === "image" ? (
+              <img
+                src={activeMedia.url}
+                alt=""
+                className="w-full h-full object-cover"
+                loading="eager"
+              />
+            ) : activeMedia && activeMedia.kind === "matterport" ? (
+              <iframe
+                src={activeMedia.url}
+                className="w-full h-full"
+                allow="fullscreen; vr"
+                allowFullScreen
+                frameBorder={0}
+                style={{ border: 0 }}
+              />
             ) : embed.type === "file" ? (
               <FrozenFrameVideo
                 videoRef={videoRef}
