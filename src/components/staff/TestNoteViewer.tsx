@@ -610,13 +610,15 @@ const TestNoteViewer = () => {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-foreground">Ville :</span>
               <Select value={city} onValueChange={setCity}>
-                <SelectTrigger className="w-[220px]"><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectTrigger className="w-[260px]"><SelectValue /></SelectTrigger>
+                <SelectContent className="max-h-[60vh]">
                   <SelectItem value="none">Aucun</SelectItem>
-                  <SelectItem value="marrakech">Marrakech</SelectItem>
-                  <SelectItem value="essaouira">Essaouira</SelectItem>
+                  {cityOptions.map(c => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
                   <SelectItem value="__none__">Sans ville</SelectItem>
                 </SelectContent>
+
               </Select>
             </div>
 
