@@ -916,7 +916,7 @@ const GenericVideosPanel = () => {
           return (
           <>
             <div className="flex items-center gap-3 flex-wrap">
-              <p className="text-sm text-muted-foreground">{filteredVideos.length}/{videos.length} vidéo{videos.length > 1 ? "s" : ""} (50 dernières) • Cliquez pour voir les entités liées</p>
+              <p className="text-sm text-muted-foreground">{filteredVideos.length}/{videos.length} vidéo{videos.length > 1 ? "s" : ""} (50 dernières par source) • Cliquez pour voir les entités liées</p>
               <VideoIdSearchInput videoIds={filteredVideos.map(v => v.id)} />
               <ImportFromBusinessDocInput
                 onImported={loadVideos}
