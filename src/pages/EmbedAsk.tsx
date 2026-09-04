@@ -1596,24 +1596,20 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       cancelled = true;
       window.clearTimeout(loadingTimeout);
     };
-  }, [lang, isPlatform, suggestionFilterCity, suggestionFilterCategory]);
-
-
-
-
+  }, [lang, isPlatform, isClubScope, suggestionSurface, suggestionFilterCity, suggestionFilterCategory]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const data = await publicSelect(
         "ai_followups",
-        "select=id,label_fr,label_en,label_ar,is_platform_visible&surface=eq.embed&is_active=eq.true&order=sort_order.asc",
+        `select=id,label_fr,label_en,label_ar,is_platform_visible&surface=eq.${suggestionSurface}&is_active=eq.true&order=sort_order.asc`,
       );
       if (cancelled || !data) return;
       setGlobalFollowups(data as FollowupRow[]);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [suggestionSurface]);
 
   // Préférences Agent IA de l'établissement (onglet Agent IA côté affilié).
   useEffect(() => {
