@@ -125,7 +125,7 @@ const TestNoteViewer = () => {
         const rows = await fetchAllPaged((f, t) =>
           (supabase
             .from("business_documents")
-            .select("url, businesses!inner(city, is_active)")
+            .select("url, businesses!business_documents_business_id_fkey!inner(city, is_active)")
             .eq("type", "video")
             .eq("businesses.is_active", true)
             .order("id")
@@ -133,12 +133,14 @@ const TestNoteViewer = () => {
         const set = new Set<string>();
         (rows as any[]).forEach((r: any) => {
           const c = r?.businesses?.city;
-          if (c && isInternalVideoUrl(r.url)) set.add(c);
+          if (c && isInternalVideoUrl(r.url)) set.add(String(c).trim());
         });
         setCityOptions([...set].sort((a, b) => a.localeCompare(b, "fr")));
       } catch (e: any) {
         console.warn("Villes indisponibles :", e?.message || e);
+        toast.error("Villes indisponibles : " + (e?.message || e));
       }
+
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
