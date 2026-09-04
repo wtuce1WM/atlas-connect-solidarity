@@ -1061,22 +1061,22 @@ const GenericVideosPanel = () => {
       )}
       {poiVideo && (
         <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
-          <InlinePoiAssignment video={poiVideo} onClose={() => setPoiVideo(null)} onSaved={() => { setLastModifiedId(poiVideo.id); loadCounts(); }} />
+          <InlinePoiAssignment video={poiVideo} onClose={() => setPoiVideo(null)} onSaved={() => { setLastModifiedId(poiVideo.id); loadCounts(); setPoiVideo(null); }} />
         </div>
       )}
       {businessVideo && (
         <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
-          <InlineBusinessAssignment video={businessVideo} onClose={() => setBusinessVideo(null)} onSaved={() => { setLastModifiedId(businessVideo.id); loadCounts(); }} />
+          <InlineBusinessAssignment video={businessVideo} onClose={() => setBusinessVideo(null)} onSaved={() => { setLastModifiedId(businessVideo.id); loadCounts(); setBusinessVideo(null); }} />
         </div>
       )}
       {destinationVideo && (
         <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
-          <InlineDestinationCityAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { setLastModifiedId(destinationVideo.id); loadCounts(); }} />
+          <InlineDestinationCityAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { setLastModifiedId(destinationVideo.id); loadCounts(); setDestinationVideo(null); }} />
         </div>
       )}
       {tagsVideo && (
         <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
-          <InlineBadgeSubcatCityAssignment video={tagsVideo} onClose={() => setTagsVideo(null)} onSaved={() => { setLastModifiedId(tagsVideo.id); loadCounts(); }} />
+          <InlineBadgeSubcatCityAssignment video={tagsVideo} onClose={() => setTagsVideo(null)} onSaved={() => { setLastModifiedId(tagsVideo.id); loadCounts(); setTagsVideo(null); }} />
         </div>
       )}
 
