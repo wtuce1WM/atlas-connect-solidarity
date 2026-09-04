@@ -11,10 +11,13 @@ import VideoGeneratePanel from "@/components/staff/VideoGeneratePanel";
 import VideoStoryboardPanel from "@/components/staff/VideoStoryboardPanel";
 import YouTubeBackofficePanel from "@/components/staff/YouTubeBackofficePanel";
 import VideoThumbnailLocker from "@/components/staff/VideoThumbnailLocker";
+import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
+import PoiVideosPanel from "@/components/staff/PoiVideosPanel";
 import DestinationVideosPanelTab from "@/components/staff/DestinationVideosPanelTab";
 import VideoPoiAssignmentPanel from "@/components/staff/VideoPoiAssignmentPanel";
 import GenericVideosPanel from "@/components/staff/GenericVideosPanel";
 import VideoDbStructurePanel from "@/components/staff/VideoDbStructurePanel";
+import TestNoteViewer from "@/components/staff/TestNoteViewer";
 
 
 
