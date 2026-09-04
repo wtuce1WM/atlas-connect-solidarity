@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { businessUrl } from "@/lib/businessUrl";
 import digitalIdCardAsset from "@/assets/digital-id-card.webp.asset.json";
-import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag, Sparkles, Mail } from "lucide-react";
+import { Crown, Loader2, Save, Bookmark, Trash2, ExternalLink, Tag, Sparkles, Mail } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,7 +44,7 @@ interface ClubDashboardProps {
   onLogout: () => void;
 }
 
-const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
+const ClubDashboard = ({ user }: ClubDashboardProps) => {
   const { language } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
