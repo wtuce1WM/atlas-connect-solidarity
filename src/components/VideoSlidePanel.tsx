@@ -1070,8 +1070,11 @@ const VideoSlidePanel = ({
           if (swipeHandled.current || swipeStartY.current === null || swipeStartX.current === null) return;
           const dy = e.touches[0].clientY - swipeStartY.current;
           const dx = e.touches[0].clientX - swipeStartX.current;
-          // Prevent native scroll once the gesture is clearly vertical
+          // Prevent native scroll once the gesture is clearly vertical…
           if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx) * 1.5) {
+            e.preventDefault();
+          } else if (totalMedia > 1 && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+            // …ou clairement horizontal (navigation entre médias)
             e.preventDefault();
           }
         } : undefined}
