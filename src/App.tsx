@@ -35,6 +35,7 @@ const HashtagResolver = lazy(() => import("./pages/HashtagResolver"));
 const StaffLogin = lazy(() => import("./pages/StaffLogin"));
 const StaffBackoffice = lazy(() => import("./pages/StaffBackoffice"));
 const StaffHub = lazy(() => import("./pages/StaffHub"));
+const StaffApi = lazy(() => import("./pages/StaffApi"));
 const StaffCRM = lazy(() => import("./pages/StaffCRM"));
 const StaffFront = lazy(() => import("./pages/StaffFront"));
 const AffiliatesLogin = lazy(() => import("./pages/AffiliatesLogin"));
@@ -245,6 +246,7 @@ const LocalizedRoutes = () => {
               <Route path="/en/widgets" element={renderLazyRoute(<Widgets />)} />
               <Route path="/ar/widgets" element={renderLazyRoute(<Widgets />)} />
               <Route path="/staff/backoffice/videos" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<StaffVideos />)}</StaffRouteGuard></Suspense>} />
+              <Route path="/staff/backoffice/api" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<StaffApi />)}</StaffRouteGuard></Suspense>} />
               <Route path="/staff/backoffice/widgets" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<StaffWidgets />)}</StaffRouteGuard></Suspense>} />
 
               {/* Custom-layout blog articles (kept as React components — fetch dynamic data) */}

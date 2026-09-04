@@ -22,8 +22,6 @@ import MasterDashboard from "@/components/staff/MasterDashboard";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import BlockedDomainsManagement from "@/components/staff/BlockedDomainsManagement";
 import BrokenLinksManagement from "@/components/staff/BrokenLinksManagement";
-import HotelApiComparison from "@/components/staff/HotelApiComparison";
-import PricingManagement from "@/components/staff/PricingManagement";
 import BlogManagement from "@/components/staff/BlogManagement";
 import VanityUrlsManagement from "@/components/staff/VanityUrlsManagement";
 import StaffERDPanel from "@/components/staff/StaffERDPanel";
@@ -137,14 +135,6 @@ const StaffMaster = () => {
               <ShieldAlert className="h-4 w-4" />
               Domaines bloqués
             </TabsTrigger>
-            <TabsTrigger value="hotel-compare" className="gap-2">
-              <Hotel className="h-4 w-4" />
-              Hôtels API
-            </TabsTrigger>
-            <TabsTrigger value="pricing" className="gap-2">
-              <DollarSign className="h-4 w-4" />
-              Prix
-            </TabsTrigger>
             <TabsTrigger value="vanity-urls" className="gap-2">
               <LinkIcon className="h-4 w-4" />
               Alias URL
@@ -198,14 +188,6 @@ const StaffMaster = () => {
               <BlockedDomainsManagement />
               <BrokenLinksManagement />
             </div>
-          </TabsContent>
-
-          <TabsContent value="hotel-compare">
-            <HotelApiComparison />
-          </TabsContent>
-
-          <TabsContent value="pricing">
-            <PricingManagement />
           </TabsContent>
 
           <TabsContent value="vanity-urls">
