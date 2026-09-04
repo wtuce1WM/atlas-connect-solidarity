@@ -38,7 +38,7 @@ interface DestVideo {
   has_linked?: boolean;
 }
 
-interface CityOption { name: string; sort_order: number; }
+
 
 const NONE_CITY = "__none__";
 const ALL = "__all__";
@@ -111,8 +111,6 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: DestVideo; index: 
 
 const DestinationVideosPanelTab = () => {
   const [videos, setVideos] = useState<DestVideo[]>([]);
-  const [cities, setCities] = useState<CityOption[]>([]);
-  const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedDest, setSelectedDest] = useState<string>(ALL);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -123,16 +121,6 @@ const DestinationVideosPanelTab = () => {
 
   const load = useCallback(async () => {
     setLoading(true);
-
-    const { data: citiesData } = await supabase
-      .from("cities")
-      .select("name_fr, sort_order")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true });
-
-    if (citiesData) {
-      setCities(citiesData.map(c => ({ name: c.name_fr, sort_order: c.sort_order ?? 0 })));
-    }
 
     // Fetch all business_documents videos with a destination_id
     const allDocs: any[] = [];
