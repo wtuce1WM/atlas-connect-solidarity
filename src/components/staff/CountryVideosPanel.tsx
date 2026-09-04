@@ -353,13 +353,12 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
     setDraftBadgeIds(videoBadges.get(selectedVideoId) || []);
   }, [selectedVideoId, videoBadges]);
 
-  // Build city options from videos themselves, sorted by cities table order
+  // Build city options from videos themselves, sorted alphabetically by name
   const videoCities = useMemo(() => {
     const citySet = new Set<string>();
     videos.forEach(v => v.cities.forEach(c => citySet.add(c)));
-    const cityOrder = new Map(cities.map(c => [c.name, c.sort_order]));
-    return [...citySet].sort((a, b) => (cityOrder.get(a) ?? 9999) - (cityOrder.get(b) ?? 9999));
-  }, [videos, cities]);
+    return [...citySet].sort((a, b) => a.localeCompare(b, "fr"));
+  }, [videos]);
 
   // Categories present in current videos
   const videoCategories = useMemo(() => {
