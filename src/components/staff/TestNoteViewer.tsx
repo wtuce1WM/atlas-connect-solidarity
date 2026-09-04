@@ -114,6 +114,35 @@ const TestNoteViewer = () => {
   const [assigning, setAssigning] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [draftBadgeIds, setDraftBadgeIds] = useState<string[]>([]);
+  const [lastModifiedKey, setLastModifiedKey] = useState<string | null>(null);
+  const [cityOptions, setCityOptions] = useState<string[]>([]);
+
+  // Villes ayant au moins 1 business actif avec une vidéo interne
+  useEffect(() => {
+    if (activeTab !== "badgees" || cityOptions.length > 0) return;
+    (async () => {
+      try {
+        const rows = await fetchAllPaged((f, t) =>
+          (supabase
+            .from("business_documents")
+            .select("url, businesses!inner(city, is_active)")
+            .eq("type", "video")
+            .eq("businesses.is_active", true)
+            .order("id")
+            .range(f, t)) as any);
+        const set = new Set<string>();
+        (rows as any[]).forEach((r: any) => {
+          const c = r?.businesses?.city;
+          if (c && isInternalVideoUrl(r.url)) set.add(c);
+        });
+        setCityOptions([...set].sort((a, b) => a.localeCompare(b, "fr")));
+      } catch (e: any) {
+        console.warn("Villes indisponibles :", e?.message || e);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
 
   // Sync draft when selecting a video group (union des badges de tous les IDs)
   useEffect(() => {
@@ -161,11 +190,19 @@ const TestNoteViewer = () => {
     const selected = selectedKey === g.key;
     const names = Array.from(new Set(g.members.map(m => m.business_name)));
     const allCities = Array.from(new Set(g.members.flatMap(m => m.cities)));
+    const justModified = lastModifiedKey === g.key;
     return (
       <div
+        data-video-key={g.key}
         onClick={() => setSelectedKey(g.key)}
-        className={`flex flex-col rounded-lg border bg-background p-1.5 cursor-pointer transition-colors ${selected ? "border-primary ring-2 ring-primary" : "hover:border-muted-foreground/30"}`}
+        className={`relative flex flex-col rounded-lg border bg-background p-1.5 cursor-pointer transition-colors ${selected ? "border-primary ring-2 ring-primary" : "hover:border-muted-foreground/30"} ${justModified ? "ring-[6px] ring-emerald-500 border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.35),0_0_28px_8px_rgba(16,185,129,0.55)] animate-pulse" : ""}`}
       >
+        {justModified && (
+          <div className="absolute inset-x-0 top-0 z-30 bg-emerald-500 text-white text-[13px] font-extrabold tracking-wide text-center py-1.5 shadow-md rounded-t-lg">
+            ✓ MODIFIÉE À L'INSTANT
+          </div>
+        )}
+
         <button
           className="relative bg-black rounded overflow-hidden group flex-shrink-0 w-full"
           style={{ height: 110 }}
@@ -258,11 +295,12 @@ const TestNoteViewer = () => {
   const badgeSource = (v: VideoDoc): AssignmentSource => (v.source === "generic" ? "generic" : "document");
 
   /** Panneau de droite "Badges & Villes" partagé avec l'onglet Génériques. */
-  const RightBadgePanel = ({ deselectAfterSave }: { deselectAfterSave?: boolean }) => {
+  const RightBadgePanel = (_props: { deselectAfterSave?: boolean }) => {
     if (!selectedKey) return null;
     const members = videos.filter(v => v.url === selectedKey);
     if (members.length === 0) return null;
     const [primary, ...rest] = members;
+    const savedKey = selectedKey;
     return (
       <div className="w-1/2 shrink-0 sticky top-24 h-[calc(100vh-7rem)] overflow-hidden border-l bg-card rounded-lg">
         <InlineBadgeSubcatCityAssignment
@@ -272,7 +310,8 @@ const TestNoteViewer = () => {
           onClose={() => setSelectedKey(null)}
           onSaved={async () => {
             await refreshGroupBadges(members);
-            if (deselectAfterSave) setSelectedKey(null);
+            setLastModifiedKey(savedKey);
+            setSelectedKey(null);
           }}
         />
       </div>
@@ -571,13 +610,15 @@ const TestNoteViewer = () => {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-foreground">Ville :</span>
               <Select value={city} onValueChange={setCity}>
-                <SelectTrigger className="w-[220px]"><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectTrigger className="w-[260px]"><SelectValue /></SelectTrigger>
+                <SelectContent className="max-h-[60vh]">
                   <SelectItem value="none">Aucun</SelectItem>
-                  <SelectItem value="marrakech">Marrakech</SelectItem>
-                  <SelectItem value="essaouira">Essaouira</SelectItem>
+                  {cityOptions.map(c => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
                   <SelectItem value="__none__">Sans ville</SelectItem>
                 </SelectContent>
+
               </Select>
             </div>
 
