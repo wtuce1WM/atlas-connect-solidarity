@@ -626,8 +626,10 @@ const TestNoteViewer = () => {
 
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-foreground">Badge :</span>
-              <Select value={badge} onValueChange={setBadge} disabled={city === "none"}>
-                <SelectTrigger className="w-[260px]"><SelectValue placeholder={city === "none" ? "Choisir une ville" : "Aucun"} /></SelectTrigger>
+              <Select value={badge} onValueChange={setBadge} disabled={city === "none" || videosLoading}>
+                <SelectTrigger className="w-[260px]">
+                  <SelectValue placeholder={city === "none" ? "Choisir une ville" : videosLoading ? "Chargement…" : "Aucun"} />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Aucun</SelectItem>
                   {availableBadges.map(b => (
@@ -637,8 +639,17 @@ const TestNoteViewer = () => {
                   ))}
                 </SelectContent>
               </Select>
+              {videosLoading && city !== "none" && (
+                <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Chargement des badges…
+                </span>
+              )}
             </div>
           </div>
+
+          {city !== "none" && badge === "none" && !videosLoading && (
+            <p className="text-sm text-muted-foreground py-2">Choisis un badge pour afficher les vidéos.</p>
+          )}
 
           {city !== "none" && badge !== "none" && (
             <div>
