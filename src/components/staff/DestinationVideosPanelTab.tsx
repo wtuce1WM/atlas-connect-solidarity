@@ -276,41 +276,24 @@ const DestinationVideosPanelTab = () => {
 
   useEffect(() => { load(); }, [load]);
 
-  const videoCities = useMemo(() => {
-    const citySet = new Set<string>();
-    videos.forEach(v => v.cities.forEach(c => citySet.add(c)));
-    const cityOrder = new Map(cities.map(c => [c.name, c.sort_order]));
-    return [...citySet].sort((a, b) => (cityOrder.get(a) ?? 9999) - (cityOrder.get(b) ?? 9999));
-  }, [videos, cities]);
-
-  const cityFilteredVideos = useMemo(() => {
-    if (!selectedCity) return [];
-    if (selectedCity === NONE_CITY) return videos.filter(v => v.cities.length === 0);
-    return videos.filter(v => v.cities.includes(selectedCity));
-  }, [videos, selectedCity]);
-
   const videoDests = useMemo(() => {
     const destSet = new Map<string, string>();
-    cityFilteredVideos.forEach(v => {
+    videos.forEach(v => {
       if (v.destination_id && !destSet.has(v.destination_id)) destSet.set(v.destination_id, v.destination_name);
     });
     return [...destSet.entries()]
       .map(([id, name]) => ({ id, name }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [cityFilteredVideos]);
-
-  useEffect(() => { setSelectedDest(ALL); }, [selectedCity]);
+  }, [videos]);
 
   useEffect(() => { pendingOrderRef.current = null; }, [selectedDest]);
 
   const filteredVideos = useMemo(() => {
-    // When a destination is selected, show ALL its videos regardless of the city filter.
-    // The city filter only narrows the destination dropdown choices.
     const result = selectedDest !== ALL
       ? videos.filter(v => v.destination_id === selectedDest)
-      : cityFilteredVideos;
+      : videos;
     return [...result].sort((a, b) => ((a.sort_order ?? 0) - (b.sort_order ?? 0)) || a.id.localeCompare(b.id));
-  }, [videos, cityFilteredVideos, selectedDest]);
+  }, [videos, selectedDest]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
