@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 /* ─── Source-aware table mapping ─── */
-export type AssignmentSource = "generic" | "youtube";
+export type AssignmentSource = "generic" | "youtube" | "document";
 
 interface TableMap {
   poi: string;
@@ -51,7 +51,17 @@ const TABLES: Record<AssignmentSource, TableMap> = {
     badge: "business_youtube_video_badges",
     fk: "youtube_video_id",
   },
+  // Vidéos de fiche (business_documents) : seules les tables Badges & Villes existent.
+  document: {
+    poi: "",
+    business: "",
+    destination: "",
+    city: "business_document_cities",
+    badge: "business_document_badges",
+    fk: "document_id",
+  },
 };
+
 
 /** Minimal video shape needed by the panels. */
 export interface AssignableVideo {
