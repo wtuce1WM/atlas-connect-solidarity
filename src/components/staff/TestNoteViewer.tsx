@@ -318,11 +318,6 @@ const TestNoteViewer = () => {
     );
   };
 
-        />
-      </div>
-    );
-  };
-
 
 
 
