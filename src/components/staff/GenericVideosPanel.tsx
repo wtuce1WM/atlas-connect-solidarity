@@ -945,7 +945,7 @@ const GenericVideosPanel = () => {
         ) : (() => {
           const accountField = platformTab === "instagram" ? "instagram_account" : platformTab === "tiktok" ? "tiktok_account" : "youtube_account";
           const platformVideos = videos.filter(v => !!(v as any)[accountField]);
-          const accounts = Array.from(new Set(platformVideos.map(v => (v as any)[accountField] as string | null).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+          const accounts = socialAccounts[platformTab];
           const activeFilter = platformTab === "instagram" ? filterIg : platformTab === "tiktok" ? filterTt : filterYt;
           const setActiveFilter = platformTab === "instagram" ? setFilterIg : platformTab === "tiktok" ? setFilterTt : setFilterYt;
           const counts = {
