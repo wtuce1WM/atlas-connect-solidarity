@@ -607,21 +607,19 @@ const TestNoteViewer = () => {
               {filteredGroups.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-4">Aucune vidéo pour cette sélection.</p>
               ) : (
-                <div
-                  className="grid w-full gap-3 items-start"
-                  style={{ gridTemplateColumns: "minmax(0, 60%) minmax(0, 40%)" }}
-                >
-                  <div className="grid min-w-0 grid-cols-4 gap-2">
-                    {filteredGroups.map(g => <GroupCard key={g.key} g={g} />)}
+                <div className="flex w-full gap-4 items-start">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap gap-3">
+                      {filteredGroups.map(g => (
+                        <div key={g.key} style={{ width: 240 }}>
+                          <GroupCard g={g} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <aside className="min-w-0 rounded-lg border bg-muted/20 p-3 h-[calc(100vh-7rem)] overflow-hidden sticky top-24">
-                    {!selectedKey ? (
-                      <p className="text-xs text-muted-foreground">Sélectionnez une vidéo pour modifier ses badges.</p>
-                    ) : (
-                      <BadgePanel members={videos.filter(v => v.url === selectedKey)} />
-                    )}
-                  </aside>
+                  <RightBadgePanel />
                 </div>
+
               )}
             </div>
 
