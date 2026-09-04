@@ -1,6 +1,7 @@
 import React from "react";
 import { ExternalLink, MapPin, CalendarCheck, ShoppingBag, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
+import ViewerInfoBar from "@/components/slidepanel/ViewerInfoBar";
 import { OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import AppStoreCard from "@/components/cards/AppStoreCard";
@@ -301,7 +302,7 @@ export function CtaBar({
   return (
     <div
       dir="ltr"
-      className={`${cardsHidden && showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`}
+      className={`${cardsHidden && showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : (infoSlot ? 'shrink-0' : 'shrink-0 py-2 lg:pb-2')} flex flex-col items-center ${infoSlot ? '' : 'gap-2'} ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`}
       style={hideStyle}
     >
       {!cardsHidden && appStoreLinks && appStoreLinks.length > 0 && (
@@ -318,11 +319,10 @@ export function CtaBar({
       )}
 
 
-      {/* Barre info viewer (+ éventuels CTAs propres à la fiche).
-          Le fond se prolonge derrière la barre Play/Mute/IA/Lieu/Profil sans ajouter
-          de hauteur visible : le padding inférieur est compensé par la marge négative. */}
+      {/* Barre info viewer (+ éventuels CTAs propres à la fiche) :
+          enveloppe partagée avec VideoSlidePanel (ViewerInfoBar). */}
       {infoSlot && !aiOverlayActive ? (
-        <div className="relative w-[calc(100%-0.25rem)] max-w-[480px] mx-auto rounded-t-2xl border-x border-b-0 border-white/10 md:w-[calc(100%-1rem)] md:max-w-[450px] pointer-events-auto bg-gradient-to-b from-black/55 to-black/85 backdrop-blur-[14px] shadow-[0_8px_32px_rgba(0,0,0,0.45)] pb-[calc(72px+env(safe-area-inset-bottom))] -mb-[calc(72px+env(safe-area-inset-bottom))] md:pb-[72px] md:-mb-[72px]">
+        <ViewerInfoBar>
           {infoSlot}
 
           {restCtas.length > 0 && (
@@ -332,8 +332,9 @@ export function CtaBar({
               ))}
             </div>
           )}
-        </div>
+        </ViewerInfoBar>
       ) : (
+
 
         restCtas.length > 0 && (
           <div className={`${restCtas.length === 1 ? 'w-auto max-w-[95%] md:max-w-[92%] [&_a]:!w-auto [&_button]:!w-auto [&_a]:px-4 [&_button]:px-4' : `${restCtas.length === 2 || restCtas.length === 3 ? 'w-[95%]' : 'w-4/5'} md:w-[92%]`} md:px-0 pointer-events-auto ${restCtas.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
