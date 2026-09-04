@@ -1133,7 +1133,14 @@ const Club = () => {
 
   return (
     <div className="min-h-screen bg-[#C04F17] text-white overflow-x-hidden">
-      <HomeMindtripHeader alwaysWhite forceHamburger={!!user} customMobileLinks={clubMobileLinks} />
+      <FrontHeader
+        fixed
+        visible
+        solid
+        hideLanguageSwitch
+        links={clubMobileLinks}
+        onLogoClick={() => navigate("/")}
+      />
 
       {user && (
 
