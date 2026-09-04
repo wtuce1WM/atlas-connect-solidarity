@@ -295,11 +295,12 @@ const TestNoteViewer = () => {
   const badgeSource = (v: VideoDoc): AssignmentSource => (v.source === "generic" ? "generic" : "document");
 
   /** Panneau de droite "Badges & Villes" partagé avec l'onglet Génériques. */
-  const RightBadgePanel = ({ deselectAfterSave }: { deselectAfterSave?: boolean }) => {
+  const RightBadgePanel = (_props: { deselectAfterSave?: boolean }) => {
     if (!selectedKey) return null;
     const members = videos.filter(v => v.url === selectedKey);
     if (members.length === 0) return null;
     const [primary, ...rest] = members;
+    const savedKey = selectedKey;
     return (
       <div className="w-1/2 shrink-0 sticky top-24 h-[calc(100vh-7rem)] overflow-hidden border-l bg-card rounded-lg">
         <InlineBadgeSubcatCityAssignment
@@ -309,8 +310,14 @@ const TestNoteViewer = () => {
           onClose={() => setSelectedKey(null)}
           onSaved={async () => {
             await refreshGroupBadges(members);
-            if (deselectAfterSave) setSelectedKey(null);
+            setLastModifiedKey(savedKey);
+            setSelectedKey(null);
           }}
+        />
+      </div>
+    );
+  };
+
         />
       </div>
     );
