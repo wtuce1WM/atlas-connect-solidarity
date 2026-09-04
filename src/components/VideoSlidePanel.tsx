@@ -571,6 +571,9 @@ const VideoSlidePanel = ({
     return () => { el.removeEventListener("wheel", onWheel); window.clearTimeout(resetTimer); };
   }, [open]);
 
+  // Navigation HORIZONTALE entre les médias : voir effet mediaNav plus bas.
+
+
 
   const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(ctaBusiness?.id ? String(ctaBusiness.id) : undefined);
   const videoLikeSource = isGeneric ? "generic" as const : "business" as const;
@@ -734,6 +737,44 @@ const VideoSlidePanel = ({
     if (totalMedia <= 1) return;
     setMediaIdx((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
+
+  // Navigation HORIZONTALE entre les médias du business hôte :
+  // touchpad (geste 2 doigts → wheel deltaX) + flèches ←/→.
+  // Le swipe tactile horizontal est géré dans onTouchEnd du panneau.
+  const mediaNav = useRef({ enabled: false, total: 1, go: (_d: 1 | -1) => {} });
+  mediaNav.current = { enabled: wheelNav.current.enabled, total: totalMedia, go: goMedia };
+  useEffect(() => {
+    if (!open) return;
+    const el = panelRef.current;
+    if (!el) return;
+    let lockedUntil = 0;
+    const onWheelX = (e: WheelEvent) => {
+      const s = mediaNav.current;
+      if (!s.enabled || s.total <= 1) return;
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      if (Math.abs(e.deltaX) < 40) return;
+      e.preventDefault();
+      const now = Date.now();
+      if (now < lockedUntil) return;
+      lockedUntil = now + 400;
+      s.go(e.deltaX > 0 ? 1 : -1);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      const s = mediaNav.current;
+      if (!s.enabled || s.total <= 1) return;
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      const t = e.target as Element | null;
+      if (t && t.closest("input, textarea, [contenteditable='true']")) return;
+      e.preventDefault();
+      s.go(e.key === "ArrowRight" ? 1 : -1);
+    };
+    el.addEventListener("wheel", onWheelX, { passive: false });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      el.removeEventListener("wheel", onWheelX);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
   const viewUrl = activeMedia?.kind === "video" ? (activeMedia.url as string) : videoUrl;
   const [navPillExpanded, setNavPillExpanded] = useState(false);
   const navPillRef = useRef<HTMLDivElement>(null);
@@ -1029,8 +1070,11 @@ const VideoSlidePanel = ({
           if (swipeHandled.current || swipeStartY.current === null || swipeStartX.current === null) return;
           const dy = e.touches[0].clientY - swipeStartY.current;
           const dx = e.touches[0].clientX - swipeStartX.current;
-          // Prevent native scroll once the gesture is clearly vertical
+          // Prevent native scroll once the gesture is clearly vertical…
           if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx) * 1.5) {
+            e.preventDefault();
+          } else if (totalMedia > 1 && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+            // …ou clairement horizontal (navigation entre médias)
             e.preventDefault();
           }
         } : undefined}
@@ -1045,6 +1089,9 @@ const VideoSlidePanel = ({
             if (absY > 60 && absY > absX * 1.5) {
               if (dy < 0 && hasNext) onNext?.();
               else if (dy > 0 && hasPrev) onPrev?.();
+            } else if (absX > 50 && absX > absY * 1.5 && totalMedia > 1) {
+              // Swipe horizontal → média précédent/suivant du business hôte
+              goMedia(dx < 0 ? 1 : -1);
             }
           }
           resetSwipe();
