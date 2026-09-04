@@ -11,7 +11,7 @@ import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { X, ChevronUp, ChevronDown, Youtube, MapPin, ExternalLink } from "lucide-react";
+import { X, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Youtube, MapPin, ExternalLink } from "lucide-react";
 import { GiWalkingBoot } from "react-icons/gi";
 import { InstagramIcon, YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
@@ -33,6 +33,7 @@ import { formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/h
 import { buildKpSearchUrl } from "@/lib/buildKpSearchUrl";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 import { usePanelVideoPlayback } from "@/hooks/usePanelVideoPlayback";
+import { useMediaItems } from "@/hooks/useMediaItems";
 import { useVideoView } from "@/hooks/useVideoView";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
@@ -687,6 +688,67 @@ const VideoSlidePanel = ({
   useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
   useEffect(() => { setSoundOnRef.current = setSoundOn; }, [setSoundOn]);
 
+  // ─── Médias du business hôte (navigation horizontale, comme BookOnlineSlidePanel) ───
+  const hostBusinessId = owner?.id || pageBusinessId || null;
+  const [hostBiz, setHostBiz] = useState<any>(null);
+  const [hostVideoDocs, setHostVideoDocs] = useState<any[]>([]);
+  useEffect(() => {
+    if (!open || !hostBusinessId) { setHostBiz(null); setHostVideoDocs([]); return; }
+    let cancelled = false;
+    (async () => {
+      const [bizRes, docsRes] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select("id, images, prioritize_images, show_videos, matterport_url")
+          .eq("id", hostBusinessId)
+          .maybeSingle(),
+        supabase
+          .from("business_documents")
+          .select("id, url, thumbnail_url, sort_order")
+          .eq("business_id", hostBusinessId)
+          .eq("type", "video")
+          .order("sort_order"),
+      ]);
+      if (cancelled) return;
+      setHostBiz(bizRes.data || null);
+      const seen = new Set<string>();
+      setHostVideoDocs(((docsRes.data || []) as any[]).filter((d) => {
+        if (!d.url || seen.has(d.url)) return false;
+        seen.add(d.url);
+        return true;
+      }));
+    })();
+    return () => { cancelled = true; };
+  }, [open, hostBusinessId]);
+  const hostVideoUrls = useMemo(() => hostVideoDocs.map((d) => d.url as string), [hostVideoDocs]);
+  const { mediaItems: hostMediaItems } = useMediaItems(hostBiz, hostVideoUrls, hostVideoDocs);
+  const mediaList = useMemo(() => {
+    const base: any[] = videoUrl ? [{ kind: "video", url: videoUrl }] : [];
+    return [...base, ...hostMediaItems.filter((m) => m.url !== videoUrl)];
+  }, [videoUrl, hostMediaItems]);
+  const totalMedia = mediaList.length;
+  const [mediaIdx, setMediaIdx] = useState(0);
+  useEffect(() => { setMediaIdx(0); }, [videoId, videoUrl]);
+  const activeMedia = totalMedia > 0 ? mediaList[Math.min(mediaIdx, totalMedia - 1)] : null;
+  const goMedia = useCallback((dir: 1 | -1) => {
+    if (totalMedia <= 1) return;
+    setMediaIdx((prev) => (prev + dir + totalMedia) % totalMedia);
+  }, [totalMedia]);
+  const viewUrl = activeMedia?.kind === "video" ? (activeMedia.url as string) : videoUrl;
+  const [navPillExpanded, setNavPillExpanded] = useState(false);
+  const navPillRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!navPillExpanded) return;
+    const close = (e: PointerEvent) => {
+      const target = e.target as Node | null;
+      if (navPillRef.current && target && !navPillRef.current.contains(target)) setNavPillExpanded(false);
+    };
+    document.addEventListener("pointerdown", close, { passive: true });
+    return () => document.removeEventListener("pointerdown", close);
+  }, [navPillExpanded]);
+
+
+
 
   // Log a view whenever a video becomes active in the panel.
   // Generic videos have an id; for business "internal" videos we fall back to the URL.
@@ -922,10 +984,10 @@ const VideoSlidePanel = ({
     return !!target.closest('button, a, input, textarea, select, label, [role="button"], [data-cta], [data-cta-tap], [data-sound-toggle="true"]');
   };
 
-  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: soundOn, controls: false });
+  const embed = getVideoEmbed(viewUrl || videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: soundOn, controls: false });
   let embedUrl = embed.embedUrl;
   if (embed.type === "youtube") {
-    const ytId = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
+    const ytId = (viewUrl || videoUrl).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
     embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`);
     // On garde toujours mute=1 dans l'URL : un autoplay non muté est bloqué par
     // Chrome/Safari et le lecteur reste alors en "unstarted" (iframe non cliquable).
@@ -1261,32 +1323,76 @@ const VideoSlidePanel = ({
         })()}
 
 
-        {/* Pilule chevrons haut/bas — identique à BookOnlineSlidePanel (desktop + mobile) */}
-        {(hasPrev || hasNext) && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
+        {/* Pilule 4 chevrons repliable — identique à BookOnlineSlidePanel */}
+        {(hasPrev || hasNext || totalMedia > 1) && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1 rounded-l-full border border-r-0 border-white/10 bg-black/80 backdrop-blur-md shadow-[-4px_4px_12px_rgba(0,0,0,0.3)] py-2 px-1 pointer-events-auto">
-            <button
-              type="button"
-              data-cta-tap
-              aria-label="Vidéo précédente"
-              disabled={!hasPrev}
-              onClick={(e) => { e.stopPropagation(); onPrev?.(); }}
-              className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white active:scale-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <ChevronUp className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              data-cta-tap
-              aria-label="Vidéo suivante"
-              disabled={!hasNext}
-              onClick={(e) => { e.stopPropagation(); onNext?.(); }}
-              className="flex items-center justify-center h-9 w-9 text-white/90 hover:text-white active:scale-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <ChevronDown className="h-5 w-5" />
-            </button>
+          <div
+            ref={navPillRef}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center rounded-l-full border border-r-0 border-white/10 bg-black/80 backdrop-blur-md shadow-[-4px_4px_12px_rgba(0,0,0,0.3)] py-1 px-1 pointer-events-auto transition-all duration-300"
+            onMouseOver={() => setNavPillExpanded(true)}
+            onMouseLeave={() => setNavPillExpanded(false)}
+          >
+            {!navPillExpanded ? (
+              <button
+                type="button"
+                data-cta-tap
+                aria-label="Ouvrir la navigation"
+                onClick={(e) => { e.stopPropagation(); setNavPillExpanded(true); }}
+                className="flex items-center justify-center h-7 w-7 text-white/90 hover:text-white active:scale-90 transition-all"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+            ) : (
+              <div className="flex flex-col items-center gap-0.5 animate-fade-in">
+                <button
+                  type="button"
+                  data-cta-tap
+                  aria-label="Vidéo précédente"
+                  disabled={!hasPrev}
+                  onClick={(e) => { e.stopPropagation(); onPrev?.(); }}
+                  className="flex items-center justify-center h-8 w-8 text-white/90 hover:text-white disabled:text-white/25 active:scale-90 transition-all"
+                >
+                  <ChevronUp className="h-5 w-5" />
+                </button>
+
+                {totalMedia > 1 && (
+                  <div className="flex items-center gap-0.5">
+                    <button
+                      type="button"
+                      data-cta-tap
+                      aria-label="Média précédent"
+                      onClick={(e) => { e.stopPropagation(); goMedia(-1); }}
+                      className="flex items-center justify-center h-8 w-8 text-white/90 hover:text-white active:scale-90 transition-all"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      type="button"
+                      data-cta-tap
+                      aria-label="Média suivant"
+                      onClick={(e) => { e.stopPropagation(); goMedia(1); }}
+                      className="flex items-center justify-center h-8 w-8 text-white/90 hover:text-white active:scale-90 transition-all"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  data-cta-tap
+                  aria-label="Vidéo suivante"
+                  disabled={!hasNext}
+                  onClick={(e) => { e.stopPropagation(); onNext?.(); }}
+                  className="flex items-center justify-center h-8 w-8 text-white/90 hover:text-white disabled:text-white/25 active:scale-90 transition-all"
+                >
+                  <ChevronDown className="h-5 w-5" />
+                </button>
+              </div>
+            )}
           </div>
         )}
+
 
 
         {/* Tableau de 3 colonnes de chips badges en haut de la vidéo — feed uniquement.
@@ -1398,11 +1504,27 @@ const VideoSlidePanel = ({
           <div className="relative bg-black overflow-hidden w-full h-full">
             {showYoutubeOverlay ? (
               <div className="w-full h-full bg-black" />
+            ) : activeMedia && activeMedia.kind === "image" ? (
+              <img
+                src={activeMedia.url}
+                alt=""
+                className="w-full h-full object-cover"
+                loading="eager"
+              />
+            ) : activeMedia && activeMedia.kind === "matterport" ? (
+              <iframe
+                src={activeMedia.url}
+                className="w-full h-full"
+                allow="fullscreen; vr"
+                allowFullScreen
+                frameBorder={0}
+                style={{ border: 0 }}
+              />
             ) : embed.type === "file" ? (
               <FrozenFrameVideo
                 videoRef={videoRef}
-                src={videoUrl}
-                videoKey={videoId || videoUrl}
+                src={viewUrl || videoUrl}
+                videoKey={`${videoId || videoUrl}|${mediaIdx}`}
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />
 
@@ -1419,7 +1541,7 @@ const VideoSlidePanel = ({
                     )}
                     <iframe
                       ref={iframeRef}
-                      key={videoId || videoUrl}
+                      key={`${videoId || videoUrl}|${mediaIdx}`}
                       src={embedUrl}
                       className={
                         embed.type === "youtube"
