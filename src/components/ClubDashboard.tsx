@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { businessUrl } from "@/lib/businessUrl";
 import digitalIdCardAsset from "@/assets/digital-id-card.webp.asset.json";
 import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag, Sparkles, Mail } from "lucide-react";
