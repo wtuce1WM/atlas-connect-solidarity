@@ -23,6 +23,13 @@ import type { SidebarMode } from "./video-assignment/BadgeAssignmentSidebar";
 import { VideoRelationChips, useVideoRelationCounts, type RelationCounts } from "./video-assignment/VideoRelationChips";
 import type { AssignmentSource } from "./video-assignment/VideoAssignmentPanels";
 
+/**
+ * Les lignes « générique » sont dédoublées par lien (id composite `gv-<videoId>-<relId>`).
+ * Les panneaux d'affectation doivent utiliser l'ID réel de l'entité.
+ */
+const realEntityId = (v: { id: string; source: string; business_id: string }) =>
+  v.source === "generic" ? v.business_id : v.id;
+
 interface PoiVideo {
   id: string;
   url: string;
@@ -150,7 +157,7 @@ const PoiVideosPanel = () => {
   const [lastModifiedId, setLastModifiedId] = useState<string | null>(null);
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("tags");
   const relationItems = useMemo(
-    () => videos.map(v => ({ id: v.id, source: (v.source === "generic" ? "generic" : "document") as AssignmentSource })),
+    () => videos.map(v => ({ id: realEntityId(v), source: (v.source === "generic" ? "generic" : "document") as AssignmentSource })),
     [videos],
   );
   const { counts: relationCounts, refreshCounts } = useVideoRelationCounts(relationItems);
@@ -467,7 +474,7 @@ const PoiVideosPanel = () => {
                         onPlay={setLightboxUrl}
                         onSelect={(id) => { setSidebarMode("tags"); setSelectedVideoId(id); }}
                         onOpenPanel={(id, mode) => { setSidebarMode(mode); setSelectedVideoId(id); }}
-                        counts={relationCounts.get(v.id)}
+                        counts={relationCounts.get(realEntityId(v))}
                         selected={selectedVideoId === v.id}
                         justModified={lastModifiedId === v.id}
                       />
@@ -479,7 +486,7 @@ const PoiVideosPanel = () => {
                 <BadgeAssignmentSidebar
                   source={selectedBadgeVideo.source === "generic" ? "generic" : "document"}
                   video={{
-                    id: selectedBadgeVideo.id,
+                    id: realEntityId(selectedBadgeVideo),
                     url: selectedBadgeVideo.url,
                     name: selectedBadgeVideo.name,
                     thumbnail_url: selectedBadgeVideo.thumbnail_url,
