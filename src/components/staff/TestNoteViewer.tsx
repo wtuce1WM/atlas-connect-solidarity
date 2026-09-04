@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Play, Copy } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import VideoLightbox from "./VideoLightbox";
 import { isInternalVideoUrl } from "@/lib/videoSourceFilter";
@@ -22,7 +23,7 @@ const NOTE_ID = "919622ac-3bfe-4e3e-ab64-0dfeb3bd1696";
 const fetchAllPaged = async (
   build: (from: number, to: number) => any,
   page = 1000,
-  parallel = 5,
+  parallel = 2,
 ): Promise<any[]> => {
   const out: any[] = [];
   let offset = 0;
@@ -105,6 +106,8 @@ const TestNoteViewer = () => {
   const [noteLoading, setNoteLoading] = useState(true);
   const [videosLoading, setVideosLoading] = useState(false);
   const [videosLoaded, setVideosLoaded] = useState(false);
+  const [videosLoadError, setVideosLoadError] = useState<string | null>(null);
+  const [videosLoadAttempt, setVideosLoadAttempt] = useState(0);
   const [city, setCity] = useState<string>("none");
   const [badge, setBadge] = useState<string>("none");
   const [badges, setBadges] = useState<{ id: string; name_fr: string }[]>([]);
@@ -367,12 +370,13 @@ const TestNoteViewer = () => {
 
   // Heavy fetch: only when entering a sub-tab that needs videos
   useEffect(() => {
-    if (videosLoaded || videosLoading) return;
+    if (videosLoaded || videosLoading || videosLoadError) return;
     if (activeTab === "badgees" && city === "none") return;
     if (activeTab !== "badgees" && activeTab !== "tobadge") return;
 
     (async () => {
       setVideosLoading(true);
+      setVideosLoadError(null);
       try {
         const [
           rawDocs,
@@ -525,12 +529,19 @@ const TestNoteViewer = () => {
           }
         })();
       } catch (e: any) {
-        toast.error("Erreur de chargement des vidéos : " + (e?.message || e));
+        const message = e?.message || String(e);
+        setVideosLoadError(message);
+        toast.error("Erreur de chargement des vidéos : " + message);
       } finally {
         setVideosLoading(false);
       }
     })();
-  }, [activeTab, city, videosLoaded, videosLoading]);
+  }, [activeTab, city, videosLoaded, videosLoading, videosLoadError, videosLoadAttempt]);
+
+  const retryVideosLoad = () => {
+    setVideosLoadError(null);
+    setVideosLoadAttempt(attempt => attempt + 1);
+  };
 
   const matchesCity = (v: VideoDoc) =>
     city === "none" ? false :
@@ -606,6 +617,14 @@ const TestNoteViewer = () => {
           {videosLoading && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
               <Loader2 className="h-4 w-4 animate-spin" /> Chargement des vidéos…
+            </div>
+          )}
+          {videosLoadError && (
+            <div className="flex items-center gap-3 py-4 text-sm text-destructive">
+              <span>Le chargement a échoué : {videosLoadError}</span>
+              <Button type="button" size="sm" variant="outline" onClick={retryVideosLoad}>
+                Relancer
+              </Button>
             </div>
           )}
           <div className="flex items-center gap-4 flex-wrap">
@@ -684,6 +703,14 @@ const TestNoteViewer = () => {
           {videosLoading && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
               <Loader2 className="h-4 w-4 animate-spin" /> Chargement des vidéos…
+            </div>
+          )}
+          {videosLoadError && (
+            <div className="flex items-center gap-3 py-4 text-sm text-destructive">
+              <span>Le chargement a échoué : {videosLoadError}</span>
+              <Button type="button" size="sm" variant="outline" onClick={retryVideosLoad}>
+                Relancer
+              </Button>
             </div>
           )}
           {(() => {
