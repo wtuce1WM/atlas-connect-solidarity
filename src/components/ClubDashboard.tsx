@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { businessUrl } from "@/lib/businessUrl";
 import digitalIdCardAsset from "@/assets/digital-id-card.webp.asset.json";
 import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag, Sparkles, Mail } from "lucide-react";
@@ -11,7 +11,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { User as UserIcon, MapPin, Plane, Lightbulb, Bell, Home, Bot } from "lucide-react";
 import ClubTrips from "@/components/club/ClubTrips";
 import BookmarkTripLinker from "@/components/club/BookmarkTripLinker";
-import ClubAiAssistant from "@/components/club/ClubAiAssistant";
+// Onglet « Assistant IA » du Club : même moteur que l'assistant de la Home
+// (EmbedAsk), monté en surface `club` — les suggestions/relances sont lues sur
+// la surface `club` en base. Remplace le fork ClubAiAssistant.
+const EmbedAskInline = lazy(() => import("@/pages/EmbedAsk"));
 import AiChatsList from "@/components/club/AiChatsList";
 import { MessageCircle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -895,7 +898,12 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="assistant" className="mt-6">
-          <ClubAiAssistant userId={user.id} />
+          {/* Shell immersif type Home : fond sombre, assistant plein cadre. */}
+          <div className="relative h-[calc(100dvh-13rem)] min-h-[480px] w-full overflow-hidden rounded-2xl bg-[hsl(0_0%_4%)]">
+            <Suspense fallback={<div className="h-full w-full bg-[hsl(0_0%_4%)]" />}>
+              <EmbedAskInline paramsOverride="scope=club&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light&persist=0" />
+            </Suspense>
+          </div>
         </TabsContent>
 
         <TabsContent value="notifications" className="mt-6">

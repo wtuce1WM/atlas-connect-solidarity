@@ -665,7 +665,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // assistant 1WM global, conversation NON liée à un établissement hôte.
   // `ctx` = slug du business d'origine (vidéo/fiche) : ne sert qu'à filtrer
   // les suggestions par ville/catégorie côté client — jamais envoyé au moteur.
-  const isPlatform = !slug && /^(1|true|platform)$/i.test(params.get("scope") || "");
+  const isPlatform = !slug && /^(1|true|platform|club)$/i.test(params.get("scope") || "");
+  // Surface Club (/club) : mêmes mécanismes que la surface plateforme (aucun business
+  // hôte), mais suggestions et relances lues sur la surface `club` en base.
+  const isClubScope = !slug && /^club$/i.test((params.get("scope") || "").trim());
+  const suggestionSurface = isClubScope ? "club" : "embed";
   // Dans la Home, cette route vit dans une iframe. Si le preview est actualisé
   // directement sur son URL, proposer une sortie explicite sans modifier les embeds externes.
   const isTopLevelPlatform = isPlatform && !paramsOverride && typeof window !== "undefined" && window.self === window.top;
@@ -762,7 +766,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Affichage immédiat : les suggestions du dernier chargement sont relues
   // synchrone (mémoire puis localStorage) pour que les chips soient peintes dès
   // la première frame ; la requête réseau rafraîchit ensuite la liste.
-  const suggCacheKey = `owm-ask-sugg2:${isPlatform ? "platform" : "host"}:${lang}`;
+  const suggCacheKey = `owm-ask-sugg2:${isClubScope ? "club" : isPlatform ? "platform" : "host"}:${lang}`;
   const readSuggCache = (): SuggestionRow[] | null => {
     const mem = SUGG_MEM_CACHE.get(suggCacheKey);
     if (mem) return mem;
@@ -1540,7 +1544,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     (async () => {
       const data = await publicSelect(
         "ai_suggestions",
-        "select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode,subcategory_ids,badge_ids&surface=eq.embed&is_active=eq.true&order=sort_order.asc",
+        `select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode,subcategory_ids,badge_ids&surface=eq.${suggestionSurface}&is_active=eq.true&order=sort_order.asc`,
       );
       if (cancelled) return;
       if (!data) {
@@ -1558,6 +1562,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           // Mode plateforme 1WM : le périmètre est la base entière. Seul le flag
           // « Visible plateforme 1WM » décide — aucun filtre ville/catégorie
           // hérité du business `ctx` (sinon la liste tombait à 4 puces).
+          // Surface club : toutes les suggestions actives de la surface sont visibles
+          // (le flag `is_platform_visible` ne pilote que la surface embed/plateforme).
+          if (isClubScope) return true;
           if (isPlatform) return r.is_platform_visible === true;
           const c = normCity(r.city);
           if (c && c !== bizCity) return false;
@@ -1589,24 +1596,20 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       cancelled = true;
       window.clearTimeout(loadingTimeout);
     };
-  }, [lang, isPlatform, suggestionFilterCity, suggestionFilterCategory]);
-
-
-
-
+  }, [lang, isPlatform, isClubScope, suggestionSurface, suggestionFilterCity, suggestionFilterCategory]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const data = await publicSelect(
         "ai_followups",
-        "select=id,label_fr,label_en,label_ar,is_platform_visible&surface=eq.embed&is_active=eq.true&order=sort_order.asc",
+        `select=id,label_fr,label_en,label_ar,is_platform_visible&surface=eq.${suggestionSurface}&is_active=eq.true&order=sort_order.asc`,
       );
       if (cancelled || !data) return;
       setGlobalFollowups(data as FollowupRow[]);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [suggestionSurface]);
 
   // Préférences Agent IA de l'établissement (onglet Agent IA côté affilié).
   useEffect(() => {
