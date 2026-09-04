@@ -33,6 +33,7 @@ import { formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/h
 import { buildKpSearchUrl } from "@/lib/buildKpSearchUrl";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 import { usePanelVideoPlayback } from "@/hooks/usePanelVideoPlayback";
+import { useMediaItems } from "@/hooks/useMediaItems";
 import { useVideoView } from "@/hooks/useVideoView";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
