@@ -14,6 +14,11 @@ import {
   arrayMove, SortableContext, useSortable, rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import {
+  BadgeAssignmentSidebar,
+  JustModifiedBanner,
+  justModifiedCardClass,
+} from "./video-assignment/BadgeAssignmentSidebar";
 
 interface PoiVideo {
   id: string;
@@ -42,12 +47,19 @@ interface CityOption { name: string; sort_order: number; }
 
 const NONE_CITY = "__none__";
 
-const SortableVideoCard = ({ video, index, onPlay }: { video: PoiVideo; index: number; onPlay: (url: string) => void }) => {
+const SortableVideoCard = ({ video, index, onPlay, onSelect, selected = false, justModified = false }: { video: PoiVideo; index: number; onPlay: (url: string) => void; onSelect?: (id: string) => void; selected?: boolean; justModified?: boolean }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: video.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
-    <div ref={setNodeRef} style={{ ...style, width: 220 }} data-video-id={video.id} className="flex flex-col rounded-lg border bg-background p-1.5 transition-[outline]">
+    <div
+      ref={setNodeRef}
+      style={{ ...style, width: 220 }}
+      data-video-id={video.id}
+      onClick={() => onSelect?.(video.id)}
+      className={`relative flex flex-col rounded-lg border bg-background p-1.5 transition-colors ${onSelect ? "cursor-pointer" : ""} ${selected ? "border-primary ring-2 ring-primary" : "hover:border-muted-foreground/30"} ${justModified ? justModifiedCardClass : ""}`}
+    >
+      {justModified && <JustModifiedBanner />}
       <div className="flex items-center gap-1 mb-1">
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground">
           <GripVertical className="h-4 w-4" />
@@ -124,6 +136,8 @@ const PoiVideosPanel = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [lastModifiedId, setLastModifiedId] = useState<string | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -422,15 +436,42 @@ const PoiVideosPanel = () => {
           {filteredVideos.length === 0 ? (
             <p className="text-sm text-muted-foreground py-8 text-center">Aucune vidéo pour cette sélection.</p>
           ) : (
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={filteredVideos.map(v => v.id)} strategy={rectSortingStrategy}>
-                <div className="flex flex-wrap gap-2">
-                  {filteredVideos.map((v, i) => (
-                    <SortableVideoCard key={v.id} video={v} index={i} onPlay={setLightboxUrl} />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
+            <div className="flex gap-4 items-start">
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={filteredVideos.map(v => v.id)} strategy={rectSortingStrategy}>
+                  <div className={`flex flex-wrap gap-2 ${selectedVideoId ? "w-1/2" : "w-full"}`}>
+                    {filteredVideos.map((v, i) => (
+                      <SortableVideoCard
+                        key={v.id}
+                        video={v}
+                        index={i}
+                        onPlay={setLightboxUrl}
+                        onSelect={setSelectedVideoId}
+                        selected={selectedVideoId === v.id}
+                        justModified={lastModifiedId === v.id}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+              {selectedBadgeVideo && (
+                <BadgeAssignmentSidebar
+                  source={selectedBadgeVideo.source === "generic" ? "generic" : "document"}
+                  video={{
+                    id: selectedBadgeVideo.id,
+                    url: selectedBadgeVideo.url,
+                    name: selectedBadgeVideo.name,
+                    thumbnail_url: selectedBadgeVideo.thumbnail_url,
+                    city: selectedBadgeVideo.city,
+                  }}
+                  onClose={() => setSelectedVideoId(null)}
+                  onSaved={() => {
+                    setLastModifiedId(selectedBadgeVideo.id);
+                    setSelectedVideoId(null);
+                  }}
+                />
+              )}
+            </div>
           )}
         </>
       )}
