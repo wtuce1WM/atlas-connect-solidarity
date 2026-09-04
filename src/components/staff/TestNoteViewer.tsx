@@ -114,6 +114,35 @@ const TestNoteViewer = () => {
   const [assigning, setAssigning] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [draftBadgeIds, setDraftBadgeIds] = useState<string[]>([]);
+  const [lastModifiedKey, setLastModifiedKey] = useState<string | null>(null);
+  const [cityOptions, setCityOptions] = useState<string[]>([]);
+
+  // Villes ayant au moins 1 business actif avec une vidéo interne
+  useEffect(() => {
+    if (activeTab !== "badgees" || cityOptions.length > 0) return;
+    (async () => {
+      try {
+        const rows = await fetchAllPaged((f, t) =>
+          (supabase
+            .from("business_documents")
+            .select("url, businesses!inner(city, is_active)")
+            .eq("type", "video")
+            .eq("businesses.is_active", true)
+            .order("id")
+            .range(f, t)) as any);
+        const set = new Set<string>();
+        (rows as any[]).forEach((r: any) => {
+          const c = r?.businesses?.city;
+          if (c && isInternalVideoUrl(r.url)) set.add(c);
+        });
+        setCityOptions([...set].sort((a, b) => a.localeCompare(b, "fr")));
+      } catch (e: any) {
+        console.warn("Villes indisponibles :", e?.message || e);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
 
   // Sync draft when selecting a video group (union des badges de tous les IDs)
   useEffect(() => {
