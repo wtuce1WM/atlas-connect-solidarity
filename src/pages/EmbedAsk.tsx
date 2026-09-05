@@ -1767,19 +1767,39 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // neutralisation du « stick-to-bottom » liée aux boutons flottants s'annule.
     const releaseSuppress = () => { stickSuppressUntilRef.current = 0; };
     // Intention de remonter dans la conversation : désactive le collage en bas.
-    const onWheelIntent = (e: WheelEvent) => { if (e.deltaY < 0) stickDisabledRef.current = true; releaseSuppress(); };
+    const onWheelIntent = (e: WheelEvent) => {
+      if (e.deltaY < 0) {
+        stickDisabledRef.current = true;
+        upIntentUntilRef.current = performance.now() + 1200;
+      }
+      releaseSuppress();
+    };
     let lastTouchY: number | null = null;
-    const onTouchStart = (e: TouchEvent) => { lastTouchY = e.touches[0]?.clientY ?? null; releaseSuppress(); };
+    const onTouchStart = (e: TouchEvent) => {
+      touchActiveRef.current = true;
+      lastTouchY = e.touches[0]?.clientY ?? null;
+      releaseSuppress();
+    };
     const onTouchMove = (e: TouchEvent) => {
       const y = e.touches[0]?.clientY;
       if (y == null || lastTouchY == null) { lastTouchY = y ?? null; return; }
       // Doigt vers le bas = contenu vers le haut (scrollTop diminue).
-      if (y - lastTouchY > 4) stickDisabledRef.current = true;
+      if (y - lastTouchY > 4) {
+        stickDisabledRef.current = true;
+        upIntentUntilRef.current = performance.now() + 1200;
+      }
       lastTouchY = y;
+    };
+    const onTouchEnd = () => {
+      touchActiveRef.current = false;
+      // L'inertie iOS continue après le doigt : on garde la garde un moment.
+      upIntentUntilRef.current = Math.max(upIntentUntilRef.current, performance.now() + 600);
     };
     el.addEventListener("wheel", onWheelIntent, { passive: true });
     el.addEventListener("touchstart", onTouchStart, { passive: true });
     el.addEventListener("touchmove", onTouchMove, { passive: true });
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
+    el.addEventListener("touchcancel", onTouchEnd, { passive: true });
     const ro = new ResizeObserver(compute);
     ro.observe(el);
     return () => {
