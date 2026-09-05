@@ -1627,7 +1627,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setDbSuggestions(list);
       if (list.length > 0) {
         SUGG_MEM_CACHE.set(suggCacheKey, list);
-        try { window.localStorage.setItem(suggCacheKey, JSON.stringify(list)); } catch { /* quota */ }
+        const stamp = (data as { updated_at?: string }[])
+          .map((r) => String(r.updated_at ?? ""))
+          .sort()
+          .pop() ?? "";
+        try {
+          window.localStorage.setItem(suggCacheKey, JSON.stringify(list));
+          if (stamp) window.localStorage.setItem(suggStampKey, stamp);
+        } catch { /* quota */ }
       }
 
     })();
