@@ -974,12 +974,22 @@ Deno.serve(async (req) => {
                     const wantedNames = vi.panoramas.flatMap((p) => p.attributeNames);
                     const { data: badgeRows } = await admin
                       .from("badges").select("id, name_fr").in("name_fr", wantedNames);
-                    const badgeIds = (badgeRows || []).map((b: any) => String(b.id));
+                    const badgeNameById = new Map<string, string>(
+                      (badgeRows || []).map((b: any) => [String(b.id), String(b.name_fr)]),
+                    );
+                    const badgeIds = [...badgeNameById.keys()];
+                    const badgeNamesByBiz = new Map<string, string[]>();
                     let byBadgeIds: string[] = [];
                     if (badgeIds.length) {
                       const { data: links } = await admin
-                        .from("business_badges").select("business_id").in("badge_id", badgeIds).limit(2000);
-                      byBadgeIds = [...new Set((links || []).map((l: any) => String(l.business_id)))];
+                        .from("business_badges").select("business_id, badge_id").in("badge_id", badgeIds).limit(2000);
+                      for (const l of links || []) {
+                        const k = String((l as any).business_id);
+                        const n = badgeNameById.get(String((l as any).badge_id));
+                        if (!n) continue;
+                        badgeNamesByBiz.set(k, [...(badgeNamesByBiz.get(k) || []), n]);
+                      }
+                      byBadgeIds = [...badgeNamesByBiz.keys()];
                     }
                     const candidates: any[] = [];
                     for (let i = 0; i < byBadgeIds.length; i += 80) {
@@ -996,10 +1006,6 @@ Deno.serve(async (req) => {
                         .filter(Boolean).map((c: any) => normalize(c));
                       return hay.some((h) => catNorm.includes(h));
                     });
-                    const badgeNamesByBiz = new Map<string, string[]>();
-                    for (const b of sameTaxo) {
-                      badgeNamesByBiz.set(String(b.id), wantedNames);
-                    }
                     const kept = sameTaxo
                       .filter((b: any) => vi.panoramas.some((p) =>
                         hasPanoramaAttribute(p, {
