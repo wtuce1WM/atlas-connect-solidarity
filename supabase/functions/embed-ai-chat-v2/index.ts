@@ -917,10 +917,10 @@ Deno.serve(async (req) => {
               try {
                 const { data: bb } = await admin
                   .from("business_badges")
-                  .select("business_id, badges(name)")
+                  .select("business_id, badges(name_fr)")
                   .in("business_id", poolIds.slice(0, 200));
                 for (const l of bb || []) {
-                  const n = (l as any)?.badges?.name;
+                  const n = (l as any)?.badges?.name_fr;
                   if (!n) continue;
                   const k = String((l as any).business_id);
                   badgesByBiz.set(k, [...(badgesByBiz.get(k) || []), String(n)]);
@@ -1871,12 +1871,12 @@ Deno.serve(async (req) => {
               const ids = kept.map((b: any) => b.id);
               const [{ data: coords }, { data: bb }] = await Promise.all([
                 admin.from("businesses").select("id, latitude, longitude, services, description, name").in("id", ids),
-                admin.from("business_badges").select("business_id, badges(name)").in("business_id", ids),
+                admin.from("business_badges").select("business_id, badges(name_fr)").in("business_id", ids),
               ]);
               const coordById = new Map((coords || []).map((c: any) => [c.id, c]));
               const badgesById = new Map<string, string[]>();
               for (const row of (bb as any[]) || []) {
-                const name = (row as any).badges?.name;
+                const name = (row as any).badges?.name_fr;
                 if (!name) continue;
                 const arr = badgesById.get(row.business_id) || [];
                 arr.push(name);
@@ -2255,10 +2255,10 @@ Deno.serve(async (req) => {
               Promise.all(chunks.map((c) => fetchPriorFull(admin, c, c.length))),
               Promise.all(chunks.map((c) => admin.from("businesses").select("id, services").in("id", c))),
               Promise.all(chunks.map((c) =>
-                admin.from("business_badges").select("business_id, badges(name)").in("business_id", c))),
+                admin.from("business_badges").select("business_id, badges(name_fr)").in("business_id", c))),
               Promise.all(chunks.map((c) =>
                 admin.from("business_documents")
-                  .select("business_id, business_document_badges(badges(name))")
+                  .select("business_id, business_document_badges(badges(name_fr))")
                   .in("business_id", c))),
             ]);
             const poolRowsAll = poolRowsChunks.flat();
@@ -2275,7 +2275,7 @@ Deno.serve(async (req) => {
             const svcById = new Map((svcRows ?? []).map((r: any) => [String(r.id), (r.services ?? []) as string[]]));
             const badgesById = new Map<string, string[]>();
             for (const row of (badgeRows as any[]) ?? []) {
-              const name = (row as any).badges?.name;
+              const name = (row as any).badges?.name_fr;
               if (!name) continue;
               const arr = badgesById.get(String(row.business_id)) || [];
               arr.push(String(name));
