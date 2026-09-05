@@ -917,10 +917,10 @@ Deno.serve(async (req) => {
               try {
                 const { data: bb } = await admin
                   .from("business_badges")
-                  .select("business_id, badges(name)")
+                  .select("business_id, badges(name_fr)")
                   .in("business_id", poolIds.slice(0, 200));
                 for (const l of bb || []) {
-                  const n = (l as any)?.badges?.name;
+                  const n = (l as any)?.badges?.name_fr;
                   if (!n) continue;
                   const k = String((l as any).business_id);
                   badgesByBiz.set(k, [...(badgesByBiz.get(k) || []), String(n)]);
@@ -929,21 +929,32 @@ Deno.serve(async (req) => {
                 console.error("[embed-ai-chat-v2] pool_view_badges_failed", String(e));
               }
 
-              const keptIds = rows.filter((b: any) => {
+              // Deux passes : les ATTRIBUTS (badges/services « Vue sur mer »…)
+              // font foi. La preuve textuelle n'est qu'un secours si l'attribut
+              // ne retient personne — sinon un simple « mer » dans une
+              // description de villa marrakchie devenait une vue sur mer.
+              const evalBiz = (b: any, allowText: boolean) => {
                 const text = [b.name, b.hook_fr, b.hook_en, b.description].filter(Boolean).join(" ");
                 const attrs = { services: b.services, badgeNames: badgesByBiz.get(String(b.id)) || [] };
-                const panoOk = vi.panoramas.some((p) => hasPanoramaAttribute(p, attrs) || hasPanoramaProof(p, text));
+                const panoOk = vi.panoramas.some((p) =>
+                  hasPanoramaAttribute(p, attrs) || (allowText && hasPanoramaProof(p, text)));
                 const pointOk = vi.points.some((p) =>
                   (withinPointRadius(p, b.latitude, b.longitude) && hasVantage(attrs, text)) ||
-                  hasPointViewProof(p, text)
+                  (allowText && hasPointViewProof(p, text))
                 );
                 return panoOk || pointOk;
-              }).map((b: any) => String(b.id));
+              };
+              let keptIds = rows.filter((b: any) => evalBiz(b, false)).map((b: any) => String(b.id));
+              const strict = keptIds.length;
+              if (!keptIds.length) {
+                keptIds = rows.filter((b: any) => evalBiz(b, true)).map((b: any) => String(b.id));
+              }
 
               console.log("[embed-ai-chat-v2] pool_view_refine", JSON.stringify({
-                pool: poolIds.length, kept: keptIds.length,
+                pool: poolIds.length, kept: keptIds.length, strictAttr: strict,
                 panoramas: vi.panoramas.map((p) => p.slug), points: vi.points.map((p) => p.slug),
               }));
+
 
               if (keptIds.length) {
                 // Ordre du pool préservé.
@@ -1871,12 +1882,12 @@ Deno.serve(async (req) => {
               const ids = kept.map((b: any) => b.id);
               const [{ data: coords }, { data: bb }] = await Promise.all([
                 admin.from("businesses").select("id, latitude, longitude, services, description, name").in("id", ids),
-                admin.from("business_badges").select("business_id, badges(name)").in("business_id", ids),
+                admin.from("business_badges").select("business_id, badges(name_fr)").in("business_id", ids),
               ]);
               const coordById = new Map((coords || []).map((c: any) => [c.id, c]));
               const badgesById = new Map<string, string[]>();
               for (const row of (bb as any[]) || []) {
-                const name = (row as any).badges?.name;
+                const name = (row as any).badges?.name_fr;
                 if (!name) continue;
                 const arr = badgesById.get(row.business_id) || [];
                 arr.push(name);
@@ -2255,10 +2266,10 @@ Deno.serve(async (req) => {
               Promise.all(chunks.map((c) => fetchPriorFull(admin, c, c.length))),
               Promise.all(chunks.map((c) => admin.from("businesses").select("id, services").in("id", c))),
               Promise.all(chunks.map((c) =>
-                admin.from("business_badges").select("business_id, badges(name)").in("business_id", c))),
+                admin.from("business_badges").select("business_id, badges(name_fr)").in("business_id", c))),
               Promise.all(chunks.map((c) =>
                 admin.from("business_documents")
-                  .select("business_id, business_document_badges(badges(name))")
+                  .select("business_id, business_document_badges(badges(name_fr))")
                   .in("business_id", c))),
             ]);
             const poolRowsAll = poolRowsChunks.flat();
@@ -2275,7 +2286,7 @@ Deno.serve(async (req) => {
             const svcById = new Map((svcRows ?? []).map((r: any) => [String(r.id), (r.services ?? []) as string[]]));
             const badgesById = new Map<string, string[]>();
             for (const row of (badgeRows as any[]) ?? []) {
-              const name = (row as any).badges?.name;
+              const name = (row as any).badges?.name_fr;
               if (!name) continue;
               const arr = badgesById.get(String(row.business_id)) || [];
               arr.push(String(name));
