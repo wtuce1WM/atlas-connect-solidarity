@@ -200,31 +200,46 @@ const FEED_PLACE_TYPE_GUARDS: Array<{ badgeName: string; re: RegExp }> = [
   },
 ];
 
+// Ensemble des établissements autorisés par le type de lieu nommé dans le
+// message (`null` = pas de type nommé / pas de croisement à faire).
+async function placeTypeAllowedIds(
+  admin: any,
+  message: string,
+  curatedBadgeIds: string[] | null | undefined,
+): Promise<{ badgeName: string; ids: Set<string> } | null> {
+  const hay = ` ${normalize(message)} `;
+  const hit = FEED_PLACE_TYPE_GUARDS.find((g) => g.re.test(hay));
+  if (!hit) return null;
+  const { data: badgeRow } = await admin
+    .from("badges").select("id").eq("name_fr", hit.badgeName).maybeSingle();
+  const badgeId = badgeRow?.id ? String(badgeRow.id) : null;
+  if (!badgeId) return null;
+  // La suggestion cible déjà ce type de lieu : rien à croiser.
+  if ((curatedBadgeIds || []).map(String).includes(badgeId)) return null;
+
+  const ids = new Set<string>();
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await admin
+      .from("business_badges").select("business_id").eq("badge_id", badgeId).range(from, from + 999);
+    if (error) return null;
+    for (const r of (data as any[]) || []) ids.add(String(r.business_id));
+    if (!data || data.length < 1000) break;
+  }
+  if (!ids.size) return null;
+  return { badgeName: hit.badgeName, ids };
+}
+
 async function applyFeedPlaceTypeGuard(
   admin: any,
   feed: any,
   message: string,
   curatedBadgeIds: string[] | null | undefined,
 ): Promise<any | null> {
-  const hay = ` ${normalize(message)} `;
-  const hit = FEED_PLACE_TYPE_GUARDS.find((g) => g.re.test(hay));
-  if (!hit) return feed;
-  const { data: badgeRow } = await admin
-    .from("badges").select("id").eq("name_fr", hit.badgeName).maybeSingle();
-  const badgeId = badgeRow?.id ? String(badgeRow.id) : null;
-  if (!badgeId) return feed;
-  // La suggestion cible déjà ce type de lieu : rien à croiser.
-  if ((curatedBadgeIds || []).map(String).includes(badgeId)) return feed;
+  const guard = await placeTypeAllowedIds(admin, message, curatedBadgeIds);
+  if (!guard) return feed;
+  const { badgeName: hitName, ids: allowed } = guard;
+  const hit = { badgeName: hitName };
 
-  const allowed = new Set<string>();
-  for (let from = 0; ; from += 1000) {
-    const { data, error } = await admin
-      .from("business_badges").select("business_id").eq("badge_id", badgeId).range(from, from + 999);
-    if (error) return feed;
-    for (const r of (data as any[]) || []) allowed.add(String(r.business_id));
-    if (!data || data.length < 1000) break;
-  }
-  if (!allowed.size) return feed;
 
   const before = (feed?.payload?.videos || []).length;
   const kept = (feed?.payload?.videos || []).filter(
