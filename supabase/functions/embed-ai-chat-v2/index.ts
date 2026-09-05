@@ -1001,11 +1001,8 @@ Deno.serve(async (req) => {
                       candidates.push(...(data || []));
                     }
                     const catNorm = catList.map((c) => normalize(c));
-                    const sameTaxo = candidates.filter((b: any) => {
-                      const hay = [b.main_category, ...(Array.isArray(b.categories) ? b.categories : [])]
-                        .filter(Boolean).map((c: any) => normalize(c));
-                      return hay.some((h) => catNorm.includes(h));
-                    });
+                    const sameTaxo = candidates.filter((b: any) =>
+                      catNorm.includes(normalize(String(b.main_category || ""))));
                     const kept = sameTaxo
                       .filter((b: any) => vi.panoramas.some((p) =>
                         hasPanoramaAttribute(p, {
