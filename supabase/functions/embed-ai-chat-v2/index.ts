@@ -1054,7 +1054,15 @@ Deno.serve(async (req) => {
               console.error("[embed-ai-chat-v2] video_feed_failed", String(e));
               return null;
             });
-            if (built) {
+            const guarded = built
+              ? await applyFeedPlaceTypeGuard(admin, built, userMessage, curated.badgeIds).catch((e) => {
+                  console.error("[embed-ai-chat-v2] feed_place_type_guard_failed", String(e));
+                  return built;
+                })
+              : null;
+            if (guarded) {
+              const built = guarded;
+
               route = built.route;
               resultsCount = built.count;
               // Mode combiné : on n'émet PAS le texte d'annonce du feed
