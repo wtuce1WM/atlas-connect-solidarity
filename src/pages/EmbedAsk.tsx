@@ -1719,6 +1719,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // L'utilisateur a délibérément scrollé vers le haut : on désactive le collage
   // automatique en bas jusqu'à ce qu'il revienne lui-même tout en bas.
   const stickDisabledRef = useRef(false);
+  // Fenêtre pendant laquelle une intention de remontée interdit tout recollage
+  // automatique en bas, et suivi d'un geste tactile en cours.
+  const upIntentUntilRef = useRef(0);
+  const touchActiveRef = useRef(false);
   useEffect(() => {
     if (stickDisabledRef.current) return;
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
