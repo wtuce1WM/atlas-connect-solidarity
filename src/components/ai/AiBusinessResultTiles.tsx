@@ -62,7 +62,8 @@ function todayHours(b: AiResultBusiness): { label: string | null; isOpen: boolea
 
 function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: boolean) {
   const [cols, setCols] = useState(2);
-  useEffect(() => {
+  const [measured, setMeasured] = useState(false);
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     // Le panneau droit peut s'ouvrir avant que `compact` soit propagé à la
@@ -70,8 +71,11 @@ function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: bool
     // doit néanmoins rester immédiatement en 2 colonnes, même si elle mesure
     // moins de 640 px après le partage 50/50.
     const compute = (w: number) => {
+      if (!w) return;
       const desktopViewport = window.matchMedia("(min-width: 768px)").matches;
-      setCols(w < 640 ? (desktopViewport ? 2 : 1) : w < 1024 ? 2 : compact ? 2 : 4);
+      const next = w < 640 ? (desktopViewport ? 2 : 1) : w < 1024 ? 2 : compact ? 2 : 4;
+      setCols((prev) => (prev === next ? prev : next));
+      setMeasured(true);
     };
     compute(el.clientWidth);
     const ro = new ResizeObserver((entries) => {
@@ -85,8 +89,9 @@ function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: bool
       window.removeEventListener("resize", onResize);
     };
   }, [ref, compact]);
-  return cols;
+  return { cols, measured };
 }
+
 
 const AiBusinessResultTiles = ({
   businesses, origin, lang = "fr", rankOrder, onOpen, onOpenBooking, footer, max = 20, compact = false,
