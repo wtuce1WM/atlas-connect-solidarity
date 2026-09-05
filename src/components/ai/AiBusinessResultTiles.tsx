@@ -97,7 +97,7 @@ const AiBusinessResultTiles = ({
   businesses, origin, lang = "fr", rankOrder, onOpen, onOpenBooking, footer, max = 20, compact = false,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const cols = useContainerColumns(wrapRef, compact);
+  const { cols, measured } = useContainerColumns(wrapRef, compact);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const t = L[(lang as keyof typeof L) in L ? (lang as keyof typeof L) : "fr"];
@@ -108,8 +108,9 @@ const AiBusinessResultTiles = ({
   return (
     <div ref={wrapRef} className="w-full flex flex-col gap-2">
       <div
-        className="grid gap-3 transition-[grid-template-columns] duration-500"
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+        className={cn("grid gap-3", measured && "transition-[grid-template-columns] duration-500")}
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, visibility: measured ? undefined : "hidden" }}
+
       >
         {list.map((b, idx) => {
           const podium = ranked && idx < 3 ? PODIUM[idx] : null;
