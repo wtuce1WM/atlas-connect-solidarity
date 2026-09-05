@@ -961,14 +961,14 @@ Deno.serve(async (req) => {
               let viewWidened = false;
               if (!keptIds.length && vi.panoramas.length) {
                 try {
+                  // Seule la catégorie PRINCIPALE du pool fait foi : les
+                  // `categories` secondaires d'un hôtel (Restaurant, Bar…)
+                  // ramenaient des restaurants sur « location villa ».
                   const cats = new Set<string>();
                   for (const b of rows) {
                     if (b.main_category) cats.add(String(b.main_category));
-                    for (const c of Array.isArray(b.categories) ? b.categories : []) {
-                      if (c) cats.add(String(c));
-                    }
                   }
-                  const catList = [...cats].slice(0, 12);
+                  const catList = [...cats].slice(0, 6);
                   if (catList.length) {
                     // 1) Candidats par badge de vue (source d'attributs la plus fiable).
                     const wantedNames = vi.panoramas.flatMap((p) => p.attributeNames);
