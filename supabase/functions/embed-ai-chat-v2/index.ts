@@ -180,7 +180,70 @@ function lastResultsIndex(messages: UIMessage[]): number {
 }
 
 
+// ── Garde-fou « type de lieu » sur un feed vidéo curaté ─────────────────────
+// Une suggestion curatée en mode `video_feed` (ex. « Les adresses avec vue sur
+// mer ») porte un badge thématique qui ignore le type de lieu ajouté par
+// l'utilisateur (« hôtel avec vue sur mer » ramenait un restaurant). Quand le
+// message nomme explicitement un type de lieu, on croise le pool curaté avec
+// les établissements portant le badge de ce type (`business_badges`) :
+//   restaurants  → « Où manger ? »   |   hôtels / riads → « Où dormir ? »
+// Pas de repli silencieux : si le croisement est vide, le feed n'est pas émis
+// et le tour repart sur la recherche standard.
+const FEED_PLACE_TYPE_GUARDS: Array<{ badgeName: string; re: RegExp }> = [
+  {
+    badgeName: "Où dormir ?",
+    re: /\b(hotel|hotels|riad|riads|maison d hote|maison d hotes|maisons d hotes|guesthouse|guest house|auberge|auberges|hostel|dormir|loger|hebergement|chambre|chambres)\b/,
+  },
+  {
+    badgeName: "Où manger ?",
+    re: /\b(restaurant|restaurants|resto|restos|manger|dejeuner|diner|brunch|gastronomique|gastronomie)\b/,
+  },
+];
+
+async function applyFeedPlaceTypeGuard(
+  admin: any,
+  feed: any,
+  message: string,
+  curatedBadgeIds: string[] | null | undefined,
+): Promise<any | null> {
+  const hay = ` ${normalize(message)} `;
+  const hit = FEED_PLACE_TYPE_GUARDS.find((g) => g.re.test(hay));
+  if (!hit) return feed;
+  const { data: badgeRow } = await admin
+    .from("badges").select("id").eq("name_fr", hit.badgeName).maybeSingle();
+  const badgeId = badgeRow?.id ? String(badgeRow.id) : null;
+  if (!badgeId) return feed;
+  // La suggestion cible déjà ce type de lieu : rien à croiser.
+  if ((curatedBadgeIds || []).map(String).includes(badgeId)) return feed;
+
+  const allowed = new Set<string>();
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await admin
+      .from("business_badges").select("business_id").eq("badge_id", badgeId).range(from, from + 999);
+    if (error) return feed;
+    for (const r of (data as any[]) || []) allowed.add(String(r.business_id));
+    if (!data || data.length < 1000) break;
+  }
+  if (!allowed.size) return feed;
+
+  const before = (feed?.payload?.videos || []).length;
+  const kept = (feed?.payload?.videos || []).filter(
+    (v: any) => v?.business_id && allowed.has(String(v.business_id)),
+  );
+  console.log("[embed-ai-chat-v2] feed_place_type_guard", JSON.stringify({
+    badge: hit.badgeName, before, after: kept.length,
+  }));
+  if (!kept.length) return null;
+  return {
+    ...feed,
+    count: kept.length,
+    text: String(feed.text || "").replace(/\d+/, String(kept.length)),
+    payload: { ...feed.payload, videos: kept, total: kept.length },
+  };
+}
+
 /**
+
  * Marqueur `POOL_BUSINESS_IDS` — source de vérité UNIQUE du corpus complet du
  * tour. Il embarque aussi `nb` (comptes par quartier calculés sur la TOTALITÉ
  * du pool, pas sur les fiches affichées) : les badges de quartier du footer
