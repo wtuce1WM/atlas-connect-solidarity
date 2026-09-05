@@ -1807,6 +1807,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       el.removeEventListener("wheel", onWheelIntent);
       el.removeEventListener("touchstart", onTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+      el.removeEventListener("touchcancel", onTouchEnd);
       ro.disconnect();
     };
   }, [messages, streaming, homeState, autoHeight]);
