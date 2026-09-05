@@ -1601,14 +1601,23 @@ Deno.serve(async (req) => {
             // Même règle de périmètre : ville explicite du message > ville hôte ;
             // en scope plateforme sans ville nommée → national (pas de repli Marrakech).
             const badgeCity = explicitCity || (host ? scopeCity : null);
-            const badgeBizIds = await resolveBadgeBusinessIds(admin, [namedBadge.id], badgeCity, 60).catch((e) => {
+            const badgeBizIdsRaw = await resolveBadgeBusinessIds(admin, [namedBadge.id], badgeCity, 60).catch((e) => {
               console.error("[embed-ai-chat-v2] badge_video_route_failed", String(e));
               return [] as string[];
             });
+            // Garde-fou « type de lieu » : « hôtel vue sur mer » ne doit pas
+            // ramener un restaurant ni une base nautique portant le badge
+            // thématique. Croisement avec le badge de type (business_badges).
+            const namedGuard = await placeTypeAllowedIds(admin, userMessage, [namedBadge.id]).catch(() => null);
+            const badgeBizIds = namedGuard
+              ? badgeBizIdsRaw.filter((id) => namedGuard.ids.has(String(id)))
+              : badgeBizIdsRaw;
             console.log("[embed-ai-chat-v2] badge_named_route", JSON.stringify({
-              badge: namedBadge.name, city: badgeCity, found: badgeBizIds.length,
+              badge: namedBadge.name, city: badgeCity, found: badgeBizIdsRaw.length,
+              guard: namedGuard?.badgeName || null, kept: badgeBizIds.length,
             }));
             if (badgeBizIds.length >= 3) {
+
               let earlyEmitted = false;
               const built = await buildPinnedAnswer(
                 admin, badgeBizIds, host, lang, namedBadge.name,
