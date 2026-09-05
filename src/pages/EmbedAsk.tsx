@@ -2487,7 +2487,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       }
     })();
     return () => { cancelled = true; };
-  }, [openBusinessId, openSiblings, videoFeedList]);
+  }, [openBusinessId, openSiblings, videoFeedList, videoFeedCtx]);
 
 
 
