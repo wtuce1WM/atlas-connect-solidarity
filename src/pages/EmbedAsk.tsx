@@ -1741,10 +1741,21 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       // Toute remontée réelle (molette, barre de défilement, clavier, inertie
       // tactile) coupe le collage automatique : sans ça, le chargement des
       // images/cartes rappelait la vue en bas → tremblement visuel parasite.
-      if (el.scrollTop < lastTop - 2) stickDisabledRef.current = true;
+      if (el.scrollTop < lastTop - 2) {
+        stickDisabledRef.current = true;
+        upIntentUntilRef.current = performance.now() + 1200;
+      }
       lastTop = el.scrollTop;
-      // Retour manuel tout en bas : on réactive le collage automatique.
-      if (el.scrollHeight - el.scrollTop - el.clientHeight < 40) stickDisabledRef.current = false;
+      // Retour manuel tout en bas : on réactive le collage automatique, mais
+      // jamais pendant/juste après un geste de remontée (sinon le flux se
+      // recollait en bas au milieu du geste → tremblement).
+      if (
+        !touchActiveRef.current &&
+        performance.now() > upIntentUntilRef.current &&
+        el.scrollHeight - el.scrollTop - el.clientHeight < 8
+      ) {
+        stickDisabledRef.current = false;
+      }
     };
     compute();
     el.addEventListener("scroll", compute, { passive: true });
