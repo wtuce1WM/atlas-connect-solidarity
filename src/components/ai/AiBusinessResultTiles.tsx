@@ -61,24 +61,32 @@ function todayHours(b: AiResultBusiness): { label: string | null; isOpen: boolea
   return { label: label === "—" ? null : label, isOpen: isCurrentlyOpen(dh) };
 }
 
+/** Colonnes déduites d'une largeur de conteneur (aucun état intermédiaire visible). */
+function colsForWidth(w: number, compact: boolean) {
+  const desktopViewport = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+  return w < 640 ? (desktopViewport ? 2 : 1) : w < 1024 ? 2 : compact ? 2 : 4;
+}
+
 function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: boolean) {
-  const [cols, setCols] = useState(2);
-  const [measured, setMeasured] = useState(false);
+  // Estimation synchrone au premier rendu : la grille est peinte tout de suite
+  // avec le bon nombre de colonnes, donc pas de masquage ni de saut visuel.
+  const [cols, setCols] = useState(() => {
+    const w = typeof window === "undefined" ? 0 : window.innerWidth;
+    if (!w) return 2;
+    return colsForWidth(w >= 768 ? (compact ? w / 2 : w) : w, compact);
+  });
+  const animate = useRef(false);
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    // Le panneau droit peut s'ouvrir avant que `compact` soit propagé à la
-    // réponse déjà rendue. Sur un viewport desktop, la colonne de conversation
-    // doit néanmoins rester immédiatement en 2 colonnes, même si elle mesure
-    // moins de 640 px après le partage 50/50.
     const compute = (w: number) => {
       if (!w) return;
-      const desktopViewport = window.matchMedia("(min-width: 768px)").matches;
-      const next = w < 640 ? (desktopViewport ? 2 : 1) : w < 1024 ? 2 : compact ? 2 : 4;
+      const next = colsForWidth(w, compact);
       setCols((prev) => (prev === next ? prev : next));
-      setMeasured(true);
     };
     compute(el.clientWidth);
+    // Les changements ultérieurs (ouverture d'un panneau) peuvent s'animer.
+    const raf = requestAnimationFrame(() => { animate.current = true; });
     const ro = new ResizeObserver((entries) => {
       for (const e of entries) compute(e.contentRect.width);
     });
@@ -86,11 +94,12 @@ function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: bool
     const onResize = () => compute(el.clientWidth);
     window.addEventListener("resize", onResize);
     return () => {
+      cancelAnimationFrame(raf);
       ro.disconnect();
       window.removeEventListener("resize", onResize);
     };
   }, [ref, compact]);
-  return { cols, measured };
+  return { cols, measured: animate.current };
 }
 
 
@@ -110,8 +119,7 @@ const AiBusinessResultTiles = ({
     <div ref={wrapRef} className="w-full flex flex-col gap-2">
       <div
         className={cn("grid gap-3", measured && "transition-[grid-template-columns] duration-500")}
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, visibility: measured ? undefined : "hidden" }}
-
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
       >
         {list.map((b, idx) => {
           const podium = ranked && idx < 3 ? PODIUM[idx] : null;
