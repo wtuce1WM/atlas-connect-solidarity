@@ -119,8 +119,7 @@ const AiBusinessResultTiles = ({
     <div ref={wrapRef} className="w-full flex flex-col gap-2">
       <div
         className={cn("grid gap-3", measured && "transition-[grid-template-columns] duration-500")}
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, visibility: measured ? undefined : "hidden" }}
-
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
       >
         {list.map((b, idx) => {
           const podium = ranked && idx < 3 ? PODIUM[idx] : null;
