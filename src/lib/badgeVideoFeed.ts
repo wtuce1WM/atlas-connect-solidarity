@@ -591,6 +591,13 @@ export async function fetchBusinessDefaultFeedSuffix(
   businessId: string,
   excludeVideoIds: string[] = [],
   limit = 30,
+  /**
+   * Badges du contexte courant (suggestion / feed thématique). Quand ils sont
+   * fournis, le suffixe est limité à l'intersection « badges de fiche ∩ badges
+   * du contexte » : sans intersection, aucun suffixe (le feed reste strictement
+   * thématique).
+   */
+  contextBadgeIds?: string[] | null,
 ): Promise<BadgeVideoFeedItem[]> {
   if (!businessId) return [];
   const { data } = await (supabase as any)
@@ -602,10 +609,16 @@ export async function fetchBusinessDefaultFeedSuffix(
   );
   if (!badgeIds.length) return [];
 
+  const ctxIds = (contextBadgeIds || []).map(String).filter(Boolean);
+  const effectiveBadgeIds = ctxIds.length
+    ? badgeIds.filter((id) => ctxIds.includes(id))
+    : badgeIds;
+  if (!effectiveBadgeIds.length) return [];
+
   const exclude = new Set(excludeVideoIds.map(String));
   // Pool élargi puis filtrage : les vidéos déjà vues occupent souvent le début
   // du mélange (elles viennent du même périmètre).
-  const { items } = await fetchBadgesVideoFeed(badgeIds, {
+  const { items } = await fetchBadgesVideoFeed(effectiveBadgeIds, {
     seed: randomSeed(),
     limit: Math.min(Math.max(limit * 3, 60), 180),
   });
