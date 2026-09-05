@@ -907,7 +907,7 @@ Deno.serve(async (req) => {
               for (let i = 0; i < poolIds.length; i += 80) {
                 const { data } = await admin
                   .from("businesses")
-                  .select("id, name, hook_fr, hook_en, description, services, latitude, longitude")
+                  .select("id, name, main_category, categories, hook_fr, hook_en, description, services, latitude, longitude")
                   .eq("is_active", true)
                   .in("id", poolIds.slice(i, i + 80));
                 rows.push(...(data || []));
@@ -950,8 +950,84 @@ Deno.serve(async (req) => {
                 keptIds = rows.filter((b: any) => evalBiz(b, true)).map((b: any) => String(b.id));
               }
 
+              /**
+               * ÉLARGISSEMENT NATIONAL DE LA VUE. Sans ville explicite, le tour
+               * précédent (« location villa ») est résolu sur Marrakech : aucune
+               * adresse ne peut y porter « Vue sur mer ». Plutôt que de retomber
+               * sur un corpus curaté global (qui perd la taxonomie « villa »), on
+               * REJOUE la même taxonomie hors périmètre ville, filtrée sur
+               * l'attribut de vue.
+               */
+              let viewWidened = false;
+              if (!keptIds.length && vi.panoramas.length) {
+                try {
+                  // Seule la catégorie PRINCIPALE du pool fait foi : les
+                  // `categories` secondaires d'un hôtel (Restaurant, Bar…)
+                  // ramenaient des restaurants sur « location villa ».
+                  const cats = new Set<string>();
+                  for (const b of rows) {
+                    if (b.main_category) cats.add(String(b.main_category));
+                  }
+                  const catList = [...cats].slice(0, 6);
+                  if (catList.length) {
+                    // 1) Candidats par badge de vue (source d'attributs la plus fiable).
+                    const wantedNames = vi.panoramas.flatMap((p) => p.attributeNames);
+                    const { data: badgeRows } = await admin
+                      .from("badges").select("id, name_fr").in("name_fr", wantedNames);
+                    const badgeNameById = new Map<string, string>(
+                      (badgeRows || []).map((b: any) => [String(b.id), String(b.name_fr)]),
+                    );
+                    const badgeIds = [...badgeNameById.keys()];
+                    const badgeNamesByBiz = new Map<string, string[]>();
+                    let byBadgeIds: string[] = [];
+                    if (badgeIds.length) {
+                      const { data: links } = await admin
+                        .from("business_badges").select("business_id, badge_id").in("badge_id", badgeIds).limit(2000);
+                      for (const l of links || []) {
+                        const k = String((l as any).business_id);
+                        const n = badgeNameById.get(String((l as any).badge_id));
+                        if (!n) continue;
+                        badgeNamesByBiz.set(k, [...(badgeNamesByBiz.get(k) || []), n]);
+                      }
+                      byBadgeIds = [...badgeNamesByBiz.keys()];
+                    }
+                    const candidates: any[] = [];
+                    for (let i = 0; i < byBadgeIds.length; i += 80) {
+                      const { data } = await admin
+                        .from("businesses")
+                        .select("id, name, main_category, categories, hook_fr, hook_en, description, services, latitude, longitude, priority_score")
+                        .eq("is_active", true)
+                        .in("id", byBadgeIds.slice(i, i + 80));
+                      candidates.push(...(data || []));
+                    }
+                    const catNorm = catList.map((c) => normalize(c));
+                    const sameTaxo = candidates.filter((b: any) =>
+                      catNorm.includes(normalize(String(b.main_category || ""))));
+                    const kept = sameTaxo
+                      .filter((b: any) => vi.panoramas.some((p) =>
+                        hasPanoramaAttribute(p, {
+                          services: b.services,
+                          badgeNames: badgeNamesByBiz.get(String(b.id)) || [],
+                        })))
+                      .sort((a: any, b: any) => Number(b.priority_score ?? 0) - Number(a.priority_score ?? 0))
+                      .slice(0, 30)
+                      .map((b: any) => String(b.id));
+                    if (kept.length) {
+                      keptIds = kept;
+                      viewWidened = true;
+                    }
+                    console.log("[embed-ai-chat-v2] pool_view_national", JSON.stringify({
+                      cats: catList.length, byBadge: byBadgeIds.length,
+                      sameTaxo: sameTaxo.length, kept: kept.length,
+                    }));
+                  }
+                } catch (e) {
+                  console.error("[embed-ai-chat-v2] pool_view_national_failed", String(e));
+                }
+              }
+
               console.log("[embed-ai-chat-v2] pool_view_refine", JSON.stringify({
-                pool: poolIds.length, kept: keptIds.length, strictAttr: strict,
+                pool: poolIds.length, kept: keptIds.length, strictAttr: strict, widened: viewWidened,
                 panoramas: vi.panoramas.map((p) => p.slug), points: vi.points.map((p) => p.slug),
               }));
 
@@ -977,7 +1053,7 @@ Deno.serve(async (req) => {
                     emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
                   }
                   emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
-                  emit("\n\n" + await poolMarker(admin, ordered, scopeCity));
+                  emit("\n\n" + await poolMarker(admin, ordered, viewWidened ? null : scopeCity));
                   await emitDestChips(ordered);
                   await finish(true);
                   return;
