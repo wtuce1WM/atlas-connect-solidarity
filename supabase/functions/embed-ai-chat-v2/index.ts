@@ -950,8 +950,81 @@ Deno.serve(async (req) => {
                 keptIds = rows.filter((b: any) => evalBiz(b, true)).map((b: any) => String(b.id));
               }
 
+              /**
+               * ÉLARGISSEMENT NATIONAL DE LA VUE. Sans ville explicite, le tour
+               * précédent (« location villa ») est résolu sur Marrakech : aucune
+               * adresse ne peut y porter « Vue sur mer ». Plutôt que de retomber
+               * sur un corpus curaté global (qui perd la taxonomie « villa »), on
+               * REJOUE la même taxonomie hors périmètre ville, filtrée sur
+               * l'attribut de vue.
+               */
+              let viewWidened = false;
+              if (!keptIds.length && vi.panoramas.length) {
+                try {
+                  const cats = new Set<string>();
+                  for (const b of rows) {
+                    if (b.main_category) cats.add(String(b.main_category));
+                    for (const c of Array.isArray(b.categories) ? b.categories : []) {
+                      if (c) cats.add(String(c));
+                    }
+                  }
+                  const catList = [...cats].slice(0, 12);
+                  if (catList.length) {
+                    // 1) Candidats par badge de vue (source d'attributs la plus fiable).
+                    const wantedNames = vi.panoramas.flatMap((p) => p.attributeNames);
+                    const { data: badgeRows } = await admin
+                      .from("badges").select("id, name_fr").in("name_fr", wantedNames);
+                    const badgeIds = (badgeRows || []).map((b: any) => String(b.id));
+                    let byBadgeIds: string[] = [];
+                    if (badgeIds.length) {
+                      const { data: links } = await admin
+                        .from("business_badges").select("business_id").in("badge_id", badgeIds).limit(2000);
+                      byBadgeIds = [...new Set((links || []).map((l: any) => String(l.business_id)))];
+                    }
+                    const candidates: any[] = [];
+                    for (let i = 0; i < byBadgeIds.length; i += 80) {
+                      const { data } = await admin
+                        .from("businesses")
+                        .select("id, name, main_category, categories, hook_fr, hook_en, description, services, latitude, longitude, priority_score")
+                        .eq("is_active", true)
+                        .in("id", byBadgeIds.slice(i, i + 80));
+                      candidates.push(...(data || []));
+                    }
+                    const catNorm = catList.map((c) => normalize(c));
+                    const sameTaxo = candidates.filter((b: any) => {
+                      const hay = [b.main_category, ...(Array.isArray(b.categories) ? b.categories : [])]
+                        .filter(Boolean).map((c: any) => normalize(c));
+                      return hay.some((h) => catNorm.includes(h));
+                    });
+                    const badgeNamesByBiz = new Map<string, string[]>();
+                    for (const b of sameTaxo) {
+                      badgeNamesByBiz.set(String(b.id), wantedNames);
+                    }
+                    const kept = sameTaxo
+                      .filter((b: any) => vi.panoramas.some((p) =>
+                        hasPanoramaAttribute(p, {
+                          services: b.services,
+                          badgeNames: badgeNamesByBiz.get(String(b.id)) || [],
+                        })))
+                      .sort((a: any, b: any) => Number(b.priority_score ?? 0) - Number(a.priority_score ?? 0))
+                      .slice(0, 30)
+                      .map((b: any) => String(b.id));
+                    if (kept.length) {
+                      keptIds = kept;
+                      viewWidened = true;
+                    }
+                    console.log("[embed-ai-chat-v2] pool_view_national", JSON.stringify({
+                      cats: catList.length, byBadge: byBadgeIds.length,
+                      sameTaxo: sameTaxo.length, kept: kept.length,
+                    }));
+                  }
+                } catch (e) {
+                  console.error("[embed-ai-chat-v2] pool_view_national_failed", String(e));
+                }
+              }
+
               console.log("[embed-ai-chat-v2] pool_view_refine", JSON.stringify({
-                pool: poolIds.length, kept: keptIds.length, strictAttr: strict,
+                pool: poolIds.length, kept: keptIds.length, strictAttr: strict, widened: viewWidened,
                 panoramas: vi.panoramas.map((p) => p.slug), points: vi.points.map((p) => p.slug),
               }));
 
