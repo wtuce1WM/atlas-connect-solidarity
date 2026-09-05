@@ -264,6 +264,9 @@ async function applyFeedPlaceTypeGuard(
  * du pool, pas sur les fiches affichées) : les badges de quartier du footer
  * doivent annoncer 18 et non 6.
  */
+/** Taille max du pool annoncé/filtrable (marqueur POOL_BUSINESS_IDS). */
+const POOL_CAP = 60;
+
 async function poolMarker(admin: any, ids: string[], city: string | null): Promise<string> {
   const uniq = [...new Set(ids.map((x) => String(x)))];
   let nb: Record<string, number> = {};
@@ -2101,7 +2104,7 @@ Deno.serve(async (req) => {
             const apiTotal = Number(json?.totalCount ?? 0) || 0;
             totalFound = kept.length === all.length && apiTotal > kept.length ? apiTotal : kept.length;
 
-            searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, 30);
+            searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
             results = kept.slice(0, CFG.maxResults);
           } catch (e) {
             console.error("[embed-ai-chat-v2] search_failed", e);
@@ -2392,7 +2395,7 @@ Deno.serve(async (req) => {
               poolRefined = true;
               route = "pool_refine";
               totalFound = kept.length;
-              searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, 30);
+              searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
               results = kept.slice(0, CFG.maxResults);
               resultsCount = results.length;
             } else {
@@ -2437,7 +2440,7 @@ Deno.serve(async (req) => {
             route = "discover";
             cityDetected = destScope.name;
             totalFound = kept.length;
-            searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, 30);
+            searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
             results = kept.slice(0, CFG.maxResults);
             resultsCount = results.length;
             /**
@@ -2571,7 +2574,7 @@ Deno.serve(async (req) => {
         // Corpus de la relance contextuelle : règle unique — on filtre dans la
         // TOTALITÉ des résultats trouvés au tour précédent (marqueur POOL_BUSINESS_IDS,
         // ex. 30 adresses), jamais dans les seules 6 affichées.
-        const followUpPoolIds = (poolIds.length ? poolIds : priorIds).slice(0, 30);
+        const followUpPoolIds = (poolIds.length ? poolIds : priorIds).slice(0, POOL_CAP);
         let priorFull = (contextualFollowUp || (priorIds.length && !results.length))
           ? await fetchPriorFull(admin, followUpPoolIds).catch(() => [])
           : [];
