@@ -964,11 +964,21 @@ Deno.serve(async (req) => {
                   // Seule la catégorie PRINCIPALE du pool fait foi : les
                   // `categories` secondaires d'un hôtel (Restaurant, Bar…)
                   // ramenaient des restaurants sur « location villa ».
-                  const cats = new Set<string>();
+                  // …et seules les catégories DOMINANTES du pool : une poignée
+                  // de « Restauration » présente en marge d'un pool de villas
+                  // ramenait des restaurants côtiers sur « vue sur mer ».
+                  const counts = new Map<string, number>();
                   for (const b of rows) {
-                    if (b.main_category) cats.add(String(b.main_category));
+                    if (!b.main_category) continue;
+                    const k = String(b.main_category);
+                    counts.set(k, (counts.get(k) || 0) + 1);
                   }
-                  const catList = [...cats].slice(0, 6);
+                  const threshold = Math.max(2, Math.ceil(rows.length * 0.25));
+                  const catList = [...counts.entries()]
+                    .filter(([, n]) => n >= threshold)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 2)
+                    .map(([c]) => c);
                   if (catList.length) {
                     // 1) Candidats par badge de vue (source d'attributs la plus fiable).
                     const wantedNames = vi.panoramas.flatMap((p) => p.attributeNames);

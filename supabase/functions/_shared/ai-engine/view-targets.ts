@@ -116,9 +116,18 @@ export function hasPanoramaAttribute(
   return [...services, ...badges].some((v) => wanted.includes(v));
 }
 
-/** Preuve textuelle de secours (nom, hook, description, highlights…). */
+/**
+ * Preuve textuelle de secours (nom, hook, description, highlights…).
+ * EXIGE une expression de vue à proximité immédiate du mot déclencheur :
+ * « beach club » ou « près de la plage » ne sont PAS une vue sur mer
+ * (cas mesuré : « VIP at Marrakech » remonté sur « vue sur mer »).
+ */
 export function hasPanoramaProof(panorama: ViewPanorama, text: string): boolean {
-  return panorama.proof.test(normView(text));
+  const n = normView(text);
+  const token = panorama.proof.source.replace(/^\\b|\\b$/g, "");
+  const view = "(?:vue|vues|donnant\\s+sur|face\\s+(?:a|au|aux)|overlooking|views?|panoram\\w*)";
+  const near = new RegExp(`${view}[^.!?]{0,40}?\\b${token}\\b|\\b${token}\\b[^.!?]{0,25}?${view}`);
+  return near.test(n);
 }
 
 export function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
