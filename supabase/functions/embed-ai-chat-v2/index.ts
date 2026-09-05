@@ -200,31 +200,46 @@ const FEED_PLACE_TYPE_GUARDS: Array<{ badgeName: string; re: RegExp }> = [
   },
 ];
 
+// Ensemble des établissements autorisés par le type de lieu nommé dans le
+// message (`null` = pas de type nommé / pas de croisement à faire).
+async function placeTypeAllowedIds(
+  admin: any,
+  message: string,
+  curatedBadgeIds: string[] | null | undefined,
+): Promise<{ badgeName: string; ids: Set<string> } | null> {
+  const hay = ` ${normalize(message)} `;
+  const hit = FEED_PLACE_TYPE_GUARDS.find((g) => g.re.test(hay));
+  if (!hit) return null;
+  const { data: badgeRow } = await admin
+    .from("badges").select("id").eq("name_fr", hit.badgeName).maybeSingle();
+  const badgeId = badgeRow?.id ? String(badgeRow.id) : null;
+  if (!badgeId) return null;
+  // La suggestion cible déjà ce type de lieu : rien à croiser.
+  if ((curatedBadgeIds || []).map(String).includes(badgeId)) return null;
+
+  const ids = new Set<string>();
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await admin
+      .from("business_badges").select("business_id").eq("badge_id", badgeId).range(from, from + 999);
+    if (error) return null;
+    for (const r of (data as any[]) || []) ids.add(String(r.business_id));
+    if (!data || data.length < 1000) break;
+  }
+  if (!ids.size) return null;
+  return { badgeName: hit.badgeName, ids };
+}
+
 async function applyFeedPlaceTypeGuard(
   admin: any,
   feed: any,
   message: string,
   curatedBadgeIds: string[] | null | undefined,
 ): Promise<any | null> {
-  const hay = ` ${normalize(message)} `;
-  const hit = FEED_PLACE_TYPE_GUARDS.find((g) => g.re.test(hay));
-  if (!hit) return feed;
-  const { data: badgeRow } = await admin
-    .from("badges").select("id").eq("name_fr", hit.badgeName).maybeSingle();
-  const badgeId = badgeRow?.id ? String(badgeRow.id) : null;
-  if (!badgeId) return feed;
-  // La suggestion cible déjà ce type de lieu : rien à croiser.
-  if ((curatedBadgeIds || []).map(String).includes(badgeId)) return feed;
+  const guard = await placeTypeAllowedIds(admin, message, curatedBadgeIds);
+  if (!guard) return feed;
+  const { badgeName: hitName, ids: allowed } = guard;
+  const hit = { badgeName: hitName };
 
-  const allowed = new Set<string>();
-  for (let from = 0; ; from += 1000) {
-    const { data, error } = await admin
-      .from("business_badges").select("business_id").eq("badge_id", badgeId).range(from, from + 999);
-    if (error) return feed;
-    for (const r of (data as any[]) || []) allowed.add(String(r.business_id));
-    if (!data || data.length < 1000) break;
-  }
-  if (!allowed.size) return feed;
 
   const before = (feed?.payload?.videos || []).length;
   const kept = (feed?.payload?.videos || []).filter(
@@ -1160,15 +1175,33 @@ Deno.serve(async (req) => {
             fallbackReason = "no_results";
           }
 
+          // Garde-fou « type de lieu » sur les fiches curatées : « hôtel vue sur
+          // mer » ne doit pas ramener un restaurant ni une base nautique. Croise
+          // le corpus curaté avec le badge de type de lieu (business_badges).
+          const placeGuard = curated && keepCurated
+            ? await placeTypeAllowedIds(admin, userMessage, curated.badgeIds).catch(() => null)
+            : null;
+
           // Corpus clos SEULEMENT si l'entrée n'a aucun filtre taxonomique : sinon
           // les épinglés sont mis en avant en tête des résultats filtrés.
           const curatedHasTaxo = !!curated && (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length || curated.serviceNames.length) > 0;
-          if (curated && keepCurated && curated.pinnedBusinessIds.length && !curatedHasTaxo) {
+          const guardedPinnedIds = curated && placeGuard
+            ? curated.pinnedBusinessIds.filter((id) => placeGuard.ids.has(String(id)))
+            : (curated?.pinnedBusinessIds || []);
+          if (curated && keepCurated && guardedPinnedIds.length && !curatedHasTaxo) {
+            if (placeGuard) {
+              console.log("[embed-ai-chat-v2] pinned_place_type_guard", JSON.stringify({
+                badge: placeGuard.badgeName,
+                before: curated.pinnedBusinessIds.length,
+                after: guardedPinnedIds.length,
+              }));
+            }
             const built = await buildPinnedAnswer(
-              admin, curated.pinnedBusinessIds, host, lang, curated.label,
+              admin, guardedPinnedIds, host, lang, curated.label,
               {
                 competitorGuard,
                 restrictToIds: curatedPoolRestrict,
+
                 immersive: {
                   admin,
                   query: curated.label || userMessage,
@@ -1215,7 +1248,7 @@ Deno.serve(async (req) => {
               serviceNames: curated.serviceNames,
               commodities: curated.commodities,
               label: curated.label,
-              pinnedIds: curated.pinnedBusinessIds,
+              pinnedIds: guardedPinnedIds,
 
 
               // Périmètre ville : ville nommée dans le message > ville de la
@@ -1224,7 +1257,14 @@ Deno.serve(async (req) => {
               scopeCity: explicitCity || curated.city || (host ? scopeCity : null),
               maxResults: CFG.maxResults,
               competitorGuard,
-              restrictToIds: curatedPoolRestrict,
+              // Garde-fou type de lieu : on restreint le corpus curaté aux
+              // établissements portant le badge du type nommé.
+              restrictToIds: placeGuard
+                ? (curatedPoolRestrict.length
+                    ? curatedPoolRestrict.filter((id) => placeGuard.ids.has(String(id)))
+                    : [...placeGuard.ids])
+                : curatedPoolRestrict,
+
               supabaseUrl: SUPABASE_URL,
               serviceKey: SERVICE,
               immersive: {
@@ -1561,14 +1601,27 @@ Deno.serve(async (req) => {
             // Même règle de périmètre : ville explicite du message > ville hôte ;
             // en scope plateforme sans ville nommée → national (pas de repli Marrakech).
             const badgeCity = explicitCity || (host ? scopeCity : null);
-            const badgeBizIds = await resolveBadgeBusinessIds(admin, [namedBadge.id], badgeCity, 60).catch((e) => {
+            // Garde-fou « type de lieu » : « hôtel vue sur mer » ne doit pas
+            // ramener un restaurant ni une base nautique portant le badge
+            // thématique. Croisement avec le badge de type (business_badges).
+            // Corpus élargi avant croisement pour ne pas perdre de résultats.
+            const namedGuard = await placeTypeAllowedIds(admin, userMessage, [namedBadge.id]).catch(() => null);
+            const badgeBizIdsRaw = await resolveBadgeBusinessIds(
+              admin, [namedBadge.id], badgeCity, namedGuard ? 400 : 60,
+            ).catch((e) => {
               console.error("[embed-ai-chat-v2] badge_video_route_failed", String(e));
               return [] as string[];
             });
+            const badgeBizIds = namedGuard
+              ? badgeBizIdsRaw.filter((id) => namedGuard.ids.has(String(id))).slice(0, 60)
+              : badgeBizIdsRaw;
+
             console.log("[embed-ai-chat-v2] badge_named_route", JSON.stringify({
-              badge: namedBadge.name, city: badgeCity, found: badgeBizIds.length,
+              badge: namedBadge.name, city: badgeCity, found: badgeBizIdsRaw.length,
+              guard: namedGuard?.badgeName || null, kept: badgeBizIds.length,
             }));
             if (badgeBizIds.length >= 3) {
+
               let earlyEmitted = false;
               const built = await buildPinnedAnswer(
                 admin, badgeBizIds, host, lang, namedBadge.name,
