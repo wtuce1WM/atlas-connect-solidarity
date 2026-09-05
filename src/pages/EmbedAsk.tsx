@@ -2785,6 +2785,50 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     () => Array.from(new Set(Array.from(richByName.values()).map((b) => b.id).filter(Boolean))),
     [richByName],
   );
+
+  /**
+   * Contexte badge (suggestion `video_feed`, ex. « Rooftops ») : à l'ouverture
+   * d'une fiche, la 1re vidéo affichée doit être celle RATTACHÉE au badge du
+   * contexte, même si son `sort_order` n'est pas le premier. Hors contexte
+   * badge, on conserve l'ordre interne de la fiche.
+   */
+  const [badgeVideoUrlById, setBadgeVideoUrlById] = useState<Record<string, string>>({});
+  const feedBadgeIdsKey = (videoFeedCtx?.badgeIds ?? []).join(",");
+  useEffect(() => {
+    const badgeIds = feedBadgeIdsKey ? feedBadgeIdsKey.split(",") : [];
+    if (!badgeIds.length || !resultBusinessIds.length) {
+      setBadgeVideoUrlById({});
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data: docs } = await (supabase as any)
+        .from("business_documents")
+        .select("id,business_id,url,sort_order")
+        .in("business_id", resultBusinessIds)
+        .eq("type", "video")
+        .order("sort_order", { ascending: true });
+      const rows = (docs as any[]) || [];
+      if (cancelled || !rows.length) return;
+      const { data: links } = await (supabase as any)
+        .from("business_document_badges")
+        .select("document_id")
+        .in("badge_id", badgeIds)
+        .in("document_id", rows.map((r) => r.id));
+      if (cancelled) return;
+      const tagged = new Set(((links as any[]) || []).map((l) => String(l.document_id)));
+      const out: Record<string, string> = {};
+      for (const r of rows) {
+        const bid = String(r.business_id || "");
+        if (!bid || !r.url || out[bid] || !tagged.has(String(r.id))) continue;
+        out[bid] = String(r.url);
+      }
+      setBadgeVideoUrlById(out);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [feedBadgeIdsKey, resultBusinessIds]);
   useEffect(() => {
     if (!resultBusinessIds.length) {
       setGlovoUrlsById({});
