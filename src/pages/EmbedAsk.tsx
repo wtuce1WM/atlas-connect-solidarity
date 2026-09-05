@@ -770,6 +770,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // synchrone (mémoire puis localStorage) pour que les chips soient peintes dès
   // la première frame ; la requête réseau rafraîchit ensuite la liste.
   const suggCacheKey = `owm-ask-sugg2:${isClubScope ? "club" : isPlatform ? "platform" : "host"}:${lang}`;
+  // Le cache est versionné par l'empreinte `max(updated_at)` des suggestions :
+  // toute modification back-office (ex. badges d'une carte) l'invalide au
+  // chargement suivant, sans attendre un vidage manuel du navigateur.
+  const suggStampKey = `${suggCacheKey}:stamp`;
   const readSuggCache = (): SuggestionRow[] | null => {
     const mem = SUGG_MEM_CACHE.get(suggCacheKey);
     if (mem) return mem;
@@ -784,7 +788,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       return null;
     }
   };
+  const dropSuggCache = () => {
+    SUGG_MEM_CACHE.delete(suggCacheKey);
+    try {
+      window.localStorage.removeItem(suggCacheKey);
+      window.localStorage.removeItem(suggStampKey);
+    } catch { /* noop */ }
+  };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(() => readSuggCache());
+
 
   // Splash d'accueil supprimé : la landing IA s'affiche immédiatement, sans
   // écran intermédiaire (grand message → petit message).
