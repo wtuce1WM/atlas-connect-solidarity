@@ -1555,9 +1555,30 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     const cachedNow = readSuggCache();
     if (!cachedNow) setDbSuggestions(null);
 
+    // Vérification d'empreinte en parallèle : si le back-office a modifié une
+    // suggestion depuis le dernier chargement, le cache est purgé tout de suite
+    // pour qu'aucun clic ne parte sur d'anciens `badge_ids`.
+    if (cachedNow) {
+      void (async () => {
+        const stampRows = await publicSelect(
+          "ai_suggestions",
+          `select=updated_at&surface=eq.${suggestionSurface}&is_active=eq.true&order=updated_at.desc&limit=1`,
+        );
+        if (cancelled || !Array.isArray(stampRows) || stampRows.length === 0) return;
+        const stamp = String((stampRows[0] as { updated_at?: string }).updated_at ?? "");
+        let prev: string | null = null;
+        try { prev = window.localStorage.getItem(suggStampKey); } catch { /* noop */ }
+        if (stamp && prev !== stamp) {
+          dropSuggCache();
+          setDbSuggestions(null);
+        }
+      })();
+    }
+
     const loadingTimeout = window.setTimeout(() => {
       if (!cancelled) setDbSuggestions([]);
     }, 8000);
+
 
     (async () => {
       const data = await publicSelect(
