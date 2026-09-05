@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3.23.8";
 
 const BodySchema = z.object({
-  video_id: z.string().min(1).max(128),
+  video_id: z.string().min(1).max(512),
   video_source: z.enum(["youtube", "business", "generic"]),
 });
 
