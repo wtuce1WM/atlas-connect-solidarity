@@ -1719,6 +1719,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // L'utilisateur a délibérément scrollé vers le haut : on désactive le collage
   // automatique en bas jusqu'à ce qu'il revienne lui-même tout en bas.
   const stickDisabledRef = useRef(false);
+  // Fenêtre pendant laquelle une intention de remontée interdit tout recollage
+  // automatique en bas, et suivi d'un geste tactile en cours.
+  const upIntentUntilRef = useRef(0);
+  const touchActiveRef = useRef(false);
   useEffect(() => {
     if (stickDisabledRef.current) return;
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -1741,10 +1745,21 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       // Toute remontée réelle (molette, barre de défilement, clavier, inertie
       // tactile) coupe le collage automatique : sans ça, le chargement des
       // images/cartes rappelait la vue en bas → tremblement visuel parasite.
-      if (el.scrollTop < lastTop - 2) stickDisabledRef.current = true;
+      if (el.scrollTop < lastTop - 2) {
+        stickDisabledRef.current = true;
+        upIntentUntilRef.current = performance.now() + 1200;
+      }
       lastTop = el.scrollTop;
-      // Retour manuel tout en bas : on réactive le collage automatique.
-      if (el.scrollHeight - el.scrollTop - el.clientHeight < 40) stickDisabledRef.current = false;
+      // Retour manuel tout en bas : on réactive le collage automatique, mais
+      // jamais pendant/juste après un geste de remontée (sinon le flux se
+      // recollait en bas au milieu du geste → tremblement).
+      if (
+        !touchActiveRef.current &&
+        performance.now() > upIntentUntilRef.current &&
+        el.scrollHeight - el.scrollTop - el.clientHeight < 8
+      ) {
+        stickDisabledRef.current = false;
+      }
     };
     compute();
     el.addEventListener("scroll", compute, { passive: true });
@@ -1752,19 +1767,39 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // neutralisation du « stick-to-bottom » liée aux boutons flottants s'annule.
     const releaseSuppress = () => { stickSuppressUntilRef.current = 0; };
     // Intention de remonter dans la conversation : désactive le collage en bas.
-    const onWheelIntent = (e: WheelEvent) => { if (e.deltaY < 0) stickDisabledRef.current = true; releaseSuppress(); };
+    const onWheelIntent = (e: WheelEvent) => {
+      if (e.deltaY < 0) {
+        stickDisabledRef.current = true;
+        upIntentUntilRef.current = performance.now() + 1200;
+      }
+      releaseSuppress();
+    };
     let lastTouchY: number | null = null;
-    const onTouchStart = (e: TouchEvent) => { lastTouchY = e.touches[0]?.clientY ?? null; releaseSuppress(); };
+    const onTouchStart = (e: TouchEvent) => {
+      touchActiveRef.current = true;
+      lastTouchY = e.touches[0]?.clientY ?? null;
+      releaseSuppress();
+    };
     const onTouchMove = (e: TouchEvent) => {
       const y = e.touches[0]?.clientY;
       if (y == null || lastTouchY == null) { lastTouchY = y ?? null; return; }
       // Doigt vers le bas = contenu vers le haut (scrollTop diminue).
-      if (y - lastTouchY > 4) stickDisabledRef.current = true;
+      if (y - lastTouchY > 4) {
+        stickDisabledRef.current = true;
+        upIntentUntilRef.current = performance.now() + 1200;
+      }
       lastTouchY = y;
+    };
+    const onTouchEnd = () => {
+      touchActiveRef.current = false;
+      // L'inertie iOS continue après le doigt : on garde la garde un moment.
+      upIntentUntilRef.current = Math.max(upIntentUntilRef.current, performance.now() + 600);
     };
     el.addEventListener("wheel", onWheelIntent, { passive: true });
     el.addEventListener("touchstart", onTouchStart, { passive: true });
     el.addEventListener("touchmove", onTouchMove, { passive: true });
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
+    el.addEventListener("touchcancel", onTouchEnd, { passive: true });
     const ro = new ResizeObserver(compute);
     ro.observe(el);
     return () => {
@@ -1772,6 +1807,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       el.removeEventListener("wheel", onWheelIntent);
       el.removeEventListener("touchstart", onTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+      el.removeEventListener("touchcancel", onTouchEnd);
       ro.disconnect();
     };
   }, [messages, streaming, homeState, autoHeight]);
@@ -1801,6 +1838,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         if (stickDisabledRef.current) return;
+        if (touchActiveRef.current) return;
+        if (performance.now() < upIntentUntilRef.current) return;
         if (performance.now() < stickSuppressUntilRef.current) return;
         if (nearBottom()) el.scrollTo({ top: el.scrollHeight });
       });
