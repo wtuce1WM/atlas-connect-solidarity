@@ -929,21 +929,32 @@ Deno.serve(async (req) => {
                 console.error("[embed-ai-chat-v2] pool_view_badges_failed", String(e));
               }
 
-              const keptIds = rows.filter((b: any) => {
+              // Deux passes : les ATTRIBUTS (badges/services « Vue sur mer »…)
+              // font foi. La preuve textuelle n'est qu'un secours si l'attribut
+              // ne retient personne — sinon un simple « mer » dans une
+              // description de villa marrakchie devenait une vue sur mer.
+              const evalBiz = (b: any, allowText: boolean) => {
                 const text = [b.name, b.hook_fr, b.hook_en, b.description].filter(Boolean).join(" ");
                 const attrs = { services: b.services, badgeNames: badgesByBiz.get(String(b.id)) || [] };
-                const panoOk = vi.panoramas.some((p) => hasPanoramaAttribute(p, attrs) || hasPanoramaProof(p, text));
+                const panoOk = vi.panoramas.some((p) =>
+                  hasPanoramaAttribute(p, attrs) || (allowText && hasPanoramaProof(p, text)));
                 const pointOk = vi.points.some((p) =>
                   (withinPointRadius(p, b.latitude, b.longitude) && hasVantage(attrs, text)) ||
-                  hasPointViewProof(p, text)
+                  (allowText && hasPointViewProof(p, text))
                 );
                 return panoOk || pointOk;
-              }).map((b: any) => String(b.id));
+              };
+              let keptIds = rows.filter((b: any) => evalBiz(b, false)).map((b: any) => String(b.id));
+              const strict = keptIds.length;
+              if (!keptIds.length) {
+                keptIds = rows.filter((b: any) => evalBiz(b, true)).map((b: any) => String(b.id));
+              }
 
               console.log("[embed-ai-chat-v2] pool_view_refine", JSON.stringify({
-                pool: poolIds.length, kept: keptIds.length,
+                pool: poolIds.length, kept: keptIds.length, strictAttr: strict,
                 panoramas: vi.panoramas.map((p) => p.slug), points: vi.points.map((p) => p.slug),
               }));
+
 
               if (keptIds.length) {
                 // Ordre du pool préservé.
