@@ -770,6 +770,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // synchrone (mémoire puis localStorage) pour que les chips soient peintes dès
   // la première frame ; la requête réseau rafraîchit ensuite la liste.
   const suggCacheKey = `owm-ask-sugg2:${isClubScope ? "club" : isPlatform ? "platform" : "host"}:${lang}`;
+  // Le cache est versionné par l'empreinte `max(updated_at)` des suggestions :
+  // toute modification back-office (ex. badges d'une carte) l'invalide au
+  // chargement suivant, sans attendre un vidage manuel du navigateur.
+  const suggStampKey = `${suggCacheKey}:stamp`;
   const readSuggCache = (): SuggestionRow[] | null => {
     const mem = SUGG_MEM_CACHE.get(suggCacheKey);
     if (mem) return mem;
@@ -784,7 +788,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       return null;
     }
   };
+  const dropSuggCache = () => {
+    SUGG_MEM_CACHE.delete(suggCacheKey);
+    try {
+      window.localStorage.removeItem(suggCacheKey);
+      window.localStorage.removeItem(suggStampKey);
+    } catch { /* noop */ }
+  };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(() => readSuggCache());
+
 
   // Splash d'accueil supprimé : la landing IA s'affiche immédiatement, sans
   // écran intermédiaire (grand message → petit message).
@@ -1543,14 +1555,35 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     const cachedNow = readSuggCache();
     if (!cachedNow) setDbSuggestions(null);
 
+    // Vérification d'empreinte en parallèle : si le back-office a modifié une
+    // suggestion depuis le dernier chargement, le cache est purgé tout de suite
+    // pour qu'aucun clic ne parte sur d'anciens `badge_ids`.
+    if (cachedNow) {
+      void (async () => {
+        const stampRows = await publicSelect(
+          "ai_suggestions",
+          `select=updated_at&surface=eq.${suggestionSurface}&is_active=eq.true&order=updated_at.desc&limit=1`,
+        );
+        if (cancelled || !Array.isArray(stampRows) || stampRows.length === 0) return;
+        const stamp = String((stampRows[0] as { updated_at?: string }).updated_at ?? "");
+        let prev: string | null = null;
+        try { prev = window.localStorage.getItem(suggStampKey); } catch { /* noop */ }
+        if (stamp && prev !== stamp) {
+          dropSuggCache();
+          setDbSuggestions(null);
+        }
+      })();
+    }
+
     const loadingTimeout = window.setTimeout(() => {
       if (!cancelled) setDbSuggestions([]);
     }, 8000);
 
+
     (async () => {
       const data = await publicSelect(
         "ai_suggestions",
-        `select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode,subcategory_ids,badge_ids&surface=eq.${suggestionSurface}&is_active=eq.true&order=sort_order.asc`,
+        `select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode,subcategory_ids,badge_ids,updated_at&surface=eq.${suggestionSurface}&is_active=eq.true&order=sort_order.asc`,
       );
       if (cancelled) return;
       if (!data) {
@@ -1594,7 +1627,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setDbSuggestions(list);
       if (list.length > 0) {
         SUGG_MEM_CACHE.set(suggCacheKey, list);
-        try { window.localStorage.setItem(suggCacheKey, JSON.stringify(list)); } catch { /* quota */ }
+        const stamp = (data as { updated_at?: string }[])
+          .map((r) => String(r.updated_at ?? ""))
+          .sort()
+          .pop() ?? "";
+        try {
+          window.localStorage.setItem(suggCacheKey, JSON.stringify(list));
+          if (stamp) window.localStorage.setItem(suggStampKey, stamp);
+        } catch { /* quota */ }
       }
 
     })();
