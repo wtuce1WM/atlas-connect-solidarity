@@ -1612,13 +1612,26 @@ Deno.serve(async (req) => {
               console.error("[embed-ai-chat-v2] badge_video_route_failed", String(e));
               return [] as string[];
             });
-            const badgeBizIds = namedGuard
-              ? badgeBizIdsRaw.filter((id) => namedGuard.ids.has(String(id))).slice(0, 60)
+            const badgeGuarded = namedGuard
+              ? badgeBizIdsRaw.filter((id) => namedGuard.ids.has(String(id)))
               : badgeBizIdsRaw;
+            /**
+             * RELANCE = AFFINAGE DU POOL : si le tour précédent a mémorisé un corpus
+             * et que la relance ne nomme pas de ville, le badge affine CE corpus
+             * (« piscine » puis « pour les enfants ») au lieu d'ouvrir le corpus
+             * global du badge. Repli explicite si l'intersection est trop mince.
+             */
+            const poolSet = !explicitCity && poolIds.length ? new Set(poolIds.map(String)) : null;
+            const badgeInPool = poolSet ? badgeGuarded.filter((id) => poolSet.has(String(id))) : [];
+            const badgeBizIds = badgeInPool.length >= 3
+              ? badgeInPool.slice(0, 60)
+              : badgeGuarded.slice(0, 60);
 
             console.log("[embed-ai-chat-v2] badge_named_route", JSON.stringify({
               badge: namedBadge.name, city: badgeCity, found: badgeBizIdsRaw.length,
-              guard: namedGuard?.badgeName || null, kept: badgeBizIds.length,
+              guard: namedGuard?.badgeName || null,
+              pool: poolSet ? poolIds.length : 0, inPool: badgeInPool.length,
+              kept: badgeBizIds.length,
             }));
             if (badgeBizIds.length >= 3) {
 
