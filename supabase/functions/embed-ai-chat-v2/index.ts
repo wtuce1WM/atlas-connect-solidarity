@@ -907,7 +907,7 @@ Deno.serve(async (req) => {
               for (let i = 0; i < poolIds.length; i += 80) {
                 const { data } = await admin
                   .from("businesses")
-                  .select("id, name, hook_fr, hook_en, description, services, latitude, longitude")
+                  .select("id, name, main_category, categories, hook_fr, hook_en, description, services, latitude, longitude")
                   .eq("is_active", true)
                   .in("id", poolIds.slice(i, i + 80));
                 rows.push(...(data || []));
