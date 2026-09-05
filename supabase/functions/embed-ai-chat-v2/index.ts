@@ -1248,7 +1248,7 @@ Deno.serve(async (req) => {
               serviceNames: curated.serviceNames,
               commodities: curated.commodities,
               label: curated.label,
-              pinnedIds: curated.pinnedBusinessIds,
+              pinnedIds: guardedPinnedIds,
 
 
               // Périmètre ville : ville nommée dans le message > ville de la
@@ -1257,7 +1257,14 @@ Deno.serve(async (req) => {
               scopeCity: explicitCity || curated.city || (host ? scopeCity : null),
               maxResults: CFG.maxResults,
               competitorGuard,
-              restrictToIds: curatedPoolRestrict,
+              // Garde-fou type de lieu : on restreint le corpus curaté aux
+              // établissements portant le badge du type nommé.
+              restrictToIds: placeGuard
+                ? (curatedPoolRestrict.length
+                    ? curatedPoolRestrict.filter((id) => placeGuard.ids.has(String(id)))
+                    : [...placeGuard.ids])
+                : curatedPoolRestrict,
+
               supabaseUrl: SUPABASE_URL,
               serviceKey: SERVICE,
               immersive: {
