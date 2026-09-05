@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { X, Phone } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
@@ -19,31 +19,57 @@ interface BookingOverlayProps {
 const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone, onLoad, hideContact, closeVariant = "auto" }: BookingOverlayProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Garde anti-saut de page : l'iframe tierce prend le focus à son chargement et
-  // le navigateur fait alors défiler le document pour l'amener dans le viewport
-  // (la page/l'assistant « remonte » brutalement). On restaure la position de
-  // défilement pendant les premières secondes, jusqu'au premier geste utilisateur.
-  useEffect(() => {
+  // Certaines pages tierces (notamment Wix avec son consentement différé) prennent
+  // le focus après leur chargement. Le navigateur peut alors faire défiler non pas
+  // `window`, mais un conteneur scrollable parent de l'assistant. On fige donc la
+  // position de tous les ancêtres scrollables pendant cette phase automatique.
+  useLayoutEffect(() => {
     if (typeof window === "undefined") return;
-    const anchorX = window.scrollX;
-    const anchorY = window.scrollY;
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const scrollParents: HTMLElement[] = [];
+    let parent = iframe.parentElement;
+    while (parent) {
+      const style = window.getComputedStyle(parent);
+      if (/(auto|scroll|overlay)/.test(`${style.overflow} ${style.overflowX} ${style.overflowY}`)) {
+        scrollParents.push(parent);
+      }
+      parent = parent.parentElement;
+    }
+
+    const windowAnchor = { x: window.scrollX, y: window.scrollY };
+    const parentAnchors = scrollParents.map((element) => ({
+      element,
+      left: element.scrollLeft,
+      top: element.scrollTop,
+    }));
     let hadGesture = false;
     let reverting = false;
-    const guardUntil = Date.now() + 4000;
+    const guardUntil = Date.now() + 8000;
     const markGesture = () => { hadGesture = true; };
-    const onScroll = () => {
+    const restoreAnchors = () => {
       if (hadGesture || reverting || Date.now() > guardUntil) return;
-      if (Math.abs(window.scrollY - anchorY) < 4 && Math.abs(window.scrollX - anchorX) < 4) return;
       reverting = true;
-      window.scrollTo(anchorX, anchorY);
+      if (Math.abs(window.scrollY - windowAnchor.y) >= 4 || Math.abs(window.scrollX - windowAnchor.x) >= 4) {
+        window.scrollTo(windowAnchor.x, windowAnchor.y);
+      }
+      for (const anchor of parentAnchors) {
+        if (Math.abs(anchor.element.scrollTop - anchor.top) >= 4 || Math.abs(anchor.element.scrollLeft - anchor.left) >= 4) {
+          anchor.element.scrollTo(anchor.left, anchor.top);
+        }
+      }
       requestAnimationFrame(() => { reverting = false; });
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
+
+    window.addEventListener("scroll", restoreAnchors, { passive: true });
+    parentAnchors.forEach(({ element }) => element.addEventListener("scroll", restoreAnchors, { passive: true }));
     window.addEventListener("wheel", markGesture, { passive: true });
     window.addEventListener("touchstart", markGesture, { passive: true });
     window.addEventListener("keydown", markGesture, true);
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scroll", restoreAnchors);
+      parentAnchors.forEach(({ element }) => element.removeEventListener("scroll", restoreAnchors));
       window.removeEventListener("wheel", markGesture);
       window.removeEventListener("touchstart", markGesture);
       window.removeEventListener("keydown", markGesture, true);
