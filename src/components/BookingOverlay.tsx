@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { X, Phone } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
@@ -18,6 +18,38 @@ interface BookingOverlayProps {
 
 const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone, onLoad, hideContact, closeVariant = "auto" }: BookingOverlayProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Garde anti-saut de page : l'iframe tierce prend le focus à son chargement et
+  // le navigateur fait alors défiler le document pour l'amener dans le viewport
+  // (la page/l'assistant « remonte » brutalement). On restaure la position de
+  // défilement pendant les premières secondes, jusqu'au premier geste utilisateur.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const anchorX = window.scrollX;
+    const anchorY = window.scrollY;
+    let hadGesture = false;
+    let reverting = false;
+    const guardUntil = Date.now() + 4000;
+    const markGesture = () => { hadGesture = true; };
+    const onScroll = () => {
+      if (hadGesture || reverting || Date.now() > guardUntil) return;
+      if (Math.abs(window.scrollY - anchorY) < 4 && Math.abs(window.scrollX - anchorX) < 4) return;
+      reverting = true;
+      window.scrollTo(anchorX, anchorY);
+      requestAnimationFrame(() => { reverting = false; });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("wheel", markGesture, { passive: true });
+    window.addEventListener("touchstart", markGesture, { passive: true });
+    window.addEventListener("keydown", markGesture, true);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("wheel", markGesture);
+      window.removeEventListener("touchstart", markGesture);
+      window.removeEventListener("keydown", markGesture, true);
+    };
+  }, [bookingUrl]);
+
 
   return (
     <OverlayShell
