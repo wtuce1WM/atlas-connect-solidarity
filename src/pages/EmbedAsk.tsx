@@ -2453,6 +2453,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const siblingsSuffixDoneRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (!openBusinessId || !openSiblings.length) return;
+    // Feed badgé : aucun suffixe business (périmètre strict aux badges).
+    if (videoFeedCtx?.badgeIds?.length) return;
     const idx = openSiblings.indexOf(openBusinessId);
     if (idx < 0 || idx < openSiblings.length - 1) return;
     const bizId = String(openSiblings[openSiblings.length - 1]);
