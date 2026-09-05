@@ -27,7 +27,7 @@ import {
 } from "../_shared/taxonomy-resolver.ts";
 
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
-import { pickLang, normalize, toMapMarker, fetchPriorFull, matchBusinessNameInMessage } from "../_shared/ai-engine/routes/shared.ts";
+import { pickLang, normalize, toMapMarker, fetchPriorFull, orderByIds, matchBusinessNameInMessage } from "../_shared/ai-engine/routes/shared.ts";
 import { warmNomadScope, isNomadBusiness, scrubNomadRow } from "../_shared/ai-engine/nomad-scope.ts";
 import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
