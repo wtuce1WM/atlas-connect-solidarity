@@ -2349,7 +2349,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     feedLoadingMoreRef.current = true;
     try {
       const { fetchBusinessDefaultFeedSuffix } = await import("@/lib/badgeVideoFeed");
-      const items = await fetchBusinessDefaultFeedSuffix(bizId, list.map((v) => String(v.id)), 30);
+      const items = await fetchBusinessDefaultFeedSuffix(
+        bizId,
+        list.map((v) => String(v.id)),
+        30,
+        videoFeedCtx?.badgeIds ?? null,
+      );
       if (items.length) {
         setVideoFeedList((prev) => {
           const seen = new Set(prev.map((v) => String(v.id)));
@@ -2458,6 +2463,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           bizId,
           videoFeedList.map((v) => String(v.id)),
           30,
+          videoFeedCtx?.badgeIds ?? null,
         );
         if (cancelled || !items.length) return;
         // Le feed alimente aussi `feedVideoUrlById` (vidéo affichée à l'ouverture).
