@@ -1601,17 +1601,21 @@ Deno.serve(async (req) => {
             // Même règle de périmètre : ville explicite du message > ville hôte ;
             // en scope plateforme sans ville nommée → national (pas de repli Marrakech).
             const badgeCity = explicitCity || (host ? scopeCity : null);
-            const badgeBizIdsRaw = await resolveBadgeBusinessIds(admin, [namedBadge.id], badgeCity, 60).catch((e) => {
-              console.error("[embed-ai-chat-v2] badge_video_route_failed", String(e));
-              return [] as string[];
-            });
             // Garde-fou « type de lieu » : « hôtel vue sur mer » ne doit pas
             // ramener un restaurant ni une base nautique portant le badge
             // thématique. Croisement avec le badge de type (business_badges).
+            // Corpus élargi avant croisement pour ne pas perdre de résultats.
             const namedGuard = await placeTypeAllowedIds(admin, userMessage, [namedBadge.id]).catch(() => null);
+            const badgeBizIdsRaw = await resolveBadgeBusinessIds(
+              admin, [namedBadge.id], badgeCity, namedGuard ? 400 : 60,
+            ).catch((e) => {
+              console.error("[embed-ai-chat-v2] badge_video_route_failed", String(e));
+              return [] as string[];
+            });
             const badgeBizIds = namedGuard
-              ? badgeBizIdsRaw.filter((id) => namedGuard.ids.has(String(id)))
+              ? badgeBizIdsRaw.filter((id) => namedGuard.ids.has(String(id))).slice(0, 60)
               : badgeBizIdsRaw;
+
             console.log("[embed-ai-chat-v2] badge_named_route", JSON.stringify({
               badge: namedBadge.name, city: badgeCity, found: badgeBizIdsRaw.length,
               guard: namedGuard?.badgeName || null, kept: badgeBizIds.length,
