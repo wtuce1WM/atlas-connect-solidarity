@@ -2333,6 +2333,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const feedSuffixDoneRef = useRef<Set<string>>(new Set());
   const appendBusinessDefaultFeed = useCallback(async (currentId: string) => {
     if (feedLoadingMoreRef.current) return;
+    // Feed badgé (suggestion curatée) : périmètre STRICT aux badges du contexte,
+    // aucun suffixe business — le feed ne contient que les vidéos de ces badges.
+    if (videoFeedCtx?.badgeIds?.length) return;
     const list = videoFeedList;
     const idx = list.findIndex((v) => v.id === currentId);
     // Déclenché à 2 vidéos de la fin, pour ne pas couper le swipe.
