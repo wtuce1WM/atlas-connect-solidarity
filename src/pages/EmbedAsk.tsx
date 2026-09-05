@@ -2333,6 +2333,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const feedSuffixDoneRef = useRef<Set<string>>(new Set());
   const appendBusinessDefaultFeed = useCallback(async (currentId: string) => {
     if (feedLoadingMoreRef.current) return;
+    // Feed badgé (suggestion curatée) : périmètre STRICT aux badges du contexte,
+    // aucun suffixe business — le feed ne contient que les vidéos de ces badges.
+    if (videoFeedCtx?.badgeIds?.length) return;
     const list = videoFeedList;
     const idx = list.findIndex((v) => v.id === currentId);
     // Déclenché à 2 vidéos de la fin, pour ne pas couper le swipe.
@@ -2366,7 +2369,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     } finally {
       feedLoadingMoreRef.current = false;
     }
-  }, [videoFeedList]);
+  }, [videoFeedList, videoFeedCtx]);
 
   // Nouveau feed (nouveau contexte) → le suffixe redevient disponible.
   useEffect(() => { feedSuffixDoneRef.current = new Set(); }, [videoFeedCtx]);
@@ -2450,6 +2453,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const siblingsSuffixDoneRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (!openBusinessId || !openSiblings.length) return;
+    // Feed badgé : aucun suffixe business (périmètre strict aux badges).
+    if (videoFeedCtx?.badgeIds?.length) return;
     const idx = openSiblings.indexOf(openBusinessId);
     if (idx < 0 || idx < openSiblings.length - 1) return;
     const bizId = String(openSiblings[openSiblings.length - 1]);
