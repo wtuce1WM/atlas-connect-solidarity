@@ -125,7 +125,7 @@ export function hasPanoramaAttribute(
 export function hasPanoramaProof(panorama: ViewPanorama, text: string): boolean {
   const n = normView(text);
   const token = panorama.proof.source.replace(/^\\b|\\b$/g, "");
-  const view = "(?:vue|vues|donnant\\s+sur|face\\s+(?:a|au|aux)|overlooking|view\\s+(?:of|on)|panoram\\w*)";
+  const view = "(?:vue|vues|donnant\\s+sur|face\\s+(?:a|au|aux)|overlooking|views?|panoram\\w*)";
   const near = new RegExp(`${view}[^.!?]{0,40}?\\b${token}\\b|\\b${token}\\b[^.!?]{0,25}?${view}`);
   return near.test(n);
 }
