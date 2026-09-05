@@ -4451,7 +4451,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                changement de `businessId` — même continuité que VideoSlidePanel. */
             businessId={openBusinessId}
             initialOverlay={openBusinessOverlay ?? undefined}
-            initialVideoUrl={feedPinnedBusinessId === openBusinessId ? feedVideoUrlById[openBusinessId] : undefined}
+            initialVideoUrl={
+              feedPinnedBusinessId === openBusinessId
+                ? feedVideoUrlById[openBusinessId]
+                : badgeVideoUrlById[openBusinessId]
+            }
             onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); setFeedPinnedBusinessId(null); }}
             onPrev={goPrev}
             onNext={goNext}
