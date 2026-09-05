@@ -1056,7 +1056,7 @@ Deno.serve(async (req) => {
                     emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
                   }
                   emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
-                  emit("\n\n" + await poolMarker(admin, ordered, scopeCity));
+                  emit("\n\n" + await poolMarker(admin, ordered, viewWidened ? null : scopeCity));
                   await emitDestChips(ordered);
                   await finish(true);
                   return;
