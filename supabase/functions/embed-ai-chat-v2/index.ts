@@ -2042,9 +2042,12 @@ Deno.serve(async (req) => {
             if (!nameHit && !searchNeighborhood && !proximityApplied && !destScope) {
               try {
                 // Plusieurs badges peuvent être nommés dans la même phrase
-                // (« location de vélo » ⇢ `Location` + `Vélo`). On privilégie
-                // l'INTERSECTION (les établissements qui portent tous les badges
-                // cités = les plus pertinents), avec repli sur l'union.
+                // (« location de vélo » ⇢ `Location` + `Vélo`). On exige alors
+                // l'INTERSECTION (l'établissement porte TOUS les badges cités).
+                // Repli quand l'intersection est vide : le badge le PLUS SPÉCIFIQUE
+                // (`Vélo`), jamais l'union — sinon le badge générique (`Location`)
+                // faisait remonter des locations de villas/appartements sur
+                // « location vélo ».
                 const augBadges = await matchFrontBadgesInMessage(admin, userMessage, lang as any, 3);
                 if (augBadges.length) {
                   const have = new Set(kept.map((b: any) => String(b.id)));
@@ -2055,7 +2058,9 @@ Deno.serve(async (req) => {
                   const inter = perBadge.length > 1
                     ? union.filter((id) => perBadge.every((list) => list.includes(id)))
                     : union;
-                  const ordered = [...inter, ...union.filter((id) => !inter.includes(id))];
+                  // `augBadges` est trié du plus spécifique au moins spécifique.
+                  const fallback = perBadge[0] || [];
+                  const ordered = inter.length ? inter : fallback;
                   const missing = ordered.filter((id) => !have.has(id)).slice(0, 12);
                   let added = 0;
                   if (missing.length) {
@@ -2064,28 +2069,22 @@ Deno.serve(async (req) => {
                     kept = [...kept, ...usable];
                     added = usable.length;
                   }
-                  // Remontée en TÊTE : d'abord les établissements portant TOUS les
-                  // badges cités (intersection), puis ceux qui en portent au moins un
-                  // (union). Sinon les fiches ajoutées en queue ne tombaient jamais
-                  // dans les 6 premiers résultats affichés. Ordre interne préservé.
-                  let promotedInter = 0;
-                  let promotedUnion = 0;
-                  if (augBadges.length > 1 && union.length) {
-                    const interSet = new Set(inter.map(String));
-                    const unionSet = new Set(union.map(String));
-                    const headInter = kept.filter((b: any) => interSet.has(String(b.id)));
-                    const headUnion = kept.filter((b: any) => !interSet.has(String(b.id)) && unionSet.has(String(b.id)));
-                    const rest = kept.filter((b: any) => !unionSet.has(String(b.id)));
-                    if ((headInter.length || headUnion.length) && rest.length) {
-                      kept = [...headInter, ...headUnion, ...rest];
-                      promotedInter = headInter.length;
-                      promotedUnion = headUnion.length;
+                  // Remontée en TÊTE des seuls établissements retenus (intersection,
+                  // ou à défaut badge le plus spécifique). Ordre interne préservé.
+                  let promoted = 0;
+                  if (augBadges.length > 1 && ordered.length) {
+                    const keepSet = new Set(ordered.map(String));
+                    const head = kept.filter((b: any) => keepSet.has(String(b.id)));
+                    const rest = kept.filter((b: any) => !keepSet.has(String(b.id)));
+                    if (head.length && rest.length) {
+                      kept = [...head, ...rest];
+                      promoted = head.length;
                     }
                   }
                   console.log("[embed-ai-chat-v2] badge_augment", JSON.stringify({
                     badges: augBadges.map((b) => b.name), city: city || null,
-                    inter: inter.length, union: union.length, added,
-                    promotedInter, promotedUnion,
+                    inter: inter.length, union: union.length,
+                    mode: inter.length ? "intersection" : "most_specific", added, promoted,
                   }));
 
 
