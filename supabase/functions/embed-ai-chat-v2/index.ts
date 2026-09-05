@@ -1175,15 +1175,33 @@ Deno.serve(async (req) => {
             fallbackReason = "no_results";
           }
 
+          // Garde-fou « type de lieu » sur les fiches curatées : « hôtel vue sur
+          // mer » ne doit pas ramener un restaurant ni une base nautique. Croise
+          // le corpus curaté avec le badge de type de lieu (business_badges).
+          const placeGuard = curated && keepCurated
+            ? await placeTypeAllowedIds(admin, userMessage, curated.badgeIds).catch(() => null)
+            : null;
+
           // Corpus clos SEULEMENT si l'entrée n'a aucun filtre taxonomique : sinon
           // les épinglés sont mis en avant en tête des résultats filtrés.
           const curatedHasTaxo = !!curated && (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length || curated.serviceNames.length) > 0;
-          if (curated && keepCurated && curated.pinnedBusinessIds.length && !curatedHasTaxo) {
+          const guardedPinnedIds = curated && placeGuard
+            ? curated.pinnedBusinessIds.filter((id) => placeGuard.ids.has(String(id)))
+            : (curated?.pinnedBusinessIds || []);
+          if (curated && keepCurated && guardedPinnedIds.length && !curatedHasTaxo) {
+            if (placeGuard) {
+              console.log("[embed-ai-chat-v2] pinned_place_type_guard", JSON.stringify({
+                badge: placeGuard.badgeName,
+                before: curated.pinnedBusinessIds.length,
+                after: guardedPinnedIds.length,
+              }));
+            }
             const built = await buildPinnedAnswer(
-              admin, curated.pinnedBusinessIds, host, lang, curated.label,
+              admin, guardedPinnedIds, host, lang, curated.label,
               {
                 competitorGuard,
                 restrictToIds: curatedPoolRestrict,
+
                 immersive: {
                   admin,
                   query: curated.label || userMessage,
