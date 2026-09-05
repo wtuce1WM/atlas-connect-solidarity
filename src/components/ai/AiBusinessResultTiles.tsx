@@ -160,6 +160,9 @@ const AiBusinessResultTiles = ({
                     src={img}
                     alt={b.name}
                     loading="lazy"
+                    decoding="async"
+                    draggable={false}
+
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : null}
