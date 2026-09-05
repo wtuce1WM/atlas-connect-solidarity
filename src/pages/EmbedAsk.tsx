@@ -1689,6 +1689,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
+    let lastTop = el.scrollTop;
     const compute = () => {
       const max = el.scrollHeight - el.clientHeight;
       const scrollable = max > 120;
@@ -1697,6 +1698,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         canUp: scrollable && el.scrollTop > 60,
         canDown: scrollable && el.scrollTop < max - 60,
       });
+      // Toute remontée réelle (molette, barre de défilement, clavier, inertie
+      // tactile) coupe le collage automatique : sans ça, le chargement des
+      // images/cartes rappelait la vue en bas → tremblement visuel parasite.
+      if (el.scrollTop < lastTop - 2) stickDisabledRef.current = true;
+      lastTop = el.scrollTop;
       // Retour manuel tout en bas : on réactive le collage automatique.
       if (el.scrollHeight - el.scrollTop - el.clientHeight < 40) stickDisabledRef.current = false;
     };
