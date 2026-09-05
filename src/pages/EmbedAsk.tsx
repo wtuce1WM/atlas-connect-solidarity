@@ -1838,6 +1838,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         if (stickDisabledRef.current) return;
+        if (touchActiveRef.current) return;
+        if (performance.now() < upIntentUntilRef.current) return;
         if (performance.now() < stickSuppressUntilRef.current) return;
         if (nearBottom()) el.scrollTo({ top: el.scrollHeight });
       });
