@@ -27,7 +27,7 @@ import {
 } from "../_shared/taxonomy-resolver.ts";
 
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
-import { pickLang, normalize, toMapMarker, fetchPriorFull, matchBusinessNameInMessage } from "../_shared/ai-engine/routes/shared.ts";
+import { pickLang, normalize, toMapMarker, fetchPriorFull, orderByIds, matchBusinessNameInMessage } from "../_shared/ai-engine/routes/shared.ts";
 import { warmNomadScope, isNomadBusiness, scrubNomadRow } from "../_shared/ai-engine/nomad-scope.ts";
 import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
@@ -1612,13 +1612,26 @@ Deno.serve(async (req) => {
               console.error("[embed-ai-chat-v2] badge_video_route_failed", String(e));
               return [] as string[];
             });
-            const badgeBizIds = namedGuard
-              ? badgeBizIdsRaw.filter((id) => namedGuard.ids.has(String(id))).slice(0, 60)
+            const badgeGuarded = namedGuard
+              ? badgeBizIdsRaw.filter((id) => namedGuard.ids.has(String(id)))
               : badgeBizIdsRaw;
+            /**
+             * RELANCE = AFFINAGE DU POOL : si le tour précédent a mémorisé un corpus
+             * et que la relance ne nomme pas de ville, le badge affine CE corpus
+             * (« piscine » puis « pour les enfants ») au lieu d'ouvrir le corpus
+             * global du badge. Repli explicite si l'intersection est trop mince.
+             */
+            const poolSet = !explicitCity && poolIds.length ? new Set(poolIds.map(String)) : null;
+            const badgeInPool = poolSet ? badgeGuarded.filter((id) => poolSet.has(String(id))) : [];
+            const badgeBizIds = badgeInPool.length >= 3
+              ? badgeInPool.slice(0, 60)
+              : badgeGuarded.slice(0, 60);
 
             console.log("[embed-ai-chat-v2] badge_named_route", JSON.stringify({
               badge: namedBadge.name, city: badgeCity, found: badgeBizIdsRaw.length,
-              guard: namedGuard?.badgeName || null, kept: badgeBizIds.length,
+              guard: namedGuard?.badgeName || null,
+              pool: poolSet ? poolIds.length : 0, inPool: badgeInPool.length,
+              kept: badgeBizIds.length,
             }));
             if (badgeBizIds.length >= 3) {
 
@@ -2200,12 +2213,14 @@ Deno.serve(async (req) => {
           }));
         }
 
-        // ── Relance RESTRICTIVE (« vélo uniquement », « que les riads ») ──────
-        // Une restriction n'est pas une nouvelle demande : elle AFFINE le corpus du
-        // tour précédent. Sans ça, un terme taxonomique fort relançait une recherche
-        // neuve et perdait le contexte (« Enfants » → résultats vélo sans Enfants).
-        // Le filtre couvre le vocabulaire ET les badges (`business_badges`), que
-        // `business-search` n'exploite pas — c'est ce qui rendait Pikala invisible.
+        // ── Relance = AFFINAGE DU POOL (règle générale) ───────────────────────
+        // Une relance courte n'est pas une nouvelle demande : elle AFFINE le corpus
+        // du tour précédent (« piscine » → « pour les enfants », « location villa »
+        // → « vue sur mer »). Le filtre porte sur le pool COMPLET mémorisé, pas sur
+        // les 8 résultats affichés, et couvre vocabulaire, services et badges
+        // (fiche ET vidéos badgées) que `business-search` n'exploite pas.
+        // Repli explicite (jamais silencieux) sur une recherche neuve si l'intersection
+        // est vide. Une ville nommée ou un nom d'établissement annule l'affinage.
         let poolRefined = false;
         const restrictiveIntent = /(?:^|\s)(?:uniquement|seulement|juste|que\s+(?:les|le|la|des|du)|rien\s+que|only|just)(?:\s|$)/
           .test(normalize(userMessage));
@@ -2220,22 +2235,43 @@ Deno.serve(async (req) => {
           [...strongTerms, ...specializingTerms, ...expansionTerms, ...restrictiveRawTokens]
             .filter(Boolean).map((t) => normalize(String(t))).filter((t) => t.length > 2),
         )];
+        /** Relance générique : message court, pas de ville nommée, pool mémorisé. */
+        const followUpRefineIntent =
+          priorIds.length > 0 &&
+          !explicitCity && !resolvedCity &&
+          normalize(userMessage).split(/\s+/).filter(Boolean).length <= 8;
 
         if (
           !nameHit && !destScope && !contextualFollowUp &&
-          restrictiveIntent && poolIds.length && refineTerms.length
+          (restrictiveIntent || followUpRefineIntent) && poolIds.length && refineTerms.length
         ) {
           try {
-            // Le corpus curaté d'une suggestion badge peut compter jusqu'à 60 fiches :
-            // couper à 30 excluait mécaniquement la queue du classement (Pikala Bikes
-            // était 39e du pool « Enfants »). La restriction travaille donc sur le
-            // pool COMPLET mémorisé, pas sur sa tête d'affichage.
-            const ids = poolIds.slice(0, 60);
-            const [poolRows, { data: svcRows }, { data: badgeRows }] = await Promise.all([
-              fetchPriorFull(admin, ids, 60),
-              admin.from("businesses").select("id, services").in("id", ids),
-              admin.from("business_badges").select("business_id, badges(name)").in("business_id", ids),
+            // Pool COMPLET (jusqu'à 300 fiches), pas sa tête d'affichage : la queue
+            // du classement doit rester filtrable (Pikala Bikes était 39e du pool).
+            const ids = poolIds.slice(0, 300);
+            const chunks: string[][] = [];
+            for (let i = 0; i < ids.length; i += 100) chunks.push(ids.slice(i, i + 100));
+            const [poolRowsChunks, svcChunks, badgeChunks, docBadgeChunks] = await Promise.all([
+              Promise.all(chunks.map((c) => fetchPriorFull(admin, c, c.length))),
+              Promise.all(chunks.map((c) => admin.from("businesses").select("id, services").in("id", c))),
+              Promise.all(chunks.map((c) =>
+                admin.from("business_badges").select("business_id, badges(name)").in("business_id", c))),
+              Promise.all(chunks.map((c) =>
+                admin.from("business_documents")
+                  .select("business_id, business_document_badges(badges(name))")
+                  .in("business_id", c))),
             ]);
+            const poolRowsAll = poolRowsChunks.flat();
+            const poolRows = orderByIds(poolRowsAll as any[], ids);
+            const svcRows = svcChunks.flatMap((r: any) => r?.data ?? []);
+            const badgeRows = [
+              ...badgeChunks.flatMap((r: any) => r?.data ?? []),
+              // Badges portés uniquement par une vidéo badgée de la fiche.
+              ...docBadgeChunks.flatMap((r: any) => (r?.data ?? []).flatMap((d: any) =>
+                (d.business_document_badges ?? []).map((l: any) => ({
+                  business_id: d.business_id, badges: l?.badges,
+                })))),
+            ];
             const svcById = new Map((svcRows ?? []).map((r: any) => [String(r.id), (r.services ?? []) as string[]]));
             const badgesById = new Map<string, string[]>();
             for (const row of (badgeRows as any[]) ?? []) {
