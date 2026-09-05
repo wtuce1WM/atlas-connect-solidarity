@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 import { MapPin, Star, Clock, ChevronDown, ChevronUp, CalendarCheck } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
@@ -62,7 +63,8 @@ function todayHours(b: AiResultBusiness): { label: string | null; isOpen: boolea
 
 function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: boolean) {
   const [cols, setCols] = useState(2);
-  useEffect(() => {
+  const [measured, setMeasured] = useState(false);
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     // Le panneau droit peut s'ouvrir avant que `compact` soit propagé à la
@@ -70,8 +72,11 @@ function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: bool
     // doit néanmoins rester immédiatement en 2 colonnes, même si elle mesure
     // moins de 640 px après le partage 50/50.
     const compute = (w: number) => {
+      if (!w) return;
       const desktopViewport = window.matchMedia("(min-width: 768px)").matches;
-      setCols(w < 640 ? (desktopViewport ? 2 : 1) : w < 1024 ? 2 : compact ? 2 : 4);
+      const next = w < 640 ? (desktopViewport ? 2 : 1) : w < 1024 ? 2 : compact ? 2 : 4;
+      setCols((prev) => (prev === next ? prev : next));
+      setMeasured(true);
     };
     compute(el.clientWidth);
     const ro = new ResizeObserver((entries) => {
@@ -85,14 +90,15 @@ function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: bool
       window.removeEventListener("resize", onResize);
     };
   }, [ref, compact]);
-  return cols;
+  return { cols, measured };
 }
+
 
 const AiBusinessResultTiles = ({
   businesses, origin, lang = "fr", rankOrder, onOpen, onOpenBooking, footer, max = 20, compact = false,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const cols = useContainerColumns(wrapRef, compact);
+  const { cols, measured } = useContainerColumns(wrapRef, compact);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const t = L[(lang as keyof typeof L) in L ? (lang as keyof typeof L) : "fr"];
@@ -103,8 +109,9 @@ const AiBusinessResultTiles = ({
   return (
     <div ref={wrapRef} className="w-full flex flex-col gap-2">
       <div
-        className="grid gap-3 transition-[grid-template-columns] duration-500"
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+        className={cn("grid gap-3", measured && "transition-[grid-template-columns] duration-500")}
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, visibility: measured ? undefined : "hidden" }}
+
       >
         {list.map((b, idx) => {
           const podium = ranked && idx < 3 ? PODIUM[idx] : null;
@@ -153,6 +160,9 @@ const AiBusinessResultTiles = ({
                     src={img}
                     alt={b.name}
                     loading="lazy"
+                    decoding="async"
+                    draggable={false}
+
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : null}
