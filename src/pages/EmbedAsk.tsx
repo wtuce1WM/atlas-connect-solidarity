@@ -2369,7 +2369,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     } finally {
       feedLoadingMoreRef.current = false;
     }
-  }, [videoFeedList]);
+  }, [videoFeedList, videoFeedCtx]);
 
   // Nouveau feed (nouveau contexte) → le suffixe redevient disponible.
   useEffect(() => { feedSuffixDoneRef.current = new Set(); }, [videoFeedCtx]);
