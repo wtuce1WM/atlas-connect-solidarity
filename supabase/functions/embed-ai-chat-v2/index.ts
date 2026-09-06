@@ -243,24 +243,21 @@ async function applyFeedPlaceTypeGuard(
   const guard = await placeTypeAllowedIds(admin, message, curatedBadgeIds);
   if (!guard) return feed;
   const { badgeName: hitName, ids: allowed } = guard;
-  const hit = { badgeName: hitName };
 
-
-  const before = (feed?.payload?.videos || []).length;
-  const kept = (feed?.payload?.videos || []).filter(
-    (v: any) => v?.business_id && allowed.has(String(v.business_id)),
-  );
-  console.log("[embed-ai-chat-v2] feed_place_type_guard", JSON.stringify({
-    badge: hit.badgeName, before, after: kept.length,
+  const videos = (feed?.payload?.videos || []) as any[];
+  const strict = videos.filter((v) => v?.business_id && allowed.has(String(v.business_id)));
+  const rest = videos.filter((v) => !(v?.business_id && allowed.has(String(v.business_id))));
+  console.log("[embed-ai-chat-v2] feed_place_type_tier", JSON.stringify({
+    badge: hitName, total: videos.length, strict: strict.length, relaxed: rest.length,
   }));
-  if (!kept.length) return null;
+  if (!strict.length) return feed;
+  const ordered = [...strict, ...rest];
   return {
     ...feed,
-    count: kept.length,
-    text: String(feed.text || "").replace(/\d+/, String(kept.length)),
-    payload: { ...feed.payload, videos: kept, total: kept.length },
+    payload: { ...feed.payload, videos: ordered },
   };
 }
+
 
 /**
 
