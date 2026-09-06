@@ -2673,8 +2673,8 @@ const BookOnlineSlidePanelInner = ({
       ref={panelGestureRef}
       data-internal-swipe-nav={internalWheelNav ? "true" : undefined}
       className={`h-full overflow-visible overscroll-none relative ${isEmbedMapWidget || isPoiOnlyPanel ? "bg-transparent" : "bg-black"}`}
-      style={internalWheelNav ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
     >
+
       {/* Toolbar portals */}
       <ToolbarPortals
         business={business}
