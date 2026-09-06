@@ -2258,9 +2258,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    */
   const openEarlyBadgeFeed = useCallback(async (badgeIds: string[]): Promise<boolean> => {
     try {
-      const { fetchBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
+      const { fetchTieredBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
       const seed = Math.random().toString(36).slice(2, 10);
-      const { items, total } = await fetchBadgesVideoFeed(badgeIds, { seed, limit: 30 });
+      // Multi-badges : intersection stricte en tête, puis paliers relâchés.
+      const { items, total } = await fetchTieredBadgesVideoFeed(badgeIds, { seed, limit: 30 });
       if (!items.length) return false;
       earlyFeedOpenRef.current = true;
       setVideoFeedList(items);
