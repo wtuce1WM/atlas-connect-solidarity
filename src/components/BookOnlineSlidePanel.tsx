@@ -2342,6 +2342,8 @@ const BookOnlineSlidePanelInner = ({
   const bizWheelAccumRef = useRef(0);
   const bizWheelLockUntilRef = useRef(0);
   const bizNavRef = useRef({ onPrev: effectiveOnPrev, onNext: effectiveOnNext, hasPrev: effectiveHasPrev, hasNext: effectiveHasNext });
+  const anyOverlayOpenRef = useRef(anyOverlayOpen);
+  useEffect(() => { anyOverlayOpenRef.current = anyOverlayOpen; }, [anyOverlayOpen]);
   useEffect(() => {
     bizNavRef.current = { onPrev: effectiveOnPrev, onNext: effectiveOnNext, hasPrev: effectiveHasPrev, hasNext: effectiveHasNext };
   }, [effectiveOnPrev, effectiveOnNext, effectiveHasPrev, effectiveHasNext]);
@@ -2381,8 +2383,6 @@ const BookOnlineSlidePanelInner = ({
   // sur toute la fiche afin que les cartes et autres contenus ne capturent pas
   // le geste avant le conteneur média. En mode prioritaire, un swipe vertical
   // change directement de fiche, comme les chevrons de droite.
-  const anyOverlayOpenRef = useRef(anyOverlayOpen);
-  useEffect(() => { anyOverlayOpenRef.current = anyOverlayOpen; }, [anyOverlayOpen]);
   useEffect(() => {
     if (!internalWheelNav) return;
     const root = panelGestureRef.current;
