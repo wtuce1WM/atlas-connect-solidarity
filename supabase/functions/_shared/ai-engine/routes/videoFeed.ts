@@ -361,3 +361,28 @@ export function orderVideosByBadgeTiers(
   for (const v of videos) if (!used.has(v.id)) ordered.push(v);
   return ordered;
 }
+
+/**
+ * Pool OR paginé (pages de 300, plafond 900) : nécessaire aux paliers
+ * d'intersection — le palier strict peut se trouver au-delà de la 1re page du
+ * mélange par seed (ex. Location ∩ Villas ∩ Vue sur mer = 26 vidéos dans un
+ * pool OR de ~800).
+ */
+export async function loadBadgeVideoFeedPool(
+  admin: any,
+  opts: { badgeIds: string[]; city?: string | null; cap?: number },
+): Promise<VideoFeedLoad> {
+  const cap = Math.min(Math.max(opts.cap ?? 900, 300), 1500);
+  const seed = Math.random().toString(36).slice(2, 10);
+  const all: VideoFeedItem[] = [];
+  let total = 0;
+  for (let offset = 0; offset < cap; offset += 300) {
+    const page = await loadBadgeVideoFeed(admin, {
+      badgeIds: opts.badgeIds, max: 300, city: opts.city ?? null, seed, offset,
+    } as any);
+    total = page.total || total;
+    all.push(...page.videos);
+    if (page.videos.length < 300 || all.length >= total) break;
+  }
+  return { videos: all, total: total || all.length, seed };
+}
