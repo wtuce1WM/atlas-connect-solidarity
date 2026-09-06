@@ -135,7 +135,23 @@ export async function matchFrontBadgeInMessage(
       if (!best || n.length > best.len) best = { id: String(b.id), name: String(label || raw), len: n.length };
     }
   }
-  if (best) return { id: best.id, name: best.name };
+  // Un badge trouvé LITTÉRALEMENT reste l'autorité du corpus. Mais si le message
+  // porte EN PLUS une intention synonyme mappée sur un badge (« acheter une villa »
+  // ⇢ Vente + Villas), on le signale : l'appelant peut alors ouvrir la route même
+  // sur un libellé mono-mot, et le feed croisera les deux badges en paliers.
+  if (best) {
+    const alsoSyn = await matchBadgesBySynonym(
+      admin, message,
+      new Map<string, string>(
+        (data || []).map((b: any) => [
+          String(b.id),
+          String((lang === "en" && b.name_en) || (lang === "ar" && b.name_ar) || b.name_fr || b.name_en || b.name_ar),
+        ]),
+      ),
+    );
+    const extra = alsoSyn.some((s) => s.id !== best!.id);
+    return { id: best.id, name: best.name, viaSynonym: extra || undefined };
+  }
   // Repli SYNONYME : aucun libellé littéral, mais le message porte une intention
   // mappée sur un badge (« acheter » ⇢ Vente). Marqué `viaSynonym` pour que
   // l'appelant sache que la détection ne vient pas du libellé.
