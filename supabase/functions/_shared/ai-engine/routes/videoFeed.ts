@@ -73,7 +73,7 @@ export type VideoFeedLoad = { videos: VideoFeedItem[]; total: number; seed: stri
  */
 export async function loadBadgeVideoFeed(
   admin: any,
-  opts: { badgeIds: string[]; max?: number; city?: string | null; seed?: string },
+  opts: { badgeIds: string[]; max?: number; city?: string | null; seed?: string; offset?: number },
 ): Promise<VideoFeedLoad> {
   const max = Math.min(Math.max(opts.max ?? 30, 1), 300);
   const seed = opts.seed || Math.random().toString(36).slice(2, 10);
@@ -85,7 +85,7 @@ export async function loadBadgeVideoFeed(
     _badge_ids: badgeIds,
     _seed: seed,
     _limit: max,
-    _offset: 0,
+    _offset: Math.max(opts.offset ?? 0, 0),
     _city_ids: cityIds,
   });
   if (error || !data) return { videos: [], total: 0, seed };
@@ -379,7 +379,7 @@ export async function loadBadgeVideoFeedPool(
   for (let offset = 0; offset < cap; offset += 300) {
     const page = await loadBadgeVideoFeed(admin, {
       badgeIds: opts.badgeIds, max: 300, city: opts.city ?? null, seed, offset,
-    } as any);
+    });
     total = page.total || total;
     all.push(...page.videos);
     if (page.videos.length < 300 || all.length >= total) break;
