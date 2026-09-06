@@ -230,10 +230,14 @@ export async function matchFrontBadgesInMessage(
     ]),
   );
   const seen = new Set(hits.map((h) => h.id));
+  const synIds = new Set<string>();
   for (const s of await matchBadgesBySynonym(admin, message, activeBadges)) {
-    if (!seen.has(s.id)) { hits.push(s); seen.add(s.id); }
+    if (!seen.has(s.id)) { hits.push(s); seen.add(s.id); synIds.add(s.id); }
   }
-  return hits.sort((a, c) => c.len - a.len).slice(0, max).map(({ id, name }) => ({ id, name }));
+  return hits
+    .sort((a, c) => c.len - a.len)
+    .slice(0, max)
+    .map(({ id, name }) => ({ id, name, viaSynonym: synIds.has(id) || undefined }));
 }
 
 /**

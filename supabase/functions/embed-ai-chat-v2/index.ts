@@ -1768,8 +1768,34 @@ Deno.serve(async (req) => {
               // stricte d'abord (villas vue sur mer), puis paliers relâchés
               // (hôtels/riads vue sur mer). Les fiches ne changent pas.
               try {
-                const feedBadges = await matchFrontBadgesInMessage(admin, userMessage, lang as any, 3);
-                if (feedBadges.length >= 2) {
+                let feedBadges = await matchFrontBadgesInMessage(admin, userMessage, lang as any, 3);
+                let droppedSynonym = false;
+                /**
+                 * Un badge d'INTENTION détecté par synonyme (« acheter » ⇢ Vente,
+                 * badge immobilier) ne doit JAMAIS élargir le feed : il n'est
+                 * légitime que s'il croise réellement le badge littéral.
+                 * « acheter un tapis berbère » ⇒ Vente ∩ Tapis = 0 vidéo, donc on
+                 * abandonne Vente et le feed reste strictement « Tapis ».
+                 */
+                const literalBadges = feedBadges.filter((b) => !b.viaSynonym);
+                const synBadges = feedBadges.filter((b) => b.viaSynonym);
+                if (literalBadges.length && synBadges.length) {
+                  const probe = await loadBadgeVideoFeedPool(admin, {
+                    badgeIds: feedBadges.map((b) => b.id), city: badgeCity || null,
+                  }).catch(() => null);
+                  const ids = feedBadges.map((b) => String(b.id));
+                  const strict = (probe?.videos || []).filter(
+                    (v) => ids.every((id) => (v.badges || []).some((x) => String(x.id) === id)),
+                  );
+                  if (!strict.length) {
+                    console.log("[embed-ai-chat-v2] synonym_badge_dropped", JSON.stringify({
+                      dropped: synBadges.map((b) => b.name), kept: literalBadges.map((b) => b.name),
+                    }));
+                    feedBadges = literalBadges;
+                    droppedSynonym = true;
+                  }
+                }
+                if (feedBadges.length >= 2 || (droppedSynonym && feedBadges.length >= 1)) {
                   const feedBadgeIds = feedBadges.map((b) => b.id);
                   const pool = await loadBadgeVideoFeedPool(admin, {
                     badgeIds: feedBadgeIds, city: badgeCity || null,
