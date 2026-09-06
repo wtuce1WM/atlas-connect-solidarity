@@ -34,6 +34,8 @@ interface PoiGoogleMapProps {
   fitToMarkers?: boolean;
   /** Overrides the default padding used by fitToMarkers (px). */
   fitPadding?: { top: number; right: number; bottom: number; left: number };
+  /** Bandes (px) réservées aux Pills : les marqueurs qui y entrent sont masqués. */
+  markerSafeArea?: { top: number; bottom: number };
   /** Custom highlight color for the selected marker (default: dark) */
   highlightColor?: { bg: string; fg: string; border: string };
   /** When provided, draws a terracotta dot at the user's geolocation. */
@@ -432,13 +434,15 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, fitPadding, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, onReady, centerAtBottomRatio, mapTypeId, fitRadiusKm, connector, distanceOrigin }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, fitPadding, markerSafeArea, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, onReady, centerAtBottomRatio, mapTypeId, fitRadiusKm, connector, distanceOrigin }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const overlaysRef = useRef<Map<string, LabelMarkerOverlay>>(new Map());
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const selectedPoiIdRef = useRef<string | null>(null);
+  const safeTopRef = useRef(0);
+  const safeBottomRef = useRef(0);
   const userMarkerRef = useRef<LabelMarkerOverlay | null>(null);
   const [ready, setReady] = useState(false);
   const hasFittedRef = useRef(false);
@@ -1065,6 +1069,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         highlightColor,
       );
 
+      overlay.setSafeArea({ top: safeTopRef.current, bottom: safeBottomRef.current });
       overlaysRef.current.set(poi.id, overlay);
     });
 
@@ -1218,6 +1223,16 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     }
     selectedPoiIdRef.current = selectedPoiId ?? null;
   }, [selectedPoiId, hoveredPoiId]);
+
+  // Bandes réservées aux Pills (haut / bas) : aucun marqueur ne doit s'y afficher.
+  const safeTop = markerSafeArea?.top ?? 0;
+  const safeBottom = markerSafeArea?.bottom ?? 0;
+  useEffect(() => {
+    safeTopRef.current = safeTop;
+    safeBottomRef.current = safeBottom;
+    overlaysRef.current.forEach((o) => o.setSafeArea({ top: safeTop, bottom: safeBottom }));
+    userMarkerRef.current?.setSafeArea({ top: safeTop, bottom: safeBottom });
+  }, [safeTop, safeBottom, pois, ready]);
 
   // Keep city centered when a city center is provided (skip in fitToMarkers mode,
   // et surtout quand centerAtBottomRatio impose l'unique critère de centrage).
