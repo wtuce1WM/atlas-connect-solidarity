@@ -286,7 +286,9 @@ export async function buildVideoFeedAnswer(
     total = loaded.total;
     seed = loaded.seed;
   }
-  if (!videos.length) {
+  // Badges fournis = périmètre STRICT : aucun repli legacy. Si le feed badgé est
+  // vide, on retourne null (pas de feed) plutôt que des vidéos non badgées.
+  if (!videos.length && !badgeIds.length) {
     videos = await loadVideoFeed(admin, {
       badgeIds,
       pinnedBusinessIds: opts.pinnedBusinessIds,
