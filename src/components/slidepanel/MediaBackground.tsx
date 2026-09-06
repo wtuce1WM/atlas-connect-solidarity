@@ -41,6 +41,28 @@ const MediaBackground = React.memo(function MediaBackground({
   // Dernière vidéo fichier affichée (anti écran noir pendant le chargement).
   const lastFileUrlRef = useRef<string | null>(null);
 
+  // Filet dur : dès que le média courant n'est PAS une vidéo native (YouTube,
+  // Vimeo, image, Matterport), le dernier élément <video> connu est coupé —
+  // même s'il a déjà été détaché du DOM (un élément détaché continue d'émettre
+  // du son tant qu'il n'est pas mis en pause).
+  useEffect(() => {
+    const isNativeVideo = effectiveMedia?.kind === "video" && videoInfo?.type === "file";
+    if (isNativeVideo) return;
+    const stop = () => {
+      const v = videoRef.current;
+      if (!v) return;
+      try {
+        v.dataset.owmUserPaused = "1";
+        v.muted = true;
+        v.volume = 0;
+        v.pause();
+      } catch {/* ignore */}
+    };
+    stop();
+    const timers = [80, 300, 900].map((ms) => window.setTimeout(stop, ms));
+    return () => timers.forEach((t) => window.clearTimeout(t));
+  }, [effectiveMedia?.kind, effectiveMedia?.url, videoInfo?.type, videoRef]);
+
 
   // Vidéos natives : AUCUNE logique de lecture/son ici. Le moteur unique
   // (usePanelVideoPlayback, appelé par le panneau parent) est la seule source de

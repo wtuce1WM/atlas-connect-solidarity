@@ -33,6 +33,11 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
 }: FrozenFrameVideoProps) {
   const refA = useRef<HTMLVideoElement>(null);
   const refB = useRef<HTMLVideoElement>(null);
+  // Copies NON gérées par React : au démontage, React remet refA/refB à null
+  // AVANT d'exécuter les cleanups d'effets — les éléments détachés restaient
+  // alors en lecture (son de la vidéo interne audible pendant la YouTube suivante).
+  const keptRef = useRef<{ a: HTMLVideoElement | null; b: HTMLVideoElement | null }>({ a: null, b: null });
+
   const [active, setActive] = useState<0 | 1>(0);
   const activeRef = useRef<0 | 1>(0);
   const loadedKeyRef = useRef<string | null>(null);
@@ -171,12 +176,14 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   // Sécurité : à la destruction, aucun buffer ne doit continuer à jouer,
   // et la source est libérée pour rendre la mémoire / couper le téléchargement.
   useEffect(() => {
+    const kept = keptRef.current;
     return () => {
-      [refA.current, refB.current].forEach((el) => {
+      [kept.a, kept.b].forEach((el) => {
         if (!el) return;
         try {
           el.pause();
           el.muted = true;
+          el.volume = 0;
           el.removeAttribute("src");
           el.load();
         } catch {/* ignore */}
@@ -187,7 +194,11 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
 
   const buffer = (slot: 0 | 1, ref: React.RefObject<HTMLVideoElement>) => (
     <video
-      ref={ref}
+      ref={(el) => {
+        (ref as React.MutableRefObject<HTMLVideoElement | null>).current = el;
+        if (el) keptRef.current[slot === 0 ? "a" : "b"] = el;
+      }}
+
       className={`absolute inset-0 ${className} ${active === slot ? "opacity-100" : "opacity-0"}`}
       loop
       crossOrigin="anonymous"
