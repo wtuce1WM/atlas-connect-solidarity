@@ -4870,7 +4870,9 @@ const BookOnlineSlidePanelInner = ({
                   setSelectedDestinationId(poiId);
                 } else if (poiBusinesses.length > 0 || poiOverrideRows.length > 0) {
                   poiOpenedFromMapRef.current = true;
+                  setPoiNavIds(mapNavIds.includes(poiId) ? mapNavIds : [poiId]);
                   setSelectedPoiBusinessId(poiId);
+
                 } else {
                   setSelectedKpBusinessId(poiId);
                 }
