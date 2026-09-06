@@ -1586,6 +1586,17 @@ const BookOnlineSlidePanelInner = ({
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
     showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || aiAssistantOpen || showDescriptionOverlay || !!forceMuted;
 
+  // Une fiche ouverte au-dessus de la Map de l'assistant hérite de l'état IA
+  // global de Home (`aiOverlayActive`). Cet état ambiant ne doit pas bloquer sa
+  // navigation verticale : seuls les overlays réellement ouverts dans cette
+  // fiche imbriquée suspendent ses gestes.
+  const businessNavigationBlocked = internalWheelNav
+    ? showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
+      !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
+      !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay || showFallbackOverlay ||
+      aiAssistantOpen || showDescriptionOverlay || showWelcomePopup || showPromosPopup
+    : anyOverlayOpen;
+
   // Moteur UNIQUE de lecture/son des vidéos natives — identique à VideoSlidePanel.
   const {
     paused: videoPaused,
@@ -2342,8 +2353,8 @@ const BookOnlineSlidePanelInner = ({
   const bizWheelAccumRef = useRef(0);
   const bizWheelLockUntilRef = useRef(0);
   const bizNavRef = useRef({ onPrev: effectiveOnPrev, onNext: effectiveOnNext, hasPrev: effectiveHasPrev, hasNext: effectiveHasNext });
-  const anyOverlayOpenRef = useRef(anyOverlayOpen);
-  useEffect(() => { anyOverlayOpenRef.current = anyOverlayOpen; }, [anyOverlayOpen]);
+  const businessNavigationBlockedRef = useRef(businessNavigationBlocked);
+  useEffect(() => { businessNavigationBlockedRef.current = businessNavigationBlocked; }, [businessNavigationBlocked]);
   useEffect(() => {
     bizNavRef.current = { onPrev: effectiveOnPrev, onNext: effectiveOnNext, hasPrev: effectiveHasPrev, hasNext: effectiveHasNext };
   }, [effectiveOnPrev, effectiveOnNext, effectiveHasPrev, effectiveHasNext]);
@@ -2353,7 +2364,7 @@ const BookOnlineSlidePanelInner = ({
     const scrollEl = mediaScrollRef.current;
     if (!el || !scrollEl) return;
     const onWheelY = (e: WheelEvent) => {
-      if (anyOverlayOpenRef.current) return;
+      if (businessNavigationBlockedRef.current) return;
       if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
       const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
       const maxTop = scrollEl.scrollHeight - scrollEl.clientHeight;
@@ -2390,19 +2401,22 @@ const BookOnlineSlidePanelInner = ({
     if (!root || !scrollEl) return;
     let start: { x: number; y: number; top: number; interactive: boolean; handled: boolean } | null = null;
     const onStart = (e: TouchEvent) => {
-      if (e.touches.length !== 1 || anyOverlayOpenRef.current) { start = null; return; }
+      if (e.touches.length !== 1 || businessNavigationBlockedRef.current) { start = null; return; }
       const t = e.touches[0];
       start = {
         x: t.clientX,
         y: t.clientY,
         top: scrollEl.scrollTop,
-        interactive: isInteractiveTarget(e.target),
+        // Un bouton ne bloque pas le swipe : tant que le seuil n'est pas
+        // franchi, le tap reste intact. Cela permet de démarrer le geste sur
+        // la barre d'information ou une carte sans neutraliser leurs clics.
+        interactive: false,
         handled: false,
       };
     };
     const resolveGesture = (e: TouchEvent, t: Touch) => {
       const s = start;
-      if (!s || s.handled || anyOverlayOpenRef.current) return;
+      if (!s || s.handled || businessNavigationBlockedRef.current) return;
       if (s.interactive) return;
       const dx = t.clientX - s.x;
       const dy = t.clientY - s.y;
