@@ -4350,6 +4350,7 @@ const BookOnlineSlidePanelInner = ({
               onMosaicStateChange={onMosaicStateChange}
               propagateMosaicState
               toolbarPortalPrefix="poi"
+              internalWheelNav
               hasPrev={poiNavIds.indexOf(selectedPoiBusinessId) > 0}
               hasNext={poiNavIds.indexOf(selectedPoiBusinessId) >= 0 && poiNavIds.indexOf(selectedPoiBusinessId) < poiNavIds.length - 1}
               onPrev={() => {
