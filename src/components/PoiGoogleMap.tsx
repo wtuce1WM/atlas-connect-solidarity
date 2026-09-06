@@ -273,6 +273,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       this.name = name;
       this.iconSvg = iconSvg;
       this.highlighted = highlighted;
+      this.pinBelow = false;
       this.customColor = customColor;
       this.highlightColor = highlightColor;
       this._onClick = onClick;
@@ -280,6 +281,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       this._onMouseOut = onMouseOut;
       this.setMap(map);
     }
+
 
     onAdd() {
       this.div = document.createElement("div");
