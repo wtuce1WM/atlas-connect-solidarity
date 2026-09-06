@@ -265,10 +265,19 @@ export async function fetchTieredBadgesVideoFeed(
   const ids = (badgeIds || []).filter(Boolean);
   const { limit = 60 } = options;
   if (ids.length < 2) return fetchBadgesVideoFeed(ids, options);
-  // Pool élargi : les paliers ne peuvent classer que ce qu'ils voient.
-  const poolLimit = Math.max(limit, 300);
-  const { items, total } = await fetchBadgesVideoFeed(ids, { ...options, limit: poolLimit, offset: 0 });
-  const ordered = orderByBadgeIntersectionTiers(items, ids);
+  // Pool élargi ET paginé : le palier strict peut se trouver au-delà de la 1re
+  // page du mélange par seed (26 vidéos strictes dans un pool OR de ~800).
+  const seed = options.seed ?? Math.random().toString(36).slice(2, 10);
+  const POOL_CAP = 900;
+  const all: BadgeVideoFeedItem[] = [];
+  let total = 0;
+  for (let offset = 0; offset < POOL_CAP; offset += 300) {
+    const page = await fetchBadgesVideoFeed(ids, { ...options, seed, limit: 300, offset });
+    total = page.total || total;
+    all.push(...page.items);
+    if (page.items.length < 300 || all.length >= total) break;
+  }
+  const ordered = orderByBadgeIntersectionTiers(all, ids);
   return { items: ordered.slice(0, limit), total };
 }
 

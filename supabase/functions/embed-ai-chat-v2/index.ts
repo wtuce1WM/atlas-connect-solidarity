@@ -38,7 +38,7 @@ import {
   buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer, applyLabelPlaceholders,
 
 } from "../_shared/ai-engine/routes/curated.ts";
-import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
+import { buildVideoFeedAnswer, videoFeedMarker, loadBadgeVideoFeedPool, orderVideosByBadgeTiers } from "../_shared/ai-engine/routes/videoFeed.ts";
 import { matchFrontBadgeInMessage, matchFrontBadgesInMessage, resolveBadgeBusinessIds, badgeLabelKey } from "../_shared/ai-engine/routes/badgeVideoBusinesses.ts";
 
 import { buildDestinationsBlock } from "../_shared/ai-engine/routes/destinations.ts";
@@ -1756,6 +1756,42 @@ Deno.serve(async (req) => {
             }));
             if (badgeBizIds.length >= 3) {
 
+              // ── Feed vidéo automatique en PALIERS (route badge nommé) ────────
+              // Si la phrase nomme au moins DEUX badges actifs (« location villa
+              // vue sur mer » ⇢ Location + Villas + Vue sur mer), le lecteur
+              // vidéo s'ouvre avant les fiches, ordonné par paliers : intersection
+              // stricte d'abord (villas vue sur mer), puis paliers relâchés
+              // (hôtels/riads vue sur mer). Les fiches ne changent pas.
+              try {
+                const feedBadges = await matchFrontBadgesInMessage(admin, userMessage, lang as any, 3);
+                if (feedBadges.length >= 2) {
+                  const feedBadgeIds = feedBadges.map((b) => b.id);
+                  const pool = await loadBadgeVideoFeedPool(admin, {
+                    badgeIds: feedBadgeIds, city: badgeCity || null,
+                  }).catch(() => null);
+                  const tiered = pool
+                    ? orderVideosByBadgeTiers(pool.videos, feedBadgeIds).slice(0, 60)
+                    : [];
+                  console.log("[embed-ai-chat-v2] badge_named_tiered_feed", JSON.stringify({
+                    badges: feedBadges.map((b) => b.name),
+                    pool: pool?.videos.length ?? 0, emitted: tiered.length,
+                  }));
+                  if (tiered.length) {
+                    emit(videoFeedMarker({
+                      title: feedBadges.map((b) => b.name).join(" · "),
+                      videos: tiered,
+                      total: pool?.total ?? tiered.length,
+                      badgeIds: feedBadgeIds,
+                      seed: pool?.seed,
+                    }));
+                  }
+                }
+              } catch (e) {
+                console.error("[embed-ai-chat-v2] badge_named_tiered_feed_failed", String(e));
+              }
+
+
+
               let earlyEmitted = false;
               const built = await buildPinnedAnswer(
                 admin, badgeBizIds, host, lang, namedBadge.name,
@@ -2110,6 +2146,38 @@ Deno.serve(async (req) => {
                     inter: inter.length, union: union.length,
                     mode: inter.length ? "intersection" : "most_specific", added, promoted,
                   }));
+
+                  // ── Feed vidéo automatique en PALIERS (recherche libre) ──────
+                  // Quand la phrase nomme AU MOINS DEUX badges actifs
+                  // (« location villa vue sur mer » ⇢ Location + Villas + Vue sur
+                  // mer), on ouvre aussi le lecteur vidéo, ordonné par paliers :
+                  // l'intersection stricte des badges d'abord, puis les paliers
+                  // relâchés (badge le moins spécifique lâché en premier — donc
+                  // les hôtels/riads « vue sur mer » derrière les villas).
+                  // Les fiches restent inchangées : le tour continue normalement.
+                  if (augBadges.length >= 2) {
+                    const feedBadgeIds = augBadges.map((b) => b.id);
+                    const pool = await loadBadgeVideoFeedPool(admin, {
+                      badgeIds: feedBadgeIds,
+                      city: city || null,
+                    }).catch(() => null);
+                    const tiered = pool
+                      ? orderVideosByBadgeTiers(pool.videos, feedBadgeIds).slice(0, 60)
+                      : [];
+                    console.log("[embed-ai-chat-v2] free_search_tiered_feed", JSON.stringify({
+                      badges: augBadges.map((b) => b.name),
+                      pool: pool?.videos.length ?? 0, emitted: tiered.length,
+                    }));
+                    if (tiered.length) {
+                      emit(videoFeedMarker({
+                        title: augBadges.map((b) => b.name).join(" · "),
+                        videos: tiered,
+                        total: pool?.total ?? tiered.length,
+                        badgeIds: feedBadgeIds,
+                        seed: pool?.seed,
+                      }));
+                    }
+                  }
 
 
                 }
