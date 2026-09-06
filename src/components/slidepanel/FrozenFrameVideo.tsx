@@ -33,6 +33,11 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
 }: FrozenFrameVideoProps) {
   const refA = useRef<HTMLVideoElement>(null);
   const refB = useRef<HTMLVideoElement>(null);
+  // Copies NON gérées par React : au démontage, React remet refA/refB à null
+  // AVANT d'exécuter les cleanups d'effets — les éléments détachés restaient
+  // alors en lecture (son de la vidéo interne audible pendant la YouTube suivante).
+  const keptRef = useRef<{ a: HTMLVideoElement | null; b: HTMLVideoElement | null }>({ a: null, b: null });
+
   const [active, setActive] = useState<0 | 1>(0);
   const activeRef = useRef<0 | 1>(0);
   const loadedKeyRef = useRef<string | null>(null);
