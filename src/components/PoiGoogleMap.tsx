@@ -34,6 +34,8 @@ interface PoiGoogleMapProps {
   fitToMarkers?: boolean;
   /** Overrides the default padding used by fitToMarkers (px). */
   fitPadding?: { top: number; right: number; bottom: number; left: number };
+  /** Bandes (px) réservées aux Pills : les marqueurs qui y entrent sont masqués. */
+  markerSafeArea?: { top: number; bottom: number };
   /** Custom highlight color for the selected marker (default: dark) */
   highlightColor?: { bg: string; fg: string; border: string };
   /** When provided, draws a terracotta dot at the user's geolocation. */
@@ -236,8 +238,12 @@ async function fetchLucideIcon(name: string): Promise<string> {
 type LabelMarkerOverlay = google.maps.OverlayView & {
   setHighlighted: (val: boolean) => void;
   setPinBelow: (val: boolean) => void;
+  setSafeArea: (val: { top: number; bottom: number }) => void;
   pulse: (direction: 1 | -1) => void;
 };
+
+/** Hauteur visuelle approximative d'un marqueur (label + pin), au-dessus de l'ancre. */
+const MARKER_VISUAL_H = 62;
 
 
 
@@ -249,6 +255,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     private iconSvg: string;
     private highlighted: boolean;
     private pinBelow: boolean;
+    private safeArea: { top: number; bottom: number } = { top: 0, bottom: 0 };
     private customColor?: { bg: string; fg: string; border: string };
     private highlightColor?: { bg: string; fg: string; border: string };
     private _onClick?: () => void;
@@ -304,6 +311,34 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       if (!point) return;
       this.div.style.left = `${point.x}px`;
       this.div.style.top = `${point.y}px`;
+      this.applySafeAreaVisibility();
+    }
+
+    /** Masque le marqueur quand il entre dans les bandes réservées aux Pills. */
+    private applySafeAreaVisibility() {
+      if (!this.div) return;
+      const { top, bottom } = this.safeArea;
+      if (!top && !bottom) {
+        this.div.style.visibility = "";
+        this.div.style.pointerEvents = "";
+        return;
+      }
+      const mapDiv = (this.getMap() as google.maps.Map | null)?.getDiv?.() as HTMLElement | undefined;
+      const proj = this.getProjection();
+      if (!mapDiv || !proj) return;
+      const sp = proj.fromLatLngToContainerPixel(this.position);
+      if (!sp) return;
+      const h = mapDiv.clientHeight || 0;
+      const hidden =
+        (top > 0 && sp.y - MARKER_VISUAL_H < top) ||
+        (bottom > 0 && h > 0 && sp.y > h - bottom);
+      this.div.style.visibility = hidden ? "hidden" : "";
+      this.div.style.pointerEvents = hidden ? "none" : "";
+    }
+
+    setSafeArea(val: { top: number; bottom: number }) {
+      this.safeArea = val;
+      if (this.div) this.applySafeAreaVisibility();
     }
 
     onRemove() {
@@ -399,13 +434,15 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, fitPadding, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, onReady, centerAtBottomRatio, mapTypeId, fitRadiusKm, connector, distanceOrigin }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, fitPadding, markerSafeArea, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, onReady, centerAtBottomRatio, mapTypeId, fitRadiusKm, connector, distanceOrigin }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const overlaysRef = useRef<Map<string, LabelMarkerOverlay>>(new Map());
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const selectedPoiIdRef = useRef<string | null>(null);
+  const safeTopRef = useRef(0);
+  const safeBottomRef = useRef(0);
   const userMarkerRef = useRef<LabelMarkerOverlay | null>(null);
   const [ready, setReady] = useState(false);
   const hasFittedRef = useRef(false);
@@ -1032,6 +1069,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         highlightColor,
       );
 
+      overlay.setSafeArea({ top: safeTopRef.current, bottom: safeBottomRef.current });
       overlaysRef.current.set(poi.id, overlay);
     });
 
@@ -1185,6 +1223,16 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     }
     selectedPoiIdRef.current = selectedPoiId ?? null;
   }, [selectedPoiId, hoveredPoiId]);
+
+  // Bandes réservées aux Pills (haut / bas) : aucun marqueur ne doit s'y afficher.
+  const safeTop = markerSafeArea?.top ?? 0;
+  const safeBottom = markerSafeArea?.bottom ?? 0;
+  useEffect(() => {
+    safeTopRef.current = safeTop;
+    safeBottomRef.current = safeBottom;
+    overlaysRef.current.forEach((o) => o.setSafeArea({ top: safeTop, bottom: safeBottom }));
+    userMarkerRef.current?.setSafeArea({ top: safeTop, bottom: safeBottom });
+  }, [safeTop, safeBottom, pois, ready]);
 
   // Keep city centered when a city center is provided (skip in fitToMarkers mode,
   // et surtout quand centerAtBottomRatio impose l'unique critère de centrage).

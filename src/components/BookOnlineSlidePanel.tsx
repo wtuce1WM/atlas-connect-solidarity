@@ -5021,6 +5021,11 @@ const BookOnlineSlidePanelInner = ({
                   ]
               }
               selectedPoiId={null}
+              // Aucun marqueur derrière/au-dessus des Pills du haut ni sous les Pills du bas.
+              markerSafeArea={{
+                top: (showAllToggle || showSubcatPill || showProxPill || showCatPill) ? 145 : 100,
+                bottom: 100,
+              }}
               center={poiMasterCenter}
               distanceOrigin={poiMasterCenter ? { lat: poiMasterCenter.lat, lng: poiMasterCenter.lng } : null}
               onPoiClick={(poiId) => {
