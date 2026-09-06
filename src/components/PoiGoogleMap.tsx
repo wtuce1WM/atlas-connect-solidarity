@@ -368,7 +368,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
 
       const pinFill = this.customColor ? this.customColor.bg : "#000000";
       const pinHtml = (this.highlighted || this.customColor)
-        ? `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 384 512" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));${this.pinBelow ? 'transform:scaleY(-1);margin-top:8px;' : 'margin-bottom:-2px;'}"><path fill="${pinFill}" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`
+        ? `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 384 512" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));${this.pinBelow ? 'transform:scaleY(-1);margin-top:-2px;' : 'margin-bottom:-2px;'}"><path fill="${pinFill}" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`
         : "";
 
       const labelHtml = `<div style="
@@ -913,7 +913,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         const IW_W = 268;
         const IW_H = img ? 200 : 90;
         const PAD = 12;
-        const PIN_BELOW_EXTRA = 54; // pin 40px + air label↔miniature
+        const PIN_BELOW_EXTRA = 6; // pointe du pin déjà au point d'ancrage : juste un filet d'air
         let offX = 0;
         let offY = IW_H + PIN_BELOW_EXTRA;
         let openPinBelow = true;
