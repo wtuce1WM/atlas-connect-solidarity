@@ -4664,6 +4664,7 @@ const BookOnlineSlidePanelInner = ({
             {(!embedMode || overridePool || poiOverrideKey.length > 0 || !!onClose) && (
               <button
                 onClick={() => { if (embedMode || initialOverlay === "poi") { onClose?.(); return; } setShowPoiMapOverlay(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
+                data-map-pill
                 className="absolute top-[calc(3.3rem+0.75rem)] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-opacity"
                 aria-label="Fermer"
               >
