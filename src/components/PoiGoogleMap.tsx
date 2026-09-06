@@ -368,7 +368,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
 
       const pinFill = this.customColor ? this.customColor.bg : "#000000";
       const pinHtml = (this.highlighted || this.customColor)
-        ? `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 384 512" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));margin-bottom:-2px;"><path fill="${pinFill}" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`
+        ? `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 384 512" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));${this.pinBelow ? 'transform:scaleY(-1);margin-top:8px;' : 'margin-bottom:-2px;'}"><path fill="${pinFill}" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`
         : "";
 
       const labelHtml = `<div style="
@@ -383,8 +383,9 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
         line-height:1.2;
       ">${iconHtml}<span>${shortName}</span></div>`;
 
-      this.div.innerHTML = `${pinHtml}${labelHtml}`;
+      this.div.innerHTML = this.pinBelow ? `${labelHtml}${pinHtml}` : `${pinHtml}${labelHtml}`;
       this.draw();
+
     }
   };
 
