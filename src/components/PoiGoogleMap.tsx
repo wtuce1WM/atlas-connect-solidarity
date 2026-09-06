@@ -711,6 +711,35 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     const markUserMoved = () => { userMovedRef.current = true; };
     mapRef.current.addListener("dragstart", markUserMoved);
 
+    // Déplacement/dézoom utilisateur : on remonte le rayon nécessaire pour couvrir
+    // le viewport visible (debounce), afin que le corpus suive la zone regardée.
+    let idleTimer: ReturnType<typeof setTimeout> | null = null;
+    const idleListener = mapRef.current.addListener("idle", () => {
+      const cb = onViewportRadiusKmRef.current;
+      if (!cb || !userMovedRef.current) return;
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        const map = mapRef.current;
+        const origin = distanceOriginRef.current ?? centerRef.current;
+        const b = map?.getBounds();
+        if (!map || !origin || !b) return;
+        const ne = b.getNorthEast();
+        const sw = b.getSouthWest();
+        const corners = [
+          { lat: ne.lat(), lng: ne.lng() },
+          { lat: sw.lat(), lng: sw.lng() },
+          { lat: ne.lat(), lng: sw.lng() },
+          { lat: sw.lat(), lng: ne.lng() },
+        ];
+        const needed = Math.max(
+          ...corners.map((c) => haversineKm(origin.lat, origin.lng, c.lat, c.lng))
+        );
+        if (Number.isFinite(needed)) cb(needed);
+      }, 400);
+    });
+
+
+
     const container = containerRef.current;
     container.addEventListener("wheel", handleWheel, { passive: false });
     container.addEventListener("dblclick", handleDblClick, { passive: false });
