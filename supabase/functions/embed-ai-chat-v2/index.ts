@@ -1713,7 +1713,12 @@ Deno.serve(async (req) => {
         // « Complexes hôteliers ») — sinon la recherche sémantique reste maître.
         {
           const namedBadge = await matchFrontBadgeInMessage(admin, userMessage, lang as any).catch(() => null);
-          const multiWord = !!namedBadge && namedBadge.name.trim().split(/\s+/).length >= 2;
+          // La règle « libellé ≥ 2 mots » protège contre les badges mono-mot trop
+          // génériques trouvés LITTÉRALEMENT. Un match par SYNONYME d'intention
+          // (« acheter » ⇢ badge « Vente ») est, lui, explicitement curé en base :
+          // il ouvre la route même sur un libellé mono-mot.
+          const multiWord = !!namedBadge
+            && (namedBadge.viaSynonym === true || namedBadge.name.trim().split(/\s+/).length >= 2);
           const sameConcept = !!namedBadge && !!resolution && resolution.targets.some(
             (t) => badgeLabelKey(t.value) === badgeLabelKey(namedBadge.name),
           );

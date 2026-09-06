@@ -37,7 +37,89 @@ function depluralize(v: string): string {
 /** Libellés trop ambigus pour servir de détecteur de badge (mots grammaticaux). */
 const AMBIGUOUS_BADGE_TOKENS = new Set(["the", "and", "or", "les", "des", "una", "uno", "tea"]);
 
-export type FrontBadge = { id: string; name: string };
+export type FrontBadge = { id: string; name: string; viaSynonym?: boolean };
+
+/**
+ * SYNONYMES D'INTENTION → BADGE (source unique : `search_synonyms.badge_id`).
+ *
+ * Le libellé d'un badge n'est pas toujours le mot de l'utilisateur : « acheter »
+ * désigne le badge « Vente », « louer » le badge « Location ». Ces équivalences
+ * sont déjà modélisées en base (colonne `badge_id` de `search_synonyms`, éditable
+ * au backoffice Synonymes) et lues par `_shared/taxonomy-resolver.ts`. On les
+ * branche ici pour que la détection de badge partage LA MÊME autorité, sans
+ * ajouter de colonne `keywords` sur `badges` (source de vérité concurrente).
+ *
+ * Matching sur MOT ENTIER, normalisé et dé-pluralisé, comme les libellés.
+ */
+type SynonymRow = { badgeId: string | null; terms: string[] };
+let synonymBadgeCache: { at: number; rows: SynonymRow[] } | null = null;
+
+/**
+ * TOUTES les lignes `search_synonyms` (avec ou sans `badge_id`). Les lignes sans
+ * badge servent de GARDE : « acheter à manger » (ligne « nourriture », sans badge)
+ * est plus spécifique que « acheter » (badge Vente) et l'emporte. Le libellé le
+ * plus long gagne — même règle que la détection de badge par libellé.
+ */
+async function loadSynonymBadgeMap(admin: any): Promise<SynonymRow[]> {
+  if (synonymBadgeCache && Date.now() - synonymBadgeCache.at < 5 * 60_000) return synonymBadgeCache.rows;
+  const { data } = await admin
+    .from("search_synonyms")
+    .select("key_word, key_word_en, key_word_ar, synonyms, synonyms_en, synonyms_ar, badge_id")
+    .eq("is_active", true);
+  const rows: SynonymRow[] = [];
+  for (const r of (data || []) as any[]) {
+    const terms = [
+      r.key_word, r.key_word_en, r.key_word_ar,
+      ...(Array.isArray(r.synonyms) ? r.synonyms : []),
+      ...(Array.isArray(r.synonyms_en) ? r.synonyms_en : []),
+      ...(Array.isArray(r.synonyms_ar) ? r.synonyms_ar : []),
+    ]
+      .map((t) => norm(t))
+      .filter((t) => t.length >= 3 && !AMBIGUOUS_BADGE_TOKENS.has(t));
+    if (terms.length) rows.push({ badgeId: r.badge_id ? String(r.badge_id) : null, terms: Array.from(new Set(terms)) });
+  }
+  synonymBadgeCache = { at: Date.now(), rows };
+  return rows;
+}
+
+/** Badges désignés par un SYNONYME d'intention présent dans le message. */
+async function matchBadgesBySynonym(
+  admin: any,
+  message: string,
+  activeBadges: Map<string, string>,
+): Promise<Array<{ id: string; name: string; len: number }>> {
+  const hay = ` ${norm(message)} `;
+  const hayDep = ` ${depluralize(message)} `;
+  if (!hay.trim()) return [];
+  const rows = await loadSynonymBadgeMap(admin).catch(() => []);
+
+  // 1. Tous les termes réellement présents dans le message, badge ou non.
+  const matched: Array<{ badgeId: string | null; term: string }> = [];
+  for (const row of rows) {
+    for (const t of row.terms) {
+      const td = depluralize(t);
+      if (hay.includes(` ${t} `) || hayDep.includes(` ${td} `)) matched.push({ badgeId: row.badgeId, term: t });
+    }
+  }
+
+  // 2. Garde de spécificité : un terme de badge écrasé par un terme PLUS LONG
+  //    qui le contient (« acheter » ⊂ « acheter a manger ») est abandonné.
+  const hits = new Map<string, { id: string; name: string; len: number }>();
+  for (const m of matched) {
+    if (!m.badgeId) continue;
+    const label = activeBadges.get(m.badgeId);
+    if (!label) continue; // badge inactif sur le front → ignoré
+    const overridden = matched.some(
+      (o) => o.term.length > m.term.length
+        && o.badgeId !== m.badgeId
+        && ` ${o.term} `.includes(` ${m.term} `.slice(1, -1)),
+    );
+    if (overridden) continue;
+    const prev = hits.get(m.badgeId);
+    if (!prev || m.term.length > prev.len) hits.set(m.badgeId, { id: m.badgeId, name: label, len: m.term.length });
+  }
+  return Array.from(hits.values());
+}
 
 /**
  * Le message nomme-t-il littéralement un badge actif sur le front ?
@@ -74,7 +156,36 @@ export async function matchFrontBadgeInMessage(
       if (!best || n.length > best.len) best = { id: String(b.id), name: String(label || raw), len: n.length };
     }
   }
-  return best ? { id: best.id, name: best.name } : null;
+  // Un badge trouvé LITTÉRALEMENT reste l'autorité du corpus. Mais si le message
+  // porte EN PLUS une intention synonyme mappée sur un badge (« acheter une villa »
+  // ⇢ Vente + Villas), on le signale : l'appelant peut alors ouvrir la route même
+  // sur un libellé mono-mot, et le feed croisera les deux badges en paliers.
+  if (best) {
+    const alsoSyn = await matchBadgesBySynonym(
+      admin, message,
+      new Map<string, string>(
+        (data || []).map((b: any) => [
+          String(b.id),
+          String((lang === "en" && b.name_en) || (lang === "ar" && b.name_ar) || b.name_fr || b.name_en || b.name_ar),
+        ]),
+      ),
+    );
+    const extra = alsoSyn.some((s) => s.id !== best!.id);
+    return { id: best.id, name: best.name, viaSynonym: extra || undefined };
+  }
+  // Repli SYNONYME : aucun libellé littéral, mais le message porte une intention
+  // mappée sur un badge (« acheter » ⇢ Vente). Marqué `viaSynonym` pour que
+  // l'appelant sache que la détection ne vient pas du libellé.
+  const activeBadges = new Map<string, string>(
+    (data || []).map((b: any) => [
+      String(b.id),
+      String((lang === "en" && b.name_en) || (lang === "ar" && b.name_ar) || b.name_fr || b.name_en || b.name_ar),
+    ]),
+  );
+  const syn = await matchBadgesBySynonym(admin, message, activeBadges);
+  if (!syn.length) return null;
+  const top = syn.sort((a, c) => c.len - a.len)[0];
+  return { id: top.id, name: top.name, viaSynonym: true };
 }
 
 /**
@@ -110,6 +221,17 @@ export async function matchFrontBadgesInMessage(
       if (n.length > bestLen) bestLen = n.length;
     }
     if (bestLen) hits.push({ id: String(b.id), name: String(label || b.name_fr), len: bestLen });
+  }
+  // Augmentation par SYNONYME d'intention (« acheter une villa » ⇢ Vente + Villas).
+  const activeBadges = new Map<string, string>(
+    (data || []).map((b: any) => [
+      String(b.id),
+      String((lang === "en" && b.name_en) || (lang === "ar" && b.name_ar) || b.name_fr || b.name_en || b.name_ar),
+    ]),
+  );
+  const seen = new Set(hits.map((h) => h.id));
+  for (const s of await matchBadgesBySynonym(admin, message, activeBadges)) {
+    if (!seen.has(s.id)) { hits.push(s); seen.add(s.id); }
   }
   return hits.sort((a, c) => c.len - a.len).slice(0, max).map(({ id, name }) => ({ id, name }));
 }
