@@ -2375,60 +2375,55 @@ const BookOnlineSlidePanelInner = ({
     return () => el.removeEventListener("wheel", onWheelY);
   }, [internalWheelNav, anyOverlayOpen]);
 
-  // Le panneau imbriqué au-dessus de la Map doit capter le geste sur toute sa
-  // surface, et pas seulement sur le contenu scrollable : sur iOS le média de
-  // fond ou un enfant superposé peut sinon devenir la cible du touchstart.
+  // Secours tactile pour le panneau imbriqué au-dessus de la Map : on écoute sur
+  // le conteneur média (pas la racine) et on ne bloque JAMAIS le scroll interne
+  // ni les taps sur les CTAs — la navigation ne se déclenche qu'en bout de scroll.
   const anyOverlayOpenRef = useRef(anyOverlayOpen);
   useEffect(() => { anyOverlayOpenRef.current = anyOverlayOpen; }, [anyOverlayOpen]);
   useEffect(() => {
     if (!internalWheelNav) return;
-    const el = panelGestureRef.current;
+    const el = mediaScrollRef.current;
     if (!el) return;
-    let start: { x: number; y: number } | null = null;
+    let start: { x: number; y: number; top: number } | null = null;
     const onStart = (e: TouchEvent) => {
-      if (e.touches.length !== 1) { start = null; return; }
-      if (anyOverlayOpenRef.current || isInteractiveTarget(e.target)) { start = null; return; }
+      if (e.touches.length !== 1 || anyOverlayOpenRef.current) { start = null; return; }
       const t = e.touches[0];
-      start = { x: t.clientX, y: t.clientY };
-    };
-    const onMove = (e: TouchEvent) => {
-      if (!start || anyOverlayOpenRef.current) return;
-      const t = e.touches[0];
-      if (!t) return;
-      const dx = t.clientX - start.x;
-      const dy = t.clientY - start.y;
-      const isVertical = Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx) * 1.2;
-      const isHorizontal = totalMedia > 1 && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2;
-      if ((isVertical || isHorizontal) && e.cancelable) e.preventDefault();
+      start = { x: t.clientX, y: t.clientY, top: el.scrollTop };
     };
     const onEnd = (e: TouchEvent) => {
       const s = start;
       start = null;
       if (!s || anyOverlayOpenRef.current) return;
+      if (isInteractiveTarget(e.target)) return;
       const t = e.changedTouches[0];
+      if (!t) return;
       const dx = t.clientX - s.x;
       const dy = t.clientY - s.y;
       const absX = Math.abs(dx);
       const absY = Math.abs(dy);
-      if (absX > 60 && absX > absY * 1.5) { goMedia(dx < 0 ? 1 : -1); return; }
+      if (totalMedia > 1 && absX > 60 && absX > absY * 1.5) { goMedia(dx < 0 ? 1 : -1); return; }
       if (absY > 60 && absY > absX * 1.5) {
+        // Le contenu a-t-il vraiment défilé ? si oui, on laisse le scroll gagner.
+        if (Math.abs(el.scrollTop - s.top) > 4) return;
+        const maxTop = el.scrollHeight - el.clientHeight;
+        const canScroll = dy < 0 ? el.scrollTop < maxTop - 1 : el.scrollTop > 1;
+        if (canScroll) return;
         const nav = bizNavRef.current;
         if (dy < 0 && nav.hasNext && nav.onNext) nav.onNext();
         else if (dy > 0 && nav.hasPrev && nav.onPrev) nav.onPrev();
       }
     };
     const onCancel = () => { start = null; };
-    el.addEventListener("touchstart", onStart, { passive: true, capture: true });
-    el.addEventListener("touchmove", onMove, { passive: false, capture: true });
-    el.addEventListener("touchend", onEnd, { passive: true, capture: true });
-    el.addEventListener("touchcancel", onCancel, { passive: true, capture: true });
+    el.addEventListener("touchstart", onStart, { passive: true });
+    el.addEventListener("touchend", onEnd, { passive: true });
+    el.addEventListener("touchcancel", onCancel, { passive: true });
     return () => {
-      el.removeEventListener("touchstart", onStart, true);
-      el.removeEventListener("touchmove", onMove, true);
-      el.removeEventListener("touchend", onEnd, true);
-      el.removeEventListener("touchcancel", onCancel, true);
+      el.removeEventListener("touchstart", onStart);
+      el.removeEventListener("touchend", onEnd);
+      el.removeEventListener("touchcancel", onCancel);
     };
   }, [internalWheelNav, goMedia, totalMedia]);
+
 
   useEffect(() => {
     const el = mediaScrollRef.current;
@@ -2678,8 +2673,8 @@ const BookOnlineSlidePanelInner = ({
       ref={panelGestureRef}
       data-internal-swipe-nav={internalWheelNav ? "true" : undefined}
       className={`h-full overflow-visible overscroll-none relative ${isEmbedMapWidget || isPoiOnlyPanel ? "bg-transparent" : "bg-black"}`}
-      style={internalWheelNav ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
     >
+
       {/* Toolbar portals */}
       <ToolbarPortals
         business={business}
