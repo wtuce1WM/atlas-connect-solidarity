@@ -302,7 +302,7 @@ const BookOnlineSlidePanelInner = ({
   initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults,
   onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl,
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
-  onPrev, onNext, hasPrev, hasNext, prioritizeBusinessSwipe = false,
+  onPrev, onNext, hasPrev, hasNext, prioritizeBusinessSwipe = false, internalWheelNav = false,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
   poiOverrideIds, poiCityCorpus, poiOverrideTitle, eagerPoiCategories = false, poiAnchorCity, feedLayout, loadingSurface, aiMode,
   onFeedBadgeSelect, onFeedCitySelect, onFeedYouTubeSelect,
