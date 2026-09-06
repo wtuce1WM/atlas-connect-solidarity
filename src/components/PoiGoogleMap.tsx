@@ -392,7 +392,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       // Le spacer conserve exactement la géométrie du marqueur normal : le
       // label ne descend donc jamais lors de l'affichage sous le marqueur.
       this.div.innerHTML = this.pinBelow
-        ? `<span style="display:block;width:32px;height:38px;flex:0 0 auto;"></span>${labelHtml}${pinHtml}<span style="position:absolute;top:100%;left:50%;transform:translateX(-50%);width:180px;height:56px;"></span>`
+        ? `<span style="display:block;width:32px;height:38px;flex:0 0 auto;"></span>${labelHtml}${pinHtml}<span style="position:absolute;top:100%;left:50%;transform:translateX(-50%);width:180px;height:34px;"></span>`
         : `${pinHtml}${labelHtml}`;
       this.draw();
 
