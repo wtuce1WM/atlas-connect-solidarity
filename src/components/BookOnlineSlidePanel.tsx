@@ -4671,7 +4671,7 @@ const BookOnlineSlidePanelInner = ({
                 <X className="h-5 w-5" strokeWidth={2.5} />
               </button>
             )}
-            <div className="absolute top-[calc(3.3rem+0.75rem)] right-3 z-[15] flex items-center gap-2">
+            <div data-map-pill-row className="absolute top-[calc(3.3rem+0.75rem)] right-3 z-[15] flex items-center gap-2">
               {!embedMode && (
                 <button
                   type="button"
