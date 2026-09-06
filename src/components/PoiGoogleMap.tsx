@@ -235,8 +235,10 @@ async function fetchLucideIcon(name: string): Promise<string> {
 /* ── Custom Label Overlay ── */
 type LabelMarkerOverlay = google.maps.OverlayView & {
   setHighlighted: (val: boolean) => void;
+  setPinBelow: (val: boolean) => void;
   pulse: (direction: 1 | -1) => void;
 };
+
 
 
 const createLabelMarkerClass = (gmaps: typeof google.maps) =>
@@ -246,11 +248,13 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     private name: string;
     private iconSvg: string;
     private highlighted: boolean;
+    private pinBelow: boolean;
     private customColor?: { bg: string; fg: string; border: string };
     private highlightColor?: { bg: string; fg: string; border: string };
     private _onClick?: () => void;
     private _onMouseOver?: () => void;
     private _onMouseOut?: () => void;
+
 
     constructor(
       position: google.maps.LatLngLiteral,
@@ -269,6 +273,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       this.name = name;
       this.iconSvg = iconSvg;
       this.highlighted = highlighted;
+      this.pinBelow = false;
       this.customColor = customColor;
       this.highlightColor = highlightColor;
       this._onClick = onClick;
@@ -276,6 +281,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       this._onMouseOut = onMouseOut;
       this.setMap(map);
     }
+
 
     onAdd() {
       this.div = document.createElement("div");
@@ -312,8 +318,14 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       if (this.div) this.applyStyle();
     }
 
+    setPinBelow(val: boolean) {
+      this.pinBelow = val;
+      if (this.div) this.applyStyle();
+    }
+
     /** Petit effet de resize (zoom-in / zoom-out) sur le marqueur. */
     pulse(direction: 1 | -1) {
+
       const el = this.div;
       if (!el) return;
       const base = this.highlighted ? 1.08 : 1;
@@ -356,7 +368,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
 
       const pinFill = this.customColor ? this.customColor.bg : "#000000";
       const pinHtml = (this.highlighted || this.customColor)
-        ? `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 384 512" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));margin-bottom:-2px;"><path fill="${pinFill}" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`
+        ? `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 384 512" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));${this.pinBelow ? 'transform:scaleY(-1);margin-top:8px;' : 'margin-bottom:-2px;'}"><path fill="${pinFill}" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`
         : "";
 
       const labelHtml = `<div style="
@@ -371,8 +383,9 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
         line-height:1.2;
       ">${iconHtml}<span>${shortName}</span></div>`;
 
-      this.div.innerHTML = `${pinHtml}${labelHtml}`;
+      this.div.innerHTML = this.pinBelow ? `${labelHtml}${pinHtml}` : `${pinHtml}${labelHtml}`;
       this.draw();
+
     }
   };
 
@@ -593,9 +606,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     container.addEventListener("dblclick", handleDblClick, { passive: false });
 
     mapRef.current.addListener("click", () => {
+      overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
       openInfoPoiIdRef.current = null;
       infoWindowRef.current?.close();
     });
+
 
     return () => {
       container.removeEventListener("wheel", handleWheel);
@@ -893,13 +908,15 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         </div>`;
         infoWindowRef.current?.setContent(html);
         // Ancrage dynamique de l'infobulle : vers le BAS par défaut
-        // (la vignette s'ouvre sous le marqueur), et on ne remonte au-dessus
-        // que si le POI est trop près du bas de l'écran pour laisser la place.
+        // (la vignette s'ouvre sous le marqueur). Le pin noir est inversé et
+        // placé entre le label et la miniature quand il y a assez de place.
         const IW_W = 268;
         const IW_H = img ? 200 : 90;
         const PAD = 12;
+        const PIN_BELOW_EXTRA = 54; // pin 40px + air label↔miniature
         let offX = 0;
-        let offY = IW_H + 6;
+        let offY = IW_H + PIN_BELOW_EXTRA;
+        let openPinBelow = true;
         try {
           const proj = map.getProjection();
           const c = map.getCenter();
@@ -911,9 +928,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             const wc = proj.fromLatLngToPoint(c);
             const px = (wp.x - wc.x) * scale + cw / 2;
             const py = (wp.y - wc.y) * scale + ch / 2;
-            // Vertical : par défaut en dessous. On ne bascule au-dessus que s'il
-            // n'y a pas assez de place en bas.
-            if (py + IW_H + 6 > ch - PAD) offY = -50;
+            // Vertical : par défaut en dessous avec pin inversé. On ne bascule
+            // au-dessus (pin classique) que si la place manque en bas.
+            if (py + IW_H + PIN_BELOW_EXTRA > ch - PAD) {
+              offY = -50;
+              openPinBelow = false;
+            }
 
             // Horizontal : recentrage dans les bords.
             const left = px - IW_W / 2;
@@ -922,7 +942,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             else if (right > cw - PAD) offX = cw - PAD - right;
           }
         } catch { /* projection indisponible : offsets par défaut */ }
+        overlay.setPinBelow(openPinBelow);
         infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(offX, offY), disableAutoPan: true });
+
 
         infoWindowRef.current?.setPosition(position);
         infoWindowRef.current?.open(map);
@@ -931,11 +953,13 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           const el = document.querySelector(`[data-poi-id="${poi.id}"]`);
           if (el) {
             (el as HTMLElement).addEventListener("click", () => {
+              overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
               openInfoPoiIdRef.current = null;
               infoWindowRef.current?.close();
               onPoiClickRef.current?.(poi.id);
             });
           }
+
           // Keep infowindow open while mouse is over it
           const iwContainer = document.querySelector(".gm-style-iw")?.closest(".gm-style-iw-a")
             || document.querySelector(".gm-style-iw")?.parentElement;
@@ -946,8 +970,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             });
             (iwContainer as HTMLElement).addEventListener("mouseleave", () => {
               infoWindowHoveredRef.current = false;
-              closeTimerRef.current = setTimeout(() => { infoWindowRef.current?.close(); }, 200);
+              closeTimerRef.current = setTimeout(() => {
+                overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
+                infoWindowRef.current?.close();
+              }, 200);
             });
+
           }
         });
       };
@@ -965,19 +993,23 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             showInfo();
             return;
           }
+          overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
           openInfoPoiIdRef.current = null;
           infoWindowRef.current?.close();
           onPoiClickRef.current?.(poi.id);
         },
+
         showInfo,
         () => {
           // Delayed close to allow cursor to reach infowindow
           closeTimerRef.current = setTimeout(() => {
             if (!infoWindowHoveredRef.current) {
+              overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
               infoWindowRef.current?.close();
             }
           }, 300);
         },
+
         markerColor,
         highlightColor,
       );
