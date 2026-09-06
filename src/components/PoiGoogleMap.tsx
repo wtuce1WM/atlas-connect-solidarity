@@ -392,7 +392,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       // Le spacer conserve exactement la géométrie du marqueur normal : le
       // label ne descend donc jamais lors de l'affichage sous le marqueur.
       this.div.innerHTML = this.pinBelow
-        ? `<span style="display:block;width:32px;height:38px;flex:0 0 auto;"></span>${labelHtml}${pinHtml}`
+        ? `<span style="display:block;width:32px;height:38px;flex:0 0 auto;"></span>${labelHtml}${pinHtml}<span style="position:absolute;top:100%;left:50%;transform:translateX(-50%);width:180px;height:56px;"></span>`
         : `${pinHtml}${labelHtml}`;
       this.draw();
 
@@ -923,7 +923,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         const IW_W = 268;
         const IW_H = img ? 200 : 90;
         const PAD = 12;
-        const PIN_BELOW_EXTRA = 40; // hauteur exacte du pin, sans filet d'air, pour coller la miniature
+        // Hauteur du pin (40px) moins le chrome interne de l'InfoWindow, pour
+        // que la miniature soit réellement collée à la pointe du pin.
+        const PIN_BELOW_EXTRA = 30;
         let offX = 0;
         let offY = IW_H + PIN_BELOW_EXTRA;
         let openPinBelow = true;
@@ -983,7 +985,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
               closeTimerRef.current = setTimeout(() => {
                 overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
                 infoWindowRef.current?.close();
-              }, 200);
+              }, 320);
             });
 
           }
