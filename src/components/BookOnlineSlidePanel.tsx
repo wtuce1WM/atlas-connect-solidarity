@@ -4830,7 +4830,13 @@ const BookOnlineSlidePanelInner = ({
                       } as PoiMapItem)),
                   ]
                 : null;
+              // Corpus de navigation verticale du panneau imbriqué : exactement
+              // les marqueurs business affichés sur la carte, figés à l'ouverture.
+              const mapNavIds = (overridePool ? afterProx : displayedPoi)
+                .filter((p) => p.id !== poiMasterOverride?.id)
+                .map((p) => p.id);
               return (
+
             <PoiGoogleMap
               pois={overridePois ? overridePois : poiMapMode === "destinations"
                 ? [
