@@ -1284,9 +1284,17 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     // Always include userLocation so the "Vous êtes ici" marker stays in view
     if (userLocation) bounds.extend(userLocation);
 
+    // L'utilisateur a déjà déplacé/zoomé la carte : on ne recadre plus (sinon
+    // un élargissement automatique du rayon remettrait la vue à zéro).
+    if (userMovedRef.current && hasFittedRef.current) {
+      needsFitRef.current = false;
+      return;
+    }
+
     // Only fitBounds when pois/center actually changed, not on iconCache updates
     if ((hasPoints || center) && needsFitRef.current) {
       needsFitRef.current = false;
+
       gmaps.event.trigger(map, "resize");
       // Use generous padding when fitting to markers so labels aren't clipped
       const padding = fitToMarkers
