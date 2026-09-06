@@ -754,6 +754,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     return () => {
       container.removeEventListener("wheel", handleWheel);
       container.removeEventListener("dblclick", handleDblClick);
+      if (idleTimer) clearTimeout(idleTimer);
+      idleListener?.remove?.();
     };
   }, [ready, center, centerAtBottomRatio]);
 
