@@ -5025,6 +5025,16 @@ const BookOnlineSlidePanelInner = ({
               // Aucun marqueur derrière/au-dessus des Pills du haut ni sous les Pills du bas.
               markerSafeSelector="[data-map-pill-row],[data-map-pill]"
               markerSafeArea={{ top: 0, bottom: 0 }}
+              // Déplacement/dézoom de la carte : on élargit le Rayon au palier suffisant
+              // pour couvrir la zone regardée (jamais de réduction automatique).
+              onViewportRadiusKm={(needed) => {
+                setPoiProximityKm((prev) => {
+                  if (prev == null) return prev;
+                  const allowed = [0.5, 1, 5, 10, 20, 50, 100];
+                  const next = allowed.find((v) => v >= needed) ?? 100;
+                  return next > prev ? next : prev;
+                });
+              }}
               center={poiMasterCenter}
               distanceOrigin={poiMasterCenter ? { lat: poiMasterCenter.lat, lng: poiMasterCenter.lng } : null}
               onPoiClick={(poiId) => {

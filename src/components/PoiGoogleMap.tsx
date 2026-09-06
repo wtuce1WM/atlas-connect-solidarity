@@ -62,6 +62,9 @@ interface PoiGoogleMapProps {
   fitRadiusKm?: number | null;
   /** Point de référence pour la distance affichée dans la vignette (ex. marqueur Master). Prioritaire sur la géoloc utilisateur. */
   distanceOrigin?: { lat: number; lng: number } | null;
+  /** Appelé (debounce) quand l'utilisateur déplace/dézoome la carte : rayon (km)
+   * nécessaire depuis l'origine des distances pour couvrir le viewport visible. */
+  onViewportRadiusKm?: (km: number) => void;
   /** Trace une flèche rouge animée entre deux points, avec l'étiquette de distance au milieu. */
   connector?: {
     from: { lat: number; lng: number };
@@ -462,7 +465,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, fitPadding, markerSafeArea, markerSafeSelector, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, onReady, centerAtBottomRatio, mapTypeId, fitRadiusKm, connector, distanceOrigin }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, fitPadding, markerSafeArea, markerSafeSelector, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, onReady, centerAtBottomRatio, mapTypeId, fitRadiusKm, connector, distanceOrigin, onViewportRadiusKm }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -516,6 +519,10 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   useEffect(() => { userLocationRef.current = userLocation; }, [userLocation]);
   const distanceOriginRef = useRef(distanceOrigin);
   useEffect(() => { distanceOriginRef.current = distanceOrigin; }, [distanceOrigin]);
+  const onViewportRadiusKmRef = useRef(onViewportRadiusKm);
+  useEffect(() => { onViewportRadiusKmRef.current = onViewportRadiusKm; }, [onViewportRadiusKm]);
+
+
 
   // Current center ref for anchored zoom handlers (avoids stale closures)
   const centerRef = useRef(center);
@@ -704,6 +711,35 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     const markUserMoved = () => { userMovedRef.current = true; };
     mapRef.current.addListener("dragstart", markUserMoved);
 
+    // Déplacement/dézoom utilisateur : on remonte le rayon nécessaire pour couvrir
+    // le viewport visible (debounce), afin que le corpus suive la zone regardée.
+    let idleTimer: ReturnType<typeof setTimeout> | null = null;
+    const idleListener = mapRef.current.addListener("idle", () => {
+      const cb = onViewportRadiusKmRef.current;
+      if (!cb || !userMovedRef.current) return;
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        const map = mapRef.current;
+        const origin = distanceOriginRef.current ?? centerRef.current;
+        const b = map?.getBounds();
+        if (!map || !origin || !b) return;
+        const ne = b.getNorthEast();
+        const sw = b.getSouthWest();
+        const corners = [
+          { lat: ne.lat(), lng: ne.lng() },
+          { lat: sw.lat(), lng: sw.lng() },
+          { lat: ne.lat(), lng: sw.lng() },
+          { lat: sw.lat(), lng: ne.lng() },
+        ];
+        const needed = Math.max(
+          ...corners.map((c) => haversineKm(origin.lat, origin.lng, c.lat, c.lng))
+        );
+        if (Number.isFinite(needed)) cb(needed);
+      }, 400);
+    });
+
+
+
     const container = containerRef.current;
     container.addEventListener("wheel", handleWheel, { passive: false });
     container.addEventListener("dblclick", handleDblClick, { passive: false });
@@ -718,6 +754,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     return () => {
       container.removeEventListener("wheel", handleWheel);
       container.removeEventListener("dblclick", handleDblClick);
+      if (idleTimer) clearTimeout(idleTimer);
+      idleListener?.remove?.();
     };
   }, [ready, center, centerAtBottomRatio]);
 
