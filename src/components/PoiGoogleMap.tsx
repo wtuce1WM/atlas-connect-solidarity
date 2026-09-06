@@ -236,8 +236,12 @@ async function fetchLucideIcon(name: string): Promise<string> {
 type LabelMarkerOverlay = google.maps.OverlayView & {
   setHighlighted: (val: boolean) => void;
   setPinBelow: (val: boolean) => void;
+  setSafeArea: (val: { top: number; bottom: number }) => void;
   pulse: (direction: 1 | -1) => void;
 };
+
+/** Hauteur visuelle approximative d'un marqueur (label + pin), au-dessus de l'ancre. */
+const MARKER_VISUAL_H = 62;
 
 
 
@@ -249,6 +253,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     private iconSvg: string;
     private highlighted: boolean;
     private pinBelow: boolean;
+    private safeArea: { top: number; bottom: number } = { top: 0, bottom: 0 };
     private customColor?: { bg: string; fg: string; border: string };
     private highlightColor?: { bg: string; fg: string; border: string };
     private _onClick?: () => void;
@@ -304,6 +309,34 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       if (!point) return;
       this.div.style.left = `${point.x}px`;
       this.div.style.top = `${point.y}px`;
+      this.applySafeAreaVisibility();
+    }
+
+    /** Masque le marqueur quand il entre dans les bandes réservées aux Pills. */
+    private applySafeAreaVisibility() {
+      if (!this.div) return;
+      const { top, bottom } = this.safeArea;
+      if (!top && !bottom) {
+        this.div.style.visibility = "";
+        this.div.style.pointerEvents = "";
+        return;
+      }
+      const mapDiv = (this.getMap() as google.maps.Map | null)?.getDiv?.() as HTMLElement | undefined;
+      const proj = this.getProjection();
+      if (!mapDiv || !proj) return;
+      const sp = proj.fromLatLngToContainerPixel(this.position);
+      if (!sp) return;
+      const h = mapDiv.clientHeight || 0;
+      const hidden =
+        (top > 0 && sp.y - MARKER_VISUAL_H < top) ||
+        (bottom > 0 && h > 0 && sp.y > h - bottom);
+      this.div.style.visibility = hidden ? "hidden" : "";
+      this.div.style.pointerEvents = hidden ? "none" : "";
+    }
+
+    setSafeArea(val: { top: number; bottom: number }) {
+      this.safeArea = val;
+      if (this.div) this.applySafeAreaVisibility();
     }
 
     onRemove() {
