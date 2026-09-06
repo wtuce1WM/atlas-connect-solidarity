@@ -183,24 +183,17 @@ function lastResultsIndex(messages: UIMessage[]): number {
 // ── Garde-fou « type de lieu » sur un feed vidéo curaté ─────────────────────
 // Une suggestion curatée en mode `video_feed` (ex. « Les adresses avec vue sur
 // mer ») porte un badge thématique qui ignore le type de lieu ajouté par
-// l'utilisateur (« hôtel avec vue sur mer » ramenait un restaurant). Quand le
-// message nomme explicitement un type de lieu, on croise le pool curaté avec
-// les établissements portant le badge de ce type (`business_badges`) :
-//   restaurants  → « Où manger ? »   |   hôtels / riads → « Où dormir ? »
+// l'utilisateur (« hôtel avec vue sur mer » ramenait un restaurant). Seul le
+// badge métier précis « Villas » est gardé comme garde-fou, car il peut qualifier
+// une fiche via ses vidéos badgées. Les entrées larges « Où dormir ? » et
+// « Où manger ? » ont été retirées : trop de risque d'amputer des résultats
+// légitimes sur des mots courants.
 // Pas de repli silencieux : si le croisement est vide, le feed n'est pas émis
 // et le tour repart sur la recherche standard.
 const FEED_PLACE_TYPE_GUARDS: Array<{ badgeName: string; re: RegExp }> = [
   {
     badgeName: "Villas",
     re: /\b(villa|villas)\b/,
-  },
-  {
-    badgeName: "Où dormir ?",
-    re: /\b(hotel|hotels|riad|riads|maison d hote|maison d hotes|maisons d hotes|guesthouse|guest house|auberge|auberges|hostel|dormir|loger|hebergement|chambre|chambres)\b/,
-  },
-  {
-    badgeName: "Où manger ?",
-    re: /\b(restaurant|restaurants|resto|restos|manger|dejeuner|diner|brunch|gastronomique|gastronomie)\b/,
   },
 ];
 
