@@ -135,7 +135,20 @@ export async function matchFrontBadgeInMessage(
       if (!best || n.length > best.len) best = { id: String(b.id), name: String(label || raw), len: n.length };
     }
   }
-  return best ? { id: best.id, name: best.name } : null;
+  if (best) return { id: best.id, name: best.name };
+  // Repli SYNONYME : aucun libellé littéral, mais le message porte une intention
+  // mappée sur un badge (« acheter » ⇢ Vente). Marqué `viaSynonym` pour que
+  // l'appelant sache que la détection ne vient pas du libellé.
+  const activeBadges = new Map<string, string>(
+    (data || []).map((b: any) => [
+      String(b.id),
+      String((lang === "en" && b.name_en) || (lang === "ar" && b.name_ar) || b.name_fr || b.name_en || b.name_ar),
+    ]),
+  );
+  const syn = await matchBadgesBySynonym(admin, message, activeBadges);
+  if (!syn.length) return null;
+  const top = syn.sort((a, c) => c.len - a.len)[0];
+  return { id: top.id, name: top.name, viaSynonym: true };
 }
 
 /**
