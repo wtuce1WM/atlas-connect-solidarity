@@ -606,9 +606,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     container.addEventListener("dblclick", handleDblClick, { passive: false });
 
     mapRef.current.addListener("click", () => {
+      overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
       openInfoPoiIdRef.current = null;
       infoWindowRef.current?.close();
     });
+
 
     return () => {
       container.removeEventListener("wheel", handleWheel);
