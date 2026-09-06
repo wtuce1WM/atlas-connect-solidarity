@@ -37,7 +37,68 @@ function depluralize(v: string): string {
 /** Libellés trop ambigus pour servir de détecteur de badge (mots grammaticaux). */
 const AMBIGUOUS_BADGE_TOKENS = new Set(["the", "and", "or", "les", "des", "una", "uno", "tea"]);
 
-export type FrontBadge = { id: string; name: string };
+export type FrontBadge = { id: string; name: string; viaSynonym?: boolean };
+
+/**
+ * SYNONYMES D'INTENTION → BADGE (source unique : `search_synonyms.badge_id`).
+ *
+ * Le libellé d'un badge n'est pas toujours le mot de l'utilisateur : « acheter »
+ * désigne le badge « Vente », « louer » le badge « Location ». Ces équivalences
+ * sont déjà modélisées en base (colonne `badge_id` de `search_synonyms`, éditable
+ * au backoffice Synonymes) et lues par `_shared/taxonomy-resolver.ts`. On les
+ * branche ici pour que la détection de badge partage LA MÊME autorité, sans
+ * ajouter de colonne `keywords` sur `badges` (source de vérité concurrente).
+ *
+ * Matching sur MOT ENTIER, normalisé et dé-pluralisé, comme les libellés.
+ */
+let synonymBadgeCache: { at: number; rows: Array<{ badgeId: string; terms: string[] }> } | null = null;
+
+async function loadSynonymBadgeMap(admin: any): Promise<Array<{ badgeId: string; terms: string[] }>> {
+  if (synonymBadgeCache && Date.now() - synonymBadgeCache.at < 5 * 60_000) return synonymBadgeCache.rows;
+  const { data } = await admin
+    .from("search_synonyms")
+    .select("key_word, key_word_en, key_word_ar, synonyms, synonyms_en, synonyms_ar, badge_id")
+    .not("badge_id", "is", null);
+  const rows: Array<{ badgeId: string; terms: string[] }> = [];
+  for (const r of (data || []) as any[]) {
+    const terms = [
+      r.key_word, r.key_word_en, r.key_word_ar,
+      ...(Array.isArray(r.synonyms) ? r.synonyms : []),
+      ...(Array.isArray(r.synonyms_en) ? r.synonyms_en : []),
+      ...(Array.isArray(r.synonyms_ar) ? r.synonyms_ar : []),
+    ]
+      .map((t) => norm(t))
+      .filter((t) => t.length >= 3 && !AMBIGUOUS_BADGE_TOKENS.has(t));
+    if (terms.length) rows.push({ badgeId: String(r.badge_id), terms: Array.from(new Set(terms)) });
+  }
+  synonymBadgeCache = { at: Date.now(), rows };
+  return rows;
+}
+
+/** Badges désignés par un SYNONYME d'intention présent dans le message. */
+async function matchBadgesBySynonym(
+  admin: any,
+  message: string,
+  activeBadges: Map<string, string>,
+): Promise<Array<{ id: string; name: string; len: number }>> {
+  const hay = ` ${norm(message)} `;
+  const hayDep = ` ${depluralize(message)} `;
+  if (!hay.trim()) return [];
+  const rows = await loadSynonymBadgeMap(admin).catch(() => []);
+  const hits: Array<{ id: string; name: string; len: number }> = [];
+  for (const row of rows) {
+    const label = activeBadges.get(row.badgeId);
+    if (!label) continue; // badge inactif sur le front → ignoré
+    let bestLen = 0;
+    for (const t of row.terms) {
+      const td = depluralize(t);
+      if (!(hay.includes(` ${t} `) || hayDep.includes(` ${td} `))) continue;
+      if (t.length > bestLen) bestLen = t.length;
+    }
+    if (bestLen) hits.push({ id: row.badgeId, name: label, len: bestLen });
+  }
+  return hits;
+}
 
 /**
  * Le message nomme-t-il littéralement un badge actif sur le front ?
