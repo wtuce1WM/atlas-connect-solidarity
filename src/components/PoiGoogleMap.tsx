@@ -405,6 +405,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   const mapRef = useRef<google.maps.Map | null>(null);
   const overlaysRef = useRef<Map<string, LabelMarkerOverlay>>(new Map());
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const selectedPoiIdRef = useRef<string | null>(null);
   const userMarkerRef = useRef<LabelMarkerOverlay | null>(null);
   const [ready, setReady] = useState(false);
   const hasFittedRef = useRef(false);
@@ -979,11 +980,16 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             (iwContainer as HTMLElement).addEventListener("mouseenter", () => {
               infoWindowHoveredRef.current = true;
               if (closeTimerRef.current) { clearTimeout(closeTimerRef.current); closeTimerRef.current = null; }
+              // Le marqueur + pin restent en statut sélectionné (fond noir)
+              // tant que le curseur est dans la miniature.
+              overlaysRef.current.get(poi.id)?.setHighlighted(true);
             });
             (iwContainer as HTMLElement).addEventListener("mouseleave", () => {
               infoWindowHoveredRef.current = false;
               closeTimerRef.current = setTimeout(() => {
-                overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
+                const ov = overlaysRef.current.get(openInfoPoiIdRef.current ?? "");
+                ov?.setPinBelow(false);
+                if (openInfoPoiIdRef.current !== selectedPoiIdRef.current) ov?.setHighlighted(false);
                 infoWindowRef.current?.close();
               }, 320);
             });
@@ -1177,6 +1183,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     if (activeId) {
       prevSelectedRef.current = activeId;
     }
+    selectedPoiIdRef.current = selectedPoiId ?? null;
   }, [selectedPoiId, hoveredPoiId]);
 
   // Keep city centered when a city center is provided (skip in fitToMarkers mode,
