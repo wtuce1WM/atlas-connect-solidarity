@@ -2248,6 +2248,7 @@ const BookOnlineSlidePanelInner = ({
 
   // Horizontal swipe on media to navigate (replaces left/right chevrons)
   const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const panelGestureRef = useRef<HTMLDivElement | null>(null);
   // Ignore touches that originate from interactive controls (buttons/links/inputs),
   // otherwise the drag-to-hide re-render swallows the synthetic click on iOS,
   // requiring multiple taps to trigger CTAs.
@@ -2374,23 +2375,31 @@ const BookOnlineSlidePanelInner = ({
     return () => el.removeEventListener("wheel", onWheelY);
   }, [internalWheelNav, anyOverlayOpen]);
 
-  // Secours NATIF du swipe tactile vertical pour le panneau imbriqué au-dessus
-  // de la Map plein écran (internalWheelNav) : les handlers React onTouchStart/
-  // onTouchEnd du conteneur média ne se déclenchent pas de façon fiable dans ce
-  // contexte (l'iframe/viewer vidéo capte le geste sur iOS). Des listeners natifs
-  // non-passifs sur le conteneur garantissent le déclenchement, avec les mêmes
-  // règles (seuil 60 px, ratio 1.5, priorité au swipe horizontal entre médias).
+  // Le panneau imbriqué au-dessus de la Map doit capter le geste sur toute sa
+  // surface, et pas seulement sur le contenu scrollable : sur iOS le média de
+  // fond ou un enfant superposé peut sinon devenir la cible du touchstart.
   const anyOverlayOpenRef = useRef(anyOverlayOpen);
   useEffect(() => { anyOverlayOpenRef.current = anyOverlayOpen; }, [anyOverlayOpen]);
   useEffect(() => {
     if (!internalWheelNav) return;
-    const el = mediaScrollRef.current;
+    const el = panelGestureRef.current;
     if (!el) return;
     let start: { x: number; y: number } | null = null;
     const onStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) { start = null; return; }
       if (anyOverlayOpenRef.current || isInteractiveTarget(e.target)) { start = null; return; }
       const t = e.touches[0];
       start = { x: t.clientX, y: t.clientY };
+    };
+    const onMove = (e: TouchEvent) => {
+      if (!start || anyOverlayOpenRef.current) return;
+      const t = e.touches[0];
+      if (!t) return;
+      const dx = t.clientX - start.x;
+      const dy = t.clientY - start.y;
+      const isVertical = Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx) * 1.2;
+      const isHorizontal = totalMedia > 1 && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2;
+      if ((isVertical || isHorizontal) && e.cancelable) e.preventDefault();
     };
     const onEnd = (e: TouchEvent) => {
       const s = start;
@@ -2408,13 +2417,18 @@ const BookOnlineSlidePanelInner = ({
         else if (dy > 0 && nav.hasPrev && nav.onPrev) nav.onPrev();
       }
     };
-    el.addEventListener("touchstart", onStart, { passive: true });
-    el.addEventListener("touchend", onEnd, { passive: true });
+    const onCancel = () => { start = null; };
+    el.addEventListener("touchstart", onStart, { passive: true, capture: true });
+    el.addEventListener("touchmove", onMove, { passive: false, capture: true });
+    el.addEventListener("touchend", onEnd, { passive: true, capture: true });
+    el.addEventListener("touchcancel", onCancel, { passive: true, capture: true });
     return () => {
-      el.removeEventListener("touchstart", onStart);
-      el.removeEventListener("touchend", onEnd);
+      el.removeEventListener("touchstart", onStart, true);
+      el.removeEventListener("touchmove", onMove, true);
+      el.removeEventListener("touchend", onEnd, true);
+      el.removeEventListener("touchcancel", onCancel, true);
     };
-  }, [internalWheelNav, goMedia]);
+  }, [internalWheelNav, goMedia, totalMedia]);
 
   useEffect(() => {
     const el = mediaScrollRef.current;
@@ -2660,7 +2674,12 @@ const BookOnlineSlidePanelInner = ({
   })();
 
   return (
-    <div className={`h-full overflow-visible overscroll-none relative ${isEmbedMapWidget || isPoiOnlyPanel ? "bg-transparent" : "bg-black"}`}>
+    <div
+      ref={panelGestureRef}
+      data-internal-swipe-nav={internalWheelNav ? "true" : undefined}
+      className={`h-full overflow-visible overscroll-none relative ${isEmbedMapWidget || isPoiOnlyPanel ? "bg-transparent" : "bg-black"}`}
+      style={internalWheelNav ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
+    >
       {/* Toolbar portals */}
       <ToolbarPortals
         business={business}
@@ -2924,9 +2943,9 @@ const BookOnlineSlidePanelInner = ({
             ? { touchAction: "none", overscrollBehavior: "contain" }
             : undefined
         }
-        onTouchStart={externalVideoInteractiveMode ? undefined : handleMediaTouchStart}
-        onTouchMove={externalVideoInteractiveMode ? undefined : handleMediaTouchMove}
-        onTouchEnd={externalVideoInteractiveMode ? undefined : handleMediaTouchEnd}
+        onTouchStart={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchStart}
+        onTouchMove={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchMove}
+        onTouchEnd={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchEnd}
         // Tap sur la zone média vide → masquer / afficher (remplace le Toggle)
         onClick={(e) => {
           if (externalVideoInteractiveMode) return;
