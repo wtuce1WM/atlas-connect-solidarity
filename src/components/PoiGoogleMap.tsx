@@ -741,7 +741,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         const needed = Math.max(
           ...corners.map((c) => haversineKm(origin.lat, origin.lng, c.lat, c.lng))
         );
-        if (Number.isFinite(needed)) cb(needed);
+        if (Number.isFinite(needed)) { autoRadiusRef.current = true; cb(needed); }
       }, 400);
     });
 
