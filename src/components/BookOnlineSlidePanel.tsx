@@ -2374,6 +2374,48 @@ const BookOnlineSlidePanelInner = ({
     return () => el.removeEventListener("wheel", onWheelY);
   }, [internalWheelNav, anyOverlayOpen]);
 
+  // Secours NATIF du swipe tactile vertical pour le panneau imbriqué au-dessus
+  // de la Map plein écran (internalWheelNav) : les handlers React onTouchStart/
+  // onTouchEnd du conteneur média ne se déclenchent pas de façon fiable dans ce
+  // contexte (l'iframe/viewer vidéo capte le geste sur iOS). Des listeners natifs
+  // non-passifs sur le conteneur garantissent le déclenchement, avec les mêmes
+  // règles (seuil 60 px, ratio 1.5, priorité au swipe horizontal entre médias).
+  const anyOverlayOpenRef = useRef(anyOverlayOpen);
+  useEffect(() => { anyOverlayOpenRef.current = anyOverlayOpen; }, [anyOverlayOpen]);
+  useEffect(() => {
+    if (!internalWheelNav) return;
+    const el = mediaScrollRef.current;
+    if (!el) return;
+    let start: { x: number; y: number } | null = null;
+    const onStart = (e: TouchEvent) => {
+      if (anyOverlayOpenRef.current || isInteractiveTarget(e.target)) { start = null; return; }
+      const t = e.touches[0];
+      start = { x: t.clientX, y: t.clientY };
+    };
+    const onEnd = (e: TouchEvent) => {
+      const s = start;
+      start = null;
+      if (!s || anyOverlayOpenRef.current) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - s.x;
+      const dy = t.clientY - s.y;
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+      if (absX > 60 && absX > absY * 1.5) { goMedia(dx < 0 ? 1 : -1); return; }
+      if (absY > 60 && absY > absX * 1.5) {
+        const nav = bizNavRef.current;
+        if (dy < 0 && nav.hasNext && nav.onNext) nav.onNext();
+        else if (dy > 0 && nav.hasPrev && nav.onPrev) nav.onPrev();
+      }
+    };
+    el.addEventListener("touchstart", onStart, { passive: true });
+    el.addEventListener("touchend", onEnd, { passive: true });
+    return () => {
+      el.removeEventListener("touchstart", onStart);
+      el.removeEventListener("touchend", onEnd);
+    };
+  }, [internalWheelNav, goMedia]);
+
   useEffect(() => {
     const el = mediaScrollRef.current;
     if (!el) return;
