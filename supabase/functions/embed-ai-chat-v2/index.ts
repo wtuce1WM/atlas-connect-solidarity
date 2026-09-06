@@ -38,7 +38,7 @@ import {
   buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer, applyLabelPlaceholders,
 
 } from "../_shared/ai-engine/routes/curated.ts";
-import { buildVideoFeedAnswer, videoFeedMarker, loadBadgeVideoFeed, orderVideosByBadgeTiers } from "../_shared/ai-engine/routes/videoFeed.ts";
+import { buildVideoFeedAnswer, videoFeedMarker, loadBadgeVideoFeedPool, orderVideosByBadgeTiers } from "../_shared/ai-engine/routes/videoFeed.ts";
 import { matchFrontBadgeInMessage, matchFrontBadgesInMessage, resolveBadgeBusinessIds, badgeLabelKey } from "../_shared/ai-engine/routes/badgeVideoBusinesses.ts";
 
 import { buildDestinationsBlock } from "../_shared/ai-engine/routes/destinations.ts";
@@ -1766,8 +1766,8 @@ Deno.serve(async (req) => {
                 const feedBadges = await matchFrontBadgesInMessage(admin, userMessage, lang as any, 3);
                 if (feedBadges.length >= 2) {
                   const feedBadgeIds = feedBadges.map((b) => b.id);
-                  const pool = await loadBadgeVideoFeed(admin, {
-                    badgeIds: feedBadgeIds, max: 300, city: badgeCity || null,
+                  const pool = await loadBadgeVideoFeedPool(admin, {
+                    badgeIds: feedBadgeIds, city: badgeCity || null,
                   }).catch(() => null);
                   const tiered = pool
                     ? orderVideosByBadgeTiers(pool.videos, feedBadgeIds).slice(0, 60)
@@ -2157,9 +2157,8 @@ Deno.serve(async (req) => {
                   // Les fiches restent inchangées : le tour continue normalement.
                   if (augBadges.length >= 2) {
                     const feedBadgeIds = augBadges.map((b) => b.id);
-                    const pool = await loadBadgeVideoFeed(admin, {
+                    const pool = await loadBadgeVideoFeedPool(admin, {
                       badgeIds: feedBadgeIds,
-                      max: 300,
                       city: city || null,
                     }).catch(() => null);
                     const tiered = pool
