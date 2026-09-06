@@ -5043,10 +5043,14 @@ const BookOnlineSlidePanelInner = ({
                 if (poiId.startsWith("self-")) {
                   // Marqueur master (ex. Koutoubia) : sa miniature ouvre sa propre
                   // fiche dans le slidepanel imbriqué, même si c'est la fiche courante.
+                  // Même corpus de navigation verticale que les autres marqueurs
+                  // (feed vidéo du pool de la Map), avec le master en tête.
                   const realId = poiId.slice(5);
                   if (overridePois || !realId) return;
                   poiOpenedFromMapRef.current = true;
-                  setPoiNavIds([realId]);
+                  setPoiNavIds(
+                    mapNavIds.includes(realId) ? mapNavIds : [realId, ...mapNavIds]
+                  );
                   setSelectedPoiBusinessId(realId);
                   return;
                 }
