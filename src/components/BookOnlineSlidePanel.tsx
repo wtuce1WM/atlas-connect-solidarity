@@ -2375,26 +2375,33 @@ const BookOnlineSlidePanelInner = ({
     return () => el.removeEventListener("wheel", onWheelY);
   }, [internalWheelNav, anyOverlayOpen]);
 
-  // Secours tactile pour le panneau imbriqué au-dessus de la Map : on écoute sur
-  // le conteneur média (pas la racine) et on ne bloque JAMAIS le scroll interne
-  // ni les taps sur les CTAs — la navigation ne se déclenche qu'en bout de scroll.
+  // Navigation tactile du panneau imbriqué au-dessus de la Map. L'écoute se fait
+  // sur toute la fiche afin que les cartes et autres contenus ne capturent pas
+  // le geste avant le conteneur média. En mode prioritaire, un swipe vertical
+  // change directement de fiche, comme les chevrons de droite.
   const anyOverlayOpenRef = useRef(anyOverlayOpen);
   useEffect(() => { anyOverlayOpenRef.current = anyOverlayOpen; }, [anyOverlayOpen]);
   useEffect(() => {
     if (!internalWheelNav) return;
-    const el = mediaScrollRef.current;
-    if (!el) return;
-    let start: { x: number; y: number; top: number } | null = null;
+    const root = panelGestureRef.current;
+    const scrollEl = mediaScrollRef.current;
+    if (!root || !scrollEl) return;
+    let start: { x: number; y: number; top: number; interactive: boolean } | null = null;
     const onStart = (e: TouchEvent) => {
       if (e.touches.length !== 1 || anyOverlayOpenRef.current) { start = null; return; }
       const t = e.touches[0];
-      start = { x: t.clientX, y: t.clientY, top: el.scrollTop };
+      start = {
+        x: t.clientX,
+        y: t.clientY,
+        top: scrollEl.scrollTop,
+        interactive: isInteractiveTarget(e.target),
+      };
     };
     const onEnd = (e: TouchEvent) => {
       const s = start;
       start = null;
       if (!s || anyOverlayOpenRef.current) return;
-      if (isInteractiveTarget(e.target)) return;
+      if (s.interactive) return;
       const t = e.changedTouches[0];
       if (!t) return;
       const dx = t.clientX - s.x;
@@ -2403,26 +2410,28 @@ const BookOnlineSlidePanelInner = ({
       const absY = Math.abs(dy);
       if (totalMedia > 1 && absX > 60 && absX > absY * 1.5) { goMedia(dx < 0 ? 1 : -1); return; }
       if (absY > 60 && absY > absX * 1.5) {
-        // Le contenu a-t-il vraiment défilé ? si oui, on laisse le scroll gagner.
-        if (Math.abs(el.scrollTop - s.top) > 4) return;
-        const maxTop = el.scrollHeight - el.clientHeight;
-        const canScroll = dy < 0 ? el.scrollTop < maxTop - 1 : el.scrollTop > 1;
-        if (canScroll) return;
+        if (!prioritizeBusinessSwipe) {
+          // Le contenu a-t-il vraiment défilé ? si oui, on laisse le scroll gagner.
+          if (Math.abs(scrollEl.scrollTop - s.top) > 4) return;
+          const maxTop = scrollEl.scrollHeight - scrollEl.clientHeight;
+          const canScroll = dy < 0 ? scrollEl.scrollTop < maxTop - 1 : scrollEl.scrollTop > 1;
+          if (canScroll) return;
+        }
         const nav = bizNavRef.current;
         if (dy < 0 && nav.hasNext && nav.onNext) nav.onNext();
         else if (dy > 0 && nav.hasPrev && nav.onPrev) nav.onPrev();
       }
     };
     const onCancel = () => { start = null; };
-    el.addEventListener("touchstart", onStart, { passive: true });
-    el.addEventListener("touchend", onEnd, { passive: true });
-    el.addEventListener("touchcancel", onCancel, { passive: true });
+    root.addEventListener("touchstart", onStart, { passive: true, capture: true });
+    root.addEventListener("touchend", onEnd, { passive: true, capture: true });
+    root.addEventListener("touchcancel", onCancel, { passive: true, capture: true });
     return () => {
-      el.removeEventListener("touchstart", onStart);
-      el.removeEventListener("touchend", onEnd);
-      el.removeEventListener("touchcancel", onCancel);
+      root.removeEventListener("touchstart", onStart, { capture: true });
+      root.removeEventListener("touchend", onEnd, { capture: true });
+      root.removeEventListener("touchcancel", onCancel, { capture: true });
     };
-  }, [internalWheelNav, goMedia, totalMedia]);
+  }, [internalWheelNav, prioritizeBusinessSwipe, goMedia, totalMedia]);
 
 
   useEffect(() => {
