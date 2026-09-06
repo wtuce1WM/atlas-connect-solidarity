@@ -318,8 +318,14 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       if (this.div) this.applyStyle();
     }
 
+    setPinBelow(val: boolean) {
+      this.pinBelow = val;
+      if (this.div) this.applyStyle();
+    }
+
     /** Petit effet de resize (zoom-in / zoom-out) sur le marqueur. */
     pulse(direction: 1 | -1) {
+
       const el = this.div;
       if (!el) return;
       const base = this.highlighted ? 1.08 : 1;
