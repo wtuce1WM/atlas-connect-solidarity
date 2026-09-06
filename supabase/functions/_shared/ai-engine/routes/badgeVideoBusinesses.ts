@@ -185,6 +185,17 @@ export async function matchFrontBadgesInMessage(
     }
     if (bestLen) hits.push({ id: String(b.id), name: String(label || b.name_fr), len: bestLen });
   }
+  // Augmentation par SYNONYME d'intention (« acheter une villa » ⇢ Vente + Villas).
+  const activeBadges = new Map<string, string>(
+    (data || []).map((b: any) => [
+      String(b.id),
+      String((lang === "en" && b.name_en) || (lang === "ar" && b.name_ar) || b.name_fr || b.name_en || b.name_ar),
+    ]),
+  );
+  const seen = new Set(hits.map((h) => h.id));
+  for (const s of await matchBadgesBySynonym(admin, message, activeBadges)) {
+    if (!seen.has(s.id)) { hits.push(s); seen.add(s.id); }
+  }
   return hits.sort((a, c) => c.len - a.len).slice(0, max).map(({ id, name }) => ({ id, name }));
 }
 
