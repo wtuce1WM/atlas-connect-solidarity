@@ -1756,6 +1756,42 @@ Deno.serve(async (req) => {
             }));
             if (badgeBizIds.length >= 3) {
 
+              // ── Feed vidéo automatique en PALIERS (route badge nommé) ────────
+              // Si la phrase nomme au moins DEUX badges actifs (« location villa
+              // vue sur mer » ⇢ Location + Villas + Vue sur mer), le lecteur
+              // vidéo s'ouvre avant les fiches, ordonné par paliers : intersection
+              // stricte d'abord (villas vue sur mer), puis paliers relâchés
+              // (hôtels/riads vue sur mer). Les fiches ne changent pas.
+              try {
+                const feedBadges = await matchFrontBadgesInMessage(admin, userMessage, lang as any, 3);
+                if (feedBadges.length >= 2) {
+                  const feedBadgeIds = feedBadges.map((b) => b.id);
+                  const pool = await loadBadgeVideoFeed(admin, {
+                    badgeIds: feedBadgeIds, max: 300, city: badgeCity || null,
+                  }).catch(() => null);
+                  const tiered = pool
+                    ? orderVideosByBadgeTiers(pool.videos, feedBadgeIds).slice(0, 60)
+                    : [];
+                  console.log("[embed-ai-chat-v2] badge_named_tiered_feed", JSON.stringify({
+                    badges: feedBadges.map((b) => b.name),
+                    pool: pool?.videos.length ?? 0, emitted: tiered.length,
+                  }));
+                  if (tiered.length) {
+                    emit(videoFeedMarker({
+                      title: feedBadges.map((b) => b.name).join(" · "),
+                      videos: tiered,
+                      total: pool?.total ?? tiered.length,
+                      badgeIds: feedBadgeIds,
+                      seed: pool?.seed,
+                    }));
+                  }
+                }
+              } catch (e) {
+                console.error("[embed-ai-chat-v2] badge_named_tiered_feed_failed", String(e));
+              }
+
+
+
               let earlyEmitted = false;
               const built = await buildPinnedAnswer(
                 admin, badgeBizIds, host, lang, namedBadge.name,
