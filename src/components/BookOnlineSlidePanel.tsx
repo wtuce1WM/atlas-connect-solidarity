@@ -5042,9 +5042,9 @@ const BookOnlineSlidePanelInner = ({
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) {
                   // Marqueur master (ex. Koutoubia) : sa miniature ouvre sa propre
-                  // fiche, sauf s'il s'agit déjà de la fiche courante.
+                  // fiche dans le slidepanel imbriqué, même si c'est la fiche courante.
                   const realId = poiId.slice(5);
-                  if (overridePois || !realId || realId === businessId) return;
+                  if (overridePois || !realId) return;
                   poiOpenedFromMapRef.current = true;
                   setPoiNavIds([realId]);
                   setSelectedPoiBusinessId(realId);
