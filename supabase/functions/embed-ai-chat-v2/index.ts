@@ -1791,9 +1791,10 @@ Deno.serve(async (req) => {
                       dropped: synBadges.map((b) => b.name), kept: literalBadges.map((b) => b.name),
                     }));
                     feedBadges = literalBadges;
+                    droppedSynonym = true;
                   }
                 }
-                if (feedBadges.length >= 1) {
+                if (feedBadges.length >= 2 || (droppedSynonym && feedBadges.length >= 1)) {
                   const feedBadgeIds = feedBadges.map((b) => b.id);
                   const pool = await loadBadgeVideoFeedPool(admin, {
                     badgeIds: feedBadgeIds, city: badgeCity || null,
