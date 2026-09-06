@@ -267,6 +267,25 @@ async function applyFeedPlaceTypeGuard(
 /** Taille max du pool annoncé/filtrable (marqueur POOL_BUSINESS_IDS). */
 const POOL_CAP = 60;
 
+/**
+ * Les fiches SANS note ni avis sont classées dernières par `business-search`
+ * (départage note/avis) : elles tombaient donc systématiquement hors de la page
+ * de `maxResults` alors qu'elles matchent la requête. On les rappelle en QUEUE
+ * de liste, juste après les résultats notés, sans changer l'ordre des notés.
+ */
+const UNRATED_TAIL_CAP = 8;
+function withUnratedTail(kept: any[], max: number): any[] {
+  const head = kept.slice(0, max);
+  if (kept.length <= max) return head;
+  const isUnrated = (b: any) =>
+    Number(b?.total_review_count ?? 0) <= 0 &&
+    b?.computed_rating == null &&
+    b?.rating == null;
+  const tail = kept.slice(max).filter(isUnrated).slice(0, UNRATED_TAIL_CAP);
+  return [...head, ...tail];
+}
+
+
 async function poolMarker(admin: any, ids: string[], city: string | null): Promise<string> {
   const uniq = [...new Set(ids.map((x) => String(x)))];
   let nb: Record<string, number> = {};
