@@ -2347,17 +2347,19 @@ const BookOnlineSlidePanelInner = ({
   }, [effectiveOnPrev, effectiveOnNext, effectiveHasPrev, effectiveHasNext]);
   useEffect(() => {
     if (!internalWheelNav) return;
-    const el = mediaScrollRef.current;
-    if (!el) return;
+    const el = panelGestureRef.current;
+    const scrollEl = mediaScrollRef.current;
+    if (!el || !scrollEl) return;
     const onWheelY = (e: WheelEvent) => {
-      if (anyOverlayOpen) return;
+      if (anyOverlayOpenRef.current) return;
       if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
       const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
-      const maxTop = el.scrollHeight - el.clientHeight;
-      const canScroll = deltaY > 0 ? el.scrollTop < maxTop - 1 : el.scrollTop > 1;
-      if (canScroll) { bizWheelAccumRef.current = 0; return; }
+      const maxTop = scrollEl.scrollHeight - scrollEl.clientHeight;
+      const canScroll = deltaY > 0 ? scrollEl.scrollTop < maxTop - 1 : scrollEl.scrollTop > 1;
+      if (!prioritizeBusinessSwipe && canScroll) { bizWheelAccumRef.current = 0; return; }
       const now = Date.now();
       if (now < bizWheelLockUntilRef.current) { bizWheelAccumRef.current = 0; return; }
+      if (e.cancelable) e.preventDefault();
       bizWheelAccumRef.current += deltaY;
       if (Math.abs(bizWheelAccumRef.current) < 60) return;
       const dir = bizWheelAccumRef.current > 0 ? 1 : -1;
@@ -2371,9 +2373,9 @@ const BookOnlineSlidePanelInner = ({
         nav.onPrev();
       }
     };
-    el.addEventListener("wheel", onWheelY, { passive: true });
-    return () => el.removeEventListener("wheel", onWheelY);
-  }, [internalWheelNav, anyOverlayOpen]);
+    el.addEventListener("wheel", onWheelY, { passive: false, capture: true });
+    return () => el.removeEventListener("wheel", onWheelY, { capture: true });
+  }, [internalWheelNav, prioritizeBusinessSwipe]);
 
   // Navigation tactile du panneau imbriqué au-dessus de la Map. L'écoute se fait
   // sur toute la fiche afin que les cartes et autres contenus ne capturent pas
@@ -2386,7 +2388,7 @@ const BookOnlineSlidePanelInner = ({
     const root = panelGestureRef.current;
     const scrollEl = mediaScrollRef.current;
     if (!root || !scrollEl) return;
-    let start: { x: number; y: number; top: number; interactive: boolean } | null = null;
+    let start: { x: number; y: number; top: number; interactive: boolean; handled: boolean } | null = null;
     const onStart = (e: TouchEvent) => {
       if (e.touches.length !== 1 || anyOverlayOpenRef.current) { start = null; return; }
       const t = e.touches[0];
@@ -2395,20 +2397,22 @@ const BookOnlineSlidePanelInner = ({
         y: t.clientY,
         top: scrollEl.scrollTop,
         interactive: isInteractiveTarget(e.target),
+        handled: false,
       };
     };
-    const onEnd = (e: TouchEvent) => {
+    const resolveGesture = (e: TouchEvent, t: Touch) => {
       const s = start;
-      start = null;
-      if (!s || anyOverlayOpenRef.current) return;
+      if (!s || s.handled || anyOverlayOpenRef.current) return;
       if (s.interactive) return;
-      const t = e.changedTouches[0];
-      if (!t) return;
       const dx = t.clientX - s.x;
       const dy = t.clientY - s.y;
       const absX = Math.abs(dx);
       const absY = Math.abs(dy);
-      if (totalMedia > 1 && absX > 60 && absX > absY * 1.5) { goMedia(dx < 0 ? 1 : -1); return; }
+      if (totalMedia > 1 && absX > 60 && absX > absY * 1.5) {
+        s.handled = true;
+        goMedia(dx < 0 ? 1 : -1);
+        return;
+      }
       if (absY > 60 && absY > absX * 1.5) {
         if (!prioritizeBusinessSwipe) {
           // Le contenu a-t-il vraiment défilé ? si oui, on laisse le scroll gagner.
@@ -2417,17 +2421,30 @@ const BookOnlineSlidePanelInner = ({
           const canScroll = dy < 0 ? scrollEl.scrollTop < maxTop - 1 : scrollEl.scrollTop > 1;
           if (canScroll) return;
         }
+        s.handled = true;
+        if (e.cancelable) e.preventDefault();
         const nav = bizNavRef.current;
         if (dy < 0 && nav.hasNext && nav.onNext) nav.onNext();
         else if (dy > 0 && nav.hasPrev && nav.onPrev) nav.onPrev();
       }
     };
+    const onMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (t) resolveGesture(e, t);
+    };
+    const onEnd = (e: TouchEvent) => {
+      const t = e.changedTouches[0];
+      if (t) resolveGesture(e, t);
+      start = null;
+    };
     const onCancel = () => { start = null; };
     root.addEventListener("touchstart", onStart, { passive: true, capture: true });
-    root.addEventListener("touchend", onEnd, { passive: true, capture: true });
+    root.addEventListener("touchmove", onMove, { passive: false, capture: true });
+    root.addEventListener("touchend", onEnd, { passive: false, capture: true });
     root.addEventListener("touchcancel", onCancel, { passive: true, capture: true });
     return () => {
       root.removeEventListener("touchstart", onStart, { capture: true });
+      root.removeEventListener("touchmove", onMove, { capture: true });
       root.removeEventListener("touchend", onEnd, { capture: true });
       root.removeEventListener("touchcancel", onCancel, { capture: true });
     };
