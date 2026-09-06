@@ -5023,7 +5023,7 @@ const BookOnlineSlidePanelInner = ({
               }
               selectedPoiId={null}
               // Aucun marqueur derrière/au-dessus des Pills du haut ni sous les Pills du bas.
-              markerSafeSelector="[data-map-pill-row]"
+              markerSafeSelector="[data-map-pill-row],[data-map-pill]"
               markerSafeArea={{ top: 0, bottom: 0 }}
               center={poiMasterCenter}
               distanceOrigin={poiMasterCenter ? { lat: poiMasterCenter.lat, lng: poiMasterCenter.lng } : null}
