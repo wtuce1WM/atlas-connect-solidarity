@@ -993,10 +993,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             showInfo();
             return;
           }
+          overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
           openInfoPoiIdRef.current = null;
           infoWindowRef.current?.close();
           onPoiClickRef.current?.(poi.id);
         },
+
         showInfo,
         () => {
           // Delayed close to allow cursor to reach infowindow
