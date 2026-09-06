@@ -248,11 +248,13 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     private name: string;
     private iconSvg: string;
     private highlighted: boolean;
+    private pinBelow: boolean;
     private customColor?: { bg: string; fg: string; border: string };
     private highlightColor?: { bg: string; fg: string; border: string };
     private _onClick?: () => void;
     private _onMouseOver?: () => void;
     private _onMouseOut?: () => void;
+
 
     constructor(
       position: google.maps.LatLngLiteral,
