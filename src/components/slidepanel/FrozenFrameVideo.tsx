@@ -176,12 +176,14 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   // Sécurité : à la destruction, aucun buffer ne doit continuer à jouer,
   // et la source est libérée pour rendre la mémoire / couper le téléchargement.
   useEffect(() => {
+    const kept = keptRef.current;
     return () => {
-      [refA.current, refB.current].forEach((el) => {
+      [kept.a, kept.b].forEach((el) => {
         if (!el) return;
         try {
           el.pause();
           el.muted = true;
+          el.volume = 0;
           el.removeAttribute("src");
           el.load();
         } catch {/* ignore */}
@@ -192,7 +194,11 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
 
   const buffer = (slot: 0 | 1, ref: React.RefObject<HTMLVideoElement>) => (
     <video
-      ref={ref}
+      ref={(el) => {
+        (ref as React.MutableRefObject<HTMLVideoElement | null>).current = el;
+        if (el) keptRef.current[slot === 0 ? "a" : "b"] = el;
+      }}
+
       className={`absolute inset-0 ${className} ${active === slot ? "opacity-100" : "opacity-0"}`}
       loop
       crossOrigin="anonymous"
