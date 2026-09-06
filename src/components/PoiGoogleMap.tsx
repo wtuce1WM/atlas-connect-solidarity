@@ -369,7 +369,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
 
       const pinFill = this.customColor ? this.customColor.bg : "#000000";
       const pinHtml = (this.highlighted || this.customColor)
-        ? `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 384 512" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));${this.pinBelow ? 'position:absolute;top:calc(100% - 2px);left:50%;transform:translateX(-50%) scaleY(-1);' : 'margin-bottom:-2px;'}"><path fill="${pinFill}" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`
+        ? `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 384 512" style="display:block;width:32px;height:40px;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));${this.pinBelow ? 'position:absolute;top:calc(100% - 2px);left:50%;transform:translateX(-50%) scaleY(-1);transform-origin:50% 0;' : 'margin-bottom:-2px;'}"><path fill="${pinFill}" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`
         : "";
 
       const labelHtml = `<div style="
@@ -914,7 +914,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         const IW_W = 268;
         const IW_H = img ? 200 : 90;
         const PAD = 12;
-        const PIN_BELOW_EXTRA = 6; // pointe du pin déjà au point d'ancrage : juste un filet d'air
+        const PIN_BELOW_EXTRA = 50; // miroir exact de l'offset -50 utilisé quand la miniature s'ouvre au-dessus (pin 40px + filet d'air)
         let offX = 0;
         let offY = IW_H + PIN_BELOW_EXTRA;
         let openPinBelow = true;
