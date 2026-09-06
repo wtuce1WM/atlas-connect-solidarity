@@ -5036,7 +5036,9 @@ const BookOnlineSlidePanelInner = ({
                 });
               }}
               center={poiMasterCenter}
-              distanceOrigin={poiMasterCenter ? { lat: poiMasterCenter.lat, lng: poiMasterCenter.lng } : null}
+              // Même origine que le Pill Rayon (Master → centre POI → géoloc), sinon
+              // l'élargissement auto ne peut pas se calculer (assistant IA : pas de POI master).
+              distanceOrigin={poiMasterCenter ? { lat: poiMasterCenter.lat, lng: poiMasterCenter.lng } : proxOrigin}
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
                 if (overridePois) {
