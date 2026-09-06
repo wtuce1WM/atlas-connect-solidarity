@@ -330,7 +330,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       if (!el) return;
       const base = this.highlighted ? 1.08 : 1;
       const peak = base * (direction > 0 ? 1.24 : 0.8);
-      const anchor = this.pinBelow ? "translate(-50%,0)" : "translate(-50%,-100%)";
+      const anchor = "translate(-50%,-100%)";
       el.style.transition = "transform 0.22s cubic-bezier(0.34,1.56,0.64,1)";
       el.style.transform = `${anchor} scale(${peak})`;
       window.setTimeout(() => {
@@ -351,8 +351,10 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
         ? "0 2px 8px rgba(0,0,0,0.4)"
         : "0 1px 4px rgba(0,0,0,0.15)";
       const scale = this.highlighted ? "scale(1.08)" : "scale(1)";
-      const anchor = this.pinBelow ? "translate(-50%,0)" : "translate(-50%,-100%)";
-      const transformOrigin = this.pinBelow ? "50% 0" : "50% 100%";
+      // L'ancrage du marqueur reste strictement identique quand la vignette
+      // passe dessous : seul le pin change de côté autour du label.
+      const anchor = "translate(-50%,-100%)";
+      const transformOrigin = "50% 100%";
       const isUserMarker = this.customColor?.bg === "#C04F17" && this.customColor?.border === "#C04F17";
       const z = isUserMarker ? "2000" : (this.customColor ? "999" : (this.highlighted ? "1000" : "1"));
 
@@ -361,7 +363,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       transform:${anchor} ${scale};
       transform-origin:${transformOrigin};
       transition:transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-      display:flex;flex-direction:column;align-items:center;gap:0;
+       display:flex;flex-direction:column;align-items:center;gap:0;position:absolute;
       cursor:pointer;z-index:${z};
     `;
 
@@ -372,7 +374,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
 
       const pinFill = this.customColor ? this.customColor.bg : "#000000";
       const pinHtml = (this.highlighted || this.customColor)
-        ? `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 384 512" style="display:block;width:32px;height:40px;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));${this.pinBelow ? 'margin-top:-2px;transform:scaleY(-1);transform-origin:50% 50%;' : 'margin-bottom:-2px;'}"><path fill="${pinFill}" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`
+        ? `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 384 512" style="display:block;width:32px;height:40px;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));${this.pinBelow ? 'position:absolute;top:100%;left:50%;transform:translateX(-50%) scaleY(-1);transform-origin:50% 50%;' : 'margin-bottom:-2px;'}"><path fill="${pinFill}" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`
         : "";
 
       const labelHtml = `<div style="
@@ -387,7 +389,11 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
         line-height:1.2;
       ">${iconHtml}<span>${shortName}</span></div>`;
 
-      this.div.innerHTML = this.pinBelow ? `${labelHtml}${pinHtml}` : `${pinHtml}${labelHtml}`;
+      // Le spacer conserve exactement la géométrie du marqueur normal : le
+      // label ne descend donc jamais lors de l'affichage sous le marqueur.
+      this.div.innerHTML = this.pinBelow
+        ? `<span style="display:block;width:32px;height:38px;flex:0 0 auto;"></span>${labelHtml}${pinHtml}`
+        : `${pinHtml}${labelHtml}`;
       this.draw();
 
     }
