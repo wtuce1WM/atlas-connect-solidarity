@@ -1068,7 +1068,10 @@ export async function matchCuratedByText(
       let overlap = 0;
       for (const w of qTokens) if (lTokens.has(w)) overlap++;
       if (overlap < 2) continue;
-      const score = overlap / Math.min(qTokens.size, lTokens.size);
+      // Le score se rapporte à la requête complète : une requête plus riche que
+      // le libellé (ex. "location villa vue sur mer" vs "Vue sur mer") ne doit
+      // pas être captée par la suggestion courte, mais partir en recherche libre.
+      const score = overlap / Math.max(qTokens.size, lTokens.size);
       if (score >= minScore && (!best || score + bonus > best.score)) {
         best = { id: r.id, label: primary, score: score + bonus, surface: String(r.surface) };
       }
