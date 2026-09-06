@@ -207,6 +207,9 @@ interface BookOnlineSlidePanelProps {
   hasNext?: boolean;
   /** Prioritise le swipe vertical entre fiches sur les vidéos externes. */
   prioritizeBusinessSwipe?: boolean;
+  /** Active la navigation verticale molette/touchpad interne (panneau imbriqué
+   *  sans wrapper EmbedAsk, ex. fiche ouverte depuis un marqueur de la Map). */
+  internalWheelNav?: boolean;
   // --- Video-first entry props (SlidePanelHome migration, not yet wired in render) ---
   /** Forces this video URL as the background, regardless of business video list */
   videoUrl?: string | null;
