@@ -2124,7 +2124,7 @@ Deno.serve(async (req) => {
             totalFound = kept.length === all.length && apiTotal > kept.length ? apiTotal : kept.length;
 
             searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
-            results = kept.slice(0, CFG.maxResults);
+            results = withUnratedTail(kept, CFG.maxResults);
           } catch (e) {
             console.error("[embed-ai-chat-v2] search_failed", e);
             hadError = true;
@@ -2415,7 +2415,7 @@ Deno.serve(async (req) => {
               route = "pool_refine";
               totalFound = kept.length;
               searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
-              results = kept.slice(0, CFG.maxResults);
+              results = withUnratedTail(kept, CFG.maxResults);
               resultsCount = results.length;
             } else {
               // Repli explicite (jamais silencieux) : aucune fiche du corpus précédent
@@ -2460,7 +2460,7 @@ Deno.serve(async (req) => {
             cityDetected = destScope.name;
             totalFound = kept.length;
             searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
-            results = kept.slice(0, CFG.maxResults);
+            results = withUnratedTail(kept, CFG.maxResults);
             resultsCount = results.length;
             /**
              * Réponse déterministe (zéro token) sur périmètre destination :
