@@ -267,6 +267,25 @@ async function applyFeedPlaceTypeGuard(
 /** Taille max du pool annoncé/filtrable (marqueur POOL_BUSINESS_IDS). */
 const POOL_CAP = 60;
 
+/**
+ * Les fiches SANS note ni avis sont classées dernières par `business-search`
+ * (départage note/avis) : elles tombaient donc systématiquement hors de la page
+ * de `maxResults` alors qu'elles matchent la requête. On les rappelle en QUEUE
+ * de liste, juste après les résultats notés, sans changer l'ordre des notés.
+ */
+const UNRATED_TAIL_CAP = 8;
+function withUnratedTail(kept: any[], max: number): any[] {
+  const head = kept.slice(0, max);
+  if (kept.length <= max) return head;
+  const isUnrated = (b: any) =>
+    Number(b?.total_review_count ?? 0) <= 0 &&
+    b?.computed_rating == null &&
+    b?.rating == null;
+  const tail = kept.slice(max).filter(isUnrated).slice(0, UNRATED_TAIL_CAP);
+  return [...head, ...tail];
+}
+
+
 async function poolMarker(admin: any, ids: string[], city: string | null): Promise<string> {
   const uniq = [...new Set(ids.map((x) => String(x)))];
   let nb: Record<string, number> = {};
@@ -2105,7 +2124,7 @@ Deno.serve(async (req) => {
             totalFound = kept.length === all.length && apiTotal > kept.length ? apiTotal : kept.length;
 
             searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
-            results = kept.slice(0, CFG.maxResults);
+            results = withUnratedTail(kept, CFG.maxResults);
           } catch (e) {
             console.error("[embed-ai-chat-v2] search_failed", e);
             hadError = true;
@@ -2396,7 +2415,7 @@ Deno.serve(async (req) => {
               route = "pool_refine";
               totalFound = kept.length;
               searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
-              results = kept.slice(0, CFG.maxResults);
+              results = withUnratedTail(kept, CFG.maxResults);
               resultsCount = results.length;
             } else {
               // Repli explicite (jamais silencieux) : aucune fiche du corpus précédent
@@ -2441,7 +2460,7 @@ Deno.serve(async (req) => {
             cityDetected = destScope.name;
             totalFound = kept.length;
             searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
-            results = kept.slice(0, CFG.maxResults);
+            results = withUnratedTail(kept, CFG.maxResults);
             resultsCount = results.length;
             /**
              * Réponse déterministe (zéro token) sur périmètre destination :
