@@ -628,7 +628,7 @@ Deno.serve(async (req) => {
         // Périmètre géographique — RÈGLE UNIQUE (`_shared/ai-engine/city-scope.ts`) :
         // ville du business master, sauf ville explicitement nommée dans le message.
         const explicitCity = await detectExplicitCity(admin, userMessage);
-        const scopeCity = resolveCityScope({ hostCity: host?.city, activeCity, explicitCity }) as string;
+        const scopeCity = resolveCityScope({ hostCity: host?.city, activeCity, explicitCity, platformMode }) as string;
         cityDetected = scopeCity;
 
         // Périmètre DESTINATION : « dans l'Atlas », « Vallée de l'Ourika », « Imlil »…
@@ -2326,7 +2326,7 @@ Deno.serve(async (req) => {
         // ou détection lexicale) peut sortir de la ville du master. `out.city` du
         // classifieur n'est plus une autorité (inventions possibles).
         const searchCity = resolveCityScope({
-          hostCity: host?.city, activeCity, explicitCity: explicitCity || resolvedCityRaw,
+          hostCity: host?.city, activeCity, explicitCity: explicitCity || resolvedCityRaw, platformMode,
         }) as string;
         const resolvedCity = resolvedCityRaw;
         // Quartier résolu DANS la ville de recherche (« Médina » existe dans 9 villes).
