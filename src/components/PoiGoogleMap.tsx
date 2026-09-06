@@ -503,6 +503,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   });
   const userMarkerRef = useRef<LabelMarkerOverlay | null>(null);
   const [ready, setReady] = useState(false);
+  const [mapCreated, setMapCreated] = useState(false);
+
   const hasFittedRef = useRef(false);
   const zoomAnimRef = useRef<number | null>(null);
 
@@ -683,6 +685,14 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       map.setZoom(newZoom);
       map.setCenter(projection.fromPointToLatLng(newCenterWorld));
     };
+    setMapCreated(true);
+  }, [ready, center, centerAtBottomRatio]);
+
+  // Gestes (molette/dblclick) + élargissement auto du rayon : effet dédié, attaché une
+  // seule fois à la création de la carte. (Auparavant dans l'effet d'init : tout
+  // changement de `center` déclenchait son cleanup et supprimait ces écouteurs.)
+  useEffect(() => {
+    if (!mapCreated || !mapRef.current || !containerRef.current) return;
 
     // Wheel / trackpad pinch zoom — anchored on the Master marker
     const handleWheel = (e: WheelEvent) => {
@@ -712,7 +722,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
 
     // Dès que l'utilisateur déplace la carte, on abandonne le recentrage automatique.
     const markUserMoved = () => { userMovedRef.current = true; };
-    mapRef.current.addListener("dragstart", markUserMoved);
+    const dragListener = mapRef.current.addListener("dragstart", markUserMoved);
+    const zoomListener = mapRef.current.addListener("zoom_changed", markUserMoved);
 
     // Déplacement/dézoom utilisateur : on remonte le rayon nécessaire pour couvrir
     // le viewport visible (debounce), afin que le corpus suive la zone regardée.
@@ -745,26 +756,27 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       }, 400);
     });
 
-
-
-    const container = containerRef.current;
-    container.addEventListener("wheel", handleWheel, { passive: false });
-    container.addEventListener("dblclick", handleDblClick, { passive: false });
-
-    mapRef.current.addListener("click", () => {
+    const clickListener = mapRef.current.addListener("click", () => {
       overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
       openInfoPoiIdRef.current = null;
       infoWindowRef.current?.close();
     });
 
+    const container = containerRef.current;
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    container.addEventListener("dblclick", handleDblClick, { passive: false });
 
     return () => {
       container.removeEventListener("wheel", handleWheel);
       container.removeEventListener("dblclick", handleDblClick);
       if (idleTimer) clearTimeout(idleTimer);
+      dragListener?.remove?.();
+      zoomListener?.remove?.();
       idleListener?.remove?.();
+      clickListener?.remove?.();
     };
-  }, [ready, center, centerAtBottomRatio]);
+  }, [mapCreated]);
+
 
   useEffect(() => {
     const map = mapRef.current;
