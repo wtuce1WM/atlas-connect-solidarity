@@ -4306,7 +4306,18 @@ const BookOnlineSlidePanelInner = ({
               onMosaicStateChange={onMosaicStateChange}
               propagateMosaicState
               toolbarPortalPrefix="poi"
+              hasPrev={poiNavIds.indexOf(selectedPoiBusinessId) > 0}
+              hasNext={poiNavIds.indexOf(selectedPoiBusinessId) >= 0 && poiNavIds.indexOf(selectedPoiBusinessId) < poiNavIds.length - 1}
+              onPrev={() => {
+                const i = poiNavIds.indexOf(selectedPoiBusinessId);
+                if (i > 0) setSelectedPoiBusinessId(poiNavIds[i - 1]);
+              }}
+              onNext={() => {
+                const i = poiNavIds.indexOf(selectedPoiBusinessId);
+                if (i >= 0 && i < poiNavIds.length - 1) setSelectedPoiBusinessId(poiNavIds[i + 1]);
+              }}
             />
+
           </div>
         </OverlayShell>
         </>
