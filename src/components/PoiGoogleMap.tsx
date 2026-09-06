@@ -235,8 +235,10 @@ async function fetchLucideIcon(name: string): Promise<string> {
 /* ── Custom Label Overlay ── */
 type LabelMarkerOverlay = google.maps.OverlayView & {
   setHighlighted: (val: boolean) => void;
+  setPinBelow: (val: boolean) => void;
   pulse: (direction: 1 | -1) => void;
 };
+
 
 
 const createLabelMarkerClass = (gmaps: typeof google.maps) =>
