@@ -180,22 +180,20 @@ function lastResultsIndex(messages: UIMessage[]): number {
 }
 
 
-// ── Garde-fou « type de lieu » sur un feed vidéo curaté ─────────────────────
+// ── Palier « type de lieu » sur un feed vidéo curaté ────────────────────────
 // Une suggestion curatée en mode `video_feed` (ex. « Les adresses avec vue sur
 // mer ») porte un badge thématique qui ignore le type de lieu ajouté par
-// l'utilisateur (« hôtel avec vue sur mer » ramenait un restaurant). Seul le
-// badge métier précis « Villas » est gardé comme garde-fou, car il peut qualifier
-// une fiche via ses vidéos badgées. Les entrées larges « Où dormir ? » et
-// « Où manger ? » ont été retirées : trop de risque d'amputer des résultats
-// légitimes sur des mots courants.
-// Pas de repli silencieux : si le croisement est vide, le feed n'est pas émis
-// et le tour repart sur la recherche standard.
+// l'utilisateur (« villa avec vue sur mer » ramenait des hôtels/restaurants).
+// On ne SUPPRIME plus les résultats hors type : on les classe en second palier,
+// derrière l'intersection stricte (même logique de dégradation progressive que
+// `orderByBadgeIntersectionTiers` côté client). Aucun résultat n'est amputé.
 const FEED_PLACE_TYPE_GUARDS: Array<{ badgeName: string; re: RegExp }> = [
   {
     badgeName: "Villas",
     re: /\b(villa|villas)\b/,
   },
 ];
+
 
 // Ensemble des établissements autorisés par le type de lieu nommé dans le
 // message (`null` = pas de type nommé / pas de croisement à faire).
