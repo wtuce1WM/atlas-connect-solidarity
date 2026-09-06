@@ -587,6 +587,9 @@ const BookOnlineSlidePanelInner = ({
 
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
+  // Corpus figé des marqueurs affichés sur la carte → scroll vertical du panneau imbriqué.
+  const [poiNavIds, setPoiNavIds] = useState<string[]>([]);
+
   const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(initialOverlay === "poi");
   const [poiMapMode, setPoiMapMode] = useState<"poi" | "destinations">("poi");
@@ -4303,7 +4306,18 @@ const BookOnlineSlidePanelInner = ({
               onMosaicStateChange={onMosaicStateChange}
               propagateMosaicState
               toolbarPortalPrefix="poi"
+              hasPrev={poiNavIds.indexOf(selectedPoiBusinessId) > 0}
+              hasNext={poiNavIds.indexOf(selectedPoiBusinessId) >= 0 && poiNavIds.indexOf(selectedPoiBusinessId) < poiNavIds.length - 1}
+              onPrev={() => {
+                const i = poiNavIds.indexOf(selectedPoiBusinessId);
+                if (i > 0) setSelectedPoiBusinessId(poiNavIds[i - 1]);
+              }}
+              onNext={() => {
+                const i = poiNavIds.indexOf(selectedPoiBusinessId);
+                if (i >= 0 && i < poiNavIds.length - 1) setSelectedPoiBusinessId(poiNavIds[i + 1]);
+              }}
             />
+
           </div>
         </OverlayShell>
         </>
@@ -4830,7 +4844,13 @@ const BookOnlineSlidePanelInner = ({
                       } as PoiMapItem)),
                   ]
                 : null;
+              // Corpus de navigation verticale du panneau imbriqué : exactement
+              // les marqueurs business affichés sur la carte, figés à l'ouverture.
+              const mapNavIds = (overridePool ? afterProx : displayedPoi)
+                .filter((p) => p.id !== poiMasterOverride?.id)
+                .map((p) => p.id);
               return (
+
             <PoiGoogleMap
               pois={overridePois ? overridePois : poiMapMode === "destinations"
                 ? [
@@ -4864,7 +4884,9 @@ const BookOnlineSlidePanelInner = ({
                   setSelectedDestinationId(poiId);
                 } else if (poiBusinesses.length > 0 || poiOverrideRows.length > 0) {
                   poiOpenedFromMapRef.current = true;
+                  setPoiNavIds(mapNavIds.includes(poiId) ? mapNavIds : [poiId]);
                   setSelectedPoiBusinessId(poiId);
+
                 } else {
                   setSelectedKpBusinessId(poiId);
                 }
