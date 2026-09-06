@@ -191,6 +191,10 @@ function lastResultsIndex(messages: UIMessage[]): number {
 // et le tour repart sur la recherche standard.
 const FEED_PLACE_TYPE_GUARDS: Array<{ badgeName: string; re: RegExp }> = [
   {
+    badgeName: "Villas",
+    re: /\b(villa|villas)\b/,
+  },
+  {
     badgeName: "Où dormir ?",
     re: /\b(hotel|hotels|riad|riads|maison d hote|maison d hotes|maisons d hotes|guesthouse|guest house|auberge|auberges|hostel|dormir|loger|hebergement|chambre|chambres)\b/,
   },
@@ -216,6 +220,16 @@ async function placeTypeAllowedIds(
   if (!badgeId) return null;
   // La suggestion cible déjà ce type de lieu : rien à croiser.
   if ((curatedBadgeIds || []).map(String).includes(badgeId)) return null;
+
+  // « Villas » est un badge métier précis et peut qualifier une fiche via ses
+  // vidéos badgées, pas seulement via `business_badges`. On réutilise donc le
+  // résolveur badge partagé afin que « villa vue sur mer » reste strictement
+  // dans l'intersection Villas ∩ Vue sur mer.
+  if (hit.badgeName === "Villas") {
+    const businessIds = await resolveBadgeBusinessIds(admin, [badgeId], null, 3000);
+    const ids = new Set(businessIds.map(String));
+    return ids.size ? { badgeName: hit.badgeName, ids } : null;
+  }
 
   const ids = new Set<string>();
   for (let from = 0; ; from += 1000) {
