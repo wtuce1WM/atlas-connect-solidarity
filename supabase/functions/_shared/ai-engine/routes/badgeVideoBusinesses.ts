@@ -51,15 +51,22 @@ export type FrontBadge = { id: string; name: string; viaSynonym?: boolean };
  *
  * Matching sur MOT ENTIER, normalisé et dé-pluralisé, comme les libellés.
  */
-let synonymBadgeCache: { at: number; rows: Array<{ badgeId: string; terms: string[] }> } | null = null;
+type SynonymRow = { badgeId: string | null; terms: string[] };
+let synonymBadgeCache: { at: number; rows: SynonymRow[] } | null = null;
 
-async function loadSynonymBadgeMap(admin: any): Promise<Array<{ badgeId: string; terms: string[] }>> {
+/**
+ * TOUTES les lignes `search_synonyms` (avec ou sans `badge_id`). Les lignes sans
+ * badge servent de GARDE : « acheter à manger » (ligne « nourriture », sans badge)
+ * est plus spécifique que « acheter » (badge Vente) et l'emporte. Le libellé le
+ * plus long gagne — même règle que la détection de badge par libellé.
+ */
+async function loadSynonymBadgeMap(admin: any): Promise<SynonymRow[]> {
   if (synonymBadgeCache && Date.now() - synonymBadgeCache.at < 5 * 60_000) return synonymBadgeCache.rows;
   const { data } = await admin
     .from("search_synonyms")
     .select("key_word, key_word_en, key_word_ar, synonyms, synonyms_en, synonyms_ar, badge_id")
-    .not("badge_id", "is", null);
-  const rows: Array<{ badgeId: string; terms: string[] }> = [];
+    .eq("is_active", true);
+  const rows: SynonymRow[] = [];
   for (const r of (data || []) as any[]) {
     const terms = [
       r.key_word, r.key_word_en, r.key_word_ar,
@@ -69,7 +76,7 @@ async function loadSynonymBadgeMap(admin: any): Promise<Array<{ badgeId: string;
     ]
       .map((t) => norm(t))
       .filter((t) => t.length >= 3 && !AMBIGUOUS_BADGE_TOKENS.has(t));
-    if (terms.length) rows.push({ badgeId: String(r.badge_id), terms: Array.from(new Set(terms)) });
+    if (terms.length) rows.push({ badgeId: r.badge_id ? String(r.badge_id) : null, terms: Array.from(new Set(terms)) });
   }
   synonymBadgeCache = { at: Date.now(), rows };
   return rows;
@@ -85,19 +92,33 @@ async function matchBadgesBySynonym(
   const hayDep = ` ${depluralize(message)} `;
   if (!hay.trim()) return [];
   const rows = await loadSynonymBadgeMap(admin).catch(() => []);
-  const hits: Array<{ id: string; name: string; len: number }> = [];
+
+  // 1. Tous les termes réellement présents dans le message, badge ou non.
+  const matched: Array<{ badgeId: string | null; term: string }> = [];
   for (const row of rows) {
-    const label = activeBadges.get(row.badgeId);
-    if (!label) continue; // badge inactif sur le front → ignoré
-    let bestLen = 0;
     for (const t of row.terms) {
       const td = depluralize(t);
-      if (!(hay.includes(` ${t} `) || hayDep.includes(` ${td} `))) continue;
-      if (t.length > bestLen) bestLen = t.length;
+      if (hay.includes(` ${t} `) || hayDep.includes(` ${td} `)) matched.push({ badgeId: row.badgeId, term: t });
     }
-    if (bestLen) hits.push({ id: row.badgeId, name: label, len: bestLen });
   }
-  return hits;
+
+  // 2. Garde de spécificité : un terme de badge écrasé par un terme PLUS LONG
+  //    qui le contient (« acheter » ⊂ « acheter a manger ») est abandonné.
+  const hits = new Map<string, { id: string; name: string; len: number }>();
+  for (const m of matched) {
+    if (!m.badgeId) continue;
+    const label = activeBadges.get(m.badgeId);
+    if (!label) continue; // badge inactif sur le front → ignoré
+    const overridden = matched.some(
+      (o) => o.term.length > m.term.length
+        && o.badgeId !== m.badgeId
+        && ` ${o.term} `.includes(` ${m.term} `.slice(1, -1)),
+    );
+    if (overridden) continue;
+    const prev = hits.get(m.badgeId);
+    if (!prev || m.term.length > prev.len) hits.set(m.badgeId, { id: m.badgeId, name: label, len: m.term.length });
+  }
+  return Array.from(hits.values());
 }
 
 /**
