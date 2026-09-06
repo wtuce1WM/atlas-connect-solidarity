@@ -324,3 +324,40 @@ export function videoFeedMarker(payload: VideoFeedAnswer["payload"]): string {
   const safe = JSON.stringify(payload).replace(/-->/g, "--&gt;");
   return `\n\n<!--VIDEO_FEED:${safe}-->`;
 }
+
+/**
+ * Paliers d'intersection de badges (dégradation progressive) — miroir exact de
+ * `orderByBadgeIntersectionTiers` côté client (`src/lib/badgeVideoFeed.ts`).
+ *
+ * Le pool fourni est un pool OR (`get_badges_video_feed` = au moins un badge).
+ * On le réordonne : intersection de TOUS les badges d'abord, puis on relâche le
+ * badge le moins spécifique (le plus fréquent dans le pool), etc. Aucun résultat
+ * n'est supprimé — seul l'ordre change.
+ */
+export function orderVideosByBadgeTiers(
+  videos: VideoFeedItem[],
+  badgeIds: string[],
+  tierCap = 60,
+): VideoFeedItem[] {
+  const ids = (badgeIds || []).map(String).filter(Boolean);
+  if (ids.length < 2 || !videos.length) return videos;
+
+  const setOf = (v: VideoFeedItem) => new Set((v.badges || []).map((b) => String(b.id)));
+  const freq = new Map<string, number>(ids.map((id) => [id, 0]));
+  for (const v of videos) {
+    const s = setOf(v);
+    for (const id of ids) if (s.has(id)) freq.set(id, (freq.get(id) ?? 0) + 1);
+  }
+  const bySpecificity = [...ids].sort((a, b) => (freq.get(a) ?? 0) - (freq.get(b) ?? 0));
+
+  const ordered: VideoFeedItem[] = [];
+  const used = new Set<string>();
+  for (let depth = bySpecificity.length; depth >= 1; depth--) {
+    const required = bySpecificity.slice(0, depth);
+    const tier = videos.filter((v) => !used.has(v.id) && required.every((id) => setOf(v).has(id)));
+    const capped = depth === bySpecificity.length ? tier : tier.slice(0, tierCap);
+    for (const v of capped) { used.add(v.id); ordered.push(v); }
+  }
+  for (const v of videos) if (!used.has(v.id)) ordered.push(v);
+  return ordered;
+}
