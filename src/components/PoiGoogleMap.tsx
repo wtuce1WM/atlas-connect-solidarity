@@ -979,11 +979,16 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             (iwContainer as HTMLElement).addEventListener("mouseenter", () => {
               infoWindowHoveredRef.current = true;
               if (closeTimerRef.current) { clearTimeout(closeTimerRef.current); closeTimerRef.current = null; }
+              // Le marqueur + pin restent en statut sélectionné (fond noir)
+              // tant que le curseur est dans la miniature.
+              overlaysRef.current.get(poi.id)?.setHighlighted(true);
             });
             (iwContainer as HTMLElement).addEventListener("mouseleave", () => {
               infoWindowHoveredRef.current = false;
               closeTimerRef.current = setTimeout(() => {
-                overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
+                const ov = overlaysRef.current.get(openInfoPoiIdRef.current ?? "");
+                ov?.setPinBelow(false);
+                if (openInfoPoiIdRef.current !== selectedPoiIdRef.current) ov?.setHighlighted(false);
                 infoWindowRef.current?.close();
               }, 320);
             });
