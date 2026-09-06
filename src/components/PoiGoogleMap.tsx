@@ -777,6 +777,69 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     };
   }, [mapCreated]);
 
+  // Tuiles non peintes (bandes blanches) : la carte est montée dans des panneaux
+  // animés/redimensionnés (slide-in, rotation, changement d'onglet). Google Maps ne
+  // repeint pas seul quand la taille du conteneur change → on force un resize + un
+  // micro-pan qui invalide et recharge les tuiles manquantes.
+  useEffect(() => {
+    if (!mapCreated || !mapRef.current || !containerRef.current) return;
+    const gmaps = (window as any).google?.maps;
+    if (!gmaps) return;
+    const container = containerRef.current;
+    let raf: number | null = null;
+    let last = { w: 0, h: 0 };
+
+    const refresh = () => {
+      const map = mapRef.current;
+      if (!map) return;
+      gmaps.event.trigger(map, "resize");
+      // micro-pan aller/retour : force le rechargement des tuiles blanches
+      map.panBy(1, 0);
+      map.panBy(-1, 0);
+    };
+
+    const schedule = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        refresh();
+      });
+    };
+
+    const ro = new ResizeObserver((entries) => {
+      const r = entries[0]?.contentRect;
+      if (!r) return;
+      const w = Math.round(r.width);
+      const h = Math.round(r.height);
+      if (w === last.w && h === last.h) return;
+      last = { w, h };
+      if (w === 0 || h === 0) return;
+      schedule();
+    });
+    ro.observe(container);
+
+    const onOrientation = () => setTimeout(refresh, 350);
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") setTimeout(refresh, 100);
+    };
+    window.addEventListener("orientationchange", onOrientation);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    // Après l'animation d'ouverture du panneau, la taille finale n'est parfois
+    // atteinte qu'après la transition CSS : quelques rafraîchissements différés.
+    const timers = [120, 400, 900].map((d) => setTimeout(refresh, d));
+
+    return () => {
+      ro.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+      timers.forEach(clearTimeout);
+      window.removeEventListener("orientationchange", onOrientation);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [mapCreated]);
+
+
+
 
   useEffect(() => {
     const map = mapRef.current;
