@@ -953,11 +953,13 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           const el = document.querySelector(`[data-poi-id="${poi.id}"]`);
           if (el) {
             (el as HTMLElement).addEventListener("click", () => {
+              overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
               openInfoPoiIdRef.current = null;
               infoWindowRef.current?.close();
               onPoiClickRef.current?.(poi.id);
             });
           }
+
           // Keep infowindow open while mouse is over it
           const iwContainer = document.querySelector(".gm-style-iw")?.closest(".gm-style-iw-a")
             || document.querySelector(".gm-style-iw")?.parentElement;
