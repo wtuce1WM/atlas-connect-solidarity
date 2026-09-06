@@ -577,6 +577,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   }, [pois, subcategoryIconMap]);
 
   const userMovedRef = useRef(false);
+  // Élargissement automatique du rayon déclenché par nos soins : le changement de
+  // corpus qui s'ensuit ne doit pas réautoriser un recadrage automatique.
+  const autoRadiusRef = useRef(false);
 
   const isNativeTheme = mapTheme === "default-light" || mapTheme === "default-dark";
 
