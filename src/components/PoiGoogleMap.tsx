@@ -1002,10 +1002,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           // Delayed close to allow cursor to reach infowindow
           closeTimerRef.current = setTimeout(() => {
             if (!infoWindowHoveredRef.current) {
+              overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
               infoWindowRef.current?.close();
             }
           }, 300);
         },
+
         markerColor,
         highlightColor,
       );
