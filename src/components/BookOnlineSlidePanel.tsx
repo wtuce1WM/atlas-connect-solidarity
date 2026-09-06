@@ -5040,7 +5040,17 @@ const BookOnlineSlidePanelInner = ({
               // l'élargissement auto ne peut pas se calculer (assistant IA : pas de POI master).
               distanceOrigin={poiMasterCenter ? { lat: poiMasterCenter.lat, lng: poiMasterCenter.lng } : proxOrigin}
               onPoiClick={(poiId) => {
-                if (poiId.startsWith("self-")) return;
+                if (poiId.startsWith("self-")) {
+                  // Marqueur master (ex. Koutoubia) : sa miniature ouvre sa propre
+                  // fiche, sauf s'il s'agit déjà de la fiche courante.
+                  const realId = poiId.slice(5);
+                  if (overridePois || !realId || realId === businessId) return;
+                  poiOpenedFromMapRef.current = true;
+                  setPoiNavIds([realId]);
+                  setSelectedPoiBusinessId(realId);
+                  return;
+                }
+
                 if (overridePois) {
                   setSelectedKpBusinessId(poiId);
                 } else if (poiMapMode === "destinations") {
