@@ -970,8 +970,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             });
             (iwContainer as HTMLElement).addEventListener("mouseleave", () => {
               infoWindowHoveredRef.current = false;
-              closeTimerRef.current = setTimeout(() => { infoWindowRef.current?.close(); }, 200);
+              closeTimerRef.current = setTimeout(() => {
+                overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
+                infoWindowRef.current?.close();
+              }, 200);
             });
+
           }
         });
       };
