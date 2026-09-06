@@ -1083,16 +1083,40 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         let offY = IW_H + PIN_BELOW_EXTRA;
         let openPinBelow = true;
         try {
-          const proj = map.getProjection();
-          const c = map.getCenter();
           const cw = containerRef.current?.clientWidth || 0;
           const ch = containerRef.current?.clientHeight || 0;
+          let px: number | null = null;
+          let py: number | null = null;
+
+          const proj = map.getProjection();
+          const c = map.getCenter();
           if (proj && c && cw && ch) {
             const scale = Math.pow(2, map.getZoom() ?? 13);
             const wp = proj.fromLatLngToPoint(new gmaps.LatLng(position.lat, position.lng));
             const wc = proj.fromLatLngToPoint(c);
-            const px = (wp.x - wc.x) * scale + cw / 2;
-            const py = (wp.y - wc.y) * scale + ch / 2;
+            if (wp && wc) {
+              px = (wp.x - wc.x) * scale + cw / 2;
+              py = (wp.y - wc.y) * scale + ch / 2;
+            }
+          }
+          // Repli si la projection n'est pas encore prête (cause des cas
+          // aléatoires où un marqueur du bas ouvrait la miniature en dessous) :
+          // on estime la position à partir des bornes visibles de la carte.
+          if ((px == null || py == null) && cw && ch) {
+            const b = map.getBounds();
+            if (b) {
+              const ne = b.getNorthEast();
+              const sw = b.getSouthWest();
+              const latSpan = ne.lat() - sw.lat();
+              const lngSpan = ne.lng() - sw.lng();
+              if (latSpan > 0 && lngSpan !== 0) {
+                py = ((ne.lat() - position.lat) / latSpan) * ch;
+                px = ((position.lng - sw.lng()) / lngSpan) * cw;
+              }
+            }
+          }
+
+          if (px != null && py != null && cw && ch) {
             // Vertical : par défaut en dessous avec pin inversé. On ne bascule
             // au-dessus (pin classique) que si la place manque en bas.
             if (py + IW_H + PIN_BELOW_EXTRA > ch - PAD) {
@@ -1107,6 +1131,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             else if (right > cw - PAD) offX = cw - PAD - right;
           }
         } catch { /* projection indisponible : offsets par défaut */ }
+
         overlay.setPinBelow(openPinBelow);
         infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(offX, offY), disableAutoPan: true });
 
