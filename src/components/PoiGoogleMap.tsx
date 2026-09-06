@@ -786,6 +786,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     [fitRadiusKm, center, pois],
   );
   useEffect(() => {
+    // Élargissement auto du rayon (suite à un dézoom/déplacement) : on garde la vue
+    // de l'utilisateur, aucun recadrage.
+    if (autoRadiusRef.current) { autoRadiusRef.current = false; return; }
     userMovedRef.current = false;
   }, [filterSignature]);
 
