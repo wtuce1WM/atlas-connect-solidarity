@@ -906,13 +906,15 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         </div>`;
         infoWindowRef.current?.setContent(html);
         // Ancrage dynamique de l'infobulle : vers le BAS par défaut
-        // (la vignette s'ouvre sous le marqueur), et on ne remonte au-dessus
-        // que si le POI est trop près du bas de l'écran pour laisser la place.
+        // (la vignette s'ouvre sous le marqueur). Le pin noir est inversé et
+        // placé entre le label et la miniature quand il y a assez de place.
         const IW_W = 268;
         const IW_H = img ? 200 : 90;
         const PAD = 12;
+        const PIN_BELOW_EXTRA = 54; // pin 40px + air label↔miniature
         let offX = 0;
-        let offY = IW_H + 6;
+        let offY = IW_H + PIN_BELOW_EXTRA;
+        let openPinBelow = true;
         try {
           const proj = map.getProjection();
           const c = map.getCenter();
@@ -924,9 +926,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             const wc = proj.fromLatLngToPoint(c);
             const px = (wp.x - wc.x) * scale + cw / 2;
             const py = (wp.y - wc.y) * scale + ch / 2;
-            // Vertical : par défaut en dessous. On ne bascule au-dessus que s'il
-            // n'y a pas assez de place en bas.
-            if (py + IW_H + 6 > ch - PAD) offY = -50;
+            // Vertical : par défaut en dessous avec pin inversé. On ne bascule
+            // au-dessus (pin classique) que si la place manque en bas.
+            if (py + IW_H + PIN_BELOW_EXTRA > ch - PAD) {
+              offY = -50;
+              openPinBelow = false;
+            }
 
             // Horizontal : recentrage dans les bords.
             const left = px - IW_W / 2;
@@ -935,7 +940,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             else if (right > cw - PAD) offX = cw - PAD - right;
           }
         } catch { /* projection indisponible : offsets par défaut */ }
+        overlay.setPinBelow(openPinBelow);
         infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(offX, offY), disableAutoPan: true });
+
 
         infoWindowRef.current?.setPosition(position);
         infoWindowRef.current?.open(map);
