@@ -2333,6 +2333,47 @@ const BookOnlineSlidePanelInner = ({
   // doigts → wheel deltaX) et flèches ←/→ changent de média. Verrou de 400 ms
   // pour éviter qu'un seul geste enchaîne plusieurs médias.
   const mediaWheelLockRef = useRef(0);
+
+  // Navigation verticale molette/touchpad entre résultats, en interne — utilisée
+  // quand le panneau est imbriqué sans wrapper EmbedAsk (ex. fiche ouverte
+  // depuis un marqueur de la Map). Mêmes règles que le wrapper : accumulation
+  // 60 px, verrou 450 ms, et on laisse défiler le contenu tant qu'il peut.
+  const bizWheelAccumRef = useRef(0);
+  const bizWheelLockUntilRef = useRef(0);
+  const bizNavRef = useRef({ onPrev: effectiveOnPrev, onNext: effectiveOnNext, hasPrev: effectiveHasPrev, hasNext: effectiveHasNext });
+  useEffect(() => {
+    bizNavRef.current = { onPrev: effectiveOnPrev, onNext: effectiveOnNext, hasPrev: effectiveHasPrev, hasNext: effectiveHasNext };
+  }, [effectiveOnPrev, effectiveOnNext, effectiveHasPrev, effectiveHasNext]);
+  useEffect(() => {
+    if (!internalWheelNav) return;
+    const el = mediaScrollRef.current;
+    if (!el) return;
+    const onWheelY = (e: WheelEvent) => {
+      if (anyOverlayOpen) return;
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+      const maxTop = el.scrollHeight - el.clientHeight;
+      const canScroll = deltaY > 0 ? el.scrollTop < maxTop - 1 : el.scrollTop > 1;
+      if (canScroll) { bizWheelAccumRef.current = 0; return; }
+      const now = Date.now();
+      if (now < bizWheelLockUntilRef.current) { bizWheelAccumRef.current = 0; return; }
+      bizWheelAccumRef.current += deltaY;
+      if (Math.abs(bizWheelAccumRef.current) < 60) return;
+      const dir = bizWheelAccumRef.current > 0 ? 1 : -1;
+      bizWheelAccumRef.current = 0;
+      const nav = bizNavRef.current;
+      if (dir > 0 && nav.hasNext && nav.onNext) {
+        bizWheelLockUntilRef.current = now + 450;
+        nav.onNext();
+      } else if (dir < 0 && nav.hasPrev && nav.onPrev) {
+        bizWheelLockUntilRef.current = now + 450;
+        nav.onPrev();
+      }
+    };
+    el.addEventListener("wheel", onWheelY, { passive: true });
+    return () => el.removeEventListener("wheel", onWheelY);
+  }, [internalWheelNav, anyOverlayOpen]);
+
   useEffect(() => {
     const el = mediaScrollRef.current;
     if (!el) return;
