@@ -180,22 +180,20 @@ function lastResultsIndex(messages: UIMessage[]): number {
 }
 
 
-// ── Garde-fou « type de lieu » sur un feed vidéo curaté ─────────────────────
+// ── Palier « type de lieu » sur un feed vidéo curaté ────────────────────────
 // Une suggestion curatée en mode `video_feed` (ex. « Les adresses avec vue sur
 // mer ») porte un badge thématique qui ignore le type de lieu ajouté par
-// l'utilisateur (« hôtel avec vue sur mer » ramenait un restaurant). Seul le
-// badge métier précis « Villas » est gardé comme garde-fou, car il peut qualifier
-// une fiche via ses vidéos badgées. Les entrées larges « Où dormir ? » et
-// « Où manger ? » ont été retirées : trop de risque d'amputer des résultats
-// légitimes sur des mots courants.
-// Pas de repli silencieux : si le croisement est vide, le feed n'est pas émis
-// et le tour repart sur la recherche standard.
+// l'utilisateur (« villa avec vue sur mer » ramenait des hôtels/restaurants).
+// On ne SUPPRIME plus les résultats hors type : on les classe en second palier,
+// derrière l'intersection stricte (même logique de dégradation progressive que
+// `orderByBadgeIntersectionTiers` côté client). Aucun résultat n'est amputé.
 const FEED_PLACE_TYPE_GUARDS: Array<{ badgeName: string; re: RegExp }> = [
   {
     badgeName: "Villas",
     re: /\b(villa|villas)\b/,
   },
 ];
+
 
 // Ensemble des établissements autorisés par le type de lieu nommé dans le
 // message (`null` = pas de type nommé / pas de croisement à faire).
@@ -245,24 +243,21 @@ async function applyFeedPlaceTypeGuard(
   const guard = await placeTypeAllowedIds(admin, message, curatedBadgeIds);
   if (!guard) return feed;
   const { badgeName: hitName, ids: allowed } = guard;
-  const hit = { badgeName: hitName };
 
-
-  const before = (feed?.payload?.videos || []).length;
-  const kept = (feed?.payload?.videos || []).filter(
-    (v: any) => v?.business_id && allowed.has(String(v.business_id)),
-  );
-  console.log("[embed-ai-chat-v2] feed_place_type_guard", JSON.stringify({
-    badge: hit.badgeName, before, after: kept.length,
+  const videos = (feed?.payload?.videos || []) as any[];
+  const strict = videos.filter((v) => v?.business_id && allowed.has(String(v.business_id)));
+  const rest = videos.filter((v) => !(v?.business_id && allowed.has(String(v.business_id))));
+  console.log("[embed-ai-chat-v2] feed_place_type_tier", JSON.stringify({
+    badge: hitName, total: videos.length, strict: strict.length, relaxed: rest.length,
   }));
-  if (!kept.length) return null;
+  if (!strict.length) return feed;
+  const ordered = [...strict, ...rest];
   return {
     ...feed,
-    count: kept.length,
-    text: String(feed.text || "").replace(/\d+/, String(kept.length)),
-    payload: { ...feed.payload, videos: kept, total: kept.length },
+    payload: { ...feed.payload, videos: ordered },
   };
 }
+
 
 /**
 
