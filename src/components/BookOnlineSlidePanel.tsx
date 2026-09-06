@@ -2388,7 +2388,10 @@ const BookOnlineSlidePanelInner = ({
     };
     el.addEventListener("wheel", onWheelY, { passive: false, capture: true });
     return () => el.removeEventListener("wheel", onWheelY, { capture: true });
-  }, [internalWheelNav, prioritizeBusinessSwipe]);
+  // `business?.id` est nécessaire : depuis le CTA Map de Home, la sous-fiche
+  // passe d'abord par l'écran de chargement, donc les refs DOM sont nulles au
+  // premier effet. Réattacher dès que la fiche est réellement rendue.
+  }, [internalWheelNav, prioritizeBusinessSwipe, business?.id]);
 
   // Navigation tactile du panneau imbriqué au-dessus de la Map. L'écoute se fait
   // sur toute la fiche afin que les cartes et autres contenus ne capturent pas
@@ -2462,7 +2465,9 @@ const BookOnlineSlidePanelInner = ({
       root.removeEventListener("touchend", onEnd, { capture: true });
       root.removeEventListener("touchcancel", onCancel, { capture: true });
     };
-  }, [internalWheelNav, prioritizeBusinessSwipe, goMedia, totalMedia]);
+  // Même réattachement différé pour le tactile lorsque la fiche provient de
+  // l'overlay Map de l'assistant et n'existe pas encore au premier effet.
+  }, [internalWheelNav, prioritizeBusinessSwipe, goMedia, totalMedia, business?.id]);
 
 
   useEffect(() => {
