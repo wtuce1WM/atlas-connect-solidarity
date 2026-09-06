@@ -723,7 +723,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       if (idleTimer) clearTimeout(idleTimer);
       idleTimer = setTimeout(() => {
         const map = mapRef.current;
-        const origin = distanceOriginRef.current ?? centerRef.current;
+        const c = map?.getCenter?.();
+        const origin =
+          distanceOriginRef.current ??
+          centerRef.current ??
+          (c ? { lat: c.lat(), lng: c.lng() } : null);
         const b = map?.getBounds();
         if (!map || !origin || !b) return;
         const ne = b.getNorthEast();
