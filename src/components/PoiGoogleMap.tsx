@@ -405,6 +405,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   const mapRef = useRef<google.maps.Map | null>(null);
   const overlaysRef = useRef<Map<string, LabelMarkerOverlay>>(new Map());
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const selectedPoiIdRef = useRef<string | null>(null);
   const userMarkerRef = useRef<LabelMarkerOverlay | null>(null);
   const [ready, setReady] = useState(false);
   const hasFittedRef = useRef(false);
@@ -1182,6 +1183,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     if (activeId) {
       prevSelectedRef.current = activeId;
     }
+    selectedPoiIdRef.current = selectedPoiId ?? null;
   }, [selectedPoiId, hoveredPoiId]);
 
   // Keep city centered when a city center is provided (skip in fitToMarkers mode,
