@@ -519,6 +519,10 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   useEffect(() => { userLocationRef.current = userLocation; }, [userLocation]);
   const distanceOriginRef = useRef(distanceOrigin);
   useEffect(() => { distanceOriginRef.current = distanceOrigin; }, [distanceOrigin]);
+  const onViewportRadiusKmRef = useRef(onViewportRadiusKm);
+  useEffect(() => { onViewportRadiusKmRef.current = onViewportRadiusKm; }, [onViewportRadiusKm]);
+
+
 
   // Current center ref for anchored zoom handlers (avoids stale closures)
   const centerRef = useRef(center);
