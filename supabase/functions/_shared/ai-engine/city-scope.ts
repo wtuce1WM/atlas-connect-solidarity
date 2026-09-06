@@ -16,8 +16,16 @@ export function resolveCityScope(opts: {
   explicitCity?: string | null;
   /** `null` = pas de repli (périmètre national) ; sinon Marrakech par défaut. */
   fallback?: string | null;
+  /**
+   * Surfaces plateforme (Home, /club, /search) : AUCUN filtre ville tant que
+   * l'utilisateur n'en nomme pas une. Ni la ville de l'hôte, ni la ville active
+   * de la surface, ni Marrakech par défaut ne s'appliquent.
+   * Les widgets installés chez un établissement gardent la règle historique.
+   */
+  platformMode?: boolean;
 }): string | null {
   const clean = (v: unknown) => String(v ?? "").trim();
+  if (opts.platformMode) return clean(opts.explicitCity) || null;
   const fallback = opts.fallback === null ? "" : clean(opts.fallback) || DEFAULT_CITY;
   return (
     clean(opts.explicitCity) ||
