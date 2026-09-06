@@ -488,8 +488,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     };
     document.querySelectorAll<HTMLElement>(sel).forEach((row) => {
       // Une "row" de Pills est pleine largeur : on ne retient que l'emprise de chaque Pill.
-      if (row.children.length > 0) Array.from(row.children).forEach(push);
-      else push(row);
+      if (row.hasAttribute("data-map-pill") || row.children.length === 0) push(row);
+      else Array.from(row.children).forEach(push);
     });
     // Contrôles natifs Google (calques, zoom) : même règle d'emprise réelle.
     containerRef.current
