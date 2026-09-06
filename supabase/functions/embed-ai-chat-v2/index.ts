@@ -1769,6 +1769,7 @@ Deno.serve(async (req) => {
               // (hôtels/riads vue sur mer). Les fiches ne changent pas.
               try {
                 let feedBadges = await matchFrontBadgesInMessage(admin, userMessage, lang as any, 3);
+                let droppedSynonym = false;
                 /**
                  * Un badge d'INTENTION détecté par synonyme (« acheter » ⇢ Vente,
                  * badge immobilier) ne doit JAMAIS élargir le feed : il n'est
