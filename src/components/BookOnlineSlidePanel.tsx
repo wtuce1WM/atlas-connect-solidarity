@@ -587,6 +587,9 @@ const BookOnlineSlidePanelInner = ({
 
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
+  // Corpus figé des marqueurs affichés sur la carte → scroll vertical du panneau imbriqué.
+  const [poiNavIds, setPoiNavIds] = useState<string[]>([]);
+
   const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(initialOverlay === "poi");
   const [poiMapMode, setPoiMapMode] = useState<"poi" | "destinations">("poi");
