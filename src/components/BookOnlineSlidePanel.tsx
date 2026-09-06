@@ -4705,7 +4705,7 @@ const BookOnlineSlidePanelInner = ({
               })()}
             </div>
             {(business?.name || activeFrontTab || poiMasterOverride?.name || (overridePool && poiOverrideTitle)) && (
-              <div className="absolute top-[calc(3.3rem+0.75rem)] left-14 right-3 z-[10] pointer-events-none flex justify-center">
+              <div data-map-pill-row className="absolute top-[calc(3.3rem+0.75rem)] left-14 right-3 z-[10] pointer-events-none flex justify-center">
                 <div className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   {(!business?.name || (overridePool && !poiOverrideTitle)) && poiMasterOverride?.name ? (
                     language === "en" ? `Near ${poiMasterOverride.name}` : language === "ar" ? `بالقرب من ${poiMasterOverride.name}` : `À proximité de ${poiMasterOverride.name}`
@@ -4731,7 +4731,7 @@ const BookOnlineSlidePanelInner = ({
               </div>
             )}
             {(showAllToggle || showSubcatPill || showProxPill || showCatPill) && (
-              <div className="absolute top-[calc(3.3rem+0.75rem+2.75rem)] left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
+              <div data-map-pill-row className="absolute top-[calc(3.3rem+0.75rem+2.75rem)] left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
 
 
 
@@ -5022,10 +5022,8 @@ const BookOnlineSlidePanelInner = ({
               }
               selectedPoiId={null}
               // Aucun marqueur derrière/au-dessus des Pills du haut ni sous les Pills du bas.
-              markerSafeArea={{
-                top: (showAllToggle || showSubcatPill || showProxPill || showCatPill) ? 145 : 100,
-                bottom: 100,
-              }}
+              markerSafeSelector="[data-map-pill-row]"
+              markerSafeArea={{ top: 0, bottom: 0 }}
               center={poiMasterCenter}
               distanceOrigin={poiMasterCenter ? { lat: poiMasterCenter.lat, lng: poiMasterCenter.lng } : null}
               onPoiClick={(poiId) => {
@@ -5056,7 +5054,7 @@ const BookOnlineSlidePanelInner = ({
               );
             })()}
             {isEmbedMapWidget && (widgetKpGroups.length > 0 || widgetDefaultPoi) && (
-              <div className="absolute bottom-6 left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
+              <div data-map-pill-row className="absolute bottom-6 left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
                 {[
                   ...widgetKpGroups.map((g) => ({ key: (g.slot === 1 ? "kp1" : "kp2") as "kp1" | "kp2", label: g.title })),
                   ...(widgetDefaultPoi ? [{ key: "poi" as const, label: widgetDefaultPoi.name as string }] : []),
@@ -5086,7 +5084,7 @@ const BookOnlineSlidePanelInner = ({
               </div>
             )}
 
-            <div className="absolute bottom-16 left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
+            <div data-map-pill-row className="absolute bottom-16 left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
 
               {showProxPill && (
                 <div className="inline-flex rounded-full bg-white/90 backdrop-blur-sm shadow-lg ring-1 ring-black/10 p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
