@@ -62,6 +62,9 @@ interface PoiGoogleMapProps {
   fitRadiusKm?: number | null;
   /** Point de référence pour la distance affichée dans la vignette (ex. marqueur Master). Prioritaire sur la géoloc utilisateur. */
   distanceOrigin?: { lat: number; lng: number } | null;
+  /** Appelé (debounce) quand l'utilisateur déplace/dézoome la carte : rayon (km)
+   * nécessaire depuis l'origine des distances pour couvrir le viewport visible. */
+  onViewportRadiusKm?: (km: number) => void;
   /** Trace une flèche rouge animée entre deux points, avec l'étiquette de distance au milieu. */
   connector?: {
     from: { lat: number; lng: number };
