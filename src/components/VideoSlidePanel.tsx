@@ -547,13 +547,14 @@ const VideoSlidePanel = ({
       : (ctaBusiness?.name || businessName || "");
   const feedInfoTeaser = useMemo(() => {
     if (useBusinessInfo) {
-      if (businessHook?.trim()) return businessHook.trim();
+      // Priorité : description du business d'abord, hook seulement en repli.
       const plain = (businessDescription || "")
         .replace(/<[^>]*>/g, " ")
         .replace(/&nbsp;/g, " ")
         .replace(/\s+/g, " ")
         .trim();
       if (plain) return plain;
+      if (businessHook?.trim()) return businessHook.trim();
       if (feedInfoTitle) return buildFallbackTeaser(feedInfoTitle, language);
       return null;
     }
