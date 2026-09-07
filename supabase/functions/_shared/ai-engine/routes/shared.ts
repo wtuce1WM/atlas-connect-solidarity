@@ -323,7 +323,18 @@ export async function resolveNamedBusinessForIntent(
   if (!msgTokens.length) return null;
   const msgSet = new Set(msgTokens);
 
-  const { data } = await admin.from("businesses").select("id, name").eq("is_active", true);
+  // Filtrage SERVEUR obligatoire : un `select` sans filtre est plafonné à 1000
+  // lignes par l'API (le catalogue est plus large), donc un scan complet rate
+  // silencieusement des établissements. On ne charge que les noms contenant au
+  // moins un token non générique du message.
+  const probes = msgTokens.filter((t) => t.length >= 4 && !NAME_GENERIC.has(t)).slice(0, 8);
+  if (!probes.length) return null;
+  const { data } = await admin
+    .from("businesses")
+    .select("id, name")
+    .eq("is_active", true)
+    .or(probes.map((t) => `name.ilike.*${t.replace(/[,()]/g, " ")}*`).join(","))
+    .limit(800);
   if (!Array.isArray(data)) return null;
 
   let bestId: string | null = null;
