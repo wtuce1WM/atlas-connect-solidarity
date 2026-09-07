@@ -1831,9 +1831,10 @@ const VideoSlidePanel = ({
                     language={language}
                     bare
                     onOpen={(rect) => {
-                      // Vidéo liée à un établissement → Full Description de BookOnlineSlidePanel.
-                      if (ctaBusiness?.id) { setNestedOverlayKind("description"); setDescBusinessId(String(ctaBusiness.id)); return; }
-                      if (effectiveDescription) startDescMorph(rect);
+                      // Sans exception : la barre info ouvre la Full Description.
+                      const targetId = ctaBusiness?.id || pageBusinessId || owner?.id;
+                      if (targetId) { setNestedOverlayKind("description"); setDescBusinessId(String(targetId)); return; }
+                      startDescMorph(rect);
                     }}
                   />
                 </ViewerInfoBar>
