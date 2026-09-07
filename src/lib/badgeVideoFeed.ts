@@ -338,6 +338,8 @@ const DISCOVERY_EXCLUDED_SUBCATEGORIES = [
   "Jouets",
   "Informatique",
   "Épicerie",
+  "Boucherie / Charcuterie",
+  "Parfumerie",
 ];
 
 let discoveryExclusionsPromise: Promise<{ businessIds: Set<string>; videoIds: Set<string> }> | null = null;
