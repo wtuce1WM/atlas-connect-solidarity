@@ -802,6 +802,18 @@ const Front = () => {
   const showHomeChrome = !demoIntro && !youtubeOpen && !mapOpen && !askPanelOpen;
   /** Feed démo chargé : moitié droite = viewer, moitié gauche = assistant IA fermé. */
   const demoFeedOpen = !!(demoActiveId || demoCardsOnly);
+
+  // Priorité au viewer vidéo : l'assistant IA (bundle + requêtes suggestions) n'est
+  // monté qu'une fois le feed prêt. Filet de sécurité à 3 s si le feed échoue.
+  const [askMounted, setAskMounted] = useState(false);
+  useEffect(() => {
+    if (askMounted) return;
+    if (demoFeedOpen) { setAskMounted(true); return; }
+    const t = window.setTimeout(() => setAskMounted(true), 3000);
+    return () => window.clearTimeout(t);
+  }, [askMounted, demoFeedOpen]);
+
+
   
   const ctaP = range(progress, 0.25, 0.9);
   const ctaActive = progress > 0.575;
@@ -914,9 +926,12 @@ const Front = () => {
         {/* Assistant IA — monté directement (plus d'iframe : un seul bundle, pas de flash) */}
         <div className="flex h-full w-full flex-col">
           <div className="h-full w-full flex-1 bg-transparent">
-            <Suspense fallback={<div className="h-full w-full bg-transparent" />}>
-              <EmbedAskInline paramsOverride="scope=platform&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light&persist=0&hero=1" />
-            </Suspense>
+            {askMounted && (
+              <Suspense fallback={<div className="h-full w-full bg-transparent" />}>
+                <EmbedAskInline paramsOverride="scope=platform&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light&persist=0&hero=1" />
+              </Suspense>
+            )}
+
           </div>
         </div>
 

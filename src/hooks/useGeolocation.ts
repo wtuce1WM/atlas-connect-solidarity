@@ -146,7 +146,37 @@ function findNearestCity(lat: number, lng: number, cities: GeoCity[]): string | 
   return minDist <= 100 ? nearest : null;
 }
 
+/** Cache session des référentiels géo (une requête max par table et par session). */
+let geoRefsPromise: Promise<{ cities: GeoCity[]; neighborhoods: GeoNeighborhood[] }> | null = null;
+function loadGeoRefs() {
+  if (!geoRefsPromise) {
+    geoRefsPromise = Promise.all([
+      supabase
+        .from("cities")
+        .select("name_fr, latitude, longitude")
+        .eq("is_active", true)
+        .not("latitude", "is", null)
+        .not("longitude", "is", null),
+      supabase
+        .from("neighborhoods")
+        .select("name, latitude, longitude")
+        .not("latitude", "is", null)
+        .not("longitude", "is", null),
+    ])
+      .then(([c, n]) => ({
+        cities: ((c.data as GeoCity[]) || []),
+        neighborhoods: ((n.data as GeoNeighborhood[]) || []),
+      }))
+      .catch(() => {
+        geoRefsPromise = null;
+        return { cities: [] as GeoCity[], neighborhoods: [] as GeoNeighborhood[] };
+      });
+  }
+  return geoRefsPromise;
+}
+
 export function useGeolocation(): GeolocationState {
+
   const initialRef = useRef<InitialGeolocationSnapshot | null>(null);
   if (initialRef.current === null) initialRef.current = readInitialGeolocationSnapshot();
   const initial = initialRef.current;
@@ -162,27 +192,19 @@ export function useGeolocation(): GeolocationState {
   const [neighborhoods, setNeighborhoods] = useState<GeoNeighborhood[]>([]);
   const [isManual, setIsManual] = useState(initial.isManual);
 
-  // Load cities and neighborhoods with coordinates on mount
+  // Load cities and neighborhoods with coordinates on mount.
+  // Référentiels stables : une seule requête par session, partagée entre toutes
+  // les instances du hook (avant : 4 × cities + 4 × neighborhoods au chargement).
   useEffect(() => {
-    supabase
-      .from("cities")
-      .select("name_fr, latitude, longitude")
-      .eq("is_active", true)
-      .not("latitude", "is", null)
-      .not("longitude", "is", null)
-      .then(({ data }) => {
-        if (data) setCities(data as GeoCity[]);
-      });
-
-    supabase
-      .from("neighborhoods")
-      .select("name, latitude, longitude")
-      .not("latitude", "is", null)
-      .not("longitude", "is", null)
-      .then(({ data }) => {
-        if (data) setNeighborhoods(data as GeoNeighborhood[]);
-      });
+    let cancelled = false;
+    void loadGeoRefs().then(({ cities: c, neighborhoods: n }) => {
+      if (cancelled) return;
+      if (c.length) setCities(c);
+      if (n.length) setNeighborhoods(n);
+    });
+    return () => { cancelled = true; };
   }, []);
+
 
   // Restore manual location from localStorage (initial mount + cross-instance sync)
   const hydrateFromStorage = useCallback(() => {
