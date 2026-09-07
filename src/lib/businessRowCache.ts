@@ -30,10 +30,10 @@ export const BUSINESS_VIEWER_FIELDS = [
   "description_fr",
   "description_en",
   "description_ar",
-  "hook",
   "hook_fr",
   "hook_en",
   "hook_ar",
+
   "images",
   "prioritize_images",
   "show_videos",

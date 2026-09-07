@@ -328,9 +328,10 @@ const VideoSlidePanel = ({
         const localizedDesc = language === "ar" ? (d.description_ar || d.description_fr || d.description)
           : language === "en" ? (d.description_en || d.description_fr || d.description)
           : (d.description_fr || d.description);
-        const localizedHook = language === "ar" ? (d.hook_ar || d.hook_fr || d.hook)
-          : language === "en" ? (d.hook_en || d.hook_fr || d.hook)
-          : (d.hook_fr || d.hook);
+        const localizedHook = language === "ar" ? (d.hook_ar || d.hook_fr)
+          : language === "en" ? (d.hook_en || d.hook_fr)
+          : d.hook_fr;
+
         setBusinessDescription(localizedDesc ?? null);
         setBusinessHook(localizedHook ?? null);
       });
