@@ -45,23 +45,39 @@ const MediaBackground = React.memo(function MediaBackground({
   // Vimeo, image, Matterport), le dernier élément <video> connu est coupé —
   // même s'il a déjà été détaché du DOM (un élément détaché continue d'émettre
   // du son tant qu'il n'est pas mis en pause).
+  //
+  // IMPORTANT : l'élément est CAPTURÉ à l'entrée dans le média non-natif. Les
+  // relances différées (80/300/900 ms) ne doivent jamais viser le buffer de la
+  // vidéo SUIVANTE : sinon, après un résultat « image », la vidéo suivante était
+  // marquée owmUserPaused + mutée + mise en pause juste après son autoplay
+  // (bug « une image neutralise l'auto-play du résultat suivant »).
   useEffect(() => {
     const isNativeVideo = effectiveMedia?.kind === "video" && videoInfo?.type === "file";
     if (isNativeVideo) return;
+    const target = videoRef.current;
+    if (!target) return;
     const stop = () => {
-      const v = videoRef.current;
-      if (!v) return;
+      // Si le moteur a déjà basculé la ref vers un nouveau buffer (média suivant),
+      // on n'y touche pas.
+      if (videoRef.current !== target) return;
       try {
-        v.dataset.owmUserPaused = "1";
-        v.muted = true;
-        v.volume = 0;
-        v.pause();
+        target.dataset.owmUserPaused = "1";
+        target.muted = true;
+        target.volume = 0;
+        target.pause();
       } catch {/* ignore */}
     };
     stop();
     const timers = [80, 300, 900].map((ms) => window.setTimeout(stop, ms));
-    return () => timers.forEach((t) => window.clearTimeout(t));
+    return () => {
+      timers.forEach((t) => window.clearTimeout(t));
+      // En sortie de média non-natif, le marqueur de pause utilisateur posé ici
+      // (pause TECHNIQUE, pas un geste de l'utilisateur) doit être levé, sinon
+      // la logique de reprise autoplay du moteur unique reste bloquée.
+      try { delete target.dataset.owmUserPaused; } catch {/* ignore */}
+    };
   }, [effectiveMedia?.kind, effectiveMedia?.url, videoInfo?.type, videoRef]);
+
 
 
   // Vidéos natives : AUCUNE logique de lecture/son ici. Le moteur unique
