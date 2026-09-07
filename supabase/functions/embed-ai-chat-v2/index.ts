@@ -46,6 +46,7 @@ import { buildImmersiveLines, buildImmersiveBlock } from "../_shared/ai-engine/r
 import { buildEventsWeekendAnswer, buildEventsFilteredAnswer, fetchAgendaEvents, weekendWindow, eventsSnapshotMarker, priorEventsSnapshot } from "../_shared/ai-engine/routes/events.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
+import { isContactIntent, isPriceIntent, buildContactAnswer, buildPriceAnswer } from "../_shared/ai-engine/routes/contactPrice.ts";
 import {
   isNearbyOverviewIntent, isProximityIntent, buildNearbyOverview, buildDisclosureFromCounts,
   parseInlineRadiusKm, buildTwoEntityProximityCurated,
