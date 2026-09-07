@@ -358,13 +358,16 @@ async function fetchRandomYoutubeVideoOf(
     .limit(1)
     .maybeSingle();
   if (!biz?.id) return null;
+  // Filtre côté serveur sur `badges.is_active_on_front` (équivalent à la liste
+  // complète des badges front) : évite d'injecter ~160 UUID dans l'URL.
   const { data } = await (supabase as any)
     .from("business_youtube_videos")
-    .select("id, video_id, title, is_short, thumbnail, custom_thumbnail_url, business_youtube_video_badges!inner(badge_id)")
+    .select("id, video_id, title, is_short, thumbnail, custom_thumbnail_url, business_youtube_video_badges!inner(badge_id, badges!inner(is_active_on_front))")
     .eq("business_id", biz.id)
     .eq("is_short", true)
-    .in("business_youtube_video_badges.badge_id", badgeIds)
+    .eq("business_youtube_video_badges.badges.is_active_on_front", true)
     .not("video_id", "is", null);
+
   const rows = ((data as any[]) || []).filter((r) => r.video_id);
 
   if (!rows.length) return null;
