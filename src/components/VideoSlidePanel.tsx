@@ -1057,16 +1057,9 @@ const VideoSlidePanel = ({
     return !!target.closest('button, a, input, textarea, select, label, [role="button"], [data-cta], [data-cta-tap], [data-sound-toggle="true"]');
   };
 
-  const embed = getVideoEmbed(viewUrl || videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: soundOn, controls: false });
+  const embed = getVideoEmbed(viewUrl || videoUrl, window.location.origin, { background: true, autoplay: true, defaultSoundOn: soundOn, controls: false, loop: true });
   let embedUrl = embed.embedUrl;
-  if (embed.type === "youtube") {
-    const ytId = (viewUrl || videoUrl).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
-    embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`);
-    // On garde toujours mute=1 dans l'URL : un autoplay non muté est bloqué par
-    // Chrome/Safari et le lecteur reste alors en "unstarted" (iframe non cliquable).
-    // Le démutage est fait après démarrage via postMessage (effet ci-dessus).
-  } else if (embed.type === "vimeo") {
-
+  if (embed.type === "vimeo") {
     embedUrl = embedUrl.replace("loop=0", "loop=1");
     if (soundOn && !isMobile) embedUrl = embedUrl.replace("muted=1", "muted=0");
   } else if (embed.type === "bunny") {
