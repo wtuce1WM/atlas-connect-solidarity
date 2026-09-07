@@ -45,7 +45,13 @@ export function detectPoolProximityIntent(rawText: string): ProximityIntent {
 
 export type ProximityTarget = { name: string; lat: number; lng: number; source: "poi" | "business" };
 
-/** Résout le repère cité en un ou plusieurs points géolocalisés. */
+/**
+ * Résout le repère cité en un ou plusieurs points géolocalisés.
+ * Priorité : POI de la/les ville(s) du pool → établissements dont la SOUS-CATÉGORIE
+ * correspond au terme (ex. « golf ») dans ces villes → établissements dont le NOM
+ * contient le terme. Jamais de repère hors des villes du pool : une villa de
+ * Marrakech ne doit pas être mesurée par rapport au golf d'Essaouira.
+ */
 export async function resolveProximityTargets(
   admin: any,
   term: string,
@@ -53,6 +59,7 @@ export async function resolveProximityTargets(
 ): Promise<ProximityTarget[]> {
   const like = `*${term.replace(/[,()*]/g, " ").trim()}*`;
   const out: ProximityTarget[] = [];
+  const nTerm = norm(term);
 
   const cityIds = new Set<string>();
   if (cityNames.length) {
@@ -69,10 +76,47 @@ export async function resolveProximityTargets(
   const poiRows = (pois || []).filter(
     (p: any) => typeof p.latitude === "number" && typeof p.longitude === "number",
   );
-  const inCity = cityIds.size ? poiRows.filter((p: any) => cityIds.has(String(p.city_id))) : [];
-  const chosen = inCity.length ? inCity : poiRows;
-  for (const p of chosen.slice(0, 5)) {
+  // Restriction géographique stricte dès qu'on connaît les villes du pool.
+  const chosen = cityIds.size
+    ? poiRows.filter((p: any) => cityIds.has(String(p.city_id)))
+    : poiRows;
+  for (const p of chosen.slice(0, 8)) {
     out.push({ name: String(p.name_fr || p.name_en), lat: p.latitude, lng: p.longitude, source: "poi" });
+  }
+  if (out.length) return out;
+
+  // Sous-catégorie réelle (businesses.categories) : seul moyen fiable de savoir
+  // qu'un établissement EST un golf, un port, un hammam…
+  let qSub = admin
+    .from("businesses")
+    .select("name, city, categories, latitude, longitude")
+    .eq("is_active", true)
+    .not("latitude", "is", null)
+    .limit(200);
+  if (cityNames.length) qSub = qSub.in("city", cityNames);
+  const { data: subRows } = await qSub.overlaps("categories", [term]);
+  const subMatches = (subRows || []).filter(
+    (b: any) =>
+      typeof b.latitude === "number" && typeof b.longitude === "number" &&
+      (b.categories || []).some((c: string) => norm(c).includes(nTerm)),
+  );
+  if (!subMatches.length && cityNames.length) {
+    // `overlaps` exige une égalité exacte : repli par balayage des villes du pool.
+    let qAll = admin
+      .from("businesses")
+      .select("name, city, categories, latitude, longitude")
+      .eq("is_active", true)
+      .not("latitude", "is", null)
+      .in("city", cityNames)
+      .limit(2000);
+    const { data: allRows } = await qAll;
+    for (const b of allRows || []) {
+      if (typeof b.latitude !== "number" || typeof b.longitude !== "number") continue;
+      if ((b.categories || []).some((c: string) => norm(c).includes(nTerm))) subMatches.push(b);
+    }
+  }
+  for (const b of subMatches.slice(0, 15)) {
+    out.push({ name: String(b.name), lat: b.latitude, lng: b.longitude, source: "business" });
   }
   if (out.length) return out;
 
@@ -91,6 +135,7 @@ export async function resolveProximityTargets(
   }
   return out;
 }
+
 
 const fmtDist = (km: number) =>
   km < 1 ? `${Math.round(km * 100) * 10} m` : `${km.toFixed(1)} km`;
