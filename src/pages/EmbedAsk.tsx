@@ -17,7 +17,6 @@ import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlide
 import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
-import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
 import { parseBookingIntent } from "@/lib/parseBookingIntent";
 import EmbedFilterDrawer, { type EmbedFilterGroup } from "@/components/embed/EmbedFilterDrawer";
@@ -4240,8 +4239,24 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           </div>
         )}
 
+        {/* STT en conversation : même animation + texte que sur l'accueil IA,
+            affichés SOUS la réponse (plus d'overlay fullscreen). */}
+        {voiceActive && !homeState && (
+          <div className="w-full pt-2">
+            <VoiceSearchPanel
+              liveTranscript={voice.liveTranscript}
+              audioLevel={voice.audioLevel}
+              micReady={voice.micReady}
+              onClose={voice.toggleRecording}
+              onFinish={voice.finishRecording}
+              textClassName={theme === "light" ? "text-black" : "text-white"}
+            />
+          </div>
+        )}
+
         {error && <div className="text-xs text-red-500">{error}</div>}
       </div>
+
 
       {/* Bouton flottant « haut » — desktop uniquement, quand la réponse déborde. */}
       {!autoHeight && !homeState && convScroll.canUp && (
@@ -4258,14 +4273,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
 
 
-      <VoiceSearchOverlay
-        isOpen={voiceActive && !homeState}
-        liveTranscript={voice.liveTranscript}
-        audioLevel={voice.audioLevel}
-        micReady={voice.micReady}
-        onClose={() => voice.toggleRecording()}
-        onFinish={() => voice.finishRecording()}
-      />
+
+
 
       <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`relative p-3 border-t ${border} ${bg} ${homeState ? "hidden" : ""}`}>
         {/* Bouton flottant « bas » — desktop uniquement, juste au-dessus de la barre fixe. */}
