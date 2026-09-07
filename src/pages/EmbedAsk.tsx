@@ -2687,7 +2687,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
 
   const pendingSendRef = useRef<string | null>(null);
-  const startNewConversation = () => {
+  const startNewConversation = (keepPanels = false) => {
     // Nouvelle conversation : le panneau STT ne doit jamais rester ouvert.
     if (voice.status === "recording") voice.toggleRecording();
     try { window.parent?.postMessage({ type: "owm-ask:new-conversation" }, "*"); } catch { /* cross-origin */ }
@@ -2700,9 +2700,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     messageIndexRef.current = 0;
     setInput("");
     setError(null);
-    setOpenMap(null);
-    setOpenEvents(null);
-    setOpenBusinessId(null);
+    if (!keepPanels) {
+      setOpenMap(null);
+      setOpenEvents(null);
+      setOpenBusinessId(null);
+    }
     setActiveSuggestionId(null);
     setUsedFollowupIds([]);
     setUsedHostBadges([]);
@@ -3322,7 +3324,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         </div>
         <button
           type="button"
-          onClick={startNewConversation}
+          onClick={() => startNewConversation(true)}
           disabled={streaming}
           title={lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
           aria-label={lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
@@ -4338,7 +4340,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               )}
               <button
                 type="button"
-                onClick={startNewConversation}
+                onClick={() => startNewConversation(true)}
                 style={{ ...newConvStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
                 className="text-xs px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-sm shrink-0 hover:opacity-90 transition-opacity"
               >
