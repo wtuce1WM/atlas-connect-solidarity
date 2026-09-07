@@ -177,27 +177,35 @@ export async function buildPoolProximityAnswer(
   const withDist = rows
     .map((b: any) => {
       if (typeof b.latitude !== "number" || typeof b.longitude !== "number") {
-        return { b, km: null as number | null };
+        return { b, km: null as number | null, near: null as string | null };
       }
-      const km = Math.min(...targets.map((t) => distanceKm(t.lat, t.lng, b.latitude, b.longitude)));
-      return { b, km };
+      let best = targets[0];
+      let km = distanceKm(best.lat, best.lng, b.latitude, b.longitude);
+      for (const t of targets.slice(1)) {
+        const d = distanceKm(t.lat, t.lng, b.latitude, b.longitude);
+        if (d < km) { km = d; best = t; }
+      }
+      return { b, km, near: best.name };
     })
     .sort((x, y) => (x.km ?? Infinity) - (y.km ?? Infinity));
 
   const geo = withDist.filter((r) => r.km != null);
   if (!geo.length) return null;
 
-  const targetName = targets[0].name;
+  const multi = targets.length > 1;
+  const targetName = multi ? term : targets[0].name;
   const intro = lang === "en"
-    ? `📐 Exact distances to **${targetName}**, closest first:`
+    ? `📐 Exact distances to the nearest **${targetName}**, closest first:`
     : lang === "ar"
-      ? `📐 المسافات الدقيقة إلى **${targetName}**، من الأقرب إلى الأبعد:`
-      : `📐 Distances exactes jusqu'au repère **${targetName}**, du plus proche au plus loin :`;
+      ? `📐 المسافات الدقيقة إلى أقرب **${targetName}**، من الأقرب إلى الأبعد:`
+      : `📐 Distances exactes jusqu'au **${targetName}** le plus proche, du plus proche au plus loin :`;
 
   const bullets = geo.slice(0, 20).map((r) => {
     const place = r.b.neighborhood || r.b.city || "";
-    return `- **${r.b.name}**${place ? ` (${place})` : ""} — ${fmtDist(r.km as number)}`;
+    const near = multi && r.near ? ` → ${r.near}` : "";
+    return `- **${r.b.name}**${place ? ` (${place})` : ""} — ${fmtDist(r.km as number)}${near}`;
   });
+
 
   const missing = withDist.length - geo.length;
   const note = missing
