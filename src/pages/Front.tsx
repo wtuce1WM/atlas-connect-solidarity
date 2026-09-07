@@ -802,6 +802,18 @@ const Front = () => {
   const showHomeChrome = !demoIntro && !youtubeOpen && !mapOpen && !askPanelOpen;
   /** Feed démo chargé : moitié droite = viewer, moitié gauche = assistant IA fermé. */
   const demoFeedOpen = !!(demoActiveId || demoCardsOnly);
+
+  // Priorité au viewer vidéo : l'assistant IA (bundle + requêtes suggestions) n'est
+  // monté qu'une fois le feed prêt. Filet de sécurité à 3 s si le feed échoue.
+  const [askMounted, setAskMounted] = useState(false);
+  useEffect(() => {
+    if (askMounted) return;
+    if (demoFeedOpen) { setAskMounted(true); return; }
+    const t = window.setTimeout(() => setAskMounted(true), 3000);
+    return () => window.clearTimeout(t);
+  }, [askMounted, demoFeedOpen]);
+
+
   
   const ctaP = range(progress, 0.25, 0.9);
   const ctaActive = progress > 0.575;
