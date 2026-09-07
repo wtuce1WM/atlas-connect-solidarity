@@ -4,35 +4,78 @@ import { supabase } from "@/integrations/supabase/client";
 
 type FeedBadge = { id: string; name: string; color?: string | null; text_color?: string | null };
 
-/**
- * Repli « ID vidéo → badges » : certaines sources de feed ne joignent pas les
- * badges à la vidéo. On les lit ici directement par ID vidéo dans les 3 tables
- * de liaison (interne / générique / YouTube), filtrés `is_active_on_front`.
- * Cette lecture directe fait autorité : le payload du feed peut ne contenir
- * qu'un sous-ensemble des badges liés à la vidéo.
- */
-async function fetchVideoBadgesById(videoId: string): Promise<FeedBadge[]> {
-  const badgeSelect = "badges!inner(id, name_fr, color_hex, text_color_hex, is_active_on_front)";
-  const [docs, gens, yts] = await Promise.all([
-    (supabase as any).from("business_document_badges").select(badgeSelect).eq("document_id", videoId),
-    (supabase as any).from("generic_video_badges").select(badgeSelect).eq("generic_video_id", videoId),
-    (supabase as any).from("business_youtube_video_badges").select(badgeSelect).eq("youtube_video_id", videoId),
-  ]);
+/** Normalise les lignes de liaison badge en FeedBadge (actifs sur le front). */
+
+function normalizeBadgeRows(res: any, out: Map<string, FeedBadge>) {
+  for (const row of (res?.data || []) as any[]) {
+    const b = row.badges;
+    if (!b?.id || !b.is_active_on_front) continue;
+    out.set(String(b.id), {
+      id: String(b.id),
+      name: String(b.name_fr || ""),
+      color: b.color_hex ?? null,
+      text_color: b.text_color_hex ?? null,
+    });
+  }
+}
+
+const BADGE_SELECT = "badges!inner(id, name_fr, color_hex, text_color_hex, is_active_on_front)";
+/** Cache par ID vidéo (avec déduplication des requêtes en vol). */
+const badgesCache = new Map<string, Promise<FeedBadge[]>>();
+
+async function loadVideoBadges(videoId: string): Promise<FeedBadge[]> {
   const out = new Map<string, FeedBadge>();
-  for (const res of [docs, gens, yts]) {
-    for (const row of (res?.data || []) as any[]) {
-      const b = row.badges;
-      if (!b?.id || !b.is_active_on_front) continue;
-      out.set(String(b.id), {
-        id: String(b.id),
-        name: String(b.name_fr || ""),
-        color: b.color_hex ?? null,
-        text_color: b.text_color_hex ?? null,
-      });
-    }
+  /* Le préfixe de l'ID identifie déjà la table de liaison : une seule requête
+     suffit. Sans préfixe (ID brut), on interroge les trois comme avant. */
+  const raw = videoId.replace(/^(?:self-|gv-|yt-)/, "");
+  const isGeneric = videoId.startsWith("gv-");
+  const isYoutube = videoId.startsWith("yt-");
+  const isDoc = videoId.startsWith("self-");
+  if (isGeneric) {
+    normalizeBadgeRows(
+      await (supabase as any).from("generic_video_badges").select(BADGE_SELECT).eq("generic_video_id", raw),
+      out,
+    );
+  } else if (isYoutube) {
+    normalizeBadgeRows(
+      await (supabase as any).from("business_youtube_video_badges").select(BADGE_SELECT).eq("youtube_video_id", raw),
+      out,
+    );
+  } else if (isDoc) {
+    normalizeBadgeRows(
+      await (supabase as any).from("business_document_badges").select(BADGE_SELECT).eq("document_id", raw),
+      out,
+    );
+  } else {
+    const results = await Promise.all([
+      (supabase as any).from("business_document_badges").select(BADGE_SELECT).eq("document_id", raw),
+      (supabase as any).from("generic_video_badges").select(BADGE_SELECT).eq("generic_video_id", raw),
+      (supabase as any).from("business_youtube_video_badges").select(BADGE_SELECT).eq("youtube_video_id", raw),
+    ]);
+    for (const res of results) normalizeBadgeRows(res, out);
   }
   return Array.from(out.values());
 }
+
+/**
+ * Repli « ID vidéo → badges » : certaines sources de feed ne joignent pas les
+ * badges à la vidéo. On les lit ici directement par ID vidéo dans la table de
+ * liaison correspondante (interne / générique / YouTube), filtrés
+ * `is_active_on_front`. Cette lecture directe fait autorité : le payload du
+ * feed peut ne contenir qu'un sous-ensemble des badges liés à la vidéo.
+ */
+function fetchVideoBadgesById(videoId: string): Promise<FeedBadge[]> {
+  const key = String(videoId);
+  const hit = badgesCache.get(key);
+  if (hit) return hit;
+  const p = loadVideoBadges(key).catch(() => {
+    badgesCache.delete(key);
+    return [] as FeedBadge[];
+  });
+  badgesCache.set(key, p);
+  return p;
+}
+
 
 interface VideoLike {
   id: string;

@@ -11,6 +11,9 @@ import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 import { supabase } from "@/integrations/supabase/client";
 import { fetchBusinessViewerRow } from "@/lib/businessRowCache";
+import { resolveVideoBusinessId } from "@/lib/videoBusinessResolver";
+import { useDeferredAfterVideo } from "@/hooks/useDeferredAfterVideo";
+
 import { useLanguage } from "@/contexts/LanguageContext";
 import { X, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Youtube, MapPin, ExternalLink } from "lucide-react";
 import { GiWalkingBoot } from "react-icons/gi";
@@ -311,6 +314,10 @@ const VideoSlidePanel = ({
     };
   }, [open, rawNavigate]);
 
+  /* Lectures non visuelles (événements, agenda, médias hôte) : différées après
+     le premier rendu pour laisser la bande passante au démarrage de la vidéo. */
+  const deferredReady = useDeferredAfterVideo(open);
+
   // Description source (video text is ALWAYS prioritary), EXCEPT for internal
   // generic videos where the viewer info bar must show the business name + hook
   // instead of the video title/text. We therefore always load the business hook
@@ -329,19 +336,9 @@ const VideoSlidePanel = ({
          générique. */
       let targetId = pageBusinessId || owner?.id || null;
       if (!targetId && videoId) {
-        const rawId = String(videoId).replace(/^(?:self-|gv-|yt-)/, "");
-        if (/^[0-9a-f-]{36}$/i.test(rawId)) {
-          const [doc, gen, yt] = await Promise.all([
-            (supabase as any).from("business_documents").select("business_id").eq("id", rawId).maybeSingle(),
-            (supabase as any).from("generic_video_businesses").select("business_id").eq("generic_video_id", rawId).limit(1),
-            (supabase as any).from("business_youtube_videos").select("business_id").eq("id", rawId).maybeSingle(),
-          ]);
-          targetId = doc?.data?.business_id
-            || (gen?.data as any[])?.[0]?.business_id
-            || yt?.data?.business_id
-            || null;
-        }
+        targetId = await resolveVideoBusinessId(String(videoId));
       }
+
       if (cancelled) return;
       setResolvedBusinessId(targetId);
       if (!targetId) { setBusinessDescription(null); setBusinessHook(null); return; }
@@ -445,6 +442,8 @@ const VideoSlidePanel = ({
       setEventInfo(null);
       return;
     }
+    if (!deferredReady) return;
+
     let cancelled = false;
     (async () => {
       const [{ data: ebRows }, { data: evRow }] = await Promise.all([
@@ -478,7 +477,7 @@ const VideoSlidePanel = ({
       setEventBusiness((bizRow as any) || null);
     })();
     return () => { cancelled = true; };
-  }, [open, eventId]);
+  }, [open, eventId, deferredReady]);
 
   // Fallback owner-based business lookup (used when no eventId is provided)
   useEffect(() => {
@@ -656,6 +655,8 @@ const VideoSlidePanel = ({
       setAgendaEvents([]);
       return;
     }
+    if (!deferredReady) return;
+
     let cancelled = false;
     (async () => {
       const { data: cityRow } = await supabase
@@ -712,7 +713,7 @@ const VideoSlidePanel = ({
       );
     })();
     return () => { cancelled = true; };
-  }, [open, agendaCity]);
+  }, [open, agendaCity, deferredReady]);
 
   const { soundOn, setSoundOn } = useVideoSoundPreference();
   // Lus dans les effets de synchro média SANS les mettre en dépendance : sinon
@@ -729,7 +730,9 @@ const VideoSlidePanel = ({
   const [hostVideoDocs, setHostVideoDocs] = useState<any[]>([]);
   useEffect(() => {
     if (!open || !hostBusinessId) { setHostBiz(null); setHostVideoDocs([]); return; }
+    if (!deferredReady) return;
     let cancelled = false;
+
     (async () => {
       const [bizRow, docsRes] = await Promise.all([
         fetchBusinessViewerRow(hostBusinessId),
@@ -750,7 +753,7 @@ const VideoSlidePanel = ({
       }));
     })();
     return () => { cancelled = true; };
-  }, [open, hostBusinessId]);
+  }, [open, hostBusinessId, deferredReady]);
   const hostVideoUrls = useMemo(() => hostVideoDocs.map((d) => d.url as string), [hostVideoDocs]);
   const { mediaItems: hostMediaItems } = useMediaItems(hostBiz, hostVideoUrls, hostVideoDocs);
   const mediaList = useMemo(() => {
