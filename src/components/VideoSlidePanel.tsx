@@ -511,16 +511,17 @@ const VideoSlidePanel = ({
   );
   const feedReviewCount = useMemo(() => (ratingRow ? getTotalReviewCount(ratingRow) : 0), [ratingRow]);
   // Feed layout : titre + teaser de la barre info.
-  // Pour les vidéos internes (génériques), on affiche le nom + hook/description
-  // du business, jamais le titre/texte de la vidéo. Pour les autres, le texte de
-  // la vidéo reste prioritaire (comportement historique).
-  const feedInfoTitle = isGeneric
+  // Vidéos internes ET génériques : on affiche TOUJOURS le nom + hook du
+  // business, jamais le titre/texte de la vidéo (même si la vidéo en a).
+  // Seules les vidéos YouTube conservent le comportement historique.
+  const useBusinessInfo = badgeSource !== "youtube";
+  const feedInfoTitle = useBusinessInfo
     ? (ctaBusiness?.name || businessName || "")
     : (description && description.trim())
       ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
       : (ctaBusiness?.name || businessName || "");
   const feedInfoTeaser = useMemo(() => {
-    if (isGeneric) {
+    if (useBusinessInfo) {
       if (businessHook?.trim()) return businessHook.trim();
       const plain = (businessDescription || "")
         .replace(/<[^>]*>/g, " ")
@@ -539,7 +540,7 @@ const VideoSlidePanel = ({
     if (plain) return plain;
     if (feedInfoTitle) return buildFallbackTeaser(feedInfoTitle, language);
     return null;
-  }, [effectiveDescription, businessDescription, businessHook, feedInfoTitle, language, isGeneric]);
+  }, [effectiveDescription, businessDescription, businessHook, feedInfoTitle, language, useBusinessInfo]);
 
   // Navigation verticale à la molette / trackpad (desktop) — même effet que le swipe.
   const wheelNav = useRef({ enabled: false, onPrev, onNext, hasPrev, hasNext });
