@@ -360,7 +360,7 @@ function loadDiscoveryExclusions(): Promise<{ businessIds: Set<string>; videoIds
           .select("id")
           .overlaps("categories", DISCOVERY_EXCLUDED_SUBCATEGORIES),
         subIds.length
-          ? (supabase as any).from("generic_video_subcategories").select("video_id").in("subcategory_id", subIds)
+          ? (supabase as any).from("generic_video_subcategories").select("generic_video_id").in("subcategory_id", subIds)
           : Promise.resolve({ data: [] }),
         subIds.length
           ? (supabase as any)
@@ -370,7 +370,7 @@ function loadDiscoveryExclusions(): Promise<{ businessIds: Set<string>; videoIds
           : Promise.resolve({ data: [] }),
       ]);
       for (const r of ((bizRes?.data as any[]) || [])) businessIds.add(String(r.id));
-      for (const r of ((gvRes?.data as any[]) || [])) videoIds.add(String(r.video_id));
+      for (const r of ((gvRes?.data as any[]) || [])) videoIds.add(String(r.generic_video_id));
       for (const r of ((ytRes?.data as any[]) || [])) videoIds.add(String(r.youtube_video_id));
     } catch {
       /* aucune exclusion en cas d'échec : le feed reste complet */
