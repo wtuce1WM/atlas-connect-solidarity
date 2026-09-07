@@ -1534,16 +1534,30 @@ Deno.serve(async (req) => {
           }
         }
 
-        // 2. Horaires — sans hôte, seuls les établissements déjà présentés répondent.
-        if (isHoursIntent(userMessage) && (priorIds.length || host)) {
+        // 1quater. Résolution NOMINATIVE À FROID : « les horaires du Jardin Majorelle »
+        // sans hôte ni résultats précédents. On ne touche pas à `host` (périmètre,
+        // routes proximité) : cet établissement ne sert que de référence aux routes
+        // factuelles ci-dessous (horaires, réservation).
+        let namedHost: any = null;
+        if (!host && !priorIds.length && (isHoursIntent(userMessage) || isBookingIntent(userMessage))) {
+          namedHost = await resolveNamedBusinessForIntent(admin, userMessage, HOST_FIELDS).catch(() => null);
+          if (namedHost) {
+            console.log("[embed-ai-chat-v2] cold_named_business", JSON.stringify({ id: namedHost.id, name: namedHost.name }));
+          }
+        }
+        const intentHost = host ?? namedHost;
+
+        // 2. Horaires — sans hôte, les établissements déjà présentés ou l'établissement nommé.
+        if (isHoursIntent(userMessage) && (priorIds.length || intentHost)) {
 
           route = "opening";
           const answer = priorIds.length
             ? await buildHoursForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
-            : buildHoursAnswer(host, lang);
+            : buildHoursAnswer(intentHost, lang);
           if (answer) {
             resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
             emit(answer);
+            if (!priorIds.length && namedHost) emit(toMapMarker([namedHost], null));
             await finish(true);
             return;
           }
@@ -1551,12 +1565,12 @@ Deno.serve(async (req) => {
         }
 
         // 3. Réservation
-        if (isBookingIntent(userMessage) && (priorIds.length || host)) {
+        if (isBookingIntent(userMessage) && (priorIds.length || intentHost)) {
           route = "booking";
-          const ids = priorIds.slice(0, CFG.maxResults);
+          const ids = priorIds.length ? priorIds.slice(0, CFG.maxResults) : namedHost ? [String(namedHost.id)] : [];
           const answer = priorIds.length
             ? await buildBookingForBusinesses(admin, ids, lang)
-            : buildBookingAnswer(host, lang);
+            : buildBookingAnswer(intentHost, lang);
           if (answer) {
             resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
             emit(answer);
