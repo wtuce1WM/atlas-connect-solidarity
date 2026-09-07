@@ -477,7 +477,7 @@ const VideoSlidePanel = ({
       setEventBusiness((bizRow as any) || null);
     })();
     return () => { cancelled = true; };
-  }, [open, eventId]);
+  }, [open, eventId, deferredReady]);
 
   // Fallback owner-based business lookup (used when no eventId is provided)
   useEffect(() => {
@@ -655,6 +655,8 @@ const VideoSlidePanel = ({
       setAgendaEvents([]);
       return;
     }
+    if (!deferredReady) return;
+
     let cancelled = false;
     (async () => {
       const { data: cityRow } = await supabase
@@ -728,7 +730,9 @@ const VideoSlidePanel = ({
   const [hostVideoDocs, setHostVideoDocs] = useState<any[]>([]);
   useEffect(() => {
     if (!open || !hostBusinessId) { setHostBiz(null); setHostVideoDocs([]); return; }
+    if (!deferredReady) return;
     let cancelled = false;
+
     (async () => {
       const [bizRow, docsRes] = await Promise.all([
         fetchBusinessViewerRow(hostBusinessId),
