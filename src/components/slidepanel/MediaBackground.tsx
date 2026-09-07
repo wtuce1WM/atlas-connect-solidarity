@@ -68,9 +68,9 @@ const MediaBackground = React.memo(function MediaBackground({
   // (usePanelVideoPlayback, appelé par le panneau parent) est la seule source de
   // vérité pour play/pause, mute et les retries d'autoplay.
 
-  // For YouTube iframes, proactively unmute on mount when the user preference is sound-on.
-  // The embed URL is generated with mute=0 already, but browsers may still start muted; this
-  // postMessage acts as a belt-and-braces guarantee that the slidepanel video plays with sound.
+  // For YouTube iframes, proactively play + unmute on mount when the user
+  // preference is sound-on. The embed URL is always generated with mute=1
+  // so autoplay is never blocked by the browser; postMessage restores sound afterwards.
   useEffect(() => {
     if (effectiveMedia?.kind !== "video" || videoInfo?.type !== "youtube") return;
     if (anyOverlayOpen || !soundOnRef.current) return;
