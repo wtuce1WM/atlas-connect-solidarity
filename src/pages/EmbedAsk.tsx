@@ -4274,14 +4274,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
 
 
-      <VoiceSearchOverlay
-        isOpen={voiceActive && !homeState}
-        liveTranscript={voice.liveTranscript}
-        audioLevel={voice.audioLevel}
-        micReady={voice.micReady}
-        onClose={() => voice.toggleRecording()}
-        onFinish={() => voice.finishRecording()}
-      />
+
+
 
       <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`relative p-3 border-t ${border} ${bg} ${homeState ? "hidden" : ""}`}>
         {/* Bouton flottant « bas » — desktop uniquement, juste au-dessus de la barre fixe. */}
