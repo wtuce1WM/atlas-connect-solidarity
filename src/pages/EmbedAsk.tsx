@@ -530,7 +530,10 @@ function linkifyPhones(input: string): string {
   if (!input) return input;
   // Split preserving markdown links so we don't touch their internals.
   const parts = input.split(/(\[[^\]]+\]\([^)]+\))/g);
-  const PHONE_RE = /(?<![\w./])(\+?\d(?:[\d\s.\-]{7,17})\d)(?![\w./])/g;
+  // Fin de phrase : un point/virgule final ne doit pas empêcher la détection
+  // (« … au +212 5242-98686. »), d'où le lookahead qui n'exclut que la
+  // ponctuation suivie d'un chiffre (décimales) et les caractères de mot.
+  const PHONE_RE = /(?<![\w./])(\+?\d(?:[\d\s.\-]{7,17})\d)(?!\w|[./]\d)/g;
   const isWaContext = (before: string) => /(whats\s*app|wa\.me|\bwa\b|💬)/i.test(before);
   return parts
     .map((part, i) => {
