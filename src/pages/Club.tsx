@@ -806,15 +806,26 @@ const Club = () => {
             <p className="relative z-10 mt-5 max-w-2xl text-center font-roboto text-[15px] leading-relaxed text-white md:text-[1.125rem]">
               {t.desc}
             </p>
-            <button
-              type="button"
-              onClick={() => jumpTo(2)}
-              className="relative z-10 mt-8 inline-flex items-center gap-3 rounded-full bg-[#C04F17] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5"
-              style={{ fontFamily: "'Montserrat', sans-serif" }}
-            >
-              <Crown className="h-4 w-4" />
-              {t.register}
-            </button>
+            <div className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => { setMode("register"); jumpTo(2); }}
+                className="inline-flex items-center gap-3 rounded-full bg-[#C04F17] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+              >
+                <Crown className="h-4 w-4" />
+                {t.register}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setMode("login"); jumpTo(2); }}
+                className="inline-flex items-center gap-3 rounded-full bg-[#D4AF37] px-9 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-[#1a1a1a] shadow-lg transition-transform hover:-translate-y-0.5"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+              >
+                {language === "en" ? "Already registered? Login" : language === "ar" ? "مسجل بالفعل؟ تسجيل الدخول" : "Déjà inscrit ? Login"}
+              </button>
+            </div>
+
           </div>
 
           {/* ============ Écran 2 — Avantages membres ============ */}
@@ -1034,16 +1045,6 @@ const Club = () => {
                         <p className="text-sm text-destructive">{t.passwordMismatch}</p>
                       )}
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm text-white font-semibold mb-1 block">{t.phoneLabel}</label>
-                          <Input type="tel" value={form.phone} onChange={handleChange("phone")} className="bg-[#BED1FF] text-black" />
-                        </div>
-                        <div>
-                          <label className="text-sm text-white font-semibold mb-1 block">{t.whatsappLabel}</label>
-                          <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-[#BED1FF] text-black" />
-                        </div>
-                      </div>
 
 
                       <p className="text-xs text-white font-semibold mb-2">{t.required}</p>
