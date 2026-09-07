@@ -127,6 +127,8 @@ interface VideoSlidePanelProps {
   aiMode?: "business" | "platform";
   /** Désactive le CTA IA de la barre liquid glass (déjà dans l'assistant IA : pas de second assistant). */
   aiCtaDisabled?: boolean;
+  /** Le CTA IA ramène vers l'assistant IA déjà ouvert (ferme simplement le panneau). */
+  aiCtaReturnsToAssistant?: boolean;
 }
 
 
@@ -201,6 +203,7 @@ const VideoSlidePanel = ({
     roundedFrame = false,
     aiMode = "business",
     aiCtaDisabled = false,
+    aiCtaReturnsToAssistant = false,
   }: VideoSlidePanelProps) => {
 
 
@@ -1879,6 +1882,12 @@ const VideoSlidePanel = ({
                   onAiClick={() => {
                     // Le CTA IA liquid glass ramène TOUJOURS vers l'assistant IA 1WM
                     // (version plateforme, jamais l'assistant business).
+                    // Assistant IA déjà ouvert (Home, /embed/ask) : le CTA y revient
+                    // au lieu d'ouvrir un second overlay en slide-in.
+                    if (aiCtaReturnsToAssistant) {
+                      onClose?.();
+                      return;
+                    }
                     const slug = ctaBusiness?.slug
                       || recentBusinesses.find((b) => !b.isYoutubeChannel)?.slug
                       || null;

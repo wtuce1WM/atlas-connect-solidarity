@@ -4656,6 +4656,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               hideDirections
               hideSecondaryCtas
               aiCtaDisabled
+              aiCtaReturnsToAssistant
               onBadgeSelect={(b: any) => { void selectFeedBadge(b); }}
               onCitySelect={(c: any) => { void selectFeedCity(c); }}
             />
