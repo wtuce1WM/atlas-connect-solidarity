@@ -171,6 +171,16 @@ const Front = () => {
   // (sinon iOS Safari peint deux bandes #ECD6B8 en haut et en bas).
   useDarkBrowserChrome(true, "#000000");
 
+  // Home tient sur un seul écran : on verrouille tout défilement vertical du
+  // document (iOS Safari faisait suivre la page au swipe).
+  useEffect(() => {
+    document.body.classList.add("owm-noscroll");
+    window.scrollTo(0, 0);
+    return () => document.body.classList.remove("owm-noscroll");
+  }, []);
+
+
+
   const navigate = useNavigate();
   const { language, setLanguage } = useLanguage();
   const isMobile = useIsMobile();
