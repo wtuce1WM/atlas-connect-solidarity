@@ -3406,7 +3406,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               className="flex w-full flex-col justify-center max-w-xl mx-auto"
               style={heroReveal(260)}
             >
-              <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-3 shadow-2xl`}>
+              <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-5 md:py-3 shadow-2xl`}>
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -3416,7 +3416,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   rows={2}
                   placeholder={L.placeholder}
                   disabled={streaming || !assistantReady}
-                  className={`flex-1 resize-none bg-transparent outline-none text-base leading-snug max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white/70"}`}
+                  className={`flex-1 resize-none bg-transparent outline-none text-base leading-snug min-h-[64px] md:min-h-0 max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white/70"}`}
                 />
                 <div className="flex items-center justify-center gap-2">
                 <button
