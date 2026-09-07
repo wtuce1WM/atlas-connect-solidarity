@@ -35,19 +35,19 @@ const isInstalledApp = () =>
   );
 
 /** Préchargement du média de la première vidéo dès que la liste est connue. */
+/** URLs déjà préchargées : une même vidéo ne doit jamais être téléchargée deux fois. */
+const preloadedMediaUrls = new Set<string>();
 const preloadFirstMedia = (item?: { url?: string | null; thumbnail_url?: string | null } | null) => {
   if (!item) return;
   try {
     const thumb = (item as any).thumbnail_url || (item as any).thumbnail;
     if (thumb) { const img = new Image(); img.src = String(thumb); }
+    // Pas de préchargement du fichier vidéo : un élément <video> détaché
+    // téléchargeait le fichier en entier une seconde fois (requêtes `bytes=0-`
+    // non réutilisées par le lecteur du viewer, qui ouvre son propre flux).
+    // Seule la miniature est préchargée : elle, elle est réutilisée.
     const url = item.url ? String(item.url) : "";
-    if (url && /\.(mp4|webm|mov)(\?|$)/i.test(url)) {
-      const v = document.createElement("video");
-      v.preload = "auto";
-      v.muted = true;
-      v.src = url;
-      v.load();
-    }
+    if (url) preloadedMediaUrls.add(url);
   } catch { /* best-effort */ }
 };
 const EmbedAskInline = lazy(() => import("@/pages/EmbedAsk"));
@@ -328,6 +328,8 @@ const Front = () => {
   const demoLoadingMoreRef = useRef(false);
   const demoSnapshotRef = useRef<{ items: BadgeVideoFeedItem[]; ctx: DiscoveryFeedContext } | null>(null);
   const demoPrefetchRef = useRef(false);
+  /** Vrai dès qu'un feed démo a été ouvert (auto-ouverture au chargement). */
+  const demoOpenedRef = useRef(false);
   // La démo /front passe directement sur l'assistant IA plateforme 1WM.
   const [demoAiMode, setDemoAiMode] = useState<"business" | "platform">("platform");
 
@@ -418,6 +420,7 @@ const Front = () => {
   const openDemoFeed = useCallback(async () => {
     if (demoLoading) return;
     setDemoLoading(true);
+    demoOpenedRef.current = true;
     try {
       const mod = await import("@/lib/badgeVideoFeed");
       // Un snapshot (mémoire ou localStorage) sert à l'affichage instantané, mais
@@ -465,8 +468,9 @@ const Front = () => {
       demoLoadingMoreRef.current = false;
       setDemoActiveId(items[0].id);
       preloadFirstMedia(items[0] as any);
-      // Complément silencieux (page suivante) une fois le viewer visible.
-      void (async () => {
+      // Complément silencieux (page suivante) une fois le viewer visible : hors
+      // du chemin critique, déclenché en idle pour ne pas concurrencer la vidéo.
+      const runComplement = async () => {
         try {
           const more = await mod.fetchDiscoveryVideoFeedPage(ctx, items.length, 30);
           if (!more.length) return;
@@ -475,7 +479,10 @@ const Front = () => {
             return [...prev, ...more.filter((it) => !seen.has(it.id)).map(toPanelVideo)];
           });
         } catch { /* silencieux */ }
-      })();
+      };
+      const w = window as any;
+      if (w.requestIdleCallback) w.requestIdleCallback(() => void runComplement(), { timeout: 4000 });
+      else window.setTimeout(() => void runComplement(), 1200);
     } catch (e) {
       console.error("[front] openDemoFeed failed", e);
       setDemoIntro(false);
@@ -488,6 +495,9 @@ const Front = () => {
   // Préchargement du module ET des données de la première page (survol / idle sur le CTA démo).
   const prefetchDemo = useCallback(() => {
     if (demoPrefetchRef.current) return;
+    // Le feed s'ouvre automatiquement au chargement : préparer un second flux en
+    // idle ne servirait à rien et doublerait la requête de feed + la vidéo.
+    if (demoOpenedRef.current) return;
     demoPrefetchRef.current = true;
     void (async () => {
       try {
