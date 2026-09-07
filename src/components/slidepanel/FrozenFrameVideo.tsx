@@ -100,13 +100,25 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
         if (!el.muted && el.volume === 0) el.volume = 1;
         el.play().catch(() => {
           if (disposed) return;
+          // iOS/Safari : sans geste utilisateur, seule la lecture muette est
+          // autorisée. On démarre muet, puis on tente de rétablir le son ;
+          // si iOS met la vidéo en pause à l'unmute, on revient au muet et on
+          // relance immédiatement (sinon la 1re vidéo du feed reste en pause).
           el.muted = true;
           el.play().then(() => {
             if (disposed || !soundOnRef.current) return;
             el.muted = false;
             el.volume = 1;
+            window.setTimeout(() => {
+              if (disposed) return;
+              if (el.paused && el.dataset.owmUserPaused !== "1") {
+                el.muted = true;
+                el.play().catch(() => {});
+              }
+            }, 180);
           }).catch(() => {});
         });
+
       };
       kick();
       el.addEventListener("canplay", kick);
