@@ -27,6 +27,7 @@ import {
 } from "../_shared/taxonomy-resolver.ts";
 
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
+import { detectPoolProximityIntent, buildPoolProximityAnswer } from "../_shared/ai-engine/pool-proximity.ts";
 import { pickLang, normalize, toMapMarker, fetchPriorFull, orderByIds, matchBusinessNameInMessage, resolveNamedBusinessForIntent } from "../_shared/ai-engine/routes/shared.ts";
 import { warmNomadScope, isNomadBusiness, scrubNomadRow } from "../_shared/ai-engine/nomad-scope.ts";
 import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
@@ -896,6 +897,54 @@ Deno.serve(async (req) => {
             }
           }
         }
+
+        /**
+         * AFFINAGE DE PROXIMITÉ SUR LE POOL — « … à côté du golf ».
+         * Le tour précédent a mémorisé un corpus ; la relance demande une
+         * DISTANCE à un repère. La plupart des fiches sont géolocalisées : on
+         * répond avec les distances EXACTES, classées, sans token IA.
+         * Priorité sur la route curatée, comme l'affinage « vue ».
+         */
+        if (!explicitCity && poolIds.length > 1) {
+          const pi = detectPoolProximityIntent(userMessage);
+          if (pi && !detectViewIntent(userMessage).hasViewIntent) {
+            const prox = await buildPoolProximityAnswer(admin, poolIds, pi.term, lang as any)
+              .catch((e) => {
+                console.error("[embed-ai-chat-v2] pool_proximity_failed", String(e));
+                return null;
+              });
+            console.log("[embed-ai-chat-v2] pool_proximity", JSON.stringify({
+              term: pi.term, pool: poolIds.length,
+              target: prox?.targetName ?? null, withGps: prox?.withGps ?? 0,
+            }));
+            if (prox) {
+              const built = await buildPinnedAnswer(admin, prox.orderedIds, host, lang, null, {
+                route: "pool_proximity_refine",
+                heading: prox.heading,
+                competitorGuard,
+                poolIds: prox.orderedIds,
+                immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks },
+              }).catch((e) => {
+                console.error("[embed-ai-chat-v2] pool_proximity_cards_failed", String(e));
+                return null;
+              });
+              if (built) {
+                route = built.route;
+                resultsCount = built.shown;
+                emit(built.text);
+                if (built.mapPayload?.businesses?.length) {
+                  emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
+                }
+                emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
+                emit("\n\n" + await poolMarker(admin, prox.orderedIds, scopeCity));
+                await emitDestChips(prox.orderedIds);
+                await finish(true);
+                return;
+              }
+            }
+          }
+        }
+
         if (suggestionId || followupId) {
           const curated = await loadCuratedTargets(admin, {
             suggestionId, followupId, businessId: host?.id ?? null,
