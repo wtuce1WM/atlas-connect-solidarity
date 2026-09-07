@@ -2667,10 +2667,28 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     onError: (message) => setError(message),
   });
   const voiceActive = voice.status === "recording" || voice.status === "processing";
+  // Le panneau STT est rendu SOUS la réponse : à l'activation du micro, on
+  // descend en bas de la zone de réponse pour qu'il soit visible.
+  useEffect(() => {
+    if (!voiceActive) return;
+    stickDisabledRef.current = false;
+    const scroll = () => {
+      const el = scrollRef.current;
+      if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    };
+    scroll();
+    const timers = [80, 260, 600].map((ms) => window.setTimeout(scroll, ms));
+    return () => timers.forEach((t) => window.clearTimeout(t));
+  }, [voiceActive]);
+
+
 
   const pendingSendRef = useRef<string | null>(null);
   const startNewConversation = () => {
+    // Nouvelle conversation : le panneau STT ne doit jamais rester ouvert.
+    if (voice.status === "recording") voice.toggleRecording();
     try { window.parent?.postMessage({ type: "owm-ask:new-conversation" }, "*"); } catch { /* cross-origin */ }
+
     const pending = input.trim();
     try { window.localStorage.removeItem(storageKey); } catch { /* noop */ }
     restoredRef.current = false;
