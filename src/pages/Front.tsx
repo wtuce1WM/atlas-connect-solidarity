@@ -447,7 +447,7 @@ const Front = () => {
         demoSnapshotRef.current = null;
         void (async () => {
           try {
-            const fresh = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
+            const fresh = await mod.fetchDiscoveryVideoFeed({ limit: 15 });
             if (!fresh.items.length) return;
             demoSnapshotRef.current = { items: fresh.items, ctx: fresh.ctx };
             setCached(DEMO_FEED_CACHE_KEY, { ...fresh, ts: Date.now() });
@@ -457,7 +457,7 @@ const Front = () => {
         return;
       }
       // Première page courte : affichage rapide, complément en arrière-plan.
-      const { items, ctx } = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
+      const { items, ctx } = await mod.fetchDiscoveryVideoFeed({ limit: 15 });
       if (!items.length) { setDemoIntro(false); return; }
       // Flux affiché immédiatement : il n'est pas conservé comme snapshot
       // réutilisable (chaque ouverture doit repartir sur un nouveau seed).
@@ -509,7 +509,7 @@ const Front = () => {
           preloadFirstMedia(persisted.items[0] as any);
           return;
         }
-        const { items, ctx } = await mod.fetchDiscoveryVideoFeed({ limit: 15, featuredAuthor: "Tarik Belasri" });
+        const { items, ctx } = await mod.fetchDiscoveryVideoFeed({ limit: 15 });
         if (!items.length) return;
         demoSnapshotRef.current = { items, ctx };
         setCached(DEMO_FEED_CACHE_KEY, { items, ctx, ts: Date.now() });
