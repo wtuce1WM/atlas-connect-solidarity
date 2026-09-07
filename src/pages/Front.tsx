@@ -1027,7 +1027,7 @@ const Front = () => {
           <Suspense fallback={null}>
             <HomeVideoSlidePanel
               open
-              onClose={() => { setDemoActiveId(null); setDemoCardsOnly(true); }}
+              onClose={() => { setDemoActiveId(null); setDemoCardsOnly(false); setDemoIntro(false); }}
               activeVideo={active as any}
               activeList={demoList as any}
               onActiveVideoChange={(v: any) => { setDemoActiveId(v.id); setDemoTime(0); void maybeLoadMoreDemo(String(v.id)); }}
