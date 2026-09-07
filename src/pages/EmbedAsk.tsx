@@ -4240,8 +4240,24 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           </div>
         )}
 
+        {/* STT en conversation : même animation + texte que sur l'accueil IA,
+            affichés SOUS la réponse (plus d'overlay fullscreen). */}
+        {voiceActive && !homeState && (
+          <div className="w-full pt-2">
+            <VoiceSearchPanel
+              liveTranscript={voice.liveTranscript}
+              audioLevel={voice.audioLevel}
+              micReady={voice.micReady}
+              onClose={voice.toggleRecording}
+              onFinish={voice.finishRecording}
+              textClassName={theme === "light" ? "text-black" : "text-white"}
+            />
+          </div>
+        )}
+
         {error && <div className="text-xs text-red-500">{error}</div>}
       </div>
+
 
       {/* Bouton flottant « haut » — desktop uniquement, quand la réponse déborde. */}
       {!autoHeight && !homeState && convScroll.canUp && (
