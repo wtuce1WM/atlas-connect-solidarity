@@ -483,6 +483,55 @@ async function fetchRandomYoutubeVideoOf(
 /** Taille du 1er pool du feed dans lequel la vidéo éditoriale est injectée. */
 const FEATURED_POOL_SIZE = 30;
 
+/* ------------------------------------------------------------------ *
+ * Feed Home : 1 seule vidéo par établissement dans les 60 premiers
+ * résultats. Les doublons ne sont pas supprimés — ils sont repoussés
+ * après la fenêtre (donc toujours accessibles en scrollant).
+ * ------------------------------------------------------------------ */
+const DISCOVERY_UNIQUE_WINDOW = 60;
+
+interface DiscoveryWindowState {
+  emitted: number;
+  businesses: Set<string>;
+  deferred: BadgeVideoFeedItem[];
+}
+const discoveryWindows = new Map<string, DiscoveryWindowState>();
+
+function discoveryWindow(seed: string): DiscoveryWindowState {
+  let st = discoveryWindows.get(seed);
+  if (!st) {
+    st = { emitted: 0, businesses: new Set(), deferred: [] };
+    if (discoveryWindows.size > 8) discoveryWindows.clear();
+    discoveryWindows.set(seed, st);
+  }
+  return st;
+}
+
+/** Applique la règle « 1 vidéo par établissement » sur les 60 premières positions. */
+function applyDiscoveryUniqueWindow(seed: string, items: BadgeVideoFeedItem[]): BadgeVideoFeedItem[] {
+  const st = discoveryWindow(seed);
+  const out: BadgeVideoFeedItem[] = [];
+  for (const it of items) {
+    const biz = it.businessId ? String(it.businessId) : null;
+    if (st.emitted < DISCOVERY_UNIQUE_WINDOW && biz) {
+      if (st.businesses.has(biz)) {
+        st.deferred.push(it);
+        continue;
+      }
+      st.businesses.add(biz);
+    }
+    out.push(it);
+    st.emitted += 1;
+  }
+  if (st.emitted >= DISCOVERY_UNIQUE_WINDOW && st.deferred.length) {
+    out.push(...st.deferred);
+    st.emitted += st.deferred.length;
+    st.deferred = [];
+  }
+  return out;
+}
+
+
 /**
  * Premier lot du feed découverte, avec injection éditoriale d'un Short YouTube
  * aléatoire de `featuredAuthor` à une position aléatoire du 1er pool
