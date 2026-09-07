@@ -52,35 +52,57 @@ export const CITY_FEED_BADGES = [
   { id: "3f96c12a-0635-4f70-8de0-2578a66bcc07", name: "Essaouira" },
 ];
 
+/** Source de la vidéo : permet de n'interroger qu'une seule table de liaison. */
+export type VideoBadgeSource = "business" | "generic" | "youtube";
+
+/** Cache de session : évite de relire les badges d'une vidéo déjà vue (scroll arrière du feed). */
+const videoBadgesCache = new Map<string, VideoChipBadge[]>();
+
 /**
- * Lecture directe des badges d'une vidéo par ID dans les 3 tables de liaison,
- * quel que soit le parcours d'ouverture (feed, suggestion badge, fiche).
+ * Lecture des badges d'une vidéo par ID.
+ * Si `source` est connue (feed / viewer), une seule table de liaison est
+ * interrogée ; sinon repli sur les 3 tables.
  */
-export function useVideoBadges(enabled: boolean, videoId?: string | null) {
+export function useVideoBadges(enabled: boolean, videoId?: string | null, source?: VideoBadgeSource | null) {
   const [selfBadges, setSelfBadges] = useState<{ videoId: string; badges: VideoChipBadge[] } | null>(null);
   useEffect(() => {
     if (!enabled || !videoId) return;
+    const cacheKey = `${source || "any"}|${videoId}`;
+    const cached = videoBadgesCache.get(cacheKey);
+    if (cached) {
+      setSelfBadges({ videoId: String(videoId), badges: cached });
+      return;
+    }
     let cancelled = false;
     (async () => {
       const badgeSelect = "badges!inner(id, name_fr, color_hex, text_color_hex, is_active_on_front)";
-      const [docs, gens, yts] = await Promise.all([
-        (supabase as any).from("business_document_badges").select(badgeSelect).eq("document_id", videoId),
-        (supabase as any).from("generic_video_badges").select(badgeSelect).eq("generic_video_id", videoId),
-        (supabase as any).from("business_youtube_video_badges").select(badgeSelect).eq("youtube_video_id", videoId),
-      ]);
+      const queries: Promise<any>[] = [];
+      if (!source || source === "business") {
+        queries.push((supabase as any).from("business_document_badges").select(badgeSelect).eq("document_id", videoId));
+      }
+      if (!source || source === "generic") {
+        queries.push((supabase as any).from("generic_video_badges").select(badgeSelect).eq("generic_video_id", videoId));
+      }
+      if (!source || source === "youtube") {
+        queries.push((supabase as any).from("business_youtube_video_badges").select(badgeSelect).eq("youtube_video_id", videoId));
+      }
+      const results = await Promise.all(queries);
       if (cancelled) return;
       const out = new Map<string, VideoChipBadge>();
-      for (const res of [docs, gens, yts]) {
+      for (const res of results) {
         for (const row of ((res as any)?.data || []) as any[]) {
           const b = row.badges;
           if (!b?.id || !b.is_active_on_front) continue;
           out.set(String(b.id), { id: String(b.id), name: String(b.name_fr || ""), color: b.color_hex ?? null, text_color: b.text_color_hex ?? null });
         }
       }
-      setSelfBadges({ videoId: String(videoId), badges: Array.from(out.values()) });
+      const badges = Array.from(out.values());
+      videoBadgesCache.set(cacheKey, badges);
+      setSelfBadges({ videoId: String(videoId), badges });
     })();
     return () => { cancelled = true; };
-  }, [enabled, videoId]);
+  }, [enabled, videoId, source]);
+
 
   return useMemo(() => {
     if (!selfBadges || selfBadges.videoId !== String(videoId ?? "")) return null;
