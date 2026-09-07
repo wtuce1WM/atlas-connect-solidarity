@@ -977,7 +977,7 @@ const Front = () => {
 
 
       {/* Panneau blanc gauche (desktop) : cartes du snapshot homepage.
-          Reste ouvert en pleine largeur quand le viewer est fermé. */}
+           Désactivé temporairement pour conserver la moitié gauche à l'assistant IA.
       {(demoActiveId || demoCardsOnly) && (
         <Suspense fallback={null}>
           <FrontDemoCardsPanel
@@ -992,7 +992,7 @@ const Front = () => {
             }}
           />
         </Suspense>
-      )}
+      )} */}
 
       {demoActiveId && (() => {
 
