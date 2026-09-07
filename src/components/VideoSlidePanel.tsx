@@ -10,6 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 import { supabase } from "@/integrations/supabase/client";
+import { fetchBusinessViewerRow } from "@/lib/businessRowCache";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { X, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Youtube, MapPin, ExternalLink } from "lucide-react";
 import { GiWalkingBoot } from "react-icons/gi";
@@ -317,12 +318,8 @@ const VideoSlidePanel = ({
     const targetId = pageBusinessId || owner?.id;
     if (!targetId) { setBusinessDescription(null); setBusinessHook(null); return; }
     let cancelled = false;
-    (supabase as any)
-      .from("businesses")
-      .select("description, description_fr, description_en, description_ar, hook_fr, hook_en, hook_ar")
-      .eq("id", targetId)
-      .maybeSingle()
-      .then(({ data }: any) => {
+    fetchBusinessViewerRow(targetId)
+      .then((data: any) => {
         if (cancelled) return;
         const d: any = data || {};
         const localizedDesc = language === "ar" ? (d.description_ar || d.description_fr || d.description)
@@ -448,11 +445,7 @@ const VideoSlidePanel = ({
       } : null);
       const bizId = ((ebRows as any[]) || [])[0]?.business_id;
       if (!bizId) { setEventBusiness(null); return; }
-      const { data: bizRow } = await supabase
-        .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi, youtube_url")
-        .eq("id", bizId)
-        .maybeSingle();
+      const bizRow = await fetchBusinessViewerRow(bizId);
       if (cancelled) return;
       setEventBusiness((bizRow as any) || null);
     })();
@@ -467,11 +460,7 @@ const VideoSlidePanel = ({
     }
     let cancelled = false;
     (async () => {
-      const { data: bizRow } = await supabase
-        .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi, youtube_url")
-        .eq("id", owner.id)
-        .maybeSingle();
+      const bizRow = await fetchBusinessViewerRow(owner.id);
       if (cancelled) return;
       setOwnerBusiness((bizRow as any) || null);
     })();
@@ -491,11 +480,7 @@ const VideoSlidePanel = ({
     }
     let cancelled = false;
     (async () => {
-      const { data: bizRow } = await supabase
-        .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi, youtube_url")
-        .eq("id", pageBusinessId)
-        .maybeSingle();
+      const bizRow = await fetchBusinessViewerRow(pageBusinessId);
       if (cancelled) return;
       setPageBusiness((bizRow as any) || null);
     })();
@@ -512,13 +497,7 @@ const VideoSlidePanel = ({
     if (!open || !feedLayout || !ctaBusiness?.id) { setRatingRow(null); return; }
     let cancelled = false;
     (async () => {
-      const { data } = await (supabase as any)
-        .from("businesses")
-        .select(
-          "google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, avis_verifies_rating, avis_verifies_review_count, trustpilot_rating, trustpilot_review_count, kayak_rating, kayak_review_count, tourradar_rating, tourradar_review_count",
-        )
-        .eq("id", ctaBusiness.id)
-        .maybeSingle();
+      const data = await fetchBusinessViewerRow(ctaBusiness.id);
       if (!cancelled) setRatingRow(data || null);
     })();
     return () => { cancelled = true; };
@@ -722,12 +701,8 @@ const VideoSlidePanel = ({
     if (!open || !hostBusinessId) { setHostBiz(null); setHostVideoDocs([]); return; }
     let cancelled = false;
     (async () => {
-      const [bizRes, docsRes] = await Promise.all([
-        supabase
-          .from("businesses")
-          .select("id, images, prioritize_images, show_videos, matterport_url")
-          .eq("id", hostBusinessId)
-          .maybeSingle(),
+      const [bizRow, docsRes] = await Promise.all([
+        fetchBusinessViewerRow(hostBusinessId),
         supabase
           .from("business_documents")
           .select("id, url, thumbnail_url, sort_order")
@@ -736,7 +711,7 @@ const VideoSlidePanel = ({
           .order("sort_order"),
       ]);
       if (cancelled) return;
-      setHostBiz(bizRes.data || null);
+      setHostBiz(bizRow || null);
       const seen = new Set<string>();
       setHostVideoDocs(((docsRes.data || []) as any[]).filter((d) => {
         if (!d.url || seen.has(d.url)) return false;
