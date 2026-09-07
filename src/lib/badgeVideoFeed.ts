@@ -561,7 +561,8 @@ export async function fetchDiscoveryVideoFeed(options: {
     const pos = poolMax > 1 ? 1 + Math.floor(Math.random() * (poolMax - 1)) : 0;
     list = [...rest.slice(0, pos), featured, ...rest.slice(pos)];
   }
-  return { items: list, ctx: { ...scope, seed, total } };
+  discoveryWindows.delete(seed);
+  return { items: applyDiscoveryUniqueWindow(seed, list), ctx: { ...scope, seed, total } };
 }
 
 /** Pagination du feed découverte (même seed, donc même ordre). */
@@ -576,8 +577,9 @@ export async function fetchDiscoveryVideoFeedPage(
     limit,
     offset,
   );
-  return items;
+  return applyDiscoveryUniqueWindow(ctx.seed, items);
 }
+
 
 /**
  * Relance du feed découverte sur un seul badge (clic sur une chip du viewer).
