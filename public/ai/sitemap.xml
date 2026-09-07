@@ -571,7 +571,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/bostudio</loc>
+    <loc>https://oneworldmorocco.com/l-agence-bostudio</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1581,7 +1581,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/domaine-du-val-d-argan</loc>
+    <loc>https://oneworldmorocco.com/le-val-d-argan</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -3106,7 +3106,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/le-blokk-marrakech</loc>
+    <loc>https://oneworldmorocco.com/le-blokk-marrakech-marrakech</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -3761,17 +3761,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/maroc-air-games</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://oneworldmorocco.com/maison-berbere</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/mandala-society-essaouira</loc>
+    <loc>https://oneworldmorocco.com/mandala-society</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -5246,11 +5241,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/restaurant-du-jardin-bio-aromatique-d-ourika</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://oneworldmorocco.com/restaurant-ocean-vagabond</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -5421,11 +5411,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/restaurant-dar-najmat</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://oneworldmorocco.com/restaurant-le-jardin</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -5452,11 +5437,6 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/restaurant-mercure-quemado</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://oneworldmorocco.com/restaurant-le-barometre</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -5651,7 +5631,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/riad-dar-des-arts</loc>
+    <loc>https://oneworldmorocco.com/riad-le-clos-des-arts</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -5741,11 +5721,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/sahara-stars-camp-restaurant</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://oneworldmorocco.com/salut-maroc-hammam</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -5782,11 +5757,6 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/signature-by-majda</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://oneworldmorocco.com/salut-maroc-rooftop-bar</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -8226,7 +8196,22 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/le-petit-domaine</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/cafe-le-chamonix</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/marche-aux-fleurs</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/ouirgane-ecolodge</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -8237,6 +8222,11 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/morocco-nomads-by-travelbase</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/restaurant-l-ocean</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -8252,6 +8242,11 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/riad-brummell-medina</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/le-salon-bleu</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9191,6 +9186,16 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/graffiti-raf-art</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/villa-madame-babouche</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain-1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -9216,7 +9221,17 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/mandala-society</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/atelier-beni</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/villa-azir-essaouira</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9231,7 +9246,22 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/le-val-d-argan</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/kitchen-club-bar</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/bab-doukkala-1</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/amouage-by-surf-maroc</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9251,6 +9281,21 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/royal-mansour-casablanca</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/site-archeologique-de-volubilis</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/mr-mine-deco</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/davmahal</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -9261,7 +9306,22 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/med-lebsat-surf-photography</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/oasiria-bio-market</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/riad-le-clos-des-arts</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/aloha-surf-camp-maroc</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9291,12 +9351,142 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/kawtar-tarhzaoui</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/m-avenue-1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/pc-gamer-maroc</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/swira-flying-dress</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/salsala-pottery-studio</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/mosquee-hassan-ii</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/fondation-nationale-des-musees</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/mohamed-soussi</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/chef-karim-oualidia</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/kasbah-agadir-oufella</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/les-roches-peintes</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/cascades-d-akchour</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/l-agence-bostudio</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/olinto-atlas-mountain-retreat</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/ifulkki</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/kasbah-bab-ourika</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/la-medina-d-agadir</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/grotte-win-timdouine</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/le-blokk-marrakech-marrakech</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/ouarzazate-horses</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/fly-taghazout</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/ebikexplore-marrakech</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/living-essaouira</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/afusart</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/paradise-valley</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/palais-el-mokri</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/reewaya</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/horses-atlas</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

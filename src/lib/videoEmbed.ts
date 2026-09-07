@@ -6,11 +6,12 @@ export interface VideoEmbedInfo {
   isVertical: boolean;
 }
 
-export function getVideoEmbed(url: string, origin: string, opts?: { background?: boolean; defaultSoundOn?: boolean; autoplay?: boolean; controls?: boolean }): VideoEmbedInfo {
+export function getVideoEmbed(url: string, origin: string, opts?: { background?: boolean; defaultSoundOn?: boolean; autoplay?: boolean; controls?: boolean; loop?: boolean }): VideoEmbedInfo {
   const bg = opts?.background ?? false;
   const defaultSoundOn = opts?.defaultSoundOn ?? true;
   const autoplay = opts?.autoplay ?? true;
   const showControls = opts?.controls ?? true;
+  const loop = opts?.loop ?? false;
   const ap = autoplay ? 1 : 0;
 
   // Parse start timestamp from URL: supports ?t=90, ?t=90s, ?t=1h2m3s, ?start=90, #t=90
@@ -34,16 +35,20 @@ export function getVideoEmbed(url: string, origin: string, opts?: { background?:
   const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
   if (ytMatch) {
     const isShort = /\/shorts\//.test(url);
-    const muteVal = bg ? (defaultSoundOn ? 0 : 1) : 1;
+    // Always start YouTube embeds muted. Browsers block autoplay-with-sound,
+    // so mute=1 is the only reliable way to guarantee playback starts.
+    // Sound is restored afterwards via postMessage when the user preference is on.
+    const muteVal = 1;
     const startParam = startSec > 0 ? `&start=${startSec}` : "";
     // In background mode, route through our local yt-player.html which uses the
     // YT IFrame API with controls:0 — guarantees no native YouTube chrome ever shows.
     // It also relays postMessage commands so external play/pause/mute controls keep working.
     if (bg) {
       const tParam = startSec > 0 ? `&t=${startSec}` : "";
+      const loopParam = loop ? "&loop=1" : "";
       return {
         type: "youtube",
-        embedUrl: `/yt-player.html?id=${ytMatch[1]}&autoplay=${ap}&mute=${muteVal}${tParam}`,
+        embedUrl: `/yt-player.html?id=${ytMatch[1]}&autoplay=${ap}&mute=${muteVal}${tParam}${loopParam}`,
         isVertical: isShort,
       };
     }

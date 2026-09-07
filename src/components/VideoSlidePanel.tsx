@@ -871,15 +871,17 @@ const VideoSlidePanel = ({
 
 
   // Sync YouTube iframe state with the real player (onStateChange + volume)
-  // + démutage après démarrage : l'URL d'embed reste toujours mute=1 (sinon
-  // l'autoplay est bloqué et la vidéo ne démarre jamais), on rétablit le son
-  // via l'API postMessage dès que le player passe en "playing".
+  // + démarrage forcé : le panel entre avec une animation (translate-x-full),
+  // donc l'autoplay URL est souvent ignoré par le navigateur. On envoie
+  // explicitement playVideo après l'animation, et on démute dès que le player
+  // passe en "playing".
   useEffect(() => {
     if (!open) return;
     const iframe = iframeRef.current;
     if (!iframe) return;
 
     let unmuteApplied = false;
+    let autoplayTimer: number | null = null;
 
     const subscribe = () => {
       const w = iframe.contentWindow;
@@ -897,10 +899,35 @@ const VideoSlidePanel = ({
       w.postMessage(JSON.stringify({ event: "command", func: "setVolume", args: [100] }), "*");
     };
 
+    const ensurePlaying = () => {
+      if (unmuteApplied) return; // already playing and unmuted
+      const w = iframe.contentWindow;
+      if (!w) return;
+      w.postMessage(JSON.stringify({ event: "command", func: "playVideo", args: [] }), "*");
+      if (soundOnRef.current) {
+        w.postMessage(JSON.stringify({ event: "command", func: "unMute", args: [] }), "*");
+        w.postMessage(JSON.stringify({ event: "command", func: "setVolume", args: [100] }), "*");
+      }
+    };
+
+    const startAutoplayRetry = () => {
+      if (autoplayTimer) window.clearInterval(autoplayTimer);
+      autoplayTimer = window.setInterval(ensurePlaying, 900);
+      // safety stop after a few seconds
+      window.setTimeout(() => {
+        if (autoplayTimer) { window.clearInterval(autoplayTimer); autoplayTimer = null; }
+      }, 5000);
+    };
+
     // Subscribe once iframe is loaded, and re-subscribe on src change
     iframe.addEventListener("load", subscribe);
     // In case it's already loaded
     subscribe();
+
+    // Force playback after the slide-in animation finishes.
+    const t1 = window.setTimeout(ensurePlaying, 450);
+    const t2 = window.setTimeout(ensurePlaying, 1200);
+    startAutoplayRetry();
 
     const onMessage = (e: MessageEvent) => {
       if (!e.data || typeof e.data !== "string") return;
@@ -911,14 +938,20 @@ const VideoSlidePanel = ({
         // onStateChange: info is a number (playerState)
         // 1 = playing, 2 = paused, 3 = buffering, 0 = ended, -1 = unstarted
         if (data?.event === "onStateChange" && typeof info === "number") {
-          if (info === 1) { setYtPlaying(true); applyUnmute(); }
-          else if (info === 2 || info === 0 || info === -1) setYtPlaying(false);
+          if (info === 1) {
+            setYtPlaying(true);
+            applyUnmute();
+            if (autoplayTimer) { window.clearInterval(autoplayTimer); autoplayTimer = null; }
+          } else if (info === 2 || info === 0 || info === -1) setYtPlaying(false);
         }
         // infoDelivery: info is an object with playerState/muted
         if (info && typeof info === "object") {
           if (typeof info.playerState === "number") {
-            if (info.playerState === 1) { setYtPlaying(true); applyUnmute(); }
-            else if (info.playerState === 2 || info.playerState === 0) setYtPlaying(false);
+            if (info.playerState === 1) {
+              setYtPlaying(true);
+              applyUnmute();
+              if (autoplayTimer) { window.clearInterval(autoplayTimer); autoplayTimer = null; }
+            } else if (info.playerState === 2 || info.playerState === 0) setYtPlaying(false);
           }
           if (typeof info.muted === "boolean") {
             setYtMuted(info.muted);
@@ -933,6 +966,9 @@ const VideoSlidePanel = ({
     return () => {
       iframe.removeEventListener("load", subscribe);
       window.removeEventListener("message", onMessage);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      if (autoplayTimer) window.clearInterval(autoplayTimer);
     };
   }, [open, videoUrl, videoId]);
 
@@ -1025,16 +1061,9 @@ const VideoSlidePanel = ({
     return !!target.closest('button, a, input, textarea, select, label, [role="button"], [data-cta], [data-cta-tap], [data-sound-toggle="true"]');
   };
 
-  const embed = getVideoEmbed(viewUrl || videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: soundOn, controls: false });
+  const embed = getVideoEmbed(viewUrl || videoUrl, window.location.origin, { background: true, autoplay: true, defaultSoundOn: soundOn, controls: false, loop: true });
   let embedUrl = embed.embedUrl;
-  if (embed.type === "youtube") {
-    const ytId = (viewUrl || videoUrl).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
-    embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`);
-    // On garde toujours mute=1 dans l'URL : un autoplay non muté est bloqué par
-    // Chrome/Safari et le lecteur reste alors en "unstarted" (iframe non cliquable).
-    // Le démutage est fait après démarrage via postMessage (effet ci-dessus).
-  } else if (embed.type === "vimeo") {
-
+  if (embed.type === "vimeo") {
     embedUrl = embedUrl.replace("loop=0", "loop=1");
     if (soundOn && !isMobile) embedUrl = embedUrl.replace("muted=1", "muted=0");
   } else if (embed.type === "bunny") {

@@ -2,10 +2,25 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/cities.json",
-    "generated_at": "2026-08-28T15:16:15.115Z",
-    "count": 32
+    "generated_at": "2026-09-07T02:25:58.185Z",
+    "count": 39
   },
   "cities": [
+    {
+      "id": "2029cbd1-2f05-46fc-8375-7ada5de92415",
+      "name": "Sidi Ifni",
+      "name_en": "Sidi Ifni",
+      "region": "Souss-Massa",
+      "country": "MA",
+      "latitude": 29.3701124,
+      "longitude": -10.1759285,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Sidi_Ifni",
+      "description": null,
+      "url": "https://oneworldmorocco.com/destination/sidi-ifni",
+      "neighborhoods": [],
+      "businesses_count": 0
+    },
     {
       "id": "450971c5-ecac-431b-9745-5fab8b8e7bca",
       "name": "Al Hoceïma",
@@ -37,7 +52,7 @@
         "Medina",
         "Palmeraie de Skoura"
       ],
-      "businesses_count": 11
+      "businesses_count": 12
     },
     {
       "id": "d136ed38-e0e9-4596-9893-dfd18debd110",
@@ -52,7 +67,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/asni",
       "neighborhoods": [],
-      "businesses_count": 1
+      "businesses_count": 3
     },
     {
       "id": "b332e714-57c0-4aac-baa2-697a2ca74807",
@@ -96,7 +111,7 @@
         "Bouregreg",
         "Medina"
       ],
-      "businesses_count": 28
+      "businesses_count": 30
     },
     {
       "id": "fed0141b-bfe9-4d34-878a-56c766de1174",
@@ -129,7 +144,7 @@
         "Derb Omar",
         "Maârif"
       ],
-      "businesses_count": 49
+      "businesses_count": 51
     },
     {
       "id": "6f71282b-45c1-460a-ab36-f5ebabe07b38",
@@ -144,7 +159,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/merzouga",
       "neighborhoods": [],
-      "businesses_count": 10
+      "businesses_count": 9
     },
     {
       "id": "5b0b3d01-c2c0-4b2f-a476-48aa93c43ac2",
@@ -177,7 +192,7 @@
         "Marina",
         "Taghazout"
       ],
-      "businesses_count": 12
+      "businesses_count": 14
     },
     {
       "id": "9c8e0aa3-c3df-4090-83d2-81c62eae841f",
@@ -194,7 +209,7 @@
       "neighborhoods": [
         "Medina"
       ],
-      "businesses_count": 8
+      "businesses_count": 10
     },
     {
       "id": "400bf615-8bf3-4a61-917a-d7727f0c15ec",
@@ -241,7 +256,7 @@
       "neighborhoods": [
         "Medina"
       ],
-      "businesses_count": 8
+      "businesses_count": 9
     },
     {
       "id": "1b0fc42f-b43a-436d-a8d0-391bfc9ef410",
@@ -258,7 +273,7 @@
       "neighborhoods": [
         "Medina"
       ],
-      "businesses_count": 6
+      "businesses_count": 7
     },
     {
       "id": "3d25f283-76b6-4f6c-8b25-98a0e2fd870b",
@@ -273,7 +288,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/tetouan",
       "neighborhoods": [],
-      "businesses_count": 1
+      "businesses_count": 2
     },
     {
       "id": "32e77bb1-6488-46e0-82fa-d1601641bcb3",
@@ -320,7 +335,7 @@
       "neighborhoods": [
         "Medina"
       ],
-      "businesses_count": 12
+      "businesses_count": 13
     },
     {
       "id": "3f96c12a-0635-4f70-8de0-2578a66bcc07",
@@ -362,7 +377,7 @@
         "Sidi Magdoul",
         "Agerd"
       ],
-      "businesses_count": 347
+      "businesses_count": 351
     },
     {
       "id": "252a7604-9f88-4f65-8e82-250c23d4e1c7",
@@ -454,7 +469,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/mirleft",
       "neighborhoods": [],
-      "businesses_count": 4
+      "businesses_count": 3
     },
     {
       "id": "55e75ea6-f94e-4469-bc6d-bc0fdc45769c",
@@ -469,7 +484,37 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/oualidia",
       "neighborhoods": [],
-      "businesses_count": 3
+      "businesses_count": 4
+    },
+    {
+      "id": "d9c55219-62bf-439d-b885-6becedeab1b0",
+      "name": "Tafraout",
+      "name_en": "Tafraout",
+      "region": "Souss-Massa",
+      "country": "MA",
+      "latitude": 29.7209637,
+      "longitude": -8.9736402,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Tafraout_(Maroc)",
+      "description": null,
+      "url": "https://oneworldmorocco.com/destination/tafraout",
+      "neighborhoods": [],
+      "businesses_count": 0
+    },
+    {
+      "id": "7e1a8e32-55e5-46cc-bcda-8fa9099bba79",
+      "name": "Tiznit",
+      "name_en": "Tiznit",
+      "region": "Souss-Massa",
+      "country": "MA",
+      "latitude": 29.6925901,
+      "longitude": -9.7253139,
+      "image": null,
+      "wikipedia": null,
+      "description": null,
+      "url": "https://oneworldmorocco.com/destination/tiznit",
+      "neighborhoods": [],
+      "businesses_count": 1
     },
     {
       "id": "b3c8c652-e986-496d-91aa-2adc8aa48557",
@@ -487,6 +532,21 @@
       "businesses_count": 0
     },
     {
+      "id": "14feaa0f-1238-4889-9d59-e785aae62fbf",
+      "name": "Khenifra",
+      "name_en": "Khenifra",
+      "region": "Béni Mellal-Khénifra",
+      "country": "MA",
+      "latitude": 32.9333501,
+      "longitude": -5.6684941,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Kh%C3%A9nifra",
+      "description": null,
+      "url": "https://oneworldmorocco.com/destination/khenifra",
+      "neighborhoods": [],
+      "businesses_count": 0
+    },
+    {
       "id": "58f4cca7-a085-4ae7-8ee6-6549bd0020d5",
       "name": "Ounara",
       "name_en": "Ounara",
@@ -499,22 +559,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/ounara",
       "neighborhoods": [],
-      "businesses_count": 2
-    },
-    {
-      "id": "e615a53d-568d-4cc1-85ea-7286571de35b",
-      "name": "Agafay",
-      "name_en": null,
-      "region": "Marrakech-Safi",
-      "country": "MA",
-      "latitude": null,
-      "longitude": null,
-      "image": null,
-      "wikipedia": null,
-      "description": null,
-      "url": "https://oneworldmorocco.com/destination/agafay",
-      "neighborhoods": [],
-      "businesses_count": 17
+      "businesses_count": 3
     },
     {
       "id": "5ce9185d-ea8f-4d1c-865b-6877dab8cd96",
@@ -544,7 +589,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/taghazout",
       "neighborhoods": [],
-      "businesses_count": 2
+      "businesses_count": 9
     },
     {
       "id": "41545fd3-2c2c-4609-8d55-842fd7e2edde",
@@ -599,7 +644,67 @@
         "Agafay",
         "Medina"
       ],
-      "businesses_count": 1192
+      "businesses_count": 1198
+    },
+    {
+      "id": "181e8edb-4dc0-4c3d-8ea6-6a5fe9385067",
+      "name": "Tinghir",
+      "name_en": "Tinghir",
+      "region": "Drâa-Tafilalet",
+      "country": "MA",
+      "latitude": 31.5204633,
+      "longitude": -5.5302337,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Tinghir",
+      "description": null,
+      "url": "https://oneworldmorocco.com/destination/tinghir",
+      "neighborhoods": [],
+      "businesses_count": 1
+    },
+    {
+      "id": "e615a53d-568d-4cc1-85ea-7286571de35b",
+      "name": "Agafay",
+      "name_en": null,
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.4871989,
+      "longitude": -8.1979703,
+      "image": null,
+      "wikipedia": null,
+      "description": null,
+      "url": "https://oneworldmorocco.com/destination/agafay",
+      "neighborhoods": [],
+      "businesses_count": 17
+    },
+    {
+      "id": "1b6bb46f-9505-4dca-8fe9-001ab2c697bf",
+      "name": "Bouznika",
+      "name_en": "Bouznika",
+      "region": "Casablanca-Settat",
+      "country": "MA",
+      "latitude": 33.7734338,
+      "longitude": -7.1599419,
+      "image": null,
+      "wikipedia": null,
+      "description": null,
+      "url": "https://oneworldmorocco.com/destination/bouznika",
+      "neighborhoods": [],
+      "businesses_count": 0
+    },
+    {
+      "id": "9b324398-f6be-4244-8fc0-a53042d3d69d",
+      "name": "Mohammédia",
+      "name_en": "Mohammédia",
+      "region": "Casablanca-Settat",
+      "country": "MA",
+      "latitude": 33.6835563,
+      "longitude": -7.3856494,
+      "image": null,
+      "wikipedia": null,
+      "description": null,
+      "url": "https://oneworldmorocco.com/destination/mohammedia",
+      "neighborhoods": [],
+      "businesses_count": 0
     }
   ]
 }
