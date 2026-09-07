@@ -46,6 +46,7 @@ import { buildImmersiveLines, buildImmersiveBlock } from "../_shared/ai-engine/r
 import { buildEventsWeekendAnswer, buildEventsFilteredAnswer, fetchAgendaEvents, weekendWindow, eventsSnapshotMarker, priorEventsSnapshot } from "../_shared/ai-engine/routes/events.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
+import { isContactIntent, isPriceIntent, buildContactAnswer, buildPriceAnswer } from "../_shared/ai-engine/routes/contactPrice.ts";
 import {
   isNearbyOverviewIntent, isProximityIntent, buildNearbyOverview, buildDisclosureFromCounts,
   parseInlineRadiusKm, buildTwoEntityProximityCurated,
@@ -91,7 +92,7 @@ type Lang = "fr" | "en" | "ar";
 
 const HOST_FIELDS =
   "id, slug, name, city, neighborhood, address, main_category, categories, hook_fr, hook_en, hook_ar, " +
-  "description, description_en, description_ar, min_price, manual_price_range, phone, whatsapp, website, " +
+  "description, description_en, description_ar, min_price, manual_price_range, avg_price_range, phone, whatsapp, website, " +
   "opening_hours, show_opening_hours, reserve_now_url, reserve_now_cta, presentation_mode, online_shop_url, " +
   "online_shop_cta, online_shop_presentation_mode, url_4, url_4_cta, url_4_presentation_mode, url_5, " +
   "url_5_cta, url_5_presentation_mode, latitude, longitude, is_active, poi_radius_km";
@@ -1537,9 +1538,13 @@ Deno.serve(async (req) => {
         // 1quater. Résolution NOMINATIVE À FROID : « les horaires du Jardin Majorelle »
         // sans hôte ni résultats précédents. On ne touche pas à `host` (périmètre,
         // routes proximité) : cet établissement ne sert que de référence aux routes
-        // factuelles ci-dessous (horaires, réservation).
+        // factuelles ci-dessous (horaires, réservation, coordonnées, prix).
         let namedHost: any = null;
-        if (!host && !priorIds.length && (isHoursIntent(userMessage) || isBookingIntent(userMessage))) {
+        if (
+          !host && !priorIds.length &&
+          (isHoursIntent(userMessage) || isBookingIntent(userMessage) ||
+            isContactIntent(userMessage) || isPriceIntent(userMessage))
+        ) {
           namedHost = await resolveNamedBusinessForIntent(admin, userMessage, HOST_FIELDS).catch(() => null);
           if (namedHost) {
             console.log("[embed-ai-chat-v2] cold_named_business", JSON.stringify({ id: namedHost.id, name: namedHost.name }));
@@ -1586,6 +1591,34 @@ Deno.serve(async (req) => {
           fallbackReason = "no_results";
         }
 
+        // 3bis. Coordonnées d'un établissement nommé (téléphone / WhatsApp / site / adresse).
+        if (isContactIntent(userMessage) && intentHost) {
+          route = "business_qa";
+          const answer = buildContactAnswer(intentHost, lang);
+          if (answer) {
+            resultsCount = 1;
+            emit(answer);
+            if (namedHost) emit(toMapMarker([namedHost], null));
+            await finish(true);
+            return;
+          }
+          fallbackReason = "no_results";
+        }
+
+        // 3ter. Prix d'un établissement nommé. Rappel métier : seuls certains
+        // hôtels / riads ont un tarif renseigné — sinon on le dit sans estimer.
+        if (isPriceIntent(userMessage) && intentHost) {
+          route = "business_qa";
+          const answer = buildPriceAnswer(intentHost, lang);
+          if (answer) {
+            resultsCount = 1;
+            emit(answer);
+            if (namedHost) emit(toMapMarker([namedHost], null));
+            await finish(true);
+            return;
+          }
+          fallbackReason = "no_results";
+        }
 
 
 
