@@ -1538,9 +1538,13 @@ Deno.serve(async (req) => {
         // 1quater. Résolution NOMINATIVE À FROID : « les horaires du Jardin Majorelle »
         // sans hôte ni résultats précédents. On ne touche pas à `host` (périmètre,
         // routes proximité) : cet établissement ne sert que de référence aux routes
-        // factuelles ci-dessous (horaires, réservation).
+        // factuelles ci-dessous (horaires, réservation, coordonnées, prix).
         let namedHost: any = null;
-        if (!host && !priorIds.length && (isHoursIntent(userMessage) || isBookingIntent(userMessage))) {
+        if (
+          !host && !priorIds.length &&
+          (isHoursIntent(userMessage) || isBookingIntent(userMessage) ||
+            isContactIntent(userMessage) || isPriceIntent(userMessage))
+        ) {
           namedHost = await resolveNamedBusinessForIntent(admin, userMessage, HOST_FIELDS).catch(() => null);
           if (namedHost) {
             console.log("[embed-ai-chat-v2] cold_named_business", JSON.stringify({ id: namedHost.id, name: namedHost.name }));
