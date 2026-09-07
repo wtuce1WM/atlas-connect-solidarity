@@ -34,7 +34,10 @@ export function getVideoEmbed(url: string, origin: string, opts?: { background?:
   const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
   if (ytMatch) {
     const isShort = /\/shorts\//.test(url);
-    const muteVal = bg ? (defaultSoundOn ? 0 : 1) : 1;
+    // Always start YouTube embeds muted. Browsers block autoplay-with-sound,
+    // so mute=1 is the only reliable way to guarantee playback starts.
+    // Sound is restored afterwards via postMessage when the user preference is on.
+    const muteVal = 1;
     const startParam = startSec > 0 ? `&start=${startSec}` : "";
     // In background mode, route through our local yt-player.html which uses the
     // YT IFrame API with controls:0 — guarantees no native YouTube chrome ever shows.
