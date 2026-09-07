@@ -45,9 +45,10 @@ export function getVideoEmbed(url: string, origin: string, opts?: { background?:
     // It also relays postMessage commands so external play/pause/mute controls keep working.
     if (bg) {
       const tParam = startSec > 0 ? `&t=${startSec}` : "";
+      const loopParam = loop ? "&loop=1" : "";
       return {
         type: "youtube",
-        embedUrl: `/yt-player.html?id=${ytMatch[1]}&autoplay=${ap}&mute=${muteVal}${tParam}`,
+        embedUrl: `/yt-player.html?id=${ytMatch[1]}&autoplay=${ap}&mute=${muteVal}${tParam}${loopParam}`,
         isVertical: isShort,
       };
     }
