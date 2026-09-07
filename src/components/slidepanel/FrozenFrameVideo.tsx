@@ -199,7 +199,15 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
         if (!el) return;
         if (!el.paused || !el.muted) stopBuffer(el);
       });
+      // Buffer actif en pause sans action de l'utilisateur (blocage autoplay
+      // iOS) : on relance en muet.
+      const act = getEl(activeRef.current);
+      if (act && act.paused && act.dataset.owmUserPaused !== "1" && act.readyState >= 2) {
+        act.muted = true;
+        act.play().catch(() => {});
+      }
     };
+
     const els = [refA.current, refB.current].filter(Boolean) as HTMLVideoElement[];
     els.forEach((el) => {
       el.addEventListener("play", enforce);
