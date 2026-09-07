@@ -904,6 +904,10 @@ const VideoSlidePanel = ({
       const w = iframe.contentWindow;
       if (!w) return;
       w.postMessage(JSON.stringify({ event: "command", func: "playVideo", args: [] }), "*");
+      if (soundOnRef.current) {
+        w.postMessage(JSON.stringify({ event: "command", func: "unMute", args: [] }), "*");
+        w.postMessage(JSON.stringify({ event: "command", func: "setVolume", args: [100] }), "*");
+      }
     };
 
     const startAutoplayRetry = () => {
