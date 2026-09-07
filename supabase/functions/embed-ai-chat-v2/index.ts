@@ -27,6 +27,7 @@ import {
 } from "../_shared/taxonomy-resolver.ts";
 
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
+import { detectPoolProximityIntent, buildPoolProximityAnswer } from "../_shared/ai-engine/pool-proximity.ts";
 import { pickLang, normalize, toMapMarker, fetchPriorFull, orderByIds, matchBusinessNameInMessage, resolveNamedBusinessForIntent } from "../_shared/ai-engine/routes/shared.ts";
 import { warmNomadScope, isNomadBusiness, scrubNomadRow } from "../_shared/ai-engine/nomad-scope.ts";
 import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
