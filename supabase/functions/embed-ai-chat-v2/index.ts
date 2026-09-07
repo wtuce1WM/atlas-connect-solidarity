@@ -1591,6 +1591,34 @@ Deno.serve(async (req) => {
           fallbackReason = "no_results";
         }
 
+        // 3bis. Coordonnées d'un établissement nommé (téléphone / WhatsApp / site / adresse).
+        if (isContactIntent(userMessage) && intentHost) {
+          route = "business_qa";
+          const answer = buildContactAnswer(intentHost, lang);
+          if (answer) {
+            resultsCount = 1;
+            emit(answer);
+            if (namedHost) emit(toMapMarker([namedHost], null));
+            await finish(true);
+            return;
+          }
+          fallbackReason = "no_results";
+        }
+
+        // 3ter. Prix d'un établissement nommé. Rappel métier : seuls certains
+        // hôtels / riads ont un tarif renseigné — sinon on le dit sans estimer.
+        if (isPriceIntent(userMessage) && intentHost) {
+          route = "business_qa";
+          const answer = buildPriceAnswer(intentHost, lang);
+          if (answer) {
+            resultsCount = 1;
+            emit(answer);
+            if (namedHost) emit(toMapMarker([namedHost], null));
+            await finish(true);
+            return;
+          }
+          fallbackReason = "no_results";
+        }
 
 
 
