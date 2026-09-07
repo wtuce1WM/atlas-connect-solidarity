@@ -532,12 +532,11 @@ const Front = () => {
     void openDemoFeed();
   }, [openDemoFeed]);
 
-  // En PWA installée (mode standalone), l'app s'ouvre directement en mode
-  // « Découvrez l'App ». La version navigateur reste sur l'accueil classique.
+  // Au chargement de la homepage (navigateur comme PWA installée), le feed vidéo
+  // démo s'ouvre automatiquement dans la moitié droite.
   const autoDemoRef = useRef(false);
   useEffect(() => {
     if (autoDemoRef.current) return;
-    if (!isInstalledApp()) return;
     autoDemoRef.current = true;
     startDemo();
   }, [startDemo]);
@@ -801,6 +800,8 @@ const Front = () => {
   // qui interceptait les taps sur la croix de fermeture. On masque donc le chrome
   // Home tant qu'un panneau est ouvert.
   const showHomeChrome = !demoIntro && !youtubeOpen && !mapOpen && !askPanelOpen;
+  /** Feed démo chargé : moitié droite = viewer, moitié gauche = assistant IA fermé. */
+  const demoFeedOpen = !!(demoActiveId || demoCardsOnly);
   
   const ctaP = range(progress, 0.25, 0.9);
   const ctaActive = progress > 0.575;
@@ -889,19 +890,25 @@ const Front = () => {
       />
 
 
-      {/* Bloc central — 3 sections égales entre header et CTA Découvrir */}
+      {/* Bloc central — 3 sections égales entre header et CTA Découvrir.
+          Quand le feed démo est ouvert (desktop), ce même bloc devient la moitié
+          gauche : assistant IA en mode fermé, par-dessus le panneau blanc. */}
       <div
         ref={narrativeBoxRef}
-        className={`absolute inset-0 z-0 flex flex-col ${askLocked ? "pt-14 pb-0 md:pt-14 md:pb-0" : "pt-16 pb-16 md:pt-14 md:pb-10"} ${askLocked || mapOpen ? "px-0" : "px-2 md:px-10 lg:px-16"}`}
+        className={
+          demoFeedOpen
+            ? "owm-front-demo-ask absolute left-0 top-0 bottom-0 z-40 hidden w-1/2 flex-col overflow-hidden px-2 pt-14 pb-4 md:flex"
+            : `absolute inset-0 z-0 flex flex-col ${askLocked ? "pt-14 pb-0 md:pt-14 md:pb-0" : "pt-16 pb-16 md:pt-14 md:pb-10"} ${askLocked || mapOpen ? "px-0" : "px-2 md:px-10 lg:px-16"}`
+        }
         style={{
-          opacity: demoIntro || demoActiveId || demoCardsOnly ? 0 : narrativeOpacity,
-          transform: reduced
+          opacity: demoFeedOpen ? 1 : (demoIntro ? 0 : narrativeOpacity),
+          transform: demoFeedOpen || reduced
             ? undefined
             : `translateY(${-range(progress, 0, 0.35) * 40}px)`,
-          pointerEvents: demoIntro || demoActiveId || demoCardsOnly ? "none" : (narrativeActive ? "auto" : "none"),
+          pointerEvents: demoFeedOpen ? "auto" : (demoIntro ? "none" : (narrativeActive ? "auto" : "none")),
           transition: motion,
         }}
-        aria-hidden={!!(demoIntro || demoActiveId || demoCardsOnly || !narrativeActive)}
+        aria-hidden={demoFeedOpen ? false : !!(demoIntro || !narrativeActive)}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Assistant IA — monté directement (plus d'iframe : un seul bundle, pas de flash) */}
@@ -958,6 +965,11 @@ const Front = () => {
         @keyframes owmFillBar {
           from { width: 0%; }
           to { width: 100%; }
+        }
+        /* Feed démo ouvert : l'assistant IA (racine en position fixed) est
+           confiné à la moitié gauche, au-dessus du panneau blanc. */
+        @media (min-width: 768px) {
+          .owm-front-demo-ask > div > div > div { right: 50% !important; }
         }
       `}</style>
 
