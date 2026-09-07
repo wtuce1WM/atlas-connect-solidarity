@@ -69,7 +69,10 @@ export function useVideoBadges(enabled: boolean, videoId?: string | null, source
   const [selfBadges, setSelfBadges] = useState<{ videoId: string; badges: VideoChipBadge[] } | null>(null);
   useEffect(() => {
     if (!enabled || !videoId) return;
-    const cacheKey = `${source || "any"}|${videoId}`;
+    // Clé par vidéo uniquement : les badges d'une vidéo sont les mêmes quelle
+    // que soit la source déclarée par l'appelant. Deux composants montés avec
+    // des sources différentes ne doivent pas relire les tables de liaison.
+    const cacheKey = String(videoId);
     const cached = videoBadgesCache.get(cacheKey);
     if (cached) {
       setSelfBadges({ videoId: String(videoId), badges: cached });
