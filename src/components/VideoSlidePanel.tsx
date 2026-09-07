@@ -316,27 +316,51 @@ const VideoSlidePanel = ({
   // instead of the video title/text. We therefore always load the business hook
   // and description so they are available when isGeneric is true.
   const [businessHook, setBusinessHook] = useState<string | null>(null);
+  /** Établissement résolu depuis la vidéo (repli quand le feed ne le fournit pas). */
+  const [resolvedBusinessId, setResolvedBusinessId] = useState<string | null>(null);
+  const [resolvedBusinessName, setResolvedBusinessName] = useState<string | null>(null);
   useEffect(() => {
-    if (!open) { setBusinessDescription(null); setBusinessHook(null); return; }
-    const targetId = pageBusinessId || owner?.id;
-    if (!targetId) { setBusinessDescription(null); setBusinessHook(null); return; }
+    if (!open) { setBusinessDescription(null); setBusinessHook(null); setResolvedBusinessId(null); setResolvedBusinessName(null); return; }
     let cancelled = false;
-    fetchBusinessViewerRow(targetId)
-      .then((data: any) => {
-        if (cancelled) return;
-        const d: any = data || {};
-        const localizedDesc = language === "ar" ? (d.description_ar || d.description_fr || d.description)
-          : language === "en" ? (d.description_en || d.description_fr || d.description)
-          : (d.description_fr || d.description);
-        const localizedHook = language === "ar" ? (d.hook_ar || d.hook_fr)
-          : language === "en" ? (d.hook_en || d.hook_fr)
-          : d.hook_fr;
+    (async () => {
+      /* Repli : quand ni `pageBusinessId` ni `owner` ne sont fournis par le feed,
+         on résout l'établissement directement depuis l'ID de la vidéo, afin de
+         toujours afficher ses données (hook / description) plutôt qu'un texte
+         générique. */
+      let targetId = pageBusinessId || owner?.id || null;
+      if (!targetId && videoId) {
+        const rawId = String(videoId).replace(/^(?:self-|gv-|yt-)/, "");
+        if (/^[0-9a-f-]{36}$/i.test(rawId)) {
+          const [doc, gen, yt] = await Promise.all([
+            (supabase as any).from("business_documents").select("business_id").eq("id", rawId).maybeSingle(),
+            (supabase as any).from("generic_video_businesses").select("business_id").eq("generic_video_id", rawId).limit(1),
+            (supabase as any).from("business_youtube_videos").select("business_id").eq("id", rawId).maybeSingle(),
+          ]);
+          targetId = doc?.data?.business_id
+            || (gen?.data as any[])?.[0]?.business_id
+            || yt?.data?.business_id
+            || null;
+        }
+      }
+      if (cancelled) return;
+      setResolvedBusinessId(targetId);
+      if (!targetId) { setBusinessDescription(null); setBusinessHook(null); return; }
+      const data: any = await fetchBusinessViewerRow(targetId);
+      if (cancelled) return;
+      const d: any = data || {};
+      const localizedDesc = language === "ar" ? (d.description_ar || d.description_fr || d.description)
+        : language === "en" ? (d.description_en || d.description_fr || d.description)
+        : (d.description_fr || d.description);
+      const localizedHook = language === "ar" ? (d.hook_ar || d.hook_fr)
+        : language === "en" ? (d.hook_en || d.hook_fr)
+        : d.hook_fr;
 
-        setBusinessDescription(localizedDesc ?? null);
-        setBusinessHook(localizedHook ?? null);
-      });
+      setBusinessDescription(localizedDesc ?? null);
+      setBusinessHook(localizedHook ?? null);
+      setResolvedBusinessName(d.name ?? null);
+    })();
     return () => { cancelled = true; };
-  }, [open, owner?.id, pageBusinessId, language]);
+  }, [open, owner?.id, pageBusinessId, videoId, language]);
 
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
@@ -517,7 +541,7 @@ const VideoSlidePanel = ({
   // Seules les vidéos YouTube conservent le comportement historique.
   const useBusinessInfo = badgeSource !== "youtube";
   const feedInfoTitle = useBusinessInfo
-    ? (ctaBusiness?.name || businessName || "")
+    ? (ctaBusiness?.name || resolvedBusinessName || businessName || "")
     : (description && description.trim())
       ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
       : (ctaBusiness?.name || businessName || "");
@@ -1833,7 +1857,7 @@ const VideoSlidePanel = ({
                     bare
                     onOpen={(rect) => {
                       // Sans exception : la barre info ouvre la Full Description.
-                      const targetId = ctaBusiness?.id || pageBusinessId || owner?.id;
+                      const targetId = ctaBusiness?.id || pageBusinessId || owner?.id || resolvedBusinessId;
                       if (targetId) { setNestedOverlayKind("description"); setDescBusinessId(String(targetId)); return; }
                       startDescMorph(rect);
                     }}
