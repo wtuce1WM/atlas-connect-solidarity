@@ -314,6 +314,10 @@ const VideoSlidePanel = ({
     };
   }, [open, rawNavigate]);
 
+  /* Lectures non visuelles (événements, agenda, médias hôte) : différées après
+     le premier rendu pour laisser la bande passante au démarrage de la vidéo. */
+  const deferredReady = useDeferredAfterVideo(open);
+
   // Description source (video text is ALWAYS prioritary), EXCEPT for internal
   // generic videos where the viewer info bar must show the business name + hook
   // instead of the video title/text. We therefore always load the business hook
