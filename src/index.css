@@ -654,7 +654,6 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     max-height: 100dvh !important;
     overflow: hidden !important;
     overscroll-behavior: none !important;
-    touch-action: pan-x !important;
   }
 
 
