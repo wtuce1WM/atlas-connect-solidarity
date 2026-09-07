@@ -16,6 +16,7 @@
   var startAt = Math.max(0, Math.floor(Number(params.get('t') || '0')));
   var autoplay = params.get('autoplay') !== '0';
   var startMuted = params.get('mute') !== '0';
+  var loop = params.get('loop') === '1';
   if (!videoId || videoId.length !== 11) {
     document.body.innerHTML = '<div style="color:#fff;font-family:sans-serif;padding:20px">Invalid id</div>';
   } else {
