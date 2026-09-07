@@ -300,3 +300,51 @@ export const CTA_SELECT_FIELDS =
   "url_4, url_4_cta, url_4_presentation_mode, url_5, url_5_cta, url_5_presentation_mode, " +
   "reserve_now_force_external, online_shop_force_external, url_4_force_external, url_5_force_external, " +
   "website, website_cta, website_force_external, glovo_url";
+
+/**
+ * Résolution NOMINATIVE À FROID (aucun hôte, aucun résultat précédent).
+ *
+ * « quels sont les horaires d'ouverture du Jardin Majorelle » : la question est
+ * plus longue que le nom, donc `matchBusinessNameInMessage` (qui exige une
+ * demande nominative courte) la rejette. Ici on ignore la longueur de la phrase
+ * et on exige à l'inverse que TOUS les tokens du nom soient présents dans le
+ * message, avec au moins un token distinctif (hors taxonomie / géographie).
+ * C'est ce qui permet aux routes factuelles existantes (horaires, réservation)
+ * de répondre sur un établissement nommé sans contexte préalable.
+ */
+export async function resolveNamedBusinessForIntent(
+  admin: any,
+  message: string,
+  fields: string,
+): Promise<any | null> {
+  const msg = nameStrip(message);
+  if (msg.length < 6) return null;
+  const msgTokens = nameTokens(msg);
+  if (!msgTokens.length) return null;
+  const msgSet = new Set(msgTokens);
+
+  const { data } = await admin.from("businesses").select("id, name").eq("is_active", true);
+  if (!Array.isArray(data)) return null;
+
+  let bestId: string | null = null;
+  let bestScore = 0;
+  for (const b of data as any[]) {
+    const n = nameStrip(b?.name);
+    if (!n) continue;
+    const nTok = nameTokens(n);
+    if (!nTok.length) continue;
+    const distinctive = nTok.filter((t) => !NAME_GENERIC.has(t));
+    if (!distinctive.length) continue;
+    const hit = (t: string) =>
+      msgSet.has(t) ||
+      (t.length >= 6 && msgTokens.some((m) => m.length >= 6 && levenshtein(t, m) <= 1));
+    if (!nTok.every(hit)) continue;
+    // Longueur du nom couvert : le nom le plus spécifique gagne.
+    const score = nTok.join("").length + distinctive.length * 10;
+    if (score > bestScore) { bestScore = score; bestId = String(b.id); }
+  }
+  if (!bestId) return null;
+
+  const { data: rows } = await admin.from("businesses").select(fields).eq("id", bestId).limit(1);
+  return Array.isArray(rows) && rows.length ? rows[0] : null;
+}
