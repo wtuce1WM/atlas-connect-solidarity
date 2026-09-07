@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const CTAS: { label: string; to: string }[] = [
   { label: "Installer l'App", to: "/install" },
-  { label: "LOGIN", to: "/club" },
+  { label: "MON COMPTE", to: "/club" },
   { label: "CONCEPT LOCAL & SOLIDAIRE", to: "/corporate" },
   { label: "VOTRE ENTREPRISE", to: "/join" },
   { label: "Widgets", to: "/widgets" },
