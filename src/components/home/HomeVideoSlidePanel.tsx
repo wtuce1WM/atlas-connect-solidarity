@@ -4,13 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 type FeedBadge = { id: string; name: string; color?: string | null; text_color?: string | null };
 
-/**
- * Repli « ID vidéo → badges » : certaines sources de feed ne joignent pas les
- * badges à la vidéo. On les lit ici directement par ID vidéo dans les 3 tables
- * de liaison (interne / générique / YouTube), filtrés `is_active_on_front`.
- * Cette lecture directe fait autorité : le payload du feed peut ne contenir
- * qu'un sous-ensemble des badges liés à la vidéo.
- */
+/** Normalise les lignes de liaison badge en FeedBadge (actifs sur le front). */
+
 function normalizeBadgeRows(res: any, out: Map<string, FeedBadge>) {
   for (const row of (res?.data || []) as any[]) {
     const b = row.badges;
