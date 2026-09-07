@@ -2,8 +2,8 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/events.json",
-    "generated_at": "2026-08-28T15:16:15.109Z",
-    "count": 36
+    "generated_at": "2026-09-07T02:25:58.175Z",
+    "count": 37
   },
   "events": [
     {
@@ -167,6 +167,24 @@
       "longitude": null,
       "image": null,
       "url": "https://oneworldmorocco.com/events"
+    },
+    {
+      "id": "a32eec62-4ae3-44ea-90c8-d30bccc99f19",
+      "name": "« Cœur à Cœur », une première retraite parents - enfants.",
+      "hook": null,
+      "description": "« Cœur à Cœur », une première retraite parents - enfants. Prochaine édition : du 26 au 29 octobre 2026. Infos et réservations par MP ou par mail : contact@kenzaitomekouar.com (Réservations en cours, tarif early bird jusqu’en juin). À nos enfants, nos plus beaux « instants présents ». Merci à mon équipe, et à mes partenaires : @bioetboisferme @cavelleleather @toofruitmaroc @thalgomaroc @tj_taje @gr",
+      "start_date": "2026-10-26",
+      "end_date": "2026-10-29",
+      "start_time": null,
+      "end_time": null,
+      "recurrence": null,
+      "days_of_week": [],
+      "type": "Retraite Yoga",
+      "city": null,
+      "latitude": null,
+      "longitude": null,
+      "image": null,
+      "url": "https://www.instagram.com/reel/DX4leqmMlR1/"
     },
     {
       "id": "a9a7b50c-1d7f-463a-b177-f42c685699fd",

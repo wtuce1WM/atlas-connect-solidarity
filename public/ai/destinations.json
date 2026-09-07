@@ -2,8 +2,8 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/destinations.json",
-    "generated_at": "2026-08-28T15:16:15.120Z",
-    "count": 42
+    "generated_at": "2026-09-07T02:25:58.207Z",
+    "count": 46
   },
   "destinations": [
     {
@@ -21,26 +21,6 @@
       "description": "D’une érosion hydrique importante de l’oued Aghbalou, qui a réussi à ronger l’inclinaison des couches tendres, sont nées les cascades permanentes de Sidi M’barek. A 12 Km de Sidi Kaouki, ces cascades échappent à la vue du visiteur puisqu’aucune signalétique n’indique l’existence des cascades aux environs. La descente vers ces cascades se fait au milieu du oued Aghbalou, toujours alimenté d’un fil ",
       "cities": [
         "Essaouira"
-      ]
-    },
-    {
-      "id": "e6e43af9-1523-4aaf-833d-645f7f5a9aa1",
-      "name": "Anti-Atlas",
-      "name_en": "Anti-Atlas",
-      "region": [
-        "Dakhla-Oued Ed-Dahab",
-        "Souss-Massa",
-        "Guelmim-Oued Noun"
-      ],
-      "latitude": 30,
-      "longitude": -8.5,
-      "image": null,
-      "wikipedia": "https://fr.wikipedia.org/wiki/Anti-Atlas",
-      "hook": "Peu fréquentée par le tourisme de masse, l’Anti-Atlas offre des paysages spectaculaires.",
-      "description": "L’ Anti-Atlas est une chaîne de montagnes située au sud-ouest du Maroc , souvent nommée Petit Atlas , s’étendant sur des centaines de kilomètres entre le Haut Atlas central, le Souss et les plateaux sahariens. Cette région aride, façonnée il y a près de 300 millions d’années, est aujourd’hui le territoire traditionnel des tribus berbères Chleuh qui y vivent depuis des millénaires, pratiquant une a",
-      "cities": [
-        "Agadir",
-        "Taroudant"
       ]
     },
     {
@@ -78,27 +58,6 @@
         "Ouarzazate",
         "Zagora",
         "Merzouga",
-        "Béni Mellal"
-      ]
-    },
-    {
-      "id": "95bd215b-2f97-409f-9490-0c711da2baac",
-      "name": "Ait Ben Haddou",
-      "name_en": "Ait Ben Haddou",
-      "region": [
-        "Drâa-Tafilalet"
-      ],
-      "latitude": 31.0470904,
-      "longitude": -7.1294148,
-      "image": null,
-      "wikipedia": "https://fr.wikipedia.org/wiki/Ksar_d%27A%C3%AFt-ben-Haddou",
-      "hook": "Classée comme site du patrimoine mondial de l'UNESCO",
-      "description": "La visite de l'ait Ben Haddou Kasbah et Ouarzazate explore une région qui est un peu plus loin de Marrakech, mais peut encore être achevé en une journée. La Kasbah est classée comme site du patrimoine mondial de l'UNESCO et est accessible en passant par les magnifiques paysages des montagnes de l'Atlas. Ensuite, découvrez Ouarzazate, qui est une ville magique considérée comme la porte d'entrée du ",
-      "cities": [
-        "Marrakech",
-        "Ouarzazate",
-        "Merzouga",
-        "Zagora",
         "Béni Mellal"
       ]
     },
@@ -156,6 +115,27 @@
       "cities": [
         "Béni Mellal",
         "Marrakech"
+      ]
+    },
+    {
+      "id": "95bd215b-2f97-409f-9490-0c711da2baac",
+      "name": "Ait Ben Haddou",
+      "name_en": "Ait Ben Haddou",
+      "region": [
+        "Drâa-Tafilalet"
+      ],
+      "latitude": 31.0470904,
+      "longitude": -7.1294148,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Ksar_d%27A%C3%AFt-ben-Haddou",
+      "hook": "Classée comme site du patrimoine mondial de l'UNESCO",
+      "description": "La visite de l'ait Ben Haddou Kasbah et Ouarzazate explore une région qui est un peu plus loin de Marrakech, mais peut encore être achevé en une journée. La Kasbah est classée comme site du patrimoine mondial de l'UNESCO et est accessible en passant par les magnifiques paysages des montagnes de l'Atlas. Ensuite, découvrez Ouarzazate, qui est une ville magique considérée comme la porte d'entrée du ",
+      "cities": [
+        "Marrakech",
+        "Ouarzazate",
+        "Merzouga",
+        "Zagora",
+        "Béni Mellal"
       ]
     },
     {
@@ -263,6 +243,26 @@
       ]
     },
     {
+      "id": "e6e43af9-1523-4aaf-833d-645f7f5a9aa1",
+      "name": "Anti-Atlas",
+      "name_en": "Anti-Atlas",
+      "region": [
+        "Dakhla-Oued Ed-Dahab",
+        "Souss-Massa",
+        "Guelmim-Oued Noun"
+      ],
+      "latitude": 30,
+      "longitude": -8.5,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Anti-Atlas",
+      "hook": "Peu fréquentée par le tourisme de masse, l’Anti-Atlas offre des paysages spectaculaires.",
+      "description": "L’ Anti-Atlas est une chaîne de montagnes située au sud-ouest du Maroc , souvent nommée Petit Atlas , s’étendant sur des centaines de kilomètres entre le Haut Atlas central, le Souss et les plateaux sahariens. Cette région aride, façonnée il y a près de 300 millions d’années, est aujourd’hui le territoire traditionnel des tribus berbères Chleuh qui y vivent depuis des millénaires, pratiquant une a",
+      "cities": [
+        "Agadir",
+        "Taroudant"
+      ]
+    },
+    {
       "id": "e6301631-81aa-4389-a511-73f3e51df562",
       "name": "Moulay Bouzerktoun",
       "name_en": "Moulay Bouzerktoun",
@@ -315,6 +315,24 @@
       ]
     },
     {
+      "id": "cf0b7faa-e006-4899-a429-f19377bc8027",
+      "name": "Bin El-Ouidane",
+      "name_en": null,
+      "region": [
+        "Béni Mellal-Khénifra"
+      ],
+      "latitude": 32.1085649,
+      "longitude": -6.4616658,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Bin_el-Ouidane",
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Béni Mellal",
+        "Khenifra"
+      ]
+    },
+    {
       "id": "66dc6b0e-2595-4e83-9f01-3e346dfcb04b",
       "name": "Imsouane",
       "name_en": "Imsouane",
@@ -330,6 +348,25 @@
       "cities": [
         "Essaouira",
         "Agadir"
+      ]
+    },
+    {
+      "id": "a62da068-d255-40fd-bf9f-b6ced7c69b4e",
+      "name": "Parc National Souss-Massa",
+      "name_en": null,
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 30.2891054,
+      "longitude": -9.5619011,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Agadir",
+        "Taroudant",
+        "Taghazout"
       ]
     },
     {
@@ -402,6 +439,25 @@
       "description": "Tafedna est un petit village côtier authentique situé au sud d’Essaouira, réputé pour sa plage sauvage et préservée, encore épargnée par le tourisme de masse. Nichée entre falaises et forêts d’arganiers, sa baie s’étend sur plusieurs kilomètres de sable fin, offrant un cadre naturel spectaculaire et paisible . Contrairement à d’autres plages de la région, Tafedna bénéficie d’un environnement proté",
       "cities": [
         "Essaouira"
+      ]
+    },
+    {
+      "id": "482c1d52-45ba-4ea6-b24c-18e296f51f31",
+      "name": "Ait Mansour",
+      "name_en": null,
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 29.7345261,
+      "longitude": -9.298484,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Agadir",
+        "Tiznit",
+        "Tafraout"
       ]
     },
     {
@@ -561,6 +617,21 @@
       "cities": [
         "Essaouira"
       ]
+    },
+    {
+      "id": "2b4a1e38-6c27-4f55-972e-a86e032b650d",
+      "name": "Imouzzer",
+      "name_en": null,
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 30.6726508,
+      "longitude": -9.480813,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Imouzzer",
+      "hook": null,
+      "description": null,
+      "cities": []
     },
     {
       "id": "38eb8925-123e-4312-875f-72e70415e5bc",

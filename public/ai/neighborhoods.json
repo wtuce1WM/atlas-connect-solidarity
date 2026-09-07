@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/neighborhoods.json",
-    "generated_at": "2026-08-28T15:16:15.116Z",
+    "generated_at": "2026-09-07T02:25:58.189Z",
     "count": 104
   },
   "neighborhoods": [
@@ -237,6 +237,10 @@
           "url": "https://oneworldmorocco.com/epicerie-de-la-plage"
         },
         {
+          "name": "Essaouira Wavescape",
+          "url": "https://oneworldmorocco.com/essaouira-wavescape"
+        },
+        {
           "name": "Hotel Ocean Vagabond",
           "url": "https://oneworldmorocco.com/hotel-ocean-vagabond"
         },
@@ -267,6 +271,10 @@
         {
           "name": "Nicolas Essaouira",
           "url": "https://oneworldmorocco.com/nicolas-essaouira"
+        },
+        {
+          "name": "Olasurf Essaouira",
+          "url": "https://oneworldmorocco.com/olasurf-essaouira"
         },
         {
           "name": "OV Market",
@@ -311,14 +319,6 @@
         {
           "name": "Camel Ride Paradise",
           "url": "https://oneworldmorocco.com/camel-ride-paradise"
-        },
-        {
-          "name": "Hôtel Miramar",
-          "url": "https://oneworldmorocco.com/hotel-miramar"
-        },
-        {
-          "name": "NaneaKite",
-          "url": "https://oneworldmorocco.com/naneakite"
         }
       ]
     },
@@ -741,6 +741,10 @@
         {
           "name": "La Sqala",
           "url": "https://oneworldmorocco.com/la-sqala"
+        },
+        {
+          "name": "Royal Mansour Casablanca",
+          "url": "https://oneworldmorocco.com/royal-mansour-casablanca"
         }
       ]
     },
@@ -972,16 +976,7 @@
       "longitude": -9.71,
       "image": null,
       "hook": null,
-      "businesses": [
-        {
-          "name": "Pure Passion Taghazout",
-          "url": "https://oneworldmorocco.com/pure-passion-taghazout"
-        },
-        {
-          "name": "Surf Maroc",
-          "url": "https://oneworldmorocco.com/surf-maroc"
-        }
-      ]
+      "businesses": []
     },
     {
       "id": "9ae40a2c-ef57-4338-8735-dba82edc8460",
@@ -1449,7 +1444,7 @@
         },
         {
           "name": "BŌSTUDIO",
-          "url": "https://oneworldmorocco.com/bostudio"
+          "url": "https://oneworldmorocco.com/l-agence-bostudio"
         },
         {
           "name": "Beldi Fusion Kitchen Guéliz",
@@ -1686,6 +1681,10 @@
         {
           "name": "Hendrix Hotel, Restaurant & Rooftop",
           "url": "https://oneworldmorocco.com/hendrix-hotel-restaurant-rooftop"
+        },
+        {
+          "name": "Mogasurf",
+          "url": "https://oneworldmorocco.com/mogasurf"
         },
         {
           "name": "Ranch de Diabat",
@@ -2190,6 +2189,14 @@
         {
           "name": "BNIN Essaouira",
           "url": "https://oneworldmorocco.com/bnin-essaouira"
+        },
+        {
+          "name": "Villa Madame Babouche",
+          "url": "https://oneworldmorocco.com/villa-madame-babouche"
+        },
+        {
+          "name": "Villa Azir Essaouira",
+          "url": "https://oneworldmorocco.com/villa-azir-essaouira"
         }
       ]
     },
@@ -2572,6 +2579,10 @@
       "image": null,
       "hook": null,
       "businesses": [
+        {
+          "name": "Café Clock Marrakech",
+          "url": "https://oneworldmorocco.com/cafe-clock-marrakech"
+        },
         {
           "name": "Dar Alfarah",
           "url": "https://oneworldmorocco.com/dar-alfarah"
@@ -3082,10 +3093,6 @@
         {
           "name": "L'Atelier Merguez Véritable",
           "url": "https://oneworldmorocco.com/l-atelier-merguez-veritable"
-        },
-        {
-          "name": "The Sun-Set Rooftop",
-          "url": "https://oneworldmorocco.com/the-sun-set-rooftop"
         }
       ]
     },
@@ -3292,7 +3299,7 @@
         },
         {
           "name": "Le Blokk Marrakech",
-          "url": "https://oneworldmorocco.com/le-blokk-marrakech"
+          "url": "https://oneworldmorocco.com/le-blokk-marrakech-marrakech"
         },
         {
           "name": "Le Jardin d’Hiver",
