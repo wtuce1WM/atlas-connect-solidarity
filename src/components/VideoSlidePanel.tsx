@@ -442,6 +442,8 @@ const VideoSlidePanel = ({
       setEventInfo(null);
       return;
     }
+    if (!deferredReady) return;
+
     let cancelled = false;
     (async () => {
       const [{ data: ebRows }, { data: evRow }] = await Promise.all([
