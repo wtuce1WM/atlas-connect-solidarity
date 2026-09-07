@@ -82,12 +82,44 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
 
     if (first) {
       const el = getEl(activeRef.current);
-      if (el) {
-        el.src = src;
-        (videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = el;
-      }
-      return;
+      if (!el) return;
+      el.src = src;
+      (videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = el;
+      // Remontage après un résultat non-vidéo (image / Matterport / YouTube) :
+      // le composant est neuf, aucun swap de buffer n'a lieu, et le moteur
+      // parent peut avoir déjà consommé son cycle d'autoplay avant que cet
+      // élément n'existe. On amorce donc la lecture ici aussi (idempotent).
+      let disposed = false;
+      const kick = () => {
+        if (disposed) return;
+        const target = getEl(activeRef.current);
+        if (!target || target !== el) return;
+        if (el.dataset.owmUserPaused === "1") return;
+        if (!el.paused) return;
+        el.muted = !soundOnRef.current;
+        if (!el.muted && el.volume === 0) el.volume = 1;
+        el.play().catch(() => {
+          if (disposed) return;
+          el.muted = true;
+          el.play().then(() => {
+            if (disposed || !soundOnRef.current) return;
+            el.muted = false;
+            el.volume = 1;
+          }).catch(() => {});
+        });
+      };
+      kick();
+      el.addEventListener("canplay", kick);
+      el.addEventListener("loadeddata", kick);
+      const timers = [120, 400, 900, 1800].map((ms) => window.setTimeout(kick, ms));
+      return () => {
+        disposed = true;
+        el.removeEventListener("canplay", kick);
+        el.removeEventListener("loadeddata", kick);
+        timers.forEach((t) => window.clearTimeout(t));
+      };
     }
+
 
     const nextSlot: 0 | 1 = activeRef.current === 0 ? 1 : 0;
     const incoming = getEl(nextSlot);
