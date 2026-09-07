@@ -644,8 +644,21 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     background-color: #000 !important;
   }
 
+  /* Page mono-écran (Home /front) : aucun défilement vertical possible.
+     Sans ça, iOS Safari fait suivre la page au swipe (rubber-band) car le
+     body dépasse le viewport (min-height 100dvh + paddings safe-area). */
+  html:has(body.owm-noscroll),
+  body.owm-noscroll {
+    height: 100dvh !important;
+    min-height: 0 !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+  }
+
 
 }
+
 
 @layer utilities {
   /* Dynamic viewport height utilities (better than h-screen on mobile/PWA) */
