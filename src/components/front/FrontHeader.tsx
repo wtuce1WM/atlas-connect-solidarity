@@ -5,9 +5,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const CTAS: { label: string; to: string }[] = [
   { label: "Installer l'App", to: "/install" },
-  { label: "Devenez membre du club OWM", to: "/club" },
-  { label: "Un concept local et solidaire", to: "/corporate" },
-  { label: "Ajoutez votre entreprise", to: "/join" },
+  { label: "LOGIN", to: "/club" },
+  { label: "CONCEPT LOCAL & SOLIDAIRE", to: "/corporate" },
+  { label: "VOTRE ENTREPRISE", to: "/join" },
   { label: "Widgets", to: "/widgets" },
   { label: "Blog", to: "/blog" },
   { label: "Contact", to: "/contact" },
