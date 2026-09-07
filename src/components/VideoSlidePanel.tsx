@@ -949,9 +949,15 @@ const VideoSlidePanel = ({
 
     const onMessage = (e: MessageEvent) => {
       if (!e.data || typeof e.data !== "string") return;
-      if (!e.origin.includes("youtube.com") && !e.origin.includes("youtube-nocookie.com")) return;
+      const fromYouTube = e.origin.includes("youtube.com") || e.origin.includes("youtube-nocookie.com");
+      // Le lecteur local /yt-player.html relaie l'état réel du player depuis
+      // notre propre origine : sans cette acceptation, les CTA Play/Son du
+      // panneau restaient sur leur état optimiste.
+      const fromLocalPlayer = e.origin === window.location.origin;
+      if (!fromYouTube && !fromLocalPlayer) return;
       try {
         const data = JSON.parse(e.data);
+        if (fromLocalPlayer && !fromYouTube && data?.owm !== "yt-player") return;
         const info = data?.info;
         // onStateChange: info is a number (playerState)
         // 1 = playing, 2 = paused, 3 = buffering, 0 = ended, -1 = unstarted

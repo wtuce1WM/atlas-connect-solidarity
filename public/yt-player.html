@@ -25,6 +25,36 @@
     document.head.appendChild(tag);
     var ytPlayer = null;
     var pendingCommands = [];
+
+    // L'iframe YouTube est créée ICI (et non par YT.Player) pour porter
+    // explicitement `allow="autoplay"`. Sans cet attribut, Safari/iOS refuse
+    // l'auto-lecture d'une iframe cross-origin, même en mode muet : la vidéo
+    // restait sur son écran de démarrage jusqu'à un clic Play manuel.
+    function buildIframe() {
+      var q = [
+        'enablejsapi=1',
+        'autoplay=' + (autoplay ? 1 : 0),
+        'mute=' + (startMuted ? 1 : 0),
+        'controls=0', 'rel=0', 'modestbranding=1', 'playsinline=1',
+        'iv_load_policy=3', 'fs=0', 'disablekb=1',
+        'start=' + startAt,
+        'origin=' + encodeURIComponent(location.origin)
+      ];
+      if (loop) q.push('loop=1', 'playlist=' + videoId);
+      var f = document.createElement('iframe');
+      f.id = 'yt-frame';
+      f.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+      f.setAttribute('allowfullscreen', '');
+      f.setAttribute('frameborder', '0');
+      f.setAttribute('title', 'video');
+      f.src = 'https://www.youtube-nocookie.com/embed/' + videoId + '?' + q.join('&');
+      var holder = document.getElementById('player');
+      holder.innerHTML = '';
+      holder.appendChild(f);
+      return f;
+    }
+    var frame = buildIframe();
+
     function exec(cmd) {
       if (!ytPlayer) return;
       try {
@@ -45,24 +75,48 @@
       if (!ytPlayer) pendingCommands.push(data);
       else exec(data);
     });
+
+    // Relais d'état vers le parent : le panneau doit connaître l'état réel
+    // (lecture / muet) pour ses CTA Play et Son.
+    function relay(state) {
+      try {
+        var muted = null;
+        try { muted = ytPlayer ? ytPlayer.isMuted() : null; } catch (_) {}
+        parent.postMessage(JSON.stringify({
+          event: 'infoDelivery',
+          owm: 'yt-player',
+          info: { playerState: state, muted: muted }
+        }), '*');
+      } catch (_) {}
+    }
+
+    // Relance d'auto-lecture : certains navigateurs ignorent `autoplay=1`
+    // quand l'iframe est créée pendant une animation d'ouverture de panneau.
+    function kickAutoplay() {
+      if (!autoplay || !ytPlayer) return;
+      var tries = 0;
+      var id = setInterval(function () {
+        tries++;
+        var st = -1;
+        try { st = ytPlayer.getPlayerState(); } catch (_) {}
+        if (st === 1 || st === 3 || tries > 8) { clearInterval(id); return; }
+        try { if (startMuted) ytPlayer.mute(); ytPlayer.playVideo(); } catch (_) {}
+      }, 500);
+    }
+
     window.onYouTubeIframeAPIReady = function() {
-      var playerVars = {
-        autoplay: autoplay ? 1 : 0,
-        mute: startMuted ? 1 : 0,
-        controls: 0, rel: 0,
-        modestbranding: 1, playsinline: 1, start: startAt,
-        iv_load_policy: 3, fs: 0, disablekb: 1
-      };
-      if (loop) { playerVars.loop = 1; playerVars.playlist = videoId; }
-      ytPlayer = new YT.Player('player', {
-        videoId: videoId,
-        playerVars: playerVars,
+      ytPlayer = new YT.Player(frame, {
         events: {
           onReady: function(e) {
             try { if (startMuted) e.target.mute(); else { e.target.unMute(); e.target.setVolume(100); } } catch(_) {}
-            try { e.target.seekTo(startAt, true); } catch(_) {}
+            if (startAt > 0) { try { e.target.seekTo(startAt, true); } catch(_) {} }
             try { if (autoplay) e.target.playVideo(); } catch(_) {}
             pendingCommands.splice(0).forEach(exec);
+            kickAutoplay();
+          },
+          onStateChange: function(e) {
+            relay(e.data);
+            if (loop && e.data === 0) { try { e.target.seekTo(startAt, true); e.target.playVideo(); } catch(_) {} }
           }
         }
       });
