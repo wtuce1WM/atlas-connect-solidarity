@@ -757,10 +757,14 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     });
 
     const clickListener = mapRef.current.addListener("click", () => {
-      overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
+      const openId = openInfoPoiIdRef.current;
+      const ov = overlaysRef.current.get(openId ?? "");
+      ov?.setPinBelow(false);
+      if (openId && openId !== selectedPoiIdRef.current) ov?.setHighlighted(false);
       openInfoPoiIdRef.current = null;
       infoWindowRef.current?.close();
     });
+
 
     const container = containerRef.current;
     container.addEventListener("wheel", handleWheel, { passive: false });
