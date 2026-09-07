@@ -183,8 +183,16 @@ export async function fetchBadgesVideoFeed(
   });
   if (error || !data) return { items: [], total: 0 };
   const rows = data as any[];
+  const excluded = await loadDiscoveryExclusions();
+  const items = rows
+    .map(mapFeedRow)
+    .filter(
+      (it) =>
+        !excluded.videoIds.has(String(it.id)) &&
+        !(it.businessId && excluded.businessIds.has(String(it.businessId))),
+    );
   return {
-    items: rows.map(mapFeedRow),
+    items,
     total: rows.length ? Number(rows[0].total_count ?? rows.length) : 0,
   };
 }
@@ -317,6 +325,59 @@ async function loadDiscoveryScope(): Promise<{ badgeIds: string[]; cityIds: stri
     badgeIds: ((badgesRes?.data as any[]) || []).map((b) => String(b.id)),
     cityIds: ((citiesRes?.data as any[]) || []).map((c) => String(c.id)),
   };
+}
+
+/**
+ * Sous-catégories exclues du SEUL feed découverte lancé depuis Home.
+ * Elles restent accessibles via la recherche, l'assistant IA et les chips badges.
+ */
+const DISCOVERY_EXCLUDED_SUBCATEGORIES = [
+  "Electroménager",
+  "Magasin de sport",
+  "Supermarché",
+  "Jouets",
+  "Informatique",
+  "Épicerie",
+];
+
+let discoveryExclusionsPromise: Promise<{ businessIds: Set<string>; videoIds: Set<string> }> | null = null;
+
+/** Établissements et vidéos rattachés aux sous-catégories exclues du feed Home (mis en cache). */
+function loadDiscoveryExclusions(): Promise<{ businessIds: Set<string>; videoIds: Set<string> }> {
+  if (discoveryExclusionsPromise) return discoveryExclusionsPromise;
+  discoveryExclusionsPromise = (async () => {
+    const businessIds = new Set<string>();
+    const videoIds = new Set<string>();
+    try {
+      const { data: subs } = await (supabase as any)
+        .from("subcategories")
+        .select("id")
+        .in("name_fr", DISCOVERY_EXCLUDED_SUBCATEGORIES);
+      const subIds = ((subs as any[]) || []).map((r) => String(r.id));
+      const [bizRes, gvRes, ytRes] = await Promise.all([
+        (supabase as any)
+          .from("businesses")
+          .select("id")
+          .overlaps("categories", DISCOVERY_EXCLUDED_SUBCATEGORIES),
+        subIds.length
+          ? (supabase as any).from("generic_video_subcategories").select("generic_video_id").in("subcategory_id", subIds)
+          : Promise.resolve({ data: [] }),
+        subIds.length
+          ? (supabase as any)
+              .from("business_youtube_video_subcategories")
+              .select("youtube_video_id")
+              .in("subcategory_id", subIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+      for (const r of ((bizRes?.data as any[]) || [])) businessIds.add(String(r.id));
+      for (const r of ((gvRes?.data as any[]) || [])) videoIds.add(String(r.generic_video_id));
+      for (const r of ((ytRes?.data as any[]) || [])) videoIds.add(String(r.youtube_video_id));
+    } catch {
+      /* aucune exclusion en cas d'échec : le feed reste complet */
+    }
+    return { businessIds, videoIds };
+  })();
+  return discoveryExclusionsPromise;
 }
 
 async function fetchDiscoveryPage(
