@@ -1099,7 +1099,18 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         // Cancel any pending close
         if (closeTimerRef.current) { clearTimeout(closeTimerRef.current); closeTimerRef.current = null; }
         infoWindowHoveredRef.current = false;
+        // Tactile (iOS) : aucun mouseenter n'est émis, donc on applique ici le
+        // statut sélectionné (fond noir + pin) au marqueur ouvert, et on retire
+        // celui du marqueur précédemment ouvert s'il n'est pas le POI sélectionné.
+        const prevOpenId = openInfoPoiIdRef.current;
+        if (prevOpenId && prevOpenId !== poi.id) {
+          const prev = overlaysRef.current.get(prevOpenId);
+          prev?.setPinBelow(false);
+          if (prevOpenId !== selectedPoiIdRef.current) prev?.setHighlighted(false);
+        }
         openInfoPoiIdRef.current = poi.id;
+        overlaysRef.current.get(poi.id)?.setHighlighted(true);
+
 
         const img = poi.images?.[0];
         const loc = `${poi.city || ""}${poi.neighborhood ? ` · ${poi.neighborhood}` : ""}`;
