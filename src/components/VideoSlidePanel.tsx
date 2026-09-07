@@ -302,33 +302,35 @@ const VideoSlidePanel = ({
     };
   }, [open, rawNavigate]);
 
-  // Description source (video text is ALWAYS prioritary):
-  // - If the video has its own description, use it.
-  // - Otherwise, fall back to the consulted fiche (pageBusinessId) or the owner's description.
+  // Description source (video text is ALWAYS prioritary), EXCEPT for internal
+  // generic videos where the viewer info bar must show the business name + hook
+  // instead of the video title/text. We therefore always load the business hook
+  // and description so they are available when isGeneric is true.
+  const [businessHook, setBusinessHook] = useState<string | null>(null);
   useEffect(() => {
-    if (!open) { setBusinessDescription(null); return; }
-    if (description && description.trim()) {
-      setBusinessDescription(null);
-      return;
-    }
+    if (!open) { setBusinessDescription(null); setBusinessHook(null); return; }
     const targetId = pageBusinessId || owner?.id;
-    if (!targetId) { setBusinessDescription(null); return; }
+    if (!targetId) { setBusinessDescription(null); setBusinessHook(null); return; }
     let cancelled = false;
     (supabase as any)
       .from("businesses")
-      .select("description, description_fr, description_en, description_ar")
+      .select("description, description_fr, description_en, description_ar, hook_fr, hook_en, hook_ar")
       .eq("id", targetId)
       .maybeSingle()
       .then(({ data }: any) => {
         if (cancelled) return;
         const d: any = data || {};
-        const localized = language === "ar" ? (d.description_ar || d.description_fr || d.description)
+        const localizedDesc = language === "ar" ? (d.description_ar || d.description_fr || d.description)
           : language === "en" ? (d.description_en || d.description_fr || d.description)
           : (d.description_fr || d.description);
-        setBusinessDescription(localized ?? null);
+        const localizedHook = language === "ar" ? (d.hook_ar || d.hook_fr || d.hook)
+          : language === "en" ? (d.hook_en || d.hook_fr || d.hook)
+          : (d.hook_fr || d.hook);
+        setBusinessDescription(localizedDesc ?? null);
+        setBusinessHook(localizedHook ?? null);
       });
     return () => { cancelled = true; };
-  }, [open, owner?.id, pageBusinessId, description, language]);
+  }, [open, owner?.id, pageBusinessId, language]);
 
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
@@ -521,11 +523,27 @@ const VideoSlidePanel = ({
     [ratingRow],
   );
   const feedReviewCount = useMemo(() => (ratingRow ? getTotalReviewCount(ratingRow) : 0), [ratingRow]);
-  // Feed layout : titre + teaser de la barre info (description vidéo, sinon établissement lié)
-  const feedInfoTitle = (description && description.trim())
-    ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
-    : (ctaBusiness?.name || businessName || "");
+  // Feed layout : titre + teaser de la barre info.
+  // Pour les vidéos internes (génériques), on affiche le nom + hook/description
+  // du business, jamais le titre/texte de la vidéo. Pour les autres, le texte de
+  // la vidéo reste prioritaire (comportement historique).
+  const feedInfoTitle = isGeneric
+    ? (ctaBusiness?.name || businessName || "")
+    : (description && description.trim())
+      ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
+      : (ctaBusiness?.name || businessName || "");
   const feedInfoTeaser = useMemo(() => {
+    if (isGeneric) {
+      if (businessHook?.trim()) return businessHook.trim();
+      const plain = (businessDescription || "")
+        .replace(/<[^>]*>/g, " ")
+        .replace(/&nbsp;/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (plain) return plain;
+      if (feedInfoTitle) return buildFallbackTeaser(feedInfoTitle, language);
+      return null;
+    }
     const plain = (effectiveDescription || "")
       .replace(/<[^>]*>/g, " ")
       .replace(/&nbsp;/g, " ")
@@ -534,7 +552,7 @@ const VideoSlidePanel = ({
     if (plain) return plain;
     if (feedInfoTitle) return buildFallbackTeaser(feedInfoTitle, language);
     return null;
-  }, [effectiveDescription, feedInfoTitle, language]);
+  }, [effectiveDescription, businessDescription, businessHook, feedInfoTitle, language, isGeneric]);
 
   // Navigation verticale à la molette / trackpad (desktop) — même effet que le swipe.
   const wheelNav = useRef({ enabled: false, onPrev, onNext, hasPrev, hasNext });
