@@ -162,27 +162,19 @@ export function useGeolocation(): GeolocationState {
   const [neighborhoods, setNeighborhoods] = useState<GeoNeighborhood[]>([]);
   const [isManual, setIsManual] = useState(initial.isManual);
 
-  // Load cities and neighborhoods with coordinates on mount
+  // Load cities and neighborhoods with coordinates on mount.
+  // Référentiels stables : une seule requête par session, partagée entre toutes
+  // les instances du hook (avant : 4 × cities + 4 × neighborhoods au chargement).
   useEffect(() => {
-    supabase
-      .from("cities")
-      .select("name_fr, latitude, longitude")
-      .eq("is_active", true)
-      .not("latitude", "is", null)
-      .not("longitude", "is", null)
-      .then(({ data }) => {
-        if (data) setCities(data as GeoCity[]);
-      });
-
-    supabase
-      .from("neighborhoods")
-      .select("name, latitude, longitude")
-      .not("latitude", "is", null)
-      .not("longitude", "is", null)
-      .then(({ data }) => {
-        if (data) setNeighborhoods(data as GeoNeighborhood[]);
-      });
+    let cancelled = false;
+    void loadGeoRefs().then(({ cities: c, neighborhoods: n }) => {
+      if (cancelled) return;
+      if (c.length) setCities(c);
+      if (n.length) setNeighborhoods(n);
+    });
+    return () => { cancelled = true; };
   }, []);
+
 
   // Restore manual location from localStorage (initial mount + cross-instance sync)
   const hydrateFromStorage = useCallback(() => {
