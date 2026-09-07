@@ -268,6 +268,8 @@ interface BookOnlineSlidePanelProps {
   aiMode?: "business" | "platform";
   /** Désactive le CTA IA de la barre liquid glass du viewer vidéo (parcours assistant IA). */
   aiCtaDisabled?: boolean;
+  /** Le CTA IA ramène vers l'assistant IA déjà ouvert (ferme le panneau). */
+  aiCtaReturnsToAssistant?: boolean;
   /** Auto-opens an overlay as soon as the data is ready (embed usage) */
   initialOverlay?: "poi" | "reviews" | "description";
   /** Fond du squelette de chargement : "dark" pour les contextes sombres (viewer vidéo /front) */
@@ -5732,6 +5734,7 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         selectedBadgeId={props.selectedBadgeId ?? null}
         aiMode={props.aiMode}
         aiCtaDisabled={props.aiCtaDisabled ?? true}
+        aiCtaReturnsToAssistant={props.aiCtaReturnsToAssistant}
         roundedFrame={props.roundedFrame}
       />
     );
