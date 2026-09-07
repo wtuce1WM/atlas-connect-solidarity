@@ -347,16 +347,32 @@ async function fetchDiscoveryPage(
  * Uniquement des Shorts : le feed découverte doit rester portrait sur ses
  * premiers résultats (les vidéos longues sont en 16:9).
  */
-async function fetchRandomYoutubeVideoOf(
-  businessName: string,
-  badgeIds: string[],
-): Promise<BadgeVideoFeedItem | null> {
-  const { data: biz } = await (supabase as any)
+/** Résolution par nom mise en cache : évite de relire la même fiche à chaque relance du feed. */
+const bizByNameCache = new Map<string, Promise<any | null>>();
+function resolveBusinessByName(businessName: string): Promise<any | null> {
+  const key = businessName.trim().toLowerCase();
+  const hit = bizByNameCache.get(key);
+  if (hit) return hit;
+  const p = (supabase as any)
     .from("businesses")
     .select("id, name, logo_url, youtube_url")
     .ilike("name", businessName)
     .limit(1)
-    .maybeSingle();
+    .maybeSingle()
+    .then(({ data }: any) => data || null)
+    .catch(() => {
+      bizByNameCache.delete(key);
+      return null;
+    });
+  bizByNameCache.set(key, p);
+  return p;
+}
+
+async function fetchRandomYoutubeVideoOf(
+  businessName: string,
+  badgeIds: string[],
+): Promise<BadgeVideoFeedItem | null> {
+  const biz = await resolveBusinessByName(businessName);
   if (!biz?.id) return null;
   // Filtre côté serveur sur `badges.is_active_on_front` (équivalent à la liste
   // complète des badges front) : évite d'injecter ~160 UUID dans l'URL.

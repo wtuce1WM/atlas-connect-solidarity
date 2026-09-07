@@ -57,6 +57,8 @@ export type VideoBadgeSource = "business" | "generic" | "youtube";
 
 /** Cache de session : évite de relire les badges d'une vidéo déjà vue (scroll arrière du feed). */
 const videoBadgesCache = new Map<string, VideoChipBadge[]>();
+/** Requêtes en vol : deux composants montés simultanément ne relisent pas la même table. */
+const videoBadgesInflight = new Map<string, Promise<VideoChipBadge[]>>();
 
 /**
  * Lecture des badges d'une vidéo par ID.
@@ -74,7 +76,9 @@ export function useVideoBadges(enabled: boolean, videoId?: string | null, source
       return;
     }
     let cancelled = false;
-    (async () => {
+    const load = (): Promise<VideoChipBadge[]> => {
+      const inflight = videoBadgesInflight.get(cacheKey);
+      if (inflight) return inflight;
       const badgeSelect = "badges!inner(id, name_fr, color_hex, text_color_hex, is_active_on_front)";
       const queries: Promise<any>[] = [];
       if (!source || source === "business") {
@@ -86,20 +90,30 @@ export function useVideoBadges(enabled: boolean, videoId?: string | null, source
       if (!source || source === "youtube") {
         queries.push((supabase as any).from("business_youtube_video_badges").select(badgeSelect).eq("youtube_video_id", videoId));
       }
-      const results = await Promise.all(queries);
-      if (cancelled) return;
-      const out = new Map<string, VideoChipBadge>();
-      for (const res of results) {
-        for (const row of ((res as any)?.data || []) as any[]) {
-          const b = row.badges;
-          if (!b?.id || !b.is_active_on_front) continue;
-          out.set(String(b.id), { id: String(b.id), name: String(b.name_fr || ""), color: b.color_hex ?? null, text_color: b.text_color_hex ?? null });
+      const p = Promise.all(queries).then((results) => {
+        const out = new Map<string, VideoChipBadge>();
+        for (const res of results) {
+          for (const row of ((res as any)?.data || []) as any[]) {
+            const b = row.badges;
+            if (!b?.id || !b.is_active_on_front) continue;
+            out.set(String(b.id), { id: String(b.id), name: String(b.name_fr || ""), color: b.color_hex ?? null, text_color: b.text_color_hex ?? null });
+          }
         }
-      }
-      const badges = Array.from(out.values());
-      videoBadgesCache.set(cacheKey, badges);
+        const badges = Array.from(out.values());
+        videoBadgesCache.set(cacheKey, badges);
+        videoBadgesInflight.delete(cacheKey);
+        return badges;
+      }).catch(() => {
+        videoBadgesInflight.delete(cacheKey);
+        return [] as VideoChipBadge[];
+      });
+      videoBadgesInflight.set(cacheKey, p);
+      return p;
+    };
+    load().then((badges) => {
+      if (cancelled) return;
       setSelfBadges({ videoId: String(videoId), badges });
-    })();
+    });
     return () => { cancelled = true; };
   }, [enabled, videoId, source]);
 
