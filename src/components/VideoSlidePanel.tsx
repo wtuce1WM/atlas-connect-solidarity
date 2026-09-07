@@ -713,7 +713,7 @@ const VideoSlidePanel = ({
       );
     })();
     return () => { cancelled = true; };
-  }, [open, agendaCity]);
+  }, [open, agendaCity, deferredReady]);
 
   const { soundOn, setSoundOn } = useVideoSoundPreference();
   // Lus dans les effets de synchro média SANS les mettre en dépendance : sinon
@@ -753,7 +753,7 @@ const VideoSlidePanel = ({
       }));
     })();
     return () => { cancelled = true; };
-  }, [open, hostBusinessId]);
+  }, [open, hostBusinessId, deferredReady]);
   const hostVideoUrls = useMemo(() => hostVideoDocs.map((d) => d.url as string), [hostVideoDocs]);
   const { mediaItems: hostMediaItems } = useMediaItems(hostBiz, hostVideoUrls, hostVideoDocs);
   const mediaList = useMemo(() => {
