@@ -1045,16 +1045,6 @@ const Club = () => {
                         <p className="text-sm text-destructive">{t.passwordMismatch}</p>
                       )}
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm text-white font-semibold mb-1 block">{t.phoneLabel}</label>
-                          <Input type="tel" value={form.phone} onChange={handleChange("phone")} className="bg-[#BED1FF] text-black" />
-                        </div>
-                        <div>
-                          <label className="text-sm text-white font-semibold mb-1 block">{t.whatsappLabel}</label>
-                          <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-[#BED1FF] text-black" />
-                        </div>
-                      </div>
 
 
                       <p className="text-xs text-white font-semibold mb-2">{t.required}</p>
