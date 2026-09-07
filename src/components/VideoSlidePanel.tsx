@@ -235,10 +235,15 @@ const VideoSlidePanel = ({
 
   /**
    * Source de vérité unique des badges de la vidéo : lecture directe par ID
-   * dans les 3 tables de liaison (hook partagé avec la vue vidéo de la fiche).
+   * dans la table de liaison correspondant à la source (1 requête au lieu de 3).
    * Le prop `feedBadges` ne sert que de repli tant que la lecture n'est pas revenue.
    */
-  const selfBadges = useVideoBadges(open, videoId);
+  const badgeSource = useMemo<"business" | "generic" | "youtube">(() => {
+    if (/(?:youtube\.com|youtu\.be|youtube-nocookie\.com)/i.test(videoUrl || "")) return "youtube";
+    return isGeneric ? "generic" : "business";
+  }, [videoUrl, isGeneric]);
+  const selfBadges = useVideoBadges(open, videoId, badgeSource);
+
   const chipsBadges = useMemo(() => {
     const out = new Map<string, { id: string; name: string; color?: string | null; text_color?: string | null }>();
     for (const badge of feedBadges ?? []) out.set(badge.id, badge);
