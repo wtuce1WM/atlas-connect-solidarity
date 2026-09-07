@@ -75,6 +75,8 @@ IA : business hôte (défaut) ou plateforme 1WM */
   aiMode?: "business" | "platform";
   /** Neutralise le CTA IA de la barre liquid glass (déjà dans l'assistant IA). */
   aiCtaDisabled?: boolean;
+  /** Le CTA IA ramène vers l'assistant IA déjà ouvert. */
+  aiCtaReturnsToAssistant?: boolean;
   /** Coins arrondis (variante /front) */
   roundedFrame?: boolean;
 }
@@ -103,6 +105,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   selectedBadgeId = null,
   aiMode,
   aiCtaDisabled,
+  aiCtaReturnsToAssistant,
   roundedFrame,
 }: Props<T>) {
   const currentIndex = useMemo(
@@ -181,6 +184,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       selectedBadgeId={selectedBadgeId}
       aiMode={aiMode}
       aiCtaDisabled={aiCtaDisabled}
+      aiCtaReturnsToAssistant={aiCtaReturnsToAssistant}
       roundedFrame={roundedFrame}
     />
   );

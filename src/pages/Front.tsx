@@ -1041,6 +1041,7 @@ const Front = () => {
               selectedBadgeId={demoBadgeId}
               aiMode={demoAiMode}
               aiCtaDisabled
+              aiCtaReturnsToAssistant
               roundedFrame
             />
 
