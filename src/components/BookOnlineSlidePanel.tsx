@@ -2268,6 +2268,9 @@ const BookOnlineSlidePanelInner = ({
 
   // Horizontal swipe on media to navigate (replaces left/right chevrons)
   const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  // Après un swipe de navigation (média ou fiche), le clic synthétique iOS ne
+  // doit pas basculer le mode immersion en plus du geste.
+  const suppressTapRef = useRef(false);
   const panelGestureRef = useRef<HTMLDivElement | null>(null);
   // Ignore touches that originate from interactive controls (buttons/links/inputs),
   // otherwise the drag-to-hide re-render swallows the synthetic click on iOS,
@@ -2284,6 +2287,7 @@ const BookOnlineSlidePanelInner = ({
     }
     const t = e.touches[0];
     swipeStartRef.current = { x: t.clientX, y: t.clientY };
+    suppressTapRef.current = false;
     onTouchStart?.(e);
   }, [onTouchStart, anyOverlayOpen]);
   const handleMediaTouchMove = useCallback((e: React.TouchEvent) => {
@@ -2305,6 +2309,7 @@ const BookOnlineSlidePanelInner = ({
       goMedia(dx < 0 ? 1 : -1);
       // Changement de média : geste consommé par la navigation, pas de bascule
       // masquer/afficher des cartes (aligné sur VideoSlidePanel).
+      suppressTapRef.current = true;
       resetDrag();
       return;
     }
@@ -2317,6 +2322,7 @@ const BookOnlineSlidePanelInner = ({
       // Scroll vertical entre résultats : les éléments posés au-dessus du
       // viewer (rail de CTAs, CTAs du header, chevrons, barre info) restent
       // affichés — le geste ne doit JAMAIS déclencher `hideCards`.
+      suppressTapRef.current = true;
       resetDrag();
       return;
     }
