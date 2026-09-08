@@ -1930,11 +1930,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // du 27 septembre au 2 octobre ») → widget de disponibilité + SerpAPI,
     // jamais une liste d'adresses toutes catégories produite par le modèle.
     const freeBookingIntent = !suggestionId && !followupId ? parseBookingIntent(text) : null;
+    // Sans dates, la question hôtelière peut porter des qualificatifs sémantiques
+    // (« un hôtel avec vue sur mer ») : on ne court-circuite pas le moteur, la
+    // question part en recherche et le widget s'affiche sous les cartes.
+    const freeBookingHasDates = !!freeBookingIntent?.checkIn && !!freeBookingIntent?.checkOut;
     const isBookingRequest =
       suggestionId === "8150af31-304b-40af-a638-fe10535a2e15" ||
       isBookingLabel ||
       !!bookingSuggestion ||
-      !!freeBookingIntent;
+      (!!freeBookingIntent && freeBookingHasDates);
     // Suggestion `booking` LIÉE à des sous-catégories : le tour passe par le
     // moteur (route `search_businesses`) pour afficher d'abord les résultats des
     // sous-catégories ; le widget de disponibilité est rendu ensuite, sous les
@@ -1944,6 +1948,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     if (isBookingRequest && bookingWithSubcats) {
       pendingBookingCityRef.current =
         bookingSuggestion?.city || platformCity || businessCity || "Marrakech";
+    }
+    if (freeBookingIntent && !freeBookingHasDates) {
+      pendingBookingCityRef.current =
+        freeBookingIntent.city || platformCity || businessCity || "Marrakech";
     }
     if (isBookingRequest && !bookingWithSubcats) {
       setError(null);
