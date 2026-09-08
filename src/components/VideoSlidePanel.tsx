@@ -323,11 +323,15 @@ const VideoSlidePanel = ({
   // instead of the video title/text. We therefore always load the business hook
   // and description so they are available when isGeneric is true.
   const [businessHook, setBusinessHook] = useState<string | null>(null);
-  /** Établissement résolu depuis la vidéo (repli quand le feed ne le fournit pas). */
-  const [resolvedBusinessId, setResolvedBusinessId] = useState<string | null>(null);
-  const [resolvedBusinessName, setResolvedBusinessName] = useState<string | null>(null);
+  /* Établissement résolu depuis la vidéo, TAGGÉ par l'ID vidéo : au changement
+     de vidéo, la résolution de la vidéo précédente ne doit JAMAIS s'afficher
+     (sinon la barre info montre le business précédent le temps du fetch). */
+  const [resolvedBiz, setResolvedBiz] = useState<{ videoId: string; id: string | null; name: string | null } | null>(null);
+  const videoKey = String(videoId || "");
+  const resolvedBusinessId = resolvedBiz && resolvedBiz.videoId === videoKey ? resolvedBiz.id : null;
+  const resolvedBusinessName = resolvedBiz && resolvedBiz.videoId === videoKey ? resolvedBiz.name : null;
   useEffect(() => {
-    if (!open) { setBusinessDescription(null); setBusinessHook(null); setResolvedBusinessId(null); setResolvedBusinessName(null); return; }
+    if (!open) { setBusinessDescription(null); setBusinessHook(null); setResolvedBiz(null); return; }
     let cancelled = false;
     (async () => {
       /* Repli : quand ni `pageBusinessId` ni `owner` ne sont fournis par le feed,
@@ -340,7 +344,7 @@ const VideoSlidePanel = ({
       }
 
       if (cancelled) return;
-      setResolvedBusinessId(targetId);
+      setResolvedBiz({ videoId: videoKey, id: targetId, name: null });
       if (!targetId) { setBusinessDescription(null); setBusinessHook(null); return; }
       const data: any = await fetchBusinessViewerRow(targetId);
       if (cancelled) return;
@@ -354,10 +358,10 @@ const VideoSlidePanel = ({
 
       setBusinessDescription(localizedDesc ?? null);
       setBusinessHook(localizedHook ?? null);
-      setResolvedBusinessName(d.name ?? null);
+      setResolvedBiz({ videoId: videoKey, id: targetId, name: d.name ?? null });
     })();
     return () => { cancelled = true; };
-  }, [open, owner?.id, pageBusinessId, videoId, language]);
+  }, [open, owner?.id, pageBusinessId, videoId, language, videoKey]);
 
   /* Vidéos génériques / YouTube sans établissement lié : on cherche une entité
      éditoriale liée (Destination ou POI) pour alimenter la barre info.
