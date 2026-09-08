@@ -104,7 +104,10 @@ const MediaViewerInfo = ({
           }
         }}
         onTouchEnd={(e) => {
-          if (moved.current) return; // swipe : ne rien intercepter
+          // Un swipe démarré AILLEURS (vidéo) peut s'achever sur la barre : sans
+          // garde sur touchStart, ce touchend ouvrirait la Full Description.
+          if (!touchStart.current || moved.current) return; // swipe : ne rien intercepter
+          touchStart.current = null;
           e.stopPropagation();
           e.preventDefault();
           open();
