@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo, Suspense } from "react";
-import MediaViewerInfo, { buildFallbackTeaser } from "@/components/slidepanel/MediaViewerInfo";
+import MediaViewerInfo from "@/components/slidepanel/MediaViewerInfo";
 import ViewerInfoBar from "@/components/slidepanel/ViewerInfoBar";
 import FrozenFrameVideo from "@/components/slidepanel/FrozenFrameVideo";
 
@@ -584,25 +584,42 @@ const VideoSlidePanel = ({
   // business, jamais le titre/texte de la vidéo (même si la vidéo en a).
   // Seules les vidéos YouTube conservent le comportement historique.
   const useBusinessInfo = badgeSource !== "youtube";
-  /* Vidéo générique / YouTube sans établissement : l'entité liée (Destination ou
-     POI) fournit le titre et le texte. Sans entité ni texte propre à la vidéo,
-     la barre info n'est pas affichée du tout (seuls les CTAs du bas restent). */
+  /* Vidéo générique / YouTube :
+     - établissement lié → nom + description/hook de l'établissement ;
+     - sinon Destination / POI lié → titre + texte de l'entité ;
+     - sinon, titre/description propres à la vidéo s'ils existent ;
+     - sinon, la barre info n'est pas affichée du tout (seuls les CTAs du bas).
+     Le teaser générique « Cliquez ici… » n'est utilisé que lorsqu'il existe
+     réellement un contenu à afficher dans l'overlay Full Description. */
   const hasBusinessSource = !!(ctaBusiness?.id || resolvedBusinessId);
   const hasVideoOwnText = !!((headerVideoTitle || "").trim() || (description || "").trim());
   const preferEntity = isExternalVideo && !hasBusinessSource && !!linkedEntity;
+  const useVideoOwnText = isExternalVideo && !hasBusinessSource && !linkedEntity && hasVideoOwnText;
   const feedInfoTitle = preferEntity
     ? (linkedEntity?.name || "")
+    : useVideoOwnText
+    ? ((headerVideoTitle || "").trim() || (videoName || "").trim())
     : useBusinessInfo
     ? (ctaBusiness?.name || resolvedBusinessName || businessName || "")
     : (description && description.trim())
       ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
       : (ctaBusiness?.name || businessName || "");
-  const showFeedInfoBar = !isExternalVideo || hasBusinessSource || hasVideoOwnText || !!linkedEntity;
+  /* Le business lié n'a ni description ni hook : l'overlay Full Description
+     n'aurait rien à afficher → la barre info est masquée (résolution terminée
+     uniquement : on attend `resolvedBiz` de CETTE vidéo). */
+  const resolvedBizDone = !!(resolvedBiz && resolvedBiz.videoId === videoKey);
+  const bizHasNoText = resolvedBizDone && !!resolvedBusinessId
+    && !businessDescription && !(businessHook && businessHook.trim());
+  const showFeedInfoBar = (!isExternalVideo || hasBusinessSource || hasVideoOwnText || !!linkedEntity) && !bizHasNoText;
   const feedInfoTeaser = useMemo(() => {
     const clean = (s?: string | null) =>
       (s || "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
     if (preferEntity) {
       return clean(linkedEntity?.description) || clean(linkedEntity?.hook) || null;
+    }
+    /* Vidéo générique/YouTube sans business ni entité : son propre texte. */
+    if (useVideoOwnText) {
+      return clean(description) || clean(headerVideoTitle) || null;
     }
     if (useBusinessInfo) {
       // Priorité : description du business d'abord, hook seulement en repli.
@@ -613,7 +630,8 @@ const VideoSlidePanel = ({
         .trim();
       if (plain) return plain;
       if (businessHook?.trim()) return businessHook.trim();
-      if (feedInfoTitle) return buildFallbackTeaser(feedInfoTitle, language);
+      /* Business lié mais sans description ni hook : l'overlay serait vide →
+         pas de teaser « Cliquez ici… » (la barre est masquée via bizHasNoText). */
       return null;
     }
     const plain = (effectiveDescription || "")
@@ -622,9 +640,10 @@ const VideoSlidePanel = ({
       .replace(/\s+/g, " ")
       .trim();
     if (plain) return plain;
-    if (feedInfoTitle) return buildFallbackTeaser(feedInfoTitle, language);
+    /* YouTube sans description : rien à afficher dans l'overlay → pas de
+       teaser générique. */
     return null;
-  }, [effectiveDescription, businessDescription, businessHook, feedInfoTitle, language, useBusinessInfo, preferEntity, linkedEntity]);
+  }, [effectiveDescription, businessDescription, businessHook, language, useBusinessInfo, preferEntity, linkedEntity, useVideoOwnText, description, headerVideoTitle]);
 
   // Navigation verticale à la molette / trackpad (desktop) — même effet que le swipe.
   const wheelNav = useRef({ enabled: false, onPrev, onNext, hasPrev, hasNext });
