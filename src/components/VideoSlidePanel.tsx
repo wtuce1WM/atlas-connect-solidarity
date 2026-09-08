@@ -574,12 +574,26 @@ const VideoSlidePanel = ({
   // business, jamais le titre/texte de la vidéo (même si la vidéo en a).
   // Seules les vidéos YouTube conservent le comportement historique.
   const useBusinessInfo = badgeSource !== "youtube";
-  const feedInfoTitle = useBusinessInfo
+  /* Vidéo générique / YouTube sans établissement : l'entité liée (Destination ou
+     POI) fournit le titre et le texte. Sans entité ni texte propre à la vidéo,
+     la barre info n'est pas affichée du tout (seuls les CTAs du bas restent). */
+  const hasBusinessSource = !!(ctaBusiness?.id || resolvedBusinessId);
+  const hasVideoOwnText = !!((headerVideoTitle || "").trim() || (description || "").trim());
+  const preferEntity = isExternalVideo && !hasBusinessSource && !!linkedEntity;
+  const feedInfoTitle = preferEntity
+    ? (linkedEntity?.name || "")
+    : useBusinessInfo
     ? (ctaBusiness?.name || resolvedBusinessName || businessName || "")
     : (description && description.trim())
       ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
       : (ctaBusiness?.name || businessName || "");
+  const showFeedInfoBar = !isExternalVideo || hasBusinessSource || hasVideoOwnText || !!linkedEntity;
   const feedInfoTeaser = useMemo(() => {
+    const clean = (s?: string | null) =>
+      (s || "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+    if (preferEntity) {
+      return clean(linkedEntity?.description) || clean(linkedEntity?.hook) || null;
+    }
     if (useBusinessInfo) {
       // Priorité : description du business d'abord, hook seulement en repli.
       const plain = (businessDescription || "")
