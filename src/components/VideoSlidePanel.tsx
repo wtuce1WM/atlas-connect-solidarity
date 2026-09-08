@@ -1961,6 +1961,7 @@ const VideoSlidePanel = ({
                     }}
                   />
                 </ViewerInfoBar>
+                </div>
               )}
 
 
