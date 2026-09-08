@@ -4324,26 +4324,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         )}
         {messages.length > 1 && !streaming && !competitorGuardActive && (
           <>
-            {/* Barre d'actions unique au-dessus du composer :
-                Map / autres résultats / Nouvelle conversation / Filtres. */}
-            <div className="flex items-center gap-2 pb-2 overflow-x-auto scrollbar-hide">
-              {mapReplayTarget && poolInfo.hasGeo && (
-                <button
-                  type="button"
-                  onClick={() => setOpenMap(mapReplayTarget)}
-                  style={{ ...mapBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                  className="text-xs px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-sm shrink-0 hover:opacity-90 transition-opacity"
-                >
-                  <MapPin className="w-3.5 h-3.5" />
-                  {lang === "en" ? "Map" : lang === "ar" ? "الخريطة" : "Map"}
-                </button>
-              )}
+            {/* Barre d'actions au-dessus du composer :
+                - mobile : 2 lignes de 2 CTAs (+ résultats / Filtres | Map / Conversation)
+                - desktop : une ligne horizontale classique. */}
+            <div className="grid grid-cols-2 gap-2 pb-2 md:flex md:items-center md:gap-2 md:overflow-x-auto md:scrollbar-hide">
               {poolRemaining > 0 && (
                 <button
                   type="button"
                   onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
                   style={{ ...moreBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                  className="text-xs px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-sm shrink-0 hover:opacity-90 transition-opacity"
+                  className="text-xs px-3 py-1.5 rounded-full inline-flex items-center justify-center gap-1.5 font-semibold border shadow-sm hover:opacity-90 transition-opacity"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `+${poolRemaining} résultats`}
@@ -4351,18 +4341,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               )}
               <button
                 type="button"
-                onClick={() => startNewConversation(true)}
-                style={{ ...newConvStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                className="text-xs px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 font-semibold border shadow-sm shrink-0 hover:opacity-90 transition-opacity"
-              >
-                <MessageSquarePlus className="w-3.5 h-3.5" />
-                {lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
-              </button>
-              <button
-                type="button"
                 onClick={() => setFiltersOpen(true)}
                 style={AI_NAME_FONT}
-                className="group text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 font-semibold shrink-0 transition-all bg-card text-card-foreground border-border shadow-sm hover:shadow-md hover:border-primary/30 active:scale-95"
+                className="group text-xs px-3 py-1.5 rounded-full border inline-flex items-center justify-center gap-1.5 font-semibold transition-all bg-card text-card-foreground border-border shadow-sm hover:shadow-md hover:border-primary/30 active:scale-95"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
                 {lang === "en" ? "Filters" : lang === "ar" ? "تصفية" : "Filtres"}
@@ -4371,6 +4352,26 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     {filterCount}
                   </span>
                 )}
+              </button>
+              {mapReplayTarget && poolInfo.hasGeo && (
+                <button
+                  type="button"
+                  onClick={() => setOpenMap(mapReplayTarget)}
+                  style={{ ...mapBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                  className="text-xs px-3 py-1.5 rounded-full inline-flex items-center justify-center gap-1.5 font-semibold border shadow-sm hover:opacity-90 transition-opacity"
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  {lang === "en" ? "Map" : lang === "ar" ? "الخريطة" : "Map"}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => startNewConversation(true)}
+                style={{ ...newConvStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                className="text-xs px-3 py-1.5 rounded-full inline-flex items-center justify-center gap-1.5 font-semibold border shadow-sm hover:opacity-90 transition-opacity"
+              >
+                <MessageSquarePlus className="w-3.5 h-3.5" />
+                {lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Conversation"}
               </button>
             </div>
 
