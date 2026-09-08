@@ -32,6 +32,8 @@ interface Props {
   micReady?: boolean;
   /** Override de la couleur du texte (ex: "text-white" sur fond sombre). */
   textClassName?: string;
+  /** Mode plein écran : répartit le texte et l'animation sur toute la hauteur. */
+  fullScreen?: boolean;
 }
 
 const ACCENT = "#194CFF";
