@@ -476,6 +476,51 @@ Deno.serve(async (req) => {
   }
 
   const userMessage = textOf([...uiMessages].reverse().find((m: any) => m?.role === "user") as UIMessage) || "";
+
+  /**
+   * PRÉ-VOL FEED VIDÉO (`feedPreflight: true`) : aucune génération, aucun token.
+   * Même source de vérité que les routes du tour normal
+   * (`matchFrontBadgesInMessage` + `loadBadgeVideoFeedPool` + paliers), afin que
+   * le front puisse ouvrir VideoSlidePanel AVANT la réponse IA, partout.
+   */
+  if (body.feedPreflight === true) {
+    try {
+      const feedBadges = await matchFrontBadgesInMessage(admin, userMessage, lang as any, 3);
+      if (!feedBadges.length) {
+        return new Response(JSON.stringify({ feed: null }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const feedBadgeIds = feedBadges.map((b) => b.id);
+      const pool = await loadBadgeVideoFeedPool(admin, {
+        badgeIds: feedBadgeIds,
+        city: activeCity || null,
+      }).catch(() => null);
+      const tiered = pool ? orderVideosByBadgeTiers(pool.videos, feedBadgeIds).slice(0, 60) : [];
+      console.log("[embed-ai-chat-v2] feed_preflight", JSON.stringify({
+        badges: feedBadges.map((b) => b.name), emitted: tiered.length,
+      }));
+      return new Response(
+        JSON.stringify({
+          feed: tiered.length
+            ? {
+                title: feedBadges.map((b) => b.name).join(" · "),
+                videos: tiered,
+                total: pool?.total ?? tiered.length,
+                badgeIds: feedBadgeIds,
+                seed: pool?.seed ?? null,
+              }
+            : null,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    } catch (e) {
+      console.error("[embed-ai-chat-v2] feed_preflight_failed", String(e));
+      return new Response(JSON.stringify({ feed: null }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+  }
   /** Résultats du DERNIER tour uniquement : base de tous les filtres locaux. */
   const priorIds = priorBusinessIds(uiMessages, true);
   /** Cumul du fil : sert seulement à ne pas re-montrer une fiche déjà vue. */

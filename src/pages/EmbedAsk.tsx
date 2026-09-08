@@ -2025,17 +2025,22 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // active part seulement en CONTEXTE (`contextSuggestionId`), que le moteur
     // n'exploite que si la relance ne fait que changer de ville — le périmètre
     // badge de la suggestion est alors conservé.
-    sendMessage(
-      { text },
-      {
-        body: {
-          suggestionId: effectiveSuggestionId,
-          followupId: followupId || null,
-          scope: null,
-          contextSuggestionId: effectiveSuggestionId ? null : contextSuggestionId,
+    const fire = () =>
+      sendMessage(
+        { text },
+        {
+          body: {
+            suggestionId: effectiveSuggestionId,
+            followupId: followupId || null,
+            scope: null,
+            contextSuggestionId: effectiveSuggestionId ? null : contextSuggestionId,
+          },
         },
-      },
-    );
+      );
+    // Le lecteur vidéo passe TOUJOURS avant la réponse IA : pré-vol serveur sans
+    // modèle (mêmes badges, même pool, mêmes paliers que le tour normal). S'il
+    // renvoie un feed, VideoSlidePanel s'ouvre d'abord, puis la question part.
+    void openPreflightBadgeFeed(text).finally(fire);
   };
 
   /**
@@ -2290,6 +2295,63 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     } catch { /* best-effort : le marqueur VIDEO_FEED du stream reste le filet */ }
     return false;
   }, []);
+
+  /**
+   * PRÉ-VOL : le lecteur vidéo s'ouvre AVANT la réponse IA, pour toute question
+   * (texte libre, vocal, relance). Aucun nouveau moteur : la fonction
+   * `embed-ai-chat-v2` répond en mode `feedPreflight` avec les MÊMES badges,
+   * le MÊME pool et les MÊMES paliers que le tour normal, sans appel modèle.
+   * Le marqueur VIDEO_FEED du stream reste le filet (aucune réouverture).
+   */
+  const openPreflightBadgeFeed = useCallback(async (text: string): Promise<boolean> => {
+    if (!text?.trim()) return false;
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat-v2`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            feedPreflight: true,
+            messages: [{ id: `pf-${Date.now()}`, role: "user", parts: [{ type: "text", text }] }],
+            businessSlug: slug,
+            platform: isPlatform || undefined,
+            surface: isClubScope ? "club" : undefined,
+            activeCity: isPlatform ? platformCity : undefined,
+            language: lang,
+          }),
+        },
+      );
+      if (!res.ok) return false;
+      const json = await res.json().catch(() => null);
+      const feed = json?.feed;
+      if (!feed?.videos?.length) return false;
+      earlyFeedOpenRef.current = true;
+      setVideoFeedList(feed.videos);
+      setVideoFeedCtx(
+        feed.badgeIds?.length && feed.seed
+          ? { badgeIds: feed.badgeIds, seed: feed.seed, total: Number(feed.total ?? feed.videos.length) }
+          : null,
+      );
+      feedLoadingMoreRef.current = false;
+      setFeedVideoTime(0);
+      setActiveFeedVideoId(feed.videos[0].id);
+      preloadFirstFeedMedia(feed.videos[0]);
+      for (const v of feed.videos.slice(1, 3)) {
+        try {
+          const thumb = (v as any).thumbnail_url || (v as any).thumbnail;
+          if (thumb) { const img = new Image(); img.src = String(thumb); }
+        } catch { /* best-effort */ }
+      }
+      return true;
+    } catch { /* best-effort : le marqueur VIDEO_FEED du stream reste le filet */ }
+    return false;
+  }, [slug, isPlatform, isClubScope, platformCity, lang]);
+
 
   /**
    * Suggestions « FEED PUR » (périmètre strict : « Vie pratique ») : aucune
