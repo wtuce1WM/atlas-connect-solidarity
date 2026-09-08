@@ -11,7 +11,7 @@ import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 import { supabase } from "@/integrations/supabase/client";
 import { fetchBusinessViewerRow } from "@/lib/businessRowCache";
-import { resolveVideoBusinessId } from "@/lib/videoBusinessResolver";
+import { resolveVideoBusinessId, resolveVideoLinkedEntity } from "@/lib/videoBusinessResolver";
 import { useDeferredAfterVideo } from "@/hooks/useDeferredAfterVideo";
 
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -359,6 +359,41 @@ const VideoSlidePanel = ({
     return () => { cancelled = true; };
   }, [open, owner?.id, pageBusinessId, videoId, language]);
 
+  /* Vidéos génériques / YouTube sans établissement lié : on cherche une entité
+     éditoriale liée (Destination ou POI) pour alimenter la barre info.
+     Sans entité ET sans titre/description de la vidéo, la barre est masquée. */
+  const isExternalVideo = badgeSource !== "business";
+  const [linkedEntity, setLinkedEntity] = useState<{ name: string; hook: string | null; description: string | null } | null>(null);
+  useEffect(() => {
+    if (!open || !videoId || !isExternalVideo || resolvedBusinessId) { setLinkedEntity(null); return; }
+    let cancelled = false;
+    (async () => {
+      const entity = await resolveVideoLinkedEntity(String(videoId));
+      if (cancelled) return;
+      if (!entity) { setLinkedEntity(null); return; }
+      const isDest = entity.kind === "destination";
+      const table = isDest ? "destinations" : "points_of_interest";
+      /* points_of_interest n'a que `hook` (pas de hook_fr/en/ar). */
+      const cols = isDest
+        ? "name_fr, name_en, name_ar, hook, hook_fr, hook_en, hook_ar, description, description_fr, description_en, description_ar"
+        : "name_fr, name_en, name_ar, hook, description, description_fr, description_en, description_ar";
+      const { data } = await (supabase as any)
+        .from(table)
+        .select(cols)
+        .eq("id", entity.id)
+        .maybeSingle();
+      if (cancelled || !data) { setLinkedEntity(null); return; }
+      const d: any = data;
+      const name = (language === "ar" ? d.name_ar : language === "en" ? d.name_en : null) || d.name_fr || "";
+      const hook = (language === "ar" ? d.hook_ar : language === "en" ? d.hook_en : null) || d.hook_fr || d.hook || null;
+      const description = (language === "ar" ? d.description_ar : language === "en" ? d.description_en : null)
+        || d.description_fr || d.description || null;
+      setLinkedEntity(name ? { name, hook, description } : null);
+    })();
+    return () => { cancelled = true; };
+  }, [open, videoId, isExternalVideo, resolvedBusinessId, language]);
+
+
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
@@ -431,7 +466,7 @@ const VideoSlidePanel = ({
     ? description
     : (eventId && eventInfo?.description && eventInfo.description.trim())
       ? eventInfo.description
-      : businessDescription;
+      : (businessDescription || linkedEntity?.description || linkedEntity?.hook || null);
 
   // Resolve a business for the CTA bar:
   // - If `eventId` is set, take the first linked business via event_businesses (eventBusiness).
@@ -539,12 +574,26 @@ const VideoSlidePanel = ({
   // business, jamais le titre/texte de la vidéo (même si la vidéo en a).
   // Seules les vidéos YouTube conservent le comportement historique.
   const useBusinessInfo = badgeSource !== "youtube";
-  const feedInfoTitle = useBusinessInfo
+  /* Vidéo générique / YouTube sans établissement : l'entité liée (Destination ou
+     POI) fournit le titre et le texte. Sans entité ni texte propre à la vidéo,
+     la barre info n'est pas affichée du tout (seuls les CTAs du bas restent). */
+  const hasBusinessSource = !!(ctaBusiness?.id || resolvedBusinessId);
+  const hasVideoOwnText = !!((headerVideoTitle || "").trim() || (description || "").trim());
+  const preferEntity = isExternalVideo && !hasBusinessSource && !!linkedEntity;
+  const feedInfoTitle = preferEntity
+    ? (linkedEntity?.name || "")
+    : useBusinessInfo
     ? (ctaBusiness?.name || resolvedBusinessName || businessName || "")
     : (description && description.trim())
       ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
       : (ctaBusiness?.name || businessName || "");
+  const showFeedInfoBar = !isExternalVideo || hasBusinessSource || hasVideoOwnText || !!linkedEntity;
   const feedInfoTeaser = useMemo(() => {
+    const clean = (s?: string | null) =>
+      (s || "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+    if (preferEntity) {
+      return clean(linkedEntity?.description) || clean(linkedEntity?.hook) || null;
+    }
     if (useBusinessInfo) {
       // Priorité : description du business d'abord, hook seulement en repli.
       const plain = (businessDescription || "")
@@ -565,7 +614,7 @@ const VideoSlidePanel = ({
     if (plain) return plain;
     if (feedInfoTitle) return buildFallbackTeaser(feedInfoTitle, language);
     return null;
-  }, [effectiveDescription, businessDescription, businessHook, feedInfoTitle, language, useBusinessInfo]);
+  }, [effectiveDescription, businessDescription, businessHook, feedInfoTitle, language, useBusinessInfo, preferEntity, linkedEntity]);
 
   // Navigation verticale à la molette / trackpad (desktop) — même effet que le swipe.
   const wheelNav = useRef({ enabled: false, onPrev, onNext, hasPrev, hasNext });
@@ -1848,7 +1897,7 @@ const VideoSlidePanel = ({
                 return null;
               })()}
               {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer */}
-              {feedLayout && !chipsExpanded && (feedInfoTitle || feedInfoTeaser) && (
+              {feedLayout && !chipsExpanded && showFeedInfoBar && (feedInfoTitle || feedInfoTeaser) && (
                 <ViewerInfoBar>
                   <MediaViewerInfo
                     name={feedInfoTitle}
@@ -1861,7 +1910,10 @@ const VideoSlidePanel = ({
                     bare
                     onOpen={(rect) => {
                       // Sans exception : la barre info ouvre la Full Description.
-                      const targetId = ctaBusiness?.id || pageBusinessId || owner?.id || resolvedBusinessId;
+                      // Entité liée (Destination / POI) : overlay local avec son texte.
+                      const targetId = preferEntity
+                        ? null
+                        : (ctaBusiness?.id || pageBusinessId || owner?.id || resolvedBusinessId);
                       if (targetId) { setNestedOverlayKind("description"); setDescBusinessId(String(targetId)); return; }
                       startDescMorph(rect);
                     }}
