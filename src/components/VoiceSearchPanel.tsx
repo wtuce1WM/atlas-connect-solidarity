@@ -77,14 +77,16 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
     ? L.waitSignal
     : L.speakNow;
   return (
-    <div className={`w-full flex flex-col gap-6 py-6 ${isStart ? "items-start" : "items-center"}`}>
+    <div
+      className={`w-full flex flex-col ${fullScreen ? "h-full justify-evenly gap-4 py-4 md:py-8" : "gap-6 py-6"} ${isStart ? "items-start" : "items-center"}`}
+    >
       {/* Transcript / hint */}
       {liveTranscript ? (
-        <p className={`text-xl md:text-2xl ${textColor} font-semibold leading-relaxed max-w-2xl px-4 ${isStart ? "text-left" : "text-center"}`}>
+        <p className={`${fullScreen ? "text-2xl md:text-3xl" : "text-xl md:text-2xl"} ${textColor} font-semibold leading-relaxed max-w-2xl px-4 ${isStart ? "text-left" : "text-center"}`}>
           {liveTranscript}
         </p>
       ) : (
-        <p className={`text-lg md:text-xl ${textColor} font-semibold ${isStart ? "text-left" : "text-center"}`}>
+        <p className={`${fullScreen ? "text-xl md:text-2xl" : "text-lg md:text-xl"} ${textColor} font-semibold px-4 ${isStart ? "text-left" : "text-center"}`}>
           {hint}
         </p>
       )}
@@ -96,7 +98,7 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
         <div
           className="absolute rounded-full pointer-events-none transition-transform duration-75 ease-out"
           style={{
-            inset: "-12px",
+            inset: fullScreen ? "-18px" : "-12px",
             transform: `scale(${1 + audioLevel * 0.9})`,
             background: `radial-gradient(circle, ${ACCENT}${Math.round(20 + audioLevel * 60).toString(16).padStart(2, "0")} 0%, transparent 70%)`,
             border: `2px solid ${ACCENT}${Math.round(60 + audioLevel * 180).toString(16).padStart(2, "0").slice(0, 2)}`,
@@ -107,7 +109,7 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
         <div
           className={`absolute rounded-full pointer-events-none backdrop-blur-2xl backdrop-saturate-150 ${stopping ? "" : "animate-ping"}`}
           style={{
-            inset: "-28px",
+            inset: fullScreen ? "-40px" : "-28px",
             background: `radial-gradient(circle, ${ACCENT}15 0%, transparent 70%)`,
             border: `1px solid ${ACCENT}30`,
             boxShadow: `inset 0 1px 0 rgba(255,255,255,0.4), 0 8px 32px ${ACCENT}20`,
@@ -116,21 +118,21 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
         />
         {/* Mid pulse glass ring */}
         <div
-          className="absolute rounded-full animate-pulse pointer-events-none backdrop-blur-xl"
+          className={`absolute rounded-full pointer-events-none backdrop-blur-xl ${stopping ? "" : "animate-pulse"}`}
           style={{
-            inset: "-18px",
+            inset: fullScreen ? "-26px" : "-18px",
             background: `linear-gradient(135deg, rgba(255,255,255,0.15), ${ACCENT}10)`,
             border: `1px solid rgba(255,255,255,0.25)`,
             boxShadow: `inset 0 1px 0 rgba(255,255,255,0.35)`,
           }}
         />
-        {/* Rotating conic accent */}
+        {/* Rotating conic accent — figé quand la recherche est lancée */}
         <div
           className="absolute rounded-full pointer-events-none"
           style={{
-            inset: "-8px",
+            inset: fullScreen ? "-12px" : "-8px",
             background: `conic-gradient(from 0deg, transparent 0%, ${ACCENT} 35%, ${ACCENT}80 50%, transparent 70%)`,
-            animation: "spin 2s linear infinite",
+            animation: stopping ? "none" : "spin 2s linear infinite",
             filter: "blur(0.5px)",
           }}
         />
@@ -138,12 +140,12 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
         <button
           type="button"
           onClick={() => {
-            // Gel immédiat des anneaux animés dès le tap utilisateur.
+            // Gel immédiat de tous les anneaux animés dès le tap utilisateur.
             if (!stopping) setStopping(true);
             if (onFinish) onFinish();
             else onClose();
           }}
-          className="relative w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/30 transition-transform hover:scale-105"
+          className={`relative rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/30 transition-transform hover:scale-105 ${fullScreen ? "w-24 h-24 md:w-32 md:h-32" : "w-16 h-16 md:w-20 md:h-20"}`}
           style={{
             background: `linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08))`,
             boxShadow: `0 8px 32px ${ACCENT}30, inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.1)`,
@@ -156,12 +158,12 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
               background: `linear-gradient(160deg, rgba(255,255,255,0.4) 0%, transparent 45%)`,
             }}
           />
-          <Mic className="relative h-7 w-7 md:h-8 md:w-8" style={{ color: ACCENT }} />
+          <Mic className={`relative ${fullScreen ? "h-10 w-10 md:h-12 md:w-12" : "h-7 w-7 md:h-8 md:w-8"}`} style={{ color: ACCENT }} />
         </button>
       </div>
 
 
-      <p className={`text-base md:text-lg ${textColor} font-bold px-4 ${isStart ? "text-left" : "text-center"}`}>
+      <p className={`${fullScreen ? "text-lg md:text-xl" : "text-base md:text-lg"} ${textColor} font-bold px-4 ${isStart ? "text-left" : "text-center"}`}>
         {L.hintLine1}<br />{L.hintLine2}
       </p>
     </div>
