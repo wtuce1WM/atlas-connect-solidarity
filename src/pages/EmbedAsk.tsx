@@ -3373,6 +3373,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   onFinish={voice.finishRecording}
                   textClassName="text-white"
                   align="center"
+                  fullScreen
                 />
               </div>
             ) : (
