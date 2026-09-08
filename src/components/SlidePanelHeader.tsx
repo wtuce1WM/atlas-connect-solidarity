@@ -40,8 +40,8 @@ const SlidePanelHeader = ({
   const closeStyle = closeVariant === "dark" ? { backgroundColor: "#F1F1F1" } : undefined;
 
   const baseClass = alwaysDark
-    // min(inset, 8px) = 0 en preview (pas d'encoche), ~8px de marge plancher sur iPhone à encoche
-    ? "absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-2 bg-transparent z-[75] overflow-visible pt-[calc(0.5rem+env(safe-area-inset-top)+min(env(safe-area-inset-top),8px))]"
+    // min(inset, 12px) = 0 en preview (pas d'encoche), ~12px de marge plancher sur iPhone à encoche
+    ? "absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-2 bg-transparent z-[75] overflow-visible pt-[calc(0.5rem+env(safe-area-inset-top)+min(env(safe-area-inset-top),12px))]"
     : mobileTransparent
     ? "absolute top-0 left-0 right-0 lg:relative flex items-center justify-between px-4 py-2 bg-transparent lg:bg-card lg:border-b lg:border-border z-[75] overflow-visible"
     : "shrink-0 flex items-center justify-between px-4 py-2 bg-card border-b border-border z-[75] relative overflow-visible";
