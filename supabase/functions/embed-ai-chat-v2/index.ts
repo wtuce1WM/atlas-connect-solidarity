@@ -1893,7 +1893,11 @@ Deno.serve(async (req) => {
                     droppedSynonym = true;
                   }
                 }
-                if (feedBadges.length >= 2 || (droppedSynonym && feedBadges.length >= 1)) {
+                // Seuil abaissé à UN badge : « montre-moi des vidéos de surf » ⇒ feed
+                // mono-badge. Quand plusieurs badges sont nommés, les paliers
+                // d'intersection (`orderVideosByBadgeTiers`) placent d'abord les vidéos
+                // portant TOUS les badges : plus de badges = résultats plus précis.
+                if (feedBadges.length >= 1) {
                   const feedBadgeIds = feedBadges.map((b) => b.id);
                   const pool = await loadBadgeVideoFeedPool(admin, {
                     badgeIds: feedBadgeIds, city: badgeCity || null,
