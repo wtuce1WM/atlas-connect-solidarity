@@ -333,38 +333,6 @@ const Front = () => {
   // La démo /front passe directement sur l'assistant IA plateforme 1WM.
   const [demoAiMode, setDemoAiMode] = useState<"business" | "platform">("platform");
 
-  // Pause/play de la vidéo de fond synchronisé avec l'ouverture/fermeture du
-  // viewer vidéo de la démo (animation de disparition du Hero).
-  useEffect(() => {
-    const demoOpen = !!(demoIntro || demoActiveId || demoCardsOnly);
-    demoOpenRef.current = demoOpen;
-    const video = backgroundVideoRef.current;
-    // Pause aussi quand l'assistant IA est en conversation ou a un panneau ouvert,
-    // même si le feed vidéo de démo vient d'être fermé.
-    if (demoOpen || conversationOpen || askPanelOpen) {
-      video?.pause();
-      if (video) video.muted = true;
-      return;
-    }
-    // Démo fermée : aucun média autre que le fond ne doit continuer à jouer.
-    // Balayage de sécurité (double buffer démonté tardivement, buffer caché, etc.)
-    // + libération de la source pour rendre la RAM/le réseau à l'utilisateur.
-    const sweep = () => {
-      document.querySelectorAll("video, audio").forEach((el) => {
-        const m = el as HTMLMediaElement;
-        if (m === video) return;
-        try {
-          m.pause();
-          m.muted = true;
-          if (m.getAttribute("src")) { m.removeAttribute("src"); m.load(); }
-        } catch { /* ignore */ }
-      });
-    };
-    sweep();
-    const t = window.setTimeout(sweep, 400);
-    if (video) void video.play().catch(() => undefined);
-    return () => window.clearTimeout(t);
-  }, [demoIntro, demoActiveId, demoCardsOnly, isPortrait, conversationOpen, askPanelOpen]);
 
   // Onglet en arrière-plan : on met tout en pause (aucun son, aucun décodage inutile).
   // Au retour, on relance ce qu'on a mis en pause soi-même (viewer vidéo compris),
