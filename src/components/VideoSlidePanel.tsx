@@ -1191,7 +1191,9 @@ const VideoSlidePanel = ({
     swipeStartY.current = null;
     swipeStartX.current = null;
     swipeHandled.current = false;
+    swipeStartedInteractive.current = false;
   };
+
 
   // Un geste démarré sur un contrôle (Play/Mute liquid glass, CTA, lien) n'est
   // jamais une navigation swipe : aligné sur BookOnlineSlidePanel
