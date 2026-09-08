@@ -915,6 +915,10 @@ const VideoSlidePanel = ({
   }, [open]);
   const viewUrl = activeMedia?.kind === "video" ? (activeMedia.url as string) : videoUrl;
   const [navPillExpanded, setNavPillExpanded] = useState(false);
+  /** Mode « immersion » : tap dans la zone médiane → chips, badge social,
+      barre info et CTAs du bas masqués, pilule de chevrons dépliée.
+      Seuls les CTAs du header restent visibles. Nouveau tap → tout réapparaît. */
+  const [chromeHidden, setChromeHidden] = useState(false);
   const navPillRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!navPillExpanded) return;
@@ -1556,6 +1560,21 @@ const VideoSlidePanel = ({
         })()}
 
 
+        {/* Zone de bascule « immersion » : tap entre les chips (sous le header)
+            et le logo social → masque chips, badge social/Follow, barre info et
+            les 5 CTAs du bas ; les chevrons de droite se déplient. Nouveau tap →
+            tout réapparaît. z bas : le rail, la pilule, les chips et le bloc prix
+            restent au-dessus et cliquables. */}
+        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
+          <button
+            type="button"
+            aria-label={chromeHidden ? "Réafficher les informations" : "Masquer les informations"}
+            onClick={() => setChromeHidden((v) => !v)}
+            className="absolute inset-x-0 top-[110px] bottom-[190px] lg:top-[120px] lg:bottom-[210px] z-[15] bg-transparent border-0 p-0"
+          />
+        )}
+
+
         {/* Pilule 4 chevrons repliable — identique à BookOnlineSlidePanel */}
         {(hasPrev || hasNext || totalMedia > 1) && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && (
@@ -1563,9 +1582,9 @@ const VideoSlidePanel = ({
             ref={navPillRef}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center rounded-l-full border border-r-0 border-white/10 bg-black/80 backdrop-blur-md shadow-[-4px_4px_12px_rgba(0,0,0,0.3)] py-1 px-1 pointer-events-auto transition-all duration-300"
             onMouseOver={() => setNavPillExpanded(true)}
-            onMouseLeave={() => setNavPillExpanded(false)}
+            onMouseLeave={() => { if (!chromeHidden) setNavPillExpanded(false); }}
           >
-            {!navPillExpanded ? (
+            {!(navPillExpanded || chromeHidden) ? (
               <button
                 type="button"
                 data-cta-tap
@@ -1634,7 +1653,7 @@ const VideoSlidePanel = ({
             Colonne 2 : badges effectivement liés à la vidéo, le premier en #C04F17.
             Colonne 3 : villes fixes Marrakech / Essaouira pour changer de feed.
             Clic sur un chip → relance le feed sur ce badge/ville. */}
-        {(feedLayout || (chipsBadges?.length ?? 0) > 0) && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
+        {(feedLayout || (chipsBadges?.length ?? 0) > 0) && !chromeHidden && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen
           && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && !clubPopupOpen && !timelineClubOpen && (
           <VideoBadgeChips
             badges={chipsBadges}
@@ -1886,12 +1905,12 @@ const VideoSlidePanel = ({
             {/* Pas de px-4 ici : la marge latérale de la barre info viewer est portée
                 par ViewerInfoBar (source unique partagée avec BookOnlineSlidePanel). */}
             <div className="fixed lg:absolute inset-x-0 bottom-[calc(96px+env(safe-area-inset-bottom))] lg:bottom-[5.5rem] z-30 flex flex-col items-center justify-end gap-3 pointer-events-none">
-              {compactBusinessHeader && (
+              {compactBusinessHeader && !chromeHidden && (
                 <YouTubeIcon className="h-16 w-16 text-red-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />
               )}
               {/* Bloc crédit unifié — priorité : social > owner > eventBusiness (mutuellement exclusifs) */}
               {(() => {
-                if (chipsExpanded) return null;
+                if (chipsExpanded || chromeHidden) return null;
                 if (visibleSocial) {
                   return (
                     <VideoSocialBadge
@@ -1976,11 +1995,11 @@ const VideoSlidePanel = ({
                 <div
                   className="w-full flex flex-col items-center justify-end"
                   style={
-                    showFeedInfoBar && (feedInfoTitle || feedInfoTeaser)
+                    showFeedInfoBar && !chromeHidden && (feedInfoTitle || feedInfoTeaser)
                       ? undefined
                       : { visibility: "hidden", pointerEvents: "none" }
                   }
-                  aria-hidden={!(showFeedInfoBar && (feedInfoTitle || feedInfoTeaser))}
+                  aria-hidden={!(showFeedInfoBar && !chromeHidden && (feedInfoTitle || feedInfoTeaser))}
                 >
                 <ViewerInfoBar>
                   <MediaViewerInfo
@@ -2040,7 +2059,13 @@ const VideoSlidePanel = ({
                 </div>
               )}
             </div>
-            <div className="absolute pointer-events-none bottom-0 left-1/2 -translate-x-1/2 w-[96%] sm:w-[94%] max-w-[540px] z-[85]">
+            {/* Les 5 CTAs du bas restent montés (pas de « reload » visuel) :
+                en mode immersion on les masque par visibility, comme la barre info. */}
+            <div
+              className="absolute pointer-events-none bottom-0 left-1/2 -translate-x-1/2 w-[96%] sm:w-[94%] max-w-[540px] z-[85]"
+              style={chromeHidden ? { visibility: "hidden" } : undefined}
+              aria-hidden={chromeHidden || undefined}
+            >
               <div className="relative w-full h-full pointer-events-auto">
                 <PanelSearchBar
                   {...VIEWER_BAR_LAYOUT}

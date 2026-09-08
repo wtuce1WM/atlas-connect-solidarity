@@ -345,10 +345,15 @@ const BookOnlineSlidePanelInner = ({
   useEffect(() => { setActiveBusinessIdRaw(propBusinessId); setPreviousBusinessId(null); setSerpApiOverlayCtx(null); setCameFromFallback(false); }, [propBusinessId]);
   const businessId = activeBusinessId;
   const [cameFromFallback, setCameFromFallback] = useState(false);
+  /** Mode « immersion » activé par le tap sur la zone médiane (en plus du
+      masquage des cartes) : chips, badge social, barre info et CTAs du bas
+      masqués, pilule de chevrons dépliée. Réservé au tap — les autres
+      déclencheurs de cardsHidden (disponibilités hôtel, swipe…) n'y touchent pas. */
+  const [chromeHidden, setChromeHidden] = useState(false);
   const [navPillExpanded, setNavPillExpanded] = useState(false);
   const navPillRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!navPillExpanded) return;
+    if (!navPillExpanded || chromeHidden) return;
     const close = (e: PointerEvent | MouseEvent | TouchEvent) => {
       const target = "target" in e ? (e.target as Node) : null;
       if (navPillRef.current && target && !navPillRef.current.contains(target)) {
@@ -1413,6 +1418,8 @@ const BookOnlineSlidePanelInner = ({
   } = useDragToHide();
   useEffect(() => { hideCardsRef.current = hideCards; }, [hideCards]);
   useEffect(() => { currentCardsHiddenRef.current = cardsHidden; }, [cardsHidden]);
+  // Réaffichage des cartes (quel qu'en soit le déclencheur) → sort aussi du mode immersion.
+  useEffect(() => { if (!cardsHidden) setChromeHidden(false); }, [cardsHidden]);
   useEffect(() => {
     if (cardsHidden) setMatterportPinnedInHiddenMode(true);
   }, [cardsHidden, businessId]);
@@ -2904,15 +2911,16 @@ const BookOnlineSlidePanelInner = ({
 
       )}
 
-      {/* Pilule chevrons — compacte à l'ouverture, déplie au hover/tap */}
-      {!cardsHidden && !showPoiMapOverlay && !showDirections && (effectiveHasPrev || effectiveHasNext || totalMedia > 1) && (
+      {/* Pilule chevrons — compacte à l'ouverture, déplie au hover/tap.
+          En mode immersion (chromeHidden) : rendue et dépliée en permanence. */}
+      {(!cardsHidden || chromeHidden) && !showPoiMapOverlay && !showDirections && (effectiveHasPrev || effectiveHasNext || totalMedia > 1) && (
         <div
           ref={navPillRef}
           className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center rounded-l-full border border-r-0 border-white/10 bg-black/80 backdrop-blur-md shadow-[-4px_4px_12px_rgba(0,0,0,0.3)] py-1 px-1 pointer-events-auto transition-all duration-300"
           onMouseOver={() => setNavPillExpanded(true)}
-          onMouseLeave={() => setNavPillExpanded(false)}
+          onMouseLeave={() => { if (!chromeHidden) setNavPillExpanded(false); }}
         >
-          {!navPillExpanded ? (
+          {!(navPillExpanded || chromeHidden) ? (
             <button
               type="button"
               data-cta-tap
@@ -2988,21 +2996,12 @@ const BookOnlineSlidePanelInner = ({
         onTouchStart={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchStart}
         onTouchMove={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchMove}
         onTouchEnd={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchEnd}
-        // Tap sur la zone média vide → masquer / afficher (remplace le Toggle)
+        // Tap sur la zone médiane → masquer / afficher les cartes ET le chrome
+        // (chips, badge social, barre info, CTAs du bas) ; chevrons dépliés.
         onClick={(e) => {
           if (externalVideoInteractiveMode) return;
           if (e.target !== e.currentTarget) return;
-          // Mobile : tap au centre de la vidéo de fond → plein écran natif
-          if (effectiveMedia?.kind === "video" && window.matchMedia("(max-width: 767px)").matches) {
-            const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
-            const x = (e.clientX - r.left) / r.width;
-            const y = (e.clientY - r.top) / r.height;
-            if (x > 0.3 && x < 0.7 && y > 0.3 && y < 0.7) {
-              expandBackgroundVideo();
-              return;
-            }
-          }
-          if (cardsHidden) showCards(); else hideCards();
+          if (cardsHidden) { showCards(); } else { hideCards(); setChromeHidden(true); }
 
         }}
 
@@ -3087,7 +3086,7 @@ const BookOnlineSlidePanelInner = ({
         </div>
 
         {/* Badge social de la vidéo courante (logo plateforme + Follow @compte) */}
-        {effectiveMedia?.kind === "video" && (
+        {effectiveMedia?.kind === "video" && !chromeHidden && (
           <VideoSocialBadge
             social={getVideoSocial(videoDocs.find((d) => d.url === effectiveMedia?.url))}
             animKey={`${currentMediaIndex}-${effectiveMedia?.url || ""}`}
@@ -3194,7 +3193,7 @@ const BookOnlineSlidePanelInner = ({
           hideDirections={true}
           hideSecondaryCtas={hideSecondaryCtas}
           aiOverlayActive={!feedLayout && (aiOverlayActive || aiAssistantOpen)}
-          infoSlot={business && (!business.hide_description || internalWheelNav) ? (
+          infoSlot={!chromeHidden && business && (!business.hide_description || internalWheelNav) ? (
             <MediaViewerInfo
               name={business.name}
               city={business.city}
@@ -5271,7 +5270,7 @@ const BookOnlineSlidePanelInner = ({
         </OverlayShell>
       )}
       {/* Chips badges de la vidéo courante (source partagée avec le viewer immersif) */}
-      {effectiveMedia?.kind === "video" && (currentVideoBadges?.length ?? 0) > 0 && !anyOverlay && !showDescriptionOverlay && (
+      {effectiveMedia?.kind === "video" && !chromeHidden && (currentVideoBadges?.length ?? 0) > 0 && !anyOverlay && !showDescriptionOverlay && (
         <VideoBadgeChips
           badges={currentVideoBadges}
           expanded={chipsExpanded}
@@ -5285,7 +5284,7 @@ const BookOnlineSlidePanelInner = ({
 
       )}
       {/* Search bar */}
-      {showSearchBar && !showPoiMapOverlay && !showDirections && !docOverlay && !showDescriptionOverlay && !showBookingOverlay && !showYoutubeOverlay && !selectedPoiBusinessId && (
+      {showSearchBar && !chromeHidden && !showPoiMapOverlay && !showDirections && !docOverlay && !showDescriptionOverlay && !showBookingOverlay && !showYoutubeOverlay && !selectedPoiBusinessId && (
         <div className={`absolute pointer-events-none ${searchOverlayActive ? "inset-0 left-0 translate-x-0 w-full max-w-none z-[90]" : "bottom-0 left-1/2 -translate-x-1/2 w-[96%] sm:w-[94%] max-w-[540px] z-[85]"}`}>
           <div className="relative w-full h-full pointer-events-auto">
             <PanelSearchBar
