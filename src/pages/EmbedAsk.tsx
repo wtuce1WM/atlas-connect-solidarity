@@ -3360,158 +3360,160 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         {/* Option B : état « accueil IA » — logo, titre, champ central très visible,
             5 chips de suggestions + CTA pour voir toutes les suggestions. */}
         {homeState && (
-            <div className={heroLayout ? `flex w-full flex-col items-center ${showAllSuggestions ? "min-h-full overflow-visible" : "h-full overflow-hidden"}` : "flex flex-col items-center justify-center gap-5 md:gap-6 px-1 py-4 md:py-8 w-full"}>
-            {/* Conteneur de hauteur minimale : le passage de l'accueil au panneau STT
-                reste stable, mais le contenu (texte d'accueil long ou transcript)
-                reste stable, mais le contenu (texte d'accueil long ou transcript)
-                peut s'étendre sans être coupé. */}
-            <div
-              ref={heroZone1Ref}
-              className={heroLayout ? (showAllSuggestions ? "w-full flex items-center justify-center overflow-visible" : "w-full flex items-center justify-center overflow-hidden") : "w-full flex items-center justify-center min-h-[200px] h-auto overflow-visible"}
-              style={heroLayout ? (showAllSuggestions
-                /* Suggestions ouvertes : hauteur figée = hauteur mesurée fermé,
-                   pour que « Bonjour 👋 » garde exactement sa place. */
-                ? (heroZone1H ? { flex: "0 0 auto", height: heroZone1H, overflow: "visible" } : { flex: "0 0 auto", minHeight: 0 })
-                : { flex: "2 1 0%", minHeight: 0 }) : undefined}
-            >
-
+          <>
             {voiceActive ? (
-              /* Mode STT inline : animation micro bleue + texte blanc à la place
-                 de l'icône IA + texte d'accueil (pas d'overlay fullscreen). */
-              <VoiceSearchPanel
-                liveTranscript={voice.liveTranscript}
-                audioLevel={voice.audioLevel}
-                micReady={voice.micReady}
-                onClose={voice.toggleRecording}
-                onFinish={voice.finishRecording}
-                textClassName={theme === "light" ? "text-black" : "text-white"}
-              />
-            ) : (
-            <div className="flex flex-col items-center gap-3 text-center pb-2 w-full" style={heroReveal(120)}>
-              <p className={`text-base md:text-lg leading-relaxed w-full max-w-[52ch] md:max-w-[64ch] whitespace-pre-line ${whiteInk || "opacity-80"}`} style={{ opacity: 0.85 }}>
-                {(isClubScope ? CLUB_OPENER : L.platformOpener()).replace(/\*\*/g, "")}
-              </p>
-            </div>
-
-            )}
-            </div>
-
-            {/* Zone 2 (40 %) : champ question + suggestions */}
-            <div
-              className={heroLayout ? `w-full flex flex-col items-center justify-center gap-3 ${showAllSuggestions ? "overflow-visible" : "overflow-y-auto scrollbar-hide"}` : "contents"}
-              style={heroLayout ? (showAllSuggestions ? { flex: "0 0 auto", minHeight: 0 } : { flex: "2 1 0%", minHeight: 0 }) : undefined}
-            >
-            <form
-              onSubmit={(e) => { e.preventDefault(); send(); }}
-              className="flex w-full flex-col justify-center max-w-xl mx-auto"
-              style={heroReveal(260)}
-            >
-              <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-5 md:py-3 shadow-2xl`}>
-                <textarea
-                  ref={inputRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onPaste={handleQuestionPaste}
-                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                  rows={2}
-                  placeholder={L.placeholder}
-                  disabled={streaming || !assistantReady}
-                  className={`flex-1 resize-none bg-transparent outline-none text-base leading-snug min-h-[64px] md:min-h-0 max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white/70"}`}
+              /* Mode STT plein écran sous le header : tout le reste disparaît,
+                 seule l'animation micro bleue + texte blanc reste visible. */
+              <div className="absolute -top-10 md:-top-4 -bottom-8 -left-4 -right-4 z-10 flex flex-col items-center justify-center bg-black/70 backdrop-blur-md px-4">
+                <VoiceSearchPanel
+                  liveTranscript={voice.liveTranscript}
+                  audioLevel={voice.audioLevel}
+                  micReady={voice.micReady}
+                  onClose={voice.toggleRecording}
+                  onFinish={voice.finishRecording}
+                  textClassName="text-white"
+                  align="center"
                 />
-                <div className="flex items-center justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={voice.toggleRecording}
-                  aria-label={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
-                  title={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
-                  className={`w-12 h-12 rounded-full text-white flex items-center justify-center shrink-0 shadow-lg transition-colors ${
-                    voice.status === "recording" ? "bg-red-500 animate-pulse" : "bg-[#194CFF] hover:bg-[#194CFF]/90"
-                  }`}
+              </div>
+            ) : (
+              <div className={heroLayout ? `flex w-full flex-col items-center ${showAllSuggestions ? "min-h-full overflow-visible" : "h-full overflow-hidden"}` : "flex flex-col items-center justify-center gap-5 md:gap-6 px-1 py-4 md:py-8 w-full"}>
+                {/* Conteneur de hauteur minimale : le passage de l'accueil au panneau STT
+                    reste stable, mais le contenu (texte d'accueil long ou transcript)
+                    peut s'étendre sans être coupé. */}
+                <div
+                  ref={heroZone1Ref}
+                  className={heroLayout ? (showAllSuggestions ? "w-full flex items-center justify-center overflow-visible" : "w-full flex items-center justify-center overflow-hidden") : "w-full flex items-center justify-center min-h-[200px] h-auto overflow-visible"}
+                  style={heroLayout ? (showAllSuggestions
+                    /* Suggestions ouvertes : hauteur figée = hauteur mesurée fermé,
+                       pour que « Bonjour 👋 » garde exactement sa place. */
+                    ? (heroZone1H ? { flex: "0 0 auto", height: heroZone1H, overflow: "visible" } : { flex: "0 0 auto", minHeight: 0 })
+                    : { flex: "2 1 0%", minHeight: 0 }) : undefined}
                 >
-                  {voice.status === "processing" ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : voice.status === "recording" ? (
-                    <MicOff className="w-5 h-5" />
-                  ) : (
-                    <Mic className="w-5 h-5" />
-                  )}
-                </button>
-                <button
-                  type="submit"
-                  disabled={streaming || !input.trim() || !assistantReady}
-                  aria-label="Send"
-                  className="w-12 h-12 rounded-full bg-[#C04F17] text-white flex items-center justify-center disabled:opacity-40 shrink-0 shadow-lg"
-                >
-                  <Send className="w-5 h-5" />
-                </button>
+                  <div className="flex flex-col items-center gap-3 text-center pb-2 w-full" style={heroReveal(120)}>
+                    <p className={`text-base md:text-lg leading-relaxed w-full max-w-[52ch] md:max-w-[64ch] whitespace-pre-line ${whiteInk || "opacity-80"}`} style={{ opacity: 0.85 }}>
+                      {(isClubScope ? CLUB_OPENER : L.platformOpener()).replace(/\*\*/g, "")}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </form>
 
-            <div className="w-full max-w-xl md:max-w-4xl mx-auto flex flex-col items-center gap-2">
-              <div ref={badgesRowRef} data-badges-row className={`w-full flex ${showAllSuggestions ? "flex-wrap" : "flex-nowrap md:flex-wrap"} items-stretch justify-start md:justify-center gap-2 overflow-x-auto scrollbar-hide pb-1`} style={heroReveal(400)}>
-              {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
-              {renderMapChip("home")}
-              {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s, sIdx) => {
-                const label = s.label;
-                const isYoutubePage = s.id === YOUTUBE_PAGE_SUGGESTION_ID || /youtube/i.test(label);
-                return (
-                  <Fragment key={s.id}>
-                  <button
-                    type="button"
-                    onPointerEnter={warmAiEngineConnection}
-                    onTouchStart={warmAiEngineConnection}
-                    onClick={() => { if (isYoutubePage) { setYoutubeOpen(true); return; } send(label, s.id); }}
-                    className={`shrink-0 whitespace-nowrap text-[13px] px-4 py-2 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
-                    style={{ ...chipStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                  >
-                    {label}
-                  </button>
-                  {sIdx === 2 && <div className="hidden md:block basis-full h-0 w-full pointer-events-none" />}
-                  </Fragment>
-                );
-              })}
-              </div>
-
-              {visibleSuggestions.length > 5 && (
-                <button
-                  type="button"
-                  onClick={() => setShowAllSuggestions((v) => {
-                    const next = !v;
-                    // Ouverture : on mesure la hauteur de la zone 1 tant qu'elle
-                    // est encore en layout fermé (flex 2 1 0%), pour la figer
-                    // ensuite et garder « Bonjour 👋 » à sa place exacte.
-                    if (next) {
-                      const h = heroZone1Ref.current?.offsetHeight ?? 0;
-                      if (h > 0) setHeroZone1H(h);
-                    }
-                    window.postMessage({ type: "owm-ask:suggestions-expanded", expanded: next }, window.location.origin);
-                    return next;
-                  })}
-
-                  className="text-[13px] font-bold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
-                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37", ...heroReveal(540) }}
-
+                {/* Zone 2 (40 %) : champ question + suggestions */}
+                <div
+                  className={heroLayout ? `w-full flex flex-col items-center justify-center gap-3 ${showAllSuggestions ? "overflow-visible" : "overflow-y-auto scrollbar-hide"}` : "contents"}
+                  style={heroLayout ? (showAllSuggestions ? { flex: "0 0 auto", minHeight: 0 } : { flex: "2 1 0%", minHeight: 0 }) : undefined}
                 >
-                  {showAllSuggestions
-                    ? (lang === "en" ? "Show less" : lang === "ar" ? "عرض أقل" : "Voir moins")
-                    : (lang === "en" ? `See all suggestions (${visibleSuggestions.length})` : lang === "ar" ? `كل الاقتراحات (${visibleSuggestions.length})` : `Voir toutes les suggestions (${visibleSuggestions.length})`)}
-                </button>
-              )}
+                  <form
+                    onSubmit={(e) => { e.preventDefault(); send(); }}
+                    className="flex w-full flex-col justify-center max-w-xl mx-auto"
+                    style={heroReveal(260)}
+                  >
+                    <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-5 md:py-3 shadow-2xl`}>
+                      <textarea
+                        ref={inputRef}
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onPaste={handleQuestionPaste}
+                        onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+                        rows={2}
+                        placeholder={L.placeholder}
+                        disabled={streaming || !assistantReady}
+                        className={`flex-1 resize-none bg-transparent outline-none text-base leading-snug min-h-[64px] md:min-h-0 max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white/70"}`}
+                      />
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={voice.toggleRecording}
+                          aria-label={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
+                          title={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
+                          className={`w-12 h-12 rounded-full text-white flex items-center justify-center shrink-0 shadow-lg transition-colors ${
+                            voice.status === "recording" ? "bg-red-500 animate-pulse" : "bg-[#194CFF] hover:bg-[#194CFF]/90"
+                          }`}
+                        >
+                          {voice.status === "processing" ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : voice.status === "recording" ? (
+                            <MicOff className="w-5 h-5" />
+                          ) : (
+                            <Mic className="w-5 h-5" />
+                          )}
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={streaming || !input.trim() || !assistantReady}
+                          aria-label="Send"
+                          className="w-12 h-12 rounded-full bg-[#C04F17] text-white flex items-center justify-center disabled:opacity-40 shrink-0 shadow-lg"
+                        >
+                          <Send className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  </form>
 
-              {isPlatform && dbSuggestions === null && visibleSuggestions.length === 0 && (
-                <span className={`inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full ${chipBg}`} style={chipStyle}>
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                  {lang === "en" ? "Loading suggestions…" : lang === "ar" ? "جارٍ تحميل الاقتراحات…" : "Chargement des suggestions…"}
-                </span>
-              )}
-            </div>
-            </div>
+                  <div className="w-full max-w-xl md:max-w-4xl mx-auto flex flex-col items-center gap-2">
+                    <div ref={badgesRowRef} data-badges-row className={`w-full flex ${showAllSuggestions ? "flex-wrap" : "flex-nowrap md:flex-wrap"} items-stretch justify-start md:justify-center gap-2 overflow-x-auto scrollbar-hide pb-1`} style={heroReveal(400)}>
+                      {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
+                      {renderMapChip("home")}
+                      {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s, sIdx) => {
+                        const label = s.label;
+                        const isYoutubePage = s.id === YOUTUBE_PAGE_SUGGESTION_ID || /youtube/i.test(label);
+                        return (
+                          <Fragment key={s.id}>
+                            <button
+                              type="button"
+                              onPointerEnter={warmAiEngineConnection}
+                              onTouchStart={warmAiEngineConnection}
+                              onClick={() => { if (isYoutubePage) { setYoutubeOpen(true); return; } send(label, s.id); }}
+                              className={`shrink-0 whitespace-nowrap text-[13px] px-4 py-2 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
+                              style={{ ...chipStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                            >
+                              {label}
+                            </button>
+                            {sIdx === 2 && <div className="hidden md:block basis-full h-0 w-full pointer-events-none" />}
+                          </Fragment>
+                        );
+                      })}
+                    </div>
 
-            {/* Zone 3 : réservée au CTA « Découvrez l'App » monté par Front.tsx.
-                Sur mobile la zone est réduite (~9 %) ; desktop inchangé (20 %). */}
-            {heroLayout && <div className="basis-0 grow-[0.4] md:grow-[1]" aria-hidden />}
-          </div>
+                    {visibleSuggestions.length > 5 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAllSuggestions((v) => {
+                          const next = !v;
+                          // Ouverture : on mesure la hauteur de la zone 1 tant qu'elle
+                          // est encore en layout fermé (flex 2 1 0%), pour la figer
+                          // ensuite et garder « Bonjour 👋 » à sa place exacte.
+                          if (next) {
+                            const h = heroZone1Ref.current?.offsetHeight ?? 0;
+                            if (h > 0) setHeroZone1H(h);
+                          }
+                          window.postMessage({ type: "owm-ask:suggestions-expanded", expanded: next }, window.location.origin);
+                          return next;
+                        })}
+
+                        className="text-[13px] font-bold px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-opacity"
+                        style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, letterSpacing: "0.02em", background: "#D4AF37", color: "#1a1a1a", border: "1px solid #D4AF37", ...heroReveal(540) }}
+
+                      >
+                        {showAllSuggestions
+                          ? (lang === "en" ? "Show less" : lang === "ar" ? "عرض أقل" : "Voir moins")
+                          : (lang === "en" ? `See all suggestions (${visibleSuggestions.length})` : lang === "ar" ? `كل الاقتراحات (${visibleSuggestions.length})` : `Voir toutes les suggestions (${visibleSuggestions.length})`)}
+                      </button>
+                    )}
+
+                    {isPlatform && dbSuggestions === null && visibleSuggestions.length === 0 && (
+                      <span className={`inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full ${chipBg}`} style={chipStyle}>
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        {lang === "en" ? "Loading suggestions…" : lang === "ar" ? "جارٍ تحميل الاقتراحات…" : "Chargement des suggestions…"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Zone 3 : réservée au CTA « Découvrez l'App » monté par Front.tsx.
+                    Sur mobile la zone est réduite (~9 %) ; desktop inchangé (20 %). */}
+                {heroLayout && <div className="basis-0 grow-[0.4] md:grow-[1]" aria-hidden />}
+              </div>
+            )}
+          </>
         )}
 
 
