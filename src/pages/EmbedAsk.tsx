@@ -3454,7 +3454,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                       {renderMapChip("home")}
                       {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s, sIdx) => {
                         const label = s.label;
-                        const isYoutubePage = s.id === YOUTUBE_PAGE_SIGGESTION_ID || /youtube/i.test(label);
+                        const isYoutubePage = s.id === YOUTUBE_PAGE_SUGGESTION_ID || /youtube/i.test(label);
                         return (
                           <Fragment key={s.id}>
                             <button
