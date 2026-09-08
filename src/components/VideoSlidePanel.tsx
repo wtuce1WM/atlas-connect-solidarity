@@ -1897,7 +1897,7 @@ const VideoSlidePanel = ({
                 return null;
               })()}
               {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer */}
-              {feedLayout && !chipsExpanded && (feedInfoTitle || feedInfoTeaser) && (
+              {feedLayout && !chipsExpanded && showFeedInfoBar && (feedInfoTitle || feedInfoTeaser) && (
                 <ViewerInfoBar>
                   <MediaViewerInfo
                     name={feedInfoTitle}
