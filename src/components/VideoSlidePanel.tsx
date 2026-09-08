@@ -371,10 +371,15 @@ const VideoSlidePanel = ({
       const entity = await resolveVideoLinkedEntity(String(videoId));
       if (cancelled) return;
       if (!entity) { setLinkedEntity(null); return; }
-      const table = entity.kind === "destination" ? "destinations" : "points_of_interest";
+      const isDest = entity.kind === "destination";
+      const table = isDest ? "destinations" : "points_of_interest";
+      /* points_of_interest n'a que `hook` (pas de hook_fr/en/ar). */
+      const cols = isDest
+        ? "name_fr, name_en, name_ar, hook, hook_fr, hook_en, hook_ar, description, description_fr, description_en, description_ar"
+        : "name_fr, name_en, name_ar, hook, description, description_fr, description_en, description_ar";
       const { data } = await (supabase as any)
         .from(table)
-        .select("name_fr, name_en, name_ar, hook, hook_fr, hook_en, hook_ar, description, description_fr, description_en, description_ar")
+        .select(cols)
         .eq("id", entity.id)
         .maybeSingle();
       if (cancelled || !data) { setLinkedEntity(null); return; }
