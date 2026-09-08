@@ -11,7 +11,7 @@ import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 import { supabase } from "@/integrations/supabase/client";
 import { fetchBusinessViewerRow } from "@/lib/businessRowCache";
-import { resolveVideoBusinessId } from "@/lib/videoBusinessResolver";
+import { resolveVideoBusinessId, resolveVideoLinkedEntity } from "@/lib/videoBusinessResolver";
 import { useDeferredAfterVideo } from "@/hooks/useDeferredAfterVideo";
 
 import { useLanguage } from "@/contexts/LanguageContext";
