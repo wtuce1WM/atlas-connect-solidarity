@@ -761,6 +761,38 @@ const Front = () => {
     return () => window.removeEventListener("message", onMsg);
   }, [startDemo]);
 
+  // Pause/play de la vidéo de fond synchronisé avec l'ouverture/fermeture du
+  // viewer vidéo de la démo (animation de disparition du Hero) et l'état de
+  // l'assistant IA (conversation ou panneau ouvert).
+  useEffect(() => {
+    const demoOpen = !!(demoIntro || demoActiveId || demoCardsOnly);
+    demoOpenRef.current = demoOpen;
+    const video = backgroundVideoRef.current;
+    if (demoOpen || conversationOpen || askPanelOpen) {
+      video?.pause();
+      if (video) video.muted = true;
+      return;
+    }
+    // Démo fermée : aucun média autre que le fond ne doit continuer à jouer.
+    // Balayage de sécurité (double buffer démonté tardivement, buffer caché, etc.)
+    // + libération de la source pour rendre la RAM/le réseau à l'utilisateur.
+    const sweep = () => {
+      document.querySelectorAll("video, audio").forEach((el) => {
+        const m = el as HTMLMediaElement;
+        if (m === video) return;
+        try {
+          m.pause();
+          m.muted = true;
+          if (m.getAttribute("src")) { m.removeAttribute("src"); m.load(); }
+        } catch { /* ignore */ }
+      });
+    };
+    sweep();
+    const t = window.setTimeout(sweep, 400);
+    if (video) void video.play().catch(() => undefined);
+    return () => window.clearTimeout(t);
+  }, [demoIntro, demoActiveId, demoCardsOnly, isPortrait, conversationOpen, askPanelOpen]);
+
   // Repli : arrivée sur /?demo=1 (badge « Découvrez l'App » sans hôte à l'écoute).
   const demoParamHandledRef = useRef(false);
   useEffect(() => {
