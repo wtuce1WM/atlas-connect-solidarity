@@ -1282,9 +1282,6 @@ const VideoSlidePanel = ({
           }
           resetSwipe();
         } : undefined}
-
-          resetSwipe();
-        } : undefined}
         onClickCapture={swipeNavigationEnabled ? (e) => {
           if (!suppressNextClick.current) return;
           suppressNextClick.current = false;
