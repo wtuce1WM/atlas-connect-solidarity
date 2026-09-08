@@ -3019,7 +3019,7 @@ const BookOnlineSlidePanelInner = ({
 
         {/* Block 1 : en-tête rectangle — conservé uniquement quand la zone
             d'information « viewer » n'est pas affichée (description masquée) */}
-        {business?.hide_description && (
+        {business?.hide_description && !chromeHidden && (
           <BusinessHeader
             business={business}
             businessId={businessId}
@@ -3150,7 +3150,7 @@ const BookOnlineSlidePanelInner = ({
             la barre est ancrée au bas du panneau, HORS du conteneur scrollable —
             même mécanique que VideoSlidePanel : elle ne suit JAMAIS le swipe vertical
             ni le scroll natif du conteneur (repro mobile : la barre suivait le pouce). */}
-        {!showPoiMapOverlay && (() => {
+        {!showPoiMapOverlay && !chromeHidden && (() => {
           // Quand la barre Play/Mute/IA/Lieu/Profil est montée, la barre info est ancrée
           // juste au-dessus d'elle — même mécanique que VideoSlidePanel. CtaBar ne doit
           // pas simuler cet espace avec un padding interne (source de l'espace vide).

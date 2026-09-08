@@ -1462,7 +1462,7 @@ const VideoSlidePanel = ({
               )}
 
         {/* BusinessHeader: Logo + Nom + Ville + Quartier + Adresse */}
-        {!feedLayout && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && ctaBusiness && (
+        {!feedLayout && !chromeHidden && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && ctaBusiness && (
           <div className="absolute top-16 md:top-14 lg:top-16 left-2 right-2 z-[65] pointer-events-none">
             <BusinessHeader
               business={{
@@ -1493,7 +1493,7 @@ const VideoSlidePanel = ({
           );
           const hasNoPriceInfo = price === undefined || price === null || !String(price).trim();
           const isVenteNoPrice = isVenteVideo && hasNoPriceInfo;
-          return !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen
+          return !chromeHidden && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen
             && (isVenteNoPrice || ((!headerVideoTitle && (videoName || manualCardLabel)) || price !== undefined && price !== null))
             && !(isGeneric && social?.account && videoName === `@${social.account}` && !manualCardLabel && (price === undefined || price === null) && !isVenteNoPrice);
         })() && (() => {
