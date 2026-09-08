@@ -2926,7 +2926,7 @@ const BookOnlineSlidePanelInner = ({
           onMouseOver={() => setNavPillExpanded(true)}
           onMouseLeave={() => { if (!chromeHidden) setNavPillExpanded(false); }}
         >
-          {!(navPillExpanded || chromeHidden) ? (
+          {!(navPillExpanded || (chromeHidden && !isMobileView)) ? (
             <button
               type="button"
               data-cta-tap
