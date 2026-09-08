@@ -230,6 +230,9 @@ const VideoSlidePanel = ({
   const swipeStartY = useRef<number | null>(null);
   const swipeStartX = useRef<number | null>(null);
   const swipeHandled = useRef(false);
+  /** Le geste a démarré sur un contrôle (CTA, lien…) : tap protégé, swipe autorisé. */
+  const swipeStartedInteractive = useRef(false);
+
   /** Vrai juste après un swipe détecté : avale le click synthétique iOS au touchend. */
   const suppressNextClick = useRef(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -1188,7 +1191,9 @@ const VideoSlidePanel = ({
     swipeStartY.current = null;
     swipeStartX.current = null;
     swipeHandled.current = false;
+    swipeStartedInteractive.current = false;
   };
+
 
   // Un geste démarré sur un contrôle (Play/Mute liquid glass, CTA, lien) n'est
   // jamais une navigation swipe : aligné sur BookOnlineSlidePanel
@@ -1231,7 +1236,12 @@ const VideoSlidePanel = ({
         style={swipeNavigationEnabled ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
         onTouchStart={swipeNavigationEnabled ? (e) => {
           if (e.touches.length !== 1) return;
-          if (isInteractiveTarget(e.target)) { resetSwipe(); return; }
+          // Le geste est TOUJOURS armé, même sur un CTA : sur iOS, un calque
+          // interactif (ou un CTA plein cadre) peut couvrir la vidéo et
+          // empêchait alors toute navigation verticale. Le tap reste protégé :
+          // on ne navigue qu'au-delà des seuils, et le clic n'est avalé que
+          // lorsqu'un vrai swipe a été reconnu.
+          swipeStartedInteractive.current = isInteractiveTarget(e.target);
           swipeStartY.current = e.touches[0].clientY;
           swipeStartX.current = e.touches[0].clientX;
           swipeHandled.current = false;
@@ -1251,8 +1261,8 @@ const VideoSlidePanel = ({
         onTouchEnd={swipeNavigationEnabled ? (e) => {
           if (swipeStartY.current !== null && swipeStartX.current !== null) {
             const t = e.changedTouches[0];
-            const dy = t.clientY - swipeStartY.current;
-            const dx = t.clientX - swipeStartX.current;
+            const dy = (t?.clientY ?? swipeStartY.current) - swipeStartY.current;
+            const dx = (t?.clientX ?? swipeStartX.current) - swipeStartX.current;
             const absX = Math.abs(dx);
             const absY = Math.abs(dy);
             // Aligné sur BookOnlineSlidePanel : seuil 60px, ratio 1.5, swipe up = next
@@ -1260,7 +1270,7 @@ const VideoSlidePanel = ({
               if (dy < 0 && hasNext) onNext?.();
               else if (dy > 0 && hasPrev) onPrev?.();
               suppressNextClick.current = true;
-            } else if (absX > 50 && absX > absY * 1.5) {
+            } else if (!swipeStartedInteractive.current && absX > 50 && absX > absY * 1.5) {
               // Swipe horizontal → média précédent/suivant du business hôte
               if (totalMedia > 1) goMedia(dx < 0 ? 1 : -1);
               // iOS Safari synthétise un click au point de touchend même quand le
