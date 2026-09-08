@@ -359,6 +359,36 @@ const VideoSlidePanel = ({
     return () => { cancelled = true; };
   }, [open, owner?.id, pageBusinessId, videoId, language]);
 
+  /* Vidéos génériques / YouTube sans établissement lié : on cherche une entité
+     éditoriale liée (Destination ou POI) pour alimenter la barre info.
+     Sans entité ET sans titre/description de la vidéo, la barre est masquée. */
+  const isExternalVideo = badgeSource !== "business";
+  const [linkedEntity, setLinkedEntity] = useState<{ name: string; hook: string | null; description: string | null } | null>(null);
+  useEffect(() => {
+    if (!open || !videoId || !isExternalVideo || resolvedBusinessId) { setLinkedEntity(null); return; }
+    let cancelled = false;
+    (async () => {
+      const entity = await resolveVideoLinkedEntity(String(videoId));
+      if (cancelled) return;
+      if (!entity) { setLinkedEntity(null); return; }
+      const table = entity.kind === "destination" ? "destinations" : "points_of_interest";
+      const { data } = await (supabase as any)
+        .from(table)
+        .select("name_fr, name_en, name_ar, hook, hook_fr, hook_en, hook_ar, description, description_fr, description_en, description_ar")
+        .eq("id", entity.id)
+        .maybeSingle();
+      if (cancelled || !data) { setLinkedEntity(null); return; }
+      const d: any = data;
+      const name = (language === "ar" ? d.name_ar : language === "en" ? d.name_en : null) || d.name_fr || "";
+      const hook = (language === "ar" ? d.hook_ar : language === "en" ? d.hook_en : null) || d.hook_fr || d.hook || null;
+      const description = (language === "ar" ? d.description_ar : language === "en" ? d.description_en : null)
+        || d.description_fr || d.description || null;
+      setLinkedEntity(name ? { name, hook, description } : null);
+    })();
+    return () => { cancelled = true; };
+  }, [open, videoId, isExternalVideo, resolvedBusinessId, language]);
+
+
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
