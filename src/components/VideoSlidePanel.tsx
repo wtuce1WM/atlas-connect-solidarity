@@ -614,7 +614,7 @@ const VideoSlidePanel = ({
     if (plain) return plain;
     if (feedInfoTitle) return buildFallbackTeaser(feedInfoTitle, language);
     return null;
-  }, [effectiveDescription, businessDescription, businessHook, feedInfoTitle, language, useBusinessInfo]);
+  }, [effectiveDescription, businessDescription, businessHook, feedInfoTitle, language, useBusinessInfo, preferEntity, linkedEntity]);
 
   // Navigation verticale à la molette / trackpad (desktop) — même effet que le swipe.
   const wheelNav = useRef({ enabled: false, onPrev, onNext, hasPrev, hasNext });
