@@ -574,7 +574,12 @@ const VideoSlidePanel = ({
     return () => { cancelled = true; };
   }, [open, eventId, isGeneric, pageBusinessId, feedLayout]);
 
-  const ctaBusiness = eventBusiness || pageBusiness || ownerBusiness;
+  /* Les états asynchrones peuvent encore contenir la fiche de la vidéo
+     précédente pendant quelques millisecondes. Ne jamais les injecter dans la
+     barre courante ; le cache préchargé prend immédiatement le relais. */
+  const currentPageBusiness = pageBusiness?.id === pageBusinessId ? pageBusiness : null;
+  const currentOwnerBusiness = ownerBusiness?.id === owner?.id ? ownerBusiness : null;
+  const ctaBusiness = eventBusiness || currentPageBusiness || currentOwnerBusiness || cachedBusiness || null;
   const shouldPreloadPlatformAi = aiMode === "platform";
   const platformAiSrc = `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform&open=${aiSessionKey}`;
 
@@ -589,11 +594,15 @@ const VideoSlidePanel = ({
     })();
     return () => { cancelled = true; };
   }, [open, feedLayout, ctaBusiness?.id]);
+  const currentRatingRow = ratingRow?.id === ctaBusiness?.id ? ratingRow : ctaBusiness;
   const feedAvgOn20 = useMemo(
-    () => (ratingRow ? computeWeightedRatingOn20(collectRatingSources(ratingRow)) : null),
-    [ratingRow],
+    () => (currentRatingRow ? computeWeightedRatingOn20(collectRatingSources(currentRatingRow)) : null),
+    [currentRatingRow],
   );
-  const feedReviewCount = useMemo(() => (ratingRow ? getTotalReviewCount(ratingRow) : 0), [ratingRow]);
+  const feedReviewCount = useMemo(
+    () => (currentRatingRow ? getTotalReviewCount(currentRatingRow) : 0),
+    [currentRatingRow],
+  );
   // Feed layout : titre + teaser de la barre info.
   // Vidéos internes ET génériques : on affiche TOUJOURS le nom + hook du
   // business, jamais le titre/texte de la vidéo (même si la vidéo en a).
