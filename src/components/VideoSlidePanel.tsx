@@ -230,6 +230,8 @@ const VideoSlidePanel = ({
   const swipeStartY = useRef<number | null>(null);
   const swipeStartX = useRef<number | null>(null);
   const swipeHandled = useRef(false);
+  /** Vrai juste après un swipe détecté : avale le click synthétique iOS au touchend. */
+  const suppressNextClick = useRef(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
@@ -1257,12 +1259,24 @@ const VideoSlidePanel = ({
             if (absY > 60 && absY > absX * 1.5) {
               if (dy < 0 && hasNext) onNext?.();
               else if (dy > 0 && hasPrev) onPrev?.();
-            } else if (absX > 50 && absX > absY * 1.5 && totalMedia > 1) {
+              suppressNextClick.current = true;
+            } else if (absX > 50 && absX > absY * 1.5) {
               // Swipe horizontal → média précédent/suivant du business hôte
-              goMedia(dx < 0 ? 1 : -1);
+              if (totalMedia > 1) goMedia(dx < 0 ? 1 : -1);
+              // iOS Safari synthétise un click au point de touchend même quand le
+              // geste était un vrai swipe : sans garde, un swipe vers la gauche qui
+              // s'achève sur la colonne de CTAs (ex. « Localisation ») ouvre le
+              // panneau business. On avale le prochain click (capture) ci-dessous.
+              suppressNextClick.current = true;
             }
           }
           resetSwipe();
+        } : undefined}
+        onClickCapture={swipeNavigationEnabled ? (e) => {
+          if (!suppressNextClick.current) return;
+          suppressNextClick.current = false;
+          e.preventDefault();
+          e.stopPropagation();
         } : undefined}
         onTouchCancel={swipeNavigationEnabled ? resetSwipe : undefined}
 
