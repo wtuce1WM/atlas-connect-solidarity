@@ -271,7 +271,10 @@ const VideoSlidePanel = ({
   const [aiPlatform, setAiPlatform] = useState(false);
   const { recentBusinesses } = useRecentlyViewedBusinesses();
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
-  const [businessDescription, setBusinessDescription] = useState<string | null>(null);
+  /* Taggée par ID vidéo : jamais de texte du business de la vidéo précédente. */
+  const [businessDescriptionState, setBusinessDescription] = useState<{ videoId: string; value: string | null } | null>(null);
+  const businessDescription = businessDescriptionState && businessDescriptionState.videoId === String(videoId || "")
+    ? businessDescriptionState.value : null;
   const [, forceRender] = useState(0);
   useEffect(() => { if (open) forceRender((n) => n + 1); }, [open]);
 
@@ -322,7 +325,9 @@ const VideoSlidePanel = ({
   // generic videos where the viewer info bar must show the business name + hook
   // instead of the video title/text. We therefore always load the business hook
   // and description so they are available when isGeneric is true.
-  const [businessHook, setBusinessHook] = useState<string | null>(null);
+  const [businessHookState, setBusinessHook] = useState<{ videoId: string; value: string | null } | null>(null);
+  const businessHook = businessHookState && businessHookState.videoId === String(videoId || "")
+    ? businessHookState.value : null;
   /* Établissement résolu depuis la vidéo, TAGGÉ par l'ID vidéo : au changement
      de vidéo, la résolution de la vidéo précédente ne doit JAMAIS s'afficher
      (sinon la barre info montre le business précédent le temps du fetch). */
@@ -367,7 +372,8 @@ const VideoSlidePanel = ({
      éditoriale liée (Destination ou POI) pour alimenter la barre info.
      Sans entité ET sans titre/description de la vidéo, la barre est masquée. */
   const isExternalVideo = badgeSource !== "business";
-  const [linkedEntity, setLinkedEntity] = useState<{ name: string; hook: string | null; description: string | null } | null>(null);
+  const [linkedEntityState, setLinkedEntity] = useState<{ videoId: string; name: string; hook: string | null; description: string | null } | null>(null);
+  const linkedEntity = linkedEntityState && linkedEntityState.videoId === videoKey ? linkedEntityState : null;
   useEffect(() => {
     if (!open || !videoId || !isExternalVideo || resolvedBusinessId) { setLinkedEntity(null); return; }
     let cancelled = false;
