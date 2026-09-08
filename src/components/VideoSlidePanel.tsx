@@ -1910,7 +1910,10 @@ const VideoSlidePanel = ({
                     bare
                     onOpen={(rect) => {
                       // Sans exception : la barre info ouvre la Full Description.
-                      const targetId = ctaBusiness?.id || pageBusinessId || owner?.id || resolvedBusinessId;
+                      // Entité liée (Destination / POI) : overlay local avec son texte.
+                      const targetId = preferEntity
+                        ? null
+                        : (ctaBusiness?.id || pageBusinessId || owner?.id || resolvedBusinessId);
                       if (targetId) { setNestedOverlayKind("description"); setDescBusinessId(String(targetId)); return; }
                       startDescMorph(rect);
                     }}
