@@ -3006,7 +3006,11 @@ const BookOnlineSlidePanelInner = ({
         // (chips, badge social, barre info, CTAs du bas) ; chevrons dépliés.
         onClick={(e) => {
           if (externalVideoInteractiveMode) return;
-          if (e.target !== e.currentTarget) return;
+          // Tap sur une zone non interactive (fond, espaces vides) → bascule
+          // immersion. Avant : `e.target !== e.currentTarget` exigeait de
+          // toucher le padding du conteneur → presque jamais déclenché.
+          if (suppressTapRef.current) { suppressTapRef.current = false; return; }
+          if (isInteractiveTarget(e.target)) return;
           if (cardsHidden) { showCards(); } else { hideCards(); setChromeHidden(true); }
 
         }}
