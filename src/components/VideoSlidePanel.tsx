@@ -1584,7 +1584,7 @@ const VideoSlidePanel = ({
             onMouseOver={() => setNavPillExpanded(true)}
             onMouseLeave={() => { if (!chromeHidden) setNavPillExpanded(false); }}
           >
-            {!(navPillExpanded || chromeHidden) ? (
+            {!(navPillExpanded || (chromeHidden && !isMobile)) ? (
               <button
                 type="button"
                 data-cta-tap
@@ -1674,7 +1674,7 @@ const VideoSlidePanel = ({
             En feed : Langue / Localisation / Itinéraire / YouTube dès qu'un
             établissement est lié à la vidéo (y compris générique/externe). */}
         {((feedLayout && !!ctaBusiness) || (!hideLeftCtas && !!ctaBusiness?.youtube_url))
-          && !chipsExpanded && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !descBusinessId && !showYoutubeOverlay && (
+          && !chromeHidden && !chipsExpanded && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !descBusinessId && !showYoutubeOverlay && (
           <div dir="ltr" className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
             {feedLayout && (() => {
               const LANG_OPTIONS = [
