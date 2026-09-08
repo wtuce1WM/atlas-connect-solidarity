@@ -339,7 +339,9 @@ const Front = () => {
     const demoOpen = !!(demoIntro || demoActiveId || demoCardsOnly);
     demoOpenRef.current = demoOpen;
     const video = backgroundVideoRef.current;
-    if (demoOpen) {
+    // Pause aussi quand l'assistant IA est en conversation ou a un panneau ouvert,
+    // même si le feed vidéo de démo vient d'être fermé.
+    if (demoOpen || conversationOpen || askPanelOpen) {
       video?.pause();
       if (video) video.muted = true;
       return;
@@ -362,7 +364,7 @@ const Front = () => {
     const t = window.setTimeout(sweep, 400);
     if (video) void video.play().catch(() => undefined);
     return () => window.clearTimeout(t);
-  }, [demoIntro, demoActiveId, demoCardsOnly, isPortrait]);
+  }, [demoIntro, demoActiveId, demoCardsOnly, isPortrait, conversationOpen, askPanelOpen]);
 
   // Onglet en arrière-plan : on met tout en pause (aucun son, aucun décodage inutile).
   // Au retour, on relance ce qu'on a mis en pause soi-même (viewer vidéo compris),
