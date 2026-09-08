@@ -10,7 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 import { supabase } from "@/integrations/supabase/client";
-import { fetchBusinessViewerRow } from "@/lib/businessRowCache";
+import { fetchBusinessViewerRow, peekBusinessViewerRow } from "@/lib/businessRowCache";
 import { resolveVideoBusinessId, resolveVideoLinkedEntity } from "@/lib/videoBusinessResolver";
 import { useDeferredAfterVideo } from "@/hooks/useDeferredAfterVideo";
 
@@ -335,6 +335,21 @@ const VideoSlidePanel = ({
   const videoKey = String(videoId || "");
   const resolvedBusinessId = resolvedBiz && resolvedBiz.videoId === videoKey ? resolvedBiz.id : null;
   const resolvedBusinessName = resolvedBiz && resolvedBiz.videoId === videoKey ? resolvedBiz.name : null;
+  const immediateBusinessId = pageBusinessId || owner?.id || resolvedBusinessId;
+  const cachedBusiness = peekBusinessViewerRow(immediateBusinessId);
+  const cachedBusinessDescription = cachedBusiness
+    ? (language === "ar" ? (cachedBusiness.description_ar || cachedBusiness.description_fr || cachedBusiness.description)
+      : language === "en" ? (cachedBusiness.description_en || cachedBusiness.description_fr || cachedBusiness.description)
+      : (cachedBusiness.description_fr || cachedBusiness.description))
+    : null;
+  const cachedBusinessHook = cachedBusiness
+    ? (language === "ar" ? (cachedBusiness.hook_ar || cachedBusiness.hook_fr)
+      : language === "en" ? (cachedBusiness.hook_en || cachedBusiness.hook_fr)
+      : cachedBusiness.hook_fr)
+    : null;
+  const currentBusinessDescription = businessDescription ?? cachedBusinessDescription ?? null;
+  const currentBusinessHook = businessHook ?? cachedBusinessHook ?? null;
+  const currentBusinessName = resolvedBusinessName || cachedBusiness?.name || null;
   useEffect(() => {
     if (!open) { setBusinessDescription(null); setBusinessHook(null); setResolvedBiz(null); return; }
     let cancelled = false;
@@ -476,7 +491,7 @@ const VideoSlidePanel = ({
     ? description
     : (eventId && eventInfo?.description && eventInfo.description.trim())
       ? eventInfo.description
-      : (businessDescription || linkedEntity?.description || linkedEntity?.hook || null);
+      : (currentBusinessDescription || linkedEntity?.description || linkedEntity?.hook || null);
 
   // Resolve a business for the CTA bar:
   // - If `eventId` is set, take the first linked business via event_businesses (eventBusiness).
@@ -559,7 +574,12 @@ const VideoSlidePanel = ({
     return () => { cancelled = true; };
   }, [open, eventId, isGeneric, pageBusinessId, feedLayout]);
 
-  const ctaBusiness = eventBusiness || pageBusiness || ownerBusiness;
+  /* Les états asynchrones peuvent encore contenir la fiche de la vidéo
+     précédente pendant quelques millisecondes. Ne jamais les injecter dans la
+     barre courante ; le cache préchargé prend immédiatement le relais. */
+  const currentPageBusiness = pageBusiness?.id === pageBusinessId ? pageBusiness : null;
+  const currentOwnerBusiness = ownerBusiness?.id === owner?.id ? ownerBusiness : null;
+  const ctaBusiness = eventBusiness || currentPageBusiness || currentOwnerBusiness || cachedBusiness || null;
   const shouldPreloadPlatformAi = aiMode === "platform";
   const platformAiSrc = `/embed/ask?preset=overlay&lang=${language}&theme=none&bg=transparent&panel=1&scope=platform&open=${aiSessionKey}`;
 
@@ -574,11 +594,15 @@ const VideoSlidePanel = ({
     })();
     return () => { cancelled = true; };
   }, [open, feedLayout, ctaBusiness?.id]);
+  const currentRatingRow = ratingRow?.id === ctaBusiness?.id ? ratingRow : ctaBusiness;
   const feedAvgOn20 = useMemo(
-    () => (ratingRow ? computeWeightedRatingOn20(collectRatingSources(ratingRow)) : null),
-    [ratingRow],
+    () => (currentRatingRow ? computeWeightedRatingOn20(collectRatingSources(currentRatingRow)) : null),
+    [currentRatingRow],
   );
-  const feedReviewCount = useMemo(() => (ratingRow ? getTotalReviewCount(ratingRow) : 0), [ratingRow]);
+  const feedReviewCount = useMemo(
+    () => (currentRatingRow ? getTotalReviewCount(currentRatingRow) : 0),
+    [currentRatingRow],
+  );
   // Feed layout : titre + teaser de la barre info.
   // Vidéos internes ET génériques : on affiche TOUJOURS le nom + hook du
   // business, jamais le titre/texte de la vidéo (même si la vidéo en a).
@@ -600,7 +624,7 @@ const VideoSlidePanel = ({
     : useVideoOwnText
     ? ((headerVideoTitle || "").trim() || (videoName || "").trim())
     : useBusinessInfo
-    ? (ctaBusiness?.name || resolvedBusinessName || businessName || "")
+    ? (ctaBusiness?.name || currentBusinessName || businessName || "")
     : (description && description.trim())
       ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
       : (ctaBusiness?.name || businessName || "");
@@ -609,7 +633,7 @@ const VideoSlidePanel = ({
      uniquement : on attend `resolvedBiz` de CETTE vidéo). */
   const resolvedBizDone = !!(resolvedBiz && resolvedBiz.videoId === videoKey);
   const bizHasNoText = resolvedBizDone && !!resolvedBusinessId
-    && !businessDescription && !(businessHook && businessHook.trim());
+    && !currentBusinessDescription && !(currentBusinessHook && currentBusinessHook.trim());
   const showFeedInfoBar = (!isExternalVideo || hasBusinessSource || hasVideoOwnText || !!linkedEntity) && !bizHasNoText;
   const feedInfoTeaser = useMemo(() => {
     const clean = (s?: string | null) =>
@@ -623,13 +647,13 @@ const VideoSlidePanel = ({
     }
     if (useBusinessInfo) {
       // Priorité : description du business d'abord, hook seulement en repli.
-      const plain = (businessDescription || "")
+      const plain = (currentBusinessDescription || "")
         .replace(/<[^>]*>/g, " ")
         .replace(/&nbsp;/g, " ")
         .replace(/\s+/g, " ")
         .trim();
       if (plain) return plain;
-      if (businessHook?.trim()) return businessHook.trim();
+      if (currentBusinessHook?.trim()) return currentBusinessHook.trim();
       /* Business lié mais sans description ni hook : l'overlay serait vide →
          pas de teaser « Cliquez ici… » (la barre est masquée via bizHasNoText). */
       return null;
@@ -643,7 +667,7 @@ const VideoSlidePanel = ({
     /* YouTube sans description : rien à afficher dans l'overlay → pas de
        teaser générique. */
     return null;
-  }, [effectiveDescription, businessDescription, businessHook, language, useBusinessInfo, preferEntity, linkedEntity, useVideoOwnText, description, headerVideoTitle]);
+  }, [effectiveDescription, currentBusinessDescription, currentBusinessHook, language, useBusinessInfo, preferEntity, linkedEntity, useVideoOwnText, description, headerVideoTitle]);
 
   // Navigation verticale à la molette / trackpad (desktop) — même effet que le swipe.
   const wheelNav = useRef({ enabled: false, onPrev, onNext, hasPrev, hasNext });

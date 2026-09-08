@@ -59,6 +59,7 @@ export const BUSINESS_VIEWER_FIELDS = [
 ].join(", ");
 
 const cache = new Map<string, Promise<any | null>>();
+const resolvedCache = new Map<string, any | null>();
 
 /** Fiche business (colonnes viewer), mise en cache et dédupliquée par ID. */
 export function fetchBusinessViewerRow(id: string): Promise<any | null> {
@@ -70,7 +71,11 @@ export function fetchBusinessViewerRow(id: string): Promise<any | null> {
     .select(BUSINESS_VIEWER_FIELDS)
     .eq("id", key)
     .maybeSingle()
-    .then(({ data }: any) => data || null)
+    .then(({ data }: any) => {
+      const row = data || null;
+      resolvedCache.set(key, row);
+      return row;
+    })
     .catch(() => {
       cache.delete(key);
       return null;
@@ -79,8 +84,20 @@ export function fetchBusinessViewerRow(id: string): Promise<any | null> {
   return p;
 }
 
+/** Lecture synchrone d'une fiche déjà résolue, sans déclencher de requête. */
+export function peekBusinessViewerRow(id: string | null | undefined): any | null | undefined {
+  if (!id) return undefined;
+  return resolvedCache.get(String(id));
+}
+
 /** Vide le cache (utilisé après une édition back-office éventuelle). */
 export function clearBusinessViewerCache(id?: string) {
-  if (id) cache.delete(String(id));
-  else cache.clear();
+  if (id) {
+    const key = String(id);
+    cache.delete(key);
+    resolvedCache.delete(key);
+  } else {
+    cache.clear();
+    resolvedCache.clear();
+  }
 }
