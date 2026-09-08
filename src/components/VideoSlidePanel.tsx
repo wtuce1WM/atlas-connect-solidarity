@@ -1286,6 +1286,7 @@ const VideoSlidePanel = ({
           <SlidePanelHeader
             onClose={onClose}
             alwaysDark
+            mobileSafeTop
             toolbarLeftId="slide-panel-home-toolbar-left"
             toolbarCenterId="slide-panel-home-toolbar-center"
             toolbarRightId="slide-panel-home-toolbar-right"
