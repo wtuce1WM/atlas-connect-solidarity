@@ -4331,7 +4331,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               {poolRemaining > 0 && (
                 <button
                   type="button"
-                  onClick={() => send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres")}
+                  onClick={() => {
+                    const el = scrollRef.current;
+                    if (el) {
+                      stickDisabledRef.current = false;
+                      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+                    }
+                    send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres");
+                  }}
                   style={{ ...moreBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
                   className="text-xs px-3 py-1.5 rounded-full inline-flex items-center justify-center gap-1.5 font-semibold border shadow-sm hover:opacity-90 transition-opacity"
                 >
