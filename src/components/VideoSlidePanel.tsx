@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo, Suspense } from "react";
-import MediaViewerInfo, { buildFallbackTeaser } from "@/components/slidepanel/MediaViewerInfo";
+import MediaViewerInfo from "@/components/slidepanel/MediaViewerInfo";
 import ViewerInfoBar from "@/components/slidepanel/ViewerInfoBar";
 import FrozenFrameVideo from "@/components/slidepanel/FrozenFrameVideo";
 
