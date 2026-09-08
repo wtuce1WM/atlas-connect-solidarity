@@ -1926,9 +1926,20 @@ const VideoSlidePanel = ({
                 return null;
               })()}
               {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer.
-                  Le fond sombre n'est pas affiché quand il n'y a aucune information
-                  (titre, note, hook, description) à montrer. */}
-              {feedLayout && !chipsExpanded && showFeedInfoBar && (feedInfoTitle || feedInfoTeaser) && (
+                  Anti-« reload » au scroll vertical : ViewerInfoBar reste MONTÉE en
+                  permanence pendant le feed (comme dans BookOnlineSlidePanel) ; quand
+                  la vidéo courante n'a aucune info à afficher, on masque le fond via
+                  visibility au lieu de démonter le bloc — aucun flash/disparition. */}
+              {feedLayout && !chipsExpanded && (
+                <div
+                  className="w-full flex flex-col items-center justify-end"
+                  style={
+                    showFeedInfoBar && (feedInfoTitle || feedInfoTeaser)
+                      ? undefined
+                      : { visibility: "hidden", pointerEvents: "none" }
+                  }
+                  aria-hidden={!(showFeedInfoBar && (feedInfoTitle || feedInfoTeaser))}
+                >
                 <ViewerInfoBar>
                   <MediaViewerInfo
                     name={feedInfoTitle}
@@ -1950,6 +1961,7 @@ const VideoSlidePanel = ({
                     }}
                   />
                 </ViewerInfoBar>
+                </div>
               )}
 
 
