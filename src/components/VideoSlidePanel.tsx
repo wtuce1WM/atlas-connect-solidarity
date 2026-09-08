@@ -466,7 +466,7 @@ const VideoSlidePanel = ({
     ? description
     : (eventId && eventInfo?.description && eventInfo.description.trim())
       ? eventInfo.description
-      : businessDescription;
+      : (businessDescription || linkedEntity?.description || linkedEntity?.hook || null);
 
   // Resolve a business for the CTA bar:
   // - If `eventId` is set, take the first linked business via event_businesses (eventBusiness).
