@@ -38,7 +38,7 @@ interface Props {
 
 const ACCENT = "#194CFF";
 
-const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center", audioLevel = 0, micReady = true, textClassName }: Props) => {
+const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center", audioLevel = 0, micReady = true, textClassName, fullScreen = false }: Props) => {
   const textColor = textClassName ?? "text-black md:text-white";
   const { language } = useLanguage();
   const L = LABELS[language as "fr" | "en" | "ar"] || LABELS.fr;
@@ -46,7 +46,7 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
   const successFiredRef = useRef(false);
   const startedAtRef = useRef<number>(0);
   // True dès que l'utilisateur tape le micro pour lancer la recherche :
-  // fige les anneaux animés (ping/pulse) pendant le traitement.
+  // fige les anneaux animés (ping/pulse/conic) pendant le traitement.
   const stoppingRef = useRef(false);
   const [stopping, setStopping] = useState(false);
 
