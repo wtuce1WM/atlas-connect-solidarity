@@ -2025,17 +2025,22 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // active part seulement en CONTEXTE (`contextSuggestionId`), que le moteur
     // n'exploite que si la relance ne fait que changer de ville — le périmètre
     // badge de la suggestion est alors conservé.
-    sendMessage(
-      { text },
-      {
-        body: {
-          suggestionId: effectiveSuggestionId,
-          followupId: followupId || null,
-          scope: null,
-          contextSuggestionId: effectiveSuggestionId ? null : contextSuggestionId,
+    const fire = () =>
+      sendMessage(
+        { text },
+        {
+          body: {
+            suggestionId: effectiveSuggestionId,
+            followupId: followupId || null,
+            scope: null,
+            contextSuggestionId: effectiveSuggestionId ? null : contextSuggestionId,
+          },
         },
-      },
-    );
+      );
+    // Le lecteur vidéo passe TOUJOURS avant la réponse IA : pré-vol serveur sans
+    // modèle (mêmes badges, même pool, mêmes paliers que le tour normal). S'il
+    // renvoie un feed, VideoSlidePanel s'ouvre d'abord, puis la question part.
+    void openPreflightBadgeFeed(text).finally(fire);
   };
 
   /**
