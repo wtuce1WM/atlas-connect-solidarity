@@ -230,6 +230,9 @@ const VideoSlidePanel = ({
   const swipeStartY = useRef<number | null>(null);
   const swipeStartX = useRef<number | null>(null);
   const swipeHandled = useRef(false);
+  /** Le geste a démarré sur un contrôle (CTA, lien…) : tap protégé, swipe autorisé. */
+  const swipeStartedInteractive = useRef(false);
+
   /** Vrai juste après un swipe détecté : avale le click synthétique iOS au touchend. */
   const suppressNextClick = useRef(false);
   const videoRef = useRef<HTMLVideoElement>(null);
