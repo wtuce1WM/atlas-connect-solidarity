@@ -1925,30 +1925,33 @@ const VideoSlidePanel = ({
                 }
                 return null;
               })()}
-              {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer */}
-              {feedLayout && !chipsExpanded && showFeedInfoBar && (feedInfoTitle || feedInfoTeaser) && (
+              {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer.
+                  Le conteneur reste toujours monté pour éviter le reload visuel du fond sombre quand
+                  le contenu arrive/change ; seul MediaViewerInfo est conditionné. */}
+              {feedLayout && !chipsExpanded && (
                 <ViewerInfoBar>
-                  <MediaViewerInfo
-                    name={feedInfoTitle}
-                    city={ctaBusiness?.city}
-                    neighborhood={(ctaBusiness as any)?.neighborhood}
-                    avgOn20={feedAvgOn20}
-                    totalReviewCount={feedReviewCount}
-                    teaser={feedInfoTeaser}
-                    language={language}
-                    bare
-                    onOpen={(rect) => {
-                      // Sans exception : la barre info ouvre la Full Description.
-                      // Entité liée (Destination / POI) : overlay local avec son texte.
-                      const targetId = preferEntity
-                        ? null
-                        : (ctaBusiness?.id || pageBusinessId || owner?.id || resolvedBusinessId);
-                      if (targetId) { setNestedOverlayKind("description"); setDescBusinessId(String(targetId)); return; }
-                      startDescMorph(rect);
-                    }}
-                  />
+                  {showFeedInfoBar && (feedInfoTitle || feedInfoTeaser) ? (
+                    <MediaViewerInfo
+                      name={feedInfoTitle}
+                      city={ctaBusiness?.city}
+                      neighborhood={(ctaBusiness as any)?.neighborhood}
+                      avgOn20={feedAvgOn20}
+                      totalReviewCount={feedReviewCount}
+                      teaser={feedInfoTeaser}
+                      language={language}
+                      bare
+                      onOpen={(rect) => {
+                        // Sans exception : la barre info ouvre la Full Description.
+                        // Entité liée (Destination / POI) : overlay local avec son texte.
+                        const targetId = preferEntity
+                          ? null
+                          : (ctaBusiness?.id || pageBusinessId || owner?.id || resolvedBusinessId);
+                        if (targetId) { setNestedOverlayKind("description"); setDescBusinessId(String(targetId)); return; }
+                        startDescMorph(rect);
+                      }}
+                    />
+                  ) : null}
                 </ViewerInfoBar>
-
               )}
 
 
