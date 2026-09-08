@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchBusinessViewerRow } from "@/lib/businessRowCache";
 
 type FeedBadge = { id: string; name: string; color?: string | null; text_color?: string | null };
 
@@ -157,6 +158,20 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   );
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex >= 0 && currentIndex < activeList.length - 1;
+
+  /* Précharge les fiches autour de la vidéo courante. Au swipe, nom, note,
+     description et hook sont ainsi disponibles dès le premier rendu : la barre
+     ne passe plus par un état intermédiaire qui change sa hauteur. */
+  useEffect(() => {
+    if (!open || currentIndex < 0) return;
+    const nearby = activeList.slice(Math.max(0, currentIndex - 2), currentIndex + 4);
+    const ids = new Set<string>();
+    for (const video of nearby) {
+      const id = video.pageBusinessId || video.owner?.id;
+      if (id) ids.add(String(id));
+    }
+    for (const id of ids) void fetchBusinessViewerRow(id);
+  }, [open, currentIndex, activeList]);
 
   // Source de vérité badges : lecture directe à chaque vidéo active. Le feed
   // peut fournir un tableau partiel (par exemple uniquement le badge filtrant).
