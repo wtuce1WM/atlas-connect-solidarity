@@ -271,7 +271,10 @@ const VideoSlidePanel = ({
   const [aiPlatform, setAiPlatform] = useState(false);
   const { recentBusinesses } = useRecentlyViewedBusinesses();
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
-  const [businessDescription, setBusinessDescription] = useState<string | null>(null);
+  /* Taggée par ID vidéo : jamais de texte du business de la vidéo précédente. */
+  const [businessDescriptionState, setBusinessDescription] = useState<{ videoId: string; value: string | null } | null>(null);
+  const businessDescription = businessDescriptionState && businessDescriptionState.videoId === String(videoId || "")
+    ? businessDescriptionState.value : null;
   const [, forceRender] = useState(0);
   useEffect(() => { if (open) forceRender((n) => n + 1); }, [open]);
 
@@ -322,12 +325,18 @@ const VideoSlidePanel = ({
   // generic videos where the viewer info bar must show the business name + hook
   // instead of the video title/text. We therefore always load the business hook
   // and description so they are available when isGeneric is true.
-  const [businessHook, setBusinessHook] = useState<string | null>(null);
-  /** Établissement résolu depuis la vidéo (repli quand le feed ne le fournit pas). */
-  const [resolvedBusinessId, setResolvedBusinessId] = useState<string | null>(null);
-  const [resolvedBusinessName, setResolvedBusinessName] = useState<string | null>(null);
+  const [businessHookState, setBusinessHook] = useState<{ videoId: string; value: string | null } | null>(null);
+  const businessHook = businessHookState && businessHookState.videoId === String(videoId || "")
+    ? businessHookState.value : null;
+  /* Établissement résolu depuis la vidéo, TAGGÉ par l'ID vidéo : au changement
+     de vidéo, la résolution de la vidéo précédente ne doit JAMAIS s'afficher
+     (sinon la barre info montre le business précédent le temps du fetch). */
+  const [resolvedBiz, setResolvedBiz] = useState<{ videoId: string; id: string | null; name: string | null } | null>(null);
+  const videoKey = String(videoId || "");
+  const resolvedBusinessId = resolvedBiz && resolvedBiz.videoId === videoKey ? resolvedBiz.id : null;
+  const resolvedBusinessName = resolvedBiz && resolvedBiz.videoId === videoKey ? resolvedBiz.name : null;
   useEffect(() => {
-    if (!open) { setBusinessDescription(null); setBusinessHook(null); setResolvedBusinessId(null); setResolvedBusinessName(null); return; }
+    if (!open) { setBusinessDescription(null); setBusinessHook(null); setResolvedBiz(null); return; }
     let cancelled = false;
     (async () => {
       /* Repli : quand ni `pageBusinessId` ni `owner` ne sont fournis par le feed,
@@ -340,7 +349,7 @@ const VideoSlidePanel = ({
       }
 
       if (cancelled) return;
-      setResolvedBusinessId(targetId);
+      setResolvedBiz({ videoId: videoKey, id: targetId, name: null });
       if (!targetId) { setBusinessDescription(null); setBusinessHook(null); return; }
       const data: any = await fetchBusinessViewerRow(targetId);
       if (cancelled) return;
@@ -352,18 +361,19 @@ const VideoSlidePanel = ({
         : language === "en" ? (d.hook_en || d.hook_fr)
         : d.hook_fr;
 
-      setBusinessDescription(localizedDesc ?? null);
-      setBusinessHook(localizedHook ?? null);
-      setResolvedBusinessName(d.name ?? null);
+      setBusinessDescription({ videoId: videoKey, value: localizedDesc ?? null });
+      setBusinessHook({ videoId: videoKey, value: localizedHook ?? null });
+      setResolvedBiz({ videoId: videoKey, id: targetId, name: d.name ?? null });
     })();
     return () => { cancelled = true; };
-  }, [open, owner?.id, pageBusinessId, videoId, language]);
+  }, [open, owner?.id, pageBusinessId, videoId, language, videoKey]);
 
   /* Vidéos génériques / YouTube sans établissement lié : on cherche une entité
      éditoriale liée (Destination ou POI) pour alimenter la barre info.
      Sans entité ET sans titre/description de la vidéo, la barre est masquée. */
   const isExternalVideo = badgeSource !== "business";
-  const [linkedEntity, setLinkedEntity] = useState<{ name: string; hook: string | null; description: string | null } | null>(null);
+  const [linkedEntityState, setLinkedEntity] = useState<{ videoId: string; name: string; hook: string | null; description: string | null } | null>(null);
+  const linkedEntity = linkedEntityState && linkedEntityState.videoId === videoKey ? linkedEntityState : null;
   useEffect(() => {
     if (!open || !videoId || !isExternalVideo || resolvedBusinessId) { setLinkedEntity(null); return; }
     let cancelled = false;
@@ -388,7 +398,7 @@ const VideoSlidePanel = ({
       const hook = (language === "ar" ? d.hook_ar : language === "en" ? d.hook_en : null) || d.hook_fr || d.hook || null;
       const description = (language === "ar" ? d.description_ar : language === "en" ? d.description_en : null)
         || d.description_fr || d.description || null;
-      setLinkedEntity(name ? { name, hook, description } : null);
+      setLinkedEntity(name ? { videoId: videoKey, name, hook, description } : null);
     })();
     return () => { cancelled = true; };
   }, [open, videoId, isExternalVideo, resolvedBusinessId, language]);
