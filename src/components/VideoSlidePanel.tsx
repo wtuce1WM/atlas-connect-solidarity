@@ -361,8 +361,8 @@ const VideoSlidePanel = ({
         : language === "en" ? (d.hook_en || d.hook_fr)
         : d.hook_fr;
 
-      setBusinessDescription(localizedDesc ?? null);
-      setBusinessHook(localizedHook ?? null);
+      setBusinessDescription({ videoId: videoKey, value: localizedDesc ?? null });
+      setBusinessHook({ videoId: videoKey, value: localizedHook ?? null });
       setResolvedBiz({ videoId: videoKey, id: targetId, name: d.name ?? null });
     })();
     return () => { cancelled = true; };
@@ -398,7 +398,7 @@ const VideoSlidePanel = ({
       const hook = (language === "ar" ? d.hook_ar : language === "en" ? d.hook_en : null) || d.hook_fr || d.hook || null;
       const description = (language === "ar" ? d.description_ar : language === "en" ? d.description_en : null)
         || d.description_fr || d.description || null;
-      setLinkedEntity(name ? { name, hook, description } : null);
+      setLinkedEntity(name ? { videoId: videoKey, name, hook, description } : null);
     })();
     return () => { cancelled = true; };
   }, [open, videoId, isExternalVideo, resolvedBusinessId, language]);
