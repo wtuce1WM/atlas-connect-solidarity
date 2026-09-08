@@ -761,6 +761,10 @@ const Front = () => {
         setAskLocked(true);
         // Conversation lancée : la vidéo de fond passe en pause.
         backgroundVideoRef.current?.pause();
+        // Ferme le feed vidéo de droite de la homepage pour focaliser sur l'assistant IA.
+        setDemoActiveId(null);
+        setDemoCardsOnly(false);
+        setDemoIntro(false);
       } else if (e.data?.type === "owm-ask:new-conversation") {
         // Nouvelle conversation : la lecture de la vidéo de fond reprend.
         const video = backgroundVideoRef.current;
