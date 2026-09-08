@@ -181,7 +181,14 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
               const root = document.getElementById(containerId);
               if (root) { root.scrollTo({ top: 0, behavior: "smooth" }); return; }
             }
-            el?.scrollIntoView({ behavior: "smooth", block: "start" });
+            // On scrolle UNIQUEMENT le conteneur de l'overlay.
+            // scrollIntoView() faisait aussi défiler les ancêtres (page/panneau),
+            // ce qui décalait l'overlay vers le haut et coupait la croix de fermeture.
+            const root = document.getElementById(containerId);
+            if (root && el) {
+              const delta = el.getBoundingClientRect().top - root.getBoundingClientRect().top;
+              root.scrollTo({ top: root.scrollTop + delta, behavior: "smooth" });
+            }
           }}
 
           className={`shrink-0 h-7 px-2.5 rounded-full text-[10px] font-semibold uppercase tracking-wide font-['Montserrat',sans-serif] whitespace-nowrap transition-colors border ${
