@@ -26,6 +26,15 @@ export function badgeLabelKey(v: string): string {
   return depluralize(v);
 }
 
+/**
+ * Clés comparables d'un libellé de badge, variantes de libellé composé incluses
+ * (« Surf & Kite » ⇢ ["surf kite", "surf", "kite"]). Sert au test « même concept »
+ * badge ↔ cible taxonomique résolue : « surf » doit reconnaître « Surf & Kite ».
+ */
+export function badgeLabelKeys(v: string): string[] {
+  return badgeLabelVariants(v).map((x) => depluralize(x));
+}
+
 /** Dé-pluralise grossièrement chaque mot (« complexes hôteliers » ⇢ « complexe hotelier »). */
 function depluralize(v: string): string {
   return norm(v)
@@ -36,6 +45,26 @@ function depluralize(v: string): string {
 
 /** Libellés trop ambigus pour servir de détecteur de badge (mots grammaticaux). */
 const AMBIGUOUS_BADGE_TOKENS = new Set(["the", "and", "or", "les", "des", "una", "uno", "tea"]);
+
+/**
+ * Variantes détectables d'un libellé de badge composé.
+ * « Surf & Kite » ⇢ ["surf kite", "surf", "kite"] : l'utilisateur écrit « vidéos
+ * de surf », jamais le libellé complet. On ne découpe QUE sur les séparateurs
+ * d'énumération (`&`, `/`, `+`, `,`) — jamais sur l'espace, pour ne pas
+ * transformer « Vue sur mer » en « vue » ou « mer ». Seuil 4 caractères par
+ * partie afin d'éviter les faux positifs.
+ */
+function badgeLabelVariants(raw: unknown): string[] {
+  const full = norm(raw);
+  if (!full) return [];
+  const out = [full];
+  const parts = String(raw ?? "")
+    .split(/[&/+,]|\bet\b/gi)
+    .map((p) => norm(p))
+    .filter((p) => p && p !== full && p.length >= 4 && !AMBIGUOUS_BADGE_TOKENS.has(p));
+  for (const p of parts) if (!out.includes(p)) out.push(p);
+  return out;
+}
 
 export type FrontBadge = { id: string; name: string; viaSynonym?: boolean };
 
@@ -143,17 +172,19 @@ export async function matchFrontBadgeInMessage(
     const label =
       (lang === "en" && b.name_en) || (lang === "ar" && b.name_ar) || b.name_fr || b.name_en || b.name_ar;
     for (const raw of [b.name_fr, b.name_en, b.name_ar]) {
-      const n = norm(raw);
-      // Seuil abaissé de 5 à 3 caractères : 19 badges actifs courts (Vélo, Spa,
-      // Bar, Golf, Moto, Quad, Souk, Yoga, Musée…) étaient invisibles au texte
-      // comme au vocal. La comparaison est déjà faite sur MOT ENTIER (` velo `),
-      // donc pas de faux positif par sous-chaîne. Denylist : libellés qui sont
-      // aussi des mots grammaticaux courants (« Thé » ⇢ « the » anglais).
-      if (!n || n.length < 3 || AMBIGUOUS_BADGE_TOKENS.has(n)) continue;
-      const nd = depluralize(raw as string);
-      const hit = hay.includes(` ${n} `) || hayDep.includes(` ${nd} `);
-      if (!hit) continue;
-      if (!best || n.length > best.len) best = { id: String(b.id), name: String(label || raw), len: n.length };
+      // Seuil 3 caractères : 19 badges actifs courts (Vélo, Spa, Bar, Golf, Moto,
+      // Quad, Souk, Yoga, Musée…) étaient invisibles au texte comme au vocal. La
+      // comparaison est faite sur MOT ENTIER (` velo `), donc pas de faux positif
+      // par sous-chaîne. Denylist : libellés qui sont aussi des mots grammaticaux
+      // courants (« Thé » ⇢ « the » anglais). Les libellés composés sont aussi
+      // testés partie par partie (« Surf & Kite » ⇢ « surf », « kite »).
+      for (const n of badgeLabelVariants(raw)) {
+        if (n.length < 3 || AMBIGUOUS_BADGE_TOKENS.has(n)) continue;
+        const nd = depluralize(n);
+        const hit = hay.includes(` ${n} `) || hayDep.includes(` ${nd} `);
+        if (!hit) continue;
+        if (!best || n.length > best.len) best = { id: String(b.id), name: String(label || raw), len: n.length };
+      }
     }
   }
   // Un badge trouvé LITTÉRALEMENT reste l'autorité du corpus. Mais si le message
@@ -214,11 +245,12 @@ export async function matchFrontBadgesInMessage(
       (lang === "en" && b.name_en) || (lang === "ar" && b.name_ar) || b.name_fr || b.name_en || b.name_ar;
     let bestLen = 0;
     for (const raw of [b.name_fr, b.name_en, b.name_ar]) {
-      const n = norm(raw);
-      if (!n || n.length < 3 || AMBIGUOUS_BADGE_TOKENS.has(n)) continue;
-      const nd = depluralize(raw as string);
-      if (!(hay.includes(` ${n} `) || hayDep.includes(` ${nd} `))) continue;
-      if (n.length > bestLen) bestLen = n.length;
+      for (const n of badgeLabelVariants(raw)) {
+        if (n.length < 3 || AMBIGUOUS_BADGE_TOKENS.has(n)) continue;
+        const nd = depluralize(n);
+        if (!(hay.includes(` ${n} `) || hayDep.includes(` ${nd} `))) continue;
+        if (n.length > bestLen) bestLen = n.length;
+      }
     }
     if (bestLen) hits.push({ id: String(b.id), name: String(label || b.name_fr), len: bestLen });
   }

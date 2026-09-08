@@ -40,7 +40,7 @@ import {
 
 } from "../_shared/ai-engine/routes/curated.ts";
 import { buildVideoFeedAnswer, videoFeedMarker, loadBadgeVideoFeedPool, orderVideosByBadgeTiers } from "../_shared/ai-engine/routes/videoFeed.ts";
-import { matchFrontBadgeInMessage, matchFrontBadgesInMessage, resolveBadgeBusinessIds, badgeLabelKey } from "../_shared/ai-engine/routes/badgeVideoBusinesses.ts";
+import { matchFrontBadgeInMessage, matchFrontBadgesInMessage, resolveBadgeBusinessIds, badgeLabelKey, badgeLabelKeys } from "../_shared/ai-engine/routes/badgeVideoBusinesses.ts";
 
 import { buildDestinationsBlock } from "../_shared/ai-engine/routes/destinations.ts";
 import { buildImmersiveLines, buildImmersiveBlock } from "../_shared/ai-engine/routes/immersive.ts";
@@ -1817,8 +1817,11 @@ Deno.serve(async (req) => {
           // il ouvre la route même sur un libellé mono-mot.
           const multiWord = !!namedBadge
             && (namedBadge.viaSynonym === true || namedBadge.name.trim().split(/\s+/).length >= 2);
+          // « Même concept » tolère les libellés composés : la cible « surf »
+          // désigne bien le badge « Surf & Kite ».
+          const namedBadgeKeys = namedBadge ? badgeLabelKeys(namedBadge.name) : [];
           const sameConcept = !!namedBadge && !!resolution && resolution.targets.some(
-            (t) => badgeLabelKey(t.value) === badgeLabelKey(namedBadge.name),
+            (t) => namedBadgeKeys.includes(badgeLabelKey(t.value)),
           );
           if (namedBadge && multiWord && (!hasResolvedIntent || sameConcept)) {
 
