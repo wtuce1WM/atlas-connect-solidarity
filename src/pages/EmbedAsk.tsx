@@ -1863,11 +1863,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const send = (overrideText?: string, suggestionId?: string, followupId?: string, skipGeoPrompt = false) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !assistantReady) return;
-    // Intention locale explicite ("près de moi", "near me", etc.) sans position
-    // réellement connue (refus navigateur, préférence activée mais coords nulles) :
-    // le sélecteur d'adresse s'affiche inline et AUCUNE recherche ne part avant
-    // le choix de l'utilisateur.
-    if (!skipGeoPrompt && detectLocalIntent(text) && (!geo.isEnabled || !geo.coords)) {
+    // Toute intention locale explicite ("près de moi", "near me", etc.) doit
+    // d'abord faire confirmer l'adresse dans le sélecteur inline. Même si une
+    // ancienne position existe déjà, AUCUNE recherche ni réponse texte ne part
+    // avant le choix explicite de l'utilisateur pour cette nouvelle demande.
+    if (!skipGeoPrompt && detectLocalIntent(text)) {
       pendingGeoTextRef.current = text;
       setGeoPromptWaiting(false);
       setGeoPromptText(text);
