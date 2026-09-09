@@ -3760,7 +3760,31 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           }
           const raw = messageText(m);
           const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides, bookings } = extractPayloads(raw);
-          const mapPayload = maps[maps.length - 1] || null;
+          const mapPayloadRaw = maps[maps.length - 1] || null;
+          // Recherche locale : seules les adresses situées dans le rayon choisi
+          // autour du point confirmé sont affichées (1 km par défaut).
+          const geoOutOfRadius =
+            geoAnchor && mapPayloadRaw
+              ? mapPayloadRaw.businesses.length -
+                mapPayloadRaw.businesses.filter(
+                  (b) =>
+                    b?.latitude != null &&
+                    b?.longitude != null &&
+                    haversineKm(geoAnchor, { lat: Number(b.latitude), lng: Number(b.longitude) }) <= geoRadiusKm,
+                ).length
+              : 0;
+          const mapPayload =
+            geoAnchor && mapPayloadRaw
+              ? {
+                  ...mapPayloadRaw,
+                  businesses: mapPayloadRaw.businesses.filter(
+                    (b) =>
+                      b?.latitude != null &&
+                      b?.longitude != null &&
+                      haversineKm(geoAnchor, { lat: Number(b.latitude), lng: Number(b.longitude) }) <= geoRadiusKm,
+                  ),
+                }
+              : mapPayloadRaw;
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
           const destinationsPayload = destinations[destinations.length - 1] || null;
