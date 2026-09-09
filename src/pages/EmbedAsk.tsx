@@ -1045,8 +1045,23 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
       apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
     }),
-    prepareSendMessagesRequest: ({ messages, body }) => ({
-      body: {
+    prepareSendMessagesRequest: ({ messages, body }) => {
+      // L'ancre de géolocalisation ne doit s'appliquer qu'aux questions locales
+      // (ou à une relance de rayon) : sinon une question ordinaire posée après
+      // une recherche « près de moi » restait filtrée à 1 km et ne renvoyait rien.
+      const lastUser = [...messages].reverse().find((m: any) => m.role === "user") as any;
+      const lastUserText = String(
+        (lastUser?.parts || [])
+          .filter((p: any) => p?.type === "text")
+          .map((p: any) => p.text)
+          .join(" ") || ""
+      );
+      const isRadiusRelance = !!(body as any)?.searchQuery;
+      const geoApplies =
+        !!geoAnchorRef.current &&
+        (isRadiusRelance || detectLocalIntent(lastUserText) || parseRadiusCommand(lastUserText) != null);
+      return {
+
         messages,
         businessSlug: slug,
         // Mode plateforme : pas d'hôte — le moteur travaille sur la ville active
