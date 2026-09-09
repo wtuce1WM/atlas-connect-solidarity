@@ -33,6 +33,7 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   src,
   videoKey,
   className = "w-full h-full bg-black object-cover",
+  blocked = false,
   onLoadedMetadata,
   onTimeUpdate,
 }: FrozenFrameVideoProps) {
