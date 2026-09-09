@@ -1020,6 +1020,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [geoAnchor, setGeoAnchor] = useState<{ lat: number; lng: number } | null>(null);
   const geoAnchorRef = useRef<{ lat: number; lng: number } | null>(null);
   const [geoRadiusKm, setGeoRadiusKm] = useState<number>(1);
+  /** Adresse confirmée, question locale pas encore partie : l'assistant reste ouvert. */
+  const [geoSendPending, setGeoSendPending] = useState(false);
   const setGeoAnchorPoint = (c: { lat: number; lng: number } | null) => {
     geoAnchorRef.current = c; setGeoAnchor(c);
   };
