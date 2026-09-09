@@ -4883,14 +4883,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           }}
         />
       </Suspense>
-
-      <GeoPromptDialog
-        open={geoPromptOpen}
-        onOpenChange={(open) => {
-          if (!open) handleGeoPromptDismiss();
-        }}
-        onAccept={handleGeoPromptAccept}
-      />
     </div>
   );
 };
