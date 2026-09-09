@@ -131,6 +131,7 @@ const MediaBackground = React.memo(function MediaBackground({
           videoRef={videoRef}
           src={lastFileUrlRef.current}
           videoKey={lastFileUrlRef.current}
+          blocked={anyOverlayOpen}
           onLoadedMetadata={onLoadedMetadata}
         />
       );
