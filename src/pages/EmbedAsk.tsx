@@ -760,7 +760,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [locationOpen, setLocationOpen] = useState(false);
-  const [geoPromptOpen, setGeoPromptOpen] = useState(false);
+  /** Proposition de géolocalisation affichée inline dans la réponse IA (plus de pop-up). */
+  const [geoPromptText, setGeoPromptText] = useState<string | null>(null);
+  const [geoPromptWaiting, setGeoPromptWaiting] = useState(false);
   const pendingGeoTextRef = useRef<string | null>(null);
   const geo = useGeolocation();
 
