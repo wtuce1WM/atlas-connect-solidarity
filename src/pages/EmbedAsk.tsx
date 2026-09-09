@@ -1091,6 +1091,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         // Une relance de rayon doit rejouer la recherche locale initiale sur le
         // catalogue complet, pas filtrer à nouveau l'ancien lot déjà restreint.
         searchQuery: (body as any)?.searchQuery ?? null,
+        // Rupture de contexte : une question ordinaire posée après une recherche
+        // géolocalisée ne doit pas être affinée sur l'ancien lot restreint au rayon.
+        dropPriorPool: !!geoAnchorRef.current && !geoApplies ? true : undefined,
+
        },
       };
     },
