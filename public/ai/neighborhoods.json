@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/neighborhoods.json",
-    "generated_at": "2026-09-07T02:25:58.189Z",
+    "generated_at": "2026-09-09T10:13:30.829Z",
     "count": 104
   },
   "neighborhoods": [
@@ -923,7 +923,11 @@
         },
         {
           "name": "Pure Passion Agadir",
-          "url": "https://oneworldmorocco.com/pure-passion-agadir"
+          "url": "https://oneworldmorocco.com/pure-passion"
+        },
+        {
+          "name": "Pure Passion Agadir",
+          "url": "https://oneworldmorocco.com/pure-passion"
         }
       ]
     },
@@ -1991,7 +1995,7 @@
           "url": "https://oneworldmorocco.com/azur-spa"
         },
         {
-          "name": "Association Essaouira Mogador",
+          "name": "Dar Souiri Association Essaouira Mogador",
           "url": "https://oneworldmorocco.com/association-essaouira-mogador"
         },
         {
@@ -2151,7 +2155,7 @@
           "url": "https://oneworldmorocco.com/maison-flamingo-boutique"
         },
         {
-          "name": "Riad Tamayourt Guest House Ocean View",
+          "name": "Riad Tamayourt Ocean View",
           "url": "https://oneworldmorocco.com/riad-tamayourt-guest-house-ocean-view"
         },
         {
@@ -2197,6 +2201,10 @@
         {
           "name": "Villa Azir Essaouira",
           "url": "https://oneworldmorocco.com/villa-azir-essaouira"
+        },
+        {
+          "name": "Villa Nausikaa",
+          "url": "https://oneworldmorocco.com/villa-nausikaa"
         }
       ]
     },
@@ -2431,7 +2439,7 @@
           "url": "https://oneworldmorocco.com/azur-spa"
         },
         {
-          "name": "Association Essaouira Mogador",
+          "name": "Dar Souiri Association Essaouira Mogador",
           "url": "https://oneworldmorocco.com/association-essaouira-mogador"
         },
         {
@@ -3430,7 +3438,7 @@
           "url": "https://oneworldmorocco.com/azur-spa"
         },
         {
-          "name": "Association Essaouira Mogador",
+          "name": "Dar Souiri Association Essaouira Mogador",
           "url": "https://oneworldmorocco.com/association-essaouira-mogador"
         },
         {
@@ -3562,7 +3570,7 @@
           "url": "https://oneworldmorocco.com/azur-spa"
         },
         {
-          "name": "Association Essaouira Mogador",
+          "name": "Dar Souiri Association Essaouira Mogador",
           "url": "https://oneworldmorocco.com/association-essaouira-mogador"
         },
         {
@@ -3694,7 +3702,7 @@
           "url": "https://oneworldmorocco.com/azur-spa"
         },
         {
-          "name": "Association Essaouira Mogador",
+          "name": "Dar Souiri Association Essaouira Mogador",
           "url": "https://oneworldmorocco.com/association-essaouira-mogador"
         },
         {
@@ -4055,7 +4063,7 @@
           "url": "https://oneworldmorocco.com/azur-spa"
         },
         {
-          "name": "Association Essaouira Mogador",
+          "name": "Dar Souiri Association Essaouira Mogador",
           "url": "https://oneworldmorocco.com/association-essaouira-mogador"
         },
         {
@@ -4187,7 +4195,7 @@
           "url": "https://oneworldmorocco.com/azur-spa"
         },
         {
-          "name": "Association Essaouira Mogador",
+          "name": "Dar Souiri Association Essaouira Mogador",
           "url": "https://oneworldmorocco.com/association-essaouira-mogador"
         },
         {
@@ -4346,7 +4354,7 @@
           "url": "https://oneworldmorocco.com/azur-spa"
         },
         {
-          "name": "Association Essaouira Mogador",
+          "name": "Dar Souiri Association Essaouira Mogador",
           "url": "https://oneworldmorocco.com/association-essaouira-mogador"
         },
         {
@@ -4690,7 +4698,7 @@
           "url": "https://oneworldmorocco.com/azur-spa"
         },
         {
-          "name": "Association Essaouira Mogador",
+          "name": "Dar Souiri Association Essaouira Mogador",
           "url": "https://oneworldmorocco.com/association-essaouira-mogador"
         },
         {
