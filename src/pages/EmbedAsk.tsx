@@ -1045,9 +1045,25 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
       apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
     }),
-    prepareSendMessagesRequest: ({ messages, body }) => ({
-      body: {
+    prepareSendMessagesRequest: ({ messages, body }) => {
+      // L'ancre de géolocalisation ne doit s'appliquer qu'aux questions locales
+      // (ou à une relance de rayon) : sinon une question ordinaire posée après
+      // une recherche « près de moi » restait filtrée à 1 km et ne renvoyait rien.
+      const lastUser = [...messages].reverse().find((m: any) => m.role === "user") as any;
+      const lastUserText = String(
+        (lastUser?.parts || [])
+          .filter((p: any) => p?.type === "text")
+          .map((p: any) => p.text)
+          .join(" ") || ""
+      );
+      const isRadiusRelance = !!(body as any)?.searchQuery;
+      const geoApplies =
+        !!geoAnchorRef.current &&
+        (isRadiusRelance || detectLocalIntent(lastUserText) || parseRadiusCommand(lastUserText) != null);
+      return {
+       body: {
         messages,
+
         businessSlug: slug,
         // Mode plateforme : pas d'hôte — le moteur travaille sur la ville active
         // (fallback Marrakech côté moteur), surface embed conservée.
@@ -1069,15 +1085,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         destinationId: (body as any)?.destinationId ?? null,
         // Point confirmé par l'utilisateur : le moteur restreint le corpus lui-même,
         // sinon la réponse rédigée citait des adresses hors rayon.
-        radiusKm: geoAnchorRef.current ? geoRadiusRef.current : radiusRef.current,
-        userLat: geoAnchorRef.current?.lat ?? null,
-        userLng: geoAnchorRef.current?.lng ?? null,
+        radiusKm: geoApplies ? geoRadiusRef.current : radiusRef.current,
+        userLat: geoApplies ? geoAnchorRef.current?.lat ?? null : null,
+        userLng: geoApplies ? geoAnchorRef.current?.lng ?? null : null,
         // Une relance de rayon doit rejouer la recherche locale initiale sur le
         // catalogue complet, pas filtrer à nouveau l'ancien lot déjà restreint.
         searchQuery: (body as any)?.searchQuery ?? null,
-      },
-    }),
+       },
+      };
+    },
   }), [slug, lang, isPlatform, platformCity, isClubScope]);
+
 
 
   const { messages, sendMessage, status, setMessages } = useChat({
@@ -3816,30 +3834,41 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           const raw = messageText(m);
           const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides, bookings } = extractPayloads(raw);
           const mapPayloadRaw = maps[maps.length - 1] || null;
-          // Recherche locale : seules les adresses situées dans le rayon choisi
-          // autour du point confirmé sont affichées (1 km par défaut).
+          // Le filtre de rayon ne s'applique qu'aux réponses issues d'une question
+          // locale (« près de moi ») ou d'une relance de rayon : une question
+          // ordinaire posée ensuite ne doit plus être restreinte au rayon.
+          let precedingUserText = "";
+          for (let k = i - 1; k >= 0; k--) {
+            if (messages[k].role === "user") { precedingUserText = messageText(messages[k]); break; }
+          }
+          const geoActiveForMsg =
+            geoAnchor &&
+            (detectLocalIntent(precedingUserText) || parseRadiusCommand(precedingUserText) != null)
+              ? geoAnchor
+              : null;
           const geoOutOfRadius =
-            geoAnchor && mapPayloadRaw
+            geoActiveForMsg && mapPayloadRaw
               ? mapPayloadRaw.businesses.length -
                 mapPayloadRaw.businesses.filter(
                   (b) =>
                     b?.latitude != null &&
                     b?.longitude != null &&
-                    haversineKm(geoAnchor, { lat: Number(b.latitude), lng: Number(b.longitude) }) <= geoRadiusKm,
+                    haversineKm(geoActiveForMsg, { lat: Number(b.latitude), lng: Number(b.longitude) }) <= geoRadiusKm,
                 ).length
               : 0;
           const mapPayload =
-            geoAnchor && mapPayloadRaw
+            geoActiveForMsg && mapPayloadRaw
               ? {
                   ...mapPayloadRaw,
                   businesses: mapPayloadRaw.businesses.filter(
                     (b) =>
                       b?.latitude != null &&
                       b?.longitude != null &&
-                      haversineKm(geoAnchor, { lat: Number(b.latitude), lng: Number(b.longitude) }) <= geoRadiusKm,
+                      haversineKm(geoActiveForMsg, { lat: Number(b.latitude), lng: Number(b.longitude) }) <= geoRadiusKm,
                   ),
                 }
               : mapPayloadRaw;
+
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
           const destinationsPayload = destinations[destinations.length - 1] || null;
@@ -3852,7 +3881,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           // Une relance de rayon ajoute une nouvelle réponse à l'historique. Ne pas
           // laisser les anciennes cartes géolocalisées visibles : sur mobile elles
           // donnaient l'impression que le rayon renvoyait toujours le même lot.
-          const hasNewerGeoRequest = !!geoAnchor && messages.slice(i + 1).some((later) =>
+          const hasNewerGeoRequest = !!geoActiveForMsg && messages.slice(i + 1).some((later) =>
             (later.role === "user" && parseRadiusCommand(messageText(later)) != null) ||
             (later.role === "assistant" && extractPayloads(messageText(later)).maps.some((payload) => payload.businesses.length > 0)),
           );
@@ -3868,7 +3897,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           // dans le texte (ils n'ont pas de coordonnées, donc impossible de
           // garantir le rayon — c'est ce qui affichait des adresses hors zone).
           const citedFallback =
-            !geoAnchor && (!mapPayload || mapPayload.businesses.length === 0)
+            !geoActiveForMsg && (!mapPayload || mapPayload.businesses.length === 0)
               ? findCitedBusinesses(clean)
               : [];
           return (
@@ -4133,7 +4162,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 </div>
               )}
 
-              {!hasNewerGeoRequest && geoAnchor && mapPayloadRaw && mapPayloadRaw.businesses.length > 0 && (
+              {!hasNewerGeoRequest && geoActiveForMsg && mapPayloadRaw && mapPayloadRaw.businesses.length > 0 && (
                 <div className={`w-full max-w-[85%] rounded-xl px-3 py-2 text-[12px] leading-snug ${cardBg}`} style={cardStyle}>
                   {lang === "en"
                     ? `Within ${radiusLabel(geoRadiusKm, lang)} of your address: ${mapPayload?.businesses.length ?? 0} place(s).${geoOutOfRadius > 0 ? ` ${geoOutOfRadius} further away hidden.` : ""} Say or type “radius 5 km” to change it.`
