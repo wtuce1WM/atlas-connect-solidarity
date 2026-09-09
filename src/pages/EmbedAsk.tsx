@@ -18,7 +18,6 @@ import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
-import GeoInlinePrompt from "@/components/GeoInlinePrompt";
 import { parseBookingIntent } from "@/lib/parseBookingIntent";
 import { detectLocalIntent } from "@/lib/detectLocalIntent";
 import EmbedFilterDrawer, { type EmbedFilterGroup } from "@/components/embed/EmbedFilterDrawer";
@@ -2083,6 +2082,45 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   };
 
   /**
+   * Sélecteur d'adresse (même contenu que le pop-up « Choisir votre adresse »)
+   * rendu inline dans la réponse IA, avec la question en attente au-dessus.
+   */
+  const renderGeoInlinePicker = () => {
+    if (!geoPromptText) return null;
+    return (
+      <div className="w-full mt-1 space-y-2">
+        <div className="flex justify-end">
+          <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${userBubble}`}>
+            <div className="whitespace-pre-wrap">{geoPromptText}</div>
+          </div>
+        </div>
+        <Suspense fallback={null}>
+          <LocationPickerDialog
+            inline
+            open
+            onOpenChange={(o) => { if (!o) handleGeoPromptDismiss(); }}
+            coords={geo.coords}
+            detectedCity={geo.confirmedAddress || geo.detectedCity}
+            isEnabled={geo.isEnabled}
+            isDetecting={geo.isDetecting}
+            theme={theme}
+            onUseCurrentPosition={() => { if (!geo.isEnabled) geo.accept(); }}
+            onConfirm={handleGeoPickerConfirm}
+            onDisableGeo={() => {
+              try {
+                localStorage.removeItem("geo_manual_coords");
+                localStorage.removeItem("geo_manual_address");
+              } catch { /* noop */ }
+              geo.decline();
+              handleGeoPromptDismiss();
+            }}
+          />
+        </Suspense>
+      </div>
+    );
+  };
+
+  /**
    * Filtre local déterministe (badges du footer) : le serveur applique une route
    * du catalogue partagé sur le corpus déjà affiché — zéro appel modèle.
    */
@@ -3558,17 +3596,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     </div>
                   </form>
 
-                  {geoPromptText && (
-                    <div className="w-full mt-1">
-                      <GeoInlinePrompt
-                        question={geoPromptText}
-                        waiting={geoPromptWaiting}
-                        theme={theme === "light" ? "light" : "dark"}
-                        onAccept={handleGeoPromptAccept}
-                        onLater={handleGeoPromptDismiss}
-                      />
-                    </div>
-                  )}
+                  {renderGeoInlinePicker()}
 
 
                   <div className="w-full max-w-xl md:max-w-4xl mx-auto flex flex-col items-center gap-2">
@@ -3667,15 +3695,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             </div>
           );
         })()}
-        {!homeState && geoPromptText && (
-          <GeoInlinePrompt
-            question={geoPromptText}
-            waiting={geoPromptWaiting}
-            theme={theme === "light" ? "light" : "dark"}
-            onAccept={handleGeoPromptAccept}
-            onLater={handleGeoPromptDismiss}
-          />
-        )}
+        {!homeState && renderGeoInlinePicker()}
         {!homeState && !feedOpening && messages.map((m, i) => {
           if (m.role === "user") {
             return (
