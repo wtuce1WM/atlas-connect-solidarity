@@ -1085,15 +1085,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         destinationId: (body as any)?.destinationId ?? null,
         // Point confirmé par l'utilisateur : le moteur restreint le corpus lui-même,
         // sinon la réponse rédigée citait des adresses hors rayon.
-        radiusKm: geoAnchorRef.current ? geoRadiusRef.current : radiusRef.current,
-        userLat: geoAnchorRef.current?.lat ?? null,
-        userLng: geoAnchorRef.current?.lng ?? null,
+        radiusKm: geoApplies ? geoRadiusRef.current : radiusRef.current,
+        userLat: geoApplies ? geoAnchorRef.current?.lat ?? null : null,
+        userLng: geoApplies ? geoAnchorRef.current?.lng ?? null : null,
         // Une relance de rayon doit rejouer la recherche locale initiale sur le
         // catalogue complet, pas filtrer à nouveau l'ancien lot déjà restreint.
         searchQuery: (body as any)?.searchQuery ?? null,
-      },
-    }),
+       },
+      };
+    },
   }), [slug, lang, isPlatform, platformCity, isClubScope]);
+
 
 
   const { messages, sendMessage, status, setMessages } = useChat({
