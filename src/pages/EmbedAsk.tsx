@@ -18,7 +18,7 @@ import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
-import GeoPromptDialog from "@/components/GeoPromptDialog";
+import GeoInlinePrompt from "@/components/GeoInlinePrompt";
 import { parseBookingIntent } from "@/lib/parseBookingIntent";
 import { detectLocalIntent } from "@/lib/detectLocalIntent";
 import EmbedFilterDrawer, { type EmbedFilterGroup } from "@/components/embed/EmbedFilterDrawer";
@@ -760,7 +760,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [locationOpen, setLocationOpen] = useState(false);
-  const [geoPromptOpen, setGeoPromptOpen] = useState(false);
+  /** Proposition de géolocalisation affichée inline dans la réponse IA (plus de pop-up). */
+  const [geoPromptText, setGeoPromptText] = useState<string | null>(null);
+  const [geoPromptWaiting, setGeoPromptWaiting] = useState(false);
   const pendingGeoTextRef = useRef<string | null>(null);
   const geo = useGeolocation();
 
@@ -1866,7 +1868,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // non activée : on propose d'abord le pop-up, puis on envoie la question.
     if (!skipGeoPrompt && detectLocalIntent(text) && !geo.isEnabled) {
       pendingGeoTextRef.current = text;
-      setGeoPromptOpen(true);
+      setGeoPromptWaiting(false);
+      setGeoPromptText(text);
+      if (!overrideText) setInput("");
       return;
     }
     // Hôte embarqueur (ex. /front) : signale qu'une question a été lancée pour
@@ -2054,20 +2058,38 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     void openPreflightBadgeFeed(text).finally(fire);
   };
 
+  /**
+   * Acceptation inline : on attend que la position réelle soit disponible avant
+   * de lancer la question (sinon la recherche part sans coordonnées).
+   */
   const handleGeoPromptAccept = () => {
-    const text = pendingGeoTextRef.current;
-    pendingGeoTextRef.current = null;
-    setGeoPromptOpen(false);
+    setGeoPromptWaiting(true);
     geo.accept();
-    if (text) send(text, undefined, undefined, true);
   };
 
   const handleGeoPromptDismiss = () => {
     const text = pendingGeoTextRef.current;
     pendingGeoTextRef.current = null;
-    setGeoPromptOpen(false);
+    setGeoPromptWaiting(false);
+    setGeoPromptText(null);
     if (text) send(text, undefined, undefined, true);
   };
+
+  // Position obtenue (ou délai dépassé) → la question en attente part enfin.
+  useEffect(() => {
+    if (!geoPromptWaiting) return;
+    const fire = () => {
+      const text = pendingGeoTextRef.current;
+      pendingGeoTextRef.current = null;
+      setGeoPromptWaiting(false);
+      setGeoPromptText(null);
+      if (text) send(text, undefined, undefined, true);
+    };
+    if (geo.coords) { fire(); return; }
+    const timer = window.setTimeout(fire, 12000);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [geoPromptWaiting, geo.coords]);
 
   /**
    * Filtre local déterministe (badges du footer) : le serveur applique une route
@@ -3545,6 +3567,19 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     </div>
                   </form>
 
+                  {geoPromptText && (
+                    <div className="w-full mt-1">
+                      <GeoInlinePrompt
+                        question={geoPromptText}
+                        waiting={geoPromptWaiting}
+                        theme={theme === "light" ? "light" : "dark"}
+                        onAccept={handleGeoPromptAccept}
+                        onLater={handleGeoPromptDismiss}
+                      />
+                    </div>
+                  )}
+
+
                   <div className="w-full max-w-xl md:max-w-4xl mx-auto flex flex-col items-center gap-2">
                     <div ref={badgesRowRef} data-badges-row className={`w-full flex ${showAllSuggestions ? "flex-wrap" : "flex-nowrap md:flex-wrap"} items-stretch justify-start md:justify-center gap-2 overflow-x-auto scrollbar-hide pb-1`} style={heroReveal(400)}>
                       {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
@@ -3641,6 +3676,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             </div>
           );
         })()}
+        {!homeState && geoPromptText && (
+          <GeoInlinePrompt
+            question={geoPromptText}
+            waiting={geoPromptWaiting}
+            theme={theme === "light" ? "light" : "dark"}
+            onAccept={handleGeoPromptAccept}
+            onLater={handleGeoPromptDismiss}
+          />
+        )}
         {!homeState && !feedOpening && messages.map((m, i) => {
           if (m.role === "user") {
             return (
@@ -4861,14 +4905,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           }}
         />
       </Suspense>
-
-      <GeoPromptDialog
-        open={geoPromptOpen}
-        onOpenChange={(open) => {
-          if (!open) handleGeoPromptDismiss();
-        }}
-        onAccept={handleGeoPromptAccept}
-      />
     </div>
   );
 };
