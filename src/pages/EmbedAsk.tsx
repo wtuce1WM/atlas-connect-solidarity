@@ -3802,8 +3802,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             lastLocalFilterRef.current?.forcedRoute === "rating_best" &&
             !!mapPayload &&
             mapPayload.businesses.length > 0;
+          // Recherche géolocalisée : aucun repli sur les établissements cités
+          // dans le texte (ils n'ont pas de coordonnées, donc impossible de
+          // garantir le rayon — c'est ce qui affichait des adresses hors zone).
           const citedFallback =
-            !mapPayload || mapPayload.businesses.length === 0
+            !geoAnchor && (!mapPayload || mapPayload.businesses.length === 0)
               ? findCitedBusinesses(clean)
               : [];
           return (
