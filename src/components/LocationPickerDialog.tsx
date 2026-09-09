@@ -410,21 +410,13 @@ const LocationPickerDialog = ({
 
   const body = (
     <>
-          {inline ? (
-            <button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              aria-label="Close"
-              className={cn("absolute left-4 top-4 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none z-10", themed.closeBtn)}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          ) : (
+          {!inline && (
             <DialogPrimitive.Close className={cn("absolute left-4 top-4 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none disabled:pointer-events-none z-10", themed.closeBtn)}>
               <X className="h-4 w-4" />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
           )}
+
           <div className="p-5 pb-3 shrink-0 text-center">
             {inline ? (
               <p className={cn("text-lg font-bold text-center", themed.fg)} style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -538,9 +530,8 @@ const LocationPickerDialog = ({
     return (
       <div
         className={cn(
-          "relative w-full max-w-xl mx-auto border rounded-2xl overflow-hidden flex flex-col shadow-lg",
-          themed.surface,
-          themed.border,
+          "relative w-full max-w-xl mx-auto rounded-2xl overflow-hidden flex flex-col bg-transparent",
+          theme === "light" ? "text-neutral-900" : theme === "dark" ? "text-neutral-100" : "text-foreground",
           className
         )}
       >
@@ -548,6 +539,7 @@ const LocationPickerDialog = ({
       </div>
     );
   }
+
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
