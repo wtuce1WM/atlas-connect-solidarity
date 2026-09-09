@@ -1111,7 +1111,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
 
   /** Option B : accueil IA plein écran (logo + champ central + chips) vs conversation. */
-  const homeState = isPlatform && !hasUserMessages && !streaming && assistantReady && splashPhase === "done";
+  // Le sélecteur d'adresse inline s'affiche dans l'assistant OUVERT : dès qu'une
+  // question locale est en attente, on quitte l'accueil plein écran.
+  const homeState = isPlatform && !hasUserMessages && !streaming && assistantReady && splashPhase === "done" && !geoPromptText;
   
   const pickFollowupLabel = (f: FollowupRow): string => {
     const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
