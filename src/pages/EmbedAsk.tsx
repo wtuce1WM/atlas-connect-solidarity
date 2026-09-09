@@ -18,7 +18,6 @@ import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
-import GeoInlinePrompt from "@/components/GeoInlinePrompt";
 import { parseBookingIntent } from "@/lib/parseBookingIntent";
 import { detectLocalIntent } from "@/lib/detectLocalIntent";
 import EmbedFilterDrawer, { type EmbedFilterGroup } from "@/components/embed/EmbedFilterDrawer";
@@ -1864,9 +1863,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const send = (overrideText?: string, suggestionId?: string, followupId?: string, skipGeoPrompt = false) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !assistantReady) return;
-    // Intention locale explicite ("près de moi", "near me", etc.) et géolocalisation
-    // non activée : on propose d'abord le pop-up, puis on envoie la question.
-    if (!skipGeoPrompt && detectLocalIntent(text) && !geo.isEnabled) {
+    // Intention locale explicite ("près de moi", "near me", etc.) sans position
+    // réellement connue (refus navigateur, préférence activée mais coords nulles) :
+    // le sélecteur d'adresse s'affiche inline et AUCUNE recherche ne part avant
+    // le choix de l'utilisateur.
+    if (!skipGeoPrompt && detectLocalIntent(text) && (!geo.isEnabled || !geo.coords)) {
       pendingGeoTextRef.current = text;
       setGeoPromptWaiting(false);
       setGeoPromptText(text);
@@ -2059,14 +2060,19 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   };
 
   /**
-   * Acceptation inline : on attend que la position réelle soit disponible avant
-   * de lancer la question (sinon la recherche part sans coordonnées).
+   * Adresse confirmée dans le sélecteur inline : la position est enregistrée,
+   * puis la question en attente part avec les coordonnées choisies.
    */
-  const handleGeoPromptAccept = () => {
-    setGeoPromptWaiting(true);
-    geo.accept();
+  const handleGeoPickerConfirm = (coords: { lat: number; lng: number }, address: string) => {
+    geo.setManualLocation(coords, address);
+    const text = pendingGeoTextRef.current;
+    pendingGeoTextRef.current = null;
+    setGeoPromptWaiting(false);
+    setGeoPromptText(null);
+    if (text) window.setTimeout(() => send(text, undefined, undefined, true), 0);
   };
 
+  /** Refus / fermeture : la question part sans position. */
   const handleGeoPromptDismiss = () => {
     const text = pendingGeoTextRef.current;
     pendingGeoTextRef.current = null;
@@ -2075,21 +2081,44 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     if (text) send(text, undefined, undefined, true);
   };
 
-  // Position obtenue (ou délai dépassé) → la question en attente part enfin.
-  useEffect(() => {
-    if (!geoPromptWaiting) return;
-    const fire = () => {
-      const text = pendingGeoTextRef.current;
-      pendingGeoTextRef.current = null;
-      setGeoPromptWaiting(false);
-      setGeoPromptText(null);
-      if (text) send(text, undefined, undefined, true);
-    };
-    if (geo.coords) { fire(); return; }
-    const timer = window.setTimeout(fire, 12000);
-    return () => window.clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [geoPromptWaiting, geo.coords]);
+  /**
+   * Sélecteur d'adresse (même contenu que le pop-up « Choisir votre adresse »)
+   * rendu inline dans la réponse IA, avec la question en attente au-dessus.
+   */
+  const renderGeoInlinePicker = () => {
+    if (!geoPromptText) return null;
+    return (
+      <div className="w-full mt-1 space-y-2">
+        <div className="flex justify-end">
+          <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${userBubble}`}>
+            <div className="whitespace-pre-wrap">{geoPromptText}</div>
+          </div>
+        </div>
+        <Suspense fallback={null}>
+          <LocationPickerDialog
+            inline
+            open
+            onOpenChange={(o) => { if (!o) handleGeoPromptDismiss(); }}
+            coords={geo.coords}
+            detectedCity={geo.confirmedAddress || geo.detectedCity}
+            isEnabled={geo.isEnabled}
+            isDetecting={geo.isDetecting}
+            theme={theme}
+            onUseCurrentPosition={() => { if (!geo.isEnabled) geo.accept(); }}
+            onConfirm={handleGeoPickerConfirm}
+            onDisableGeo={() => {
+              try {
+                localStorage.removeItem("geo_manual_coords");
+                localStorage.removeItem("geo_manual_address");
+              } catch { /* noop */ }
+              geo.decline();
+              handleGeoPromptDismiss();
+            }}
+          />
+        </Suspense>
+      </div>
+    );
+  };
 
   /**
    * Filtre local déterministe (badges du footer) : le serveur applique une route
@@ -3567,17 +3596,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     </div>
                   </form>
 
-                  {geoPromptText && (
-                    <div className="w-full mt-1">
-                      <GeoInlinePrompt
-                        question={geoPromptText}
-                        waiting={geoPromptWaiting}
-                        theme={theme === "light" ? "light" : "dark"}
-                        onAccept={handleGeoPromptAccept}
-                        onLater={handleGeoPromptDismiss}
-                      />
-                    </div>
-                  )}
+                  {renderGeoInlinePicker()}
 
 
                   <div className="w-full max-w-xl md:max-w-4xl mx-auto flex flex-col items-center gap-2">
@@ -3676,15 +3695,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             </div>
           );
         })()}
-        {!homeState && geoPromptText && (
-          <GeoInlinePrompt
-            question={geoPromptText}
-            waiting={geoPromptWaiting}
-            theme={theme === "light" ? "light" : "dark"}
-            onAccept={handleGeoPromptAccept}
-            onLater={handleGeoPromptDismiss}
-          />
-        )}
+        {!homeState && renderGeoInlinePicker()}
         {!homeState && !feedOpening && messages.map((m, i) => {
           if (m.role === "user") {
             return (
