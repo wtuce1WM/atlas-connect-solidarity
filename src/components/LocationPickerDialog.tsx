@@ -447,22 +447,32 @@ const LocationPickerDialog = ({
 
 
           <div className="px-5 space-y-3 shrink-0">
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:flex-wrap gap-2">
               <button
                 onClick={handleUseCurrentPosition}
                 disabled={isDetecting}
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
-                className="flex-1 min-w-[140px] flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-gold text-white font-medium text-sm normal-case tracking-normal hover:bg-gold/90 transition-colors disabled:opacity-50"
+                className="order-1 sm:order-none w-full sm:flex-1 sm:min-w-[140px] flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-gold text-white font-medium text-sm normal-case tracking-normal hover:bg-gold/90 transition-colors disabled:opacity-50"
               >
                 {isDetecting || waitingForPosition ? <Loader className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />}
                 {language === "en" ? "My position" : language === "ar" ? "موقعي" : "Ma position"}
               </button>
+              {onDisableGeo && (
+                <button
+                  onClick={() => { onDisableGeo(); onOpenChange(false); }}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  className="order-2 sm:order-none w-full sm:flex-1 sm:min-w-[140px] flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm normal-case tracking-normal hover:bg-primary/90 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                  {language === "en" ? "Don't geolocate me" : language === "ar" ? "لا تحدد موقعي" : "Ne pas me géolocaliser"}
+                </button>
+              )}
               {hostLocation && (
                 <button
                   onClick={selectHostLocation}
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                   className={cn(
-                    "flex-1 min-w-[140px] flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-medium text-sm normal-case tracking-normal transition-colors",
+                    "order-3 sm:order-none w-full sm:flex-1 sm:min-w-[140px] flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-medium text-sm normal-case tracking-normal transition-colors",
                     themed.hostBtn
                   )}
                   title={hostLabel || ""}
@@ -471,17 +481,8 @@ const LocationPickerDialog = ({
                   <span className="truncate">{hostLabel || (language === "en" ? "The venue" : language === "ar" ? "المكان" : "L'établissement")}</span>
                 </button>
               )}
-              {onDisableGeo && (
-                <button
-                  onClick={() => { onDisableGeo(); onOpenChange(false); }}
-                  style={{ fontFamily: "'Montserrat', sans-serif" }}
-                  className="flex-1 min-w-[140px] flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm normal-case tracking-normal hover:bg-primary/90 transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                  {language === "en" ? "Don't geolocate me" : language === "ar" ? "لا تحدد موقعي" : "Ne pas me géolocaliser"}
-                </button>
-              )}
             </div>
+
 
             {!inline && (
               <div className={cn("relative flex items-center border rounded-xl overflow-hidden focus-within:border-gold/50 transition-colors", themed.border)}>
