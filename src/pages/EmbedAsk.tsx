@@ -3567,6 +3567,19 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     </div>
                   </form>
 
+                  {geoPromptText && (
+                    <div className="w-full mt-1">
+                      <GeoInlinePrompt
+                        question={geoPromptText}
+                        waiting={geoPromptWaiting}
+                        theme={theme === "light" ? "light" : "dark"}
+                        onAccept={handleGeoPromptAccept}
+                        onLater={handleGeoPromptDismiss}
+                      />
+                    </div>
+                  )}
+
+
                   <div className="w-full max-w-xl md:max-w-4xl mx-auto flex flex-col items-center gap-2">
                     <div ref={badgesRowRef} data-badges-row className={`w-full flex ${showAllSuggestions ? "flex-wrap" : "flex-nowrap md:flex-wrap"} items-stretch justify-start md:justify-center gap-2 overflow-x-auto scrollbar-hide pb-1`} style={heroReveal(400)}>
                       {/* Chip « Map » permanent : toujours visible, quelles que soient les suggestions du backoffice. */}
