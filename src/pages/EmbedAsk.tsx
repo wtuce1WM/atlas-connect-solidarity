@@ -1025,6 +1025,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const setGeoAnchorPoint = (c: { lat: number; lng: number } | null) => {
     geoAnchorRef.current = c; setGeoAnchor(c);
   };
+  /**
+   * Le sélecteur appelle `onOpenChange(false)` juste après `onConfirm` : sans ce
+   * drapeau, la fermeture était traitée comme un refus et effaçait le point
+   * confirmé (c'est ce qui faisait disparaître le filtre de rayon).
+   */
+  const geoJustConfirmedRef = useRef(false);
+
 
 
 
@@ -2120,6 +2127,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * puis la question en attente part avec les coordonnées choisies.
    */
   const handleGeoPickerConfirm = (coords: { lat: number; lng: number }, address: string) => {
+    geoJustConfirmedRef.current = true;
     geo.setManualLocation(coords, address);
     // Les résultats sont restreints à 1 km autour de l'adresse choisie ;
     // l'utilisateur peut ensuite élargir le rayon (texte ou voix).
@@ -2160,7 +2168,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           <LocationPickerDialog
             inline
             open
-            onOpenChange={(o) => { if (!o) handleGeoPromptDismiss(); }}
+            onOpenChange={(o) => {
+              if (o) return;
+              // Fermeture consécutive à une confirmation : ne rien annuler.
+              if (geoJustConfirmedRef.current) { geoJustConfirmedRef.current = false; return; }
+              handleGeoPromptDismiss();
+            }}
             coords={geo.coords}
             detectedCity={geo.confirmedAddress || geo.detectedCity}
             isEnabled={geo.isEnabled}
