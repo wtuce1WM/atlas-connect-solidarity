@@ -1015,6 +1015,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const radiusRef = useRef<number>(1);
   const applyRadius = (km: number) => { radiusRef.current = km; setRadiusKm(km); };
 
+  // Recherche locale géolocalisée : point choisi dans le sélecteur d'adresse +
+  // rayon appliqué aux résultats (1 km par défaut, modifiable texte/voix).
+  const [geoAnchor, setGeoAnchor] = useState<{ lat: number; lng: number } | null>(null);
+  const geoAnchorRef = useRef<{ lat: number; lng: number } | null>(null);
+  const [geoRadiusKm, setGeoRadiusKm] = useState<number>(1);
+  const setGeoAnchorPoint = (c: { lat: number; lng: number } | null) => {
+    geoAnchorRef.current = c; setGeoAnchor(c);
+  };
+
+
 
   // --- AI SDK useChat wiring ---
   const transport = useMemo(() => new DefaultChatTransport({
