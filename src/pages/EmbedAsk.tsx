@@ -2100,6 +2100,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    */
   const handleGeoPickerConfirm = (coords: { lat: number; lng: number }, address: string) => {
     geo.setManualLocation(coords, address);
+    // Les résultats sont restreints à 1 km autour de l'adresse choisie ;
+    // l'utilisateur peut ensuite élargir le rayon (texte ou voix).
+    setGeoAnchorPoint(coords);
+    setGeoRadiusKm(1);
     const text = pendingGeoTextRef.current;
     pendingGeoTextRef.current = null;
     setGeoPromptWaiting(false);
@@ -2113,6 +2117,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     pendingGeoTextRef.current = null;
     setGeoPromptWaiting(false);
     setGeoPromptText(null);
+    setGeoAnchorPoint(null);
     if (text) send(text, undefined, undefined, true);
   };
 
