@@ -2058,20 +2058,38 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     void openPreflightBadgeFeed(text).finally(fire);
   };
 
+  /**
+   * Acceptation inline : on attend que la position réelle soit disponible avant
+   * de lancer la question (sinon la recherche part sans coordonnées).
+   */
   const handleGeoPromptAccept = () => {
-    const text = pendingGeoTextRef.current;
-    pendingGeoTextRef.current = null;
-    setGeoPromptOpen(false);
+    setGeoPromptWaiting(true);
     geo.accept();
-    if (text) send(text, undefined, undefined, true);
   };
 
   const handleGeoPromptDismiss = () => {
     const text = pendingGeoTextRef.current;
     pendingGeoTextRef.current = null;
-    setGeoPromptOpen(false);
+    setGeoPromptWaiting(false);
+    setGeoPromptText(null);
     if (text) send(text, undefined, undefined, true);
   };
+
+  // Position obtenue (ou délai dépassé) → la question en attente part enfin.
+  useEffect(() => {
+    if (!geoPromptWaiting) return;
+    const fire = () => {
+      const text = pendingGeoTextRef.current;
+      pendingGeoTextRef.current = null;
+      setGeoPromptWaiting(false);
+      setGeoPromptText(null);
+      if (text) send(text, undefined, undefined, true);
+    };
+    if (geo.coords) { fire(); return; }
+    const timer = window.setTimeout(fire, 12000);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [geoPromptWaiting, geo.coords]);
 
   /**
    * Filtre local déterministe (badges du footer) : le serveur applique une route
