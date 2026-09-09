@@ -152,9 +152,14 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
     const swap = () => {
       if (done) return;
       done = true;
-      incoming.muted = !soundOnRef.current;
-      if (!incoming.muted && incoming.volume === 0) incoming.volume = 1;
-      incoming.play().catch(() => {});
+      if (blockedRef.current) {
+        // Overlay couvrant : on bascule le buffer visible sans lancer la lecture.
+        stopBuffer(incoming);
+      } else {
+        incoming.muted = !soundOnRef.current;
+        if (!incoming.muted && incoming.volume === 0) incoming.volume = 1;
+        incoming.play().catch(() => {});
+      }
       activeRef.current = nextSlot;
       setActive(nextSlot);
       (videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = incoming;
