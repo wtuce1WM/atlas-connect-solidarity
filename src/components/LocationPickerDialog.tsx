@@ -483,34 +483,36 @@ const LocationPickerDialog = ({
               )}
             </div>
 
-            <div className={cn("relative flex items-center border rounded-xl overflow-hidden focus-within:border-gold/50 transition-colors", themed.border)}>
-              <Search className={cn("h-4 w-4 ml-3 shrink-0", themed.muted)} />
-              <input
-                ref={inputRef}
-                type="text"
-                value={addressQuery}
-                onChange={(e) => setAddressQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={language === "en" ? "Enter an address…" : language === "ar" ? "أدخل عنوانًا…" : "Saisir une adresse…"}
-                style={{ fontFamily: "'Montserrat', sans-serif" }}
-                className={cn("flex-1 py-3 px-2 text-sm bg-transparent focus:outline-none", themed.fg, themed.inputPlaceholder)}
-              />
-              {addressQuery && (
+            {!inline && (
+              <div className={cn("relative flex items-center border rounded-xl overflow-hidden focus-within:border-gold/50 transition-colors", themed.border)}>
+                <Search className={cn("h-4 w-4 ml-3 shrink-0", themed.muted)} />
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={addressQuery}
+                  onChange={(e) => setAddressQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={language === "en" ? "Enter an address…" : language === "ar" ? "أدخل عنوانًا…" : "Saisir une adresse…"}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  className={cn("flex-1 py-3 px-2 text-sm bg-transparent focus:outline-none", themed.fg, themed.inputPlaceholder)}
+                />
+                {addressQuery && (
+                  <button
+                    onClick={() => { setAddressQuery(""); setSelectedCoords(null); setSelectedAddress(""); }}
+                    className={cn("p-1.5 mr-1 hover:opacity-100", themed.muted)}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
                 <button
-                  onClick={() => { setAddressQuery(""); setSelectedCoords(null); setSelectedAddress(""); }}
-                  className={cn("p-1.5 mr-1 hover:opacity-100", themed.muted)}
+                  onClick={handleSearchAddress}
+                  disabled={isSearching || !addressQuery.trim()}
+                  className="h-full px-3 py-3 bg-gold/10 hover:bg-gold/20 text-gold transition-colors disabled:opacity-40"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  {isSearching ? <Loader className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                 </button>
-              )}
-              <button
-                onClick={handleSearchAddress}
-                disabled={isSearching || !addressQuery.trim()}
-                className="h-full px-3 py-3 bg-gold/10 hover:bg-gold/20 text-gold transition-colors disabled:opacity-40"
-              >
-                {isSearching ? <Loader className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-              </button>
-            </div>
+              </div>
+            )}
           </div>
 
           <div className={cn("mx-5 mt-3 rounded-xl overflow-hidden border flex-1 min-h-[400px]", themed.border)}>
