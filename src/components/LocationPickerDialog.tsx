@@ -532,6 +532,49 @@ const LocationPickerDialog = ({
               {language === "en" ? "Confirm this address" : language === "ar" ? "تأكيد هذا العنوان" : "Confirmer cette adresse"}
             </button>
           </div>
+    </>
+  );
+
+  // Rendu inline (réponse IA) : même contenu, sans overlay ni modale.
+  if (inline) {
+    if (!open) return null;
+    return (
+      <div
+        className={cn(
+          "relative w-full max-w-xl mx-auto border rounded-2xl overflow-hidden flex flex-col shadow-lg",
+          themed.surface,
+          themed.border,
+          className
+        )}
+      >
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-[299] bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <DialogPrimitive.Content
+          onPointerDownOutside={(e) => {
+            const target = e.target as HTMLElement | null;
+            if (target?.closest?.(".pac-container")) e.preventDefault();
+          }}
+          onInteractOutside={(e) => {
+            const target = e.target as HTMLElement | null;
+            if (target?.closest?.(".pac-container")) e.preventDefault();
+          }}
+          className={cn(
+            "fixed z-[300] grid w-full border shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+            themed.surface,
+            themed.border,
+            "inset-0 rounded-none max-h-full",
+            "sm:inset-auto sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg md:max-w-2xl sm:rounded-2xl sm:max-h-[90vh]",
+            "p-0 gap-0 overflow-hidden flex flex-col"
+          )}
+        >
+          {body}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
