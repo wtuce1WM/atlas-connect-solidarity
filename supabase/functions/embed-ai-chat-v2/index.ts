@@ -2278,7 +2278,11 @@ Deno.serve(async (req) => {
               !nameHit && !destScope && !explicitCity && !resolvedCityRaw && kept.length
             ) {
               const hostRadius = RADIUS_OPTIONS.includes(Number(host?.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
-              const radiusKm = parseInlineRadiusKm(userMessage) ?? requestedRadiusKm ?? hostRadius;
+              // `requestedRadiusKm` vient de la commande visible « rayon X km ».
+              // Lors d'une relance, `userMessage` contient volontairement la requête
+              // initiale (« près de moi »), dont le parseur déduit 1 km : la valeur
+              // explicitement demandée doit donc toujours être prioritaire.
+              const radiusKm = requestedRadiusKm ?? parseInlineRadiusKm(userMessage) ?? hostRadius;
               const km = (lat: number, lng: number) => {
                 const R = 6371;
                 const dLat = ((lat - proxAnchor.lat) * Math.PI) / 180;
