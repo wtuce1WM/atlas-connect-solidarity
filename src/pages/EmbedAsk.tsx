@@ -1020,6 +1020,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [geoAnchor, setGeoAnchor] = useState<{ lat: number; lng: number } | null>(null);
   const geoAnchorRef = useRef<{ lat: number; lng: number } | null>(null);
   const [geoRadiusKm, setGeoRadiusKm] = useState<number>(1);
+  /** Adresse confirmée, question locale pas encore partie : l'assistant reste ouvert. */
+  const [geoSendPending, setGeoSendPending] = useState(false);
   const setGeoAnchorPoint = (c: { lat: number; lng: number } | null) => {
     geoAnchorRef.current = c; setGeoAnchor(c);
   };
@@ -1111,12 +1113,19 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Signal « conversation ouverte » au host (Front masque le CTA « Découvrez l'App »).
   // On couvre tous les cas d'ouverture : question tapée, suggestion/badge cliqué
   // (aucun message user), streaming en cours, conversation restaurée.
-  const conversationOpenSignal = hasUserMessages || streaming || messages.length > 1 || !!geoPromptText;
+  // `geoSendPending` couvre l'instant entre la confirmation de l'adresse et le
+  // départ effectif de la question : sans lui, l'assistant repasserait une
+  // fraction de seconde en accueil fermé avant d'afficher la réponse.
+  const conversationOpenSignal =
+    hasUserMessages || streaming || messages.length > 1 || !!geoPromptText || geoSendPending;
   useEffect(() => {
     const payload = { type: "owm-ask:conversation-open", open: conversationOpenSignal };
     try { window.postMessage(payload, "*"); } catch { /* noop */ }
     try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
   }, [conversationOpenSignal]);
+  useEffect(() => {
+    if (geoSendPending && (hasUserMessages || streaming)) setGeoSendPending(false);
+  }, [geoSendPending, hasUserMessages, streaming]);
 
   /** Le host (clic sur « One World Morocco ») demande le repli des suggestions
       sans recharger la page. */
@@ -1134,7 +1143,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   /** Option B : accueil IA plein écran (logo + champ central + chips) vs conversation. */
   // Le sélecteur d'adresse inline s'affiche dans l'assistant OUVERT : dès qu'une
   // question locale est en attente, on quitte l'accueil plein écran.
-  const homeState = isPlatform && !hasUserMessages && !streaming && assistantReady && splashPhase === "done" && !geoPromptText;
+  const homeState = isPlatform && !hasUserMessages && !streaming && assistantReady && splashPhase === "done" && !geoPromptText && !geoSendPending;
   
   const pickFollowupLabel = (f: FollowupRow): string => {
     const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
@@ -2119,6 +2128,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     const text = pendingGeoTextRef.current;
     pendingGeoTextRef.current = null;
     setGeoPromptWaiting(false);
+    if (text) setGeoSendPending(true);
     setGeoPromptText(null);
     if (text) window.setTimeout(() => send(text, undefined, undefined, true), 0);
   };
@@ -3802,8 +3812,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             lastLocalFilterRef.current?.forcedRoute === "rating_best" &&
             !!mapPayload &&
             mapPayload.businesses.length > 0;
+          // Recherche géolocalisée : aucun repli sur les établissements cités
+          // dans le texte (ils n'ont pas de coordonnées, donc impossible de
+          // garantir le rayon — c'est ce qui affichait des adresses hors zone).
           const citedFallback =
-            !mapPayload || mapPayload.businesses.length === 0
+            !geoAnchor && (!mapPayload || mapPayload.businesses.length === 0)
               ? findCitedBusinesses(clean)
               : [];
           return (
