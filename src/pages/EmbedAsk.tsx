@@ -1874,8 +1874,18 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setGeoPromptWaiting(false);
       setGeoPromptText(text);
       if (!overrideText) setInput("");
-      // L'assistant passe immédiatement en mode ouvert (host + layout interne).
-      try { window.parent?.postMessage({ type: "owm-ask:asked" }, "*"); } catch { /* cross-origin */ }
+      // L'assistant passe immédiatement en mode ouvert (host + layout interne),
+      // sans attendre l'effet React dérivé de `geoPromptText`.
+      const askedPayload = { type: "owm-ask:asked" };
+      const openPayload = { type: "owm-ask:conversation-open", open: true };
+      try {
+        window.postMessage(askedPayload, "*");
+        window.postMessage(openPayload, "*");
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(askedPayload, "*");
+          window.parent.postMessage(openPayload, "*");
+        }
+      } catch { /* cross-origin */ }
       return;
     }
     // Hôte embarqueur (ex. /front) : signale qu'une question a été lancée pour
