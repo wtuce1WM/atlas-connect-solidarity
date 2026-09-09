@@ -1072,6 +1072,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         radiusKm: geoAnchorRef.current ? geoRadiusRef.current : radiusRef.current,
         userLat: geoAnchorRef.current?.lat ?? null,
         userLng: geoAnchorRef.current?.lng ?? null,
+        // Une relance de rayon doit rejouer la recherche locale initiale sur le
+        // catalogue complet, pas filtrer à nouveau l'ancien lot déjà restreint.
+        searchQuery: (body as any)?.searchQuery ?? null,
       },
     }),
   }), [slug, lang, isPlatform, platformCity, isClubScope]);
@@ -2075,32 +2078,37 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         if (geoActive) applyGeoRadius(asked);
         setError(null);
         const r = radiusLabel(asked, lang);
-        const confirm = geoActive
-          ? lang === "en"
-            ? `Got it 👍 Results are now shown within **${r}** of your address.`
-            : lang === "ar"
-            ? `تم 👍 يتم الآن عرض النتائج داخل **${r}** من عنوانك.`
-            : `D'accord 👍 Les résultats sont maintenant affichés dans un rayon de **${r}** autour de votre adresse.`
-          : L.radiusChanged(r);
-        setMessages((prev) => {
-          // Le message de confirmation doit reporter les résultats précédents,
-          // sinon la nouvelle bulle n'affiche aucune adresse (le rendu lit la
-          // charge utile de chaque message, pas celle de la conversation).
-          let carried = "";
-          if (geoActive) {
-            for (let k = prev.length - 1; k >= 0; k--) {
-              if (prev[k].role !== "assistant") continue;
-              const blocks = messageText(prev[k]).match(MAP_RE);
-              if (blocks && blocks.length) { carried = `\n\n${blocks[blocks.length - 1]}`; break; }
+        if (geoActive) {
+          // Retrouver la dernière vraie recherche locale. Envoyée séparément du
+          // texte visible « rayon X km », elle force le serveur à reconstruire le
+          // corpus depuis le catalogue avec le nouveau rayon.
+          let searchQuery = "";
+          for (let k = messages.length - 1; k >= 0; k--) {
+            if (messages[k].role !== "user") continue;
+            const candidate = messageText(messages[k]).trim();
+            if (candidate && parseRadiusCommand(candidate) == null) {
+              searchQuery = candidate;
+              break;
             }
           }
+          if (searchQuery) {
+            messageIndexRef.current += 1;
+            void sendMessage(
+              { text },
+              { body: { searchQuery, suggestionId: null, followupId: null, scope: null, contextSuggestionId: null } },
+            );
+            return;
+          }
+        }
+        const confirm = L.radiusChanged(r);
+        setMessages((prev) => {
           return [
             ...prev,
             { id: `u-radius-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
             {
               id: `a-radius-${Date.now()}`,
               role: "assistant",
-              parts: [{ type: "text", text: `${confirm}${carried}` }],
+              parts: [{ type: "text", text: confirm }],
             } as any,
           ];
         });

@@ -490,7 +490,11 @@ Deno.serve(async (req) => {
     });
   }
 
-  const userMessage = textOf([...uiMessages].reverse().find((m: any) => m?.role === "user") as UIMessage) || "";
+  const visibleUserMessage = textOf([...uiMessages].reverse().find((m: any) => m?.role === "user") as UIMessage) || "";
+  // Changement de rayon depuis Home : le message visible reste « rayon 5 km »,
+  // mais la recherche initiale est rejouée pour reconstruire un corpus complet.
+  const searchQuery = typeof body.searchQuery === "string" ? body.searchQuery.trim().slice(0, 500) : "";
+  const userMessage = searchQuery || visibleUserMessage;
 
   /**
    * PRÉ-VOL FEED VIDÉO (`feedPreflight: true`) : aucune génération, aucun token.
