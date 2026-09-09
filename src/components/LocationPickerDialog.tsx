@@ -307,6 +307,9 @@ const LocationPickerDialog = ({
         const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
         selectedCoordsRef.current = newPos;
         setSelectedCoords(newPos);
+        selectedAddressRef.current = "";
+        setSelectedAddress("");
+        setAddressQuery("");
         reverseGeocode(newPos);
       });
     }
