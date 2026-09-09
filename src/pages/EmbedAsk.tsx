@@ -2082,15 +2082,28 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             ? `تم 👍 يتم الآن عرض النتائج داخل **${r}** من عنوانك.`
             : `D'accord 👍 Les résultats sont maintenant affichés dans un rayon de **${r}** autour de votre adresse.`
           : L.radiusChanged(r);
-        setMessages((prev) => [
-          ...prev,
-          { id: `u-radius-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
-          {
-            id: `a-radius-${Date.now()}`,
-            role: "assistant",
-            parts: [{ type: "text", text: confirm }],
-          } as any,
-        ]);
+        setMessages((prev) => {
+          // Le message de confirmation doit reporter les résultats précédents,
+          // sinon la nouvelle bulle n'affiche aucune adresse (le rendu lit la
+          // charge utile de chaque message, pas celle de la conversation).
+          let carried = "";
+          if (geoActive) {
+            for (let k = prev.length - 1; k >= 0; k--) {
+              if (prev[k].role !== "assistant") continue;
+              const blocks = messageText(prev[k]).match(MAP_RE);
+              if (blocks && blocks.length) { carried = `\n\n${blocks[blocks.length - 1]}`; break; }
+            }
+          }
+          return [
+            ...prev,
+            { id: `u-radius-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+            {
+              id: `a-radius-${Date.now()}`,
+              role: "assistant",
+              parts: [{ type: "text", text: `${confirm}${carried}` }],
+            } as any,
+          ];
+        });
         return;
       }
     }
