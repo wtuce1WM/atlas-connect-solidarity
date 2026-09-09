@@ -3881,7 +3881,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           // Une relance de rayon ajoute une nouvelle réponse à l'historique. Ne pas
           // laisser les anciennes cartes géolocalisées visibles : sur mobile elles
           // donnaient l'impression que le rayon renvoyait toujours le même lot.
-          const hasNewerGeoRequest = !!geoAnchor && messages.slice(i + 1).some((later) =>
+          const hasNewerGeoRequest = !!geoActiveForMsg && messages.slice(i + 1).some((later) =>
             (later.role === "user" && parseRadiusCommand(messageText(later)) != null) ||
             (later.role === "assistant" && extractPayloads(messageText(later)).maps.some((payload) => payload.businesses.length > 0)),
           );
