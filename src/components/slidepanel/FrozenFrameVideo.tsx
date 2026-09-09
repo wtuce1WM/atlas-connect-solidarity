@@ -201,6 +201,22 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
     stopBuffer(hidden);
   }, [active]);
 
+  // Ouverture d'un overlay couvrant : arrêt dur immédiat des deux buffers.
+  // À la fermeture, le marqueur du buffer actif est levé : le moteur unique
+  // (usePanelVideoPlayback) reprend la lecture selon la préférence son.
+  useEffect(() => {
+    if (!blocked) {
+      const act = getEl(activeRef.current);
+      if (act) { try { delete act.dataset.owmUserPaused; } catch {/* ignore */} }
+      return;
+    }
+    const stopAll = () => ([0, 1] as const).forEach((slot) => stopBuffer(getEl(slot)));
+    stopAll();
+    const timers = [80, 250, 600, 1400].map((ms) => window.setTimeout(stopAll, ms));
+    return () => timers.forEach((t) => window.clearTimeout(t));
+  }, [blocked]);
+
+
   // ── Chien de garde audio : un seul buffer audible, à tout instant.
   // Les fenêtres de course entre le swap (canplay/loadeddata/fallback 1200ms) et
   // le moteur unique pouvaient laisser le buffer sortant en lecture non mutée
