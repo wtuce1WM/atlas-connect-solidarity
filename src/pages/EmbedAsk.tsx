@@ -208,6 +208,17 @@ const RADIUS_OPTIONS = [0.5, 1, 5, 10, 20, 50, 100] as const;
 const radiusLabel = (km: number, lang: string): string =>
   km < 1 ? `${Math.round(km * 1000)} m` : `${km} km`;
 
+/** Distance à vol d'oiseau (km) entre deux points GPS. */
+function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const la1 = (a.lat * Math.PI) / 180;
+  const la2 = (b.lat * Math.PI) / 180;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
 /** Détecte une demande de changement de rayon (texte ou vocal) et renvoie la valeur autorisée la plus proche. */
 function parseRadiusCommand(text: string): number | null {
   const q = (text || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -1003,6 +1014,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [radiusKm, setRadiusKm] = useState<number>(1);
   const radiusRef = useRef<number>(1);
   const applyRadius = (km: number) => { radiusRef.current = km; setRadiusKm(km); };
+
+  // Recherche locale géolocalisée : point choisi dans le sélecteur d'adresse +
+  // rayon appliqué aux résultats (1 km par défaut, modifiable texte/voix).
+  const [geoAnchor, setGeoAnchor] = useState<{ lat: number; lng: number } | null>(null);
+  const geoAnchorRef = useRef<{ lat: number; lng: number } | null>(null);
+  const [geoRadiusKm, setGeoRadiusKm] = useState<number>(1);
+  const setGeoAnchorPoint = (c: { lat: number; lng: number } | null) => {
+    geoAnchorRef.current = c; setGeoAnchor(c);
+  };
+
 
 
   // --- AI SDK useChat wiring ---
@@ -2025,14 +2046,26 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const asked = parseRadiusCommand(text);
       if (asked != null) {
         applyRadius(asked);
+        // Recherche géolocalisée en cours : le rayon change le périmètre appliqué
+        // aux résultats affichés autour de l'adresse choisie.
+        const geoActive = !!geoAnchorRef.current;
+        if (geoActive) setGeoRadiusKm(asked);
         setError(null);
+        const r = radiusLabel(asked, lang);
+        const confirm = geoActive
+          ? lang === "en"
+            ? `Got it 👍 Results are now shown within **${r}** of your address.`
+            : lang === "ar"
+            ? `تم 👍 يتم الآن عرض النتائج داخل **${r}** من عنوانك.`
+            : `D'accord 👍 Les résultats sont maintenant affichés dans un rayon de **${r}** autour de votre adresse.`
+          : L.radiusChanged(r);
         setMessages((prev) => [
           ...prev,
           { id: `u-radius-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
           {
             id: `a-radius-${Date.now()}`,
             role: "assistant",
-            parts: [{ type: "text", text: L.radiusChanged(radiusLabel(asked, lang)) }],
+            parts: [{ type: "text", text: confirm }],
           } as any,
         ]);
         return;
@@ -2079,6 +2112,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    */
   const handleGeoPickerConfirm = (coords: { lat: number; lng: number }, address: string) => {
     geo.setManualLocation(coords, address);
+    // Les résultats sont restreints à 1 km autour de l'adresse choisie ;
+    // l'utilisateur peut ensuite élargir le rayon (texte ou voix).
+    setGeoAnchorPoint(coords);
+    setGeoRadiusKm(1);
     const text = pendingGeoTextRef.current;
     pendingGeoTextRef.current = null;
     setGeoPromptWaiting(false);
@@ -2092,6 +2129,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     pendingGeoTextRef.current = null;
     setGeoPromptWaiting(false);
     setGeoPromptText(null);
+    setGeoAnchorPoint(null);
     if (text) send(text, undefined, undefined, true);
   };
 
@@ -3722,7 +3760,31 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           }
           const raw = messageText(m);
           const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides, bookings } = extractPayloads(raw);
-          const mapPayload = maps[maps.length - 1] || null;
+          const mapPayloadRaw = maps[maps.length - 1] || null;
+          // Recherche locale : seules les adresses situées dans le rayon choisi
+          // autour du point confirmé sont affichées (1 km par défaut).
+          const geoOutOfRadius =
+            geoAnchor && mapPayloadRaw
+              ? mapPayloadRaw.businesses.length -
+                mapPayloadRaw.businesses.filter(
+                  (b) =>
+                    b?.latitude != null &&
+                    b?.longitude != null &&
+                    haversineKm(geoAnchor, { lat: Number(b.latitude), lng: Number(b.longitude) }) <= geoRadiusKm,
+                ).length
+              : 0;
+          const mapPayload =
+            geoAnchor && mapPayloadRaw
+              ? {
+                  ...mapPayloadRaw,
+                  businesses: mapPayloadRaw.businesses.filter(
+                    (b) =>
+                      b?.latitude != null &&
+                      b?.longitude != null &&
+                      haversineKm(geoAnchor, { lat: Number(b.latitude), lng: Number(b.longitude) }) <= geoRadiusKm,
+                  ),
+                }
+              : mapPayloadRaw;
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
           const destinationsPayload = destinations[destinations.length - 1] || null;
@@ -4003,6 +4065,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                       </div>
                     );
                   })}
+                </div>
+              )}
+
+              {geoAnchor && mapPayloadRaw && mapPayloadRaw.businesses.length > 0 && (
+                <div className={`w-full max-w-[85%] rounded-xl px-3 py-2 text-[12px] leading-snug ${cardBg}`} style={cardStyle}>
+                  {lang === "en"
+                    ? `Within ${radiusLabel(geoRadiusKm, lang)} of your address: ${mapPayload?.businesses.length ?? 0} place(s).${geoOutOfRadius > 0 ? ` ${geoOutOfRadius} further away hidden.` : ""} Say or type “radius 5 km” to change it.`
+                    : lang === "ar"
+                    ? `داخل ${radiusLabel(geoRadiusKm, lang)} من عنوانك: ${mapPayload?.businesses.length ?? 0}.${geoOutOfRadius > 0 ? ` ${geoOutOfRadius} أبعد مخفية.` : ""} قل «نطاق 5 كم» لتغييره.`
+                    : `Dans un rayon de ${radiusLabel(geoRadiusKm, lang)} autour de votre adresse : ${mapPayload?.businesses.length ?? 0} adresse(s).${geoOutOfRadius > 0 ? ` ${geoOutOfRadius} plus loin masquée(s).` : ""} Dites ou écrivez « rayon 5 km » pour changer le périmètre.`}
                 </div>
               )}
 
