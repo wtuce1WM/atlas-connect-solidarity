@@ -1061,8 +1061,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         !!geoAnchorRef.current &&
         (isRadiusRelance || detectLocalIntent(lastUserText) || parseRadiusCommand(lastUserText) != null);
       return {
-
+       body: {
         messages,
+
         businessSlug: slug,
         // Mode plateforme : pas d'hôte — le moteur travaille sur la ville active
         // (fallback Marrakech côté moteur), surface embed conservée.
