@@ -101,6 +101,7 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
       let disposed = false;
       const kick = () => {
         if (disposed) return;
+        if (blockedRef.current) { stopBuffer(el); return; }
         const target = getEl(activeRef.current);
         if (!target || target !== el) return;
         if (el.dataset.owmUserPaused === "1") return;
