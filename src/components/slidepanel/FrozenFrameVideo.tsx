@@ -10,6 +10,11 @@ interface FrozenFrameVideoProps {
   /** Clé logique de la vidéo (id ou url) — utilisée pour la détection de changement. */
   videoKey: string;
   className?: string;
+  /**
+   * Vrai quand un overlay couvre la vidéo (ex. Full Description) : AUCUNE
+   * relance de lecture ici, tous les buffers restent en pause + muet.
+   */
+  blocked?: boolean;
   onLoadedMetadata?: (e: React.SyntheticEvent<HTMLVideoElement>) => void;
   onTimeUpdate?: (e: React.SyntheticEvent<HTMLVideoElement>) => void;
 }
@@ -28,6 +33,7 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   src,
   videoKey,
   className = "w-full h-full bg-black object-cover",
+  blocked = false,
   onLoadedMetadata,
   onTimeUpdate,
 }: FrozenFrameVideoProps) {
@@ -44,6 +50,9 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   const { soundOn } = useVideoSoundPreference();
   const soundOnRef = useRef(soundOn);
   useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
+  // Overlay couvrant (Full Description…) : lu par les relances asynchrones.
+  const blockedRef = useRef(blocked);
+  useEffect(() => { blockedRef.current = blocked; }, [blocked]);
   // Image gelée héritée du panneau précédent (transition sans écran noir au montage).
   const [poster, setPoster] = useState<string | null>(() => getLastVideoFrame());
 
@@ -92,6 +101,7 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
       let disposed = false;
       const kick = () => {
         if (disposed) return;
+        if (blockedRef.current) { stopBuffer(el); return; }
         const target = getEl(activeRef.current);
         if (!target || target !== el) return;
         if (el.dataset.owmUserPaused === "1") return;
@@ -142,9 +152,14 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
     const swap = () => {
       if (done) return;
       done = true;
-      incoming.muted = !soundOnRef.current;
-      if (!incoming.muted && incoming.volume === 0) incoming.volume = 1;
-      incoming.play().catch(() => {});
+      if (blockedRef.current) {
+        // Overlay couvrant : on bascule le buffer visible sans lancer la lecture.
+        stopBuffer(incoming);
+      } else {
+        incoming.muted = !soundOnRef.current;
+        if (!incoming.muted && incoming.volume === 0) incoming.volume = 1;
+        incoming.play().catch(() => {});
+      }
       activeRef.current = nextSlot;
       setActive(nextSlot);
       (videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = incoming;
@@ -186,6 +201,22 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
     stopBuffer(hidden);
   }, [active]);
 
+  // Ouverture d'un overlay couvrant : arrêt dur immédiat des deux buffers.
+  // À la fermeture, le marqueur du buffer actif est levé : le moteur unique
+  // (usePanelVideoPlayback) reprend la lecture selon la préférence son.
+  useEffect(() => {
+    if (!blocked) {
+      const act = getEl(activeRef.current);
+      if (act) { try { delete act.dataset.owmUserPaused; } catch {/* ignore */} }
+      return;
+    }
+    const stopAll = () => ([0, 1] as const).forEach((slot) => stopBuffer(getEl(slot)));
+    stopAll();
+    const timers = [80, 250, 600, 1400].map((ms) => window.setTimeout(stopAll, ms));
+    return () => timers.forEach((t) => window.clearTimeout(t));
+  }, [blocked]);
+
+
   // ── Chien de garde audio : un seul buffer audible, à tout instant.
   // Les fenêtres de course entre le swap (canplay/loadeddata/fallback 1200ms) et
   // le moteur unique pouvaient laisser le buffer sortant en lecture non mutée
@@ -193,6 +224,11 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   // dès qu'un buffer NON actif se met à jouer ou à sortir du mute, il est arrêté.
   useEffect(() => {
     const enforce = () => {
+      // Overlay couvrant : AUCUN buffer ne joue, aucun son.
+      if (blockedRef.current) {
+        ([0, 1] as const).forEach((slot) => stopBuffer(getEl(slot)));
+        return;
+      }
       ([0, 1] as const).forEach((slot) => {
         if (slot === activeRef.current) return;
         const el = getEl(slot);

@@ -72,9 +72,31 @@ export function usePanelVideoPlayback({
     if (!v || !enabled) return;
 
     if (blocked) {
-      v.muted = true;
-      v.pause();
-      return;
+      // Overlay couvrant : la pause doit TENIR tant qu'il est ouvert. Les
+      // relances asynchrones (autoplay du buffer, canplay, chien de garde) ne
+      // doivent jamais rendre la vidéo audible derrière l'overlay.
+      const stop = () => {
+        try {
+          v.muted = true;
+          v.volume = 0;
+          v.pause();
+        } catch {/* ignore */}
+      };
+      stop();
+      v.addEventListener("play", stop);
+      v.addEventListener("playing", stop);
+      v.addEventListener("volumechange", stop);
+      v.addEventListener("canplay", stop);
+      v.addEventListener("loadeddata", stop);
+      const id = window.setInterval(stop, 250);
+      return () => {
+        window.clearInterval(id);
+        v.removeEventListener("play", stop);
+        v.removeEventListener("playing", stop);
+        v.removeEventListener("volumechange", stop);
+        v.removeEventListener("canplay", stop);
+        v.removeEventListener("loadeddata", stop);
+      };
     }
 
     let disposed = false;

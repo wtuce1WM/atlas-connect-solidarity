@@ -951,7 +951,7 @@ const VideoSlidePanel = ({
     videoRef,
     mediaKey: `${videoId || ""}|${videoUrl || ""}`,
     enabled: open && !!videoUrl,
-    blocked: !!descBusinessId || aiOverlayOpen,
+    blocked: !!descBusinessId || aiOverlayOpen || descOverlayOpen,
   });
   const [ytPlaying, setYtPlaying] = useState(true);
   const [ytMuted, setYtMuted] = useState(!soundOn);
@@ -1777,6 +1777,7 @@ const VideoSlidePanel = ({
                 videoRef={videoRef}
                 src={viewUrl || videoUrl}
                 videoKey={`${videoId || videoUrl}|${mediaIdx}`}
+                blocked={!!descBusinessId || aiOverlayOpen || descOverlayOpen}
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />
 
