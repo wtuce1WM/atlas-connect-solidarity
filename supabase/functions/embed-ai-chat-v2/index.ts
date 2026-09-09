@@ -540,12 +540,21 @@ Deno.serve(async (req) => {
       });
     }
   }
+  /**
+   * Rupture de contexte : une question ordinaire posée après une recherche
+   * géolocalisée ne doit pas être traitée comme un affinage du lot précédent
+   * (restreint au rayon), sinon elle ne renvoie aucun résultat.
+   */
+  const dropPriorPool = body.dropPriorPool === true;
   /** Résultats du DERNIER tour uniquement : base de tous les filtres locaux. */
-  const priorIds = priorBusinessIds(uiMessages, true);
+  const priorIds = dropPriorPool ? [] : priorBusinessIds(uiMessages, true);
   /** Cumul du fil : sert seulement à ne pas re-montrer une fiche déjà vue. */
-  const seenIds = priorBusinessIds(uiMessages);
+  const seenIds = dropPriorPool ? [] : priorBusinessIds(uiMessages);
   /** Corpus complet du dernier tour (19 trouvées) — surensemble de `priorIds`. */
-  const poolIds = [...new Set([...priorPoolIds(uiMessages, lastResultsIndex(uiMessages)), ...priorIds])];
+  const poolIds = dropPriorPool
+    ? []
+    : [...new Set([...priorPoolIds(uiMessages, lastResultsIndex(uiMessages)), ...priorIds])];
+
   console.log("[embed-ai-chat-v2] prior_context", JSON.stringify({ priorIds: priorIds.length, pool: poolIds.length, seen: seenIds.length }));
 
 
