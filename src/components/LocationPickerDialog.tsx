@@ -212,6 +212,10 @@ const LocationPickerDialog = ({
         const pos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
         selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
+        // Nouveau point : l'ancienne adresse ne doit plus être confirmée.
+        selectedAddressRef.current = "";
+        setSelectedAddress("");
+        setAddressQuery("");
         placeMarker(pos);
         reverseGeocode(pos);
       });
@@ -260,6 +264,8 @@ const LocationPickerDialog = ({
 
   useEffect(() => {
     if (!open) {
+      selectedCoordsRef.current = null;
+      selectedAddressRef.current = "";
       setSelectedCoords(null);
       setSelectedAddress("");
       setAddressQuery("");
@@ -303,6 +309,9 @@ const LocationPickerDialog = ({
         const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
         selectedCoordsRef.current = newPos;
         setSelectedCoords(newPos);
+        selectedAddressRef.current = "";
+        setSelectedAddress("");
+        setAddressQuery("");
         reverseGeocode(newPos);
       });
     }
