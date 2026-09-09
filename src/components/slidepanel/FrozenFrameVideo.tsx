@@ -10,6 +10,11 @@ interface FrozenFrameVideoProps {
   /** Clé logique de la vidéo (id ou url) — utilisée pour la détection de changement. */
   videoKey: string;
   className?: string;
+  /**
+   * Vrai quand un overlay couvre la vidéo (ex. Full Description) : AUCUNE
+   * relance de lecture ici, tous les buffers restent en pause + muet.
+   */
+  blocked?: boolean;
   onLoadedMetadata?: (e: React.SyntheticEvent<HTMLVideoElement>) => void;
   onTimeUpdate?: (e: React.SyntheticEvent<HTMLVideoElement>) => void;
 }
