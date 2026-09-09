@@ -3676,6 +3676,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             </div>
           );
         })()}
+        {!homeState && geoPromptText && (
+          <GeoInlinePrompt
+            question={geoPromptText}
+            waiting={geoPromptWaiting}
+            theme={theme === "light" ? "light" : "dark"}
+            onAccept={handleGeoPromptAccept}
+            onLater={handleGeoPromptDismiss}
+          />
+        )}
         {!homeState && !feedOpening && messages.map((m, i) => {
           if (m.role === "user") {
             return (
