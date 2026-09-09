@@ -1090,7 +1090,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Signal « conversation ouverte » au host (Front masque le CTA « Découvrez l'App »).
   // On couvre tous les cas d'ouverture : question tapée, suggestion/badge cliqué
   // (aucun message user), streaming en cours, conversation restaurée.
-  const conversationOpenSignal = hasUserMessages || streaming || messages.length > 1;
+  const conversationOpenSignal = hasUserMessages || streaming || messages.length > 1 || !!geoPromptText;
   useEffect(() => {
     const payload = { type: "owm-ask:conversation-open", open: conversationOpenSignal };
     try { window.postMessage(payload, "*"); } catch { /* noop */ }
