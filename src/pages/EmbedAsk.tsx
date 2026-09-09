@@ -1111,12 +1111,19 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Signal « conversation ouverte » au host (Front masque le CTA « Découvrez l'App »).
   // On couvre tous les cas d'ouverture : question tapée, suggestion/badge cliqué
   // (aucun message user), streaming en cours, conversation restaurée.
-  const conversationOpenSignal = hasUserMessages || streaming || messages.length > 1 || !!geoPromptText;
+  // `geoSendPending` couvre l'instant entre la confirmation de l'adresse et le
+  // départ effectif de la question : sans lui, l'assistant repasserait une
+  // fraction de seconde en accueil fermé avant d'afficher la réponse.
+  const conversationOpenSignal =
+    hasUserMessages || streaming || messages.length > 1 || !!geoPromptText || geoSendPending;
   useEffect(() => {
     const payload = { type: "owm-ask:conversation-open", open: conversationOpenSignal };
     try { window.postMessage(payload, "*"); } catch { /* noop */ }
     try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
   }, [conversationOpenSignal]);
+  useEffect(() => {
+    if (geoSendPending && (hasUserMessages || streaming)) setGeoSendPending(false);
+  }, [geoSendPending, hasUserMessages, streaming]);
 
   /** Le host (clic sur « One World Morocco ») demande le repli des suggestions
       sans recharger la page. */
