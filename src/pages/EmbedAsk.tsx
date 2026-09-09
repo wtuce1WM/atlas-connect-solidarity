@@ -3834,30 +3834,41 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           const raw = messageText(m);
           const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides, bookings } = extractPayloads(raw);
           const mapPayloadRaw = maps[maps.length - 1] || null;
-          // Recherche locale : seules les adresses situées dans le rayon choisi
-          // autour du point confirmé sont affichées (1 km par défaut).
+          // Le filtre de rayon ne s'applique qu'aux réponses issues d'une question
+          // locale (« près de moi ») ou d'une relance de rayon : une question
+          // ordinaire posée ensuite ne doit plus être restreinte au rayon.
+          let precedingUserText = "";
+          for (let k = i - 1; k >= 0; k--) {
+            if (messages[k].role === "user") { precedingUserText = messageText(messages[k]); break; }
+          }
+          const geoActiveForMsg =
+            geoAnchor &&
+            (detectLocalIntent(precedingUserText) || parseRadiusCommand(precedingUserText) != null)
+              ? geoAnchor
+              : null;
           const geoOutOfRadius =
-            geoAnchor && mapPayloadRaw
+            geoActiveForMsg && mapPayloadRaw
               ? mapPayloadRaw.businesses.length -
                 mapPayloadRaw.businesses.filter(
                   (b) =>
                     b?.latitude != null &&
                     b?.longitude != null &&
-                    haversineKm(geoAnchor, { lat: Number(b.latitude), lng: Number(b.longitude) }) <= geoRadiusKm,
+                    haversineKm(geoActiveForMsg, { lat: Number(b.latitude), lng: Number(b.longitude) }) <= geoRadiusKm,
                 ).length
               : 0;
           const mapPayload =
-            geoAnchor && mapPayloadRaw
+            geoActiveForMsg && mapPayloadRaw
               ? {
                   ...mapPayloadRaw,
                   businesses: mapPayloadRaw.businesses.filter(
                     (b) =>
                       b?.latitude != null &&
                       b?.longitude != null &&
-                      haversineKm(geoAnchor, { lat: Number(b.latitude), lng: Number(b.longitude) }) <= geoRadiusKm,
+                      haversineKm(geoActiveForMsg, { lat: Number(b.latitude), lng: Number(b.longitude) }) <= geoRadiusKm,
                   ),
                 }
               : mapPayloadRaw;
+
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
           const destinationsPayload = destinations[destinations.length - 1] || null;
