@@ -969,7 +969,11 @@ Deno.serve(async (req) => {
          * répond avec les distances EXACTES, classées, sans token IA.
          * Priorité sur la route curatée, comme l'affinage « vue ».
          */
-        if (!explicitCity && poolIds.length > 1) {
+        // Une relance de rayon fournit `searchQuery` pour rejouer la recherche
+        // complète. Ne jamais l'interpréter comme un affinage du pool précédent :
+        // « près de moi » y serait sinon pris pour un repère nommé et conserverait
+        // les anciennes adresses, quel que soit le nouveau rayon.
+        if (!searchQuery && !explicitCity && poolIds.length > 1) {
           const pi = detectPoolProximityIntent(userMessage);
           if (pi && !detectViewIntent(userMessage).hasViewIntent) {
             const prox = await buildPoolProximityAnswer(admin, poolIds, pi.term, lang as any)
@@ -2274,7 +2278,11 @@ Deno.serve(async (req) => {
               !nameHit && !destScope && !explicitCity && !resolvedCityRaw && kept.length
             ) {
               const hostRadius = RADIUS_OPTIONS.includes(Number(host?.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
-              const radiusKm = parseInlineRadiusKm(userMessage) ?? requestedRadiusKm ?? hostRadius;
+              // `requestedRadiusKm` vient de la commande visible « rayon X km ».
+              // Lors d'une relance, `userMessage` contient volontairement la requête
+              // initiale (« près de moi »), dont le parseur déduit 1 km : la valeur
+              // explicitement demandée doit donc toujours être prioritaire.
+              const radiusKm = requestedRadiusKm ?? parseInlineRadiusKm(userMessage) ?? hostRadius;
               const km = (lat: number, lng: number) => {
                 const R = 6371;
                 const dLat = ((lat - proxAnchor.lat) * Math.PI) / 180;
