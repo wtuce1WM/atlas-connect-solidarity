@@ -416,9 +416,13 @@ Deno.serve(async (req) => {
    * Sert d'ancre de proximité à la place de l'établissement hôte : sans lui, le
    * corpus restait la ville entière et la réponse citait des adresses hors rayon.
    */
+  const hasUserLat = body.userLat !== null && body.userLat !== undefined && body.userLat !== "";
+  const hasUserLng = body.userLng !== null && body.userLng !== undefined && body.userLng !== "";
+  const userLat = Number(body.userLat);
+  const userLng = Number(body.userLng);
   const userAnchor: { lat: number; lng: number } | null =
-    Number.isFinite(Number(body.userLat)) && Number.isFinite(Number(body.userLng))
-      ? { lat: Number(body.userLat), lng: Number(body.userLng) }
+    hasUserLat && hasUserLng && Number.isFinite(userLat) && Number.isFinite(userLng)
+      ? { lat: userLat, lng: userLng }
       : null;
   /**
    * Rayon réellement appliqué autour du point utilisateur confirmé. Sert à dire au
