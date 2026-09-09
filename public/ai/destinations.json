@@ -2,10 +2,27 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/destinations.json",
-    "generated_at": "2026-09-07T02:25:58.207Z",
-    "count": 46
+    "generated_at": "2026-09-09T10:18:17.108Z",
+    "count": 53
   },
   "destinations": [
+    {
+      "id": "9f197b71-e085-4c39-bb28-572bb89537d0",
+      "name": "Kasbah des Oudayas",
+      "name_en": null,
+      "region": [
+        "Rabat-Salé-Kénitra"
+      ],
+      "latitude": 34.0318725,
+      "longitude": -6.8361483,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Rabat"
+      ]
+    },
     {
       "id": "a9dd2090-a978-41c8-9b71-5d0ea5ff03ad",
       "name": "Cascade Sidi M’barek",
@@ -39,6 +56,21 @@
       "cities": [
         "Marrakech"
       ]
+    },
+    {
+      "id": "9263cd52-32ef-4fa0-9e4d-d0c4389042de",
+      "name": "Guerguerat",
+      "name_en": null,
+      "region": [
+        "Dakhla-Oued Ed-Dahab"
+      ],
+      "latitude": 21.4268293,
+      "longitude": -16.9598412,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": []
     },
     {
       "id": "2f006ce4-6aed-437b-92d4-8b7318cc39bb",
@@ -137,6 +169,36 @@
         "Zagora",
         "Béni Mellal"
       ]
+    },
+    {
+      "id": "cfbd6af1-9a9f-420c-a6c4-b7b95af657ee",
+      "name": "Dakhla",
+      "name_en": null,
+      "region": [
+        "Dakhla-Oued Ed-Dahab"
+      ],
+      "latitude": 23.7221111,
+      "longitude": -15.9347384,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": []
+    },
+    {
+      "id": "fad120d0-7345-450f-95fa-fbb17b7ee78a",
+      "name": "Taghazout",
+      "name_en": null,
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 30.5449573,
+      "longitude": -9.7084824,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": []
     },
     {
       "id": "a9d44995-4f67-4fdf-87c9-1da8c0629a85",
@@ -260,6 +322,27 @@
       "cities": [
         "Agadir",
         "Taroudant"
+      ]
+    },
+    {
+      "id": "bc083653-be8b-4396-825c-e543b6d4db5d",
+      "name": "Gorges du Todra",
+      "name_en": "Todra Gorges",
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 31.5883012,
+      "longitude": -5.5946749,
+      "image": null,
+      "wikipedia": null,
+      "hook": "Dominez le vertige aux Gorges du Todra : un canyon titanesque aux parois ocres, véritable paradis du Haut Atlas.",
+      "description": "Situées à une quinzaine de kilomètres de Tinghir, les Gorges du Todra offrent l'un des spectacles naturels les plus saisissants du Maroc. Ici, l’oued a patiemment sculpté un canyon calcaire dont les parois vertigineuses s’élèvent jusqu’à 300 mètres de haut, se resserrant parfois à peine sur une dizaine de mètres de large. Ce corridor de roche ocre, baigné d'une lumière changeante, est le terrain d",
+      "cities": [
+        "Marrakech",
+        "Merzouga",
+        "Ouarzazate",
+        "Zagora",
+        "Béni Mellal"
       ]
     },
     {
@@ -389,6 +472,21 @@
         "Merzouga",
         "Zagora"
       ]
+    },
+    {
+      "id": "8aa0a48e-b85c-4382-8e98-e92a77e22f6f",
+      "name": "Arche de Legzira",
+      "name_en": null,
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 29.4399147,
+      "longitude": -10.121373,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": []
     },
     {
       "id": "c1fba0b2-d186-4034-a6cf-ddda05627803",
@@ -563,27 +661,6 @@
       ]
     },
     {
-      "id": "bc083653-be8b-4396-825c-e543b6d4db5d",
-      "name": "Gorges du Todra",
-      "name_en": "Todra Gorges",
-      "region": [
-        "Souss-Massa"
-      ],
-      "latitude": 31.5883012,
-      "longitude": -5.5946749,
-      "image": null,
-      "wikipedia": null,
-      "hook": "Dominez le vertige aux Gorges du Todra : un canyon titanesque aux parois ocres, véritable paradis du Haut Atlas.",
-      "description": "Situées à une quinzaine de kilomètres de Tinghir, les Gorges du Todra offrent l'un des spectacles naturels les plus saisissants du Maroc. Ici, l’oued a patiemment sculpté un canyon calcaire dont les parois vertigineuses s’élèvent jusqu’à 300 mètres de haut, se resserrant parfois à peine sur une dizaine de mètres de large. Ce corridor de roche ocre, baigné d'une lumière changeante, est le terrain d",
-      "cities": [
-        "Marrakech",
-        "Merzouga",
-        "Ouarzazate",
-        "Zagora",
-        "Béni Mellal"
-      ]
-    },
-    {
       "id": "1c839512-a839-4015-9180-36eaff24c786",
       "name": "Agadir",
       "name_en": "Agadir",
@@ -632,6 +709,23 @@
       "hook": null,
       "description": null,
       "cities": []
+    },
+    {
+      "id": "1a44f126-399c-4dcc-9624-ccc71ffa9895",
+      "name": "Cascades d'Akchour",
+      "name_en": null,
+      "region": [
+        "Tanger-Tétouan-Al Hoceïma"
+      ],
+      "latitude": 31.791702,
+      "longitude": -7.09262,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Chefchaouen"
+      ]
     },
     {
       "id": "38eb8925-123e-4312-875f-72e70415e5bc",
@@ -708,6 +802,21 @@
       ],
       "latitude": 34.0181246,
       "longitude": -5.0078451,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": []
+    },
+    {
+      "id": "61d30b3b-4099-463a-93ce-00830d5c3a7d",
+      "name": "Cap Spartel",
+      "name_en": null,
+      "region": [
+        "Tanger-Tétouan-Al Hoceïma"
+      ],
+      "latitude": 35.7863578,
+      "longitude": -5.9145568,
       "image": null,
       "wikipedia": null,
       "hook": null,
