@@ -212,6 +212,10 @@ const LocationPickerDialog = ({
         const pos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
         selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
+        // Nouveau point : l'ancienne adresse ne doit plus être confirmée.
+        selectedAddressRef.current = "";
+        setSelectedAddress("");
+        setAddressQuery("");
         placeMarker(pos);
         reverseGeocode(pos);
       });
