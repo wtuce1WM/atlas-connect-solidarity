@@ -264,6 +264,8 @@ const LocationPickerDialog = ({
 
   useEffect(() => {
     if (!open) {
+      selectedCoordsRef.current = null;
+      selectedAddressRef.current = "";
       setSelectedCoords(null);
       setSelectedAddress("");
       setAddressQuery("");
