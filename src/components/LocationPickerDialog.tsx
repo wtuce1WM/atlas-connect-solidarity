@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef, useCallback } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import {
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Navigation, Search, X, Loader, Check, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
