@@ -2046,14 +2046,26 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const asked = parseRadiusCommand(text);
       if (asked != null) {
         applyRadius(asked);
+        // Recherche géolocalisée en cours : le rayon change le périmètre appliqué
+        // aux résultats affichés autour de l'adresse choisie.
+        const geoActive = !!geoAnchorRef.current;
+        if (geoActive) setGeoRadiusKm(asked);
         setError(null);
+        const r = radiusLabel(asked, lang);
+        const confirm = geoActive
+          ? lang === "en"
+            ? `Got it 👍 Results are now shown within **${r}** of your address.`
+            : lang === "ar"
+            ? `تم 👍 يتم الآن عرض النتائج داخل **${r}** من عنوانك.`
+            : `D'accord 👍 Les résultats sont maintenant affichés dans un rayon de **${r}** autour de votre adresse.`
+          : L.radiusChanged(r);
         setMessages((prev) => [
           ...prev,
           { id: `u-radius-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
           {
             id: `a-radius-${Date.now()}`,
             role: "assistant",
-            parts: [{ type: "text", text: L.radiusChanged(radiusLabel(asked, lang)) }],
+            parts: [{ type: "text", text: confirm }],
           } as any,
         ]);
         return;
