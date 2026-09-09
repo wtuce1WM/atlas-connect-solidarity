@@ -515,7 +515,11 @@ const LocationPickerDialog = ({
             )}
           </div>
 
-          <div className={cn("mx-5 mt-3 rounded-xl overflow-hidden border flex-1 min-h-[400px]", themed.border)}>
+          <div className={cn(
+            "mt-3 overflow-hidden border flex-1 min-h-[400px]",
+            inline ? "mx-0 rounded-none md:mx-5 md:rounded-xl" : "mx-5 rounded-xl",
+            themed.border
+          )}>
             {!mapsLoaded ? (
               <div className={cn("w-full h-full min-h-[400px] flex items-center justify-center", themed.mapBg)}>
                 <Loader className={cn("h-6 w-6 animate-spin", themed.muted)} />
@@ -545,7 +549,7 @@ const LocationPickerDialog = ({
     return (
       <div
         className={cn(
-          "relative w-full max-w-xl mx-auto rounded-2xl overflow-hidden flex flex-col bg-transparent",
+          "relative w-full overflow-hidden flex flex-col bg-transparent",
           theme === "light" ? "text-neutral-900" : theme === "dark" ? "text-neutral-100" : "text-foreground",
           className
         )}

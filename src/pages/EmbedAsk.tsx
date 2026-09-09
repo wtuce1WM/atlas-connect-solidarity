@@ -2207,45 +2207,48 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
   /**
    * Sélecteur d'adresse (même contenu que le pop-up « Choisir votre adresse »)
-   * rendu inline dans la réponse IA, aligné comme une bulle assistant
-   * (gauche, max-w-[85%]).
+   * rendu inline dans la réponse IA. Le texte de la question reste dans une bulle
+   * assistant classique ; le widget (et surtout sa carte) prend 100 % de la
+   * largeur du viewport sur mobile.
    */
   const renderGeoInlinePicker = () => {
     if (!geoPromptText) return null;
     return (
-      <div className="w-full mt-1">
+      <div className="w-full mt-1 space-y-2">
         <div className="flex justify-start">
-          <div className={`w-full max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed space-y-2 ${asstBubble}`} style={cardStyle}>
+          <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`} style={cardStyle}>
             <div className="whitespace-pre-wrap">{geoPromptText}</div>
-            <Suspense fallback={null}>
-              <LocationPickerDialog
-                inline
-                open
-                className="max-w-none mx-0"
-                onOpenChange={(o) => {
-                  if (o) return;
-                  // Fermeture consécutive à une confirmation : ne rien annuler.
-                  if (geoJustConfirmedRef.current) { geoJustConfirmedRef.current = false; return; }
-                  handleGeoPromptDismiss();
-                }}
-                coords={geo.coords}
-                detectedCity={geo.confirmedAddress || geo.detectedCity}
-                isEnabled={geo.isEnabled}
-                isDetecting={geo.isDetecting}
-                theme={theme}
-                onUseCurrentPosition={() => { if (!geo.isEnabled) geo.accept(); }}
-                onConfirm={handleGeoPickerConfirm}
-                onDisableGeo={() => {
-                  try {
-                    localStorage.removeItem("geo_manual_coords");
-                    localStorage.removeItem("geo_manual_address");
-                  } catch { /* noop */ }
-                  geo.decline();
-                  handleGeoPromptDismiss();
-                }}
-              />
-            </Suspense>
           </div>
+        </div>
+        <div className="w-full">
+          <Suspense fallback={null}>
+            <LocationPickerDialog
+              inline
+              open
+              className="-mx-4 w-[calc(100%+2rem)] md:max-w-2xl md:mx-auto md:w-full md:rounded-2xl"
+              onOpenChange={(o) => {
+                if (o) return;
+                // Fermeture consécutive à une confirmation : ne rien annuler.
+                if (geoJustConfirmedRef.current) { geoJustConfirmedRef.current = false; return; }
+                handleGeoPromptDismiss();
+              }}
+              coords={geo.coords}
+              detectedCity={geo.confirmedAddress || geo.detectedCity}
+              isEnabled={geo.isEnabled}
+              isDetecting={geo.isDetecting}
+              theme={theme}
+              onUseCurrentPosition={() => { if (!geo.isEnabled) geo.accept(); }}
+              onConfirm={handleGeoPickerConfirm}
+              onDisableGeo={() => {
+                try {
+                  localStorage.removeItem("geo_manual_coords");
+                  localStorage.removeItem("geo_manual_address");
+                } catch { /* noop */ }
+                geo.decline();
+                handleGeoPromptDismiss();
+              }}
+            />
+          </Suspense>
         </div>
       </div>
     );
@@ -3626,7 +3629,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       {/* scrollbar-hide : ascenseur masqué (scroll molette/tactile/clavier conservé). */}
       <div
         ref={scrollRef}
-        className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto scrollbar-hide"} ${voiceActive ? "[overflow-x:clip]" : ""} px-4 ${heroLayout && !homeState ? "pt-16 md:pt-20" : heroLayout && homeState ? "pt-10 md:pt-4" : "pt-4"} pb-8 space-y-3 ${bg} relative`}
+        className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto scrollbar-hide overflow-x-clip"} px-4 ${heroLayout && !homeState ? "pt-16 md:pt-20" : heroLayout && homeState ? "pt-10 md:pt-4" : "pt-4"} pb-8 space-y-3 ${bg} relative`}
         /* Home (hero=1) en conversation : le header reste transparent, le contenu
            scrollé s'estompe progressivement sous lui (fondu de 0 à 88px). */
         style={heroLayout && !homeState ? {
