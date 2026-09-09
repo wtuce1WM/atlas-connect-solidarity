@@ -4068,6 +4068,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 </div>
               )}
 
+              {geoAnchor && mapPayloadRaw && mapPayloadRaw.businesses.length > 0 && (
+                <div className={`w-full max-w-[85%] rounded-xl px-3 py-2 text-[12px] leading-snug ${cardBg}`} style={cardStyle}>
+                  {lang === "en"
+                    ? `Within ${radiusLabel(geoRadiusKm, lang)} of your address: ${mapPayload?.businesses.length ?? 0} place(s).${geoOutOfRadius > 0 ? ` ${geoOutOfRadius} further away hidden.` : ""} Say or type “radius 5 km” to change it.`
+                    : lang === "ar"
+                    ? `داخل ${radiusLabel(geoRadiusKm, lang)} من عنوانك: ${mapPayload?.businesses.length ?? 0}.${geoOutOfRadius > 0 ? ` ${geoOutOfRadius} أبعد مخفية.` : ""} قل «نطاق 5 كم» لتغييره.`
+                    : `Dans un rayon de ${radiusLabel(geoRadiusKm, lang)} autour de votre adresse : ${mapPayload?.businesses.length ?? 0} adresse(s).${geoOutOfRadius > 0 ? ` ${geoOutOfRadius} plus loin masquée(s).` : ""} Dites ou écrivez « rayon 5 km » pour changer le périmètre.`}
+                </div>
+              )}
+
               {mapPayload && mapPayload.businesses.length > 0 &&
                 renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload), mapPayload.order)}
 
