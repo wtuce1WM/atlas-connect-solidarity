@@ -50,6 +50,9 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   const { soundOn } = useVideoSoundPreference();
   const soundOnRef = useRef(soundOn);
   useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
+  // Overlay couvrant (Full Description…) : lu par les relances asynchrones.
+  const blockedRef = useRef(blocked);
+  useEffect(() => { blockedRef.current = blocked; }, [blocked]);
   // Image gelée héritée du panneau précédent (transition sans écran noir au montage).
   const [poster, setPoster] = useState<string | null>(() => getLastVideoFrame());
 
