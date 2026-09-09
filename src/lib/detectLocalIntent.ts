@@ -14,6 +14,8 @@ const LOCAL_INTENT_PATTERNS: RegExp[] = [
   /\b(les?|des)\s+plus\s+proches?\b/i,
   /\bproximite\s+immediate\b/i,
   /\bautour\s+de\s+moi\b/i,
+  // "à côté", "à proximité", "autour d'ici", "dans le coin" sans référence explicite à soi
+  /\b(a\s+cote|a\s+proximite|autour\s+d'?ici|dans\s+le\s+coin|pres\s+d'?ici|aux?\s+alentours)\b/i,
   /\bdans\s+mon\s+(quartier|coin|secteur)\b/i,
   // anglais
   /\b(near|around|close\s+to|nearby|next\s+to)\s+(me|my\s+(location|position|area))\b/i,
