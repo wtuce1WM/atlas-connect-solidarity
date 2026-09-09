@@ -2061,14 +2061,19 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   };
 
   /**
-   * Acceptation inline : on attend que la position réelle soit disponible avant
-   * de lancer la question (sinon la recherche part sans coordonnées).
+   * Adresse confirmée dans le sélecteur inline : la position est enregistrée,
+   * puis la question en attente part avec les coordonnées choisies.
    */
-  const handleGeoPromptAccept = () => {
-    setGeoPromptWaiting(true);
-    geo.accept();
+  const handleGeoPickerConfirm = (coords: { lat: number; lng: number }, address: string) => {
+    geo.setManualLocation(coords, address);
+    const text = pendingGeoTextRef.current;
+    pendingGeoTextRef.current = null;
+    setGeoPromptWaiting(false);
+    setGeoPromptText(null);
+    if (text) window.setTimeout(() => send(text, undefined, undefined, true), 0);
   };
 
+  /** Refus / fermeture : la question part sans position. */
   const handleGeoPromptDismiss = () => {
     const text = pendingGeoTextRef.current;
     pendingGeoTextRef.current = null;
@@ -2076,22 +2081,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     setGeoPromptText(null);
     if (text) send(text, undefined, undefined, true);
   };
-
-  // Position obtenue (ou délai dépassé) → la question en attente part enfin.
-  useEffect(() => {
-    if (!geoPromptWaiting) return;
-    const fire = () => {
-      const text = pendingGeoTextRef.current;
-      pendingGeoTextRef.current = null;
-      setGeoPromptWaiting(false);
-      setGeoPromptText(null);
-      if (text) send(text, undefined, undefined, true);
-    };
-    if (geo.coords) { fire(); return; }
-    const timer = window.setTimeout(fire, 12000);
-    return () => window.clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [geoPromptWaiting, geo.coords]);
 
   /**
    * Filtre local déterministe (badges du footer) : le serveur applique une route
