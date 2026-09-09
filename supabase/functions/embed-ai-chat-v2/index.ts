@@ -412,6 +412,15 @@ Deno.serve(async (req) => {
     ? Number(body.radiusKm)
     : null;
   /**
+   * Point confirmé par l'utilisateur (sélecteur « Choisir votre adresse » de Home).
+   * Sert d'ancre de proximité à la place de l'établissement hôte : sans lui, le
+   * corpus restait la ville entière et la réponse citait des adresses hors rayon.
+   */
+  const userAnchor: { lat: number; lng: number } | null =
+    Number.isFinite(Number(body.userLat)) && Number.isFinite(Number(body.userLng))
+      ? { lat: Number(body.userLat), lng: Number(body.userLng) }
+      : null;
+  /**
    * Filtre local imposé par un badge du footer (zéro token) : même catalogue de
    * routes que `route_override` du back-office, plus la clé locale
    * `neighborhood_filter` (filtre le corpus du tour précédent sur un quartier).
@@ -2238,35 +2247,50 @@ Deno.serve(async (req) => {
             }
 
             // ── Rayon de proximité (toujours actif dans /embed) ────────────────
-            // L'embed est ancré sur un établissement hôte : toute recherche sans
-            // ville explicite reste dans le rayon actif autour de l'hôte (défaut
-            // 1 km), qu'elle suive un panorama « à proximité » ou non.
-            // Les adresses sans coordonnées (nomades / Maps désactivée) sont conservées.
+            // Deux ancres possibles, MÊME mécanisme :
+            //  1. le point confirmé par l'utilisateur (`userLat`/`userLng`, envoyé
+            //     par le sélecteur d'adresse de Home) — prioritaire ;
+            //  2. l'établissement hôte de l'embed.
+            // Les adresses sans coordonnées sont conservées autour de l'hôte
+            // (nomades / Maps désactivée) mais EXCLUES autour d'un point utilisateur :
+            // impossible de prouver qu'elles sont dans le rayon demandé.
             let proximityApplied = false;
+            const proxAnchor = userAnchor
+              ?? (host?.latitude != null && host?.longitude != null
+                ? { lat: Number(host.latitude), lng: Number(host.longitude) }
+                : null);
             if (
-              host?.latitude != null && host?.longitude != null &&
+              proxAnchor &&
               !nameHit && !destScope && !explicitCity && !resolvedCityRaw && kept.length
             ) {
-              const hostRadius = RADIUS_OPTIONS.includes(Number(host.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
+              const hostRadius = RADIUS_OPTIONS.includes(Number(host?.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
               const radiusKm = parseInlineRadiusKm(userMessage) ?? requestedRadiusKm ?? hostRadius;
               const km = (lat: number, lng: number) => {
                 const R = 6371;
-                const dLat = ((lat - host.latitude) * Math.PI) / 180;
-                const dLng = ((lng - host.longitude) * Math.PI) / 180;
+                const dLat = ((lat - proxAnchor.lat) * Math.PI) / 180;
+                const dLng = ((lng - proxAnchor.lng) * Math.PI) / 180;
                 const a = Math.sin(dLat / 2) ** 2 +
-                  Math.cos((host.latitude * Math.PI) / 180) * Math.cos((lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+                  Math.cos((proxAnchor.lat * Math.PI) / 180) * Math.cos((lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
                 return 2 * R * Math.asin(Math.min(1, Math.sqrt(a)));
               };
               const before = kept.length;
               const inRadius = kept.filter((b: any) =>
                 b?.latitude == null || b?.longitude == null
-                  ? true
+                  ? !userAnchor
                   : km(Number(b.latitude), Number(b.longitude)) <= radiusKm,
               );
-              console.log("[embed-ai-chat-v2] proximity_context_radius", JSON.stringify({ radiusKm, before, after: inRadius.length }));
-              // Pas de repli silencieux sur la ville entière si le rayon rend zéro :
-              // on garde le résultat resserré uniquement s'il reste quelque chose.
-              if (inRadius.length) { kept = inRadius; proximityApplied = true; }
+              console.log("[embed-ai-chat-v2] proximity_context_radius", JSON.stringify({
+                anchor: userAnchor ? "user" : "host", radiusKm, before, after: inRadius.length,
+              }));
+              if (userAnchor) {
+                // Point utilisateur : aucun repli silencieux, même à zéro résultat.
+                kept = inRadius;
+                proximityApplied = true;
+              } else if (inRadius.length) {
+                // Pas de repli silencieux sur la ville entière si le rayon rend zéro :
+                // on garde le résultat resserré uniquement s'il reste quelque chose.
+                kept = inRadius; proximityApplied = true;
+              }
             }
 
             // ── Augmentation badge-aware du corpus (déterministe, zéro token) ───

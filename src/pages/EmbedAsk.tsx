@@ -1020,6 +1020,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [geoAnchor, setGeoAnchor] = useState<{ lat: number; lng: number } | null>(null);
   const geoAnchorRef = useRef<{ lat: number; lng: number } | null>(null);
   const [geoRadiusKm, setGeoRadiusKm] = useState<number>(1);
+  /** Miroir du rayon géo lisible depuis le transport (mémoïsé, hors rendu). */
+  const geoRadiusRef = useRef<number>(1);
+  const applyGeoRadius = (km: number) => { geoRadiusRef.current = km; setGeoRadiusKm(km); };
   /** Adresse confirmée, question locale pas encore partie : l'assistant reste ouvert. */
   const [geoSendPending, setGeoSendPending] = useState(false);
   const setGeoAnchorPoint = (c: { lat: number; lng: number } | null) => {
@@ -1064,7 +1067,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         scope: (body as any)?.scope ?? null,
         forcedRoute: (body as any)?.forcedRoute ?? null,
         destinationId: (body as any)?.destinationId ?? null,
-        radiusKm: radiusRef.current,
+        // Point confirmé par l'utilisateur : le moteur restreint le corpus lui-même,
+        // sinon la réponse rédigée citait des adresses hors rayon.
+        radiusKm: geoAnchorRef.current ? geoRadiusRef.current : radiusRef.current,
+        userLat: geoAnchorRef.current?.lat ?? null,
+        userLng: geoAnchorRef.current?.lng ?? null,
       },
     }),
   }), [slug, lang, isPlatform, platformCity, isClubScope]);
@@ -2065,7 +2072,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         // Recherche géolocalisée en cours : le rayon change le périmètre appliqué
         // aux résultats affichés autour de l'adresse choisie.
         const geoActive = !!geoAnchorRef.current;
-        if (geoActive) setGeoRadiusKm(asked);
+        if (geoActive) applyGeoRadius(asked);
         setError(null);
         const r = radiusLabel(asked, lang);
         const confirm = geoActive
@@ -2132,7 +2139,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // Les résultats sont restreints à 1 km autour de l'adresse choisie ;
     // l'utilisateur peut ensuite élargir le rayon (texte ou voix).
     setGeoAnchorPoint(coords);
-    setGeoRadiusKm(1);
+    applyGeoRadius(1);
     const text = pendingGeoTextRef.current;
     pendingGeoTextRef.current = null;
     setGeoPromptWaiting(false);
