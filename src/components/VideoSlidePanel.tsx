@@ -1777,6 +1777,7 @@ const VideoSlidePanel = ({
                 videoRef={videoRef}
                 src={viewUrl || videoUrl}
                 videoKey={`${videoId || videoUrl}|${mediaIdx}`}
+                blocked={!!descBusinessId || aiOverlayOpen || descOverlayOpen}
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />
 
