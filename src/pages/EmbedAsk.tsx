@@ -2128,6 +2128,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     const text = pendingGeoTextRef.current;
     pendingGeoTextRef.current = null;
     setGeoPromptWaiting(false);
+    if (text) setGeoSendPending(true);
     setGeoPromptText(null);
     if (text) window.setTimeout(() => send(text, undefined, undefined, true), 0);
   };
