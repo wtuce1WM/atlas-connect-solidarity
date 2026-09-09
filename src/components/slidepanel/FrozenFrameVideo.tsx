@@ -208,6 +208,11 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   // dès qu'un buffer NON actif se met à jouer ou à sortir du mute, il est arrêté.
   useEffect(() => {
     const enforce = () => {
+      // Overlay couvrant : AUCUN buffer ne joue, aucun son.
+      if (blockedRef.current) {
+        ([0, 1] as const).forEach((slot) => stopBuffer(getEl(slot)));
+        return;
+      }
       ([0, 1] as const).forEach((slot) => {
         if (slot === activeRef.current) return;
         const el = getEl(slot);
