@@ -2092,6 +2092,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             }
           }
           if (searchQuery) {
+            // La relance reconstruit un nouveau lot : réactiver le suivi du bas pour
+            // afficher ce lot, même si l'utilisateur avait remonté la conversation.
+            stickDisabledRef.current = false;
+            upIntentUntilRef.current = 0;
             messageIndexRef.current += 1;
             void sendMessage(
               { text },
@@ -3845,6 +3849,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           const tidesCity = tides[tides.length - 1] || null;
           const bookingPayload = bookings[bookings.length - 1] || null;
           const msgKey = String(m.id || i);
+          // Une relance de rayon ajoute une nouvelle réponse à l'historique. Ne pas
+          // laisser les anciennes cartes géolocalisées visibles : sur mobile elles
+          // donnaient l'impression que le rayon renvoyait toujours le même lot.
+          const hasNewerGeoRequest = !!geoAnchor && messages.slice(i + 1).some((later) =>
+            (later.role === "user" && parseRadiusCommand(messageText(later)) != null) ||
+            (later.role === "assistant" && extractPayloads(messageText(later)).maps.some((payload) => payload.businesses.length > 0)),
+          );
           const bookingCity = bookingPayload?.city || bookingWidgetByMsg[msgKey] || null;
           const bookingResult = hotelResults[msgKey] || null;
           const isLast = i === messages.length - 1;
@@ -4122,7 +4133,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 </div>
               )}
 
-              {geoAnchor && mapPayloadRaw && mapPayloadRaw.businesses.length > 0 && (
+              {!hasNewerGeoRequest && geoAnchor && mapPayloadRaw && mapPayloadRaw.businesses.length > 0 && (
                 <div className={`w-full max-w-[85%] rounded-xl px-3 py-2 text-[12px] leading-snug ${cardBg}`} style={cardStyle}>
                   {lang === "en"
                     ? `Within ${radiusLabel(geoRadiusKm, lang)} of your address: ${mapPayload?.businesses.length ?? 0} place(s).${geoOutOfRadius > 0 ? ` ${geoOutOfRadius} further away hidden.` : ""} Say or type “radius 5 km” to change it.`
@@ -4132,7 +4143,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 </div>
               )}
 
-              {mapPayload && mapPayload.businesses.length > 0 &&
+              {!hasNewerGeoRequest && mapPayload && mapPayload.businesses.length > 0 &&
                 renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload), mapPayload.order)}
 
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
