@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { clampToSupportedRegion } from "@/lib/supportedGeoRegion";
+
 
 interface GeoCity {
   name_fr: string;
@@ -294,11 +296,17 @@ export function useGeolocation(): GeolocationState {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const { latitude, longitude } = position.coords;
+        // Le catalogue ne couvre que la région Marrakech-Safi : en dehors, on
+        // utilise le point GPS de la Koutoubia plutôt que la position réelle.
+        const { lat: latitude, lng: longitude } = clampToSupportedRegion({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
         localStorage.setItem(AUTO_COORDS_KEY, JSON.stringify({ lat: latitude, lng: longitude }));
         setCoords({ lat: latitude, lng: longitude });
 
         setDetectedCity(findNearestCity(latitude, longitude, cities));
+
         setIsDetecting(false);
         import("@/lib/analytics").then(({ trackEvent }) =>
           trackEvent("geolocation_granted", { source: "browser" })

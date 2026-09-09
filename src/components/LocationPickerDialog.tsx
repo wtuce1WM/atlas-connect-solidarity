@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import { Navigation, Search, X, Loader, Check, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { clampToSupportedRegion } from "@/lib/supportedGeoRegion";
+
 
 declare global {
   interface Window {
@@ -382,7 +384,8 @@ const LocationPickerDialog = ({
     setWaitingForPosition(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+        // Hors région Marrakech-Safi (aucun résultat en base) : repli Koutoubia.
+        const pos = clampToSupportedRegion({ lat: position.coords.latitude, lng: position.coords.longitude });
         selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
         placeMarker(pos);
@@ -391,6 +394,7 @@ const LocationPickerDialog = ({
         reverseGeocode(pos).finally(() => setWaitingForPosition(false));
       },
       () => setWaitingForPosition(false),
+
       { enableHighAccuracy: true, timeout: 10000 }
     );
   };
