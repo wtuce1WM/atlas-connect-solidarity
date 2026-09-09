@@ -3897,7 +3897,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           // dans le texte (ils n'ont pas de coordonnées, donc impossible de
           // garantir le rayon — c'est ce qui affichait des adresses hors zone).
           const citedFallback =
-            !geoAnchor && (!mapPayload || mapPayload.businesses.length === 0)
+            !geoActiveForMsg && (!mapPayload || mapPayload.businesses.length === 0)
               ? findCitedBusinesses(clean)
               : [];
           return (
