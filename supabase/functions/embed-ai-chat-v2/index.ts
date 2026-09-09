@@ -2292,6 +2292,7 @@ Deno.serve(async (req) => {
                 // Point utilisateur : aucun repli silencieux, même à zéro résultat.
                 kept = inRadius;
                 proximityApplied = true;
+                userAnchorRadiusKm = radiusKm;
               } else if (inRadius.length) {
                 // Pas de repli silencieux sur la ville entière si le rayon rend zéro :
                 // on garde le résultat resserré uniquement s'il reste quelque chose.
