@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import { Navigation, Search, X, Loader, Check, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { clampToSupportedRegion } from "@/lib/supportedGeoRegion";
+
 
 declare global {
   interface Window {
@@ -382,7 +384,8 @@ const LocationPickerDialog = ({
     setWaitingForPosition(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+        // Hors région Marrakech-Safi (aucun résultat en base) : repli Koutoubia.
+        const pos = clampToSupportedRegion({ lat: position.coords.latitude, lng: position.coords.longitude });
         selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
         placeMarker(pos);
@@ -391,6 +394,7 @@ const LocationPickerDialog = ({
         reverseGeocode(pos).finally(() => setWaitingForPosition(false));
       },
       () => setWaitingForPosition(false),
+
       { enableHighAccuracy: true, timeout: 10000 }
     );
   };
@@ -410,21 +414,13 @@ const LocationPickerDialog = ({
 
   const body = (
     <>
-          {inline ? (
-            <button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              aria-label="Close"
-              className={cn("absolute left-4 top-4 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none z-10", themed.closeBtn)}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          ) : (
+          {!inline && (
             <DialogPrimitive.Close className={cn("absolute left-4 top-4 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none disabled:pointer-events-none z-10", themed.closeBtn)}>
               <X className="h-4 w-4" />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
           )}
+
           <div className="p-5 pb-3 shrink-0 text-center">
             {inline ? (
               <p className={cn("text-lg font-bold text-center", themed.fg)} style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -538,9 +534,8 @@ const LocationPickerDialog = ({
     return (
       <div
         className={cn(
-          "relative w-full max-w-xl mx-auto border rounded-2xl overflow-hidden flex flex-col shadow-lg",
-          themed.surface,
-          themed.border,
+          "relative w-full max-w-xl mx-auto rounded-2xl overflow-hidden flex flex-col bg-transparent",
+          theme === "light" ? "text-neutral-900" : theme === "dark" ? "text-neutral-100" : "text-foreground",
           className
         )}
       >
@@ -548,6 +543,7 @@ const LocationPickerDialog = ({
       </div>
     );
   }
+
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
