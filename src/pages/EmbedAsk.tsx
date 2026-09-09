@@ -1090,7 +1090,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Signal « conversation ouverte » au host (Front masque le CTA « Découvrez l'App »).
   // On couvre tous les cas d'ouverture : question tapée, suggestion/badge cliqué
   // (aucun message user), streaming en cours, conversation restaurée.
-  const conversationOpenSignal = hasUserMessages || streaming || messages.length > 1;
+  const conversationOpenSignal = hasUserMessages || streaming || messages.length > 1 || !!geoPromptText;
   useEffect(() => {
     const payload = { type: "owm-ask:conversation-open", open: conversationOpenSignal };
     try { window.postMessage(payload, "*"); } catch { /* noop */ }
@@ -1111,7 +1111,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
 
   /** Option B : accueil IA plein écran (logo + champ central + chips) vs conversation. */
-  const homeState = isPlatform && !hasUserMessages && !streaming && assistantReady && splashPhase === "done";
+  // Le sélecteur d'adresse inline s'affiche dans l'assistant OUVERT : dès qu'une
+  // question locale est en attente, on quitte l'accueil plein écran.
+  const homeState = isPlatform && !hasUserMessages && !streaming && assistantReady && splashPhase === "done" && !geoPromptText;
   
   const pickFollowupLabel = (f: FollowupRow): string => {
     const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
@@ -1872,6 +1874,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setGeoPromptWaiting(false);
       setGeoPromptText(text);
       if (!overrideText) setInput("");
+      // L'assistant passe immédiatement en mode ouvert (host + layout interne).
+      try { window.parent?.postMessage({ type: "owm-ask:asked" }, "*"); } catch { /* cross-origin */ }
       return;
     }
     // Hôte embarqueur (ex. /front) : signale qu'une question a été lancée pour
