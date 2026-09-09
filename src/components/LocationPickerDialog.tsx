@@ -93,6 +93,8 @@ const LocationPickerDialog = ({
   hostLocation,
   hostLabel,
   theme,
+  inline = false,
+  className,
 }: LocationPickerDialogProps) => {
   const { language } = useLanguage();
   const mapRef = useRef<any>(null);
