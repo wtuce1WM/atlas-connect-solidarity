@@ -4518,7 +4518,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           </div>
         )}
 
-        {!homeState && !hasUserMessages && !streaming && assistantReady && (
+        {!homeState && !geoPromptText && !geoSendPending && !hasUserMessages && !streaming && assistantReady && (
           <div className="flex flex-wrap gap-2 pt-1">
             {visibleSuggestions.map((s) => {
               const label = s.label;
