@@ -421,6 +421,12 @@ Deno.serve(async (req) => {
       ? { lat: Number(body.userLat), lng: Number(body.userLng) }
       : null;
   /**
+   * Rayon réellement appliqué autour du point utilisateur confirmé. Sert à dire au
+   * modèle que la position EST connue (sinon il écrivait « votre position exacte
+   * n'est pas indiquée » alors que les tuiles affichent déjà les distances).
+   */
+  let userAnchorRadiusKm: number | null = null;
+  /**
    * Filtre local imposé par un badge du footer (zéro token) : même catalogue de
    * routes que `route_override` du back-office, plus la clé locale
    * `neighborhood_filter` (filtre le corpus du tour précédent sur un quartier).
