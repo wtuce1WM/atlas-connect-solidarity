@@ -2944,6 +2944,9 @@ Deno.serve(async (req) => {
 
         const context = [
           host ? hostContext(host, lang) : (activeCity ? `Ville active: ${activeCity}` : ""),
+          userAnchorRadiusKm != null
+            ? `POSITION UTILISATEUR CONNUE : l'utilisateur a confirmé son adresse et toutes les adresses ci-dessous sont déjà filtrées dans un rayon de ${userAnchorRadiusKm} km autour d'elle, avec la distance affichée sur chaque fiche. N'écris JAMAIS que sa position n'est pas connue ou pas indiquée, et ne lui demande pas de la préciser : présente les adresses comme étant à proximité immédiate de sa position.`
+            : "",
           results.length
             ? `Résultats trouvés (${results.length} sur ${totalFound}) — ce sont les seules adresses à présenter, présente-les toutes :\n${resultsContext(results, lang)}`
             : "",
