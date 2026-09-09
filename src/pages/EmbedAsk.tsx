@@ -1868,7 +1868,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // non activée : on propose d'abord le pop-up, puis on envoie la question.
     if (!skipGeoPrompt && detectLocalIntent(text) && !geo.isEnabled) {
       pendingGeoTextRef.current = text;
-      setGeoPromptOpen(true);
+      setGeoPromptWaiting(false);
+      setGeoPromptText(text);
+      if (!overrideText) setInput("");
       return;
     }
     // Hôte embarqueur (ex. /front) : signale qu'une question a été lancée pour
