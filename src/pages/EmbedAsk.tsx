@@ -18,7 +18,9 @@ import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
+import GeoPromptDialog from "@/components/GeoPromptDialog";
 import { parseBookingIntent } from "@/lib/parseBookingIntent";
+import { detectLocalIntent } from "@/lib/detectLocalIntent";
 import EmbedFilterDrawer, { type EmbedFilterGroup } from "@/components/embed/EmbedFilterDrawer";
 
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
@@ -758,6 +760,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [locationOpen, setLocationOpen] = useState(false);
+  const [geoPromptOpen, setGeoPromptOpen] = useState(false);
+  const pendingGeoTextRef = useRef<string | null>(null);
   const geo = useGeolocation();
 
   useEffect(() => {
@@ -1855,9 +1859,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
   const dir = lang === "ar" ? "rtl" : "ltr";
 
-  const send = (overrideText?: string, suggestionId?: string, followupId?: string) => {
+  const send = (overrideText?: string, suggestionId?: string, followupId?: string, skipGeoPrompt = false) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !assistantReady) return;
+    // Intention locale explicite ("près de moi", "near me", etc.) et géolocalisation
+    // non activée : on propose d'abord le pop-up, puis on envoie la question.
+    if (!skipGeoPrompt && detectLocalIntent(text) && !geo.isEnabled) {
+      pendingGeoTextRef.current = text;
+      setGeoPromptOpen(true);
+      return;
+    }
     // Hôte embarqueur (ex. /front) : signale qu'une question a été lancée pour
     // qu'il puisse neutraliser son propre scroll de page.
     try {
@@ -2041,6 +2052,21 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // modèle (mêmes badges, même pool, mêmes paliers que le tour normal). S'il
     // renvoie un feed, VideoSlidePanel s'ouvre d'abord, puis la question part.
     void openPreflightBadgeFeed(text).finally(fire);
+  };
+
+  const handleGeoPromptAccept = () => {
+    const text = pendingGeoTextRef.current;
+    pendingGeoTextRef.current = null;
+    setGeoPromptOpen(false);
+    geo.accept();
+    if (text) send(text, undefined, undefined, true);
+  };
+
+  const handleGeoPromptDismiss = () => {
+    const text = pendingGeoTextRef.current;
+    pendingGeoTextRef.current = null;
+    setGeoPromptOpen(false);
+    if (text) send(text, undefined, undefined, true);
   };
 
   /**
@@ -4835,6 +4861,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           }}
         />
       </Suspense>
+
+      <GeoPromptDialog
+        open={geoPromptOpen}
+        onOpenChange={(open) => {
+          if (!open) handleGeoPromptDismiss();
+        }}
+        onAccept={handleGeoPromptAccept}
+      />
     </div>
   );
 };
