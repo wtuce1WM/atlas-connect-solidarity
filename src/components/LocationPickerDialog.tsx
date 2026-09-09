@@ -31,6 +31,13 @@ interface LocationPickerDialogProps {
   hostLabel?: string | null;
   /** Optional explicit theme override (bypasses global dark tokens). Used by /embed/ask. */
   theme?: "light" | "dark";
+  /**
+   * Rendu inline (dans la réponse IA) : même contenu, sans overlay ni portail
+   * modal. Le bouton de fermeture appelle `onOpenChange(false)`.
+   */
+  inline?: boolean;
+  /** Classe additionnelle du conteneur inline. */
+  className?: string;
 }
 
 const DEFAULT_CENTER = { lat: 31.6295, lng: -7.9811 };
