@@ -3434,7 +3434,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             {voiceActive ? (
               /* Mode STT plein écran sous le header : tout le reste disparaît,
                  seule l'animation micro bleue + texte blanc reste visible. */
-              <div className="absolute -top-10 md:-top-4 -bottom-8 -left-4 -right-4 z-10 flex flex-col items-center justify-center bg-black/70 backdrop-blur-md px-4">
+              <div className="absolute -top-10 md:-top-4 -bottom-8 -left-4 -right-4 z-10 flex flex-col items-center justify-center bg-black/70 backdrop-blur-md px-4 overflow-x-clip">
                 <VoiceSearchPanel
                   liveTranscript={voice.liveTranscript}
                   audioLevel={voice.audioLevel}
@@ -4338,7 +4338,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         {/* STT en conversation : même animation + texte que sur l'accueil IA,
             affichés SOUS la réponse (plus d'overlay fullscreen). */}
         {voiceActive && !homeState && (
-          <div className="w-full pt-2">
+          <div className="w-full pt-2 relative overflow-x-clip">
             <VoiceSearchPanel
               liveTranscript={voice.liveTranscript}
               audioLevel={voice.audioLevel}
