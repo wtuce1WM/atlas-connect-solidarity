@@ -208,6 +208,17 @@ const RADIUS_OPTIONS = [0.5, 1, 5, 10, 20, 50, 100] as const;
 const radiusLabel = (km: number, lang: string): string =>
   km < 1 ? `${Math.round(km * 1000)} m` : `${km} km`;
 
+/** Distance à vol d'oiseau (km) entre deux points GPS. */
+function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const la1 = (a.lat * Math.PI) / 180;
+  const la2 = (b.lat * Math.PI) / 180;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
 /** Détecte une demande de changement de rayon (texte ou vocal) et renvoie la valeur autorisée la plus proche. */
 function parseRadiusCommand(text: string): number | null {
   const q = (text || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
