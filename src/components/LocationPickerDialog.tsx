@@ -411,40 +411,38 @@ const LocationPickerDialog = ({
     if (e.key === "Enter") { e.preventDefault(); handleSearchAddress(); }
   };
 
-  return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-[299] bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <DialogPrimitive.Content
-          onPointerDownOutside={(e) => {
-            const target = e.target as HTMLElement | null;
-            if (target?.closest?.(".pac-container")) e.preventDefault();
-          }}
-          onInteractOutside={(e) => {
-            const target = e.target as HTMLElement | null;
-            if (target?.closest?.(".pac-container")) e.preventDefault();
-          }}
-          className={cn(
-            "fixed z-[300] grid w-full border shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-            themed.surface,
-            themed.border,
-            "inset-0 rounded-none max-h-full",
-            "sm:inset-auto sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg md:max-w-2xl sm:rounded-2xl sm:max-h-[90vh]",
-            "p-0 gap-0 overflow-hidden flex flex-col"
+  const body = (
+    <>
+          {inline ? (
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              aria-label="Close"
+              className={cn("absolute left-4 top-4 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none z-10", themed.closeBtn)}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          ) : (
+            <DialogPrimitive.Close className={cn("absolute left-4 top-4 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none disabled:pointer-events-none z-10", themed.closeBtn)}>
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </DialogPrimitive.Close>
           )}
-        >
-          <DialogPrimitive.Close className={cn("absolute left-4 top-4 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none disabled:pointer-events-none z-10", themed.closeBtn)}>
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </DialogPrimitive.Close>
-          <DialogHeader className="p-5 pb-3 shrink-0 text-center sm:text-center">
-            <DialogTitle className={cn("text-lg font-bold text-center", themed.fg)} style={{ fontFamily: "'Montserrat', sans-serif" }}>
-              {language === "en" ? "Choose your address" : language === "ar" ? "اختر عنوانك" : "Choisir votre adresse"}
-            </DialogTitle>
+          <div className="p-5 pb-3 shrink-0 text-center">
+            {inline ? (
+              <p className={cn("text-lg font-bold text-center", themed.fg)} style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                {language === "en" ? "Choose your address" : language === "ar" ? "اختر عنوانك" : "Choisir votre adresse"}
+              </p>
+            ) : (
+              <DialogTitle className={cn("text-lg font-bold text-center", themed.fg)} style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                {language === "en" ? "Choose your address" : language === "ar" ? "اختر عنوانك" : "Choisir votre adresse"}
+              </DialogTitle>
+            )}
             {detectedCity && isEnabled && (
               <p className={cn("text-xs mt-0.5 text-center", themed.muted)} style={{ fontFamily: "'Montserrat', sans-serif" }}>📍 {detectedCity}</p>
             )}
-          </DialogHeader>
+          </div>
+
 
           <div className="px-5 space-y-3 shrink-0">
             <div className="flex items-center gap-2 flex-wrap">
