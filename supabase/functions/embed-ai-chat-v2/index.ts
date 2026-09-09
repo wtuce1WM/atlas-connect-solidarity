@@ -421,6 +421,12 @@ Deno.serve(async (req) => {
       ? { lat: Number(body.userLat), lng: Number(body.userLng) }
       : null;
   /**
+   * Rayon réellement appliqué autour du point utilisateur confirmé. Sert à dire au
+   * modèle que la position EST connue (sinon il écrivait « votre position exacte
+   * n'est pas indiquée » alors que les tuiles affichent déjà les distances).
+   */
+  let userAnchorRadiusKm: number | null = null;
+  /**
    * Filtre local imposé par un badge du footer (zéro token) : même catalogue de
    * routes que `route_override` du back-office, plus la clé locale
    * `neighborhood_filter` (filtre le corpus du tour précédent sur un quartier).
@@ -2286,6 +2292,7 @@ Deno.serve(async (req) => {
                 // Point utilisateur : aucun repli silencieux, même à zéro résultat.
                 kept = inRadius;
                 proximityApplied = true;
+                userAnchorRadiusKm = radiusKm;
               } else if (inRadius.length) {
                 // Pas de repli silencieux sur la ville entière si le rayon rend zéro :
                 // on garde le résultat resserré uniquement s'il reste quelque chose.
@@ -2937,6 +2944,9 @@ Deno.serve(async (req) => {
 
         const context = [
           host ? hostContext(host, lang) : (activeCity ? `Ville active: ${activeCity}` : ""),
+          userAnchorRadiusKm != null
+            ? `POSITION UTILISATEUR CONNUE : l'utilisateur a confirmé son adresse et toutes les adresses ci-dessous sont déjà filtrées dans un rayon de ${userAnchorRadiusKm} km autour d'elle, avec la distance affichée sur chaque fiche. N'écris JAMAIS que sa position n'est pas connue ou pas indiquée, et ne lui demande pas de la préciser : présente les adresses comme étant à proximité immédiate de sa position.`
+            : "",
           results.length
             ? `Résultats trouvés (${results.length} sur ${totalFound}) — ce sont les seules adresses à présenter, présente-les toutes :\n${resultsContext(results, lang)}`
             : "",
