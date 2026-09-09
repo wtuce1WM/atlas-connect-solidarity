@@ -3270,7 +3270,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       <div className="w-full">
       <AiBusinessResultTiles
         businesses={list as never}
-        origin={hostLocation ? { lat: hostLocation.lat, lng: hostLocation.lng } : null}
+        origin={geoAnchor ? { lat: geoAnchor.lat, lng: geoAnchor.lng } : hostLocation ? { lat: hostLocation.lat, lng: hostLocation.lng } : null}
         lang={lang}
         rankOrder={rankOrder ?? null}
         compact={anyPanelOpen}
