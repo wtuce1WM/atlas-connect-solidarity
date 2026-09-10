@@ -166,6 +166,9 @@ export async function buildHoursRanking(
   ids: string[],
   mode: "opens_first" | "closes_last",
   lang: "fr" | "en" | "ar",
+  /** Contexte immersif : rend les cartes du classement avec le même descriptif
+   * que les autres réponses. Absent → hooks déterministes, zéro token. */
+  immersive?: ImmersiveCtx | null,
 ): Promise<string | null> {
   if (!ids.length) return null;
   const { data, error } = await admin
