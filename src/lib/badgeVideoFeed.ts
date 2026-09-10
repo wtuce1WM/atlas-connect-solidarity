@@ -214,8 +214,9 @@ export function filterStrictBadgeIntersection(
 }
 
 /**
- * Feed multi-badges en paliers : pool OR élargi récupéré une fois, puis
- * réordonné de l'intersection stricte vers les intersections relâchées.
+ * Feed multi-badges STRICT : pool OR élargi récupéré une fois, puis filtré à
+ * l'intersection stricte (TOUS les badges). Intersection vide ⇒ liste vide :
+ * aucun fallback, jamais de résultats relâchés.
  * Signature identique à `fetchBadgesVideoFeed` pour rester interchangeable.
  */
 export async function fetchTieredBadgesVideoFeed(
@@ -225,8 +226,8 @@ export async function fetchTieredBadgesVideoFeed(
   const ids = (badgeIds || []).filter(Boolean);
   const { limit = 60 } = options;
   if (ids.length < 2) return fetchBadgesVideoFeed(ids, options);
-  // Pool élargi ET paginé : le palier strict peut se trouver au-delà de la 1re
-  // page du mélange par seed (26 vidéos strictes dans un pool OR de ~800).
+  // Pool élargi ET paginé : l'intersection stricte peut se trouver au-delà de
+  // la 1re page du mélange par seed (23 vidéos strictes dans un pool OR de ~800).
   const seed = options.seed ?? Math.random().toString(36).slice(2, 10);
   const POOL_CAP = 900;
   const all: BadgeVideoFeedItem[] = [];
@@ -237,8 +238,8 @@ export async function fetchTieredBadgesVideoFeed(
     all.push(...page.items);
     if (page.items.length < 300 || all.length >= total) break;
   }
-  const ordered = orderByBadgeIntersectionTiers(all, ids);
-  return { items: ordered.slice(0, limit), total };
+  const strict = filterStrictBadgeIntersection(all, ids);
+  return { items: strict.slice(0, limit), total: strict.length };
 }
 
 
