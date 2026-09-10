@@ -1998,10 +1998,11 @@ Deno.serve(async (req) => {
 
               // ── Feed vidéo automatique en PALIERS (route badge nommé) ────────
               // Si la phrase nomme au moins DEUX badges actifs (« location villa
-              // vue sur mer » ⇢ Location + Villas + Vue sur mer), le lecteur
-              // vidéo s'ouvre avant les fiches, ordonné par paliers : intersection
-              // stricte d'abord (villas vue sur mer), puis paliers relâchés
-              // (hôtels/riads vue sur mer). Les fiches ne changent pas.
+               // vue sur mer » ⇢ Location + Villas + Vue sur mer), le lecteur
+               // vidéo s'ouvre avant les fiches, en intersection STRICTE :
+               // seules les vidéos portant TOUS les badges sortent ; si
+               // l'intersection est vide, aucun feed n'est émis. Les fiches ne
+               // changent pas.
               try {
                 let feedBadges = await matchFrontBadgesInMessage(admin, userMessage, lang as any, 3);
                 let droppedSynonym = false;
