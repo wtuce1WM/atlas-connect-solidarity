@@ -3043,7 +3043,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // avait été déplié dans la conversation précédente.
     setShowAllSuggestions(false);
     setFiltersOpen(false);
+    // Retour à l'accueil IA : aucun sélecteur d'adresse en attente ne doit
+    // survivre — sinon le widget de géolocalisation réapparaît à la réouverture.
+    pendingGeoTextRef.current = null;
+    geoJustConfirmedRef.current = false;
+    setGeoPromptText(null);
+    setGeoPromptWaiting(false);
+    setGeoSendPending(false);
     pendingSendRef.current = pending || null;
+
 
     setChatKey((k) => k + 1); // resets useChat id → clears message list
     setTimeout(() => inputRef.current?.focus(), 0);
