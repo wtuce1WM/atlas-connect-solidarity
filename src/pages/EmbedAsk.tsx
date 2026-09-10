@@ -2028,7 +2028,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     try {
       window.parent?.postMessage({ type: "owm-ask:asked" }, "*");
     } catch { /* cross-origin */ }
-    if (!overrideText) setInput("");
+    if (!overrideText && !homeState) setInput("");
     // La première question ouvre la conversation normalement. À partir de la
     // deuxième question, chaque relance est ancrée en haut du viewport.
     anchorNextUserMessageRef.current = hasUserMessages;
