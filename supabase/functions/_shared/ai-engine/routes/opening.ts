@@ -59,7 +59,8 @@ export async function buildHoursForBusinesses(admin: any, ids: string[], lang: "
 
   // Preserve the order of the incoming ids.
   const byId = new Map<string, any>(data.map((b: any) => [b.id, b]));
-  const ordered = ids.map((id) => byId.get(id)).filter(Boolean);
+  // Rendu unifié : 4 adresses par lot maximum, cartes (miniatures) incluses.
+  const ordered = ids.map((id) => byId.get(id)).filter(Boolean).slice(0, 4);
 
   const withHours = ordered.filter((b: any) => b.show_opening_hours === true && (b.is_open_24h || (b.opening_hours && typeof b.opening_hours === "object")));
   const withoutHours = ordered.filter((b: any) => !(b.show_opening_hours === true));
@@ -132,7 +133,10 @@ export async function buildHoursForBusinesses(admin: any, ids: string[], lang: "
     : lang === "ar"
       ? `\n\nهل تريد التصفية حسب "مفتوح الآن" أو اقتراح واحد لوقت معين؟`
       : `\n\nJe filtre sur « ouvert maintenant » ou je t'en propose un pour un créneau précis ?`;
-  return out + outro;
+  const full = await fetchPriorFull(admin, ordered.map((b: any) => String(b.id))).catch(() => []);
+  const orderedFull = orderByIds(full as any[], ordered.map((b: any) => String(b.id)));
+  const cards = orderedFull.length ? toMapMarker(orderedFull) : "";
+  return out + outro + cards;
 }
 
 export function isOpensFirstIntent(text: string): boolean {
@@ -230,7 +234,8 @@ export async function buildHoursRanking(
     ? [...rows].sort((a, b) => (a.is24 ? -1 : b.is24 ? 1 : a.opens - b.opens))
     : [...rows].sort((a, b) => (a.is24 ? -1 : b.is24 ? 1 : b.closes - a.closes));
 
-  const top = sorted.slice(0, Math.min(5, sorted.length));
+  // Rendu unifié : 4 par lot.
+  const top = sorted.slice(0, Math.min(4, sorted.length));
   const fmt = (m: number) => {
     const mm = ((m % 1440) + 1440) % 1440;
     const h = Math.floor(mm / 60); const min = mm % 60;
@@ -268,7 +273,11 @@ export async function buildHoursRanking(
       : `\n\n_(${skipped} résultat${skipped > 1 ? "s" : ""} exclu${skipped > 1 ? "s" : ""} : horaires non publiés ou fermé aujourd'hui.)_`)
     : "";
 
-  return `${intro}\n\n${lines.join("\n")}${outro}`;
+  // Cartes (miniatures) du lot affiché : même règle de rendu que partout ailleurs.
+  const full = await fetchPriorFull(admin, top.map((r) => String(r.id))).catch(() => []);
+  const orderedFull = orderByIds(full as any[], top.map((r) => String(r.id)));
+  const cards = orderedFull.length ? toMapMarker(orderedFull) : "";
+  return `${intro}\n\n${lines.join("\n")}${outro}${cards}`;
 }
 
 export type OpenFilterIntent = { kind: "now" | "slot"; startH?: number; endH?: number; label: string; dayOffset?: number };
@@ -366,7 +375,8 @@ export async function buildOpenFilter(admin: any, ids: string[], intent: OpenFil
     return `Aucun des résultats précédents n'est **${label}** selon les horaires publiés.`;
   }
 
-  const lines = ordered.slice(0, 10).map((r: any) => {
+  const shown = ordered.slice(0, 4);
+  const lines = shown.map((r: any) => {
     const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
     return `- **${r.name}**${loc ? ` — ${loc}` : ""}`;
   });
@@ -379,5 +389,5 @@ export async function buildOpenFilter(admin: any, ids: string[], intent: OpenFil
       : lang === "ar" ? `\n\n_(${skipped} مستبعدة: مغلقة في هذا الوقت.)_`
       : `\n\n_(${skipped} exclu${skipped > 1 ? "s" : ""} : fermé à cet horaire.)_`)
     : "";
-  return `${intro}\n\n${lines.join("\n")}${outro}${toMapMarker(ordered)}`;
+  return `${intro}\n\n${lines.join("\n")}${outro}${toMapMarker(shown)}`;
 }

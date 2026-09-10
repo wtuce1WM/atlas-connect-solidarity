@@ -1052,9 +1052,20 @@ Deno.serve(async (req) => {
               target: prox?.targetName ?? null, withGps: prox?.withGps ?? 0,
             }));
             if (prox) {
+              const proxRest = Math.max(0, prox.orderedIds.length - 4);
               const built = await buildPinnedAnswer(admin, prox.orderedIds, host, lang, null, {
                 route: "pool_proximity_refine",
                 heading: prox.heading,
+                // Rendu unifié : 4 cartes par lot, jamais une liste complète.
+                maxCards: 4,
+                total: prox.orderedIds.length,
+                outro: proxRest > 0
+                  ? (lang === "en"
+                      ? `📍 4 of ${prox.orderedIds.length} shown — want the next ${Math.min(4, proxRest)}?`
+                      : lang === "ar"
+                        ? `📍 4 من ${prox.orderedIds.length} — أعرض التالية؟`
+                        : `📍 4 adresses affichées sur ${prox.orderedIds.length} — je te montre les suivantes ?`)
+                  : undefined,
                 competitorGuard,
                 poolIds: prox.orderedIds,
                 immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks },
@@ -1742,10 +1753,10 @@ Deno.serve(async (req) => {
 
           route = "opening";
           const answer = priorIds.length
-            ? await buildHoursForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
+            ? await buildHoursForBusinesses(admin, priorIds.slice(0, Math.min(4, CFG.maxResults)), lang)
             : buildHoursAnswer(intentHost, lang);
           if (answer) {
-            resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
+            resultsCount = priorIds.length ? Math.min(priorIds.length, 4, CFG.maxResults) : 1;
             emit(answer);
             if (!priorIds.length && namedHost) emit(toMapMarker([namedHost], null));
             await finish(true);
@@ -1757,12 +1768,12 @@ Deno.serve(async (req) => {
         // 3. Réservation
         if (isBookingIntent(userMessage) && (priorIds.length || intentHost)) {
           route = "booking";
-          const ids = priorIds.length ? priorIds.slice(0, CFG.maxResults) : namedHost ? [String(namedHost.id)] : [];
+          const ids = priorIds.length ? priorIds.slice(0, Math.min(4, CFG.maxResults)) : namedHost ? [String(namedHost.id)] : [];
           const answer = priorIds.length
             ? await buildBookingForBusinesses(admin, ids, lang)
             : buildBookingAnswer(intentHost, lang);
           if (answer) {
-            resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
+            resultsCount = priorIds.length ? Math.min(priorIds.length, 4, CFG.maxResults) : 1;
             emit(answer);
             // Cartes résultat IA (source unique de présentation + CTA Réservez / WhatsApp).
             if (ids.length) {

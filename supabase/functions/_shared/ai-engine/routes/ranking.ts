@@ -108,7 +108,8 @@ export async function buildDistanceRanking(admin: any, host: any, ids: string[],
     .map((r: any) => ({ ...r, _dist_km: haversineKmLocal(hLat, hLng, Number(r.latitude), Number(r.longitude)) }));
   if (!withDist.length) return null;
   withDist.sort((a: any, b: any) => (mode === "closest" ? a._dist_km - b._dist_km : b._dist_km - a._dist_km));
-  const top = withDist.slice(0, 5);
+  // Rendu unifié : 4 adresses par lot, toujours avec leurs cartes.
+  const top = withDist.slice(0, 4);
   const lines = top.map((r: any) => {
     const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
     return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${fmtKm(r._dist_km)}`;
@@ -133,7 +134,9 @@ export async function buildDistanceList(admin: any, host: any, ids: string[], la
     .map((r: any) => ({ ...r, _dist_km: haversineKmLocal(hLat, hLng, Number(r.latitude), Number(r.longitude)) }));
   if (!withDist.length) return null;
   withDist.sort((a: any, b: any) => a._dist_km - b._dist_km);
-  const lines = withDist.map((r: any) => {
+  // Rendu unifié : 4 par lot (cartes incluses), jamais la liste entière.
+  const shownDist = withDist.slice(0, 4);
+  const lines = shownDist.map((r: any) => {
     const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
     return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${fmtKm(r._dist_km)}`;
   });
@@ -142,7 +145,7 @@ export async function buildDistanceList(admin: any, host: any, ids: string[], la
     : lang === "ar"
       ? `المسافات من **${host.name}** للنتائج السابقة:`
       : `Distances depuis **${host.name}** pour les résultats précédents :`;
-  return `${intro}\n\n${lines.join("\n")}${toMapMarker(withDist, null, "distance")}`;
+  return `${intro}\n\n${lines.join("\n")}${toMapMarker(shownDist, null, "distance")}`;
 }
 
 export async function buildRatingRanking(admin: any, ids: string[], mode: "best_rated" | "most_reviewed", lang: "fr" | "en" | "ar"): Promise<string | null> {
@@ -180,7 +183,7 @@ export async function buildRatingRanking(admin: any, ids: string[], mode: "best_
     return `${intro}\n\n${lines.join("\n\n")}${toMapMarker(top, null, "rating")}`;
   }
   scored.sort((a: any, b: any) => b._count - a._count);
-  const top = scored.filter((r: any) => r._count > 0).slice(0, 5);
+  const top = scored.filter((r: any) => r._count > 0).slice(0, 4);
   if (!top.length) {
     if (lang === "en") return `I don't have public review counts on those results.`;
     if (lang === "ar") return `لا توجد أعداد مراجعات علنية لهذه النتائج.`;
@@ -270,7 +273,8 @@ export async function buildProximityFromPool(
     return { text: `${intro}\n\n${lines.join("\n")}${tail}${toMapMarker(nearest)}`, kept: nearest, total: withDist.length };
   }
 
-  const lines = kept.map((r: any) => {
+  const shownKept = kept.slice(0, 4);
+  const lines = shownKept.map((r: any) => {
     const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
     const hook = String(
       lang === "en" ? (r.hook_en || r.hook_fr || "") : lang === "ar" ? (r.hook_ar || r.hook_fr || "") : (r.hook_fr || r.hook_en || ""),
@@ -286,7 +290,7 @@ export async function buildProximityFromPool(
     ? `\n\nYou can change the radius below or by voice.`
     : lang === "ar" ? `\n\nيمكنك تغيير النطاق أدناه أو بالصوت.`
     : `\n\nTu peux modifier ce rayon ci-dessous ou à la voix.`;
-  return { text: `${intro}\n\n${lines.join("\n")}${tail}${toMapMarker(kept)}`, kept, total: withDist.length };
+  return { text: `${intro}\n\n${lines.join("\n")}${tail}${toMapMarker(shownKept)}`, kept: shownKept, total: withDist.length };
 }
 
 /**
