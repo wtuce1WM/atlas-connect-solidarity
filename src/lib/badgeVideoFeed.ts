@@ -185,72 +185,38 @@ export async function fetchBadgesVideoFeed(
 }
 
 /* ------------------------------------------------------------------ *
- * Paliers d'intersection (dégradation progressive)
+ * Intersection stricte (AUCUN fallback)
  * ------------------------------------------------------------------ *
- * Une requête multi-badges (ex. « location villa vue sur mer » →
- * Location ∩ Villas ∩ Vue sur mer) ne doit pas s'arrêter au palier strict
- * (26 vidéos) ni basculer d'un coup sur un flux quasi générique.
+ * Règle produit : une requête multi-badges (ex. « location villa vue sur
+ * mer » → Location ∩ Villas ∩ Vue sur mer) ne renvoie QUE les vidéos portant
+ * TOUS les badges demandés. Si l'intersection est vide, le feed est vide :
+ * on n'affiche rien plutôt que des résultats « proches » ou aléatoires.
  * On réutilise EXACTEMENT la même source de vérité (`get_badges_video_feed`,
  * qui renvoie les badges de chaque vidéo) : le pool OR est récupéré une fois,
- * puis réordonné en paliers :
- *   1. intersection de tous les badges demandés ;
- *   2. on retire le badge le moins spécifique (le plus fréquent dans le pool),
- *      puis le suivant, etc. ;
- *   3. dernier palier : le badge le plus spécifique seul.
- * Aucun ajout de résultat hors périmètre : tout provient du même pool OR.
- * L'ordre interne à chaque palier reste celui du mélange par seed / round-robin.
+ * puis filtré strictement.
  */
-
-/** Nombre max de vidéos conservées par palier de relâchement (le palier strict n'est pas plafonné). */
-const TIER_CAP = 60;
 
 function badgeIdsOf(item: BadgeVideoFeedItem): Set<string> {
   return new Set((item.badges || []).map((b) => String(b.id)));
 }
 
-/** Réordonne un pool OR en paliers d'intersection décroissants. */
-export function orderByBadgeIntersectionTiers(
+/** Filtre un pool OR : ne garde que les vidéos portant TOUS les badges. */
+export function filterStrictBadgeIntersection(
   items: BadgeVideoFeedItem[],
   badgeIds: string[],
 ): BadgeVideoFeedItem[] {
   const ids = (badgeIds || []).map(String).filter(Boolean);
-  if (ids.length < 2 || items.length === 0) return items;
-
-  // Spécificité : fréquence du badge dans le pool (rare = spécifique).
-  const freq = new Map<string, number>(ids.map((id) => [id, 0]));
-  for (const it of items) {
+  if (ids.length < 2) return items;
+  return items.filter((it) => {
     const set = badgeIdsOf(it);
-    for (const id of ids) if (set.has(id)) freq.set(id, (freq.get(id) ?? 0) + 1);
-  }
-  // Du plus spécifique (rare) au moins spécifique (fréquent).
-  const bySpecificity = [...ids].sort((a, b) => (freq.get(a) ?? 0) - (freq.get(b) ?? 0));
-
-  const ordered: BadgeVideoFeedItem[] = [];
-  const used = new Set<string>();
-
-  for (let depth = bySpecificity.length; depth >= 1; depth--) {
-    const required = bySpecificity.slice(0, depth); // on lâche d'abord les moins spécifiques
-    const tier: BadgeVideoFeedItem[] = [];
-    for (const it of items) {
-      if (used.has(it.id)) continue;
-      const set = badgeIdsOf(it);
-      if (required.every((id) => set.has(id))) tier.push(it);
-    }
-    const capped = depth === bySpecificity.length ? tier : tier.slice(0, TIER_CAP);
-    for (const it of capped) {
-      used.add(it.id);
-      ordered.push(it);
-    }
-  }
-
-  // Reste du pool OR (badges partiels non couverts par les paliers) en queue.
-  for (const it of items) if (!used.has(it.id)) ordered.push(it);
-  return ordered;
+    return ids.every((id) => set.has(id));
+  });
 }
 
 /**
- * Feed multi-badges en paliers : pool OR élargi récupéré une fois, puis
- * réordonné de l'intersection stricte vers les intersections relâchées.
+ * Feed multi-badges STRICT : pool OR élargi récupéré une fois, puis filtré à
+ * l'intersection stricte (TOUS les badges). Intersection vide ⇒ liste vide :
+ * aucun fallback, jamais de résultats relâchés.
  * Signature identique à `fetchBadgesVideoFeed` pour rester interchangeable.
  */
 export async function fetchTieredBadgesVideoFeed(
@@ -260,8 +226,8 @@ export async function fetchTieredBadgesVideoFeed(
   const ids = (badgeIds || []).filter(Boolean);
   const { limit = 60 } = options;
   if (ids.length < 2) return fetchBadgesVideoFeed(ids, options);
-  // Pool élargi ET paginé : le palier strict peut se trouver au-delà de la 1re
-  // page du mélange par seed (26 vidéos strictes dans un pool OR de ~800).
+  // Pool élargi ET paginé : l'intersection stricte peut se trouver au-delà de
+  // la 1re page du mélange par seed (23 vidéos strictes dans un pool OR de ~800).
   const seed = options.seed ?? Math.random().toString(36).slice(2, 10);
   const POOL_CAP = 900;
   const all: BadgeVideoFeedItem[] = [];
@@ -272,8 +238,8 @@ export async function fetchTieredBadgesVideoFeed(
     all.push(...page.items);
     if (page.items.length < 300 || all.length >= total) break;
   }
-  const ordered = orderByBadgeIntersectionTiers(all, ids);
-  return { items: ordered.slice(0, limit), total };
+  const strict = filterStrictBadgeIntersection(all, ids);
+  return { items: strict.slice(0, limit), total: strict.length };
 }
 
 

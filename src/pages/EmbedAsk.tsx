@@ -2200,7 +2200,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         },
       );
     // Le lecteur vidéo passe TOUJOURS avant la réponse IA : pré-vol serveur sans
-    // modèle (mêmes badges, même pool, mêmes paliers que le tour normal). S'il
+    // modèle (mêmes badges, même pool, même intersection stricte). S'il
     // renvoie un feed, VideoSlidePanel s'ouvre d'abord, puis la question part.
     // Suggestion curatée : ses `badge_ids` font autorité (source de vérité
     // unique) — le matching texte ne doit pas ouvrir un feed d'un autre badge.
@@ -2517,7 +2517,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     try {
       const { fetchTieredBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
       const seed = Math.random().toString(36).slice(2, 10);
-      // Multi-badges : intersection stricte en tête, puis paliers relâchés.
+      // Multi-badges : intersection STRICTE uniquement — vide ⇒ pas de feed.
       const { items, total } = await fetchTieredBadgesVideoFeed(badgeIds, { seed, limit: 30 });
       if (!items.length) return false;
       earlyFeedOpenRef.current = true;
@@ -2542,7 +2542,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * PRÉ-VOL : le lecteur vidéo s'ouvre AVANT la réponse IA, pour toute question
    * (texte libre, vocal, relance). Aucun nouveau moteur : la fonction
    * `embed-ai-chat-v2` répond en mode `feedPreflight` avec les MÊMES badges,
-   * le MÊME pool et les MÊMES paliers que le tour normal, sans appel modèle.
+   * le MÊME pool et la MÊME intersection stricte que le tour normal, sans appel modèle.
    * Le marqueur VIDEO_FEED du stream reste le filet (aucune réouverture).
    */
   const openPreflightBadgeFeed = useCallback(async (

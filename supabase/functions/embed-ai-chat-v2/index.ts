@@ -39,7 +39,7 @@ import {
   buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer, applyLabelPlaceholders,
 
 } from "../_shared/ai-engine/routes/curated.ts";
-import { buildVideoFeedAnswer, videoFeedMarker, loadBadgeVideoFeedPool, orderVideosByBadgeTiers } from "../_shared/ai-engine/routes/videoFeed.ts";
+import { buildVideoFeedAnswer, videoFeedMarker, loadBadgeVideoFeedPool, strictBadgeIntersection } from "../_shared/ai-engine/routes/videoFeed.ts";
 import { matchFrontBadgeInMessage, matchFrontBadgesInMessage, resolveBadgeBusinessIds, badgeLabelKey, badgeLabelKeys } from "../_shared/ai-engine/routes/badgeVideoBusinesses.ts";
 
 import { buildDestinationsBlock } from "../_shared/ai-engine/routes/destinations.ts";
@@ -184,13 +184,12 @@ function lastResultsIndex(messages: UIMessage[]): number {
 }
 
 
-// ── Palier « type de lieu » sur un feed vidéo curaté ────────────────────────
+// ── Filtre « type de lieu » sur un feed vidéo curaté ────────────────────────
 // Une suggestion curatée en mode `video_feed` (ex. « Les adresses avec vue sur
 // mer ») porte un badge thématique qui ignore le type de lieu ajouté par
 // l'utilisateur (« villa avec vue sur mer » ramenait des hôtels/restaurants).
-// On ne SUPPRIME plus les résultats hors type : on les classe en second palier,
-// derrière l'intersection stricte (même logique de dégradation progressive que
-// `orderByBadgeIntersectionTiers` côté client). Aucun résultat n'est amputé.
+// Règle produit : AUCUN fallback — seules les vidéos du type de lieu demandé
+// sont conservées ; si l'intersection est vide, pas de feed du tout.
 const FEED_PLACE_TYPE_GUARDS: Array<{ badgeName: string; re: RegExp }> = [
   {
     badgeName: "Villas",
@@ -250,15 +249,16 @@ async function applyFeedPlaceTypeGuard(
 
   const videos = (feed?.payload?.videos || []) as any[];
   const strict = videos.filter((v) => v?.business_id && allowed.has(String(v.business_id)));
-  const rest = videos.filter((v) => !(v?.business_id && allowed.has(String(v.business_id))));
-  console.log("[embed-ai-chat-v2] feed_place_type_tier", JSON.stringify({
-    badge: hitName, total: videos.length, strict: strict.length, relaxed: rest.length,
+  console.log("[embed-ai-chat-v2] feed_place_type_filter", JSON.stringify({
+    badge: hitName, total: videos.length, kept: strict.length,
   }));
-  if (!strict.length) return feed;
-  const ordered = [...strict, ...rest];
+  // Aucun fallback : intersection vide ⇒ pas de feed (plutôt que des vidéos
+  // hors type de lieu demandé).
+  if (!strict.length) return null;
   return {
     ...feed,
-    payload: { ...feed.payload, videos: ordered },
+    payload: { ...feed.payload, videos: strict, total: strict.length },
+    count: strict.length,
   };
 }
 
@@ -525,7 +525,7 @@ Deno.serve(async (req) => {
   /**
    * PRÉ-VOL FEED VIDÉO (`feedPreflight: true`) : aucune génération, aucun token.
    * Même source de vérité que les routes du tour normal
-   * (`matchFrontBadgesInMessage` + `loadBadgeVideoFeedPool` + paliers), afin que
+   * (`matchFrontBadgesInMessage` + `loadBadgeVideoFeedPool` + intersection stricte), afin que
    * le front puisse ouvrir VideoSlidePanel AVANT la réponse IA, partout.
    */
   if (body.feedPreflight === true) {
@@ -571,17 +571,18 @@ Deno.serve(async (req) => {
         badgeIds: feedBadgeIds,
         city: activeCity || null,
       }).catch(() => null);
-      const tiered = pool ? orderVideosByBadgeTiers(pool.videos, feedBadgeIds).slice(0, 60) : [];
+      // Intersection STRICTE, aucun fallback : intersection vide ⇒ feed null.
+      const strictVideos = pool ? strictBadgeIntersection(pool.videos, feedBadgeIds).slice(0, 60) : [];
       console.log("[embed-ai-chat-v2] feed_preflight", JSON.stringify({
-        badges: feedBadges.map((b) => b.name), emitted: tiered.length,
+        badges: feedBadges.map((b) => b.name), emitted: strictVideos.length,
       }));
       return new Response(
         JSON.stringify({
-          feed: tiered.length
+          feed: strictVideos.length
             ? {
                 title: feedBadges.map((b) => b.name).join(" · "),
-                videos: tiered,
-                total: pool?.total ?? tiered.length,
+                videos: strictVideos,
+                total: strictVideos.length,
                 badgeIds: feedBadgeIds,
                 seed: pool?.seed ?? null,
               }
@@ -1997,10 +1998,11 @@ Deno.serve(async (req) => {
 
               // ── Feed vidéo automatique en PALIERS (route badge nommé) ────────
               // Si la phrase nomme au moins DEUX badges actifs (« location villa
-              // vue sur mer » ⇢ Location + Villas + Vue sur mer), le lecteur
-              // vidéo s'ouvre avant les fiches, ordonné par paliers : intersection
-              // stricte d'abord (villas vue sur mer), puis paliers relâchés
-              // (hôtels/riads vue sur mer). Les fiches ne changent pas.
+               // vue sur mer » ⇢ Location + Villas + Vue sur mer), le lecteur
+               // vidéo s'ouvre avant les fiches, en intersection STRICTE :
+               // seules les vidéos portant TOUS les badges sortent ; si
+               // l'intersection est vide, aucun feed n'est émis. Les fiches ne
+               // changent pas.
               try {
                 let feedBadges = await matchFrontBadgesInMessage(admin, userMessage, lang as any, 3);
                 let droppedSynonym = false;
@@ -2029,27 +2031,28 @@ Deno.serve(async (req) => {
                     droppedSynonym = true;
                   }
                 }
-                // Seuil abaissé à UN badge : « montre-moi des vidéos de surf » ⇒ feed
-                // mono-badge. Quand plusieurs badges sont nommés, les paliers
-                // d'intersection (`orderVideosByBadgeTiers`) placent d'abord les vidéos
-                // portant TOUS les badges : plus de badges = résultats plus précis.
+                // Seuil à UN badge : « montre-moi des vidéos de surf » ⇒ feed
+                // mono-badge. Quand plusieurs badges sont nommés, intersection
+                // STRICTE uniquement (`strictBadgeIntersection`) : une vidéo ne
+                // sort que si elle porte TOUS les badges. Intersection vide ⇒
+                // aucun feed (jamais de résultats relâchés/aléatoires).
                 if (feedBadges.length >= 1) {
                   const feedBadgeIds = feedBadges.map((b) => b.id);
                   const pool = await loadBadgeVideoFeedPool(admin, {
                     badgeIds: feedBadgeIds, city: badgeCity || null,
                   }).catch(() => null);
-                  const tiered = pool
-                    ? orderVideosByBadgeTiers(pool.videos, feedBadgeIds).slice(0, 60)
+                  const strictVideos = pool
+                    ? strictBadgeIntersection(pool.videos, feedBadgeIds).slice(0, 60)
                     : [];
-                  console.log("[embed-ai-chat-v2] badge_named_tiered_feed", JSON.stringify({
+                  console.log("[embed-ai-chat-v2] badge_named_strict_feed", JSON.stringify({
                     badges: feedBadges.map((b) => b.name),
-                    pool: pool?.videos.length ?? 0, emitted: tiered.length,
+                    pool: pool?.videos.length ?? 0, emitted: strictVideos.length,
                   }));
-                  if (tiered.length) {
+                  if (strictVideos.length) {
                     emit(videoFeedMarker({
                       title: feedBadges.map((b) => b.name).join(" · "),
-                      videos: tiered,
-                      total: pool?.total ?? tiered.length,
+                      videos: strictVideos,
+                      total: strictVideos.length,
                       badgeIds: feedBadgeIds,
                       seed: pool?.seed,
                     }));
@@ -2436,13 +2439,13 @@ Deno.serve(async (req) => {
                     mode: inter.length ? "intersection" : "most_specific", added, promoted,
                   }));
 
-                  // ── Feed vidéo automatique en PALIERS (recherche libre) ──────
+                  // ── Feed vidéo automatique STRICT (recherche libre) ─────────
                   // Quand la phrase nomme AU MOINS DEUX badges actifs
                   // (« location villa vue sur mer » ⇢ Location + Villas + Vue sur
-                  // mer), on ouvre aussi le lecteur vidéo, ordonné par paliers :
-                  // l'intersection stricte des badges d'abord, puis les paliers
-                  // relâchés (badge le moins spécifique lâché en premier — donc
-                  // les hôtels/riads « vue sur mer » derrière les villas).
+                  // mer), on ouvre aussi le lecteur vidéo, en intersection
+                  // STRICTE : une vidéo ne sort que si elle porte TOUS les
+                  // badges. Intersection vide ⇒ AUCUN feed (jamais de paliers
+                  // relâchés ni de résultats aléatoires).
                   // Les fiches restent inchangées : le tour continue normalement.
                   if (augBadges.length >= 2) {
                     const feedBadgeIds = augBadges.map((b) => b.id);
@@ -2450,18 +2453,18 @@ Deno.serve(async (req) => {
                       badgeIds: feedBadgeIds,
                       city: city || null,
                     }).catch(() => null);
-                    const tiered = pool
-                      ? orderVideosByBadgeTiers(pool.videos, feedBadgeIds).slice(0, 60)
+                    const strictVideos = pool
+                      ? strictBadgeIntersection(pool.videos, feedBadgeIds).slice(0, 60)
                       : [];
-                    console.log("[embed-ai-chat-v2] free_search_tiered_feed", JSON.stringify({
+                    console.log("[embed-ai-chat-v2] free_search_strict_feed", JSON.stringify({
                       badges: augBadges.map((b) => b.name),
-                      pool: pool?.videos.length ?? 0, emitted: tiered.length,
+                      pool: pool?.videos.length ?? 0, emitted: strictVideos.length,
                     }));
-                    if (tiered.length) {
+                    if (strictVideos.length) {
                       emit(videoFeedMarker({
                         title: augBadges.map((b) => b.name).join(" · "),
-                        videos: tiered,
-                        total: pool?.total ?? tiered.length,
+                        videos: strictVideos,
+                        total: strictVideos.length,
                         badgeIds: feedBadgeIds,
                         seed: pool?.seed,
                       }));
