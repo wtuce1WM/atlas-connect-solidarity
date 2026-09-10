@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, forwardRef } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
@@ -79,7 +79,7 @@ function loadGoogleMaps(): Promise<void> {
   return gmapsPromise;
 }
 
-const LocationPickerDialog = ({
+const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProps>(({
   open,
   onOpenChange,
   coords,
@@ -94,7 +94,7 @@ const LocationPickerDialog = ({
   theme,
   inline = false,
   className,
-}: LocationPickerDialogProps) => {
+}, ref) => {
   const { language } = useLanguage();
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
@@ -560,6 +560,7 @@ const LocationPickerDialog = ({
     if (!open) return null;
     return (
       <div
+        ref={ref}
         className={cn(
           "relative w-full overflow-hidden flex flex-col bg-transparent",
           theme === "light" ? "text-neutral-900" : theme === "dark" ? "text-neutral-100" : "text-foreground",
@@ -577,6 +578,7 @@ const LocationPickerDialog = ({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-[299] bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <DialogPrimitive.Content
+          ref={ref}
           onPointerDownOutside={(e) => {
             const target = e.target as HTMLElement | null;
             if (target?.closest?.(".pac-container")) e.preventDefault();
@@ -599,6 +601,8 @@ const LocationPickerDialog = ({
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   );
-};
+});
+
+LocationPickerDialog.displayName = "LocationPickerDialog";
 
 export default LocationPickerDialog;
