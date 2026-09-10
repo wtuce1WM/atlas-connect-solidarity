@@ -224,9 +224,27 @@ export async function runForcedRoute(ctx: ForcedRouteContext): Promise<ForcedRou
     }
 
     case "weather": {
-      const { data, error } = await admin.functions.invoke("get-weather", { body: { city: scopeCity } });
-      if (error || !data || (data as any).error) return null;
-      const w = data as any;
+      // Appel direct de la fonction publique `get-weather` : `functions.invoke`
+      // depuis une edge function échouait silencieusement (route forcée non
+      // appliquée → repli LLM « météo non disponible »).
+      const w = await (async () => {
+        const base = Deno.env.get("SUPABASE_URL");
+        const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_ANON_KEY");
+        if (!base || !key) return null;
+        try {
+          const res = await fetch(`${base}/functions/v1/get-weather`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}`, apikey: key },
+            body: JSON.stringify({ city: scopeCity }),
+          });
+          const json = await res.json();
+          if (!res.ok || !json || json.error) return null;
+          return json as any;
+        } catch {
+          return null;
+        }
+      })();
+      if (!w) return null;
       const intro = {
         fr: `Voici la météo à **${w.city_name || scopeCity}** et la tendance des 3 prochains jours. 👇`,
         en: `Here's the weather in **${w.city_name || scopeCity}** and the 3-day trend. 👇`,
