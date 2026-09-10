@@ -768,6 +768,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   /** Relances hôte déjà utilisées dans la conversation (ne se reproposent plus). */
   const [usedHostBadges, setUsedHostBadges] = useState<string[]>([]);
   const [input, setInput] = useState("");
+  // Feedback visuel sur l'accueil IA fermé : le texte tapé reste lisible et la
+  // suggestion cliquée est mise en évidence le temps que le lecteur/réponse apparaisse.
+  const [homeSubmitText, setHomeSubmitText] = useState<string | null>(null);
+  const [homeClickedSuggestionId, setHomeClickedSuggestionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [locationOpen, setLocationOpen] = useState(false);
   /** Proposition de géolocalisation affichée inline dans la réponse IA (plus de pop-up). */
