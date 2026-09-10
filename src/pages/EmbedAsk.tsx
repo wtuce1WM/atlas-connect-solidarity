@@ -768,6 +768,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   /** Relances hôte déjà utilisées dans la conversation (ne se reproposent plus). */
   const [usedHostBadges, setUsedHostBadges] = useState<string[]>([]);
   const [input, setInput] = useState("");
+  // Feedback visuel sur l'accueil IA fermé : le texte tapé reste lisible et la
+  // suggestion cliquée est mise en évidence le temps que le lecteur/réponse apparaisse.
+  const [homeSubmitText, setHomeSubmitText] = useState<string | null>(null);
+  const [homeClickedSuggestionId, setHomeClickedSuggestionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [locationOpen, setLocationOpen] = useState(false);
   /** Proposition de géolocalisation affichée inline dans la réponse IA (plus de pop-up). */
@@ -1339,6 +1343,23 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Couvre les DEUX parcours viewer : VideoSlidePanel (feed vidéo) ET
   // BookOnlineSlidePanel (fiche business, carte des résultats, POI générique).
   const anyPanelOpen = !!activeFeedVideoId || !!openBusinessId || !!openMap || openGenericPoi;
+
+  // Dès que l'accueil IA se transforme en conversation, lecteur vidéo ou overlay,
+  // on efface le texte d'attente et l'état visuel du chip cliqué.
+  // Pour une réponse texte, on attend qu'un message assistant soit reçu
+  // (messages.length > 2) afin que la question reste lisible dans le champ le
+  // temps du traitement. Pour un feed vidéo, on vide dès l'ouverture du panel.
+  useEffect(() => {
+    if (homeSubmitText === null && homeClickedSuggestionId === null) return;
+    const hasAssistantResponse = messages.length > 2;
+    if (anyPanelOpen || (!homeState && hasAssistantResponse)) {
+      setInput("");
+      setHomeSubmitText(null);
+      setHomeClickedSuggestionId(null);
+    }
+  }, [homeState, anyPanelOpen, messages.length, homeSubmitText, homeClickedSuggestionId]);
+
+
 
 
   const [openSiblings, setOpenSiblings] = useState<string[]>([]);
@@ -1976,6 +1997,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const send = (overrideText?: string, suggestionId?: string, followupId?: string, skipGeoPrompt = false) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !assistantReady) return;
+    // Sur l'accueil IA fermé, le texte tapé et le chip cliqué restent visibles
+    // jusqu'à l'ouverture effective du lecteur vidéo ou de la conversation.
+    if (homeState) {
+      setHomeSubmitText(text);
+      setHomeClickedSuggestionId(suggestionId ?? null);
+    }
+
     // Anti double-clic : `streaming` est un état React, il n'est pas encore à
     // `true` au 2e clic d'un double-clic sur une chip de suggestion — la même
     // requête partait donc 2 fois. Verrou synchrone sur (texte + suggestion +
@@ -1996,9 +2024,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       pendingGeoTextRef.current = text;
       setGeoPromptWaiting(false);
       setGeoPromptText(text);
-      if (!overrideText) setInput("");
+      if (!overrideText && !homeState) setInput("");
       // L'assistant passe immédiatement en mode ouvert (host + layout interne),
       // sans attendre l'effet React dérivé de `geoPromptText`.
+
       const askedPayload = { type: "owm-ask:asked" };
       const openPayload = { type: "owm-ask:conversation-open", open: true };
       try {
@@ -2016,7 +2045,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     try {
       window.parent?.postMessage({ type: "owm-ask:asked" }, "*");
     } catch { /* cross-origin */ }
-    if (!overrideText) setInput("");
+    if (!overrideText && !homeState) setInput("");
     // La première question ouvre la conversation normalement. À partir de la
     // deuxième question, chaque relance est ancrée en haut du viewport.
     anchorNextUserMessageRef.current = hasUserMessages;
@@ -3771,16 +3800,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                         rows={2}
                         placeholder={L.placeholder}
-                        disabled={streaming || !assistantReady}
-                        className={`flex-1 resize-none bg-transparent outline-none text-base leading-snug min-h-[64px] md:min-h-0 max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white/70"}`}
+                        disabled={streaming || !assistantReady || homeSubmitText !== null}
+                        className={`flex-1 resize-none bg-transparent outline-none text-base leading-snug min-h-[64px] md:min-h-0 max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white/70"} ${homeSubmitText !== null ? "opacity-70 cursor-wait" : ""}`}
                       />
                       <div className="flex items-center justify-center gap-2">
                         <button
                           type="button"
                           onClick={voice.toggleRecording}
+                          disabled={homeSubmitText !== null || voice.status === "processing"}
                           aria-label={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
                           title={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
-                          className={`w-12 h-12 rounded-full text-white flex items-center justify-center shrink-0 shadow-lg transition-colors ${
+                          className={`w-12 h-12 rounded-full text-white flex items-center justify-center shrink-0 shadow-lg transition-colors disabled:opacity-40 ${
                             voice.status === "recording" ? "bg-red-500 animate-pulse" : "bg-[#194CFF] hover:bg-[#194CFF]/90"
                           }`}
                         >
@@ -3794,11 +3824,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         </button>
                         <button
                           type="submit"
-                          disabled={streaming || !input.trim() || !assistantReady}
+                          disabled={streaming || !input.trim() || !assistantReady || homeSubmitText !== null}
                           aria-label="Send"
                           className="w-12 h-12 rounded-full bg-[#C04F17] text-white flex items-center justify-center disabled:opacity-40 shrink-0 shadow-lg"
                         >
-                          <Send className="w-5 h-5" />
+                          {homeSubmitText !== null ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <Send className="w-5 h-5" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -3814,6 +3848,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                       {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s, sIdx) => {
                         const label = s.label;
                         const isYoutubePage = s.id === YOUTUBE_PAGE_SUGGESTION_ID || /youtube/i.test(label);
+                        const isClicked = homeClickedSuggestionId === s.id;
                         return (
                           <Fragment key={s.id}>
                             <button
@@ -3821,9 +3856,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                               onPointerEnter={warmAiEngineConnection}
                               onTouchStart={warmAiEngineConnection}
                               onClick={() => { if (isYoutubePage) { setYoutubeOpen(true); return; } send(label, s.id); }}
-                              className={`shrink-0 whitespace-nowrap text-[13px] px-4 py-2 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
-                              style={{ ...chipStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                              disabled={isClicked}
+                              className={cn(
+                                "shrink-0 whitespace-nowrap text-[13px] px-4 py-2 rounded-full transition-all flex items-center",
+                                chipBg,
+                                "hover:opacity-90",
+                                isClicked && "bg-[#D4AF37] text-black border-[#D4AF37] scale-[1.02] shadow-md"
+                              )}
+                              style={{ ...(isClicked ? moreBadgeStyle : chipStyle), fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
                             >
+                              {isClicked && <Loader2 className="w-3 h-3 animate-spin mr-1.5" />}
                               {label}
                             </button>
                             {sIdx === 2 && <div className="hidden md:block basis-full h-0 w-full pointer-events-none" />}
