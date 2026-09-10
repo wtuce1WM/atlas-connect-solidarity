@@ -2202,7 +2202,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // Le lecteur vidéo passe TOUJOURS avant la réponse IA : pré-vol serveur sans
     // modèle (mêmes badges, même pool, mêmes paliers que le tour normal). S'il
     // renvoie un feed, VideoSlidePanel s'ouvre d'abord, puis la question part.
-    void openPreflightBadgeFeed(text).finally(fire);
+    // Suggestion curatée : ses `badge_ids` font autorité (source de vérité
+    // unique) — le matching texte ne doit pas ouvrir un feed d'un autre badge.
+    void openPreflightBadgeFeed(text, effectiveSuggestionId).finally(fire);
   };
 
   /**
