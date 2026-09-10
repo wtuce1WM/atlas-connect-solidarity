@@ -232,12 +232,18 @@ export async function buildPoolProximityAnswer(
   if (!geo.length) return null;
 
   const multi = targets.length > 1;
-  const targetName = multi ? term : targets[0].name;
-  const intro = lang === "en"
-    ? `📐 Exact distances to the nearest **${targetName}**, closest first:`
-    : lang === "ar"
-      ? `📐 المسافات الدقيقة إلى أقرب **${targetName}**، من الأقرب إلى الأبعد:`
-      : `📐 Distances exactes jusqu'au **${targetName}** le plus proche, du plus proche au plus loin :`;
+  const targetName = selfAnchor ? (selfLabel as string) : multi ? term : targets[0].name;
+  const intro = selfAnchor
+    ? (lang === "en"
+        ? `📐 Exact distances from **${targetName}**, closest first:`
+        : lang === "ar"
+          ? `📐 المسافات الدقيقة من **${targetName}**، من الأقرب إلى الأبعد:`
+          : `📐 Distances exactes depuis **${targetName}**, du plus proche au plus loin :`)
+    : lang === "en"
+      ? `📐 Exact distances to the nearest **${targetName}**, closest first:`
+      : lang === "ar"
+        ? `📐 المسافات الدقيقة إلى أقرب **${targetName}**، من الأقرب إلى الأبعد:`
+        : `📐 Distances exactes jusqu'au **${targetName}** le plus proche, du plus proche au plus loin :`;
 
   // RÈGLE UNIQUE DE RENDU : 4 adresses par lot, toujours accompagnées de leurs
   // cartes (miniatures). Le reste du corpus part dans le pool (« la suite »).
