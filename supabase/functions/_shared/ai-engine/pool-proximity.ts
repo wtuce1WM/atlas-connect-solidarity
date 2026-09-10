@@ -29,6 +29,17 @@ const TERM_STOP = new Set([
 
 export type ProximityIntent = { term: string } | null;
 
+/**
+ * « près de moi / autour de moi / near me » N'EST PAS un repère nommé : c'est
+ * l'intention de géolocalisation, traitée par le flux geo (position réelle ou
+ * repli Koutoubia). Sans cette exclusion, « moi » partait en recherche POI
+ * `*moi*` et matchait « Patri-moi-ne » (Musée du Patrimoine Immatériel).
+ */
+const SELF_TERMS = new Set([
+  "moi", "nous", "ici", "me", "us", "here", "my location", "ma position",
+  "notre position", "mon emplacement", "chez moi",
+]);
+
 /** « je veux louer une villa à côté du golf » → { term: "golf" } */
 export function detectPoolProximityIntent(rawText: string): ProximityIntent {
   const n = norm(rawText).replace(/\s+/g, " ");
@@ -40,6 +51,7 @@ export function detectPoolProximityIntent(rawText: string): ProximityIntent {
     .join(" ")
     .trim();
   if (term.length < 3) return null;
+  if (SELF_TERMS.has(term)) return null;
   return { term };
 }
 
