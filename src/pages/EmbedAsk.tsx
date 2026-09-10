@@ -3795,8 +3795,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                         rows={2}
                         placeholder={L.placeholder}
-                        disabled={streaming || !assistantReady}
-                        className={`flex-1 resize-none bg-transparent outline-none text-base leading-snug min-h-[64px] md:min-h-0 max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white/70"}`}
+                        disabled={streaming || !assistantReady || homeSubmitText !== null}
+                        className={`flex-1 resize-none bg-transparent outline-none text-base leading-snug min-h-[64px] md:min-h-0 max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white/70"} ${homeSubmitText !== null ? "opacity-70 cursor-wait" : ""}`}
                       />
                       <div className="flex items-center justify-center gap-2">
                         <button
