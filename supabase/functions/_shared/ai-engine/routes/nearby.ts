@@ -460,8 +460,16 @@ export async function buildPoiNearby(
   return `${header}\n\n${bullets}${radiusLine}${mapMarker}`;
 }
 
-export function buildDisclosureFromCounts(shown: number, found: number, city: string): string {
+export function buildDisclosureFromCounts(
+  shown: number,
+  found: number,
+  city: string,
+  poolCap = 60,
+): string {
   if (shown <= 0) return `📍 Aucun résultat trouvé à ${city} pour cette recherche — dis-moi si tu veux que je reformule ou que j'élargisse autour de ${city}.`;
+  if (found >= poolCap) {
+    return `📍 J'ai trouvé plus de ${poolCap} résultats, voici les ${poolCap} plus pertinents. Affinez votre recherche pour en voir d'autres.`;
+  }
   const hasMore = found > shown;
   const tail = hasMore
     ? `je te montre les suivantes ?`
