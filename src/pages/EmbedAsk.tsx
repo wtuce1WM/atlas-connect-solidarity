@@ -2562,6 +2562,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           },
           body: JSON.stringify({
             feedPreflight: true,
+            suggestionId: preflightSuggestionId || null,
             messages: [{ id: `pf-${Date.now()}`, role: "user", parts: [{ type: "text", text }] }],
             businessSlug: slug,
             platform: isPlatform || undefined,
