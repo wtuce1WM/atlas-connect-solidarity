@@ -2452,7 +2452,7 @@ Deno.serve(async (req) => {
             const apiTotal = Number(json?.totalCount ?? 0) || 0;
             totalFound = kept.length === all.length && apiTotal > kept.length ? apiTotal : kept.length;
 
-            searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
+            searchPoolIds = poolWithUnratedNext(kept, CFG.maxResults).map((b: any) => String(b.id)).slice(0, POOL_CAP);
             results = withUnratedTail(kept, CFG.maxResults);
           } catch (e) {
             console.error("[embed-ai-chat-v2] search_failed", e);
