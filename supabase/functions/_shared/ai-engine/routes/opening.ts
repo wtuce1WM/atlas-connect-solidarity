@@ -230,7 +230,8 @@ export async function buildHoursRanking(
     ? [...rows].sort((a, b) => (a.is24 ? -1 : b.is24 ? 1 : a.opens - b.opens))
     : [...rows].sort((a, b) => (a.is24 ? -1 : b.is24 ? 1 : b.closes - a.closes));
 
-  const top = sorted.slice(0, Math.min(5, sorted.length));
+  // Rendu unifié : 4 par lot.
+  const top = sorted.slice(0, Math.min(4, sorted.length));
   const fmt = (m: number) => {
     const mm = ((m % 1440) + 1440) % 1440;
     const h = Math.floor(mm / 60); const min = mm % 60;
@@ -366,7 +367,8 @@ export async function buildOpenFilter(admin: any, ids: string[], intent: OpenFil
     return `Aucun des résultats précédents n'est **${label}** selon les horaires publiés.`;
   }
 
-  const lines = ordered.slice(0, 10).map((r: any) => {
+  const shown = ordered.slice(0, 4);
+  const lines = shown.map((r: any) => {
     const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
     return `- **${r.name}**${loc ? ` — ${loc}` : ""}`;
   });
@@ -379,5 +381,5 @@ export async function buildOpenFilter(admin: any, ids: string[], intent: OpenFil
       : lang === "ar" ? `\n\n_(${skipped} مستبعدة: مغلقة في هذا الوقت.)_`
       : `\n\n_(${skipped} exclu${skipped > 1 ? "s" : ""} : fermé à cet horaire.)_`)
     : "";
-  return `${intro}\n\n${lines.join("\n")}${outro}${toMapMarker(ordered)}`;
+  return `${intro}\n\n${lines.join("\n")}${outro}${toMapMarker(shown)}`;
 }
