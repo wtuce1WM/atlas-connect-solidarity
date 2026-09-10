@@ -814,8 +814,10 @@ const Front = () => {
   // Un panneau de l'assistant (feed vidéo, fiche business, POI) est rendu DANS le
   // conteneur de l'embed : son z-index reste piégé sous le header de /front (z-50),
   // qui interceptait les taps sur la croix de fermeture. On masque donc le chrome
-  // Home tant qu'un panneau est ouvert.
-  const showHomeChrome = !demoIntro && !mapOpen && !askPanelOpen;
+  // Home tant qu'un panneau est ouvert, SAUF l'overlay YouTube qui a besoin du
+  // logo One World Morocco comme unique retour.
+  const showHomeChrome = youtubeOpen || (!demoIntro && !mapOpen && !askPanelOpen);
+
   /** Feed démo chargé : moitié droite = viewer, moitié gauche = assistant IA fermé. */
   const demoFeedOpen = !!(demoActiveId || demoCardsOnly);
 
