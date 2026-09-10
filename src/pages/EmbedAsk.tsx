@@ -1095,7 +1095,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         searchQuery: (body as any)?.searchQuery ?? null,
         // Rupture de contexte : une question ordinaire posée après une recherche
         // géolocalisée ne doit pas être affinée sur l'ancien lot restreint au rayon.
-        dropPriorPool: !!geoAnchorRef.current && !geoApplies ? true : undefined,
+        // EXCEPTION : les filtres locaux (badges du footer, `forcedRoute`) portent
+        // PAR DÉFINITION sur le corpus du tour précédent — le vider renvoyait la
+        // route forcée vers une recherche libre (« Les mieux notés » ⇒ 1 résultat
+        // hors sujet).
+        dropPriorPool:
+          !!geoAnchorRef.current && !geoApplies && !(body as any)?.forcedRoute ? true : undefined,
+
 
        },
       };
