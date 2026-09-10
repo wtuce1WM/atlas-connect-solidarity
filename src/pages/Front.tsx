@@ -814,8 +814,10 @@ const Front = () => {
   // Un panneau de l'assistant (feed vidéo, fiche business, POI) est rendu DANS le
   // conteneur de l'embed : son z-index reste piégé sous le header de /front (z-50),
   // qui interceptait les taps sur la croix de fermeture. On masque donc le chrome
-  // Home tant qu'un panneau est ouvert.
-  const showHomeChrome = !demoIntro && !youtubeOpen && !mapOpen && !askPanelOpen;
+  // Home tant qu'un panneau est ouvert, SAUF l'overlay YouTube qui a besoin du
+  // logo One World Morocco comme unique retour.
+  const showHomeChrome = youtubeOpen || (!demoIntro && !mapOpen && !askPanelOpen);
+
   /** Feed démo chargé : moitié droite = viewer, moitié gauche = assistant IA fermé. */
   const demoFeedOpen = !!(demoActiveId || demoCardsOnly);
 
@@ -892,11 +894,21 @@ const Front = () => {
         }}
       />
 
-      {/* Mini-header pinné (identité + menu) — visible écrans 1 et 2, masqué pendant la démo */}
+      {/* Mini-header pinné (identité + menu) — visible écrans 1 et 2, masqué pendant la démo.
+          Reste affiché au-dessus de l'overlay YouTube pour servir de retour (logo + OWM). */}
       <FrontHeader
         fixed
         visible={showHomeChrome}
+        className={youtubeOpen ? "z-[210]" : ""}
+        elevatedMenu={youtubeOpen}
         onLogoClick={() => {
+
+          // Overlay YouTube ouvert : le logo sert de fermeture.
+          if (youtubeOpen) {
+            try { window.postMessage({ type: "owm-host:close-youtube" }, window.location.origin); } catch { /* noop */ }
+            setYoutubeOpen(false);
+            return;
+          }
           // Suggestions dépliées : simple repli, aucun rechargement (évite le flash #ECD6B8).
           if (suggestionsExpanded) {
             try { window.postMessage({ type: "owm-host:collapse-suggestions" }, window.location.origin); } catch { /* noop */ }
@@ -916,6 +928,7 @@ const Front = () => {
           if (video?.paused) void video.play().catch(() => undefined);
         }}
       />
+
 
 
       {/* Bloc central — 3 sections égales entre header et CTA Découvrir.
