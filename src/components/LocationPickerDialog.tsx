@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, forwardRef } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
