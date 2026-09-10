@@ -1702,7 +1702,7 @@ Deno.serve(async (req) => {
           // Appel HTTP direct (voir routes/forced.ts) : `functions.invoke` depuis
           // une edge function ne renvoyait rien → repli LLM au lieu du widget.
           const weatherJson = await (async () => {
-            const key = SERVICE_KEY;
+            const key = SERVICE;
             try {
               const res = await fetch(`${SUPABASE_URL}/functions/v1/get-weather`, {
                 method: "POST",
