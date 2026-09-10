@@ -25,6 +25,7 @@
     document.head.appendChild(tag);
     var ytPlayer = null;
     var pendingCommands = [];
+    var autoplayCancelled = false;
 
     // L'iframe YouTube est créée ICI (et non par YT.Player) pour porter
     // explicitement `allow="autoplay"`. Sans cet attribut, Safari/iOS refuse
@@ -59,7 +60,7 @@
       if (!ytPlayer) return;
       try {
         if (cmd.func === 'playVideo') ytPlayer.playVideo();
-        else if (cmd.func === 'pauseVideo') ytPlayer.pauseVideo();
+        else if (cmd.func === 'pauseVideo') { autoplayCancelled = true; ytPlayer.pauseVideo(); }
         else if (cmd.func === 'mute') ytPlayer.mute();
         else if (cmd.func === 'unMute') ytPlayer.unMute();
         else if (cmd.func === 'setVolume' && cmd.args && cmd.args.length) ytPlayer.setVolume(cmd.args[0]);
@@ -93,13 +94,13 @@
     // Relance d'auto-lecture : certains navigateurs ignorent `autoplay=1`
     // quand l'iframe est créée pendant une animation d'ouverture de panneau.
     function kickAutoplay() {
-      if (!autoplay || !ytPlayer) return;
+      if (!autoplay || !ytPlayer || autoplayCancelled) return;
       var tries = 0;
       var id = setInterval(function () {
         tries++;
         var st = -1;
         try { st = ytPlayer.getPlayerState(); } catch (_) {}
-        if (st === 1 || st === 3 || tries > 8) { clearInterval(id); return; }
+        if (autoplayCancelled || st === 1 || st === 3 || tries > 8) { clearInterval(id); return; }
         try { if (startMuted) ytPlayer.mute(); ytPlayer.playVideo(); } catch (_) {}
       }, 500);
     }
