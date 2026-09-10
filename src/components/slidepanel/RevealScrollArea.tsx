@@ -111,7 +111,7 @@ const RevealScrollArea = ({
       ref={scrollRef}
       id={id}
       onScroll={measure}
-      className={`w-full h-full overflow-y-auto overscroll-contain ${className}`}
+      className={`w-full h-full overflow-y-auto overflow-x-hidden overscroll-contain ${className}`}
     >
       {isLong && (
         <div data-owm-video-progress="true" className="sticky top-0 z-40 h-[2px] w-full bg-white/10">
