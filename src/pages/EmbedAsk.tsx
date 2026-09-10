@@ -3831,6 +3831,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         })()}
         {!homeState && renderGeoInlinePicker()}
         {!homeState && !feedOpening && messages.map((m, i) => {
+          // Masquer le message d'accueil seedé dès qu'une question est en cours
+          // (widget géolocalisation, envoi en attente, ou conversation démarrée).
+          if (m.role === "assistant" && m.id === "opener" && (hasUserMessages || !!geoPromptText || geoSendPending)) {
+            return null;
+          }
           if (m.role === "user") {
             return (
               <div key={m.id || i} className="flex justify-end">
