@@ -955,6 +955,7 @@ const VideoSlidePanel = ({
   });
   const [ytPlaying, setYtPlaying] = useState(true);
   const [ytMuted, setYtMuted] = useState(!soundOn);
+  const ytAutoplayCancelledRef = useRef(false);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
   const isYouTubeUrl = useMemo(
@@ -1007,6 +1008,7 @@ const VideoSlidePanel = ({
   // Le toggle son reflète cet état de départ à chaque changement de vidéo.
   useEffect(() => {
     if (!open) return;
+    ytAutoplayCancelledRef.current = false;
     setYtMuted(true);
     setYtPlaying(true);
   }, [videoUrl, videoId, open]);
@@ -1042,7 +1044,7 @@ const VideoSlidePanel = ({
     };
 
     const ensurePlaying = () => {
-      if (unmuteApplied) return; // already playing and unmuted
+      if (unmuteApplied || ytAutoplayCancelledRef.current) return; // already playing, or explicitly paused
       const w = iframe.contentWindow;
       if (!w) return;
       w.postMessage(JSON.stringify({ event: "command", func: "playVideo", args: [] }), "*");
@@ -1090,7 +1092,11 @@ const VideoSlidePanel = ({
             setYtPlaying(true);
             applyUnmute();
             if (autoplayTimer) { window.clearInterval(autoplayTimer); autoplayTimer = null; }
-          } else if (info === 2 || info === 0 || info === -1) setYtPlaying(false);
+          } else if (info === 2 || info === 0 || info === -1) {
+            setYtPlaying(false);
+            if (info === 2) ytAutoplayCancelledRef.current = true;
+            if (autoplayTimer) { window.clearInterval(autoplayTimer); autoplayTimer = null; }
+          }
         }
         // infoDelivery: info is an object with playerState/muted
         if (info && typeof info === "object") {
@@ -1099,7 +1105,11 @@ const VideoSlidePanel = ({
               setYtPlaying(true);
               applyUnmute();
               if (autoplayTimer) { window.clearInterval(autoplayTimer); autoplayTimer = null; }
-            } else if (info.playerState === 2 || info.playerState === 0) setYtPlaying(false);
+            } else if (info.playerState === 2 || info.playerState === 0) {
+              setYtPlaying(false);
+              if (info.playerState === 2) ytAutoplayCancelledRef.current = true;
+              if (autoplayTimer) { window.clearInterval(autoplayTimer); autoplayTimer = null; }
+            }
           }
           if (typeof info.muted === "boolean") {
             setYtMuted(info.muted);
@@ -2120,7 +2130,10 @@ const VideoSlidePanel = ({
                             iframeRef,
                             playing: ytPlaying,
                             muted: ytMuted,
-                            onPlayingChange: setYtPlaying,
+                            onPlayingChange: (playing) => {
+                              if (!playing) ytAutoplayCancelledRef.current = true;
+                              setYtPlaying(playing);
+                            },
                             onMutedChange: (m) => { setYtMuted(m); setSoundOn(!m); },
                           }
                         : undefined

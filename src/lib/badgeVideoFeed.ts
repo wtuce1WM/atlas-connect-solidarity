@@ -178,16 +178,8 @@ export async function fetchBadgesVideoFeed(
   });
   if (error || !data) return { items: [], total: 0 };
   const rows = data as any[];
-  const excluded = await loadDiscoveryExclusions();
-  const items = rows
-    .map(mapFeedRow)
-    .filter(
-      (it) =>
-        !excluded.videoIds.has(String(it.id)) &&
-        !(it.businessId && excluded.businessIds.has(String(it.businessId))),
-    );
   return {
-    items,
+    items: rows.map(mapFeedRow),
     total: rows.length ? Number(rows[0].total_count ?? rows.length) : 0,
   };
 }
@@ -394,8 +386,16 @@ async function fetchDiscoveryPage(
 
   if (error || !data) return { items: [], total: 0 };
   const rows = data as any[];
+  const excluded = await loadDiscoveryExclusions();
+  const items = rows
+    .map(mapFeedRow)
+    .filter(
+      (it) =>
+        !excluded.videoIds.has(String(it.id)) &&
+        !(it.businessId && excluded.businessIds.has(String(it.businessId))),
+    );
   return {
-    items: rows.map(mapFeedRow),
+    items,
     total: rows.length ? Number(rows[0].total_count ?? rows.length) : 0,
   };
 }
