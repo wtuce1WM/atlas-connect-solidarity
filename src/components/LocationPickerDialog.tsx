@@ -400,7 +400,18 @@ const LocationPickerDialog = ({
         placeMarker(pos);
         mapRef.current?.setCenter(pos);
         mapRef.current?.setZoom(14);
-        reverseGeocode(pos).finally(() => setWaitingForPosition(false));
+        reverseGeocode(pos)
+          .then((addr) => {
+            // En mode inline (assistant IA), « Ma position » vaut confirmation :
+            // exiger un second clic sur « Confirmer cette adresse » donnait
+            // l'impression que la demande n'était pas prise en compte.
+            if (!inline) return;
+            const address = addr || detectedCity || `${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}`;
+            selectedAddressRef.current = address;
+            onConfirm(pos, address);
+            onOpenChange(false);
+          })
+          .finally(() => setWaitingForPosition(false));
       },
       () => setWaitingForPosition(false),
 
