@@ -200,7 +200,9 @@ export async function buildPoolProximityAnswer(
       ? `📐 المسافات الدقيقة إلى أقرب **${targetName}**، من الأقرب إلى الأبعد:`
       : `📐 Distances exactes jusqu'au **${targetName}** le plus proche, du plus proche au plus loin :`;
 
-  const bullets = geo.slice(0, 20).map((r) => {
+  // RÈGLE UNIQUE DE RENDU : 4 adresses par lot, toujours accompagnées de leurs
+  // cartes (miniatures). Le reste du corpus part dans le pool (« la suite »).
+  const bullets = geo.slice(0, 4).map((r) => {
     const place = r.b.neighborhood || r.b.city || "";
     const near = multi && r.near ? ` → ${r.near}` : "";
     return `- **${r.b.name}**${place ? ` (${place})` : ""} — ${fmtDist(r.km as number)}${near}`;
