@@ -2007,9 +2007,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       pendingGeoTextRef.current = text;
       setGeoPromptWaiting(false);
       setGeoPromptText(text);
-      if (!overrideText) setInput("");
+      if (!overrideText && !homeState) setInput("");
       // L'assistant passe immédiatement en mode ouvert (host + layout interne),
       // sans attendre l'effet React dérivé de `geoPromptText`.
+
       const askedPayload = { type: "owm-ask:asked" };
       const openPayload = { type: "owm-ask:conversation-open", open: true };
       try {
