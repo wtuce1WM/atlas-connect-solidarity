@@ -1699,9 +1699,24 @@ Deno.serve(async (req) => {
         if (isWeatherIntent(userMessage)) {
           route = "weather";
           const city = scopeCity;
-          const { data, error } = await admin.functions.invoke("get-weather", { body: { city } });
-          if (!error && data && !(data as any).error) {
-            const w = data as any;
+          // Appel HTTP direct (voir routes/forced.ts) : `functions.invoke` depuis
+          // une edge function ne renvoyait rien → repli LLM au lieu du widget.
+          const weatherJson = await (async () => {
+            const key = SERVICE;
+            try {
+              const res = await fetch(`${SUPABASE_URL}/functions/v1/get-weather`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}`, apikey: key },
+                body: JSON.stringify({ city }),
+              });
+              const json = await res.json();
+              return res.ok && json && !json.error ? json : null;
+            } catch {
+              return null;
+            }
+          })();
+          if (weatherJson) {
+            const w = weatherJson as any;
             const intro = {
               fr: `Voici la météo à **${w.city_name || city}** et la tendance des 3 prochains jours. 👇`,
               en: `Here's the weather in **${w.city_name || city}** and the 3-day trend. 👇`,

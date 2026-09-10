@@ -224,16 +224,36 @@ export async function runForcedRoute(ctx: ForcedRouteContext): Promise<ForcedRou
     }
 
     case "weather": {
-      const { data, error } = await admin.functions.invoke("get-weather", { body: { city: scopeCity } });
-      if (error || !data || (data as any).error) return null;
-      const w = data as any;
+      // Appel direct de la fonction publique `get-weather` : `functions.invoke`
+      // depuis une edge function échouait silencieusement (route forcée non
+      // appliquée → repli LLM « météo non disponible »).
+      // En mode plateforme (sans hôte) la ville de scope est nulle → Marrakech.
+      const weatherCity = (scopeCity && String(scopeCity).trim()) || "Marrakech";
+      const w = await (async () => {
+        const base = Deno.env.get("SUPABASE_URL");
+        const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_ANON_KEY");
+        if (!base || !key) return null;
+        try {
+          const res = await fetch(`${base}/functions/v1/get-weather`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}`, apikey: key },
+            body: JSON.stringify({ city: weatherCity }),
+          });
+          const json = await res.json();
+          if (!res.ok || !json || json.error) return null;
+          return json as any;
+        } catch {
+          return null;
+        }
+      })();
+      if (!w) return null;
       const intro = {
-        fr: `Voici la météo à **${w.city_name || scopeCity}** et la tendance des 3 prochains jours. 👇`,
-        en: `Here's the weather in **${w.city_name || scopeCity}** and the 3-day trend. 👇`,
-        ar: `إليك حالة الطقس في **${w.city_name || scopeCity}** والتوقعات للأيام الثلاثة القادمة. 👇`,
+        fr: `Voici la météo à **${w.city_name || weatherCity}** et la tendance des 3 prochains jours. 👇`,
+        en: `Here's the weather in **${w.city_name || weatherCity}** and the 3-day trend. 👇`,
+        ar: `إليك حالة الطقس في **${w.city_name || weatherCity}** والتوقعات للأيام الثلاثة القادمة. 👇`,
       }[lang];
       const payload = {
-        city_name: w.city_name || scopeCity, temp: w.temp, feels_like: w.feels_like,
+        city_name: w.city_name || weatherCity, temp: w.temp, feels_like: w.feels_like,
         temp_min: w.temp_min, temp_max: w.temp_max, humidity: w.humidity,
         wind_speed: w.wind_speed, description: w.description || "", icon: w.icon || "",
         hourly: Array.isArray(w.hourly) ? w.hourly.slice(0, 8) : [],
