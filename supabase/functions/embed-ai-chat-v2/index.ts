@@ -1756,7 +1756,7 @@ Deno.serve(async (req) => {
             ? await buildHoursForBusinesses(admin, priorIds.slice(0, Math.min(4, CFG.maxResults)), lang)
             : buildHoursAnswer(intentHost, lang);
           if (answer) {
-            resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
+            resultsCount = priorIds.length ? Math.min(priorIds.length, 4, CFG.maxResults) : 1;
             emit(answer);
             if (!priorIds.length && namedHost) emit(toMapMarker([namedHost], null));
             await finish(true);
@@ -1773,7 +1773,7 @@ Deno.serve(async (req) => {
             ? await buildBookingForBusinesses(admin, ids, lang)
             : buildBookingAnswer(intentHost, lang);
           if (answer) {
-            resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
+            resultsCount = priorIds.length ? Math.min(priorIds.length, 4, CFG.maxResults) : 1;
             emit(answer);
             // Cartes résultat IA (source unique de présentation + CTA Réservez / WhatsApp).
             if (ids.length) {
