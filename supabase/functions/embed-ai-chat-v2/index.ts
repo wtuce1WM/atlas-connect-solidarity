@@ -3012,7 +3012,7 @@ Deno.serve(async (req) => {
         // ex. 30 adresses), jamais dans les seules 6 affichées.
         const followUpPoolIds = (poolIds.length ? poolIds : priorIds).slice(0, POOL_CAP);
         let priorFull = (contextualFollowUp || (priorIds.length && !results.length))
-          ? await fetchPriorFull(admin, followUpPoolIds).catch(() => [])
+          ? await fetchPriorFull(admin, followUpPoolIds, followUpPoolIds.length).catch(() => [])
           : [];
 
         // ── Filtre quartier déterministe (STRICT) ───────────────────────────
