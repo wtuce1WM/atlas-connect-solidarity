@@ -525,7 +525,7 @@ Deno.serve(async (req) => {
   /**
    * PRÉ-VOL FEED VIDÉO (`feedPreflight: true`) : aucune génération, aucun token.
    * Même source de vérité que les routes du tour normal
-   * (`matchFrontBadgesInMessage` + `loadBadgeVideoFeedPool` + paliers), afin que
+   * (`matchFrontBadgesInMessage` + `loadBadgeVideoFeedPool` + intersection stricte), afin que
    * le front puisse ouvrir VideoSlidePanel AVANT la réponse IA, partout.
    */
   if (body.feedPreflight === true) {
