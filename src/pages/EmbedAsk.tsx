@@ -3936,6 +3936,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           }
           const geoActiveForMsg =
             geoAnchor &&
+            // Une réponse « distances exactes » est déjà triée par le serveur autour
+            // du lieu demandé. Ne pas la refiltrer autour de la position du téléphone.
+            !clean.includes("📐") &&
             (detectLocalIntent(precedingUserText) || parseRadiusCommand(precedingUserText) != null)
               ? geoAnchor
               : null;
