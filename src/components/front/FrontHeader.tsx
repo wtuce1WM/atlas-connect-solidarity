@@ -216,7 +216,7 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
             );
           })}
 
-          {/* Switch de langues */}
+          {/* Switch de langues — désactivé (mis en commentaire à la demande)
           {!hideLanguageSwitch && (
           <div className="mt-2 grid grid-cols-2 gap-3">
             {FRONT_LANGS.map((lang) => (
@@ -243,6 +243,7 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
             ))}
           </div>
           )}
+          */}
         </nav>
       </div>
     </>
