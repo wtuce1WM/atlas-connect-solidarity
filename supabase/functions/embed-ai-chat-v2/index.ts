@@ -1698,7 +1698,8 @@ Deno.serve(async (req) => {
         // 1. Météo
         if (isWeatherIntent(userMessage)) {
           route = "weather";
-          const city = scopeCity;
+          // En mode plateforme (sans hôte) la ville de scope est nulle → Marrakech.
+          const city = (scopeCity && String(scopeCity).trim()) || "Marrakech";
           // Appel HTTP direct (voir routes/forced.ts) : `functions.invoke` depuis
           // une edge function ne renvoyait rien → repli LLM au lieu du widget.
           const weatherJson = await (async () => {
