@@ -812,7 +812,10 @@ Deno.serve(async (req) => {
             // le résolveur d'alias que comme complément. Jamais de repli sur une
             // recherche générique : la route répond ou dit qu'elle est vide.
             const nb = await resolveNeighborhoodInMessage(admin, userMessage, scopeCity).catch(() => null);
-            const pool = await fetchPriorFull(admin, poolIds).catch(() => []);
+            // Corpus COMPLET du tour : `fetchPriorFull` tronque à 30 ids par
+            // défaut, ce qui faisait mentir le compteur du badge (calculé sur
+            // la totalité du pool) par rapport aux adresses réellement filtrées.
+            const pool = await fetchPriorFull(admin, poolIds, poolIds.length).catch(() => []);
 
             const wanted = normalize(userMessage);
             const kept = nb
