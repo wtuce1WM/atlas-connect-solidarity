@@ -27,7 +27,7 @@ import {
 } from "../_shared/taxonomy-resolver.ts";
 
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
-import { detectPoolProximityIntent, buildPoolProximityAnswer } from "../_shared/ai-engine/pool-proximity.ts";
+import { detectPoolProximityIntent, detectSelfProximityIntent, buildPoolProximityAnswer } from "../_shared/ai-engine/pool-proximity.ts";
 import { pickLang, normalize, toMapMarker, fetchPriorFull, orderByIds, matchBusinessNameInMessage, resolveNamedBusinessForIntent } from "../_shared/ai-engine/routes/shared.ts";
 import { warmNomadScope, isNomadBusiness, scrubNomadRow } from "../_shared/ai-engine/nomad-scope.ts";
 import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
@@ -1048,9 +1048,16 @@ Deno.serve(async (req) => {
         // « près de moi » y serait sinon pris pour un repère nommé et conserverait
         // les anciennes adresses, quel que soit le nouveau rayon.
         if (!searchQuery && !explicitCity && poolIds.length > 1) {
-          const pi = detectPoolProximityIntent(userMessage);
+          // « près de moi » : le repère est le POINT confirmé par l'utilisateur
+          // (widget de géolocalisation / repli Koutoubia). Sans ça, le moteur
+          // demandait le quartier alors que la position était déjà connue.
+          const selfProx = !!userAnchor && detectSelfProximityIntent(userMessage);
+          const pi = selfProx ? { term: "self" } : detectPoolProximityIntent(userMessage);
           if (pi && !detectViewIntent(userMessage).hasViewIntent) {
-            const prox = await buildPoolProximityAnswer(admin, poolIds, pi.term, lang as any)
+            const prox = await buildPoolProximityAnswer(
+              admin, poolIds, pi.term, lang as any,
+              selfProx ? { lat: userAnchor!.lat, lng: userAnchor!.lng } : null,
+            )
               .catch((e) => {
                 console.error("[embed-ai-chat-v2] pool_proximity_failed", String(e));
                 return null;

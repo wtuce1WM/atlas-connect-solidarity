@@ -40,6 +40,22 @@ const SELF_TERMS = new Set([
   "notre position", "mon emplacement", "chez moi",
 ]);
 
+/**
+ * « près de moi », « autour de moi », « near me » : proximité par rapport au
+ * POINT de l'utilisateur (widget de géolocalisation), pas à un lieu nommé.
+ */
+export function detectSelfProximityIntent(rawText: string): boolean {
+  const n = norm(rawText).replace(/\s+/g, " ");
+  const m = PROX_RE.exec(n);
+  if (m) {
+    const term = m[1].split(" ").filter((t) => t && !TERM_STOP.has(t)).join(" ").trim();
+    if (SELF_TERMS.has(term) || term.length < 3) return true;
+  }
+  return /\b(autour|pres|proche|a cote|a proximite)\s+d?\s?'?(ici)\b/.test(n)
+    || /\bdans le coin\b/.test(n)
+    || /\bnear me\b|\baround me\b|\bnearby\b/.test(n);
+}
+
 /** « je veux louer une villa à côté du golf » → { term: "golf" } */
 export function detectPoolProximityIntent(rawText: string): ProximityIntent {
   const n = norm(rawText).replace(/\s+/g, " ");
@@ -170,6 +186,12 @@ export async function buildPoolProximityAnswer(
   poolIds: string[],
   term: string,
   lang: "fr" | "en" | "ar",
+  /**
+   * Point de l'utilisateur (widget de géolocalisation ou repli Koutoubia). Quand
+   * il est fourni, c'est LUI le repère : aucune résolution de lieu nommé, et le
+   * moteur ne demande plus le quartier alors que la position est déjà connue.
+   */
+  selfAnchor?: { lat: number; lng: number; label?: string } | null,
 ): Promise<PoolProximityResult | null> {
   const rows: any[] = [];
   for (let i = 0; i < poolIds.length; i += 80) {
@@ -183,7 +205,12 @@ export async function buildPoolProximityAnswer(
   if (!rows.length) return null;
 
   const cityNames = [...new Set(rows.map((b: any) => b.city).filter(Boolean).map(String))];
-  const targets = await resolveProximityTargets(admin, term, cityNames);
+  const selfLabel = selfAnchor
+    ? (selfAnchor.label || (lang === "en" ? "your location" : lang === "ar" ? "موقعك" : "votre position"))
+    : null;
+  const targets = selfAnchor
+    ? [{ name: selfLabel as string, lat: selfAnchor.lat, lng: selfAnchor.lng, source: "poi" as const }]
+    : await resolveProximityTargets(admin, term, cityNames);
   if (!targets.length) return null;
 
   const withDist = rows
@@ -205,12 +232,18 @@ export async function buildPoolProximityAnswer(
   if (!geo.length) return null;
 
   const multi = targets.length > 1;
-  const targetName = multi ? term : targets[0].name;
-  const intro = lang === "en"
-    ? `📐 Exact distances to the nearest **${targetName}**, closest first:`
-    : lang === "ar"
-      ? `📐 المسافات الدقيقة إلى أقرب **${targetName}**، من الأقرب إلى الأبعد:`
-      : `📐 Distances exactes jusqu'au **${targetName}** le plus proche, du plus proche au plus loin :`;
+  const targetName = selfAnchor ? (selfLabel as string) : multi ? term : targets[0].name;
+  const intro = selfAnchor
+    ? (lang === "en"
+        ? `📐 Exact distances from **${targetName}**, closest first:`
+        : lang === "ar"
+          ? `📐 المسافات الدقيقة من **${targetName}**، من الأقرب إلى الأبعد:`
+          : `📐 Distances exactes depuis **${targetName}**, du plus proche au plus loin :`)
+    : lang === "en"
+      ? `📐 Exact distances to the nearest **${targetName}**, closest first:`
+      : lang === "ar"
+        ? `📐 المسافات الدقيقة إلى أقرب **${targetName}**، من الأقرب إلى الأبعد:`
+        : `📐 Distances exactes jusqu'au **${targetName}** le plus proche, du plus proche au plus loin :`;
 
   // RÈGLE UNIQUE DE RENDU : 4 adresses par lot, toujours accompagnées de leurs
   // cartes (miniatures). Le reste du corpus part dans le pool (« la suite »).
