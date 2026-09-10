@@ -72,8 +72,20 @@ export function fmtKm(km: number): string {
   return km < 1 ? `${Math.round(km * 1000)} m` : Number.isInteger(km) ? `${km} km` : `${km.toFixed(1)} km`;
 }
 
-export function toMapMarker(businesses: any[], title: string | null = null, order: string | null = null): string {
-  const mapBusinesses = scrubNomadRows(businesses.slice(0, 20)).map((p: any) => ({
+/**
+ * Marqueur carte. `phrases` (id → descriptif immersif) remplace le hook de la
+ * carte, exactement comme dans `mapBusinessesOf` (routes curatées) : c'est ce
+ * qui rend les classements aussi immersifs que les autres réponses.
+ */
+export function toMapMarker(
+  businesses: any[],
+  title: string | null = null,
+  order: string | null = null,
+  phrases?: Map<string, string> | null,
+): string {
+  const mapBusinesses = scrubNomadRows(businesses.slice(0, 20)).map((p: any) => {
+    const phrase = phrases?.get(String(p.id)) || null;
+    return {
 
     id: p.id, slug: p.slug, name: p.name,
     city: p.city, neighborhood: p.neighborhood, address: p.address,
@@ -87,13 +99,16 @@ export function toMapMarker(businesses: any[], title: string | null = null, orde
     // Champs de la carte résultat IA (présentation unifiée côté client).
     computed_rating: p.computed_rating ?? null,
     total_review_count: p.total_review_count ?? null,
-    hook_fr: p.hook_fr ?? null, hook_en: p.hook_en ?? null, hook_ar: p.hook_ar ?? null,
+    hook_fr: phrase ?? p.hook_fr ?? null,
+    hook_en: phrase ?? p.hook_en ?? null,
+    hook_ar: phrase ?? p.hook_ar ?? null,
     opening_hours: p.opening_hours ?? null,
     is_open_24h: p.is_open_24h ?? null,
     show_opening_hours: p.show_opening_hours ?? null,
     ...ctaFieldsOf(p),
     engagements: p.engagements,
-  }));
+    };
+  });
   return `\n\n<!--SHOW_ON_MAP:${JSON.stringify({ title, order, businesses: mapBusinesses })}-->`;
 }
 
