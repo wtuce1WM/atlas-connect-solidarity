@@ -1327,6 +1327,7 @@ Deno.serve(async (req) => {
               userMessage,
               scopeCity,
               radiusKm: requestedRadiusKm ?? curated.radiusKm ?? hostRadius,
+              apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks,
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] forced_route_failed", forcedKey, String(e));
               return null;
