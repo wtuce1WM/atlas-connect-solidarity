@@ -1346,14 +1346,19 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
   // Dès que l'accueil IA se transforme en conversation, lecteur vidéo ou overlay,
   // on efface le texte d'attente et l'état visuel du chip cliqué.
+  // Pour une réponse texte, on attend qu'un message assistant soit reçu
+  // (messages.length > 2) afin que la question reste lisible dans le champ le
+  // temps du traitement. Pour un feed vidéo, on vide dès l'ouverture du panel.
   useEffect(() => {
     if (homeSubmitText === null && homeClickedSuggestionId === null) return;
-    if (!homeState || anyPanelOpen) {
+    const hasAssistantResponse = messages.length > 2;
+    if (anyPanelOpen || (!homeState && hasAssistantResponse)) {
       setInput("");
       setHomeSubmitText(null);
       setHomeClickedSuggestionId(null);
     }
-  }, [homeState, anyPanelOpen, homeSubmitText, homeClickedSuggestionId]);
+  }, [homeState, anyPanelOpen, messages.length, homeSubmitText, homeClickedSuggestionId]);
+
 
 
 
