@@ -1959,6 +1959,18 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const send = (overrideText?: string, suggestionId?: string, followupId?: string, skipGeoPrompt = false) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !assistantReady) return;
+    // Anti double-clic : `streaming` est un état React, il n'est pas encore à
+    // `true` au 2e clic d'un double-clic sur une chip de suggestion — la même
+    // requête partait donc 2 fois. Verrou synchrone sur (texte + suggestion +
+    // relance) pendant 1,2 s. Le repli interne du feed pur (`pureFeedFallbackRef`)
+    // renvoie volontairement le même texte : il n'est pas concerné.
+    if (!pureFeedFallbackRef.current) {
+      const key = `${text}|${suggestionId ?? ""}|${followupId ?? ""}`;
+      const now = Date.now();
+      const last = lastSendRef.current;
+      if (last && last.key === key && now - last.at < 1200) return;
+      lastSendRef.current = { key, at: now };
+    }
     // Toute intention locale explicite ("près de moi", "near me", etc.) doit
     // d'abord faire confirmer l'adresse dans le sélecteur inline. Même si une
     // ancienne position existe déjà, AUCUNE recherche ni réponse texte ne part
@@ -2508,6 +2520,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const earlyFeedOpenRef = useRef(false);
   /** Garde anti-boucle du repli « feed pur » vers le parcours standard. */
   const pureFeedFallbackRef = useRef(false);
+  /** Dernier envoi (texte + suggestion + relance) : verrou anti double-clic. */
+  const lastSendRef = useRef<{ key: string; at: number } | null>(null);
 
   /**
    * Ouverture immédiate du feed vidéo d'une suggestion badgée, sans attendre le
