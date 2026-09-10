@@ -3843,6 +3843,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                       {(showAllSuggestions ? visibleSuggestions : visibleSuggestions.slice(0, 6)).map((s, sIdx) => {
                         const label = s.label;
                         const isYoutubePage = s.id === YOUTUBE_PAGE_SUGGESTION_ID || /youtube/i.test(label);
+                        const isClicked = homeClickedSuggestionId === s.id;
                         return (
                           <Fragment key={s.id}>
                             <button
@@ -3850,9 +3851,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                               onPointerEnter={warmAiEngineConnection}
                               onTouchStart={warmAiEngineConnection}
                               onClick={() => { if (isYoutubePage) { setYoutubeOpen(true); return; } send(label, s.id); }}
-                              className={`shrink-0 whitespace-nowrap text-[13px] px-4 py-2 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
-                              style={{ ...chipStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                              disabled={isClicked}
+                              className={cn(
+                                "shrink-0 whitespace-nowrap text-[13px] px-4 py-2 rounded-full transition-all flex items-center",
+                                chipBg,
+                                "hover:opacity-90",
+                                isClicked && "bg-[#D4AF37] text-black border-[#D4AF37] scale-[1.02] shadow-md"
+                              )}
+                              style={{ ...(isClicked ? moreBadgeStyle : chipStyle), fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
                             >
+                              {isClicked && <Loader2 className="w-3 h-3 animate-spin mr-1.5" />}
                               {label}
                             </button>
                             {sIdx === 2 && <div className="hidden md:block basis-full h-0 w-full pointer-events-none" />}
