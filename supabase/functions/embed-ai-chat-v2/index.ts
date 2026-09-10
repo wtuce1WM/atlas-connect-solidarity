@@ -280,16 +280,29 @@ const POOL_CAP = 60;
  * de liste, juste après les résultats notés, sans changer l'ordre des notés.
  */
 const UNRATED_TAIL_CAP = 8;
+const isUnratedRow = (b: any) =>
+  Number(b?.total_review_count ?? 0) <= 0 &&
+  b?.computed_rating == null &&
+  b?.rating == null;
+/**
+ * Règle d'affichage unique : le premier lot fait EXACTEMENT `max` fiches (4), et les
+ * lots suivants aussi. Les fiches sans note ne sont plus ajoutées à la page affichée
+ * (4 devenait 12) : elles sont remontées dans le POOL juste derrière le premier lot,
+ * donc visibles au clic « +N résultats ».
+ */
 function withUnratedTail(kept: any[], max: number): any[] {
-  const head = kept.slice(0, max);
-  if (kept.length <= max) return head;
-  const isUnrated = (b: any) =>
-    Number(b?.total_review_count ?? 0) <= 0 &&
-    b?.computed_rating == null &&
-    b?.rating == null;
-  const tail = kept.slice(max).filter(isUnrated).slice(0, UNRATED_TAIL_CAP);
-  return [...head, ...tail];
+  return kept.slice(0, max);
 }
+/** Ordre du pool paginé : premier lot, puis les non notées, puis le reste. */
+function poolWithUnratedNext(kept: any[], max: number): any[] {
+  if (kept.length <= max) return kept;
+  const head = kept.slice(0, max);
+  const rest = kept.slice(max);
+  const unrated = rest.filter(isUnratedRow).slice(0, UNRATED_TAIL_CAP);
+  const unratedSet = new Set(unrated);
+  return [...head, ...unrated, ...rest.filter((b) => !unratedSet.has(b))];
+}
+
 
 
 async function poolMarker(admin: any, ids: string[], city: string | null): Promise<string> {
@@ -499,6 +512,15 @@ Deno.serve(async (req) => {
   // mais la recherche initiale est rejouée pour reconstruire un corpus complet.
   const searchQuery = typeof body.searchQuery === "string" ? body.searchQuery.trim().slice(0, 500) : "";
   const userMessage = searchQuery || visibleUserMessage;
+  /**
+   * Demande utilisateur du tour précédent. Sert à une seule chose : une relance qui
+   * ne fait QUE nommer une ville (« à Marrakech ») doit conserver la demande initiale
+   * (« hôtel avec piscine »), sinon la recherche repart sur la ville seule.
+   */
+  const previousUserMessage = (() => {
+    const users = uiMessages.filter((m: any) => m?.role === "user");
+    return users.length >= 2 ? (textOf(users[users.length - 2] as UIMessage) || "") : "";
+  })();
 
   /**
    * PRÉ-VOL FEED VIDÉO (`feedPreflight: true`) : aucune génération, aucun token.
@@ -2430,7 +2452,7 @@ Deno.serve(async (req) => {
             const apiTotal = Number(json?.totalCount ?? 0) || 0;
             totalFound = kept.length === all.length && apiTotal > kept.length ? apiTotal : kept.length;
 
-            searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
+            searchPoolIds = poolWithUnratedNext(kept, CFG.maxResults).map((b: any) => String(b.id)).slice(0, POOL_CAP);
             results = withUnratedTail(kept, CFG.maxResults);
           } catch (e) {
             console.error("[embed-ai-chat-v2] search_failed", e);
@@ -2721,7 +2743,7 @@ Deno.serve(async (req) => {
               poolRefined = true;
               route = "pool_refine";
               totalFound = kept.length;
-              searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
+              searchPoolIds = poolWithUnratedNext(kept, CFG.maxResults).map((b: any) => String(b.id)).slice(0, POOL_CAP);
               results = withUnratedTail(kept, CFG.maxResults);
               resultsCount = results.length;
             } else {
@@ -2766,7 +2788,7 @@ Deno.serve(async (req) => {
             route = "discover";
             cityDetected = destScope.name;
             totalFound = kept.length;
-            searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
+            searchPoolIds = poolWithUnratedNext(kept, CFG.maxResults).map((b: any) => String(b.id)).slice(0, POOL_CAP);
             results = withUnratedTail(kept, CFG.maxResults);
             resultsCount = results.length;
             /**
@@ -2831,7 +2853,25 @@ Deno.serve(async (req) => {
            * villas. Le classifieur ne sert plus qu'aux filtres structurels : ville,
            * exclusions, services requis, quartier, vues.
            */
-          const baseQuery = userMessage.slice(0, 200);
+          /**
+           * RELANCE « ville seule » : « à Marrakech » après « hôtel avec piscine » n'est
+           * pas une nouvelle demande — c'est un changement de périmètre géographique.
+           * Sans la demande du tour précédent, la requête envoyée à `business-search`
+           * devenait « à Marrakech » et ramenait n'importe quoi dans la ville.
+           */
+          const cityOnlyRelance =
+            !!(explicitCity || resolvedCityRaw) &&
+            !!previousUserMessage &&
+            !strongTerms.length && !specializingTerms.length && !expansionTerms.length &&
+            normalize(userMessage).split(/\s+/).filter(Boolean).length <= 5;
+          const baseQuery = (cityOnlyRelance
+            ? `${previousUserMessage} ${visibleUserMessage}`
+            : userMessage).slice(0, 200);
+          if (cityOnlyRelance) {
+            console.log("[embed-ai-chat-v2] city_only_relance", JSON.stringify({
+              prior: previousUserMessage.slice(0, 120), city: searchCity, baseQuery: baseQuery.slice(0, 160),
+            }));
+          }
           console.log("[embed-ai-chat-v2] raw_query_parity", JSON.stringify({
             message: baseQuery.slice(0, 120), coreTerms, hintParts, weakResolution, purchaseIntent,
           }));
