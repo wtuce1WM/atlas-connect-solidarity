@@ -36,7 +36,7 @@ async function taFetch(path: string, apiKey: string, params: Record<string, stri
   }
   console.log(`TripAdvisor API: ${path}`);
   const res = await fetch(url.toString(), {
-    headers: { 'Accept': 'application/json' },
+    headers: { 'Accept': 'application/json', 'Referer': 'https://oneworldmorocco.com/' },
   });
   if (!res.ok) {
     const text = await res.text();
