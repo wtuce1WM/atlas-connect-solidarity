@@ -2438,13 +2438,13 @@ Deno.serve(async (req) => {
                     mode: inter.length ? "intersection" : "most_specific", added, promoted,
                   }));
 
-                  // ── Feed vidéo automatique en PALIERS (recherche libre) ──────
+                  // ── Feed vidéo automatique STRICT (recherche libre) ─────────
                   // Quand la phrase nomme AU MOINS DEUX badges actifs
                   // (« location villa vue sur mer » ⇢ Location + Villas + Vue sur
-                  // mer), on ouvre aussi le lecteur vidéo, ordonné par paliers :
-                  // l'intersection stricte des badges d'abord, puis les paliers
-                  // relâchés (badge le moins spécifique lâché en premier — donc
-                  // les hôtels/riads « vue sur mer » derrière les villas).
+                  // mer), on ouvre aussi le lecteur vidéo, en intersection
+                  // STRICTE : une vidéo ne sort que si elle porte TOUS les
+                  // badges. Intersection vide ⇒ AUCUN feed (jamais de paliers
+                  // relâchés ni de résultats aléatoires).
                   // Les fiches restent inchangées : le tour continue normalement.
                   if (augBadges.length >= 2) {
                     const feedBadgeIds = augBadges.map((b) => b.id);
@@ -2452,18 +2452,18 @@ Deno.serve(async (req) => {
                       badgeIds: feedBadgeIds,
                       city: city || null,
                     }).catch(() => null);
-                    const tiered = pool
-                      ? orderVideosByBadgeTiers(pool.videos, feedBadgeIds).slice(0, 60)
+                    const strictVideos = pool
+                      ? strictBadgeIntersection(pool.videos, feedBadgeIds).slice(0, 60)
                       : [];
-                    console.log("[embed-ai-chat-v2] free_search_tiered_feed", JSON.stringify({
+                    console.log("[embed-ai-chat-v2] free_search_strict_feed", JSON.stringify({
                       badges: augBadges.map((b) => b.name),
-                      pool: pool?.videos.length ?? 0, emitted: tiered.length,
+                      pool: pool?.videos.length ?? 0, emitted: strictVideos.length,
                     }));
-                    if (tiered.length) {
+                    if (strictVideos.length) {
                       emit(videoFeedMarker({
                         title: augBadges.map((b) => b.name).join(" · "),
-                        videos: tiered,
-                        total: pool?.total ?? tiered.length,
+                        videos: strictVideos,
+                        total: strictVideos.length,
                         badgeIds: feedBadgeIds,
                         seed: pool?.seed,
                       }));
