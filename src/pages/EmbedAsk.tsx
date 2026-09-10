@@ -1819,15 +1819,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const userMessages = scroller.querySelectorAll<HTMLElement>('[data-chat-role="user"]');
       const latest = userMessages.item(userMessages.length - 1);
       if (!latest) return;
-      anchorNextUserMessageRef.current = false;
       stickDisabledRef.current = true;
       const topInset = heroLayout
         ? (window.matchMedia("(min-width: 768px)").matches ? 80 : 64)
         : 8;
       scroller.scrollTo({ top: Math.max(0, latest.offsetTop - topInset), behavior: "smooth" });
+      // Pendant le streaming, la réponse grandit progressivement : conserver
+      // l'ancre active pour maintenir la relance en haut à chaque mise à jour.
+      if (!streaming) anchorNextUserMessageRef.current = false;
     });
     return () => cancelAnimationFrame(frame);
-  }, [messages, heroLayout]);
+  }, [messages, heroLayout, streaming]);
 
   // Boutons flottants haut/bas (desktop) : état du dépassement vertical du flux.
   const [convScroll, setConvScroll] = useState({ scrollable: false, canUp: false, canDown: false });
