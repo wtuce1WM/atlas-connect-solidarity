@@ -1753,7 +1753,7 @@ Deno.serve(async (req) => {
 
           route = "opening";
           const answer = priorIds.length
-            ? await buildHoursForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
+            ? await buildHoursForBusinesses(admin, priorIds.slice(0, Math.min(4, CFG.maxResults)), lang)
             : buildHoursAnswer(intentHost, lang);
           if (answer) {
             resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
@@ -1768,7 +1768,7 @@ Deno.serve(async (req) => {
         // 3. Réservation
         if (isBookingIntent(userMessage) && (priorIds.length || intentHost)) {
           route = "booking";
-          const ids = priorIds.length ? priorIds.slice(0, CFG.maxResults) : namedHost ? [String(namedHost.id)] : [];
+          const ids = priorIds.length ? priorIds.slice(0, Math.min(4, CFG.maxResults)) : namedHost ? [String(namedHost.id)] : [];
           const answer = priorIds.length
             ? await buildBookingForBusinesses(admin, ids, lang)
             : buildBookingAnswer(intentHost, lang);
