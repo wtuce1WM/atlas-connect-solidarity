@@ -2,7 +2,7 @@
 // Aucune réécriture : le rendu est déjà validé en production.
 
 import { normalize, fetchPriorFull, fmtKm, toMapMarker, haversineKmLocal } from "./shared.ts";
-import { immersivePhrase } from "./immersive.ts";
+import { immersivePhrase, buildImmersivePhrases, buildImmersivePhrasesLocal, type ImmersiveCtx } from "./immersive.ts";
 
 export function isDistanceRankingIntent(text: string): "closest" | "farthest" | null {
   const n = normalize(text);
@@ -148,7 +148,11 @@ export async function buildDistanceList(admin: any, host: any, ids: string[], la
   return `${intro}\n\n${lines.join("\n")}${toMapMarker(shownDist, null, "distance")}`;
 }
 
-export async function buildRatingRanking(admin: any, ids: string[], mode: "best_rated" | "most_reviewed", lang: "fr" | "en" | "ar"): Promise<string | null> {
+/** `immersive` : même descriptif immersif que les autres réponses sur les cartes. */
+export async function buildRatingRanking(admin: any, ids: string[], mode: "best_rated" | "most_reviewed", lang: "fr" | "en" | "ar", immersive?: ImmersiveCtx | null): Promise<string | null> {
+  const cardPhrases = async (rows: any[]) => (immersive
+    ? await buildImmersivePhrases(rows, lang, immersive).catch(() => buildImmersivePhrasesLocal(rows, lang))
+    : buildImmersivePhrasesLocal(rows, lang));
   if (!ids.length) return null;
   const rows = await fetchPriorFull(admin, ids);
   if (!rows.length) return null;
@@ -180,7 +184,7 @@ export async function buildRatingRanking(admin: any, ids: string[], mode: "best_
     const intro = lang === "en" ? `Among the previous results, ${top[0].name} has the highest overall rating:`
       : lang === "ar" ? `من بين النتائج السابقة، ${top[0].name} لديه أعلى تقييم عام:`
       : `Parmi les précédents, c'est ${top[0].name} qui a la meilleure note globale :`;
-    return `${intro}\n\n${lines.join("\n\n")}${toMapMarker(top, null, "rating")}`;
+    return `${intro}\n\n${lines.join("\n\n")}${toMapMarker(top, null, "rating", await cardPhrases(top))}`;
   }
   scored.sort((a: any, b: any) => b._count - a._count);
   const top = scored.filter((r: any) => r._count > 0).slice(0, 4);
@@ -196,7 +200,7 @@ export async function buildRatingRanking(admin: any, ids: string[], mode: "best_
   const intro = lang === "en" ? `Among the previous results, **${top[0].name}** has the most reviews:`
     : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** لديه أكبر عدد من المراجعات:`
     : `Parmi les précédents, c'est **${top[0].name}** qui a le plus d'avis :`;
-  return `${intro}\n\n${lines.join("\n")}${toMapMarker(top, null, "reviews")}`;
+  return `${intro}\n\n${lines.join("\n")}${toMapMarker(top, null, "reviews", await cardPhrases(top))}`;
 }
 
 export function buildOrdinalPick(prior: Array<{ id: string; slug?: string; name: string }>, indices: number[], lang: "fr" | "en" | "ar"): string {

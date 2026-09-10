@@ -2,6 +2,7 @@
 // Aucune réécriture : le rendu est déjà validé en production.
 
 import { normalize, DAY_KEYS, DAY_LABELS, fetchPriorFull, orderByIds, fmtKm, toMapMarker } from "./shared.ts";
+import { buildImmersivePhrases, buildImmersivePhrasesLocal, type ImmersiveCtx } from "./immersive.ts";
 
 export function isHoursIntent(text: string): boolean {
   const n = normalize(text);
@@ -166,6 +167,9 @@ export async function buildHoursRanking(
   ids: string[],
   mode: "opens_first" | "closes_last",
   lang: "fr" | "en" | "ar",
+  /** Contexte immersif : rend les cartes du classement avec le même descriptif
+   * que les autres réponses. Absent → hooks déterministes, zéro token. */
+  immersive?: ImmersiveCtx | null,
 ): Promise<string | null> {
   if (!ids.length) return null;
   const { data, error } = await admin
@@ -276,7 +280,13 @@ export async function buildHoursRanking(
   // Cartes (miniatures) du lot affiché : même règle de rendu que partout ailleurs.
   const full = await fetchPriorFull(admin, top.map((r) => String(r.id))).catch(() => []);
   const orderedFull = orderByIds(full as any[], top.map((r) => String(r.id)));
-  const cards = orderedFull.length ? toMapMarker(orderedFull) : "";
+  const phrases = orderedFull.length
+    ? (immersive
+        ? await buildImmersivePhrases(orderedFull as any[], lang, immersive)
+            .catch(() => buildImmersivePhrasesLocal(orderedFull as any[], lang))
+        : buildImmersivePhrasesLocal(orderedFull as any[], lang))
+    : null;
+  const cards = orderedFull.length ? toMapMarker(orderedFull, null, null, phrases) : "";
   return `${intro}\n\n${lines.join("\n")}${outro}${cards}`;
 }
 
