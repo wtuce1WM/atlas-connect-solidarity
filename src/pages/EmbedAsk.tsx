@@ -3785,6 +3785,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                           </Fragment>
                         );
                       })}
+
+        {/* Réserve temporaire pendant la génération : sans espace sous le dernier
+            message, le navigateur ne peut pas remonter une relance jusqu'en haut
+            du viewport tant que la réponse n'a pas encore gagné en hauteur. */}
+        {streaming && hasUserMessages && (
+          <div aria-hidden className="h-[calc(100dvh-10rem)] shrink-0" />
+        )}
                     </div>
 
                     {visibleSuggestions.length > 5 && (
