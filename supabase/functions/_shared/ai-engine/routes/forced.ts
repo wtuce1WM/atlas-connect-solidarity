@@ -248,12 +248,12 @@ export async function runForcedRoute(ctx: ForcedRouteContext): Promise<ForcedRou
       })();
       if (!w) return null;
       const intro = {
-        fr: `Voici la météo à **${w.city_name || scopeCity}** et la tendance des 3 prochains jours. 👇`,
-        en: `Here's the weather in **${w.city_name || scopeCity}** and the 3-day trend. 👇`,
-        ar: `إليك حالة الطقس في **${w.city_name || scopeCity}** والتوقعات للأيام الثلاثة القادمة. 👇`,
+        fr: `Voici la météo à **${w.city_name || weatherCity}** et la tendance des 3 prochains jours. 👇`,
+        en: `Here's the weather in **${w.city_name || weatherCity}** and the 3-day trend. 👇`,
+        ar: `إليك حالة الطقس في **${w.city_name || weatherCity}** والتوقعات للأيام الثلاثة القادمة. 👇`,
       }[lang];
       const payload = {
-        city_name: w.city_name || scopeCity, temp: w.temp, feels_like: w.feels_like,
+        city_name: w.city_name || weatherCity, temp: w.temp, feels_like: w.feels_like,
         temp_min: w.temp_min, temp_max: w.temp_max, humidity: w.humidity,
         wind_speed: w.wind_speed, description: w.description || "", icon: w.icon || "",
         hourly: Array.isArray(w.hourly) ? w.hourly.slice(0, 8) : [],
