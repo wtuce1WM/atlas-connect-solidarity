@@ -280,16 +280,29 @@ const POOL_CAP = 60;
  * de liste, juste après les résultats notés, sans changer l'ordre des notés.
  */
 const UNRATED_TAIL_CAP = 8;
+const isUnratedRow = (b: any) =>
+  Number(b?.total_review_count ?? 0) <= 0 &&
+  b?.computed_rating == null &&
+  b?.rating == null;
+/**
+ * Règle d'affichage unique : le premier lot fait EXACTEMENT `max` fiches (4), et les
+ * lots suivants aussi. Les fiches sans note ne sont plus ajoutées à la page affichée
+ * (4 devenait 12) : elles sont remontées dans le POOL juste derrière le premier lot,
+ * donc visibles au clic « +N résultats ».
+ */
 function withUnratedTail(kept: any[], max: number): any[] {
-  const head = kept.slice(0, max);
-  if (kept.length <= max) return head;
-  const isUnrated = (b: any) =>
-    Number(b?.total_review_count ?? 0) <= 0 &&
-    b?.computed_rating == null &&
-    b?.rating == null;
-  const tail = kept.slice(max).filter(isUnrated).slice(0, UNRATED_TAIL_CAP);
-  return [...head, ...tail];
+  return kept.slice(0, max);
 }
+/** Ordre du pool paginé : premier lot, puis les non notées, puis le reste. */
+function poolWithUnratedNext(kept: any[], max: number): any[] {
+  if (kept.length <= max) return kept;
+  const head = kept.slice(0, max);
+  const rest = kept.slice(max);
+  const unrated = rest.filter(isUnratedRow).slice(0, UNRATED_TAIL_CAP);
+  const unratedSet = new Set(unrated);
+  return [...head, ...unrated, ...rest.filter((b) => !unratedSet.has(b))];
+}
+
 
 
 async function poolMarker(admin: any, ids: string[], city: string | null): Promise<string> {
