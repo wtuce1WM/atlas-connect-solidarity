@@ -227,6 +227,8 @@ export async function runForcedRoute(ctx: ForcedRouteContext): Promise<ForcedRou
       // Appel direct de la fonction publique `get-weather` : `functions.invoke`
       // depuis une edge function échouait silencieusement (route forcée non
       // appliquée → repli LLM « météo non disponible »).
+      // En mode plateforme (sans hôte) la ville de scope est nulle → Marrakech.
+      const weatherCity = (scopeCity && String(scopeCity).trim()) || "Marrakech";
       const w = await (async () => {
         const base = Deno.env.get("SUPABASE_URL");
         const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_ANON_KEY");
@@ -235,7 +237,7 @@ export async function runForcedRoute(ctx: ForcedRouteContext): Promise<ForcedRou
           const res = await fetch(`${base}/functions/v1/get-weather`, {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}`, apikey: key },
-            body: JSON.stringify({ city: scopeCity }),
+            body: JSON.stringify({ city: weatherCity }),
           });
           const json = await res.json();
           if (!res.ok || !json || json.error) return null;
