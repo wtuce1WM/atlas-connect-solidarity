@@ -40,6 +40,22 @@ const SELF_TERMS = new Set([
   "notre position", "mon emplacement", "chez moi",
 ]);
 
+/**
+ * « près de moi », « autour de moi », « near me » : proximité par rapport au
+ * POINT de l'utilisateur (widget de géolocalisation), pas à un lieu nommé.
+ */
+export function detectSelfProximityIntent(rawText: string): boolean {
+  const n = norm(rawText).replace(/\s+/g, " ");
+  const m = PROX_RE.exec(n);
+  if (m) {
+    const term = m[1].split(" ").filter((t) => t && !TERM_STOP.has(t)).join(" ").trim();
+    if (SELF_TERMS.has(term) || term.length < 3) return true;
+  }
+  return /\b(autour|pres|proche|a cote|a proximite)\s+d?\s?'?(ici)\b/.test(n)
+    || /\bdans le coin\b/.test(n)
+    || /\bnear me\b|\baround me\b|\bnearby\b/.test(n);
+}
+
 /** « je veux louer une villa à côté du golf » → { term: "golf" } */
 export function detectPoolProximityIntent(rawText: string): ProximityIntent {
   const n = norm(rawText).replace(/\s+/g, " ");
