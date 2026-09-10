@@ -1980,6 +1980,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const send = (overrideText?: string, suggestionId?: string, followupId?: string, skipGeoPrompt = false) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !assistantReady) return;
+    // Sur l'accueil IA fermé, le texte tapé et le chip cliqué restent visibles
+    // jusqu'à l'ouverture effective du lecteur vidéo ou de la conversation.
+    if (homeState) {
+      setHomeSubmitText(text);
+      setHomeClickedSuggestionId(suggestionId ?? null);
+    }
+
     // Anti double-clic : `streaming` est un état React, il n'est pas encore à
     // `true` au 2e clic d'un double-clic sur une chip de suggestion — la même
     // requête partait donc 2 fois. Verrou synchrone sur (texte + suggestion +
