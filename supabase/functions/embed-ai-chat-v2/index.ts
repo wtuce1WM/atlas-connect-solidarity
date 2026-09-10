@@ -499,6 +499,15 @@ Deno.serve(async (req) => {
   // mais la recherche initiale est rejouée pour reconstruire un corpus complet.
   const searchQuery = typeof body.searchQuery === "string" ? body.searchQuery.trim().slice(0, 500) : "";
   const userMessage = searchQuery || visibleUserMessage;
+  /**
+   * Demande utilisateur du tour précédent. Sert à une seule chose : une relance qui
+   * ne fait QUE nommer une ville (« à Marrakech ») doit conserver la demande initiale
+   * (« hôtel avec piscine »), sinon la recherche repart sur la ville seule.
+   */
+  const previousUserMessage = (() => {
+    const users = uiMessages.filter((m: any) => m?.role === "user");
+    return users.length >= 2 ? (textOf(users[users.length - 2] as UIMessage) || "") : "";
+  })();
 
   /**
    * PRÉ-VOL FEED VIDÉO (`feedPreflight: true`) : aucune génération, aucun token.
