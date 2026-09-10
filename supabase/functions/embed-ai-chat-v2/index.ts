@@ -571,17 +571,18 @@ Deno.serve(async (req) => {
         badgeIds: feedBadgeIds,
         city: activeCity || null,
       }).catch(() => null);
-      const tiered = pool ? orderVideosByBadgeTiers(pool.videos, feedBadgeIds).slice(0, 60) : [];
+      // Intersection STRICTE, aucun fallback : intersection vide ⇒ feed null.
+      const strictVideos = pool ? strictBadgeIntersection(pool.videos, feedBadgeIds).slice(0, 60) : [];
       console.log("[embed-ai-chat-v2] feed_preflight", JSON.stringify({
-        badges: feedBadges.map((b) => b.name), emitted: tiered.length,
+        badges: feedBadges.map((b) => b.name), emitted: strictVideos.length,
       }));
       return new Response(
         JSON.stringify({
-          feed: tiered.length
+          feed: strictVideos.length
             ? {
                 title: feedBadges.map((b) => b.name).join(" · "),
-                videos: tiered,
-                total: pool?.total ?? tiered.length,
+                videos: strictVideos,
+                total: strictVideos.length,
                 badgeIds: feedBadgeIds,
                 seed: pool?.seed ?? null,
               }
@@ -2029,27 +2030,28 @@ Deno.serve(async (req) => {
                     droppedSynonym = true;
                   }
                 }
-                // Seuil abaissé à UN badge : « montre-moi des vidéos de surf » ⇒ feed
-                // mono-badge. Quand plusieurs badges sont nommés, les paliers
-                // d'intersection (`orderVideosByBadgeTiers`) placent d'abord les vidéos
-                // portant TOUS les badges : plus de badges = résultats plus précis.
+                // Seuil à UN badge : « montre-moi des vidéos de surf » ⇒ feed
+                // mono-badge. Quand plusieurs badges sont nommés, intersection
+                // STRICTE uniquement (`strictBadgeIntersection`) : une vidéo ne
+                // sort que si elle porte TOUS les badges. Intersection vide ⇒
+                // aucun feed (jamais de résultats relâchés/aléatoires).
                 if (feedBadges.length >= 1) {
                   const feedBadgeIds = feedBadges.map((b) => b.id);
                   const pool = await loadBadgeVideoFeedPool(admin, {
                     badgeIds: feedBadgeIds, city: badgeCity || null,
                   }).catch(() => null);
-                  const tiered = pool
-                    ? orderVideosByBadgeTiers(pool.videos, feedBadgeIds).slice(0, 60)
+                  const strictVideos = pool
+                    ? strictBadgeIntersection(pool.videos, feedBadgeIds).slice(0, 60)
                     : [];
-                  console.log("[embed-ai-chat-v2] badge_named_tiered_feed", JSON.stringify({
+                  console.log("[embed-ai-chat-v2] badge_named_strict_feed", JSON.stringify({
                     badges: feedBadges.map((b) => b.name),
-                    pool: pool?.videos.length ?? 0, emitted: tiered.length,
+                    pool: pool?.videos.length ?? 0, emitted: strictVideos.length,
                   }));
-                  if (tiered.length) {
+                  if (strictVideos.length) {
                     emit(videoFeedMarker({
                       title: feedBadges.map((b) => b.name).join(" · "),
-                      videos: tiered,
-                      total: pool?.total ?? tiered.length,
+                      videos: strictVideos,
+                      total: strictVideos.length,
                       badgeIds: feedBadgeIds,
                       seed: pool?.seed,
                     }));
