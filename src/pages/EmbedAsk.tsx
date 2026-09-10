@@ -1167,6 +1167,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   useEffect(() => {
     if (geoSendPending && (hasUserMessages || streaming)) setGeoSendPending(false);
   }, [geoSendPending, hasUserMessages, streaming]);
+  // Relance locale : le sélecteur d'adresse est ajouté en bas du fil — on
+  // défile jusqu'à lui, sinon la demande semble sans effet.
+  useEffect(() => {
+    if (!geoPromptText) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const t = window.setTimeout(() => { el.scrollTo({ top: el.scrollHeight, behavior: "smooth" }); }, 80);
+    return () => window.clearTimeout(t);
+  }, [geoPromptText]);
+
+
 
   /** Le host (clic sur « One World Morocco ») demande le repli des suggestions
       sans recharger la page. */
@@ -3043,7 +3054,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // avait été déplié dans la conversation précédente.
     setShowAllSuggestions(false);
     setFiltersOpen(false);
+    // Retour à l'accueil IA : aucun sélecteur d'adresse en attente ne doit
+    // survivre — sinon le widget de géolocalisation réapparaît à la réouverture.
+    pendingGeoTextRef.current = null;
+    geoJustConfirmedRef.current = false;
+    setGeoPromptText(null);
+    setGeoPromptWaiting(false);
+    setGeoSendPending(false);
     pendingSendRef.current = pending || null;
+
 
     setChatKey((k) => k + 1); // resets useChat id → clears message list
     setTimeout(() => inputRef.current?.focus(), 0);
@@ -3885,7 +3904,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             </div>
           );
         })()}
-        {!homeState && renderGeoInlinePicker()}
+        {/* Première question : le sélecteur d'adresse est le seul contenu.
+            En RELANCE (conversation déjà en cours), il doit apparaître EN BAS,
+            après les messages — rendu ici il restait au-dessus du fil déjà
+            scrollé et la demande semblait ignorée. */}
+        {!homeState && !hasUserMessages && renderGeoInlinePicker()}
         {!homeState && !feedOpening && messages.map((m, i) => {
           // Masquer le message d'accueil seedé dès qu'une question est en cours
           // (widget géolocalisation, envoi en attente, ou conversation démarrée).
@@ -4569,6 +4592,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             </div>
           );
         })}
+
+        {/* Relance « près de moi » : sélecteur d'adresse en bas du fil. */}
+        {!homeState && hasUserMessages && renderGeoInlinePicker()}
+
+
 
         {status === "submitted" && (
           <div className="flex justify-start">
