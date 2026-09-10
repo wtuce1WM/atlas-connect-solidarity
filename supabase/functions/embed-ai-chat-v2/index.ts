@@ -2853,7 +2853,25 @@ Deno.serve(async (req) => {
            * villas. Le classifieur ne sert plus qu'aux filtres structurels : ville,
            * exclusions, services requis, quartier, vues.
            */
-          const baseQuery = userMessage.slice(0, 200);
+          /**
+           * RELANCE « ville seule » : « à Marrakech » après « hôtel avec piscine » n'est
+           * pas une nouvelle demande — c'est un changement de périmètre géographique.
+           * Sans la demande du tour précédent, la requête envoyée à `business-search`
+           * devenait « à Marrakech » et ramenait n'importe quoi dans la ville.
+           */
+          const cityOnlyRelance =
+            !!(explicitCity || resolvedCityRaw) &&
+            !!previousUserMessage &&
+            !strongTerms.length && !specializingTerms.length && !expansionTerms.length &&
+            normalize(userMessage).split(/\s+/).filter(Boolean).length <= 5;
+          const baseQuery = (cityOnlyRelance
+            ? `${previousUserMessage} ${visibleUserMessage}`
+            : userMessage).slice(0, 200);
+          if (cityOnlyRelance) {
+            console.log("[embed-ai-chat-v2] city_only_relance", JSON.stringify({
+              prior: previousUserMessage.slice(0, 120), city: searchCity, baseQuery: baseQuery.slice(0, 160),
+            }));
+          }
           console.log("[embed-ai-chat-v2] raw_query_parity", JSON.stringify({
             message: baseQuery.slice(0, 120), coreTerms, hintParts, weakResolution, purchaseIntent,
           }));
