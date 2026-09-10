@@ -59,7 +59,8 @@ export async function buildHoursForBusinesses(admin: any, ids: string[], lang: "
 
   // Preserve the order of the incoming ids.
   const byId = new Map<string, any>(data.map((b: any) => [b.id, b]));
-  const ordered = ids.map((id) => byId.get(id)).filter(Boolean);
+  // Rendu unifié : 4 adresses par lot maximum, cartes (miniatures) incluses.
+  const ordered = ids.map((id) => byId.get(id)).filter(Boolean).slice(0, 4);
 
   const withHours = ordered.filter((b: any) => b.show_opening_hours === true && (b.is_open_24h || (b.opening_hours && typeof b.opening_hours === "object")));
   const withoutHours = ordered.filter((b: any) => !(b.show_opening_hours === true));
@@ -132,7 +133,10 @@ export async function buildHoursForBusinesses(admin: any, ids: string[], lang: "
     : lang === "ar"
       ? `\n\nهل تريد التصفية حسب "مفتوح الآن" أو اقتراح واحد لوقت معين؟`
       : `\n\nJe filtre sur « ouvert maintenant » ou je t'en propose un pour un créneau précis ?`;
-  return out + outro;
+  const full = await fetchPriorFull(admin, ordered.map((b: any) => String(b.id))).catch(() => []);
+  const orderedFull = orderByIds(full as any[], ordered.map((b: any) => String(b.id)));
+  const cards = orderedFull.length ? toMapMarker(orderedFull) : "";
+  return out + outro + cards;
 }
 
 export function isOpensFirstIntent(text: string): boolean {
