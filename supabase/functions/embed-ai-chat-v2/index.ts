@@ -1052,9 +1052,20 @@ Deno.serve(async (req) => {
               target: prox?.targetName ?? null, withGps: prox?.withGps ?? 0,
             }));
             if (prox) {
+              const proxRest = Math.max(0, prox.orderedIds.length - 4);
               const built = await buildPinnedAnswer(admin, prox.orderedIds, host, lang, null, {
                 route: "pool_proximity_refine",
                 heading: prox.heading,
+                // Rendu unifié : 4 cartes par lot, jamais une liste complète.
+                maxCards: 4,
+                total: prox.orderedIds.length,
+                outro: proxRest > 0
+                  ? (lang === "en"
+                      ? `📍 4 of ${prox.orderedIds.length} shown — want the next ${Math.min(4, proxRest)}?`
+                      : lang === "ar"
+                        ? `📍 4 من ${prox.orderedIds.length} — أعرض التالية؟`
+                        : `📍 4 adresses affichées sur ${prox.orderedIds.length} — je te montre les suivantes ?`)
+                  : undefined,
                 competitorGuard,
                 poolIds: prox.orderedIds,
                 immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks },
