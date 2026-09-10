@@ -186,6 +186,12 @@ export async function buildPoolProximityAnswer(
   poolIds: string[],
   term: string,
   lang: "fr" | "en" | "ar",
+  /**
+   * Point de l'utilisateur (widget de géolocalisation ou repli Koutoubia). Quand
+   * il est fourni, c'est LUI le repère : aucune résolution de lieu nommé, et le
+   * moteur ne demande plus le quartier alors que la position est déjà connue.
+   */
+  selfAnchor?: { lat: number; lng: number; label?: string } | null,
 ): Promise<PoolProximityResult | null> {
   const rows: any[] = [];
   for (let i = 0; i < poolIds.length; i += 80) {
