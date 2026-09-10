@@ -560,6 +560,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
     if (!open) return null;
     return (
       <div
+        ref={ref}
         className={cn(
           "relative w-full overflow-hidden flex flex-col bg-transparent",
           theme === "light" ? "text-neutral-900" : theme === "dark" ? "text-neutral-100" : "text-foreground",
