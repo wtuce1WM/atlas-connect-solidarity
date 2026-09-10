@@ -870,7 +870,7 @@ Deno.serve(async (req) => {
           const already = new Set(seenIds);
           const remaining = poolIds.filter((id) => !already.has(id));
           if (remaining.length) {
-            const batch = remaining.slice(0, 10);
+            const batch = remaining.slice(0, 4);
             const shownBefore = poolIds.length - remaining.length;
             const restAfter = remaining.length - batch.length;
             const heading = lang === "en"
@@ -2015,7 +2015,7 @@ Deno.serve(async (req) => {
                 {
                   route: "badge_named",
                   competitorGuard,
-                  maxCards: 30,
+                  maxCards: 4,
                   poolIds: badgeBizIds,
                   immersive: { admin, query: userMessage, apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks },
                   // Cartes + en-tête tout de suite : le texte immersif suit dans le flux.
