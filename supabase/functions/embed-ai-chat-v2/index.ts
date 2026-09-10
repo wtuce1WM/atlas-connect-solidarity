@@ -39,7 +39,7 @@ import {
   buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer, applyLabelPlaceholders,
 
 } from "../_shared/ai-engine/routes/curated.ts";
-import { buildVideoFeedAnswer, videoFeedMarker, loadBadgeVideoFeedPool, orderVideosByBadgeTiers } from "../_shared/ai-engine/routes/videoFeed.ts";
+import { buildVideoFeedAnswer, videoFeedMarker, loadBadgeVideoFeedPool, strictBadgeIntersection } from "../_shared/ai-engine/routes/videoFeed.ts";
 import { matchFrontBadgeInMessage, matchFrontBadgesInMessage, resolveBadgeBusinessIds, badgeLabelKey, badgeLabelKeys } from "../_shared/ai-engine/routes/badgeVideoBusinesses.ts";
 
 import { buildDestinationsBlock } from "../_shared/ai-engine/routes/destinations.ts";
@@ -184,13 +184,12 @@ function lastResultsIndex(messages: UIMessage[]): number {
 }
 
 
-// ── Palier « type de lieu » sur un feed vidéo curaté ────────────────────────
+// ── Filtre « type de lieu » sur un feed vidéo curaté ────────────────────────
 // Une suggestion curatée en mode `video_feed` (ex. « Les adresses avec vue sur
 // mer ») porte un badge thématique qui ignore le type de lieu ajouté par
 // l'utilisateur (« villa avec vue sur mer » ramenait des hôtels/restaurants).
-// On ne SUPPRIME plus les résultats hors type : on les classe en second palier,
-// derrière l'intersection stricte (même logique de dégradation progressive que
-// `orderByBadgeIntersectionTiers` côté client). Aucun résultat n'est amputé.
+// Règle produit : AUCUN fallback — seules les vidéos du type de lieu demandé
+// sont conservées ; si l'intersection est vide, pas de feed du tout.
 const FEED_PLACE_TYPE_GUARDS: Array<{ badgeName: string; re: RegExp }> = [
   {
     badgeName: "Villas",
@@ -250,15 +249,16 @@ async function applyFeedPlaceTypeGuard(
 
   const videos = (feed?.payload?.videos || []) as any[];
   const strict = videos.filter((v) => v?.business_id && allowed.has(String(v.business_id)));
-  const rest = videos.filter((v) => !(v?.business_id && allowed.has(String(v.business_id))));
-  console.log("[embed-ai-chat-v2] feed_place_type_tier", JSON.stringify({
-    badge: hitName, total: videos.length, strict: strict.length, relaxed: rest.length,
+  console.log("[embed-ai-chat-v2] feed_place_type_filter", JSON.stringify({
+    badge: hitName, total: videos.length, kept: strict.length,
   }));
-  if (!strict.length) return feed;
-  const ordered = [...strict, ...rest];
+  // Aucun fallback : intersection vide ⇒ pas de feed (plutôt que des vidéos
+  // hors type de lieu demandé).
+  if (!strict.length) return null;
   return {
     ...feed,
-    payload: { ...feed.payload, videos: ordered },
+    payload: { ...feed.payload, videos: strict, total: strict.length },
+    count: strict.length,
   };
 }
 
