@@ -3054,7 +3054,7 @@ INTERDIT ABSOLU : aucun tableau, aucune ligne contenant des barres verticales «
           const answerListsResults = cited >= 2 && cited >= Math.ceil(results.length / 2);
           const city = cityDetected || scopeCity || "";
           const disclosure = answerListsResults && totalFound > results.length
-            ? `\n\n${buildDisclosureFromCounts(results.length, totalFound, city)}`
+            ? `\n\n${buildDisclosureFromCounts(results.length, totalFound, city, POOL_CAP)}`
             : "";
           if (disclosure && !/sur\s+\d+\s+(trouv|qui correspond)/i.test(finalText)) emit(disclosure);
           emit(`\n\n${toMapMarker(results, null)}`);
