@@ -269,7 +269,11 @@ export async function buildHoursRanking(
       : `\n\n_(${skipped} résultat${skipped > 1 ? "s" : ""} exclu${skipped > 1 ? "s" : ""} : horaires non publiés ou fermé aujourd'hui.)_`)
     : "";
 
-  return `${intro}\n\n${lines.join("\n")}${outro}`;
+  // Cartes (miniatures) du lot affiché : même règle de rendu que partout ailleurs.
+  const full = await fetchPriorFull(admin, top.map((r) => String(r.id))).catch(() => []);
+  const orderedFull = orderByIds(full as any[], top.map((r) => String(r.id)));
+  const cards = orderedFull.length ? toMapMarker(orderedFull) : "";
+  return `${intro}\n\n${lines.join("\n")}${outro}${cards}`;
 }
 
 export type OpenFilterIntent = { kind: "now" | "slot"; startH?: number; endH?: number; label: string; dayOffset?: number };
