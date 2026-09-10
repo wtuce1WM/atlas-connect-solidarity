@@ -326,47 +326,30 @@ export function videoFeedMarker(payload: VideoFeedAnswer["payload"]): string {
 }
 
 /**
- * Paliers d'intersection de badges (dégradation progressive) — miroir exact de
- * `orderByBadgeIntersectionTiers` côté client (`src/lib/badgeVideoFeed.ts`).
+ * Intersection STRICTE de badges — miroir exact de
+ * `filterStrictBadgeIntersection` côté client (`src/lib/badgeVideoFeed.ts`).
  *
- * Le pool fourni est un pool OR (`get_badges_video_feed` = au moins un badge).
- * On le réordonne : intersection de TOUS les badges d'abord, puis on relâche le
- * badge le moins spécifique (le plus fréquent dans le pool), etc. Aucun résultat
- * n'est supprimé — seul l'ordre change.
+ * Règle produit : AUCUN fallback. Une vidéo ne sort que si elle porte TOUS
+ * les badges demandés. Si l'intersection est vide, le feed est vide (l'appelant
+ * n'ouvre pas le lecteur et invite à refaire une recherche) — jamais de
+ * résultats « proches » ou aléatoires.
  */
-export function orderVideosByBadgeTiers(
+export function strictBadgeIntersection(
   videos: VideoFeedItem[],
   badgeIds: string[],
-  tierCap = 60,
 ): VideoFeedItem[] {
   const ids = (badgeIds || []).map(String).filter(Boolean);
-  if (ids.length < 2 || !videos.length) return videos;
-
-  const setOf = (v: VideoFeedItem) => new Set((v.badges || []).map((b) => String(b.id)));
-  const freq = new Map<string, number>(ids.map((id) => [id, 0]));
-  for (const v of videos) {
-    const s = setOf(v);
-    for (const id of ids) if (s.has(id)) freq.set(id, (freq.get(id) ?? 0) + 1);
-  }
-  const bySpecificity = [...ids].sort((a, b) => (freq.get(a) ?? 0) - (freq.get(b) ?? 0));
-
-  const ordered: VideoFeedItem[] = [];
-  const used = new Set<string>();
-  for (let depth = bySpecificity.length; depth >= 1; depth--) {
-    const required = bySpecificity.slice(0, depth);
-    const tier = videos.filter((v) => !used.has(v.id) && required.every((id) => setOf(v).has(id)));
-    const capped = depth === bySpecificity.length ? tier : tier.slice(0, tierCap);
-    for (const v of capped) { used.add(v.id); ordered.push(v); }
-  }
-  for (const v of videos) if (!used.has(v.id)) ordered.push(v);
-  return ordered;
+  if (ids.length < 2) return videos;
+  return videos.filter((v) =>
+    ids.every((id) => (v.badges || []).some((b) => String(b.id) === id)),
+  );
 }
 
 /**
- * Pool OR paginé (pages de 300, plafond 900) : nécessaire aux paliers
- * d'intersection — le palier strict peut se trouver au-delà de la 1re page du
- * mélange par seed (ex. Location ∩ Villas ∩ Vue sur mer = 26 vidéos dans un
- * pool OR de ~800).
+ * Pool OR paginé (pages de 300, plafond 900) : nécessaire à l'intersection
+ * stricte — les vidéos portant TOUS les badges peuvent se trouver au-delà de
+ * la 1re page du mélange par seed (ex. Location ∩ Villas ∩ Vue sur mer = 23
+ * vidéos dans un pool OR de ~800).
  */
 export async function loadBadgeVideoFeedPool(
   admin: any,
