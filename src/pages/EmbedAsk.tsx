@@ -3802,9 +3802,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         <button
                           type="button"
                           onClick={voice.toggleRecording}
+                          disabled={homeSubmitText !== null || voice.status === "processing"}
                           aria-label={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
                           title={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
-                          className={`w-12 h-12 rounded-full text-white flex items-center justify-center shrink-0 shadow-lg transition-colors ${
+                          className={`w-12 h-12 rounded-full text-white flex items-center justify-center shrink-0 shadow-lg transition-colors disabled:opacity-40 ${
                             voice.status === "recording" ? "bg-red-500 animate-pulse" : "bg-[#194CFF] hover:bg-[#194CFF]/90"
                           }`}
                         >
@@ -3818,11 +3819,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         </button>
                         <button
                           type="submit"
-                          disabled={streaming || !input.trim() || !assistantReady}
+                          disabled={streaming || !input.trim() || !assistantReady || homeSubmitText !== null}
                           aria-label="Send"
                           className="w-12 h-12 rounded-full bg-[#C04F17] text-white flex items-center justify-center disabled:opacity-40 shrink-0 shadow-lg"
                         >
-                          <Send className="w-5 h-5" />
+                          {homeSubmitText !== null ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <Send className="w-5 h-5" />
+                          )}
                         </button>
                       </div>
                     </div>
