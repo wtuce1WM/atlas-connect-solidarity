@@ -205,7 +205,12 @@ export async function buildPoolProximityAnswer(
   if (!rows.length) return null;
 
   const cityNames = [...new Set(rows.map((b: any) => b.city).filter(Boolean).map(String))];
-  const targets = await resolveProximityTargets(admin, term, cityNames);
+  const selfLabel = selfAnchor
+    ? (selfAnchor.label || (lang === "en" ? "your location" : lang === "ar" ? "موقعك" : "votre position"))
+    : null;
+  const targets = selfAnchor
+    ? [{ name: selfLabel as string, lat: selfAnchor.lat, lng: selfAnchor.lng, source: "poi" as const }]
+    : await resolveProximityTargets(admin, term, cityNames);
   if (!targets.length) return null;
 
   const withDist = rows
