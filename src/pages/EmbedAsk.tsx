@@ -2520,6 +2520,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const earlyFeedOpenRef = useRef(false);
   /** Garde anti-boucle du repli « feed pur » vers le parcours standard. */
   const pureFeedFallbackRef = useRef(false);
+  /** Dernier envoi (texte + suggestion + relance) : verrou anti double-clic. */
+  const lastSendRef = useRef<{ key: string; at: number } | null>(null);
 
   /**
    * Ouverture immédiate du feed vidéo d'une suggestion badgée, sans attendre le
