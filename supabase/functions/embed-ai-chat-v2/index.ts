@@ -1718,7 +1718,9 @@ Deno.serve(async (req) => {
         if (priorIds.length && (isOpensFirstIntent(userMessage) || isClosesLastIntent(userMessage))) {
           route = "opening";
           const rankMode = isOpensFirstIntent(userMessage) ? "opens_first" : "closes_last";
-          const answer = await buildHoursRanking(admin, priorIds, rankMode, lang).catch(() => null);
+          const answer = await buildHoursRanking(admin, priorIds, rankMode, lang, {
+            admin, query: previousUserMessage || userMessage, apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks,
+          }).catch(() => null);
           if (answer) {
             resultsCount = priorIds.length;
             emit(answer);
@@ -1854,7 +1856,9 @@ Deno.serve(async (req) => {
             // « le mieux noté » et « les mieux notés » sont une seule intention :
             // même route et même corpus complet du tour précédent.
             const rankingIds = poolIds.length ? poolIds : priorIds;
-            const answer = await buildRatingRanking(admin, rankingIds, ratingMode, lang);
+            const answer = await buildRatingRanking(admin, rankingIds, ratingMode, lang, {
+              admin, query: previousUserMessage || userMessage, apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks,
+            });
             if (answer) {
               resultsCount = ratingMode === "best_rated" ? Math.min(3, rankingIds.length) : Math.min(5, rankingIds.length);
               emit(answer);
