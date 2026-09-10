@@ -1344,6 +1344,18 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // BookOnlineSlidePanel (fiche business, carte des résultats, POI générique).
   const anyPanelOpen = !!activeFeedVideoId || !!openBusinessId || !!openMap || openGenericPoi;
 
+  // Dès que l'accueil IA se transforme en conversation, lecteur vidéo ou overlay,
+  // on efface le texte d'attente et l'état visuel du chip cliqué.
+  useEffect(() => {
+    if (homeSubmitText === null && homeClickedSuggestionId === null) return;
+    if (!homeState || anyPanelOpen) {
+      setInput("");
+      setHomeSubmitText(null);
+      setHomeClickedSuggestionId(null);
+    }
+  }, [homeState, anyPanelOpen, homeSubmitText, homeClickedSuggestionId]);
+
+
 
   const [openSiblings, setOpenSiblings] = useState<string[]>([]);
   // Overlay de réservation déclenché par les liens "Réservez" du markdown IA.
