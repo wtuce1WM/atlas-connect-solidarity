@@ -2545,7 +2545,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * le MÊME pool et les MÊMES paliers que le tour normal, sans appel modèle.
    * Le marqueur VIDEO_FEED du stream reste le filet (aucune réouverture).
    */
-  const openPreflightBadgeFeed = useCallback(async (text: string): Promise<boolean> => {
+  const openPreflightBadgeFeed = useCallback(async (
+    text: string,
+    preflightSuggestionId?: string | null,
+  ): Promise<boolean> => {
     if (!text?.trim()) return false;
     try {
       const res = await fetch(
