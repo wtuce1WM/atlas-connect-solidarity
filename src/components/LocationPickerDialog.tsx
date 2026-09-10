@@ -599,6 +599,8 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   );
-};
+});
+
+LocationPickerDialog.displayName = "LocationPickerDialog";
 
 export default LocationPickerDialog;
