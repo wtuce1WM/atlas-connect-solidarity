@@ -3885,7 +3885,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             </div>
           );
         })()}
-        {!homeState && renderGeoInlinePicker()}
+        {/* Première question : le sélecteur d'adresse est le seul contenu.
+            En RELANCE (conversation déjà en cours), il doit apparaître EN BAS,
+            après les messages — rendu ici il restait au-dessus du fil déjà
+            scrollé et la demande semblait ignorée. */}
+        {!homeState && !hasUserMessages && renderGeoInlinePicker()}
         {!homeState && !feedOpening && messages.map((m, i) => {
           // Masquer le message d'accueil seedé dès qu'une question est en cours
           // (widget géolocalisation, envoi en attente, ou conversation démarrée).
