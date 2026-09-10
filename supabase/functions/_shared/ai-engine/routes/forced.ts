@@ -146,6 +146,10 @@ export interface ForcedRouteContext {
   scopeCity: string;
   radiusKm: number;
   hostCategoryNames?: Set<string>;
+  /** Clé passerelle IA : active le descriptif immersif sur les cartes des classements. */
+  apiKey?: string | null;
+  /** Réécriture immersive non bloquante (marqueur HOOKS_UPGRADE). */
+  deferUpgrade?: (upgrade: Promise<Map<string, string>>) => void;
 }
 
 /**
@@ -157,6 +161,11 @@ export interface ForcedRouteContext {
 export async function runForcedRoute(ctx: ForcedRouteContext): Promise<ForcedRouteResult | null> {
   const { admin, key, lang, host, priorIds, userMessage, scopeCity, radiusKm } = ctx;
   const ids = priorIds.filter(Boolean);
+  // Descriptif immersif des cartes de classement (horaires / notes) : même
+  // mécanisme que les autres routes, réécriture non bloquante et mise en cache.
+  const immersiveCtx = ctx.apiKey
+    ? { admin, query: userMessage, apiKey: ctx.apiKey, deferUpgrade: ctx.deferUpgrade }
+    : null;
 
   switch (key) {
     case "search_businesses":
@@ -180,7 +189,7 @@ export async function runForcedRoute(ctx: ForcedRouteContext): Promise<ForcedRou
     case "hours_ranking_closes_last": {
       if (!ids.length) return null;
       const mode = key === "hours_ranking_opens_first" ? "opens_first" : "closes_last";
-      const text = await buildHoursRanking(admin, ids, mode, lang);
+      const text = await buildHoursRanking(admin, ids, mode, lang, immersiveCtx);
       return text ? { text, route: "opening", resultsCount: ids.length } : null;
     }
 
@@ -210,7 +219,7 @@ export async function runForcedRoute(ctx: ForcedRouteContext): Promise<ForcedRou
     case "rating_most_reviewed": {
       if (!ids.length) return null;
       const mode = key === "rating_best" ? "best_rated" : "most_reviewed";
-      const text = await buildRatingRanking(admin, ids, mode, lang);
+      const text = await buildRatingRanking(admin, ids, mode, lang, immersiveCtx);
       return text ? { text, route: "discover", resultsCount: ids.length } : null;
     }
 

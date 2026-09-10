@@ -864,6 +864,7 @@ Deno.serve(async (req) => {
             const forced = await runForcedRoute({
               admin, key: clientForcedRoute, lang, host, priorIds: poolIds, userMessage,
               scopeCity, radiusKm: requestedRadiusKm ?? hostRadius,
+              apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks,
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] client_forced_route_failed", clientForcedRoute, String(e));
               return null;
@@ -939,8 +940,15 @@ Deno.serve(async (req) => {
                 : `📍 ${seen} adresses affichées sur ${poolIds.length}${restAfter > 0 ? ` — je te montre les ${restAfter} dernières ?` : "."}`;
             const built = await buildPinnedAnswer(admin, batch, host, lang, null, {
               route: "pool_more", heading, outro, total: poolIds.length, poolIds, competitorGuard,
-              // Lot suivant : même corpus éditorial étendu, sans nouvel appel modèle.
-              immersive: { admin, query: userMessage, rewrite: false },
+              // Lot suivant : immersion complète, orientée sur la demande d'origine
+              // (« montre les autres » n'est pas une requête exploitable), réécriture
+              // non bloquante et mise en cache par requête.
+              immersive: {
+                admin,
+                query: previousUserMessage || userMessage,
+                apiKey: LOVABLE_API_KEY,
+                deferUpgrade: deferHooks,
+              },
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] pool_more_failed", String(e));
               return null;
