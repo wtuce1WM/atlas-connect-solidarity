@@ -2202,7 +2202,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // Le lecteur vidéo passe TOUJOURS avant la réponse IA : pré-vol serveur sans
     // modèle (mêmes badges, même pool, mêmes paliers que le tour normal). S'il
     // renvoie un feed, VideoSlidePanel s'ouvre d'abord, puis la question part.
-    void openPreflightBadgeFeed(text).finally(fire);
+    // Suggestion curatée : ses `badge_ids` font autorité (source de vérité
+    // unique) — le matching texte ne doit pas ouvrir un feed d'un autre badge.
+    void openPreflightBadgeFeed(text, effectiveSuggestionId).finally(fire);
   };
 
   /**
@@ -2543,7 +2545,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * le MÊME pool et les MÊMES paliers que le tour normal, sans appel modèle.
    * Le marqueur VIDEO_FEED du stream reste le filet (aucune réouverture).
    */
-  const openPreflightBadgeFeed = useCallback(async (text: string): Promise<boolean> => {
+  const openPreflightBadgeFeed = useCallback(async (
+    text: string,
+    preflightSuggestionId?: string | null,
+  ): Promise<boolean> => {
     if (!text?.trim()) return false;
     try {
       const res = await fetch(
@@ -2557,6 +2562,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           },
           body: JSON.stringify({
             feedPreflight: true,
+            suggestionId: preflightSuggestionId || null,
             messages: [{ id: `pf-${Date.now()}`, role: "user", parts: [{ type: "text", text }] }],
             businessSlug: slug,
             platform: isPlatform || undefined,

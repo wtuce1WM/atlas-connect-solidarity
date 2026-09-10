@@ -530,7 +530,37 @@ Deno.serve(async (req) => {
    */
   if (body.feedPreflight === true) {
     try {
-      const feedBadges = await matchFrontBadgesInMessage(admin, userMessage, lang as any, 3);
+      /*
+       * Source de vérité unique : quand la question vient d'une suggestion
+       * curatée `video_feed`, ses `badge_ids` du back-office font autorité.
+       * Sinon (texte libre / vocal) on retombe sur le matching texte. Sans
+       * cela, « Rooftops » (badge « Rooftop Restaurant & Bars ») ouvrait le
+       * feed du badge « Rooftop », matché sur le mot du libellé.
+       */
+      let feedBadges: Array<{ id: string; name: string }> = [];
+      if (suggestionId) {
+        const { data: sgFeed } = await admin
+          .from("ai_suggestions")
+          .select("mode, badge_ids")
+          .eq("id", suggestionId)
+          .maybeSingle();
+        const curatedIds = (((sgFeed as any)?.badge_ids || []) as any[]).map(String).filter(Boolean);
+        if ((sgFeed as any)?.mode === "video_feed" && curatedIds.length) {
+          const { data: bRows } = await admin
+            .from("badges")
+            .select("id, name_fr, name_en, name_ar")
+            .in("id", curatedIds);
+          feedBadges = ((bRows || []) as any[]).map((b) => ({
+            id: String(b.id),
+            name: String(
+              (lang === "en" && b.name_en) || (lang === "ar" && b.name_ar) || b.name_fr || b.name_en || b.name_ar || "",
+            ),
+          }));
+        }
+      }
+      if (!feedBadges.length) {
+        feedBadges = await matchFrontBadgesInMessage(admin, userMessage, lang as any, 3);
+      }
       if (!feedBadges.length) {
         return new Response(JSON.stringify({ feed: null }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
