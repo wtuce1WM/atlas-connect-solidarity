@@ -79,7 +79,7 @@ function loadGoogleMaps(): Promise<void> {
   return gmapsPromise;
 }
 
-const LocationPickerDialog = ({
+const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProps>(({
   open,
   onOpenChange,
   coords,
@@ -94,7 +94,7 @@ const LocationPickerDialog = ({
   theme,
   inline = false,
   className,
-}: LocationPickerDialogProps) => {
+}, ref) => {
   const { language } = useLanguage();
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
