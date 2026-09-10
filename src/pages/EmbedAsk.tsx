@@ -4574,6 +4574,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           );
         })}
 
+        {/* Relance « près de moi » : sélecteur d'adresse en bas du fil. */}
+        {!homeState && hasUserMessages && renderGeoInlinePicker()}
+
+
+
         {status === "submitted" && (
           <div className="flex justify-start">
             <div className={`rounded-2xl px-3.5 py-2.5 text-sm ${asstBubble}`} style={cardStyle}>
