@@ -1076,10 +1076,13 @@ Deno.serve(async (req) => {
               if (built) {
                 route = built.route;
                 resultsCount = built.shown;
-                emit(built.text);
-                if (built.mapPayload?.businesses?.length) {
-                  emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
-                }
+                // Garder le texte et son payload de cartes dans la même frame :
+                // certains clients finalisaient la réponse après le texte et perdaient
+                // le delta suivant, d'où les 4 lignes sans leurs 4 vignettes.
+                const cardsMarker = built.mapPayload?.businesses?.length
+                  ? `\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`
+                  : "";
+                emit(`${built.text}${cardsMarker}`);
                 emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
                 emit("\n\n" + await poolMarker(admin, prox.orderedIds, scopeCity));
                 await emitDestChips(prox.orderedIds);
