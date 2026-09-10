@@ -927,6 +927,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Ligne des badges/suggestions de l'accueil IA : sa position est signalée au
   // parent (/front) pour placer le CTA « Découvrez l'App » à équidistance.
   const badgesRowRef = useRef<HTMLDivElement>(null);
+  /** Une relance utilisateur doit devenir le point de départ visible du nouveau tour. */
+  const anchorNextUserMessageRef = useRef(false);
   const L = LANG_LABELS[lang];
 
   // Mode plateforme : l'assistant est prêt sans business hôte ; le titre est
@@ -1806,6 +1808,27 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
+  // Dès que la relance apparaît, la placer en haut à droite de la zone visible.
+  // Le suivi automatique du bas reste coupé pendant la réponse afin de laisser
+  // son contenu se déployer sous la question, sans faire disparaître celle-ci.
+  useEffect(() => {
+    if (!anchorNextUserMessageRef.current) return;
+    const scroller = scrollRef.current;
+    if (!scroller) return;
+    const frame = requestAnimationFrame(() => {
+      const userMessages = scroller.querySelectorAll<HTMLElement>('[data-chat-role="user"]');
+      const latest = userMessages.item(userMessages.length - 1);
+      if (!latest) return;
+      anchorNextUserMessageRef.current = false;
+      stickDisabledRef.current = true;
+      const topInset = heroLayout
+        ? (window.matchMedia("(min-width: 768px)").matches ? 80 : 64)
+        : 8;
+      scroller.scrollTo({ top: Math.max(0, latest.offsetTop - topInset), behavior: "smooth" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [messages, heroLayout]);
+
   // Boutons flottants haut/bas (desktop) : état du dépassement vertical du flux.
   const [convScroll, setConvScroll] = useState({ scrollable: false, canUp: false, canDown: false });
   useEffect(() => {
@@ -1963,6 +1986,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       window.parent?.postMessage({ type: "owm-ask:asked" }, "*");
     } catch { /* cross-origin */ }
     if (!overrideText) setInput("");
+    // La première question ouvre la conversation normalement. À partir de la
+    // deuxième question, chaque relance est ancrée en haut du viewport.
+    anchorNextUserMessageRef.current = hasUserMessages;
 
     // Suggestion back-office en mode `booking` : aucun appel modèle. On injecte
     // localement le widget de disponibilité (dates + voyageurs) de la fiche,
@@ -1988,6 +2014,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       (feedSuggestion.badge_ids?.length ?? 0) > 0 &&
       !pureFeedFallbackRef.current
     ) {
+      anchorNextUserMessageRef.current = false;
       setError(null);
       setActiveSuggestionId(feedSuggestion.id);
       setFeedOpening(true);
@@ -3838,7 +3865,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           }
           if (m.role === "user") {
             return (
-              <div key={m.id || i} className="flex justify-end">
+              <div key={m.id || i} data-chat-role="user" className="flex justify-end">
                 <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${userBubble}`}>
                   <div className="whitespace-pre-wrap">{messageText(m)}</div>
                 </div>
