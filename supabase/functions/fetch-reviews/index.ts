@@ -647,7 +647,7 @@ async function fetchTripAdvisorReviews(
       detailUrl.searchParams.set('key', apiKey);
       detailUrl.searchParams.set('language', 'fr');
 
-      const detailRes = await fetch(detailUrl.toString(), { headers: { 'Accept': 'application/json' } });
+      const detailRes = await fetch(detailUrl.toString(), { headers: { 'Accept': 'application/json', 'Referer': 'https://oneworldmorocco.com/' } });
       if (!detailRes.ok) {
         const errText = await detailRes.text();
         console.error(`TripAdvisor details error ${detailRes.status}: ${errText}`);
@@ -679,7 +679,7 @@ async function fetchTripAdvisorReviews(
     }
 
     console.log(`TripAdvisor search: "${searchQuery}"`);
-    const searchRes = await fetch(searchUrl.toString(), { headers: { 'Accept': 'application/json' } });
+    const searchRes = await fetch(searchUrl.toString(), { headers: { 'Accept': 'application/json', 'Referer': 'https://oneworldmorocco.com/' } });
     if (!searchRes.ok) {
       const errText = await searchRes.text();
       console.error(`TripAdvisor search error ${searchRes.status}: ${errText}`);
@@ -705,7 +705,7 @@ async function fetchTripAdvisorReviews(
     detailUrl.searchParams.set('key', apiKey);
     detailUrl.searchParams.set('language', 'fr');
 
-    const detailRes = await fetch(detailUrl.toString(), { headers: { 'Accept': 'application/json' } });
+    const detailRes = await fetch(detailUrl.toString(), { headers: { 'Accept': 'application/json', 'Referer': 'https://oneworldmorocco.com/' } });
     if (!detailRes.ok) {
       const errText = await detailRes.text();
       console.error(`TripAdvisor details error ${detailRes.status}: ${errText}`);
