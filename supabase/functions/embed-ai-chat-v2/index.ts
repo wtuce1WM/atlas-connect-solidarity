@@ -2788,7 +2788,7 @@ Deno.serve(async (req) => {
             route = "discover";
             cityDetected = destScope.name;
             totalFound = kept.length;
-            searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, POOL_CAP);
+            searchPoolIds = poolWithUnratedNext(kept, CFG.maxResults).map((b: any) => String(b.id)).slice(0, POOL_CAP);
             results = withUnratedTail(kept, CFG.maxResults);
             resultsCount = results.length;
             /**
