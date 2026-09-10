@@ -1167,6 +1167,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   useEffect(() => {
     if (geoSendPending && (hasUserMessages || streaming)) setGeoSendPending(false);
   }, [geoSendPending, hasUserMessages, streaming]);
+  // Relance locale : le sélecteur d'adresse est ajouté en bas du fil — on
+  // défile jusqu'à lui, sinon la demande semble sans effet.
+  useEffect(() => {
+    if (!geoPromptText) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const t = window.setTimeout(() => { el.scrollTo({ top: el.scrollHeight, behavior: "smooth" }); }, 80);
+    return () => window.clearTimeout(t);
+  }, [geoPromptText]);
+
+
 
   /** Le host (clic sur « One World Morocco ») demande le repli des suggestions
       sans recharger la page. */
