@@ -2377,9 +2377,9 @@ const BookOnlineSlidePanelInner = ({
       } else if (dy > 0 && effectiveHasPrev) {
         effectiveOnPrev?.();
       }
-      // Scroll vertical entre résultats : les éléments posés au-dessus du
-      // viewer (rail de CTAs, CTAs du header, chevrons, barre info) restent
-      // affichés — le geste ne doit JAMAIS déclencher `hideCards`.
+      // Scroll vertical entre résultats : en mode disponibilité on conserve
+      // l'affichage minimal (fallback fixe) pour ne pas faire réapparaître le
+      // rail de CTAs de gauche ni les chevrons de droite au milieu du geste.
       suppressTapRef.current = true;
       if (!availabilityNavigatingRef.current) resetDrag();
       return;
