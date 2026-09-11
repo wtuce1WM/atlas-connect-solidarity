@@ -3240,7 +3240,7 @@ const BookOnlineSlidePanelInner = ({
           hideDirections={true}
           hideSecondaryCtas={hideSecondaryCtas}
           aiOverlayActive={!feedLayout && (aiOverlayActive || aiAssistantOpen)}
-          infoSlot={!chromeHidden && business && (!business.hide_description || internalWheelNav) ? (
+          infoSlot={!chromeHidden && !autoAvailabilityPending && business && (!business.hide_description || internalWheelNav) ? (
             <MediaViewerInfo
               name={business.name}
               city={business.city}
