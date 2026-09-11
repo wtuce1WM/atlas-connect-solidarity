@@ -23,6 +23,34 @@ export interface CityHotelSearchResult extends FallbackPanelData {
   otherBusinessIds: string[];
 }
 
+/** Hash simple d'une chaîne en entier 32 bits (graine de mélange). */
+function hashSeed(s: string): number {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/** Fisher-Yates déterministe piloté par un PRNG mulberry32. */
+function seededShuffle<T>(arr: T[], seed: number): T[] {
+  let a = seed >>> 0;
+  const rand = () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const out = [...arr];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 const BIZ_FIELDS =
   "id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, latitude, longitude, rating, min_price, main_category";
 
@@ -122,9 +150,15 @@ export async function searchCityHotels(params: CityHotelSearchParams): Promise<C
     .ilike("city", cityName)
     .order("computed_rating", { ascending: false, nullsFirst: false })
     .limit(200);
-  const otherBusinessIds = (otherRows || [])
-    .map((b: any) => String(b.id))
-    .filter((id) => !matchedIds.has(id));
+  // Mélange stable par seed (Fisher-Yates + mulberry32) pour que la suite du
+  // feed varie d'une recherche à l'autre au lieu de toujours retourner les
+  // mêmes têtes de liste (tri par note = ordre identique à chaque tour).
+  // Seed = ville + dates + horodatage : un même résultat de recherche garde un
+  // ordre fixe (il est capturé une fois), deux recherches successives diffèrent.
+  const otherBusinessIds = seededShuffle(
+    (otherRows || []).map((b: any) => String(b.id)).filter((id) => !matchedIds.has(id)),
+    hashSeed(`${cityName}|${checkIn}|${checkOut}|${Date.now()}`),
+  );
 
   return {
     otherBusinessIds,
