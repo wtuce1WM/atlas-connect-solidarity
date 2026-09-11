@@ -916,6 +916,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // rendus inline, indexés par identifiant de message assistant.
   const [hotelResults, setHotelResults] = useState<Record<string, CityHotelSearchResult>>({});
   const [hotelSearchingMsgId, setHotelSearchingMsgId] = useState<string | null>(null);
+  /** Résultats de disponibilité affichés 4 par 4, par message assistant. */
+  const [hotelShown, setHotelShown] = useState<Record<string, number>>({});
   // Suggestion `booking` liée à des sous-catégories : la ville du widget est
   // mémorisée au clic, puis rattachée au message assistant du moteur (le widget
   // s'affiche donc SOUS les résultats des sous-catégories).
