@@ -16,6 +16,11 @@ export interface CityHotelSearchParams {
 export interface CityHotelSearchResult extends FallbackPanelData {
   /** Fiches Lovable Cloud correspondantes (pour ouvrir la fiche business). */
   businesses: any[];
+  /**
+   * Autres hôtels/riads actifs de la ville pour lesquels SerpAPI n'a retourné
+   * aucune disponibilité : ils prolongent le feed vidéo en affichage normal.
+   */
+  otherBusinessIds: string[];
 }
 
 const BIZ_FIELDS =
