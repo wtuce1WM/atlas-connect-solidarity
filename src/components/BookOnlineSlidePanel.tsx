@@ -1527,6 +1527,10 @@ const BookOnlineSlidePanelInner = ({
   // Reset UI state when switching business
   useEffect(() => {
     resetDrag();
+    // Une recherche du business précédent peut encore être en vol. Son hook
+    // ignore désormais sa réponse ; on retire aussi immédiatement son état
+    // visuel pour ne jamais l'associer au nouveau business pendant un rendu.
+    setHotelSearchLoading(false);
     setShowDirections(false);
     setCurrentMediaIndex(0);
     setDescExpanded(true);
@@ -1558,7 +1562,7 @@ const BookOnlineSlidePanelInner = ({
     setPoiMapMode("poi");
     if (infoCarouselRef.current) infoCarouselRef.current.scrollLeft = 0;
     setAvailabilityOverlayCtx(null);
-    if (!cameFromFallback) {
+    if (!cameFromFallback || autoCheckAvailability) {
       setFallbackPanelData(null);
       setSelectedFallbackHotelId(null);
       setFallbackHiddenOnMobile(false);
@@ -1566,7 +1570,7 @@ const BookOnlineSlidePanelInner = ({
     } else {
       setShowFallbackOverlay(false);
     }
-  }, [businessId, resetDrag]);
+  }, [businessId, resetDrag, autoCheckAvailability]);
 
   const infoCarouselRef = useRef<HTMLDivElement>(null);
 

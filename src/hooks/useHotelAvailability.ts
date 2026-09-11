@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { FallbackPanelData, FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 
@@ -25,8 +25,21 @@ export function useHotelAvailability({
   hideCards,
   onNoResults,
 }: UseHotelAvailabilityParams) {
+  const latestBusinessIdRef = useRef(businessId);
+  const requestGenerationRef = useRef(0);
+  if (latestBusinessIdRef.current !== businessId) {
+    latestBusinessIdRef.current = businessId;
+    requestGenerationRef.current += 1;
+  }
+
   const handleCheckAvailability = useCallback(async (checkIn: string, checkOut: string, adults: number) => {
     if (!business) return;
+    const requestedBusinessId = businessId;
+    const requestGeneration = ++requestGenerationRef.current;
+    const isCurrentRequest = () =>
+      latestBusinessIdRef.current === requestedBusinessId &&
+      requestGenerationRef.current === requestGeneration;
+
     setHotelSearchLoading(true);
 
     try {
@@ -93,6 +106,7 @@ export function useHotelAvailability({
           });
         }
 
+        if (!isCurrentRequest()) return;
         openFallback({
           hotels: altHotels,
           city: cityName,
@@ -236,20 +250,23 @@ export function useHotelAvailability({
       }
 
       if (hotels.length === 0) {
-        onNoResults?.();
+        if (isCurrentRequest()) onNoResults?.();
         return;
       }
 
+      if (!isCurrentRequest()) return;
       openFallback({
         hotels, city: cityName, checkIn, checkOut, adults, source: "serpapi",
         gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
       });
     } catch (err: any) {
+      if (!isCurrentRequest()) return;
       console.error("Hotel availability error:", err);
       const { toast } = await import("sonner");
+      if (!isCurrentRequest()) return;
       toast.error(err.message || "Erreur");
     } finally {
-      setHotelSearchLoading(false);
+      if (isCurrentRequest()) setHotelSearchLoading(false);
     }
   }, [business, businessId, serpApiMapping, language, hasSerpMapping, setHotelSearchLoading, openFallback, hideCards]);
 
