@@ -4412,6 +4412,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                             priceBadges={priceBadges}
                             onOpen={(id) => {
                               setOpenSiblings(siblingIds);
+                              setAvailabilityBusinessIds(bookingResult.hotels.map((h: any) => String(h.businessId)));
                               if (bookingResult?.checkIn && bookingResult?.checkOut) {
                                 setOpenBusinessStay({ checkIn: bookingResult.checkIn, checkOut: bookingResult.checkOut, adults: bookingResult.adults || 2 });
                               }
