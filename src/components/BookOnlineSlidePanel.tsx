@@ -2244,6 +2244,15 @@ const BookOnlineSlidePanelInner = ({
     !prioritizeBusinessSwipe;
   const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData);
 
+  // Ouverture depuis l'assistant IA avec dates : tant que le fallback de
+  // disponibilité n'est pas prêt, on ne montre ni les CTAs du bas ni la
+  // Barre Info Viewer (évite un flash de chrome avant le résultat).
+  const autoAvailabilityPending =
+    !!autoCheckAvailability &&
+    !!initialAvailabilityCheckIn &&
+    !!initialAvailabilityCheckOut &&
+    !fallbackPanelData;
+
   // Plein écran de la vidéo de fond :
   // - fichier hébergé → lecteur natif (contrôles liquid glass iOS)
   // - YouTube/Vimeo → overlay vidéo existant
@@ -3181,8 +3190,8 @@ const BookOnlineSlidePanelInner = ({
           return (
             <div
               className={`absolute inset-x-0 z-30 flex flex-col justify-end pointer-events-none [&>*]:pointer-events-auto ${showSearchBar ? 'bottom-[calc(72px+env(safe-area-inset-bottom))] md:bottom-[72px]' : 'bottom-0'}`}
-              style={chromeHidden ? { visibility: "hidden", pointerEvents: "none" } : undefined}
-              aria-hidden={chromeHidden || undefined}
+              style={chromeHidden || autoAvailabilityPending ? { visibility: "hidden", pointerEvents: "none" } : undefined}
+              aria-hidden={chromeHidden || autoAvailabilityPending || undefined}
             >
         <CtaBar
           business={business}
@@ -3231,7 +3240,7 @@ const BookOnlineSlidePanelInner = ({
           hideDirections={true}
           hideSecondaryCtas={hideSecondaryCtas}
           aiOverlayActive={!feedLayout && (aiOverlayActive || aiAssistantOpen)}
-          infoSlot={!chromeHidden && business && (!business.hide_description || internalWheelNav) ? (
+          infoSlot={!chromeHidden && !autoAvailabilityPending && business && (!business.hide_description || internalWheelNav) ? (
             <MediaViewerInfo
               name={business.name}
               city={business.city}
