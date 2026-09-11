@@ -200,10 +200,22 @@ export async function runForcedRoute(ctx: ForcedRouteContext): Promise<ForcedRou
     }
 
     case "booking": {
-      const text = ids.length
-        ? await buildBookingForBusinesses(admin, ids.slice(0, 12), lang)
+      const bookingIds = ids.slice(0, 12);
+      const text = bookingIds.length
+        ? await buildBookingForBusinesses(admin, bookingIds, lang)
         : host ? buildBookingAnswer(host, lang) : null;
-      return text ? { text, route: "booking", resultsCount: ids.length || 1 } : null;
+      if (!text) return null;
+      // Le texte renvoie aux « cartes ci-dessous » : les vignettes doivent
+      // toujours accompagner la réponse (source unique de présentation + CTA).
+      const rows = bookingIds.length
+        ? orderByIds(await fetchPriorFull(admin, bookingIds).catch(() => []) as any[], bookingIds)
+        : host ? [host] : [];
+      return {
+        text,
+        route: "booking",
+        resultsCount: bookingIds.length || 1,
+        mapBusinesses: rows.length ? rows : undefined,
+      };
     }
 
     case "distance_ranking_closest":

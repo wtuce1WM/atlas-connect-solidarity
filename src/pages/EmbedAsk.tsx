@@ -1940,6 +1940,29 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return () => cancelAnimationFrame(frame);
   }, [messages, heroLayout, streaming]);
 
+  // Fin de réponse IA : ramener systématiquement le flux tout en bas, pour
+  // toutes les suggestions et toutes les recherches libres.
+  const prevStreamingRef = useRef(false);
+  useEffect(() => {
+    if (prevStreamingRef.current && !streaming) {
+      anchorNextUserMessageRef.current = false;
+      stickDisabledRef.current = false;
+      upIntentUntilRef.current = 0;
+      stickSuppressUntilRef.current = 0;
+      const scroller = scrollRef.current;
+      if (scroller) {
+        const toBottom = () => scroller.scrollTo({ top: scroller.scrollHeight, behavior: "smooth" });
+        requestAnimationFrame(toBottom);
+        // Les cartes/images arrivent après le texte : re-coller en bas une fois
+        // la hauteur définitive connue.
+        window.setTimeout(toBottom, 260);
+        window.setTimeout(toBottom, 700);
+      }
+    }
+    prevStreamingRef.current = streaming;
+  }, [streaming, messages]);
+
+
   // Quand la vérification de disponibilité hôtelière se termine, remonter
   // automatiquement le bloc de résultats dans le viewport pour qu'il soit visible.
   useEffect(() => {
