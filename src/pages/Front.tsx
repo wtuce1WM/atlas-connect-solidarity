@@ -957,7 +957,7 @@ const Front = () => {
           <div className="h-full w-full flex-1 bg-transparent">
             {askMounted && (
               <Suspense fallback={<div className="h-full w-full bg-transparent" />}>
-                <EmbedAskInline paramsOverride="scope=platform&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light&persist=0&hero=1" />
+                <EmbedAskInline paramsOverride="scope=platform&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light&persist=1&hero=1" />
               </Suspense>
             )}
 
