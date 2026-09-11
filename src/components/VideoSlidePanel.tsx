@@ -492,11 +492,15 @@ const VideoSlidePanel = ({
   const [poiOverlayBusinessId, setPoiOverlayBusinessId] = useState<string | null>(null);
   useEffect(() => { if (!open) setPoiOverlayBusinessId(null); }, [open]);
 
-  const effectiveDescription = (description && description.trim())
+  /* Description « brute » (vidéo / évènement / business). L'entité éditoriale
+     liée (Destination / POI) est prioritaire : voir `effectiveDescription`
+     calculé plus bas, une fois `preferEntity` connu. */
+  const rawDescription = (description && description.trim())
     ? description
     : (eventId && eventInfo?.description && eventInfo.description.trim())
       ? eventInfo.description
-      : (currentBusinessDescription || linkedEntity?.description || linkedEntity?.hook || null);
+      : (currentBusinessDescription || null);
+
 
   // Resolve a business for the CTA bar:
   // - If `eventId` is set, take the first linked business via event_businesses (eventBusiness).
