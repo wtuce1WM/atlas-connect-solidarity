@@ -27,6 +27,8 @@ interface Props {
   footer?: React.ReactNode;
   max?: number;
   compact?: boolean;
+  /** Prix/nuit (SerpAPI) indexé par id business : rendu en badge sur la miniature. */
+  priceBadges?: Record<string, string>;
 }
 
 const L = {
