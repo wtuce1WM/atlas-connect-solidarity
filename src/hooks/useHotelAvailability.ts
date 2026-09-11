@@ -11,6 +11,7 @@ interface UseHotelAvailabilityParams {
   setHotelSearchLoading: (v: boolean) => void;
   openFallback: (data: FallbackPanelData) => void;
   hideCards: () => void;
+  onNoResults?: () => void;
 }
 
 export function useHotelAvailability({
