@@ -2249,13 +2249,14 @@ const BookOnlineSlidePanelInner = ({
     !prioritizeBusinessSwipe;
   const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData);
 
-  // Ouverture depuis l'assistant IA avec dates : tant que le fallback de
-  // disponibilité n'est pas prêt, on ne montre ni les CTAs du bas ni la
-  // Barre Info Viewer (évite un flash de chrome avant le résultat).
+  // Ouverture depuis l'assistant IA avec dates : on ne masque le chrome que
+  // lorsqu'un fallback avec résultats est effectivement affiché. En l'absence de
+  // résultats SerpAPI, on reste en affichage normal.
   const autoAvailabilityPending =
     !!autoCheckAvailability &&
     !!initialAvailabilityCheckIn &&
     !!initialAvailabilityCheckOut &&
+    !autoAvailabilityFailed &&
     !fallbackPanelData;
 
   // Plein écran de la vidéo de fond :
