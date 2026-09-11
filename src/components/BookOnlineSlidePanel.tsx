@@ -2256,13 +2256,21 @@ const BookOnlineSlidePanelInner = ({
     effectiveMedia?.kind === "video" &&
     videoInfo?.type !== "file" &&
     !prioritizeBusinessSwipe;
-  // Reflet durable du mode disponibilité pendant un geste tactile : empêche
-  // qu'un swipe vertical/horizontal dans le fallback fasse réapparaître le
-  // rail de CTAs de gauche et les chevrons de droite entre deux résultats.
+  // Mode disponibilité "collant" : une fois le fallback affiché, on reste en
+  // affichage minimal (pas de rail de CTAs à gauche, pas de chevrons à droite)
+  // pendant toute la navigation entre résultats, même si `cardsHidden` retombe
+  // le temps d'une transition. Sortie uniquement par tap explicite ou fin de
+  // contexte disponibilité.
+  const [availabilitySticky, setAvailabilitySticky] = useState(false);
   const availabilityNavigatingRef = useRef(false);
-  const availabilityConfirmationShownRef = useRef(cardsHidden && (hotelSearchLoading || !!fallbackPanelData));
-  const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData || availabilityNavigatingRef.current);
+  const availabilityConfirmationShownRef = useRef(false);
+  const availabilityConfirmationShown =
+    (cardsHidden && (hotelSearchLoading || !!fallbackPanelData)) || availabilitySticky;
   useEffect(() => { availabilityConfirmationShownRef.current = availabilityConfirmationShown; }, [availabilityConfirmationShown]);
+  useEffect(() => {
+    if (cardsHidden && (hotelSearchLoading || !!fallbackPanelData)) setAvailabilitySticky(true);
+  }, [cardsHidden, hotelSearchLoading, fallbackPanelData]);
+
 
   // Ouverture depuis l'assistant IA avec dates : on ne masque le chrome que
   // lorsqu'un fallback avec résultats est effectivement affiché. En l'absence de
