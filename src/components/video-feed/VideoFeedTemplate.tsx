@@ -314,8 +314,8 @@ const VideoFeedTemplate = ({
               }
             : null,
 
-          social: null,
-          showSocialBadge: false,
+          social: (v as any).social ?? null,
+          showSocialBadge: !!(v as any).social,
           description: v.description ?? null,
           manualCard: null,
           title: v.title,
