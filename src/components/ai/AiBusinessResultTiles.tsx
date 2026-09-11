@@ -189,6 +189,19 @@ const AiBusinessResultTiles = ({
                 </span>
               ) : null}
 
+              {priceBadges?.[b.id] ? (
+                <span
+                  className="pointer-events-none absolute right-2 top-2 z-[4] inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-extrabold leading-none text-white shadow-lg"
+                  style={{ background: "#C04F17", ...AI_NAME_FONT }}
+                >
+                  {priceBadges[b.id]}
+                  <span className="ml-1 text-[10px] font-normal opacity-90">
+                    {lang === "en" ? "/ night" : lang === "ar" ? "/ ليلة" : "/ nuit"}
+                  </span>
+                </span>
+              ) : null}
+
+
               {!isOpenText && (waHref || bookingUrl) ? (
                 <div className="pointer-events-none absolute inset-x-0 top-2 z-[4] flex justify-center px-1.5">
                   <div className="pointer-events-auto flex items-center gap-1.5">
