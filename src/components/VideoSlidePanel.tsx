@@ -2084,7 +2084,7 @@ const VideoSlidePanel = ({
                 en mode immersion on les masque par visibility, comme la barre info. */}
             <div
               className="absolute pointer-events-none bottom-0 left-1/2 -translate-x-1/2 w-[96%] sm:w-[94%] max-w-[540px] z-[85]"
-              style={chromeHidden ? { visibility: "hidden" } : undefined}
+              style={chromeHidden ? { visibility: "hidden", pointerEvents: "none" } : undefined}
               aria-hidden={chromeHidden || undefined}
             >
               <div className="relative w-full h-full pointer-events-auto">

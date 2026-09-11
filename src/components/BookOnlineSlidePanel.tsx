@@ -3150,12 +3150,18 @@ const BookOnlineSlidePanelInner = ({
             la barre est ancrée au bas du panneau, HORS du conteneur scrollable —
             même mécanique que VideoSlidePanel : elle ne suit JAMAIS le swipe vertical
             ni le scroll natif du conteneur (repro mobile : la barre suivait le pouce). */}
-        {!showPoiMapOverlay && !chromeHidden && (() => {
+        {!showPoiMapOverlay && (() => {
           // Quand la barre Play/Mute/IA/Lieu/Profil est montée, la barre info est ancrée
           // juste au-dessus d'elle — même mécanique que VideoSlidePanel. CtaBar ne doit
           // pas simuler cet espace avec un padding interne (source de l'espace vide).
+          // La barre reste montée en permanence et est masquée par visibility pour
+          // éviter le remontage / l'animation slide-in qui désynchronise l'immersion.
           return (
-            <div className={`absolute inset-x-0 z-30 flex flex-col justify-end pointer-events-none [&>*]:pointer-events-auto ${showSearchBar ? 'bottom-[calc(72px+env(safe-area-inset-bottom))] md:bottom-[72px]' : 'bottom-0'}`}>
+            <div
+              className={`absolute inset-x-0 z-30 flex flex-col justify-end pointer-events-none [&>*]:pointer-events-auto ${showSearchBar ? 'bottom-[calc(72px+env(safe-area-inset-bottom))] md:bottom-[72px]' : 'bottom-0'}`}
+              style={chromeHidden ? { visibility: "hidden", pointerEvents: "none" } : undefined}
+              aria-hidden={chromeHidden || undefined}
+            >
         <CtaBar
           business={business}
           language={language}
