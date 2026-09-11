@@ -1199,7 +1199,11 @@ const BookOnlineSlidePanelInner = ({
   const [showSpotifyOverlay, setShowSpotifyOverlay] = useState(false);
   const [showSubstackOverlay, setShowSubstackOverlay] = useState(false);
   const [showSoundCloudOverlay, setShowSoundCloudOverlay] = useState(false);
-  const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
+  // Démarre déjà en « recherche » quand l'ouverture vient de l'assistant IA avec
+  // des dates : le fallback (spinner puis résultat) est visible dès la 1re frame.
+  const [hotelSearchLoading, setHotelSearchLoading] = useState(
+    !!autoCheckAvailability && !!initialAvailabilityCheckIn && !!initialAvailabilityCheckOut
+  );
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
 
   // Auto-close availability search overlay when search completes
