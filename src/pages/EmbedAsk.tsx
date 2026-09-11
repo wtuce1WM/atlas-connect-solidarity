@@ -72,6 +72,7 @@ const EmbedBookPanelWrapper = ({
   initialAvailabilityCheckIn,
   initialAvailabilityCheckOut,
   initialAvailabilityAdults,
+  autoCheckAvailability,
   onClose,
   onPrev,
   onNext,
@@ -86,6 +87,7 @@ const EmbedBookPanelWrapper = ({
   initialAvailabilityCheckIn?: string;
   initialAvailabilityCheckOut?: string;
   initialAvailabilityAdults?: number;
+  autoCheckAvailability?: boolean;
   /** Vidéo cliquée dans un feed ouvert : la fiche conserve cette vidéo. */
   initialVideoUrl?: string;
   onClose: () => void;
@@ -187,6 +189,7 @@ const EmbedBookPanelWrapper = ({
             initialAvailabilityCheckIn={initialAvailabilityCheckIn}
             initialAvailabilityCheckOut={initialAvailabilityCheckOut}
             initialAvailabilityAdults={initialAvailabilityAdults}
+            autoCheckAvailability={autoCheckAvailability}
             onClose={onClose}
             onPrev={onPrev}
             onNext={onNext}
@@ -5106,6 +5109,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             initialAvailabilityCheckIn={openBusinessStay?.checkIn}
             initialAvailabilityCheckOut={openBusinessStay?.checkOut}
             initialAvailabilityAdults={openBusinessStay?.adults}
+            autoCheckAvailability={!!(openBusinessStay?.checkIn && openBusinessStay?.checkOut)}
             initialVideoUrl={
               feedPinnedBusinessId === openBusinessId
                 ? feedVideoUrlById[openBusinessId]

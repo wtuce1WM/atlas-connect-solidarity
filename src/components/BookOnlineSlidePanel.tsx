@@ -188,6 +188,8 @@ interface BookOnlineSlidePanelProps {
   initialAvailabilityCheckIn?: string;
   initialAvailabilityCheckOut?: string;
   initialAvailabilityAdults?: number;
+  /** Lance directement la vérification de disponibilité (affiche le Fallback sans passer par le widget) */
+  autoCheckAvailability?: boolean;
   onMosaicStateChange?: (open: boolean) => void;
   closeTrigger?: number;
   propagateMosaicState?: boolean;
@@ -301,7 +303,7 @@ interface BookOnlineSlidePanelProps {
 const BookOnlineSlidePanelInner = ({
   businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef,
   showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch,
-  initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults,
+  initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, autoCheckAvailability,
   onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl,
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext, prioritizeBusinessSwipe = false, internalWheelNav = false,
@@ -1400,6 +1402,20 @@ const BookOnlineSlidePanelInner = ({
     }, []),
     hideCards: useCallback(() => { hideCardsRef.current(); }, []),
   });
+
+  // Vérification automatique de disponibilité : quand les dates viennent de
+  // l'assistant IA, on affiche directement le Fallback sans repasser par le widget.
+  const autoAvailabilityDoneRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!autoCheckAvailability) return;
+    if (isLoading || !business) return;
+    if (!initialAvailabilityCheckIn || !initialAvailabilityCheckOut) return;
+    const key = `${businessId}|${initialAvailabilityCheckIn}|${initialAvailabilityCheckOut}|${initialAvailabilityAdults ?? 2}`;
+    if (autoAvailabilityDoneRef.current === key) return;
+    autoAvailabilityDoneRef.current = key;
+    handleCheckAvailability(initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults ?? 2);
+  }, [autoCheckAvailability, isLoading, business, businessId, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, handleCheckAvailability]);
+
 
   useEffect(() => {
     if (!showTransitionOverlay) return;
