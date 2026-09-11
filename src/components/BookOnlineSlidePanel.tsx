@@ -1215,6 +1215,11 @@ const BookOnlineSlidePanelInner = ({
     }
     prevHotelSearchLoadingRef.current = hotelSearchLoading;
   }, [hotelSearchLoading]);
+
+  // Réinitialise l'indicateur d'échec auto quand les conditions d'ouverture changent.
+  useEffect(() => {
+    setAutoAvailabilityFailed(false);
+  }, [businessId, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults]);
   
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => {
