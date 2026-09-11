@@ -2304,7 +2304,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       // Libellé lisible quand le périmètre est national (toutes les villes).
       const cityLabel =
         city === ALL_CITIES ? (lang === "en" ? "Morocco" : lang === "ar" ? "المغرب" : "tout le Maroc") : city;
-      const pushBookingWidget = () => {
+      const pushBookingWidget = (autoSearch = true) => {
         const msgId = `a-booking-${Date.now()}`;
         setMessages((prev) => [
           ...prev,
@@ -2329,7 +2329,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           } as any,
         ]);
         // Dates complètes détectées → interrogation SerpAPI immédiate.
-        if (hasDates) runCityHotelSearch(msgId, city, checkIn as string, checkOut as string, adults || 2);
+        if (hasDates && autoSearch) runCityHotelSearch(msgId, city, checkIn as string, checkOut as string, adults || 2);
       };
       // Accueil IA fermé + question hôtelière datée (texte ou vocal) : aucune
       // réponse texte, aucun widget, aucune vignette — la recherche SerpAPI part
@@ -2351,6 +2351,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               pushBookingWidget();
               return;
             }
+            // Même quand la recherche datée ouvre directement le feed vidéo,
+            // conserver le widget dans le fil. À la fermeture du panneau,
+            // l'utilisateur peut ainsi relancer immédiatement sur d'autres dates
+            // sans répéter une seconde fois la recherche déjà exécutée ici.
+            pushBookingWidget(false);
             setOpenSiblings(siblings);
             setAvailabilityBusinessIds(ids);
             setOpenBusinessStay({ checkIn: checkIn as string, checkOut: checkOut as string, adults: adults || 2 });
