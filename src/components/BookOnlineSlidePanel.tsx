@@ -2256,7 +2256,13 @@ const BookOnlineSlidePanelInner = ({
     effectiveMedia?.kind === "video" &&
     videoInfo?.type !== "file" &&
     !prioritizeBusinessSwipe;
-  const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData);
+  // Reflet durable du mode disponibilité pendant un geste tactile : empêche
+  // qu'un swipe vertical/horizontal dans le fallback fasse réapparaître le
+  // rail de CTAs de gauche et les chevrons de droite entre deux résultats.
+  const availabilityNavigatingRef = useRef(false);
+  const availabilityConfirmationShownRef = useRef(cardsHidden && (hotelSearchLoading || !!fallbackPanelData));
+  const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData || availabilityNavigatingRef.current);
+  useEffect(() => { availabilityConfirmationShownRef.current = availabilityConfirmationShown; }, [availabilityConfirmationShown]);
 
   // Ouverture depuis l'assistant IA avec dates : on ne masque le chrome que
   // lorsqu'un fallback avec résultats est effectivement affiché. En l'absence de
@@ -2332,10 +2338,16 @@ const BookOnlineSlidePanelInner = ({
       return;
     }
     const t = e.touches[0];
+    // Capture le contexte disponibilité au début du geste. Même si le
+    // fallback est temporairement vide pendant la transition entre deux
+    // établissements, on reste en "mode disponibilité" pour ne pas réafficher
+    // le rail de CTAs et les chevrons au milieu du swipe.
+    availabilityNavigatingRef.current = availabilityConfirmationShownRef.current ||
+      (!!autoCheckAvailability && !!fallbackDataRef.current && currentCardsHiddenRef.current);
     swipeStartRef.current = { x: t.clientX, y: t.clientY };
     suppressTapRef.current = false;
     onTouchStart?.(e);
-  }, [onTouchStart, anyOverlayOpen]);
+  }, [onTouchStart, anyOverlayOpen, autoCheckAvailability]);
   const handleMediaTouchMove = useCallback((e: React.TouchEvent) => {
     if (anyOverlayOpen) return;
     if (!swipeStartRef.current) return;
@@ -2356,7 +2368,7 @@ const BookOnlineSlidePanelInner = ({
       // Changement de média : geste consommé par la navigation, pas de bascule
       // masquer/afficher des cartes (aligné sur VideoSlidePanel).
       suppressTapRef.current = true;
-      resetDrag();
+      if (!availabilityNavigatingRef.current) resetDrag();
       return;
     }
     if (absY > 60 && absY > absX * 1.5 && (effectiveHasPrev || effectiveHasNext)) {
@@ -2365,15 +2377,29 @@ const BookOnlineSlidePanelInner = ({
       } else if (dy > 0 && effectiveHasPrev) {
         effectiveOnPrev?.();
       }
-      // Scroll vertical entre résultats : les éléments posés au-dessus du
-      // viewer (rail de CTAs, CTAs du header, chevrons, barre info) restent
-      // affichés — le geste ne doit JAMAIS déclencher `hideCards`.
+      // Scroll vertical entre résultats : en mode disponibilité on conserve
+      // l'affichage minimal (fallback fixe) pour ne pas faire réapparaître le
+      // rail de CTAs de gauche ni les chevrons de droite au milieu du geste.
       suppressTapRef.current = true;
-      resetDrag();
+      if (!availabilityNavigatingRef.current) resetDrag();
       return;
     }
     onTouchEnd?.();
   }, [onTouchEnd, goMedia, resetDrag, effectiveHasNext, effectiveHasPrev, effectiveOnNext, effectiveOnPrev, anyOverlayOpen]);
+
+  // Nettoyage du flag de navigation disponibilité quand le contexte disparaît
+  // (recherche terminée sans résultat, fermeture manuelle, etc.).
+  useEffect(() => {
+    if (!hotelSearchLoading && !fallbackPanelData && !autoCheckAvailability) {
+      availabilityNavigatingRef.current = false;
+    }
+  }, [hotelSearchLoading, fallbackPanelData, autoCheckAvailability]);
+
+  useEffect(() => {
+    if (autoAvailabilityFailed) {
+      availabilityNavigatingRef.current = false;
+    }
+  }, [autoAvailabilityFailed]);
 
   // iOS : quand la navigation verticale entre fiches est disponible, un swipe
   // vertical ne doit pas embarquer le viewport (scroll natif / rubber-band).
