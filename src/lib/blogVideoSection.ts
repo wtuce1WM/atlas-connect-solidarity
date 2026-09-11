@@ -34,6 +34,22 @@ export function pickVideoSectionCopy(
 }
 
 /**
+ * Compte social attaché à une vidéo (interne ou générique) : même règle de
+ * priorité que le feed unifié (`get_badges_video_feed`) — Instagram, TikTok,
+ * puis YouTube. Alimente le logo + « Follow @… » du lecteur.
+ */
+function extractVideoSocial(
+  row: any,
+): { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null {
+  const pick = (platform: "instagram" | "tiktok" | "youtube") => {
+    const account = String(row?.[`${platform}_account`] || "").trim();
+    if (!account) return null;
+    return { platform, account: account.replace(/^@+/, ""), url: row?.[`${platform}_url`] || null };
+  };
+  return pick("instagram") || pick("tiktok") || pick("youtube");
+}
+
+/**
  * Fetch videos matching a badge (+ optional city ids + price_type) from both
  * business_documents (video type) and generic_videos.
  */
@@ -74,7 +90,7 @@ export async function fetchBlogVideoSection(
       let q = supabase
         .from("business_documents")
         .select(
-          "id, business_id, name, description, price, price_type, url, youtube_video_url, instagram_video_url, tiktok_video_url, thumbnail_url, business_is_active"
+          "id, business_id, name, description, price, price_type, url, youtube_video_url, instagram_video_url, tiktok_video_url, thumbnail_url, business_is_active, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url"
         )
         .in("id", scopedDocIds)
         .eq("type", "video");
@@ -97,6 +113,7 @@ export async function fetchBlogVideoSection(
         isGeneric: false,
         businessId: d.business_id,
         businessName: bizMap[d.business_id] || null,
+        social: extractVideoSocial(d),
       }));
     }
   }
@@ -121,7 +138,9 @@ export async function fetchBlogVideoSection(
     if (scopedGenIds.length > 0) {
       const { data: gens } = await supabase
         .from("generic_videos")
-        .select("id, title, name, description, url, thumbnail_url")
+        .select(
+          "id, title, name, description, url, thumbnail_url, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url"
+        )
         .in("id", scopedGenIds);
       generic = (gens || []).map((g: any) => ({
         id: g.id,
@@ -133,6 +152,7 @@ export async function fetchBlogVideoSection(
         isGeneric: true,
         businessId: null,
         businessName: null,
+        social: extractVideoSocial(g),
       }));
     }
   }
