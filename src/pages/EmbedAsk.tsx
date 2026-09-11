@@ -189,6 +189,7 @@ const EmbedBookPanelWrapper = ({
             initialAvailabilityCheckIn={initialAvailabilityCheckIn}
             initialAvailabilityCheckOut={initialAvailabilityCheckOut}
             initialAvailabilityAdults={initialAvailabilityAdults}
+            autoCheckAvailability={autoCheckAvailability}
             onClose={onClose}
             onPrev={onPrev}
             onNext={onNext}
