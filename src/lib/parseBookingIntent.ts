@@ -21,8 +21,11 @@ export type BookingIntent = {
  * Les clés sont normalisées (sans accent, minuscules).
  */
 const CITY_PATTERNS: { city: string; aliases: string[] }[] = [
-  { city: "Essaouira", aliases: ["essaouira", "mogador", "sidi kaouki", "الصويرة"] },
-  { city: "Marrakech", aliases: ["marrakech", "marrakesh", "agafay", "asni", "imlil", "ourika", "مراكش"] },
+  { city: "Essaouira", aliases: ["essaouira", "essouira", "esaouira", "essaouria", "mogador", "sidi kaouki", "الصويرة"] },
+  { city: "Marrakech", aliases: ["marrakech", "marrakesh", "marakech", "marrakch", "merrakech", "agafay", "asni", "imlil", "ourika", "مراكش"] },
+  { city: "Casablanca", aliases: ["casablanca", "casa blanca", "casablanka", "الدار البيضاء"] },
+  { city: "Rabat", aliases: ["rabat", "rabbat", "الرباط"] },
+  { city: "Tanger", aliases: ["tanger", "tangier", "tangerine", "tanja", "طنجة"] },
 ];
 
 /** Détecte la première ville nommée dans le texte (ordre d'apparition). */
@@ -35,6 +38,14 @@ function extractCity(text: string): string | null {
     }
   }
   return best?.city ?? null;
+}
+
+/**
+ * Ville nommée dans un texte libre (relance du widget de disponibilité), en
+ * tenant compte des variantes orthographiques/quartiers. `null` si absente.
+ */
+export function extractBookingCity(raw: string): string | null {
+  return extractCity(norm(raw));
 }
 
 const norm = (s: string) =>

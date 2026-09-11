@@ -65,39 +65,75 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 const BIZ_FIELDS =
   "id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, latitude, longitude, rating, min_price, main_category";
 
+/** Ville non renseignée (ou `*` / `all`) = recherche sur toutes les villes couvertes. */
+export const ALL_CITIES = "*";
+
 export async function searchCityHotels(params: CityHotelSearchParams): Promise<CityHotelSearchResult> {
-  const cityName = (params.cityName || "").trim();
+  const requested = (params.cityName || "").trim();
+  const allCities = !requested || requested === ALL_CITIES || /^all$/i.test(requested);
   const { checkIn, checkOut, adults } = params;
 
   const [mappingResult, gammeResult] = await Promise.all([
     // RPC publique (security definer) : `hotel_mappings` est réservée au staff en
     // lecture directe, l'assistant tourne en anonyme.
-    supabase.rpc("get_hotel_mappings_by_city", { _city: cityName }),
+    // `%` (ilike) = tous les mappings, toutes villes confondues.
+    supabase.rpc("get_hotel_mappings_by_city", { _city: allCities ? "%" : requested }),
     supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
   ]);
   const allMappings = (mappingResult.data || []) as any[];
   const gammes = (gammeResult.data || []) as any[];
-  const serpResult = await supabase.functions.invoke("serpapi-hotels", {
-    // Les hôtels référencés ne sont pas nécessairement dans les premières pages
-    // Google : parcourir toute la profondeur autorisée au lieu de déduire le
-    // nombre de pages du nombre de mappings locaux.
-    body: { cityName, checkIn, checkOut, adults, currency: params.currency || "EUR", maxPages: 10 },
-  });
-  if (serpResult.error) throw serpResult.error;
-  const serpHotels = ((serpResult.data as any)?.data || []) as any[];
 
-  const serpByExactName = new Map<string, any>();
-  for (const h of serpHotels) {
-    const n = normalizeHotelName(h.name);
-    if (n && !serpByExactName.has(n)) serpByExactName.set(n, h);
+  // Villes réellement interrogées : celle demandée, ou toutes celles qui ont au
+  // moins un établissement mappé (une requête SerpAPI par ville).
+  const cities = allCities
+    ? [...new Set(allMappings.map((m: any) => String(m.city || "").trim()).filter(Boolean))]
+    : [requested];
+  const mappingsByCity = new Map<string, any[]>();
+  for (const c of cities) mappingsByCity.set(c, []);
+  for (const m of allMappings) {
+    const c = String(m.city || "").trim();
+    const bucket = allCities ? mappingsByCity.get(c) : mappingsByCity.get(requested);
+    if (bucket) bucket.push(m);
   }
 
   const matches = new Map<string, { mapping: any; serpMatch: any }>();
-  for (const m of allMappings) {
-    const mn = normalizeHotelName(m.serp_hotel_name);
-    if (!m.business_id || !mn || matches.has(m.business_id)) continue;
-    const sm = serpByExactName.get(mn);
-    if (sm) matches.set(m.business_id, { mapping: m, serpMatch: sm });
+  const serpResults = await Promise.all(
+    cities.map(async (city) => {
+      const cityMappings = mappingsByCity.get(city) || [];
+      const serpResult = await supabase.functions.invoke("serpapi-hotels", {
+        // Les hôtels référencés ne sont pas nécessairement dans les premières
+        // pages Google : profondeur maximale sur les villes bien couvertes,
+        // réduite là où un seul établissement est mappé (coût SerpAPI).
+        body: {
+          cityName: city,
+          checkIn,
+          checkOut,
+          adults,
+          currency: params.currency || "EUR",
+          maxPages: cityMappings.length > 5 ? 10 : 3,
+        },
+      });
+      if (serpResult.error) {
+        // Une ville en échec ne doit pas annuler les autres.
+        if (cities.length === 1) throw serpResult.error;
+        return { city, hotels: [] as any[] };
+      }
+      return { city, hotels: ((serpResult.data as any)?.data || []) as any[] };
+    }),
+  );
+
+  for (const { city, hotels: serpHotels } of serpResults) {
+    const serpByExactName = new Map<string, any>();
+    for (const h of serpHotels) {
+      const n = normalizeHotelName(h.name);
+      if (n && !serpByExactName.has(n)) serpByExactName.set(n, h);
+    }
+    for (const m of mappingsByCity.get(city) || []) {
+      const mn = normalizeHotelName(m.serp_hotel_name);
+      if (!m.business_id || !mn || matches.has(m.business_id)) continue;
+      const sm = serpByExactName.get(mn);
+      if (sm) matches.set(m.business_id, { mapping: m, serpMatch: sm });
+    }
   }
 
   const bizIds = [...matches.keys()];
@@ -155,12 +191,13 @@ export async function searchCityHotels(params: CityHotelSearchParams): Promise<C
   // Suite du feed vidéo : les autres hôtels/riads actifs de la ville, sans
   // disponibilité SerpAPI, à parcourir en affichage normal.
   const matchedIds = new Set(hotels.map((h: any) => String(h.businessId)));
-  const { data: otherRows } = await supabase
+  let otherQuery = supabase
     .from("businesses")
     .select("id, computed_rating, total_review_count")
     .eq("is_active", true)
-    .eq("main_category", "Hôtellerie")
-    .ilike("city", cityName)
+    .eq("main_category", "Hôtellerie");
+  otherQuery = allCities ? otherQuery.in("city", cities) : otherQuery.ilike("city", requested);
+  const { data: otherRows } = await otherQuery
     .order("computed_rating", { ascending: false, nullsFirst: false })
     .limit(200);
   // Mélange stable par seed (Fisher-Yates + mulberry32) pour que la suite du
@@ -170,13 +207,14 @@ export async function searchCityHotels(params: CityHotelSearchParams): Promise<C
   // ordre fixe (il est capturé une fois), deux recherches successives diffèrent.
   const otherBusinessIds = seededShuffle(
     (otherRows || []).map((b: any) => String(b.id)).filter((id) => !matchedIds.has(id)),
-    hashSeed(`${cityName}|${checkIn}|${checkOut}|${Date.now()}`),
+    hashSeed(`${cities.join(",")}|${checkIn}|${checkOut}|${Date.now()}`),
   );
 
   return {
     otherBusinessIds,
     hotels,
-    city: cityName,
+    // Libellé affiché : la ville demandée, sinon la liste des villes couvertes.
+    city: allCities ? cities.join(", ") : requested,
     checkIn,
     checkOut,
     adults,
