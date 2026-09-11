@@ -1428,7 +1428,13 @@ const BookOnlineSlidePanelInner = ({
   const autoAvailabilityDoneRef = useRef<string | null>(null);
   useEffect(() => {
     if (!autoCheckAvailability) return;
-    if (isLoading || !business || !mappingsLoaded) return;
+    // `useBookOnlineData` conserve volontairement la fiche précédente pendant le
+    // chargement pour éviter un flash visuel. Après un swipe A → B → A, React peut
+    // donc rendre brièvement le nouvel ID avec les données/mappings de l'ancien
+    // établissement. Ne jamais lancer SerpAPI dans cet état intermédiaire : c'est
+    // ce qui pouvait produire successivement « disponible » puis « indisponible »
+    // pour le même business.
+    if (isLoading || !business || business.id !== businessId || !mappingsLoaded) return;
     if (!initialAvailabilityCheckIn || !initialAvailabilityCheckOut) return;
     const key = `${businessId}|${initialAvailabilityCheckIn}|${initialAvailabilityCheckOut}|${initialAvailabilityAdults ?? 2}`;
     if (autoAvailabilityDoneRef.current === key) return;
