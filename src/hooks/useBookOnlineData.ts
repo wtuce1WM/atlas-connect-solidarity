@@ -824,11 +824,10 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       };
 
       const fetchSerpApiMapping = async () => {
-        const { data: mapping } = await db
-          .from("hotel_mappings")
-          .select("serp_hotel_name, city")
-          .eq("business_id", businessId)
-          .maybeSingle();
+        // RPC security definer : `hotel_mappings` est réservée au staff en lecture
+        // directe, la fiche publique tourne en anonyme.
+        const { data: mappingRows } = await db.rpc("get_serp_hotel_mapping_for_business", { _business_id: businessId });
+        const mapping = Array.isArray(mappingRows) ? mappingRows[0] : mappingRows;
 
         if (!isCancelled) setSerpApiMapping(mapping ? { serpHotelName: (mapping as any).serp_hotel_name, city: (mapping as any).city } : null);
       };
