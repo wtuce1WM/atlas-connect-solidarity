@@ -3571,6 +3571,22 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     setShowBookingOverlay(true);
   };
 
+  /**
+   * Un clic sur une vignette n'envoie pas de message : l'hôte (/front) ne
+   * reçoit donc pas `owm-ask:asked` et peut garder son panneau vidéo Home
+   * ouvert — portail `document.body`, au-dessus du contexte d'empilement de
+   * l'assistant. La fiche cliquée s'ouvrirait DERRIÈRE lui. On signale donc
+   * l'ouverture pour que l'hôte ferme son panneau vidéo.
+   */
+  const notifyHostPanelOpen = () => {
+    try {
+      window.postMessage({ type: "owm-ask:asked" }, "*");
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "owm-ask:asked" }, "*");
+      }
+    } catch { /* cross-origin */ }
+  };
+
 
   // Présentation unique des établissements cités par l'IA (cartes résultat partagées).
   const renderCarousel = (businesses: MapPanelBusiness[], onOpenMap?: () => void, rankOrder?: string | null) => {
@@ -3592,6 +3608,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       // business, la fiche démarre sur sa 1re vidéo au `sort_order` back-office.
       setFeedPinnedBusinessId(activeFeedVideoId ? id : null);
       if (activeFeedVideoId) setActiveFeedVideoId(null);
+      notifyHostPanelOpen();
       const seen = new Set(siblings);
       const full = [...siblings];
       const pool = poolInfo.ids.length && siblings.some((sid) => poolInfo.ids.includes(sid))
@@ -4588,8 +4605,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                             lang={lang}
                             compact={anyPanelOpen}
                             priceBadges={priceBadges}
-                            onOpen={(id) => {
-                              setOpenSiblings(siblingIds);
+                             onOpen={(id) => {
+                               notifyHostPanelOpen();
+                               setOpenSiblings(siblingIds);
                               setAvailabilityBusinessIds(bookingResult.hotels.map((h: any) => String(h.businessId)));
                               if (bookingResult?.checkIn && bookingResult?.checkOut) {
                                 setOpenBusinessStay({ checkIn: bookingResult.checkIn, checkOut: bookingResult.checkOut, adults: bookingResult.adults || 2 });
