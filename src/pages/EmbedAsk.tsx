@@ -69,6 +69,9 @@ const EmbedBookPanelWrapper = ({
   businessId,
   initialOverlay,
   initialVideoUrl,
+  initialAvailabilityCheckIn,
+  initialAvailabilityCheckOut,
+  initialAvailabilityAdults,
   onClose,
   onPrev,
   onNext,
@@ -79,6 +82,10 @@ const EmbedBookPanelWrapper = ({
 }: {
   businessId: string;
   initialOverlay?: "reviews";
+  /** Dates/voyageurs déjà choisis dans le widget Disponibilité de l'assistant. */
+  initialAvailabilityCheckIn?: string;
+  initialAvailabilityCheckOut?: string;
+  initialAvailabilityAdults?: number;
   /** Vidéo cliquée dans un feed ouvert : la fiche conserve cette vidéo. */
   initialVideoUrl?: string;
   onClose: () => void;
@@ -177,6 +184,9 @@ const EmbedBookPanelWrapper = ({
             embedMode
             initialOverlay={initialOverlay}
             initialVideoUrl={initialVideoUrl}
+            initialAvailabilityCheckIn={initialAvailabilityCheckIn}
+            initialAvailabilityCheckOut={initialAvailabilityCheckOut}
+            initialAvailabilityAdults={initialAvailabilityAdults}
             onClose={onClose}
             onPrev={onPrev}
             onNext={onNext}
@@ -1256,6 +1266,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   }, [homeState, visibleSuggestions.length, showAllSuggestions, lang]);
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  /** Dates du widget Disponibilité de l'assistant, reprises dans la fiche ouverte. */
+  const [openBusinessStay, setOpenBusinessStay] = useState<{ checkIn: string; checkOut: string; adults: number } | null>(null);
   const [openBusinessOverlay, setOpenBusinessOverlay] = useState<"reviews" | null>(null);
   const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
   /** Overlay inline « Le meilleur de YouTube sur le Maroc » (variante compacte de /youtube). */
@@ -4362,7 +4374,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         <button
                           key={h.hotelId}
                           type="button"
-                          onClick={() => { setOpenSiblings([h.businessId]); setOpenBusinessId(h.businessId); }}
+                          onClick={() => {
+                            setOpenSiblings([h.businessId]);
+                            if (bookingResult?.checkIn && bookingResult?.checkOut) {
+                              setOpenBusinessStay({ checkIn: bookingResult.checkIn, checkOut: bookingResult.checkOut, adults: bookingResult.adults || 2 });
+                            }
+                            setOpenBusinessId(h.businessId);
+                          }}
                           className={`flex gap-3 p-3 text-left rounded-2xl border ${border} ${cardBg}`}
                           style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08)", ...(cardStyle || {}) }}
                         >
@@ -5076,12 +5094,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                changement de `businessId` — même continuité que VideoSlidePanel. */
             businessId={openBusinessId}
             initialOverlay={openBusinessOverlay ?? undefined}
+            initialAvailabilityCheckIn={openBusinessStay?.checkIn}
+            initialAvailabilityCheckOut={openBusinessStay?.checkOut}
+            initialAvailabilityAdults={openBusinessStay?.adults}
             initialVideoUrl={
               feedPinnedBusinessId === openBusinessId
                 ? feedVideoUrlById[openBusinessId]
                 : badgeVideoUrlById[openBusinessId]
             }
-            onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); setFeedPinnedBusinessId(null); }}
+            onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); setFeedPinnedBusinessId(null); setOpenBusinessStay(null); }}
             onPrev={goPrev}
             onNext={goNext}
             hasPrev={hasPrev}
