@@ -89,6 +89,27 @@ function extractDates(text: string, ref: Date): string[] {
   const out: { idx: number; value: string }[] = [];
   const monthNames = Object.keys(MONTHS).join("|");
 
+  // Intervalle à mois unique : « du 10 au 15 octobre », « from 10 to 15 october ».
+  // Le premier jour n'a pas de mois : il hérite de celui du second (mois suivant
+  // si le second jour est antérieur, ex. « du 28 au 3 novembre »).
+  const reRange = new RegExp(
+    `\\b(\\d{1,2})(?:er)?\\s*(?:au|a|jusqu\\s*au|to|till|until|-|/|→)\\s*(\\d{1,2})(?:er)?\\s+(${monthNames})\\b`,
+    "g",
+  );
+  for (const m of reRange) { void m; break; }
+  for (const m of text.matchAll(reRange)) {
+    const d1 = parseInt(m[1], 10);
+    const d2 = parseInt(m[2], 10);
+    const month2 = MONTHS[m[3]];
+    const month1 = d2 < d1 ? (month2 === 1 ? 12 : month2 - 1) : month2;
+    const v1 = iso(month1, d1, ref);
+    const v2 = iso(month2, d2, ref);
+    if (v1 && v2) {
+      out.push({ idx: m.index ?? 0, value: v1 });
+      out.push({ idx: (m.index ?? 0) + 1, value: v2 });
+    }
+  }
+
   // "27 septembre", "2 oct"
   const reWord = new RegExp(`\\b(\\d{1,2})(?:er)?\\s+(${monthNames})\\b`, "g");
   for (const m of text.matchAll(reWord)) {
