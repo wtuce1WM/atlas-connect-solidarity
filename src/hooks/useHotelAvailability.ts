@@ -23,6 +23,7 @@ export function useHotelAvailability({
   setHotelSearchLoading,
   openFallback,
   hideCards,
+  onNoResults,
 }: UseHotelAvailabilityParams) {
   const handleCheckAvailability = useCallback(async (checkIn: string, checkOut: string, adults: number) => {
     if (!business) return;
