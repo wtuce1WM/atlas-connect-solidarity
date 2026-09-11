@@ -575,14 +575,39 @@ Deno.serve(async (req) => {
         });
       }
       const feedBadgeIds = feedBadges.map((b) => b.id);
+      /*
+       * Périmètre géographique : MÊME règle que le tour normal
+       * (`_shared/ai-engine/city-scope.ts`). Sans cela, « villa essaouira »
+       * ouvrait un feed « Location ∩ Villas » toutes villes confondues alors
+       * que la réponse IA, elle, était bien limitée à Essaouira.
+       */
+      const feedExplicitCity = await detectExplicitCity(admin, userMessage).catch(() => null);
+      const feedCity = resolveCityScope({
+        hostCity: null,
+        activeCity,
+        explicitCity: feedExplicitCity,
+        platformMode,
+        fallback: null,
+      });
       const pool = await loadBadgeVideoFeedPool(admin, {
         badgeIds: feedBadgeIds,
-        city: activeCity || null,
+        city: feedCity || null,
       }).catch(() => null);
       // Intersection STRICTE, aucun fallback : intersection vide ⇒ feed null.
       const strictVideos = pool ? strictBadgeIntersection(pool.videos, feedBadgeIds).slice(0, 60) : [];
+      /* IDs de villes renvoyés au front : la pagination du feed (pages
+         suivantes) doit rester dans le même périmètre que la 1re page. */
+      let feedCityIds: string[] | null = null;
+      if (feedCity) {
+        const { data: cityRows } = await admin
+          .from("cities")
+          .select("id, name_fr, name_en")
+          .or(`name_fr.ilike.${feedCity},name_en.ilike.${feedCity}`);
+        const ids = ((cityRows || []) as any[]).map((c) => String(c.id)).filter(Boolean);
+        feedCityIds = ids.length ? ids : null;
+      }
       console.log("[embed-ai-chat-v2] feed_preflight", JSON.stringify({
-        badges: feedBadges.map((b) => b.name), emitted: strictVideos.length,
+        badges: feedBadges.map((b) => b.name), city: feedCity, emitted: strictVideos.length,
       }));
       return new Response(
         JSON.stringify({
@@ -593,6 +618,7 @@ Deno.serve(async (req) => {
                 total: strictVideos.length,
                 badgeIds: feedBadgeIds,
                 seed: pool?.seed ?? null,
+                cityIds: feedCityIds,
               }
             : null,
         }),
