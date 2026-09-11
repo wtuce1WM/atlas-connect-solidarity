@@ -952,6 +952,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
     isKp1Only,
     liteApiHotelId,
     serpApiMapping,
+    mappingsLoaded,
     isHotelWithPrice,
   };
 }
