@@ -1406,6 +1406,9 @@ const BookOnlineSlidePanelInner = ({
       hideCardsRef.current();
     }, []),
     hideCards: useCallback(() => { hideCardsRef.current(); }, []),
+    onNoResults: useCallback(() => {
+      setAutoAvailabilityFailed(true);
+    }, []),
   });
 
   // Vérification automatique de disponibilité : quand les dates viennent de
