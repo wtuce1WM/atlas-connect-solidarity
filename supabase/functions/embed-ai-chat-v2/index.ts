@@ -409,6 +409,14 @@ Deno.serve(async (req) => {
   let suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
   /** true quand la suggestion a été retrouvée depuis le texte libre (pas un clic). */
   let suggestionFromText = false;
+  /**
+   * true quand la relance ne fait QUE changer de ville (« à Essaouira ») et que
+   * la suggestion active a été réappliquée pour ce nouveau périmètre. Dans ce cas
+   * le corpus du tour précédent (autre ville) ne fait plus loi : les routes
+   * imposées qui rejouent `priorIds` sont neutralisées, la recherche curatée
+   * reprend sur la ville nommée.
+   */
+  let cityRefineFromContext = false;
   const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
   /**
    * Suggestion curatée encore active dans la conversation (contexte, PAS un clic).
