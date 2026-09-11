@@ -5776,7 +5776,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/ryad-de-vignes-le-val-d-argan</loc>
+    <loc>https://oneworldmorocco.com/le-val-d-argan-guesthouse</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -8216,6 +8216,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/domaines-amal</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/pickalbatros-hotel-du-golf</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -9386,12 +9391,22 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/grotte-assif-n-el-hed</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/cascades-d-akchour</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/l-agence-bostudio</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/kasbah-tiziri</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9466,12 +9481,27 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/gravures-rupestres-de-tata</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/reewaya</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/horses-atlas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/aday-tafraout</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/kasbah-glaoui</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9487,6 +9517,16 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/kali-camp</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/plage-sidi-mghait</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/paradis-touareg</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9516,6 +9556,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/maha-premium-real-estate</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/mellah</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -9536,7 +9581,17 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/palais-de-fes</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/pure-passion</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/nid-d-aigle</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9546,7 +9601,37 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/celestia-invest</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/az-experience</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/trou-ajeb-lah</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/villa-mamma-gio</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/blue-waves-surf-house</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/morocco-shiny-days</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/agadir-d-ait-kine</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9561,7 +9646,22 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/taferdouste</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/azul-excursions</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/tour-mohammed-vi</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/palais-royal-1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9576,7 +9676,17 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/le-carrefour-des-pecheurs</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/villa-nausikaa</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/plateau-yagour</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9586,7 +9696,87 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/lac-de-taounate</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/le-carrousel-rabat</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/kasbah-hnini</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/ahfir</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/mohamed-soussi-1</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/les-cascades-de-mogador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/le-mirage-tanger</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/canyon-d-aoukerda</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/aday</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/chez-rachid-auberge</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/agadir-ighir</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/le-val-d-argan-guesthouse</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/gorges-d-imgoune</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/marocmaroc-skincare</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/djebel-adad-medni</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/tighboula</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/signature-luxury-villa</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

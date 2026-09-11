@@ -2,8 +2,8 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/cities.json",
-    "generated_at": "2026-09-09T10:18:17.100Z",
-    "count": 49
+    "generated_at": "2026-09-11T11:39:15.695Z",
+    "count": 53
   },
   "cities": [
     {
@@ -52,7 +52,7 @@
         "Medina",
         "Palmeraie de Skoura"
       ],
-      "businesses_count": 12
+      "businesses_count": 13
     },
     {
       "id": "d136ed38-e0e9-4596-9893-dfd18debd110",
@@ -144,7 +144,7 @@
         "Derb Omar",
         "Maârif"
       ],
-      "businesses_count": 51
+      "businesses_count": 52
     },
     {
       "id": "6f71282b-45c1-460a-ab36-f5ebabe07b38",
@@ -207,7 +207,7 @@
         "Marina",
         "Taghazout"
       ],
-      "businesses_count": 19
+      "businesses_count": 21
     },
     {
       "id": "9c8e0aa3-c3df-4090-83d2-81c62eae841f",
@@ -224,7 +224,7 @@
       "neighborhoods": [
         "Medina"
       ],
-      "businesses_count": 10
+      "businesses_count": 12
     },
     {
       "id": "db39771b-0b89-47a3-9d30-445476a9ff40",
@@ -256,7 +256,7 @@
       "neighborhoods": [
         "Medina"
       ],
-      "businesses_count": 10
+      "businesses_count": 13
     },
     {
       "id": "1b0fc42f-b43a-436d-a8d0-391bfc9ef410",
@@ -303,7 +303,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/zagora",
       "neighborhoods": [],
-      "businesses_count": 7
+      "businesses_count": 9
     },
     {
       "id": "dc7588c5-cebe-4e35-8148-76984a80c0cc",
@@ -377,7 +377,7 @@
         "Sidi Magdoul",
         "Agerd"
       ],
-      "businesses_count": 354
+      "businesses_count": 356
     },
     {
       "id": "252a7604-9f88-4f65-8e82-250c23d4e1c7",
@@ -427,6 +427,21 @@
       "businesses_count": 2
     },
     {
+      "id": "55e75ea6-f94e-4469-bc6d-bc0fdc45769c",
+      "name": "Oualidia",
+      "name_en": "Oualidia",
+      "region": "Casablanca-Settat",
+      "country": "MA",
+      "latitude": 32.735,
+      "longitude": -9.035,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Oualidia",
+      "description": null,
+      "url": "https://oneworldmorocco.com/destination/oualidia",
+      "neighborhoods": [],
+      "businesses_count": 5
+    },
+    {
       "id": "ac4d5921-0c7f-42fb-b27f-5c565e4f5fbe",
       "name": "Khouribga",
       "name_en": "Khouribga",
@@ -445,7 +460,7 @@
       "id": "c98a0959-9b50-4250-9a27-36fffbc16394",
       "name": "Imlil",
       "name_en": "Imlil",
-      "region": null,
+      "region": "Marrakech-Safi",
       "country": "MA",
       "latitude": 31.137,
       "longitude": -7.919,
@@ -469,22 +484,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/mirleft",
       "neighborhoods": [],
-      "businesses_count": 3
-    },
-    {
-      "id": "55e75ea6-f94e-4469-bc6d-bc0fdc45769c",
-      "name": "Oualidia",
-      "name_en": "Oualidia",
-      "region": null,
-      "country": "MA",
-      "latitude": 32.735,
-      "longitude": -9.035,
-      "image": null,
-      "wikipedia": "https://fr.wikipedia.org/wiki/Oualidia",
-      "description": null,
-      "url": "https://oneworldmorocco.com/destination/oualidia",
-      "neighborhoods": [],
-      "businesses_count": 5
+      "businesses_count": 4
     },
     {
       "id": "d9c55219-62bf-439d-b885-6becedeab1b0",
@@ -499,7 +499,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/tafraout",
       "neighborhoods": [],
-      "businesses_count": 0
+      "businesses_count": 4
     },
     {
       "id": "7e1a8e32-55e5-46cc-bcda-8fa9099bba79",
@@ -559,7 +559,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/ounara",
       "neighborhoods": [],
-      "businesses_count": 3
+      "businesses_count": 4
     },
     {
       "id": "5ce9185d-ea8f-4d1c-865b-6877dab8cd96",
@@ -629,7 +629,7 @@
         "Agafay",
         "Medina"
       ],
-      "businesses_count": 1198
+      "businesses_count": 1202
     },
     {
       "id": "181e8edb-4dc0-4c3d-8ea6-6a5fe9385067",
@@ -644,7 +644,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/tinghir",
       "neighborhoods": [],
-      "businesses_count": 1
+      "businesses_count": 2
     },
     {
       "id": "e615a53d-568d-4cc1-85ea-7286571de35b",
@@ -704,7 +704,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/tata",
       "neighborhoods": [],
-      "businesses_count": 1
+      "businesses_count": 4
     },
     {
       "id": "ec1d8f02-794f-4ad1-b85b-3023d40f4e49",
@@ -719,7 +719,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/sale",
       "neighborhoods": [],
-      "businesses_count": 0
+      "businesses_count": 1
     },
     {
       "id": "bbb7de4e-81d4-4dc3-9c44-df8e26b328f6",
@@ -779,7 +779,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/guelmim",
       "neighborhoods": [],
-      "businesses_count": 0
+      "businesses_count": 1
     },
     {
       "id": "6f1b773b-42c9-460e-8931-1ab4bc1e9a6e",
@@ -809,7 +809,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/ahfir",
       "neighborhoods": [],
-      "businesses_count": 0
+      "businesses_count": 1
     },
     {
       "id": "11aaed8c-3fa0-424a-b99d-54fd9548d7fe",
@@ -839,7 +839,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/tan-tan",
       "neighborhoods": [],
-      "businesses_count": 1
+      "businesses_count": 2
     },
     {
       "id": "ff28df6d-2e00-4791-969c-03517b524782",
@@ -855,6 +855,66 @@
       "url": "https://oneworldmorocco.com/destination/guerguerat",
       "neighborhoods": [],
       "businesses_count": 0
+    },
+    {
+      "id": "2a040016-780a-4a92-ab5d-78639c0bd5f9",
+      "name": "Asilah",
+      "name_en": "Asilah",
+      "region": "Tanger-Tétouan-Al Hoceïma",
+      "country": "MA",
+      "latitude": 35.4646127,
+      "longitude": -6.0308654,
+      "image": null,
+      "wikipedia": null,
+      "description": null,
+      "url": "https://oneworldmorocco.com/destination/asilah",
+      "neighborhoods": [],
+      "businesses_count": 1
+    },
+    {
+      "id": "a2a53f5d-6669-4445-aa40-19512226b318",
+      "name": "Larache",
+      "name_en": "Larache",
+      "region": "Tanger-Tétouan-Al Hoceïma",
+      "country": "MA",
+      "latitude": 35.1721577,
+      "longitude": -6.1445644,
+      "image": null,
+      "wikipedia": null,
+      "description": null,
+      "url": "https://oneworldmorocco.com/destination/larache",
+      "neighborhoods": [],
+      "businesses_count": 0
+    },
+    {
+      "id": "f3cbb43c-157b-4889-9fff-ca776557120d",
+      "name": "Rissani",
+      "name_en": "Rissani",
+      "region": "Drâa-Tafilalet",
+      "country": "MA",
+      "latitude": 31.2853387,
+      "longitude": -4.2650282,
+      "image": null,
+      "wikipedia": null,
+      "description": null,
+      "url": "https://oneworldmorocco.com/destination/rissani",
+      "neighborhoods": [],
+      "businesses_count": 0
+    },
+    {
+      "id": "1bc7ab4b-5485-4109-99f2-944635c5fee0",
+      "name": "Ouirgane",
+      "name_en": "Ouirgane",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.1752944,
+      "longitude": -8.0792028,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Ouirgane",
+      "description": null,
+      "url": "https://oneworldmorocco.com/destination/ouirgane",
+      "neighborhoods": [],
+      "businesses_count": 1
     }
   ]
 }
