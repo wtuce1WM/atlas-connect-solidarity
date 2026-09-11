@@ -262,6 +262,10 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
   const [isKp1Only, setIsKp1Only] = useState(false);
   const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
   const [serpApiMapping, setSerpApiMapping] = useState<{ serpHotelName: string; city: string } | null>(null);
+  // Vrai dès que les mappings hôteliers (SerpAPI / LiteAPI) sont réellement résolus.
+  // Sans ce drapeau, une vérification de disponibilité lancée automatiquement
+  // partait avec serpApiMapping = null → branche « non mappé » → aucun résultat.
+  const [mappingsLoaded, setMappingsLoaded] = useState(false);
 
   useEffect(() => {
     let isCancelled = false;
