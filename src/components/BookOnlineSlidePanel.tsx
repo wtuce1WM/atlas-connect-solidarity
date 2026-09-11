@@ -3176,6 +3176,13 @@ const BookOnlineSlidePanelInner = ({
             onTouchStart={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchStart}
             onTouchMove={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchMove}
             onTouchEnd={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchEnd}
+            /* L'overlay couvre la vidéo de fond : un clic hors bouton/lien rend
+               la main à l'affichage normal (comportement d'avant l'extraction). */
+            onClick={(e) => {
+              const el = e.target as HTMLElement | null;
+              if (el?.closest('button, a, [role="button"], input, textarea, select')) return;
+              showCards();
+            }}
           >
             <HotelAvailabilityResult
               business={business}
