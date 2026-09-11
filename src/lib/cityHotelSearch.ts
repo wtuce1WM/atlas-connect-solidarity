@@ -23,6 +23,17 @@ export interface CityHotelSearchResult extends FallbackPanelData {
   otherBusinessIds: string[];
 }
 
+function normalizeHotelName(value: unknown): string {
+  return typeof value === "string"
+    ? value
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim()
+    : "";
+}
+
 /** Hash simple d'une chaîne en entier 32 bits (graine de mélange). */
 function hashSeed(s: string): number {
   let h = 2166136261 >>> 0;
@@ -66,22 +77,24 @@ export async function searchCityHotels(params: CityHotelSearchParams): Promise<C
   ]);
   const allMappings = (mappingResult.data || []) as any[];
   const gammes = (gammeResult.data || []) as any[];
-  const maxPages = Math.max(1, Math.ceil(allMappings.length / 20));
-
   const serpResult = await supabase.functions.invoke("serpapi-hotels", {
-    body: { cityName, checkIn, checkOut, adults, currency: params.currency || "EUR", maxPages },
+    // Les hôtels référencés ne sont pas nécessairement dans les premières pages
+    // Google : parcourir toute la profondeur autorisée au lieu de déduire le
+    // nombre de pages du nombre de mappings locaux.
+    body: { cityName, checkIn, checkOut, adults, currency: params.currency || "EUR", maxPages: 10 },
   });
+  if (serpResult.error) throw serpResult.error;
   const serpHotels = ((serpResult.data as any)?.data || []) as any[];
 
   const serpByExactName = new Map<string, any>();
   for (const h of serpHotels) {
-    const n = typeof h.name === "string" ? h.name.trim().toLowerCase() : "";
+    const n = normalizeHotelName(h.name);
     if (n && !serpByExactName.has(n)) serpByExactName.set(n, h);
   }
 
   const matches = new Map<string, { mapping: any; serpMatch: any }>();
   for (const m of allMappings) {
-    const mn = typeof m.serp_hotel_name === "string" ? m.serp_hotel_name.trim().toLowerCase() : "";
+    const mn = normalizeHotelName(m.serp_hotel_name);
     if (!m.business_id || !mn || matches.has(m.business_id)) continue;
     const sm = serpByExactName.get(mn);
     if (sm) matches.set(m.business_id, { mapping: m, serpMatch: sm });

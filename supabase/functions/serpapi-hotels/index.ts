@@ -112,7 +112,11 @@ Deno.serve(async (req) => {
       !params.maxPrice &&
       !params.rating;
 
-    // 1) Try cache
+    const requestedMaxPages = Math.min(params.maxPages || 10, 10);
+
+    // 1) Try cache. A cache generated with fewer pages must never satisfy a
+    // deeper request: otherwise mapped hotels located later in Google results
+    // disappear until cache expiry.
     if (isCacheable) {
       const { data: cached } = await supabase
         .from("serpapi_hotels_cache")
@@ -127,7 +131,9 @@ Deno.serve(async (req) => {
         .gt("expires_at", new Date().toISOString())
         .maybeSingle();
 
-      if (cached?.payload) {
+      const cachedPages = Number((cached?.payload as Record<string, unknown> | null)?.pages || 0);
+      const cachedExhausted = (cached?.payload as Record<string, unknown> | null)?.exhausted === true;
+      if (cached?.payload && (cachedExhausted || cachedPages >= requestedMaxPages)) {
         console.log(`SerpApi cache HIT: ${cityKey} ${params.checkIn}→${params.checkOut} (${cached.hotel_count} hotels)`);
         return new Response(
           JSON.stringify({
@@ -138,15 +144,16 @@ Deno.serve(async (req) => {
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      console.log(`SerpApi cache MISS: ${cityKey} ${params.checkIn}→${params.checkOut}`);
+      console.log(`SerpApi cache MISS: ${cityKey} ${params.checkIn}→${params.checkOut} (requested=${requestedMaxPages}, cached=${cachedPages})`);
     }
 
     // 2) Cache miss → call SerpAPI
-    const maxPages = Math.min(params.maxPages || 10, 10);
+    const maxPages = requestedMaxPages;
     const allProperties: ReturnType<typeof mapProperty>[] = [];
     let brands: unknown[] = [];
     let nextPageToken: string | null = null;
     let page = 0;
+    let exhausted = false;
 
     while (page < maxPages) {
       const searchParams = new URLSearchParams({
@@ -196,6 +203,7 @@ Deno.serve(async (req) => {
         nextPageToken = pagination.next_page_token;
         page++;
       } else {
+        exhausted = true;
         break;
       }
     }
@@ -206,6 +214,7 @@ Deno.serve(async (req) => {
       data: allProperties,
       count: allProperties.length,
       pages: page + 1,
+      exhausted,
       brands,
       searchInfo: {
         query: `Hotels in ${params.cityName}`,
