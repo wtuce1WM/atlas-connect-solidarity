@@ -2256,13 +2256,21 @@ const BookOnlineSlidePanelInner = ({
     effectiveMedia?.kind === "video" &&
     videoInfo?.type !== "file" &&
     !prioritizeBusinessSwipe;
-  // Reflet durable du mode disponibilité pendant un geste tactile : empêche
-  // qu'un swipe vertical/horizontal dans le fallback fasse réapparaître le
-  // rail de CTAs de gauche et les chevrons de droite entre deux résultats.
+  // Mode disponibilité "collant" : une fois le fallback affiché, on reste en
+  // affichage minimal (pas de rail de CTAs à gauche, pas de chevrons à droite)
+  // pendant toute la navigation entre résultats, même si `cardsHidden` retombe
+  // le temps d'une transition. Sortie uniquement par tap explicite ou fin de
+  // contexte disponibilité.
+  const [availabilitySticky, setAvailabilitySticky] = useState(false);
   const availabilityNavigatingRef = useRef(false);
-  const availabilityConfirmationShownRef = useRef(cardsHidden && (hotelSearchLoading || !!fallbackPanelData));
-  const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData || availabilityNavigatingRef.current);
+  const availabilityConfirmationShownRef = useRef(false);
+  const availabilityConfirmationShown =
+    (cardsHidden && (hotelSearchLoading || !!fallbackPanelData)) || availabilitySticky;
   useEffect(() => { availabilityConfirmationShownRef.current = availabilityConfirmationShown; }, [availabilityConfirmationShown]);
+  useEffect(() => {
+    if (cardsHidden && (hotelSearchLoading || !!fallbackPanelData)) setAvailabilitySticky(true);
+  }, [cardsHidden, hotelSearchLoading, fallbackPanelData]);
+
 
   // Ouverture depuis l'assistant IA avec dates : on ne masque le chrome que
   // lorsqu'un fallback avec résultats est effectivement affiché. En l'absence de
@@ -2392,14 +2400,17 @@ const BookOnlineSlidePanelInner = ({
   useEffect(() => {
     if (!hotelSearchLoading && !fallbackPanelData && !autoCheckAvailability) {
       availabilityNavigatingRef.current = false;
+      setAvailabilitySticky(false);
     }
   }, [hotelSearchLoading, fallbackPanelData, autoCheckAvailability]);
 
   useEffect(() => {
     if (autoAvailabilityFailed) {
       availabilityNavigatingRef.current = false;
+      setAvailabilitySticky(false);
     }
   }, [autoAvailabilityFailed]);
+
 
   // iOS : quand la navigation verticale entre fiches est disponible, un swipe
   // vertical ne doit pas embarquer le viewport (scroll natif / rubber-band).
@@ -2891,7 +2902,7 @@ const BookOnlineSlidePanelInner = ({
 
 
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
-      {!cardsHidden && !chromeHidden && !showPoiMapOverlay && !showDirections && !(embedMode && initialOverlay === "poi") && (
+      {!cardsHidden && !chromeHidden && !availabilityConfirmationShown && !showPoiMapOverlay && !showDirections && !(embedMode && initialOverlay === "poi") && (
         <div data-owm-video-rail="true" dir="ltr" className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
           {(() => {
             const LANG_OPTIONS = [
@@ -2991,7 +3002,7 @@ const BookOnlineSlidePanelInner = ({
 
       {/* Pilule chevrons — compacte à l'ouverture, déplie au hover/tap.
           En mode immersion (chromeHidden) : rendue et dépliée en permanence. */}
-      {(!cardsHidden || chromeHidden) && !showPoiMapOverlay && !showDirections && (effectiveHasPrev || effectiveHasNext || totalMedia > 1) && (
+      {(!cardsHidden || chromeHidden) && !availabilityConfirmationShown && !showPoiMapOverlay && !showDirections && (effectiveHasPrev || effectiveHasNext || totalMedia > 1) && (
         <div
           ref={navPillRef}
           className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center rounded-l-full border border-r-0 border-white/10 bg-black/80 backdrop-blur-md shadow-[-4px_4px_12px_rgba(0,0,0,0.3)] py-1 px-1 pointer-events-auto transition-all duration-300"
@@ -3083,7 +3094,7 @@ const BookOnlineSlidePanelInner = ({
           // toucher le padding du conteneur → presque jamais déclenché.
           if (suppressTapRef.current) { suppressTapRef.current = false; return; }
           if (isInteractiveTarget(e.target)) return;
-          if (cardsHidden) { showCards(); } else { hideCards(); setChromeHidden(true); }
+          if (cardsHidden || availabilitySticky) { setAvailabilitySticky(false); showCards(); } else { hideCards(); setChromeHidden(true); }
 
         }}
 
@@ -3211,6 +3222,7 @@ const BookOnlineSlidePanelInner = ({
             onClick={(e) => {
               const el = e.target as HTMLElement | null;
               if (el?.closest('button, a, [role="button"], input, textarea, select')) return;
+              setAvailabilitySticky(false);
               showCards();
             }}
           >
