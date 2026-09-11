@@ -938,12 +938,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       if (siblings.length) {
         // Fermer tout panneau vidéo/badge déjà ouvert à droite, sinon le
         // feed-vidéo des résultats s'affiche derrière.
-        setActiveFeedVideoId(null);
         setOpenSiblings(siblings);
         setAvailabilityBusinessIds(availIds);
         setOpenBusinessStay({ checkIn, checkOut, adults: adults || 2 });
         setOpenBusinessOverlay(null);
-        if (openBusinessId) {
+        // React regroupe les mises à jour d'un même tour. Ne pas fermer le
+        // VideoSlidePanel et ouvrir la fiche dans le même rendu : elle partirait
+        // derrière le panneau vidéo encore monté. On impose un rendu fermé,
+        // puis l'effet `pendingBusinessOpen` ouvre le nouveau feed business.
+        if (activeFeedVideoId || openBusinessId) {
+          setActiveFeedVideoId(null);
           setOpenBusinessId(null);
           setPendingBusinessOpen({ id: siblings[0], overlay: null });
         } else {
@@ -1328,12 +1332,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Réouverture différée d'une fiche business : on a d'abord fermé le
   // slidepanel précédent pour éviter qu'il recouvre le résultat cliqué.
   useEffect(() => {
-    if (!pendingBusinessOpen || openBusinessId) return;
+    if (!pendingBusinessOpen || openBusinessId || activeFeedVideoId) return;
     const { id, overlay } = pendingBusinessOpen;
     setPendingBusinessOpen(null);
     setOpenBusinessOverlay(overlay);
     setOpenBusinessId(id);
-  }, [pendingBusinessOpen, openBusinessId]);
+  }, [pendingBusinessOpen, openBusinessId, activeFeedVideoId]);
   // Source unique de vérité pour tous les overlays Map. Un second effet dédié à
   // `openMap` envoyait parfois « map-closed » pendant l'ouverture du POI générique.
   useEffect(() => {
