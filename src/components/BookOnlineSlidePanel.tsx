@@ -188,6 +188,8 @@ interface BookOnlineSlidePanelProps {
   initialAvailabilityCheckIn?: string;
   initialAvailabilityCheckOut?: string;
   initialAvailabilityAdults?: number;
+  /** Lance directement la vérification de disponibilité (affiche le Fallback sans passer par le widget) */
+  autoCheckAvailability?: boolean;
   onMosaicStateChange?: (open: boolean) => void;
   closeTrigger?: number;
   propagateMosaicState?: boolean;
@@ -301,7 +303,7 @@ interface BookOnlineSlidePanelProps {
 const BookOnlineSlidePanelInner = ({
   businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef,
   showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch,
-  initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults,
+  initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, autoCheckAvailability,
   onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl,
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext, prioritizeBusinessSwipe = false, internalWheelNav = false,
