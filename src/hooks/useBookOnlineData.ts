@@ -262,9 +262,14 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
   const [isKp1Only, setIsKp1Only] = useState(false);
   const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
   const [serpApiMapping, setSerpApiMapping] = useState<{ serpHotelName: string; city: string } | null>(null);
+  // Vrai dès que les mappings hôteliers (SerpAPI / LiteAPI) sont réellement résolus.
+  // Sans ce drapeau, une vérification de disponibilité lancée automatiquement
+  // partait avec serpApiMapping = null → branche « non mappé » → aucun résultat.
+  const [mappingsLoaded, setMappingsLoaded] = useState(false);
 
   useEffect(() => {
     let isCancelled = false;
+    setMappingsLoaded(false);
 
     // Check cache first — restore immediately without network round-trip
     const cached = businessDataCache.get(`${businessId}:${language}:${allowInactive ? 1 : 0}`);
@@ -286,6 +291,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       setIsKp1Only(cached.isKp1Only);
       setLiteApiHotelId(cached.liteApiHotelId);
       setSerpApiMapping(cached.serpApiMapping);
+      setMappingsLoaded(true);
       setIsLoading(false);
       // Don't return — continue to re-fetch fresh data in background
     }
@@ -842,6 +848,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
         fetchLiteApiMapping(),
         fetchSerpApiMapping(),
       ]);
+      if (!isCancelled) setMappingsLoaded(true);
     };
 
     // Filet de sécurité : sans catch, une seule requête en échec laissait
@@ -945,6 +952,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
     isKp1Only,
     liteApiHotelId,
     serpApiMapping,
+    mappingsLoaded,
     isHotelWithPrice,
   };
 }
