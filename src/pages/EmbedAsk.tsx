@@ -948,6 +948,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const badgesRowRef = useRef<HTMLDivElement>(null);
   /** Une relance utilisateur doit devenir le point de départ visible du nouveau tour. */
   const anchorNextUserMessageRef = useRef(false);
+  /** Refs vers le bloc de résultats de disponibilité, pour scroll auto après vérification. */
+  const bookingResultRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const prevHotelSearchingRef = useRef<string | null>(null);
   const L = LANG_LABELS[lang];
 
   // Mode plateforme : l'assistant est prêt sans business hôte ; le titre est
@@ -1894,6 +1897,21 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     });
     return () => cancelAnimationFrame(frame);
   }, [messages, heroLayout, streaming]);
+
+  // Quand la vérification de disponibilité hôtelière se termine, remonter
+  // automatiquement le bloc de résultats dans le viewport pour qu'il soit visible.
+  useEffect(() => {
+    if (prevHotelSearchingRef.current && !hotelSearchingMsgId) {
+      const finishedId = prevHotelSearchingRef.current;
+      const el = bookingResultRefs.current[finishedId];
+      if (el) {
+        requestAnimationFrame(() => {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      }
+    }
+    prevHotelSearchingRef.current = hotelSearchingMsgId;
+  }, [hotelSearchingMsgId]);
 
   // Boutons flottants haut/bas (desktop) : état du dépassement vertical du flux.
   const [convScroll, setConvScroll] = useState({ scrollable: false, canUp: false, canDown: false });
@@ -4365,7 +4383,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
 
                 {bookingResult && (
-                    <div className="flex flex-col gap-3">
+                    <div
+                      ref={(el) => { bookingResultRefs.current[msgKey] = el; }}
+                      className="flex flex-col gap-3"
+                    >
                       <div className={`text-xs font-semibold ${theme === "dark" ? "text-white/70" : "text-neutral-700"}`}>
                         {bookingResult.hotels.length > 0
                           ? (lang === "en"
