@@ -1199,11 +1199,12 @@ const BookOnlineSlidePanelInner = ({
   const [showSpotifyOverlay, setShowSpotifyOverlay] = useState(false);
   const [showSubstackOverlay, setShowSubstackOverlay] = useState(false);
   const [showSoundCloudOverlay, setShowSoundCloudOverlay] = useState(false);
-  // Démarre déjà en « recherche » quand l'ouverture vient de l'assistant IA avec
-  // des dates : le fallback (spinner puis résultat) est visible dès la 1re frame.
-  const [hotelSearchLoading, setHotelSearchLoading] = useState(
-    !!autoCheckAvailability && !!initialAvailabilityCheckIn && !!initialAvailabilityCheckOut
-  );
+  // Quand l'ouverture vient de l'assistant IA avec des dates, la recherche de
+  // disponibilité part en arrière-plan. On reste en affichage normal si SerpAPI
+  // ne retourne aucun résultat ; le fallback ne s'affiche que lorsqu'il y a des
+  // résultats à montrer.
+  const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
+  const [autoAvailabilityFailed, setAutoAvailabilityFailed] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
 
   // Auto-close availability search overlay when search completes
