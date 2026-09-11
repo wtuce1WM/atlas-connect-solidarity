@@ -2199,31 +2199,65 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const checkOut = freeBookingIntent?.checkOut || null;
       const adults = freeBookingIntent?.adults || null;
       const hasDates = !!checkIn && !!checkOut;
-      const msgId = `a-booking-${Date.now()}`;
-      setMessages((prev) => [
-        ...prev,
-        { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
-        {
-          id: msgId,
-          role: "assistant",
-          parts: [{
-            type: "text",
-            text: `${hasDates
-              ? (lang === "en"
-                  ? `Checking live availability in ${city} for your dates.`
-                  : lang === "ar"
-                  ? `أتحقق من التوفر في ${city} في هذه التواريخ.`
-                  : `Je vérifie les disponibilités à ${city} pour ces dates.`)
-              : (lang === "en"
-                  ? `Choose your dates and number of guests — I'll check live availability in ${city}.`
-                  : lang === "ar"
-                  ? `اختر التواريخ وعدد المسافرين — سأتحقق من التوفر في ${city}.`
-                  : `Choisissez vos dates et le nombre de voyageurs — je vérifie les disponibilités à ${city}.`)}\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city, checkIn, checkOut, adults })}-->`,
-          }],
-        } as any,
-      ]);
-      // Dates complètes détectées → interrogation SerpAPI immédiate.
-      if (hasDates) runCityHotelSearch(msgId, city, checkIn as string, checkOut as string, adults || 2);
+      const pushBookingWidget = () => {
+        const msgId = `a-booking-${Date.now()}`;
+        setMessages((prev) => [
+          ...prev,
+          { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+          {
+            id: msgId,
+            role: "assistant",
+            parts: [{
+              type: "text",
+              text: `${hasDates
+                ? (lang === "en"
+                    ? `Checking live availability in ${city} for your dates.`
+                    : lang === "ar"
+                    ? `أتحقق من التوفر في ${city} في هذه التواريخ.`
+                    : `Je vérifie les disponibilités à ${city} pour ces dates.`)
+                : (lang === "en"
+                    ? `Choose your dates and number of guests — I'll check live availability in ${city}.`
+                    : lang === "ar"
+                    ? `اختر التواريخ وعدد المسافرين — سأتحقق من التوفر في ${city}.`
+                    : `Choisissez vos dates et le nombre de voyageurs — je vérifie les disponibilités à ${city}.`)}\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city, checkIn, checkOut, adults })}-->`,
+            }],
+          } as any,
+        ]);
+        // Dates complètes détectées → interrogation SerpAPI immédiate.
+        if (hasDates) runCityHotelSearch(msgId, city, checkIn as string, checkOut as string, adults || 2);
+      };
+      // Accueil IA fermé + question hôtelière datée (texte ou vocal) : aucune
+      // réponse texte, aucun widget, aucune vignette — la recherche SerpAPI part
+      // directement et le feed vidéo s'ouvre sur le 1er établissement disponible,
+      // puis se prolonge avec les autres hôtels/riads de la ville.
+      if (homeState && hasDates) {
+        void (async () => {
+          try {
+            const res = await searchCityHotels({
+              cityName: city,
+              checkIn: checkIn as string,
+              checkOut: checkOut as string,
+              adults: adults || 2,
+            });
+            const ids = (res.hotels || []).map((h: any) => String(h.businessId));
+            const siblings = [...ids, ...((res as any).otherBusinessIds || [])];
+            if (!siblings.length) {
+              // Aucun établissement : parcours standard (widget + dates).
+              pushBookingWidget();
+              return;
+            }
+            setOpenSiblings(siblings);
+            setAvailabilityBusinessIds(ids);
+            setOpenBusinessStay({ checkIn: checkIn as string, checkOut: checkOut as string, adults: adults || 2 });
+            setOpenBusinessId(siblings[0]);
+          } catch (e) {
+            setError(e instanceof Error ? e.message : "hotel search failed");
+            pushBookingWidget();
+          }
+        })();
+        return;
+      }
+      pushBookingWidget();
       return;
     }
     // Commande (tapée ou vocale) de changement de rayon : traitée localement,
