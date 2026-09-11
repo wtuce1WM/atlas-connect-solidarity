@@ -269,6 +269,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
 
   useEffect(() => {
     let isCancelled = false;
+    setMappingsLoaded(false);
 
     // Check cache first — restore immediately without network round-trip
     const cached = businessDataCache.get(`${businessId}:${language}:${allowInactive ? 1 : 0}`);
