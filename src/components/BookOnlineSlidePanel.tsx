@@ -3002,7 +3002,7 @@ const BookOnlineSlidePanelInner = ({
 
       {/* Pilule chevrons — compacte à l'ouverture, déplie au hover/tap.
           En mode immersion (chromeHidden) : rendue et dépliée en permanence. */}
-      {(!cardsHidden || chromeHidden) && !showPoiMapOverlay && !showDirections && (effectiveHasPrev || effectiveHasNext || totalMedia > 1) && (
+      {(!cardsHidden || chromeHidden) && !availabilityConfirmationShown && !showPoiMapOverlay && !showDirections && (effectiveHasPrev || effectiveHasNext || totalMedia > 1) && (
         <div
           ref={navPillRef}
           className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center rounded-l-full border border-r-0 border-white/10 bg-black/80 backdrop-blur-md shadow-[-4px_4px_12px_rgba(0,0,0,0.3)] py-1 px-1 pointer-events-auto transition-all duration-300"
