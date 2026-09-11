@@ -1405,16 +1405,22 @@ const BookOnlineSlidePanelInner = ({
 
   // Vérification automatique de disponibilité : quand les dates viennent de
   // l'assistant IA, on affiche directement le Fallback sans repasser par le widget.
+  // IMPORTANT : on attend `mappingsLoaded`. Lancée trop tôt, la recherche partait
+  // sans mapping SerpAPI → branche « hôtel non mappé » → aucun résultat réel.
   const autoAvailabilityDoneRef = useRef<string | null>(null);
   useEffect(() => {
     if (!autoCheckAvailability) return;
-    if (isLoading || !business) return;
+    if (isLoading || !business || !mappingsLoaded) return;
     if (!initialAvailabilityCheckIn || !initialAvailabilityCheckOut) return;
     const key = `${businessId}|${initialAvailabilityCheckIn}|${initialAvailabilityCheckOut}|${initialAvailabilityAdults ?? 2}`;
     if (autoAvailabilityDoneRef.current === key) return;
     autoAvailabilityDoneRef.current = key;
+    // Passage immédiat en mode « cartes masquées » : la Barre Info Viewer reste
+    // ancrée en bas dès la première frame, sans saut de mise en page à l'arrivée
+    // des résultats.
+    hideCardsRef.current();
     handleCheckAvailability(initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults ?? 2);
-  }, [autoCheckAvailability, isLoading, business, businessId, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, handleCheckAvailability]);
+  }, [autoCheckAvailability, isLoading, business, mappingsLoaded, businessId, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, handleCheckAvailability]);
 
 
   useEffect(() => {
