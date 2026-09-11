@@ -2368,7 +2368,7 @@ const BookOnlineSlidePanelInner = ({
       // Changement de média : geste consommé par la navigation, pas de bascule
       // masquer/afficher des cartes (aligné sur VideoSlidePanel).
       suppressTapRef.current = true;
-      resetDrag();
+      if (!availabilityNavigatingRef.current) resetDrag();
       return;
     }
     if (absY > 60 && absY > absX * 1.5 && (effectiveHasPrev || effectiveHasNext)) {
@@ -2381,11 +2381,25 @@ const BookOnlineSlidePanelInner = ({
       // viewer (rail de CTAs, CTAs du header, chevrons, barre info) restent
       // affichés — le geste ne doit JAMAIS déclencher `hideCards`.
       suppressTapRef.current = true;
-      resetDrag();
+      if (!availabilityNavigatingRef.current) resetDrag();
       return;
     }
     onTouchEnd?.();
   }, [onTouchEnd, goMedia, resetDrag, effectiveHasNext, effectiveHasPrev, effectiveOnNext, effectiveOnPrev, anyOverlayOpen]);
+
+  // Nettoyage du flag de navigation disponibilité quand le contexte disparaît
+  // (recherche terminée sans résultat, fermeture manuelle, etc.).
+  useEffect(() => {
+    if (!hotelSearchLoading && !fallbackPanelData && !autoCheckAvailability) {
+      availabilityNavigatingRef.current = false;
+    }
+  }, [hotelSearchLoading, fallbackPanelData, autoCheckAvailability]);
+
+  useEffect(() => {
+    if (autoAvailabilityFailed) {
+      availabilityNavigatingRef.current = false;
+    }
+  }, [autoAvailabilityFailed]);
 
   // iOS : quand la navigation verticale entre fiches est disponible, un swipe
   // vertical ne doit pas embarquer le viewport (scroll natif / rubber-band).
