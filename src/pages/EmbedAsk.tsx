@@ -1273,6 +1273,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   /** Dates du widget Disponibilité de l'assistant, reprises dans la fiche ouverte. */
   const [openBusinessStay, setOpenBusinessStay] = useState<{ checkIn: string; checkOut: string; adults: number } | null>(null);
+  /** Établissements ayant une disponibilité SerpAPI : seuls ceux-là démarrent
+      la fiche en mode disponibilité. Les autres hôtels/riads qui prolongent le
+      feed s'affichent normalement. */
+  const [availabilityBusinessIds, setAvailabilityBusinessIds] = useState<string[]>([]);
   const [openBusinessOverlay, setOpenBusinessOverlay] = useState<"reviews" | null>(null);
   const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
   /** Overlay inline « Le meilleur de YouTube sur le Maroc » (variante compacte de /youtube). */
