@@ -1032,6 +1032,7 @@ Deno.serve(async (req) => {
             if (allowed) {
               suggestionId = contextSuggestionId;
               suggestionFromText = true;
+              cityRefineFromContext = true;
               console.log("[embed-ai-chat-v2] curated_city_refine", JSON.stringify({
                 suggestionId: contextSuggestionId, city: explicitCity,
               }));
