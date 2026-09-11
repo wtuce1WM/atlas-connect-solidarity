@@ -122,9 +122,15 @@ export async function searchCityHotels(params: CityHotelSearchParams): Promise<C
     .ilike("city", cityName)
     .order("computed_rating", { ascending: false, nullsFirst: false })
     .limit(200);
-  const otherBusinessIds = (otherRows || [])
-    .map((b: any) => String(b.id))
-    .filter((id) => !matchedIds.has(id));
+  // Mélange stable par seed (Fisher-Yates + mulberry32) pour que la suite du
+  // feed varie d'une recherche à l'autre au lieu de toujours retourner les
+  // mêmes têtes de liste (tri par note = ordre identique à chaque tour).
+  // Seed = ville + dates + horodatage : un même résultat de recherche garde un
+  // ordre fixe (il est capturé une fois), deux recherches successives diffèrent.
+  const otherBusinessIds = seededShuffle(
+    (otherRows || []).map((b: any) => String(b.id)).filter((id) => !matchedIds.has(id)),
+    hashSeed(`${cityName}|${checkIn}|${checkOut}|${Date.now()}`),
+  );
 
   return {
     otherBusinessIds,
