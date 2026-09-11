@@ -372,7 +372,7 @@ const BookOnlineSlidePanelInner = ({
   const {
     business, woDescription, destinations, poiBusinesses, isLoading,
     reviewTexts, externalLinks, menuSummaries, menuDocs, videoDocs,
-    allVideoUrls, categoryIcon, showGoogleMap, kpRelated, kpSubcategoryItems, kpSubcategoryLabel, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
+    allVideoUrls, categoryIcon, showGoogleMap, kpRelated, kpSubcategoryItems, kpSubcategoryLabel, isKp1Only, liteApiHotelId, serpApiMapping, mappingsLoaded, isHotelWithPrice,
   } = useBookOnlineData(businessId, !!embedMode);
 
   // Codes de widgets (par intention) — servent de widget de réservation prioritaire
