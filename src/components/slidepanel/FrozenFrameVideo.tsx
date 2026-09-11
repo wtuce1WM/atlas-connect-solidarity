@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
-import { captureLastVideoFrame, getLastVideoFrame } from "@/lib/lastVideoFrame";
+import { captureLastVideoFrame } from "@/lib/lastVideoFrame";
 
 
 interface FrozenFrameVideoProps {
@@ -53,8 +53,9 @@ const FrozenFrameVideo = React.memo(function FrozenFrameVideo({
   // Overlay couvrant (Full Description…) : lu par les relances asynchrones.
   const blockedRef = useRef(blocked);
   useEffect(() => { blockedRef.current = blocked; }, [blocked]);
-  // Image gelée héritée du panneau précédent (transition sans écran noir au montage).
-  const [poster, setPoster] = useState<string | null>(() => getLastVideoFrame());
+  // Aucune image gelée au montage : l'utilisateur ne veut pas voir l'image 1
+  // (dernier frame ou poster) en fond avant que la vidéo ne démarre.
+  const [poster, setPoster] = useState<string | null>(null);
 
   const getEl = (slot: 0 | 1) => (slot === 0 ? refA.current : refB.current);
 
