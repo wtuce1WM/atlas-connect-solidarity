@@ -107,6 +107,7 @@ function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: bool
 
 const AiBusinessResultTiles = ({
   businesses, origin, lang = "fr", rankOrder, onOpen, onOpenBooking, footer, max = 20, compact = false,
+  priceBadges,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const { cols, measured } = useContainerColumns(wrapRef, compact);
