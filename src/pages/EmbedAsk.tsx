@@ -1907,7 +1907,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const scroller = scrollRef.current;
       if (el && scroller) {
         requestAnimationFrame(() => {
-          const headerInset = 72;
+          const headerInset = 56;
           const targetTop =
             scroller.scrollTop +
             el.getBoundingClientRect().top -
