@@ -930,6 +930,23 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     setHotelSearchingMsgId(msgId);
     try {
       const res = await searchCityHotels({ cityName: city, checkIn, checkOut, adults });
+      // Le feed vidéo part AVANT l'affichage des résultats dans la réponse IA :
+      // d'abord les établissements retournés par SerpAPI (fallback disponibilité),
+      // puis les autres hôtels/riads de la ville en affichage normal.
+      const availIds = [...new Set((res.hotels || []).map((h: any) => String(h.businessId)).filter(Boolean))];
+      const siblings = [...new Set([...availIds, ...((res as any).otherBusinessIds || []).map(String)])];
+      if (siblings.length) {
+        setOpenSiblings(siblings);
+        setAvailabilityBusinessIds(availIds);
+        setOpenBusinessStay({ checkIn, checkOut, adults: adults || 2 });
+        setOpenBusinessOverlay(null);
+        if (openBusinessId) {
+          setOpenBusinessId(null);
+          setPendingBusinessOpen({ id: siblings[0], overlay: null });
+        } else {
+          setOpenBusinessId(siblings[0]);
+        }
+      }
       setHotelResults((prev) => ({ ...prev, [msgId]: res }));
     } catch (e) {
       setError(e instanceof Error ? e.message : "hotel search failed");
