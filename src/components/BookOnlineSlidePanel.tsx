@@ -3222,6 +3222,7 @@ const BookOnlineSlidePanelInner = ({
             onClick={(e) => {
               const el = e.target as HTMLElement | null;
               if (el?.closest('button, a, [role="button"], input, textarea, select')) return;
+              setAvailabilitySticky(false);
               showCards();
             }}
           >
