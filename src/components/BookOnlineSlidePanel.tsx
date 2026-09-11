@@ -3094,7 +3094,7 @@ const BookOnlineSlidePanelInner = ({
           // toucher le padding du conteneur → presque jamais déclenché.
           if (suppressTapRef.current) { suppressTapRef.current = false; return; }
           if (isInteractiveTarget(e.target)) return;
-          if (cardsHidden) { showCards(); } else { hideCards(); setChromeHidden(true); }
+          if (cardsHidden || availabilitySticky) { setAvailabilitySticky(false); showCards(); } else { hideCards(); setChromeHidden(true); }
 
         }}
 
