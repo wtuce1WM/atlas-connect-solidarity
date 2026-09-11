@@ -16,6 +16,11 @@ export interface CityHotelSearchParams {
 export interface CityHotelSearchResult extends FallbackPanelData {
   /** Fiches Lovable Cloud correspondantes (pour ouvrir la fiche business). */
   businesses: any[];
+  /**
+   * Autres hôtels/riads actifs de la ville pour lesquels SerpAPI n'a retourné
+   * aucune disponibilité : ils prolongent le feed vidéo en affichage normal.
+   */
+  otherBusinessIds: string[];
 }
 
 const BIZ_FIELDS =
@@ -106,7 +111,23 @@ export async function searchCityHotels(params: CityHotelSearchParams): Promise<C
   };
   hotels.sort((a, b) => price(a) - price(b) || (b.dbGoogleRating || 0) - (a.dbGoogleRating || 0));
 
+  // Suite du feed vidéo : les autres hôtels/riads actifs de la ville, sans
+  // disponibilité SerpAPI, à parcourir en affichage normal.
+  const matchedIds = new Set(hotels.map((h: any) => String(h.businessId)));
+  const { data: otherRows } = await supabase
+    .from("businesses")
+    .select("id, computed_rating, total_review_count")
+    .eq("is_active", true)
+    .eq("main_category", "Hôtellerie")
+    .ilike("city", cityName)
+    .order("computed_rating", { ascending: false, nullsFirst: false })
+    .limit(200);
+  const otherBusinessIds = (otherRows || [])
+    .map((b: any) => String(b.id))
+    .filter((id) => !matchedIds.has(id));
+
   return {
+    otherBusinessIds,
     hotels,
     city: cityName,
     checkIn,

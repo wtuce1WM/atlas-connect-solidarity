@@ -4392,7 +4392,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                           images: h.dbBusiness?.images?.length ? h.dbBusiness.images : (h.mainImage ? [h.mainImage] : []),
                           booking_url: h.reserveNowUrl || h.dbBusiness?.reserve_now_url || null,
                         }));
-                        const siblingIds = bookingResult.hotels.map((h: any) => h.businessId);
+                        // Le feed vidéo ne s'arrête pas aux hôtels retournés par
+                        // SerpAPI : il continue avec les autres hôtels/riads
+                        // actifs de la ville, en affichage normal.
+                        const siblingIds = [
+                          ...bookingResult.hotels.map((h: any) => String(h.businessId)),
+                          ...((bookingResult as any).otherBusinessIds || []),
+                        ];
                         const remaining = bookingResult.hotels.length - visible.length;
                         return (
                           <AiBusinessResultTiles
