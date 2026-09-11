@@ -847,6 +847,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
         fetchLiteApiMapping(),
         fetchSerpApiMapping(),
       ]);
+      if (!isCancelled) setMappingsLoaded(true);
     };
 
     // Filet de sécurité : sans catch, une seule requête en échec laissait
