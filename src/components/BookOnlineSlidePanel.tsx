@@ -2244,6 +2244,15 @@ const BookOnlineSlidePanelInner = ({
     !prioritizeBusinessSwipe;
   const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData);
 
+  // Ouverture depuis l'assistant IA avec dates : tant que le fallback de
+  // disponibilité n'est pas prêt, on ne montre ni les CTAs du bas ni la
+  // Barre Info Viewer (évite un flash de chrome avant le résultat).
+  const autoAvailabilityPending =
+    !!autoCheckAvailability &&
+    !!initialAvailabilityCheckIn &&
+    !!initialAvailabilityCheckOut &&
+    !fallbackPanelData;
+
   // Plein écran de la vidéo de fond :
   // - fichier hébergé → lecteur natif (contrôles liquid glass iOS)
   // - YouTube/Vimeo → overlay vidéo existant
