@@ -1437,7 +1437,9 @@ const BookOnlineSlidePanelInner = ({
     cardsHidden,
     showCards, hideCards, resetDrag,
     onTouchStart, onTouchMove, onTouchEnd, onMouseDownDrag,
-  } = useDragToHide();
+    // Ouverture depuis l'assistant IA avec dates : on démarre déjà en mode
+    // disponibilité, sans afficher d'abord la fiche puis basculer.
+  } = useDragToHide(!!autoCheckAvailability && !!initialAvailabilityCheckIn && !!initialAvailabilityCheckOut);
   useEffect(() => { hideCardsRef.current = hideCards; }, [hideCards]);
   useEffect(() => { currentCardsHiddenRef.current = cardsHidden; }, [cardsHidden]);
   // Réaffichage des cartes (quel qu'en soit le déclencheur) → sort aussi du mode immersion.
