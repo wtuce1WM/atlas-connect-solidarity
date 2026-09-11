@@ -290,6 +290,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       setIsKp1Only(cached.isKp1Only);
       setLiteApiHotelId(cached.liteApiHotelId);
       setSerpApiMapping(cached.serpApiMapping);
+      setMappingsLoaded(true);
       setIsLoading(false);
       // Don't return — continue to re-fetch fresh data in background
     }
