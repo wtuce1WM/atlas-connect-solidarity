@@ -628,6 +628,12 @@ const VideoSlidePanel = ({
   const hasVideoOwnText = !!((headerVideoTitle || "").trim() || (description || "").trim());
   const preferEntity = isExternalVideo && !hasBusinessSource && !!linkedEntity;
   const useVideoOwnText = isExternalVideo && !hasBusinessSource && !linkedEntity && hasVideoOwnText;
+  /* Entité éditoriale liée (Destination / POI) : son texte remplace celui de la
+     vidéo, dans la barre info ET dans l'overlay Full Description. */
+  const effectiveDescription = preferEntity
+    ? (linkedEntity?.description || linkedEntity?.hook || rawDescription)
+    : rawDescription;
+
   const feedInfoTitle = preferEntity
     ? (linkedEntity?.name || "")
     : useVideoOwnText
