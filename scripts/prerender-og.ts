@@ -100,11 +100,16 @@ export function prerenderOgPlugin(): Plugin {
       if (SUPABASE_URL && headers) {
         for (let offset = 0; ; offset += PAGE) {
           const url = `${SUPABASE_URL}/rest/v1/businesses?select=id,slug,name,city,description,hook_fr,images&is_active=eq.true&order=id&limit=${PAGE}&offset=${offset}`;
-          const r = await fetch(url, { headers });
-          if (!r.ok) throw new Error(`[prerender-og] businesses fetch failed: ${r.status}`);
-          const rows = (await r.json()) as BizRow[];
-          businesses.push(...rows);
-          if (rows.length < PAGE) break;
+          try {
+            const r = await fetch(url, { headers });
+            if (!r.ok) { console.warn(`[prerender-og] businesses fetch failed: ${r.status} — arrêt du prérendu business.`); break; }
+            const rows = (await r.json()) as BizRow[];
+            businesses.push(...rows);
+            if (rows.length < PAGE) break;
+          } catch (e) {
+            console.warn(`[prerender-og] businesses fetch error: ${(e as Error).message} — arrêt du prérendu business.`);
+            break;
+          }
         }
       } else {
         console.warn("[prerender-og] Missing backend env vars — skipping business/DB-backed pages, keeping static article prerender.");
@@ -112,14 +117,19 @@ export function prerenderOgPlugin(): Plugin {
 
       // All business vanity URLs
       const vanity: VanityRow[] = [];
-      if (SUPABASE_URL && headers) {
+      if (SUPABASE_URL && headers && businesses.length > 0) {
         for (let offset = 0; ; offset += PAGE) {
           const url = `${SUPABASE_URL}/rest/v1/vanity_urls?select=slug,target_id&target_type=eq.business&order=target_id&limit=${PAGE}&offset=${offset}`;
-          const r = await fetch(url, { headers });
-          if (!r.ok) throw new Error(`[prerender-og] vanity fetch failed: ${r.status}`);
-          const rows = (await r.json()) as VanityRow[];
-          vanity.push(...rows);
-          if (rows.length < PAGE) break;
+          try {
+            const r = await fetch(url, { headers });
+            if (!r.ok) { console.warn(`[prerender-og] vanity fetch failed: ${r.status} — arrêt du prérendu vanity.`); break; }
+            const rows = (await r.json()) as VanityRow[];
+            vanity.push(...rows);
+            if (rows.length < PAGE) break;
+          } catch (e) {
+            console.warn(`[prerender-og] vanity fetch error: ${(e as Error).message} — arrêt du prérendu vanity.`);
+            break;
+          }
         }
       }
 
