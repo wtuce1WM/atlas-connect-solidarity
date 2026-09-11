@@ -3140,26 +3140,6 @@ const BookOnlineSlidePanelInner = ({
           />
         )}
 
-        {/* Availability result (cards hidden mode) */}
-        <HotelAvailabilityResult
-          business={business}
-          language={language}
-          cardsHidden={cardsHidden}
-          effectiveMedia={effectiveMedia}
-          externalVideoInteractiveMode={externalVideoInteractiveMode}
-          hotelSearchLoading={hotelSearchLoading}
-          fallbackPanelData={fallbackPanelData}
-          showGoogleMap={showGoogleMap}
-          showCards={showCards}
-          setShowDirections={setShowDirections}
-          setShowFallbackOverlay={setShowFallbackOverlay}
-          onClosePanel={onClose}
-          setShowBookingOverlay={setShowBookingOverlay}
-          setBookingOverlayLoaded={setBookingOverlayLoaded}
-          setBookingOverlayUrl={setBookingOverlayUrl}
-          setBookingOverlayTitle={setBookingOverlayTitle}
-        />
-
          {/* Offres B2B — le badge "N Offres" au-dessus des CTAs a été retiré.
              Les offres sont désormais présentées en slides dans le popup d'accueil
              et dans l'overlay Full Description (sous le badge avis). */}
@@ -3182,6 +3162,36 @@ const BookOnlineSlidePanelInner = ({
 
 
       </div>
+        {/* Le résultat de disponibilité est hors du conteneur scrollable : il reste
+            immobile sous le doigt pendant un swipe entre établissements. */}
+        {availabilityConfirmationShown && (
+          <div
+            className="absolute inset-0 z-20 flex p-4 pt-16 md:p-6 md:pt-20 lg:pt-16"
+            style={effectiveHasPrev || effectiveHasNext ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
+            onTouchStart={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchStart}
+            onTouchMove={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchMove}
+            onTouchEnd={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchEnd}
+          >
+            <HotelAvailabilityResult
+              business={business}
+              language={language}
+              cardsHidden={cardsHidden}
+              effectiveMedia={effectiveMedia}
+              externalVideoInteractiveMode={externalVideoInteractiveMode}
+              hotelSearchLoading={hotelSearchLoading}
+              fallbackPanelData={fallbackPanelData}
+              showGoogleMap={showGoogleMap}
+              showCards={showCards}
+              setShowDirections={setShowDirections}
+              setShowFallbackOverlay={setShowFallbackOverlay}
+              onClosePanel={onClose}
+              setShowBookingOverlay={setShowBookingOverlay}
+              setBookingOverlayLoaded={setBookingOverlayLoaded}
+              setBookingOverlayUrl={setBookingOverlayUrl}
+              setBookingOverlayTitle={setBookingOverlayTitle}
+            />
+          </div>
+        )}
         {/* CTA Bar — hidden when the POI/Map overlay is open to keep the map immersive.
             Barre info viewer : quand la description est affichée (et sans search bar),
             la barre est ancrée au bas du panneau, HORS du conteneur scrollable —
