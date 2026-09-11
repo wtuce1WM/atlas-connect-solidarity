@@ -36,7 +36,7 @@ export function useHotelAvailability({
         await new Promise(resolve => setTimeout(resolve, 500));
 
         const [mappingResult, gammeResult] = await Promise.all([
-          supabase.from("hotel_mappings").select("id, serp_hotel_name, business_id, city").ilike("city", cityName),
+          supabase.rpc("get_hotel_mappings_by_city", { _city: cityName }),
           supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
         ]);
 
@@ -104,7 +104,7 @@ export function useHotelAvailability({
 
       // Mapped hotel: SerpAPI intersection
       const [mappingResult, gammeResult] = await Promise.all([
-        supabase.from("hotel_mappings").select("id, serp_hotel_name, business_id, city").ilike("city", cityName),
+        supabase.rpc("get_hotel_mappings_by_city", { _city: cityName }),
         supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
       ]);
 
