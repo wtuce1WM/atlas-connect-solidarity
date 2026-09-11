@@ -1404,12 +1404,16 @@ const BookOnlineSlidePanelInner = ({
     setHotelSearchLoading,
     openFallback: useCallback((data: FallbackPanelData) => {
       const isMobileOrTablet = typeof window !== "undefined" && window.innerWidth < 1024;
-      if (isMobileOrTablet) setShowTransitionOverlay(true);
+      // Dans le feed disponibilité, le fallback est déjà une couche fixe au-dessus
+      // du média. Ne pas intercaler le voile noir prévu pour les changements
+      // d'overlay manuels : il produisait un flash à chaque swipe entre deux
+      // établissements effectivement disponibles.
+      if (isMobileOrTablet && !autoCheckAvailability) setShowTransitionOverlay(true);
       setFallbackPanelData(data);
       setSelectedFallbackHotelId(null);
       setFallbackHiddenOnMobile(false);
       hideCardsRef.current();
-    }, []),
+    }, [autoCheckAvailability]),
     hideCards: useCallback(() => { hideCardsRef.current(); }, []),
     onNoResults: useCallback(() => {
       setAutoAvailabilityFailed(true);
