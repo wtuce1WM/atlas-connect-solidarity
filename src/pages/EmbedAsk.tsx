@@ -5120,7 +5120,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             initialAvailabilityCheckIn={openBusinessStay?.checkIn}
             initialAvailabilityCheckOut={openBusinessStay?.checkOut}
             initialAvailabilityAdults={openBusinessStay?.adults}
-            autoCheckAvailability={!!(openBusinessStay?.checkIn && openBusinessStay?.checkOut)}
+            autoCheckAvailability={
+              !!(openBusinessStay?.checkIn && openBusinessStay?.checkOut) &&
+              availabilityBusinessIds.includes(openBusinessId)
+            }
             initialVideoUrl={
               feedPinnedBusinessId === openBusinessId
                 ? feedVideoUrlById[openBusinessId]
