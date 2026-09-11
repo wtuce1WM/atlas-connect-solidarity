@@ -2256,7 +2256,13 @@ const BookOnlineSlidePanelInner = ({
     effectiveMedia?.kind === "video" &&
     videoInfo?.type !== "file" &&
     !prioritizeBusinessSwipe;
-  const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData);
+  // Reflet durable du mode disponibilité pendant un geste tactile : empêche
+  // qu'un swipe vertical/horizontal dans le fallback fasse réapparaître le
+  // rail de CTAs de gauche et les chevrons de droite entre deux résultats.
+  const availabilityNavigatingRef = useRef(false);
+  const availabilityConfirmationShownRef = useRef(cardsHidden && (hotelSearchLoading || !!fallbackPanelData));
+  const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData || availabilityNavigatingRef.current);
+  useEffect(() => { availabilityConfirmationShownRef.current = availabilityConfirmationShown; }, [availabilityConfirmationShown]);
 
   // Ouverture depuis l'assistant IA avec dates : on ne masque le chrome que
   // lorsqu'un fallback avec résultats est effectivement affiché. En l'absence de
@@ -2332,10 +2338,16 @@ const BookOnlineSlidePanelInner = ({
       return;
     }
     const t = e.touches[0];
+    // Capture le contexte disponibilité au début du geste. Même si le
+    // fallback est temporairement vide pendant la transition entre deux
+    // établissements, on reste en "mode disponibilité" pour ne pas réafficher
+    // le rail de CTAs et les chevrons au milieu du swipe.
+    availabilityNavigatingRef.current = availabilityConfirmationShownRef.current ||
+      (!!autoCheckAvailability && !!fallbackDataRef.current && currentCardsHiddenRef.current);
     swipeStartRef.current = { x: t.clientX, y: t.clientY };
     suppressTapRef.current = false;
     onTouchStart?.(e);
-  }, [onTouchStart, anyOverlayOpen]);
+  }, [onTouchStart, anyOverlayOpen, autoCheckAvailability]);
   const handleMediaTouchMove = useCallback((e: React.TouchEvent) => {
     if (anyOverlayOpen) return;
     if (!swipeStartRef.current) return;
