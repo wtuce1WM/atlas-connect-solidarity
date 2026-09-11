@@ -2400,14 +2400,17 @@ const BookOnlineSlidePanelInner = ({
   useEffect(() => {
     if (!hotelSearchLoading && !fallbackPanelData && !autoCheckAvailability) {
       availabilityNavigatingRef.current = false;
+      setAvailabilitySticky(false);
     }
   }, [hotelSearchLoading, fallbackPanelData, autoCheckAvailability]);
 
   useEffect(() => {
     if (autoAvailabilityFailed) {
       availabilityNavigatingRef.current = false;
+      setAvailabilitySticky(false);
     }
   }, [autoAvailabilityFailed]);
+
 
   // iOS : quand la navigation verticale entre fiches est disponible, un swipe
   // vertical ne doit pas embarquer le viewport (scroll natif / rubber-band).
