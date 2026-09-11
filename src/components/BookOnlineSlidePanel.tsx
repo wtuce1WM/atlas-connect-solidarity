@@ -1403,6 +1403,20 @@ const BookOnlineSlidePanelInner = ({
     hideCards: useCallback(() => { hideCardsRef.current(); }, []),
   });
 
+  // Vérification automatique de disponibilité : quand les dates viennent de
+  // l'assistant IA, on affiche directement le Fallback sans repasser par le widget.
+  const autoAvailabilityDoneRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!autoCheckAvailability) return;
+    if (isLoading || !business) return;
+    if (!initialAvailabilityCheckIn || !initialAvailabilityCheckOut) return;
+    const key = `${businessId}|${initialAvailabilityCheckIn}|${initialAvailabilityCheckOut}|${initialAvailabilityAdults ?? 2}`;
+    if (autoAvailabilityDoneRef.current === key) return;
+    autoAvailabilityDoneRef.current = key;
+    handleCheckAvailability(initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults ?? 2);
+  }, [autoCheckAvailability, isLoading, business, businessId, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, handleCheckAvailability]);
+
+
   useEffect(() => {
     if (!showTransitionOverlay) return;
     if (typeof window !== "undefined" && window.innerWidth >= 1024) {
