@@ -1199,11 +1199,12 @@ const BookOnlineSlidePanelInner = ({
   const [showSpotifyOverlay, setShowSpotifyOverlay] = useState(false);
   const [showSubstackOverlay, setShowSubstackOverlay] = useState(false);
   const [showSoundCloudOverlay, setShowSoundCloudOverlay] = useState(false);
-  // Démarre déjà en « recherche » quand l'ouverture vient de l'assistant IA avec
-  // des dates : le fallback (spinner puis résultat) est visible dès la 1re frame.
-  const [hotelSearchLoading, setHotelSearchLoading] = useState(
-    !!autoCheckAvailability && !!initialAvailabilityCheckIn && !!initialAvailabilityCheckOut
-  );
+  // Quand l'ouverture vient de l'assistant IA avec des dates, la recherche de
+  // disponibilité part en arrière-plan. On reste en affichage normal si SerpAPI
+  // ne retourne aucun résultat ; le fallback ne s'affiche que lorsqu'il y a des
+  // résultats à montrer.
+  const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
+  const [autoAvailabilityFailed, setAutoAvailabilityFailed] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
 
   // Auto-close availability search overlay when search completes
@@ -1214,6 +1215,11 @@ const BookOnlineSlidePanelInner = ({
     }
     prevHotelSearchLoadingRef.current = hotelSearchLoading;
   }, [hotelSearchLoading]);
+
+  // Réinitialise l'indicateur d'échec auto quand les conditions d'ouverture changent.
+  useEffect(() => {
+    setAutoAvailabilityFailed(false);
+  }, [businessId, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults]);
   
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => {
@@ -1405,10 +1411,14 @@ const BookOnlineSlidePanelInner = ({
       hideCardsRef.current();
     }, []),
     hideCards: useCallback(() => { hideCardsRef.current(); }, []),
+    onNoResults: useCallback(() => {
+      setAutoAvailabilityFailed(true);
+    }, []),
   });
 
   // Vérification automatique de disponibilité : quand les dates viennent de
-  // l'assistant IA, on affiche directement le Fallback sans repasser par le widget.
+  // l'assistant IA, la recherche part en arrière-plan. Le fallback ne s'affiche
+  // que si SerpAPI retourne des résultats ; sinon on reste en affichage normal.
   // IMPORTANT : on attend `mappingsLoaded`. Lancée trop tôt, la recherche partait
   // sans mapping SerpAPI → branche « hôtel non mappé » → aucun résultat réel.
   const autoAvailabilityDoneRef = useRef<string | null>(null);
@@ -1419,10 +1429,6 @@ const BookOnlineSlidePanelInner = ({
     const key = `${businessId}|${initialAvailabilityCheckIn}|${initialAvailabilityCheckOut}|${initialAvailabilityAdults ?? 2}`;
     if (autoAvailabilityDoneRef.current === key) return;
     autoAvailabilityDoneRef.current = key;
-    // Passage immédiat en mode « cartes masquées » : la Barre Info Viewer reste
-    // ancrée en bas dès la première frame, sans saut de mise en page à l'arrivée
-    // des résultats.
-    hideCardsRef.current();
     handleCheckAvailability(initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults ?? 2);
   }, [autoCheckAvailability, isLoading, business, mappingsLoaded, businessId, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, handleCheckAvailability]);
 
@@ -1441,9 +1447,7 @@ const BookOnlineSlidePanelInner = ({
     cardsHidden,
     showCards, hideCards, resetDrag,
     onTouchStart, onTouchMove, onTouchEnd, onMouseDownDrag,
-    // Ouverture depuis l'assistant IA avec dates : on démarre déjà en mode
-    // disponibilité, sans afficher d'abord la fiche puis basculer.
-  } = useDragToHide(!!autoCheckAvailability && !!initialAvailabilityCheckIn && !!initialAvailabilityCheckOut);
+  } = useDragToHide(false);
   useEffect(() => { hideCardsRef.current = hideCards; }, [hideCards]);
   useEffect(() => { currentCardsHiddenRef.current = cardsHidden; }, [cardsHidden]);
   // Réaffichage des cartes (quel qu'en soit le déclencheur) → sort aussi du mode immersion.
@@ -2250,13 +2254,14 @@ const BookOnlineSlidePanelInner = ({
     !prioritizeBusinessSwipe;
   const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData);
 
-  // Ouverture depuis l'assistant IA avec dates : tant que le fallback de
-  // disponibilité n'est pas prêt, on ne montre ni les CTAs du bas ni la
-  // Barre Info Viewer (évite un flash de chrome avant le résultat).
+  // Ouverture depuis l'assistant IA avec dates : on ne masque le chrome que
+  // lorsqu'un fallback avec résultats est effectivement affiché. En l'absence de
+  // résultats SerpAPI, on reste en affichage normal.
   const autoAvailabilityPending =
     !!autoCheckAvailability &&
     !!initialAvailabilityCheckIn &&
     !!initialAvailabilityCheckOut &&
+    !autoAvailabilityFailed &&
     !fallbackPanelData;
 
   // Plein écran de la vidéo de fond :

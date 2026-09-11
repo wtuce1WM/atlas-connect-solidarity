@@ -11,6 +11,7 @@ interface UseHotelAvailabilityParams {
   setHotelSearchLoading: (v: boolean) => void;
   openFallback: (data: FallbackPanelData) => void;
   hideCards: () => void;
+  onNoResults?: () => void;
 }
 
 export function useHotelAvailability({
@@ -22,6 +23,7 @@ export function useHotelAvailability({
   setHotelSearchLoading,
   openFallback,
   hideCards,
+  onNoResults,
 }: UseHotelAvailabilityParams) {
   const handleCheckAvailability = useCallback(async (checkIn: string, checkOut: string, adults: number) => {
     if (!business) return;
@@ -233,7 +235,10 @@ export function useHotelAvailability({
         }
       }
 
-      if (hotels.length === 0) hideCards();
+      if (hotels.length === 0) {
+        onNoResults?.();
+        return;
+      }
 
       openFallback({
         hotels, city: cityName, checkIn, checkOut, adults, source: "serpapi",
