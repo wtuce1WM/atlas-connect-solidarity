@@ -942,17 +942,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         setAvailabilityBusinessIds(availIds);
         setOpenBusinessStay({ checkIn, checkOut, adults: adults || 2 });
         setOpenBusinessOverlay(null);
-        // React regroupe les mises à jour d'un même tour. Ne pas fermer le
-        // VideoSlidePanel et ouvrir la fiche dans le même rendu : elle partirait
-        // derrière le panneau vidéo encore monté. On impose un rendu fermé,
-        // puis l'effet `pendingBusinessOpen` ouvre le nouveau feed business.
-        if (activeFeedVideoId || openBusinessId) {
-          setActiveFeedVideoId(null);
-          setOpenBusinessId(null);
-          setPendingBusinessOpen({ id: siblings[0], overlay: null });
-        } else {
-          setOpenBusinessId(siblings[0]);
-        }
+        // Toujours passer par un rendu où les deux panneaux sont fermés. Les
+        // valeurs capturées au lancement de la requête peuvent être anciennes,
+        // et `onActiveVideoChange` peut encore remonter pendant le démontage.
+        panelTransitionRef.current = true;
+        setPendingBusinessOpen({ id: siblings[0], overlay: null });
+        setActiveFeedVideoId(null);
+        setOpenBusinessId(null);
       }
       setHotelResults((prev) => ({ ...prev, [msgId]: res }));
     } catch (e) {
@@ -1308,6 +1304,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Déclaré avec les autres panneaux : la réouverture différée doit attendre
   // que le VideoSlidePanel ait réellement quitté le rendu.
   const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
+  /** Verrou synchrone pendant le remplacement du VideoSlidePanel par le feed
+   *  business : ignore les derniers callbacks vidéo issus du panneau démonté. */
+  const panelTransitionRef = useRef(false);
   /** Fermeture puis réouverture d'une fiche business depuis une miniature :
    *  sur desktop, un slidepanel déjà ouvert à droite doit d'abord se fermer
    *  avant que le nouveau ne s'ouvre, pour ne pas masquer le résultat cliqué. */
@@ -1340,6 +1339,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     setPendingBusinessOpen(null);
     setOpenBusinessOverlay(overlay);
     setOpenBusinessId(id);
+    panelTransitionRef.current = false;
   }, [pendingBusinessOpen, openBusinessId, activeFeedVideoId]);
   // Source unique de vérité pour tous les overlays Map. Un second effet dédié à
   // `openMap` envoyait parfois « map-closed » pendant l'ouverture du POI générique.
@@ -5308,7 +5308,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       )}
 
       {/* Slidepanel vidéo du feed curaté : swipe vertical natif de BookOnlineSlidePanel */}
-      {activeFeedVideoId && (() => {
+      {activeFeedVideoId && !openBusinessId && !pendingBusinessOpen && (() => {
         const list = videoFeedList.map((v) => ({
           id: v.id,
           url: v.url,
@@ -5336,7 +5336,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               onClose={() => setActiveFeedVideoId(null)}
               activeVideo={active as any}
               activeList={list as any}
-              onActiveVideoChange={(v: any) => { setActiveFeedVideoId(v.id); setFeedVideoTime(0); void maybeLoadMoreFeed(String(v.id)); }}
+              onActiveVideoChange={(v: any) => {
+                if (panelTransitionRef.current) return;
+                setActiveFeedVideoId(v.id);
+                setFeedVideoTime(0);
+                void maybeLoadMoreFeed(String(v.id));
+              }}
               isActiveGeneric={!!(active as any)._isGeneric}
               currentTime={feedVideoTime}
               onTimeUpdate={setFeedVideoTime}
