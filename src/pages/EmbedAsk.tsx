@@ -5308,7 +5308,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       )}
 
       {/* Slidepanel vidéo du feed curaté : swipe vertical natif de BookOnlineSlidePanel */}
-      {activeFeedVideoId && (() => {
+      {activeFeedVideoId && !openBusinessId && !pendingBusinessOpen && (() => {
         const list = videoFeedList.map((v) => ({
           id: v.id,
           url: v.url,
