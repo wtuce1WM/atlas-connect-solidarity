@@ -96,7 +96,7 @@ function extractDates(text: string, ref: Date): string[] {
     `\\b(\\d{1,2})(?:er)?\\s*(?:au|a|jusqu\\s*au|to|till|until|-|/|→)\\s*(\\d{1,2})(?:er)?\\s+(${monthNames})\\b`,
     "g",
   );
-  for (const m of reRange) { void m; break; }
+  
   for (const m of text.matchAll(reRange)) {
     const d1 = parseInt(m[1], 10);
     const d2 = parseInt(m[2], 10);
