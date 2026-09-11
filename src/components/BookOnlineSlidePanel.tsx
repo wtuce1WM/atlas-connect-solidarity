@@ -1393,6 +1393,12 @@ const BookOnlineSlidePanelInner = ({
 
   const hideCardsRef = useRef<() => void>(() => {});
   const hasSerpMapping = !!serpApiMapping || !!liteApiHotelId;
+  // Un même établissement et les mêmes critères conservent le même verdict
+  // pendant toute la navigation du feed, y compris après A → B → A.
+  const availabilityResultCacheRef = useRef<Map<string, FallbackPanelData | null>>(new Map());
+  const availabilityCacheKey = useCallback((id: string, checkIn: string, checkOut: string, adults: number) =>
+    `${id}|${checkIn}|${checkOut}|${adults}`,
+  []);
 
   // Extracted hotel availability hook
   const handleCheckAvailability = useHotelAvailability({
@@ -1409,15 +1415,30 @@ const BookOnlineSlidePanelInner = ({
       // d'overlay manuels : il produisait un flash à chaque swipe entre deux
       // établissements effectivement disponibles.
       if (isMobileOrTablet && !autoCheckAvailability) setShowTransitionOverlay(true);
+      availabilityResultCacheRef.current.set(
+        availabilityCacheKey(businessId, data.checkIn, data.checkOut, data.adults),
+        data,
+      );
       setFallbackPanelData(data);
       setSelectedFallbackHotelId(null);
       setFallbackHiddenOnMobile(false);
       hideCardsRef.current();
-    }, [autoCheckAvailability]),
+    }, [autoCheckAvailability, availabilityCacheKey, businessId]),
     hideCards: useCallback(() => { hideCardsRef.current(); }, []),
     onNoResults: useCallback(() => {
+      if (autoCheckAvailability && initialAvailabilityCheckIn && initialAvailabilityCheckOut) {
+        availabilityResultCacheRef.current.set(
+          availabilityCacheKey(
+            businessId,
+            initialAvailabilityCheckIn,
+            initialAvailabilityCheckOut,
+            initialAvailabilityAdults ?? 2,
+          ),
+          null,
+        );
+      }
       setAutoAvailabilityFailed(true);
-    }, []),
+    }, [autoCheckAvailability, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, availabilityCacheKey, businessId]),
   });
 
   // Vérification automatique de disponibilité : quand les dates viennent de
@@ -1428,11 +1449,29 @@ const BookOnlineSlidePanelInner = ({
   const autoAvailabilityDoneRef = useRef<string | null>(null);
   useEffect(() => {
     if (!autoCheckAvailability) return;
-    if (isLoading || !business || !mappingsLoaded) return;
+    // `useBookOnlineData` conserve volontairement la fiche précédente pendant le
+    // chargement pour éviter un flash visuel. Après un swipe A → B → A, React peut
+    // donc rendre brièvement le nouvel ID avec les données/mappings de l'ancien
+    // établissement. Ne jamais lancer SerpAPI dans cet état intermédiaire : c'est
+    // ce qui pouvait produire successivement « disponible » puis « indisponible »
+    // pour le même business.
+    if (isLoading || !business || business.id !== businessId || !mappingsLoaded) return;
     if (!initialAvailabilityCheckIn || !initialAvailabilityCheckOut) return;
     const key = `${businessId}|${initialAvailabilityCheckIn}|${initialAvailabilityCheckOut}|${initialAvailabilityAdults ?? 2}`;
     if (autoAvailabilityDoneRef.current === key) return;
     autoAvailabilityDoneRef.current = key;
+    if (availabilityResultCacheRef.current.has(key)) {
+      const cachedResult = availabilityResultCacheRef.current.get(key);
+      if (cachedResult) {
+        setFallbackPanelData(cachedResult);
+        setSelectedFallbackHotelId(null);
+        setFallbackHiddenOnMobile(false);
+        hideCardsRef.current();
+      } else {
+        setAutoAvailabilityFailed(true);
+      }
+      return;
+    }
     handleCheckAvailability(initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults ?? 2);
   }, [autoCheckAvailability, isLoading, business, mappingsLoaded, businessId, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, handleCheckAvailability]);
 
