@@ -234,7 +234,10 @@ export function useHotelAvailability({
         }
       }
 
-      if (hotels.length === 0) hideCards();
+      if (hotels.length === 0) {
+        onNoResults?.();
+        return;
+      }
 
       openFallback({
         hotels, city: cityName, checkIn, checkOut, adults, source: "serpapi",
