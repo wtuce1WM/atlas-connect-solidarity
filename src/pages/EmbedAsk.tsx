@@ -1273,6 +1273,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   /** Dates du widget Disponibilité de l'assistant, reprises dans la fiche ouverte. */
   const [openBusinessStay, setOpenBusinessStay] = useState<{ checkIn: string; checkOut: string; adults: number } | null>(null);
+  /** Établissements ayant une disponibilité SerpAPI : seuls ceux-là démarrent
+      la fiche en mode disponibilité. Les autres hôtels/riads qui prolongent le
+      feed s'affichent normalement. */
+  const [availabilityBusinessIds, setAvailabilityBusinessIds] = useState<string[]>([]);
   const [openBusinessOverlay, setOpenBusinessOverlay] = useState<"reviews" | null>(null);
   const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
   /** Overlay inline « Le meilleur de YouTube sur le Maroc » (variante compacte de /youtube). */
@@ -4408,6 +4412,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                             priceBadges={priceBadges}
                             onOpen={(id) => {
                               setOpenSiblings(siblingIds);
+                              setAvailabilityBusinessIds(bookingResult.hotels.map((h: any) => String(h.businessId)));
                               if (bookingResult?.checkIn && bookingResult?.checkOut) {
                                 setOpenBusinessStay({ checkIn: bookingResult.checkIn, checkOut: bookingResult.checkOut, adults: bookingResult.adults || 2 });
                               }
@@ -5115,13 +5120,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             initialAvailabilityCheckIn={openBusinessStay?.checkIn}
             initialAvailabilityCheckOut={openBusinessStay?.checkOut}
             initialAvailabilityAdults={openBusinessStay?.adults}
-            autoCheckAvailability={!!(openBusinessStay?.checkIn && openBusinessStay?.checkOut)}
+            autoCheckAvailability={
+              !!(openBusinessStay?.checkIn && openBusinessStay?.checkOut) &&
+              availabilityBusinessIds.includes(openBusinessId)
+            }
             initialVideoUrl={
               feedPinnedBusinessId === openBusinessId
                 ? feedVideoUrlById[openBusinessId]
                 : badgeVideoUrlById[openBusinessId]
             }
-            onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); setFeedPinnedBusinessId(null); setOpenBusinessStay(null); }}
+            onClose={() => { setOpenBusinessId(null); setOpenBusinessOverlay(null); setFeedPinnedBusinessId(null); setOpenBusinessStay(null); setAvailabilityBusinessIds([]); }}
             onPrev={goPrev}
             onNext={goNext}
             hasPrev={hasPrev}
