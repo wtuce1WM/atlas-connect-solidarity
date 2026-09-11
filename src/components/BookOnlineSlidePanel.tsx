@@ -1527,6 +1527,10 @@ const BookOnlineSlidePanelInner = ({
   // Reset UI state when switching business
   useEffect(() => {
     resetDrag();
+    // Une recherche du business précédent peut encore être en vol. Son hook
+    // ignore désormais sa réponse ; on retire aussi immédiatement son état
+    // visuel pour ne jamais l'associer au nouveau business pendant un rendu.
+    setHotelSearchLoading(false);
     setShowDirections(false);
     setCurrentMediaIndex(0);
     setDescExpanded(true);
