@@ -9509,6 +9509,13 @@ export type Database = {
           youtube: string
         }[]
       }
+      get_serp_hotel_mapping_for_business: {
+        Args: { _business_id: string }
+        Returns: {
+          city: string
+          serp_hotel_name: string
+        }[]
+      }
       get_showcase_site_stats: {
         Args: { p_business_id: string; p_days?: number }
         Returns: Json
