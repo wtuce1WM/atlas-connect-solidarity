@@ -3138,7 +3138,7 @@ const BookOnlineSlidePanelInner = ({
         </div>
 
         {/* Badge social de la vidéo courante (logo plateforme + Follow @compte) */}
-        {effectiveMedia?.kind === "video" && !chromeHidden && (
+        {effectiveMedia?.kind === "video" && !chromeHidden && !availabilityConfirmationShown && (
           <VideoSocialBadge
             social={getVideoSocial(videoDocs.find((d) => d.url === effectiveMedia?.url))}
             animKey={`${currentMediaIndex}-${effectiveMedia?.url || ""}`}
