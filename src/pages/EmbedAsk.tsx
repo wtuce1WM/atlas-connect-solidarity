@@ -18,7 +18,7 @@ import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
-import { parseBookingIntent } from "@/lib/parseBookingIntent";
+import { parseBookingIntent, extractBookingCity } from "@/lib/parseBookingIntent";
 import { detectLocalIntent } from "@/lib/detectLocalIntent";
 import EmbedFilterDrawer, { type EmbedFilterGroup } from "@/components/embed/EmbedFilterDrawer";
 
@@ -47,7 +47,7 @@ import { Maximize2, X, Navigation, Clock, Star, Building2, Compass, CloudSun, Ma
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import AiTidesWidget from "@/components/embed/AiTidesWidget";
 import AvailabilitySearchOverlay from "@/components/overlays/AvailabilitySearchOverlay";
-import { searchCityHotels, type CityHotelSearchResult } from "@/lib/cityHotelSearch";
+import { searchCityHotels, ALL_CITIES, type CityHotelSearchResult } from "@/lib/cityHotelSearch";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { applyEmbedBg, parseBg, resolveEmbedInk, parseFit, fitFlags } from "@/lib/embedFit";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
@@ -926,7 +926,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // s'affiche donc SOUS les résultats des sous-catégories).
   const pendingBookingCityRef = useRef<string | null>(null);
   const [bookingWidgetByMsg, setBookingWidgetByMsg] = useState<Record<string, string>>({});
+  /** Dernière recherche de disponibilité lancée (pour la relance sur une ville). */
+  const lastBookingRef = useRef<{ city: string; checkIn: string; checkOut: string; adults: number } | null>(null);
   const runCityHotelSearch = async (msgId: string, city: string, checkIn: string, checkOut: string, adults: number) => {
+    lastBookingRef.current = { city, checkIn, checkOut, adults };
     setHotelSearchingMsgId(msgId);
     try {
       const res = await searchCityHotels({ cityName: city, checkIn, checkOut, adults });
@@ -2210,6 +2213,41 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // (« un hôtel avec vue sur mer ») : on ne court-circuite pas le moteur, la
     // question part en recherche et le widget s'affiche sous les cartes.
     const freeBookingHasDates = !!freeBookingIntent?.checkIn && !!freeBookingIntent?.checkOut;
+    // RELANCE SUR UNE VILLE : après une recherche de disponibilité, une relance
+    // qui nomme une ville (variantes orthographiques et quartiers inclus, ex.
+    // « Essaouira », « et à Mogador ? ») relance la recherche SerpAPI sur cette
+    // ville en conservant les dates et le nombre de voyageurs du tour précédent.
+    const relaunchCity = !suggestionId && !followupId ? extractBookingCity(text) : null;
+    const lastBooking = lastBookingRef.current;
+    const shortRelaunch = normalizedText.split(" ").filter(Boolean).length <= 5;
+    if (
+      relaunchCity &&
+      lastBooking?.checkIn &&
+      lastBooking?.checkOut &&
+      !freeBookingHasDates &&
+      (shortRelaunch || !!freeBookingIntent)
+    ) {
+      setError(null);
+      const msgId = `a-booking-${Date.now()}`;
+      setMessages((prev) => [
+        ...prev,
+        { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+        {
+          id: msgId,
+          role: "assistant",
+          parts: [{
+            type: "text",
+            text: `${lang === "en"
+              ? `Checking live availability in ${relaunchCity} for your dates.`
+              : lang === "ar"
+              ? `أتحقق من التوفر في ${relaunchCity} في هذه التواريخ.`
+              : `Je vérifie les disponibilités à ${relaunchCity} pour ces dates.`}\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city: relaunchCity, checkIn: lastBooking.checkIn, checkOut: lastBooking.checkOut, adults: lastBooking.adults })}-->`,
+          }],
+        } as any,
+      ]);
+      runCityHotelSearch(msgId, relaunchCity, lastBooking.checkIn, lastBooking.checkOut, lastBooking.adults || 2);
+      return;
+    }
     const isBookingRequest =
       suggestionId === "8150af31-304b-40af-a638-fe10535a2e15" ||
       isBookingLabel ||
@@ -2221,23 +2259,28 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // cartes, avec la ville active.
     const bookingWithSubcats =
       !!bookingSuggestion && (bookingSuggestion.subcategory_ids?.length ?? 0) > 0;
+    // Périmètre par défaut du widget : la fiche hôte impose sa ville, sinon la
+    // recherche couvre TOUTES les villes couvertes (plus de repli Marrakech).
     if (isBookingRequest && bookingWithSubcats) {
       pendingBookingCityRef.current =
-        bookingSuggestion?.city || platformCity || businessCity || "Marrakech";
+        bookingSuggestion?.city || businessCity || ALL_CITIES;
     }
     if (freeBookingIntent && !freeBookingHasDates) {
       pendingBookingCityRef.current =
-        freeBookingIntent.city || platformCity || businessCity || "Marrakech";
+        freeBookingIntent.city || businessCity || ALL_CITIES;
     }
     if (isBookingRequest && !bookingWithSubcats) {
       setError(null);
       setActiveSuggestionId(bookingSuggestion?.id || suggestionId || null);
-      // La ville nommée dans la question prime sur la ville par défaut du widget.
-      const city = freeBookingIntent?.city || platformCity || businessCity || "Marrakech";
+      // La ville nommée dans la question prime sur le périmètre par défaut.
+      const city = freeBookingIntent?.city || bookingSuggestion?.city || businessCity || ALL_CITIES;
       const checkIn = freeBookingIntent?.checkIn || null;
       const checkOut = freeBookingIntent?.checkOut || null;
       const adults = freeBookingIntent?.adults || null;
       const hasDates = !!checkIn && !!checkOut;
+      // Libellé lisible quand le périmètre est national (toutes les villes).
+      const cityLabel =
+        city === ALL_CITIES ? (lang === "en" ? "Morocco" : lang === "ar" ? "المغرب" : "tout le Maroc") : city;
       const pushBookingWidget = () => {
         const msgId = `a-booking-${Date.now()}`;
         setMessages((prev) => [
@@ -2250,15 +2293,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               type: "text",
               text: `${hasDates
                 ? (lang === "en"
-                    ? `Checking live availability in ${city} for your dates.`
+                    ? `Checking live availability in ${cityLabel} for your dates.`
                     : lang === "ar"
-                    ? `أتحقق من التوفر في ${city} في هذه التواريخ.`
-                    : `Je vérifie les disponibilités à ${city} pour ces dates.`)
+                    ? `أتحقق من التوفر في ${cityLabel} في هذه التواريخ.`
+                    : `Je vérifie les disponibilités à ${cityLabel} pour ces dates.`)
                 : (lang === "en"
-                    ? `Choose your dates and number of guests — I'll check live availability in ${city}.`
+                    ? `Choose your dates and number of guests — I'll check live availability in ${cityLabel}.`
                     : lang === "ar"
-                    ? `اختر التواريخ وعدد المسافرين — سأتحقق من التوفر في ${city}.`
-                    : `Choisissez vos dates et le nombre de voyageurs — je vérifie les disponibilités à ${city}.`)}\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city, checkIn, checkOut, adults })}-->`,
+                    ? `اختر التواريخ وعدد المسافرين — سأتحقق من التوفر في ${cityLabel}.`
+                    : `Choisissez vos dates et le nombre de voyageurs — je vérifie les disponibilités à ${cityLabel}.`)}\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city, checkIn, checkOut, adults })}-->`,
             }],
           } as any,
         ]);
