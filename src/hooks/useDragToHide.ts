@@ -15,8 +15,8 @@ interface UseDragToHideReturn {
 
 const THRESHOLD = 60;
 
-export function useDragToHide(): UseDragToHideReturn {
-  const [cardsHidden, setCardsHidden] = useState(false);
+export function useDragToHide(initialHidden = false): UseDragToHideReturn {
+  const [cardsHidden, setCardsHidden] = useState(initialHidden);
   const [dragOffsetY, setDragOffsetY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const touchStartRef = useRef<{ y: number; time: number } | null>(null);
