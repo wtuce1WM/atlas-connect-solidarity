@@ -1305,6 +1305,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       feed s'affichent normalement. */
   const [availabilityBusinessIds, setAvailabilityBusinessIds] = useState<string[]>([]);
   const [openBusinessOverlay, setOpenBusinessOverlay] = useState<"reviews" | null>(null);
+  // Déclaré avec les autres panneaux : la réouverture différée doit attendre
+  // que le VideoSlidePanel ait réellement quitté le rendu.
+  const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
   /** Fermeture puis réouverture d'une fiche business depuis une miniature :
    *  sur desktop, un slidepanel déjà ouvert à droite doit d'abord se fermer
    *  avant que le nouveau ne s'ouvre, pour ne pas masquer le résultat cliqué. */
@@ -1388,7 +1391,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [videoFeedList, setVideoFeedList] = useState<VideoFeedItem[]>([]);
   const [videoFeedCtx, setVideoFeedCtx] = useState<{ badgeIds: string[]; seed: string; total: number; cityIds?: string[] | null } | null>(null);
   const feedLoadingMoreRef = useRef(false);
-  const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
   const [feedVideoTime, setFeedVideoTime] = useState(0);
   /**
    * Suggestion en mode `video_feed` : le lecteur vidéo doit apparaître AVANT le
