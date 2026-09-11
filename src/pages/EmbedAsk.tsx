@@ -1281,6 +1281,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       feed s'affichent normalement. */
   const [availabilityBusinessIds, setAvailabilityBusinessIds] = useState<string[]>([]);
   const [openBusinessOverlay, setOpenBusinessOverlay] = useState<"reviews" | null>(null);
+  /** Fermeture puis réouverture d'une fiche business depuis une miniature :
+   *  sur desktop, un slidepanel déjà ouvert à droite doit d'abord se fermer
+   *  avant que le nouveau ne s'ouvre, pour ne pas masquer le résultat cliqué. */
+  const [pendingBusinessOpen, setPendingBusinessOpen] = useState<{ id: string; overlay: "reviews" | null } | null>(null);
   const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
   /** Overlay inline « Le meilleur de YouTube sur le Maroc » (variante compacte de /youtube). */
   const [youtubeOpen, setYoutubeOpen] = useState(false);
@@ -1301,6 +1305,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       return () => clearTimeout(t);
     }
   }, [openGenericPoi]);
+  // Réouverture différée d'une fiche business : on a d'abord fermé le
+  // slidepanel précédent pour éviter qu'il recouvre le résultat cliqué.
+  useEffect(() => {
+    if (!pendingBusinessOpen || openBusinessId) return;
+    const { id, overlay } = pendingBusinessOpen;
+    setPendingBusinessOpen(null);
+    setOpenBusinessOverlay(overlay);
+    setOpenBusinessId(id);
+  }, [pendingBusinessOpen, openBusinessId]);
   // Source unique de vérité pour tous les overlays Map. Un second effet dédié à
   // `openMap` envoyait parfois « map-closed » pendant l'ouverture du POI générique.
   useEffect(() => {
@@ -3498,8 +3511,19 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         full.push(bid);
       }
       setOpenSiblings(full);
-      setOpenBusinessOverlay(overlay);
-      setOpenBusinessId(id);
+      // Sur desktop, si un slidepanel business est déjà ouvert à droite,
+      // on le ferme d'abord pour que le clic sur la miniature soit visible,
+      // puis on rouvre sur le nouvel établissement.
+      setOpenBusinessOverlay(null);
+      setOpenBusinessStay(null);
+      setAvailabilityBusinessIds([]);
+      if (openBusinessId) {
+        setOpenBusinessId(null);
+        setPendingBusinessOpen({ id, overlay });
+      } else {
+        setOpenBusinessOverlay(overlay);
+        setOpenBusinessId(id);
+      }
       void completeVideoFeed();
     };
 
@@ -4478,7 +4502,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                               if (bookingResult?.checkIn && bookingResult?.checkOut) {
                                 setOpenBusinessStay({ checkIn: bookingResult.checkIn, checkOut: bookingResult.checkOut, adults: bookingResult.adults || 2 });
                               }
-                              setOpenBusinessId(id);
+                              // Fermeture préalable du slidepanel droit s'il est
+                              // déjà ouvert, pour ne pas masquer la vignette cliquée.
+                              setOpenBusinessOverlay(null);
+                              if (openBusinessId) {
+                                setOpenBusinessId(null);
+                                setPendingBusinessOpen({ id, overlay: null });
+                              } else {
+                                setOpenBusinessId(id);
+                              }
                             }}
                             onOpenBooking={openBookingOverlay}
                             footer={remaining > 0 ? (
@@ -4598,8 +4630,32 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     <span
                       role="link"
                       tabIndex={0}
-                      onClick={(e) => { e.stopPropagation(); setOpenSiblings([bizId]); setOpenBusinessId(bizId); }}
-                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setOpenSiblings([bizId]); setOpenBusinessId(bizId); } }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenSiblings([bizId]);
+                        // Fermeture préalable du slidepanel droit s'il est déjà ouvert.
+                        setOpenBusinessOverlay(null);
+                        if (openBusinessId) {
+                          setOpenBusinessId(null);
+                          setPendingBusinessOpen({ id: bizId, overlay: null });
+                        } else {
+                          setOpenBusinessId(bizId);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setOpenSiblings([bizId]);
+                          setOpenBusinessOverlay(null);
+                          if (openBusinessId) {
+                            setOpenBusinessId(null);
+                            setPendingBusinessOpen({ id: bizId, overlay: null });
+                          } else {
+                            setOpenBusinessId(bizId);
+                          }
+                        }
+                      }}
                       className={`text-[11px] font-semibold ${lightInk || cardStyle ? "text-[#C24B3F]" : "text-white/95"} underline underline-offset-2 hover:text-[#D4AF37] cursor-pointer break-words`}
                     >
                       {bizName}

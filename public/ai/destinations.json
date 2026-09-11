@@ -2,8 +2,8 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/destinations.json",
-    "generated_at": "2026-09-09T10:18:17.108Z",
-    "count": 53
+    "generated_at": "2026-09-11T11:39:15.705Z",
+    "count": 62
   },
   "destinations": [
     {
@@ -21,6 +21,23 @@
       "description": null,
       "cities": [
         "Rabat"
+      ]
+    },
+    {
+      "id": "0f139701-0158-4f46-b313-dfd6ead93e96",
+      "name": "Tanger",
+      "name_en": null,
+      "region": [
+        "Tanger-Tétouan-Al Hoceïma"
+      ],
+      "latitude": 35.7549279,
+      "longitude": -5.8318666,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Tanger"
       ]
     },
     {
@@ -94,6 +111,23 @@
       ]
     },
     {
+      "id": "73211108-b2ec-427b-ae1a-9cf0acbb100d",
+      "name": "Tétouan",
+      "name_en": null,
+      "region": [
+        "Tanger-Tétouan-Al Hoceïma"
+      ],
+      "latitude": 35.57168,
+      "longitude": -5.3597051,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Tétouan"
+      ]
+    },
+    {
       "id": "e834b9a5-ba58-4854-b76a-ecf4e9f7e9b2",
       "name": "Vallée des roses",
       "name_en": "Rose Valley",
@@ -150,27 +184,6 @@
       ]
     },
     {
-      "id": "95bd215b-2f97-409f-9490-0c711da2baac",
-      "name": "Ait Ben Haddou",
-      "name_en": "Ait Ben Haddou",
-      "region": [
-        "Drâa-Tafilalet"
-      ],
-      "latitude": 31.0470904,
-      "longitude": -7.1294148,
-      "image": null,
-      "wikipedia": "https://fr.wikipedia.org/wiki/Ksar_d%27A%C3%AFt-ben-Haddou",
-      "hook": "Classée comme site du patrimoine mondial de l'UNESCO",
-      "description": "La visite de l'ait Ben Haddou Kasbah et Ouarzazate explore une région qui est un peu plus loin de Marrakech, mais peut encore être achevé en une journée. La Kasbah est classée comme site du patrimoine mondial de l'UNESCO et est accessible en passant par les magnifiques paysages des montagnes de l'Atlas. Ensuite, découvrez Ouarzazate, qui est une ville magique considérée comme la porte d'entrée du ",
-      "cities": [
-        "Marrakech",
-        "Ouarzazate",
-        "Merzouga",
-        "Zagora",
-        "Béni Mellal"
-      ]
-    },
-    {
       "id": "cfbd6af1-9a9f-420c-a6c4-b7b95af657ee",
       "name": "Dakhla",
       "name_en": null,
@@ -199,6 +212,23 @@
       "hook": null,
       "description": null,
       "cities": []
+    },
+    {
+      "id": "cd267a9c-a4a3-475a-b531-843c46563d64",
+      "name": "Guelmim",
+      "name_en": null,
+      "region": [
+        "Guelmim-Oued Noun"
+      ],
+      "latitude": 28.9864581,
+      "longitude": -10.0572456,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Guelmim"
+      ]
     },
     {
       "id": "a9d44995-4f67-4fdf-87c9-1da8c0629a85",
@@ -248,6 +278,23 @@
       "cities": []
     },
     {
+      "id": "c9789d02-0532-4c8e-87a3-0f6c32e834e3",
+      "name": "Al Hoceïma",
+      "name_en": null,
+      "region": [
+        "Tanger-Tétouan-Al Hoceïma"
+      ],
+      "latitude": 35.2445589,
+      "longitude": -3.9317468,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Al Hoceïma"
+      ]
+    },
+    {
       "id": "6aa66892-a359-4980-8aa8-42022b467eaa",
       "name": "Jebel Saghro",
       "name_en": "Jebel Saghro",
@@ -266,6 +313,23 @@
         "Merzouga",
         "Béni Mellal",
         "Zagora"
+      ]
+    },
+    {
+      "id": "ea5c1a24-c1d3-4a7d-82fe-9878e5b4accc",
+      "name": "Meknès",
+      "name_en": null,
+      "region": [
+        "Fès-Meknès"
+      ],
+      "latitude": 33.8674514,
+      "longitude": -5.5382116,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Meknès"
       ]
     },
     {
@@ -343,6 +407,23 @@
         "Ouarzazate",
         "Zagora",
         "Béni Mellal"
+      ]
+    },
+    {
+      "id": "cf479b11-3ebb-4bb3-acbf-75e1b2be387a",
+      "name": "Nador",
+      "name_en": null,
+      "region": [
+        "Tanger-Tétouan-Al Hoceïma"
+      ],
+      "latitude": 35.1739466,
+      "longitude": -2.9342366,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Nador"
       ]
     },
     {
@@ -559,6 +640,38 @@
       ]
     },
     {
+      "id": "f9ddce2e-59c3-43db-8bfa-065a250a1576",
+      "name": "Tamuda Bay",
+      "name_en": null,
+      "region": [
+        "Tanger-Tétouan-Al Hoceïma"
+      ],
+      "latitude": 35.6836024,
+      "longitude": -5.3283791,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": []
+    },
+    {
+      "id": "3947db1f-daaa-4f7f-a617-e5988d9d86db",
+      "name": "Essaouira",
+      "name_en": "Essaouira",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.5084926,
+      "longitude": -9.7595041,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Essaouira",
+      "hook": "Essaouira 🌊✨ : la perle de l’Atlantique entre médina UNESCO, plages sauvages et ambiance bohème unique !",
+      "description": "Située sur la côte atlantique du Maroc, Essaouira est une destination incontournable qui séduit par son atmosphère unique, mêlant histoire, culture et nature. Anciennement appelée Mogador, cette ville portuaire offre un cadre authentique, loin de l’agitation des grandes villes, avec une identité forte et un charme intemporel. Classée au patrimoine mondial de l’UNESCO, sa médina est un véritable jo",
+      "cities": [
+        "Essaouira"
+      ]
+    },
+    {
       "id": "251e4126-f151-40d9-9d56-5a456a439fc2",
       "name": "Sidi Kaouki",
       "name_en": "Sidi Kaouki",
@@ -606,23 +719,6 @@
       "cities": [
         "Agadir",
         "Taroudant",
-        "Essaouira"
-      ]
-    },
-    {
-      "id": "3947db1f-daaa-4f7f-a617-e5988d9d86db",
-      "name": "Essaouira",
-      "name_en": "Essaouira",
-      "region": [
-        "Marrakech-Safi"
-      ],
-      "latitude": 31.5084926,
-      "longitude": -9.7595041,
-      "image": null,
-      "wikipedia": "https://fr.wikipedia.org/wiki/Essaouira",
-      "hook": "Essaouira 🌊✨ : la perle de l’Atlantique entre médina UNESCO, plages sauvages et ambiance bohème unique !",
-      "description": "Située sur la côte atlantique du Maroc, Essaouira est une destination incontournable qui séduit par son atmosphère unique, mêlant histoire, culture et nature. Anciennement appelée Mogador, cette ville portuaire offre un cadre authentique, loin de l’agitation des grandes villes, avec une identité forte et un charme intemporel. Classée au patrimoine mondial de l’UNESCO, sa médina est un véritable jo",
-      "cities": [
         "Essaouira"
       ]
     },
@@ -679,6 +775,25 @@
       ]
     },
     {
+      "id": "179a7d36-2a52-44a7-8593-685b1a19243e",
+      "name": "Haut Atlas",
+      "name_en": "High Atlas",
+      "region": [
+        "Béni Mellal-Khénifra"
+      ],
+      "latitude": 31.791702,
+      "longitude": -7.09262,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Haut_Atlas",
+      "hook": null,
+      "description": "Le Haut Atlas est la plus haute chaîne de montagnes du Maroc. Il s’étend sur environ 700 km du sud-ouest au nord-est du pays et constitue une barrière naturelle entre les régions atlantiques et méditerranéennes au nord et les zones désertiques du Sahara au sud. Son point culminant est le Djebel Toubkal, qui atteint 4 165 m et représente le sommet le plus élevé d’Afrique du Nord. La chaîne du Haut ",
+      "cities": [
+        "Marrakech",
+        "Béni Mellal",
+        "Ouarzazate"
+      ]
+    },
+    {
       "id": "973c69bf-7cb4-42d7-8a99-6ffdf96eb60b",
       "name": "Cap Sim",
       "name_en": "Cap Sim",
@@ -709,6 +824,27 @@
       "hook": null,
       "description": null,
       "cities": []
+    },
+    {
+      "id": "95bd215b-2f97-409f-9490-0c711da2baac",
+      "name": "Ait Ben Haddou",
+      "name_en": "Ait Ben Haddou",
+      "region": [
+        "Drâa-Tafilalet"
+      ],
+      "latitude": 31.0470904,
+      "longitude": -7.1294148,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Ksar_d%27A%C3%AFt-ben-Haddou",
+      "hook": "Classée comme site du patrimoine mondial de l'UNESCO",
+      "description": "La visite de l'ait Ben Haddou Kasbah et Ouarzazate explore une région qui est un peu plus loin de Marrakech, mais peut encore être achevé en une journée. La Kasbah est classée comme site du patrimoine mondial de l'UNESCO et est accessible en passant par les magnifiques paysages des montagnes de l'Atlas. Ensuite, découvrez Ouarzazate, qui est une ville magique considérée comme la porte d'entrée du ",
+      "cities": [
+        "Marrakech",
+        "Ouarzazate",
+        "Merzouga",
+        "Zagora",
+        "Béni Mellal"
+      ]
     },
     {
       "id": "1a44f126-399c-4dcc-9624-ccc71ffa9895",
@@ -742,6 +878,23 @@
       "description": "Située au nord de la ville, la Palmeraie de Marrakech est l’un des sites naturels les plus emblématiques du Maroc. Véritable oasis aux portes de la médina, elle s’étend sur plus de 13 000 hectares et abrite plus de 100 000 palmiers, offrant un paysage spectaculaire entre désert et verdure. Créée au XIe siècle sous la dynastie des Almoravides, cette palmeraie millénaire est née grâce à un ingénieux",
       "cities": [
         "Marrakech"
+      ]
+    },
+    {
+      "id": "869c15d1-f750-4108-be6b-0e3b37e9da3c",
+      "name": "Rabat",
+      "name_en": null,
+      "region": [
+        "Rabat-Salé-Kénitra"
+      ],
+      "latitude": 34.0083637,
+      "longitude": -6.8538748,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Rabat"
       ]
     },
     {
@@ -824,22 +977,20 @@
       "cities": []
     },
     {
-      "id": "179a7d36-2a52-44a7-8593-685b1a19243e",
-      "name": "Haut Atlas",
-      "name_en": "High Atlas",
+      "id": "64ffc2bd-e801-4db1-94ca-8422233c7768",
+      "name": "Salé",
+      "name_en": null,
       "region": [
-        "Béni Mellal-Khénifra"
+        "Rabat-Salé-Kénitra"
       ],
-      "latitude": 31.791702,
-      "longitude": -7.09262,
+      "latitude": 34.0515706,
+      "longitude": -6.8125429,
       "image": null,
-      "wikipedia": "https://fr.wikipedia.org/wiki/Haut_Atlas",
+      "wikipedia": null,
       "hook": null,
-      "description": "Le Haut Atlas est la plus haute chaîne de montagnes du Maroc. Il s’étend sur environ 700 km du sud-ouest au nord-est du pays et constitue une barrière naturelle entre les régions atlantiques et méditerranéennes au nord et les zones désertiques du Sahara au sud. Son point culminant est le Djebel Toubkal, qui atteint 4 165 m et représente le sommet le plus élevé d’Afrique du Nord. La chaîne du Haut ",
+      "description": null,
       "cities": [
-        "Marrakech",
-        "Béni Mellal",
-        "Ouarzazate"
+        "Salé"
       ]
     },
     {

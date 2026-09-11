@@ -2,8 +2,8 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/events.json",
-    "generated_at": "2026-09-09T10:18:17.095Z",
-    "count": 37
+    "generated_at": "2026-09-11T11:39:15.681Z",
+    "count": 36
   },
   "events": [
     {
@@ -90,24 +90,6 @@
       "recurrence": null,
       "days_of_week": [],
       "type": "Concert",
-      "city": null,
-      "latitude": null,
-      "longitude": null,
-      "image": null,
-      "url": "https://oneworldmorocco.com/events"
-    },
-    {
-      "id": "a50e753c-59a9-45ad-aa8e-2b0104055244",
-      "name": "PURE Life Experiences, le premier salon mondial du voyage expérientiel.",
-      "hook": "Voyages expérientiels qui changent le monde",
-      "description": "Voyages expérientiels qui changent le monde PURE Life Experiences est le premier salon mondial du voyage expérientiel et une communauté animée par la conviction que le voyage peut être bien plus qu'une simple industrie. Chaque année, nous réunissons à Marrakech les personnalités les plus inspirantes du voyage expérientiel pour tisser des liens, explorer de nouvelles façons de faire des affaires et",
-      "start_date": "2026-09-07",
-      "end_date": "2026-09-10",
-      "start_time": null,
-      "end_time": null,
-      "recurrence": null,
-      "days_of_week": [],
-      "type": null,
       "city": null,
       "latitude": null,
       "longitude": null,
