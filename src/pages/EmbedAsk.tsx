@@ -2835,7 +2835,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setVideoFeedList(feed.videos);
       setVideoFeedCtx(
         feed.badgeIds?.length && feed.seed
-          ? { badgeIds: feed.badgeIds, seed: feed.seed, total: Number(feed.total ?? feed.videos.length) }
+          ? {
+              badgeIds: feed.badgeIds,
+              seed: feed.seed,
+              total: Number(feed.total ?? feed.videos.length),
+              // Même périmètre ville que la 1re page (ex. « villa essaouira »).
+              cityIds: Array.isArray(feed.cityIds) && feed.cityIds.length ? feed.cityIds.map(String) : null,
+            }
           : null,
       );
       feedLoadingMoreRef.current = false;
