@@ -936,6 +936,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const availIds = [...new Set((res.hotels || []).map((h: any) => String(h.businessId)).filter(Boolean))];
       const siblings = [...new Set([...availIds, ...((res as any).otherBusinessIds || []).map(String)])];
       if (siblings.length) {
+        // Fermer tout panneau vidéo/badge déjà ouvert à droite, sinon le
+        // feed-vidéo des résultats s'affiche derrière.
+        setActiveFeedVideoId(null);
         setOpenSiblings(siblings);
         setAvailabilityBusinessIds(availIds);
         setOpenBusinessStay({ checkIn, checkOut, adults: adults || 2 });
