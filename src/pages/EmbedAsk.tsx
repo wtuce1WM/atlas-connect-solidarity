@@ -1904,9 +1904,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     if (prevHotelSearchingRef.current && !hotelSearchingMsgId) {
       const finishedId = prevHotelSearchingRef.current;
       const el = bookingResultRefs.current[finishedId];
-      if (el) {
+      const scroller = scrollRef.current;
+      if (el && scroller) {
         requestAnimationFrame(() => {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          const headerInset = 72;
+          const targetTop =
+            scroller.scrollTop +
+            el.getBoundingClientRect().top -
+            scroller.getBoundingClientRect().top -
+            headerInset;
+          scroller.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
         });
       }
     }
