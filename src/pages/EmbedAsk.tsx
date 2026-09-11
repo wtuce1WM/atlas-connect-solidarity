@@ -916,6 +916,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // rendus inline, indexés par identifiant de message assistant.
   const [hotelResults, setHotelResults] = useState<Record<string, CityHotelSearchResult>>({});
   const [hotelSearchingMsgId, setHotelSearchingMsgId] = useState<string | null>(null);
+  /** Résultats de disponibilité affichés 4 par 4, par message assistant. */
+  const [hotelShown, setHotelShown] = useState<Record<string, number>>({});
   // Suggestion `booking` liée à des sous-catégories : la ville du widget est
   // mémorisée au clic, puis rattachée au message assistant du moteur (le widget
   // s'affiche donc SOUS les résultats des sous-catégories).
@@ -4370,48 +4372,55 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                               ? "لا يوجد توفر لهذه التواريخ."
                               : "Aucune disponibilité trouvée pour ces dates.")}
                       </div>
-                      {bookingResult.hotels.map((h: any) => (
-                        <button
-                          key={h.hotelId}
-                          type="button"
-                          onClick={() => {
-                            setOpenSiblings([h.businessId]);
-                            if (bookingResult?.checkIn && bookingResult?.checkOut) {
-                              setOpenBusinessStay({ checkIn: bookingResult.checkIn, checkOut: bookingResult.checkOut, adults: bookingResult.adults || 2 });
-                            }
-                            setOpenBusinessId(h.businessId);
-                          }}
-                          className={`flex gap-3 p-3 text-left rounded-2xl border ${border} ${cardBg}`}
-                          style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08)", ...(cardStyle || {}) }}
-                        >
-                          <div className="shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-neutral-800">
-                            {(h.dbImage || h.mainImage) && (
-                              <img src={h.dbImage || h.mainImage} alt={h.name} className="w-full h-full object-cover" loading="lazy" />
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className={`font-semibold text-sm truncate ${cardInk}`}>{h.name}</div>
-                            <div className={`text-xs mt-0.5 truncate ${cardInk} opacity-70`}>
-                              {[h.dbBusiness?.neighborhood, h.dbBusiness?.city].filter(Boolean).join(" · ")}
-                            </div>
-                            {h.dbGoogleRating != null && (
-                              <div className={`text-xs mt-1 flex items-center gap-1 ${cardInk} opacity-80`}>
-                                <Star className="h-3 w-3" style={{ color: "#D4AF37" }} />
-                                {Number(h.dbGoogleRating).toFixed(1)}
-                                {h.dbGoogleReviewCount ? ` (${h.dbGoogleReviewCount})` : ""}
-                              </div>
-                            )}
-                            {(typeof h.serpPrice === "object" ? h.serpPrice?.amount : h.serpPrice) && (
-                              <div className="mt-1.5 inline-block rounded-full px-2.5 py-1 text-xs font-bold text-white" style={{ background: "#C04F17" }}>
-                                {typeof h.serpPrice === "object" ? h.serpPrice.amount : h.serpPrice}
-                                <span className="font-normal opacity-90">
-                                  {lang === "en" ? " / night" : lang === "ar" ? " / ليلة" : " / nuit"}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      ))}
+                      {bookingResult.hotels.length > 0 && (() => {
+                        // Même format que les autres réponses IA : miniatures carrées
+                        // affichées 4 par 4, avec badge prix/nuit SerpAPI.
+                        const shown = hotelShown[msgKey] ?? 4;
+                        const visible = bookingResult.hotels.slice(0, shown);
+                        const priceBadges: Record<string, string> = {};
+                        for (const h of bookingResult.hotels as any[]) {
+                          const raw = typeof h.serpPrice === "object" ? h.serpPrice?.amount : h.serpPrice;
+                          if (raw) priceBadges[h.businessId] = String(raw);
+                        }
+                        const list = visible.map((h: any) => ({
+                          ...(h.dbBusiness || {}),
+                          id: h.businessId,
+                          name: h.name,
+                          images: h.dbBusiness?.images?.length ? h.dbBusiness.images : (h.mainImage ? [h.mainImage] : []),
+                          booking_url: h.reserveNowUrl || h.dbBusiness?.reserve_now_url || null,
+                        }));
+                        const siblingIds = bookingResult.hotels.map((h: any) => h.businessId);
+                        const remaining = bookingResult.hotels.length - visible.length;
+                        return (
+                          <AiBusinessResultTiles
+                            businesses={list as never}
+                            lang={lang}
+                            compact={anyPanelOpen}
+                            priceBadges={priceBadges}
+                            onOpen={(id) => {
+                              setOpenSiblings(siblingIds);
+                              if (bookingResult?.checkIn && bookingResult?.checkOut) {
+                                setOpenBusinessStay({ checkIn: bookingResult.checkIn, checkOut: bookingResult.checkOut, adults: bookingResult.adults || 2 });
+                              }
+                              setOpenBusinessId(id);
+                            }}
+                            onOpenBooking={openBookingOverlay}
+                            footer={remaining > 0 ? (
+                              <button
+                                type="button"
+                                onClick={() => setHotelShown((s) => ({ ...s, [msgKey]: shown + 4 }))}
+                                className={`self-start mt-1 inline-flex items-center rounded-full border ${border} ${cardBg} ${cardInk} px-3 py-1.5 text-xs font-semibold`}
+                              >
+                                {lang === "en"
+                                  ? `Show ${Math.min(4, remaining)} more`
+                                  : lang === "ar"
+                                  ? `عرض ${Math.min(4, remaining)} أخرى`
+                                  : `Voir ${Math.min(4, remaining)} de plus`}
+                              </button>
+                            ) : null}
+                          />
+                        );
+                      })()}
                     </div>
                   )}
                 </div>

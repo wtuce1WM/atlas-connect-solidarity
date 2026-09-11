@@ -27,6 +27,8 @@ interface Props {
   footer?: React.ReactNode;
   max?: number;
   compact?: boolean;
+  /** Prix/nuit (SerpAPI) indexé par id business : rendu en badge sur la miniature. */
+  priceBadges?: Record<string, string>;
 }
 
 const L = {
@@ -105,6 +107,7 @@ function useContainerColumns(ref: React.RefObject<HTMLDivElement>, compact: bool
 
 const AiBusinessResultTiles = ({
   businesses, origin, lang = "fr", rankOrder, onOpen, onOpenBooking, footer, max = 20, compact = false,
+  priceBadges,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const { cols, measured } = useContainerColumns(wrapRef, compact);
@@ -185,6 +188,19 @@ const AiBusinessResultTiles = ({
                   {podium ? <><span aria-hidden="true">{podium.medal}</span>{podium.label}</> : `N°${idx + 1}`}
                 </span>
               ) : null}
+
+              {priceBadges?.[b.id] ? (
+                <span
+                  className="pointer-events-none absolute right-2 top-2 z-[4] inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-extrabold leading-none text-white shadow-lg"
+                  style={{ background: "#C04F17", ...AI_NAME_FONT }}
+                >
+                  {priceBadges[b.id]}
+                  <span className="ml-1 text-[10px] font-normal opacity-90">
+                    {lang === "en" ? "/ night" : lang === "ar" ? "/ ليلة" : "/ nuit"}
+                  </span>
+                </span>
+              ) : null}
+
 
               {!isOpenText && (waHref || bookingUrl) ? (
                 <div className="pointer-events-none absolute inset-x-0 top-2 z-[4] flex justify-center px-1.5">
