@@ -2902,7 +2902,7 @@ const BookOnlineSlidePanelInner = ({
 
 
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
-      {!cardsHidden && !chromeHidden && !showPoiMapOverlay && !showDirections && !(embedMode && initialOverlay === "poi") && (
+      {!cardsHidden && !chromeHidden && !availabilityConfirmationShown && !showPoiMapOverlay && !showDirections && !(embedMode && initialOverlay === "poi") && (
         <div data-owm-video-rail="true" dir="ltr" className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
           {(() => {
             const LANG_OPTIONS = [
