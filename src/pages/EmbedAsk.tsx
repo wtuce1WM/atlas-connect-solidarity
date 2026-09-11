@@ -938,12 +938,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       if (siblings.length) {
         // Fermer tout panneau vidéo/badge déjà ouvert à droite, sinon le
         // feed-vidéo des résultats s'affiche derrière.
-        setActiveFeedVideoId(null);
         setOpenSiblings(siblings);
         setAvailabilityBusinessIds(availIds);
         setOpenBusinessStay({ checkIn, checkOut, adults: adults || 2 });
         setOpenBusinessOverlay(null);
-        if (openBusinessId) {
+        // React regroupe les mises à jour d'un même tour. Ne pas fermer le
+        // VideoSlidePanel et ouvrir la fiche dans le même rendu : elle partirait
+        // derrière le panneau vidéo encore monté. On impose un rendu fermé,
+        // puis l'effet `pendingBusinessOpen` ouvre le nouveau feed business.
+        if (activeFeedVideoId || openBusinessId) {
+          setActiveFeedVideoId(null);
           setOpenBusinessId(null);
           setPendingBusinessOpen({ id: siblings[0], overlay: null });
         } else {
@@ -1301,6 +1305,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       feed s'affichent normalement. */
   const [availabilityBusinessIds, setAvailabilityBusinessIds] = useState<string[]>([]);
   const [openBusinessOverlay, setOpenBusinessOverlay] = useState<"reviews" | null>(null);
+  // Déclaré avec les autres panneaux : la réouverture différée doit attendre
+  // que le VideoSlidePanel ait réellement quitté le rendu.
+  const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
   /** Fermeture puis réouverture d'une fiche business depuis une miniature :
    *  sur desktop, un slidepanel déjà ouvert à droite doit d'abord se fermer
    *  avant que le nouveau ne s'ouvre, pour ne pas masquer le résultat cliqué. */
@@ -1328,12 +1335,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Réouverture différée d'une fiche business : on a d'abord fermé le
   // slidepanel précédent pour éviter qu'il recouvre le résultat cliqué.
   useEffect(() => {
-    if (!pendingBusinessOpen || openBusinessId) return;
+    if (!pendingBusinessOpen || openBusinessId || activeFeedVideoId) return;
     const { id, overlay } = pendingBusinessOpen;
     setPendingBusinessOpen(null);
     setOpenBusinessOverlay(overlay);
     setOpenBusinessId(id);
-  }, [pendingBusinessOpen, openBusinessId]);
+  }, [pendingBusinessOpen, openBusinessId, activeFeedVideoId]);
   // Source unique de vérité pour tous les overlays Map. Un second effet dédié à
   // `openMap` envoyait parfois « map-closed » pendant l'ouverture du POI générique.
   useEffect(() => {
@@ -1384,7 +1391,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [videoFeedList, setVideoFeedList] = useState<VideoFeedItem[]>([]);
   const [videoFeedCtx, setVideoFeedCtx] = useState<{ badgeIds: string[]; seed: string; total: number; cityIds?: string[] | null } | null>(null);
   const feedLoadingMoreRef = useRef(false);
-  const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
   const [feedVideoTime, setFeedVideoTime] = useState(0);
   /**
    * Suggestion en mode `video_feed` : le lecteur vidéo doit apparaître AVANT le
