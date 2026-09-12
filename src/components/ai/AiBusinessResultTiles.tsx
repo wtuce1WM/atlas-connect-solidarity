@@ -190,10 +190,10 @@ const AiBusinessResultTiles = ({
               ) : null}
 
               {!isOpenText ? (
-                <span className="pointer-events-none absolute inset-0 z-[5] flex flex-col items-center justify-center gap-2">
+                <>
                   {podium ? (
                     <span
-                      className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[15px] font-extrabold leading-none shadow-2xl"
+                      className="pointer-events-none absolute left-1/2 top-[18%] z-[5] -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[15px] font-extrabold leading-none shadow-2xl"
                       style={{ background: podium.color, color: "#1b1b1b" }}
                     >
                       <span aria-hidden="true" className="text-[18px]">{podium.medal}</span>
@@ -202,7 +202,7 @@ const AiBusinessResultTiles = ({
                   ) : null}
                   {priceBadges?.[b.id] ? (
                     <span
-                      className="inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-extrabold leading-none text-white shadow-lg"
+                      className="pointer-events-none absolute left-1/2 top-1/2 z-[5] -translate-x-1/2 -translate-y-1/2 inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-extrabold leading-none text-white shadow-lg"
                       style={{ background: "#C04F17", ...AI_NAME_FONT }}
                     >
                       {priceBadges[b.id]}
@@ -211,7 +211,7 @@ const AiBusinessResultTiles = ({
                       </span>
                     </span>
                   ) : null}
-                </span>
+                </>
               ) : null}
 
 
