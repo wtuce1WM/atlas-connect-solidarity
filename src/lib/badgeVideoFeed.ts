@@ -360,6 +360,25 @@ async function fetchDiscoveryPage(
         !excluded.videoIds.has(String(it.id)) &&
         !(it.businessId && excluded.businessIds.has(String(it.businessId))),
     );
+  // TEMP-DEBUG-68e1 (à retirer) : épingle la vidéo Marché au Poisson en tête.
+  if (offset === 0) {
+    items.unshift({
+      id: "68e17787-9b5a-4fcf-b2eb-ae667db226ad",
+      source: "internal",
+      url: "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1776067430128-i4xybh.mp4",
+      title: "",
+      description: null,
+      price: null,
+      thumbnailUrl: "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/thumbs/c1fa56b4-c684-40b2-b9a3-ffef2c976fea-1776836175022-spf8t.jpg",
+      isGeneric: false,
+      businessId: "c1fa56b4-c684-40b2-b9a3-ffef2c976fea",
+      businessName: "Marché au Poisson de la Médina d'Essaouira",
+      businessLogoUrl: null,
+      businessLogoBg: null,
+      badges: [],
+      social: null,
+    } as any);
+  }
   return {
     items,
     total: rows.length ? Number(rows[0].total_count ?? rows.length) : 0,
