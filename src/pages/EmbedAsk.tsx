@@ -2188,7 +2188,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
   const dir = lang === "ar" ? "rtl" : "ltr";
 
-  const send = (overrideText?: string, suggestionId?: string, followupId?: string, skipGeoPrompt = false) => {
+  const send = async (overrideText?: string, suggestionId?: string, followupId?: string, skipGeoPrompt = false) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !assistantReady) return;
     // Sur l'accueil IA fermé, le texte tapé et le chip cliqué restent visibles
