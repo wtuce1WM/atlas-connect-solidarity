@@ -2926,7 +2926,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       return true;
     } catch { /* best-effort : le marqueur VIDEO_FEED du stream reste le filet */ }
     return false;
-  }, [slug, isPlatform, isClubScope, platformCity, lang]);
+  }, [slug, isPlatform, isClubScope, platformCity, lang, noteLodgingBadges]);
 
 
   /**
