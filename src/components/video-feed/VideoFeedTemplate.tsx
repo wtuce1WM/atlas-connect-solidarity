@@ -161,7 +161,7 @@ const VideoFeedTemplate = ({
   // Wheel/keys navigation while video panel is open (mirrors BlogArticleTemplate)
   useEffect(() => {
     if (!activeVideoId) return;
-    const ids = videos.map((v) => v.id);
+    const ids = allVideos.map((v) => v.id);
     const idx = ids.indexOf(activeVideoId);
     const goNext = () => {
       if (idx >= 0 && idx < ids.length - 1) {
@@ -199,6 +199,8 @@ const VideoFeedTemplate = ({
       accum = 0;
       lockUntil = now + 450;
       dir > 0 ? goNext() : goPrev();
+      // Fin de feed proche → chaînage infini sur un autre badge.
+      if (dir > 0) void appendChainedBadgeFeed(ids[Math.min(idx + 1, ids.length - 1)]);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLElement && /input|textarea|select/i.test(e.target.tagName)) return;
