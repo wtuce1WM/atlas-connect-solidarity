@@ -597,8 +597,12 @@ const Front = () => {
           return [...prev, ...items.filter((it) => !seen.has(it.id)).map(toPanelVideo)];
         });
       }
-      // Plus rien à paginer → on enchaîne sur un autre badge.
-      if (!items.length) await appendChainedBadgeFeedDemo(currentId);
+      // Plus rien à paginer → on enchaîne sur un autre badge (le verrou de
+      // pagination doit être relâché avant, sinon le chaînage s'auto-bloque).
+      if (!items.length) {
+        demoLoadingMoreRef.current = false;
+        await appendChainedBadgeFeedDemo(currentId);
+      }
     } catch {
       /* pagination best-effort */
     } finally {
