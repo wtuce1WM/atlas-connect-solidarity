@@ -1922,7 +1922,11 @@ const VideoSlidePanel = ({
               />
             </div>
           )}
-          <div className={`absolute inset-0 z-30 pointer-events-none ${descOverlayOpen || aiOverlayOpen ? "hidden" : ""}`}>
+          <div
+            className={`absolute inset-0 z-30 pointer-events-none ${descOverlayOpen || aiOverlayOpen ? "hidden" : ""}`}
+            style={chromeHidden ? { visibility: "hidden", pointerEvents: "none" } : undefined}
+            aria-hidden={chromeHidden || undefined}
+          >
             {/* Pas de px-4 ici : la marge latérale de la barre info viewer est portée
                 par ViewerInfoBar (source unique partagée avec BookOnlineSlidePanel). */}
             <div className="fixed lg:absolute inset-x-0 bottom-[calc(96px+env(safe-area-inset-bottom))] lg:bottom-[5.5rem] z-30 flex flex-col items-center justify-end gap-3 pointer-events-none">
@@ -2080,12 +2084,11 @@ const VideoSlidePanel = ({
                 </div>
               )}
             </div>
-            {/* Les 5 CTAs du bas restent montés (pas de « reload » visuel) :
-                en mode immersion on les masque par visibility, comme la barre info. */}
+            {/* Les 5 CTAs restent montés. Leur visibilité est pilotée par le parent
+                commun à la barre info afin que toute la zone basse disparaisse dans
+                la même frame de rendu. */}
             <div
               className="absolute pointer-events-none bottom-0 left-1/2 -translate-x-1/2 w-[96%] sm:w-[94%] max-w-[540px] z-[85]"
-              style={chromeHidden ? { visibility: "hidden", pointerEvents: "none" } : undefined}
-              aria-hidden={chromeHidden || undefined}
             >
               <div className="relative w-full h-full pointer-events-auto">
                 <PanelSearchBar
