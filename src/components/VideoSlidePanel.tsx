@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo, Suspense } from "react";
 import MediaViewerInfo from "@/components/slidepanel/MediaViewerInfo";
 import ViewerInfoBar from "@/components/slidepanel/ViewerInfoBar";
+import BusinessPromotionsList from "@/components/slidepanel/BusinessPromotionsList";
 import FrozenFrameVideo from "@/components/slidepanel/FrozenFrameVideo";
 
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
@@ -2011,6 +2012,13 @@ const VideoSlidePanel = ({
                 }
                 return null;
               })()}
+              {/* Offres B2B — même composant/source que BookOnlineSlidePanel,
+                  posé au-dessus de la barre info viewer et masqué avec le chrome. */}
+              {feedLayout && ctaBusiness?.id && !chipsExpanded && (
+                <div className="w-full flex justify-center pointer-events-auto">
+                  <BusinessPromotionsList businessId={ctaBusiness.id} cardsHidden={chromeHidden} />
+                </div>
+              )}
               {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer.
                   Anti-« reload » au scroll vertical : ViewerInfoBar reste MONTÉE en
                   permanence pendant le feed (comme dans BookOnlineSlidePanel) ; quand
