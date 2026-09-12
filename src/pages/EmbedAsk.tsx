@@ -962,7 +962,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     pendingBookingCityRef.current = city;
   }, [businessCity]);
   /** Villes proposées par la suggestion « Réserver une chambre » (sans ville). */
-  const BOOKING_CITY_OPTIONS = ["Marrakech", "Essaouira", "Taghazout", "Oualidia"];
+  const BOOKING_CITY_OPTIONS = ["Marrakech", "Essaouira"];
   /**
    * Clic sur une ville de l'invitation : le widget de disponibilité s'affiche
    * directement sur cette ville (sans relancer le moteur).
@@ -2406,8 +2406,33 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // Périmètre par défaut du widget : la fiche hôte impose sa ville, sinon la
     // recherche couvre TOUTES les villes couvertes (plus de repli Marrakech).
     if (isBookingRequest && bookingWithSubcats) {
-      pendingBookingCityRef.current =
-        bookingSuggestion?.city || businessCity || ALL_CITIES;
+      const resolvedCity = bookingSuggestion?.city || businessCity || ALL_CITIES;
+      // SANS ville connue : on invite à choisir la destination (chips) AVANT de
+      // lancer la réponse IA et le widget de disponibilité.
+      if (resolvedCity === ALL_CITIES) {
+        setError(null);
+        setActiveSuggestionId(bookingSuggestion?.id || suggestionId || null);
+        const msgId = `a-booking-${Date.now()}`;
+        setMessages((prev) => [
+          ...prev,
+          { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+          {
+            id: msgId,
+            role: "assistant",
+            parts: [{
+              type: "text",
+              text: `${lang === "en"
+                ? "Great! Where would you like to stay? Pick a destination:"
+                : lang === "ar"
+                ? "رائع! أين تريد الإقامة؟ اختر الوجهة:"
+                : "Avec plaisir ! Où souhaitez-vous séjourner ? Choisissez une destination :"
+              }\n\n<!--BOOKING_CITY_PICK-->`,
+            }],
+          } as any,
+        ]);
+        return;
+      }
+      pendingBookingCityRef.current = resolvedCity;
     }
     if (freeBookingIntent && !freeBookingHasDates) {
       pendingBookingCityRef.current =
@@ -2424,8 +2449,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const hasDates = !!checkIn && !!checkOut;
       // Suggestion « Réserver une chambre » SANS ville ni dates : on invite
       // d'abord à choisir la destination (chips cliquables), puis le widget de
-      // disponibilité s'affiche sur la ville choisie. Les villes couvertes :
-      // Marrakech, Essaouira, Taghazout, Oualidia.
+      // disponibilité s'affiche sur la ville choisie. Villes couvertes :
+      // Marrakech et Essaouira.
       if (city === ALL_CITIES && !hasDates) {
         const msgId = `a-booking-${Date.now()}`;
         setMessages((prev) => [
