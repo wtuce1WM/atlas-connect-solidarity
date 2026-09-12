@@ -512,14 +512,16 @@ const Front = () => {
     void openDemoFeed();
   }, [openDemoFeed]);
 
-  // Au chargement de la homepage (navigateur comme PWA installée), le feed vidéo
-  // démo s'ouvre automatiquement dans la moitié droite.
+  // NEUTRALISÉ TEMPORAIREMENT : le feed vidéo démo ne s'ouvre plus automatiquement
+  // au chargement de la homepage. Seul l'assistant IA (mode fermé) reste affiché.
+  // Réactiver en décommentant le bloc ci-dessous.
   const autoDemoRef = useRef(false);
-  useEffect(() => {
-    if (autoDemoRef.current) return;
-    autoDemoRef.current = true;
-    startDemo();
-  }, [startDemo]);
+  // useEffect(() => {
+  //   if (autoDemoRef.current) return;
+  //   autoDemoRef.current = true;
+  //   startDemo();
+  // }, [startDemo]);
+
 
 
   /**
