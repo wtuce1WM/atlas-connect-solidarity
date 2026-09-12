@@ -943,8 +943,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const lastLodgingCityRef = useRef<string | null>(null);
   /** Ids des badges d'hébergement (« Où dormir ? »), résolus une seule fois. */
   const lodgingBadgeIdsRef = useRef<Set<string> | null>(null);
-  const noteLodgingBadges = useCallback(async (badgeIds: string[] | null | undefined, text: string) => {
-    if (!badgeIds?.length) return;
+  const noteLodgingBadges = useCallback(async (badgeIds: string[] | null | undefined, text: string): Promise<boolean> => {
+    if (!badgeIds?.length) return false;
     if (!lodgingBadgeIdsRef.current) {
       const { data } = await supabase.from("badges").select("id, name_fr");
       const set = new Set<string>();
@@ -955,14 +955,18 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       lodgingBadgeIdsRef.current = set;
     }
     const set = lodgingBadgeIdsRef.current;
-    if (!badgeIds.some((id) => set.has(String(id)))) return;
+    if (!badgeIds.some((id) => set.has(String(id)))) return false;
     const city = extractBookingCity(text) || businessCity || ALL_CITIES;
     lastLodgingCityRef.current = city;
+    // Sans ville connue : l'appelant affiche le choix de la ville AVANT la
+    // réponse IA et le widget (true = interception, ne pas rattacher le widget).
+    if (city === ALL_CITIES) return true;
     // Rattaché au prochain message assistant du moteur (widget sous les cartes).
     pendingBookingCityRef.current = city;
+    return false;
   }, [businessCity]);
   /** Villes proposées par la suggestion « Réserver une chambre » (sans ville). */
-  const BOOKING_CITY_OPTIONS = ["Marrakech", "Essaouira", "Taghazout", "Oualidia"];
+  const BOOKING_CITY_OPTIONS = ["Marrakech", "Essaouira"];
   /**
    * Clic sur une ville de l'invitation : le widget de disponibilité s'affiche
    * directement sur cette ville (sans relancer le moteur).
@@ -2184,7 +2188,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
   const dir = lang === "ar" ? "rtl" : "ltr";
 
-  const send = (overrideText?: string, suggestionId?: string, followupId?: string, skipGeoPrompt = false) => {
+  const send = async (overrideText?: string, suggestionId?: string, followupId?: string, skipGeoPrompt = false) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !assistantReady) return;
     // Sur l'accueil IA fermé, le texte tapé et le chip cliqué restent visibles
@@ -2284,8 +2288,31 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     }
     // Badge « Où dormir ? » dans les badges résolus de la question : le widget de
     // disponibilité est rattaché à la réponse IA (dates + voyageurs), sans
-    // remplacer les résultats du moteur.
-    void noteLodgingBadges(feedSuggestion?.badge_ids as string[] | undefined, text);
+    // remplacer les résultats du moteur. SANS ville connue : on intercepte AVANT
+    // le moteur — choix de la ville (chips) d'abord, widget ensuite.
+    if (await noteLodgingBadges(feedSuggestion?.badge_ids as string[] | undefined, text)) {
+      setError(null);
+      setActiveSuggestionId(feedSuggestion?.id || null);
+      const msgId = `a-booking-${Date.now()}`;
+      setMessages((prev) => [
+        ...prev,
+        { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+        {
+          id: msgId,
+          role: "assistant",
+          parts: [{
+            type: "text",
+            text: `${lang === "en"
+              ? "Great! Where would you like to stay? Pick a destination:"
+              : lang === "ar"
+              ? "رائع! أين تريد الإقامة؟ اختر الوجهة:"
+              : "Avec plaisir ! Où souhaitez-vous séjourner ? Choisissez une destination :"
+            }\n\n<!--BOOKING_CITY_PICK-->`,
+          }],
+        } as any,
+      ]);
+      return;
+    }
     if (feedSuggestion?.mode === "video_feed" && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
       // Le panneau de gauche reste masqué jusqu'à l'ouverture du lecteur vidéo.
       setFeedOpening(true);
@@ -2406,8 +2433,33 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // Périmètre par défaut du widget : la fiche hôte impose sa ville, sinon la
     // recherche couvre TOUTES les villes couvertes (plus de repli Marrakech).
     if (isBookingRequest && bookingWithSubcats) {
-      pendingBookingCityRef.current =
-        bookingSuggestion?.city || businessCity || ALL_CITIES;
+      const resolvedCity = bookingSuggestion?.city || businessCity || ALL_CITIES;
+      // SANS ville connue : on invite à choisir la destination (chips) AVANT de
+      // lancer la réponse IA et le widget de disponibilité.
+      if (resolvedCity === ALL_CITIES) {
+        setError(null);
+        setActiveSuggestionId(bookingSuggestion?.id || suggestionId || null);
+        const msgId = `a-booking-${Date.now()}`;
+        setMessages((prev) => [
+          ...prev,
+          { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+          {
+            id: msgId,
+            role: "assistant",
+            parts: [{
+              type: "text",
+              text: `${lang === "en"
+                ? "Great! Where would you like to stay? Pick a destination:"
+                : lang === "ar"
+                ? "رائع! أين تريد الإقامة؟ اختر الوجهة:"
+                : "Avec plaisir ! Où souhaitez-vous séjourner ? Choisissez une destination :"
+              }\n\n<!--BOOKING_CITY_PICK-->`,
+            }],
+          } as any,
+        ]);
+        return;
+      }
+      pendingBookingCityRef.current = resolvedCity;
     }
     if (freeBookingIntent && !freeBookingHasDates) {
       pendingBookingCityRef.current =
@@ -2424,8 +2476,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const hasDates = !!checkIn && !!checkOut;
       // Suggestion « Réserver une chambre » SANS ville ni dates : on invite
       // d'abord à choisir la destination (chips cliquables), puis le widget de
-      // disponibilité s'affiche sur la ville choisie. Les villes couvertes :
-      // Marrakech, Essaouira, Taghazout, Oualidia.
+      // disponibilité s'affiche sur la ville choisie. Villes couvertes :
+      // Marrakech et Essaouira.
       if (city === ALL_CITIES && !hasDates) {
         const msgId = `a-booking-${Date.now()}`;
         setMessages((prev) => [
