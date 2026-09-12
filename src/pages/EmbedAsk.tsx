@@ -957,6 +957,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   }, [businessCity]);
   const runCityHotelSearch = async (msgId: string, city: string, checkIn: string, checkOut: string, adults: number) => {
     lastBookingRef.current = { city, checkIn, checkOut, adults };
+    lastLodgingCityRef.current = city;
     setHotelSearchingMsgId(msgId);
     try {
       const res = await searchCityHotels({ cityName: city, checkIn, checkOut, adults });
