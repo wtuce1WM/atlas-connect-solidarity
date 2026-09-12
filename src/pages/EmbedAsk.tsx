@@ -18,7 +18,7 @@ import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
-import { parseBookingIntent, extractBookingCity } from "@/lib/parseBookingIntent";
+import { parseBookingIntent, extractBookingCity, extractStayDates } from "@/lib/parseBookingIntent";
 import { detectLocalIntent } from "@/lib/detectLocalIntent";
 import EmbedFilterDrawer, { type EmbedFilterGroup } from "@/components/embed/EmbedFilterDrawer";
 
