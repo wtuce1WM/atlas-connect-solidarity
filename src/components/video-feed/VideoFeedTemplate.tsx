@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, lazy, useEffect, useState } from "react";
+import { ReactNode, Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSEO } from "@/hooks/useSEO";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
@@ -28,6 +28,8 @@ export interface VideoFeedTemplateProps {
   sectionTitle: string;
   sectionIntro?: string;
   videos: BlogArticleVideo[];
+  /** Badge du feed initial : sert de point de départ au chaînage infini. */
+  feedBadgeId?: string | null;
   bookmarkSlug: string;
   siteUrl?: string;
 }
@@ -48,6 +50,7 @@ const VideoFeedTemplate = ({
   sectionTitle,
   sectionIntro,
   videos,
+  feedBadgeId = null,
   bookmarkSlug,
   siteUrl = DEFAULT_SITE_URL,
 }: VideoFeedTemplateProps) => {
@@ -58,6 +61,74 @@ const VideoFeedTemplate = ({
     useArticleBookmark(bookmarkSlug);
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
+
+  /**
+   * Scroll « infini » : à la fin du feed, on enchaîne avec d'autres vidéos
+   * d'un badge porté par les vidéos du business de la dernière vidéo (badge
+   * non encore utilisé dans la chaîne), sans doublons — même règle que le
+   * feed Démo de Home et l'assistant IA.
+   */
+  const [extraVideos, setExtraVideos] = useState<BlogArticleVideo[]>([]);
+  const chainUsedBadgesRef = useRef<Set<string>>(new Set());
+  const chainTriedBusinessRef = useRef<Set<string>>(new Set());
+  const chainLoadingRef = useRef(false);
+
+  // Nouveau feed (la liste source change) → la chaîne repart du badge du feed.
+  useEffect(() => {
+    setExtraVideos([]);
+    chainUsedBadgesRef.current = new Set(feedBadgeId ? [feedBadgeId] : []);
+    chainTriedBusinessRef.current = new Set();
+    chainLoadingRef.current = false;
+  }, [videos, feedBadgeId]);
+
+  const allVideos = extraVideos.length ? [...videos, ...extraVideos] : videos;
+
+  const appendChainedBadgeFeed = useCallback(async (currentId: string) => {
+    if (chainLoadingRef.current) return;
+    const list = allVideos;
+    const idx = list.findIndex((v) => v.id === currentId);
+    if (idx < 0 || idx < list.length - 3) return;
+    const last = list[list.length - 1] as any;
+    const bizId = (() => {
+      for (let i = list.length - 1; i >= 0; i--) {
+        const b = (list[i] as any)?.businessId;
+        if (b) return String(b);
+      }
+      return null;
+    })();
+    const lastBadgeIds = ((last?.badges as any[]) || []).map((b) => String(b.id));
+    const tryKey = `${bizId ?? "no-biz"}:${chainUsedBadgesRef.current.size}`;
+    if (chainTriedBusinessRef.current.has(tryKey)) return;
+    chainTriedBusinessRef.current.add(tryKey);
+    chainLoadingRef.current = true;
+    try {
+      const { fetchChainedBadgeFeed } = await import("@/lib/badgeVideoFeed");
+      const { items, badgeId } = await fetchChainedBadgeFeed(
+        bizId || "",
+        list.map((v) => String(v.id)),
+        Array.from(chainUsedBadgesRef.current),
+        30,
+        lastBadgeIds,
+      );
+      if (badgeId) chainUsedBadgesRef.current.add(badgeId);
+      if (items.length) {
+        setExtraVideos((prev) => {
+          const seen = new Set([...videos, ...prev].map((v) => String(v.id)));
+          return [...prev, ...items.filter((it) => !seen.has(String(it.id)))];
+        });
+      }
+    } catch {
+      /* best-effort : le feed reste utilisable */
+    } finally {
+      chainLoadingRef.current = false;
+    }
+  }, [allVideos, videos]);
+
+  const handleActiveVideoChange = useCallback((v: any) => {
+    setActiveVideoId(v.id);
+    setVideoCurrentTime(0);
+    void appendChainedBadgeFeed(String(v.id));
+  }, [appendChainedBadgeFeed]);
 
   const ogImage = heroImage || `${siteUrl}/og-install-app.webp`;
 
@@ -90,7 +161,7 @@ const VideoFeedTemplate = ({
   // Wheel/keys navigation while video panel is open (mirrors BlogArticleTemplate)
   useEffect(() => {
     if (!activeVideoId) return;
-    const ids = videos.map((v) => v.id);
+    const ids = allVideos.map((v) => v.id);
     const idx = ids.indexOf(activeVideoId);
     const goNext = () => {
       if (idx >= 0 && idx < ids.length - 1) {
@@ -128,10 +199,15 @@ const VideoFeedTemplate = ({
       accum = 0;
       lockUntil = now + 450;
       dir > 0 ? goNext() : goPrev();
+      // Fin de feed proche → chaînage infini sur un autre badge.
+      if (dir > 0) void appendChainedBadgeFeed(ids[Math.min(idx + 1, ids.length - 1)]);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLElement && /input|textarea|select/i.test(e.target.tagName)) return;
-      if (e.key === "ArrowDown" || e.key === "PageDown") { e.preventDefault(); goNext(); }
+      if (e.key === "ArrowDown" || e.key === "PageDown") {
+        e.preventDefault(); goNext();
+        void appendChainedBadgeFeed(ids[Math.min(idx + 1, ids.length - 1)]);
+      }
       else if (e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); goPrev(); }
     };
     window.addEventListener("wheel", onWheel, { passive: false });
@@ -140,7 +216,7 @@ const VideoFeedTemplate = ({
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKey);
     };
-  }, [activeVideoId, videos]);
+  }, [activeVideoId, allVideos, appendChainedBadgeFeed]);
 
   const dir = language === "ar" ? "rtl" : "ltr";
 
@@ -299,7 +375,7 @@ const VideoFeedTemplate = ({
       <ClubLoginPopup />
 
       {activeVideoId && (() => {
-        const list = videos.map((v) => ({
+        const list = allVideos.map((v) => ({
           id: v.id,
           url: v.url,
           business_name: v.businessName || v.title,
@@ -330,7 +406,7 @@ const VideoFeedTemplate = ({
               onClose={() => setActiveVideoId(null)}
               activeVideo={active as any}
               activeList={list as any}
-              onActiveVideoChange={(v: any) => { setActiveVideoId(v.id); setVideoCurrentTime(0); }}
+              onActiveVideoChange={handleActiveVideoChange}
               isActiveGeneric={!!active?._isGeneric}
               currentTime={videoCurrentTime}
               onTimeUpdate={setVideoCurrentTime}
