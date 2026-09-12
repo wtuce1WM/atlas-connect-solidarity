@@ -425,7 +425,7 @@ type PinnedBusinessCard = {
 };
 
 function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: BookingPayload[]; competitorGuard: boolean; destChips: ScopeChip[]; cityPick: boolean } {
-  const cityPick = BOOKING_CITY_PICK_RE.test(text);
+  const cityPick = text.includes("<!--BOOKING_CITY_PICK-->");
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
@@ -439,7 +439,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   const destChips: ScopeChip[] = [];
   const hookUpgrades: Record<string, string> = {};
   const competitorGuard = COMPETITOR_GUARD_RE.test(text);
-  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips };
+  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips, cityPick: false };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -535,6 +535,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--DESTINATION_CHIPS:[\s\S]*$/g, "")
     .replace(/<!--HOOKS_UPGRADE:[\s\S]*?-->/g, "")
     .replace(/<!--HOOKS_UPGRADE:[\s\S]*$/g, "")
+    .replace(BOOKING_CITY_PICK_RE, "")
     .trim();
   // Les phrases réécrites remplacent le hook des cartes déjà affichées.
   if (Object.keys(hookUpgrades).length) {
@@ -547,7 +548,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     }
   }
   clean = linkifyPhones(clean);
-  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips };
+  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips, cityPick };
 }
 
 // Convert bare phone / WhatsApp numbers found in AI markdown into clickable links.
