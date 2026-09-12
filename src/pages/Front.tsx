@@ -986,20 +986,13 @@ const Front = () => {
             setYoutubeOpen(false);
             return;
           }
-          // Suggestions dépliées : simple repli, aucun rechargement (évite le flash #ECD6B8).
-          if (suggestionsExpanded) {
-            try { window.postMessage({ type: "owm-host:collapse-suggestions" }, window.location.origin); } catch { /* noop */ }
-            setSuggestionsExpanded(false);
-            return;
-          }
-          // Conversation IA fermée : le logo ne renvoie plus vers la homepage
-          // (aucun rechargement) — on est déjà sur l'accueil.
-          if (!conversationOpen) return;
-          // Conversation ouverte : retour à l'accueil IA sans rechargement
-          // (le reload provoquait un saut visuel).
+          // Dès que le logo + OWM est visible, son clic revient sans condition
+          // à l'accueil IA fermé. Aucun état intermédiaire (suggestions, relance,
+          // feed) ne doit pouvoir détourner ou neutraliser cette action.
           try {
             window.postMessage({ type: "owm-host:reset-conversation" }, window.location.origin);
           } catch { /* noop */ }
+          setSuggestionsExpanded(false);
           setConversationOpen(false);
           const video = backgroundVideoRef.current;
           if (video?.paused) void video.play().catch(() => undefined);
