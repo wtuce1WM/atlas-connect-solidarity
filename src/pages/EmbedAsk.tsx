@@ -2898,6 +2898,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const feed = json?.feed;
       if (!feed?.videos?.length) return false;
       earlyFeedOpenRef.current = true;
+      // Badges résolus côté serveur : si « Où dormir ? » en fait partie, le widget
+      // de disponibilité est rattaché à la réponse IA du même tour.
+      void noteLodgingBadges(feed.badgeIds as string[] | undefined, text);
       setVideoFeedList(feed.videos);
       setVideoFeedCtx(
         feed.badgeIds?.length && feed.seed
