@@ -317,7 +317,9 @@ const Front = () => {
   /* Transition « Demo » : ne laisse que le slogan, recentré plein écran */
   // En App installée, masquer l'accueil dès le tout premier rendu : le flux
   // immersif se charge directement, sans écran intermédiaire ni texte d'accueil.
-  const [demoIntro, setDemoIntro] = useState(isInstalledApp);
+  // NEUTRALISÉ TEMPORAIREMENT : plus d'intro démo au premier rendu (App installée incluse).
+  const [demoIntro, setDemoIntro] = useState(false);
+
   const [demoList, setDemoList] = useState<any[]>([]);
   const [demoCtx, setDemoCtx] = useState<DiscoveryFeedContext | null>(null);
   const [demoActiveId, setDemoActiveId] = useState<string | null>(null);
@@ -512,14 +514,16 @@ const Front = () => {
     void openDemoFeed();
   }, [openDemoFeed]);
 
-  // Au chargement de la homepage (navigateur comme PWA installée), le feed vidéo
-  // démo s'ouvre automatiquement dans la moitié droite.
-  const autoDemoRef = useRef(false);
-  useEffect(() => {
-    if (autoDemoRef.current) return;
-    autoDemoRef.current = true;
-    startDemo();
-  }, [startDemo]);
+  // NEUTRALISÉ TEMPORAIREMENT : le feed vidéo démo ne s'ouvre plus automatiquement
+  // au chargement de la homepage. Seul l'assistant IA (mode fermé) reste affiché.
+  // Réactiver en décommentant le bloc ci-dessous.
+  // const autoDemoRef = useRef(false);
+  // useEffect(() => {
+  //   if (autoDemoRef.current) return;
+  //   autoDemoRef.current = true;
+  //   startDemo();
+  // }, [startDemo]);
+
 
 
   /**
