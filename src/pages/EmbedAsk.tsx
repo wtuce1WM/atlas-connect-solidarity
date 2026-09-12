@@ -4482,6 +4482,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             (later.role === "assistant" && extractPayloads(messageText(later)).maps.some((payload) => payload.businesses.length > 0)),
           );
           const bookingCity = bookingPayload?.city || bookingWidgetByMsg[msgKey] || null;
+          const showCityPick = cityPick || !!cityPickByMsg[msgKey];
           const bookingResult = hotelResults[msgKey] || null;
           const isLast = i === messages.length - 1;
           const hideAssistantText =
@@ -4773,7 +4774,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
 
-              {cityPick && (
+              {showCityPick && (
                 <div className="w-full max-w-[85%] flex flex-wrap gap-2">
                   {BOOKING_CITY_OPTIONS.map((city) => (
                     <button
