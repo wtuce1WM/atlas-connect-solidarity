@@ -522,12 +522,71 @@ const Front = () => {
   }, [startDemo]);
 
 
+  /**
+   * Scroll « infini » : à la fin du feed démo, on enchaîne sur un autre feed.
+   * Règle : on lit les badges portés par les VIDÉOS du business de la dernière
+   * vidéo, et on prolonge avec d'autres vidéos d'un de ces badges (badge non
+   * encore utilisé dans la chaîne). Répété à chaque nouvelle fin de feed.
+   */
+  const chainUsedBadgesRef = useRef<Set<string>>(new Set());
+  const chainTriedBusinessRef = useRef<Set<string>>(new Set());
+  const appendChainedBadgeFeedDemo = useCallback(async (currentId: string) => {
+    if (demoLoadingMoreRef.current) return;
+    const list = demoList;
+    const idx = list.findIndex((v) => v.id === currentId);
+    if (idx < 0 || idx < list.length - 3) return;
+    const last = list[list.length - 1] as any;
+    const bizId = (() => {
+      for (let i = list.length - 1; i >= 0; i--) {
+        const b = (list[i] as any)?.pageBusinessId ?? (list[i] as any)?.owner?.id;
+        if (b) return String(b);
+      }
+      return null;
+    })();
+    const lastBadgeIds = ((last?.badges as any[]) || []).map((b) => String(b.id));
+    const tryKey = `${bizId ?? "no-biz"}:${chainUsedBadgesRef.current.size}`;
+    if (chainTriedBusinessRef.current.has(tryKey)) return;
+    chainTriedBusinessRef.current.add(tryKey);
+    demoLoadingMoreRef.current = true;
+    try {
+      const { fetchChainedBadgeFeed } = await import("@/lib/badgeVideoFeed");
+      const { items, badgeId } = await fetchChainedBadgeFeed(
+        bizId || "",
+        list.map((v) => String(v.id)),
+        Array.from(chainUsedBadgesRef.current),
+        30,
+        lastBadgeIds,
+      );
+      if (badgeId) chainUsedBadgesRef.current.add(badgeId);
+      if (items.length) {
+        setDemoList((prev) => {
+          const seen = new Set(prev.map((v) => String(v.id)));
+          return [...prev, ...items.filter((it) => !seen.has(String(it.id))).map(toPanelVideo)];
+        });
+      }
+    } catch {
+      /* best-effort : le feed reste utilisable */
+    } finally {
+      demoLoadingMoreRef.current = false;
+    }
+  }, [demoList]);
+
+  // Nouveau feed (nouveau contexte) → la chaîne repart des badges du feed.
+  useEffect(() => {
+    chainUsedBadgesRef.current = new Set(demoBadgeId ? [demoBadgeId] : []);
+    chainTriedBusinessRef.current = new Set();
+  }, [demoCtx, demoBadgeId]);
+
   const maybeLoadMoreDemo = useCallback(async (currentId: string) => {
     const ctx = demoCtx;
     if (!ctx || demoLoadingMoreRef.current) return;
     const idx = demoList.findIndex((v) => v.id === currentId);
     if (idx < 0 || idx < demoList.length - 10) return;
-    if (demoList.length >= ctx.total) return;
+    // Feed épuisé → chaînage sur un badge des vidéos du dernier business.
+    if (demoList.length >= ctx.total) {
+      await appendChainedBadgeFeedDemo(currentId);
+      return;
+    }
     demoLoadingMoreRef.current = true;
     try {
       const { fetchDiscoveryVideoFeedPage } = await import("@/lib/badgeVideoFeed");
@@ -538,12 +597,14 @@ const Front = () => {
           return [...prev, ...items.filter((it) => !seen.has(it.id)).map(toPanelVideo)];
         });
       }
+      // Plus rien à paginer → on enchaîne sur un autre badge.
+      if (!items.length) await appendChainedBadgeFeedDemo(currentId);
     } catch {
       /* pagination best-effort */
     } finally {
       demoLoadingMoreRef.current = false;
     }
-  }, [demoCtx, demoList]);
+  }, [demoCtx, demoList, appendChainedBadgeFeedDemo]);
 
 
   /** Clic sur une chip badge dans le viewer → relance du feed sur ce badge. */
