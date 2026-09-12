@@ -39,8 +39,8 @@ const L = {
 
 const PODIUM = [
   { medal: "🥇", label: "1er", color: "#D4AF37" },
-  { medal: "🥈", label: "2e", color: "#B9BDC2" },
-  { medal: "🥉", label: "3e", color: "#CD7F32" },
+  { medal: "🥈", label: "2ème", color: "#B9BDC2" },
+  { medal: "🥉", label: "3ème", color: "#CD7F32" },
 ];
 
 const FR_TO_EN: Record<string, string> = {
