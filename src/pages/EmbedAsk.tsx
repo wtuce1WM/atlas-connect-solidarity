@@ -2247,11 +2247,20 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     if (feedSuggestion?.mode === "video_feed" && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
       // Le panneau de gauche reste masqué jusqu'à l'ouverture du lecteur vidéo.
       setFeedOpening(true);
-      void openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]).then((ok) => {
+      // Le pré-vol serveur attend ce résultat : si l'ouverture immédiate réussit,
+      // il ne doit PAS remplacer le feed (sinon la vidéo 2 s'affiche seule quand
+      // la réponse IA arrive).
+      const earlyPromise = openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]).then((ok) => {
         // Feed vide / erreur : rien ne s'ouvre → on rétablit la conversation.
         if (!ok) setFeedOpening(false);
+        return ok;
       });
+      earlyFeedPromiseRef.current = earlyPromise;
+      void earlyPromise;
+    } else {
+      earlyFeedPromiseRef.current = null;
     }
+
 
     const isBookingLabel = [
       "reserver une chambre",
