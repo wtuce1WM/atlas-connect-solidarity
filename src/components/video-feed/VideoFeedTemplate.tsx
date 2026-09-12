@@ -204,7 +204,10 @@ const VideoFeedTemplate = ({
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLElement && /input|textarea|select/i.test(e.target.tagName)) return;
-      if (e.key === "ArrowDown" || e.key === "PageDown") { e.preventDefault(); goNext(); }
+      if (e.key === "ArrowDown" || e.key === "PageDown") {
+        e.preventDefault(); goNext();
+        void appendChainedBadgeFeed(ids[Math.min(idx + 1, ids.length - 1)]);
+      }
       else if (e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); goPrev(); }
     };
     window.addEventListener("wheel", onWheel, { passive: false });
@@ -213,7 +216,7 @@ const VideoFeedTemplate = ({
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKey);
     };
-  }, [activeVideoId, videos]);
+  }, [activeVideoId, allVideos, appendChainedBadgeFeed]);
 
   const dir = language === "ar" ? "rtl" : "ltr";
 
@@ -372,7 +375,7 @@ const VideoFeedTemplate = ({
       <ClubLoginPopup />
 
       {activeVideoId && (() => {
-        const list = videos.map((v) => ({
+        const list = allVideos.map((v) => ({
           id: v.id,
           url: v.url,
           business_name: v.businessName || v.title,
@@ -403,7 +406,7 @@ const VideoFeedTemplate = ({
               onClose={() => setActiveVideoId(null)}
               activeVideo={active as any}
               activeList={list as any}
-              onActiveVideoChange={(v: any) => { setActiveVideoId(v.id); setVideoCurrentTime(0); }}
+              onActiveVideoChange={handleActiveVideoChange}
               isActiveGeneric={!!active?._isGeneric}
               currentTime={videoCurrentTime}
               onTimeUpdate={setVideoCurrentTime}
