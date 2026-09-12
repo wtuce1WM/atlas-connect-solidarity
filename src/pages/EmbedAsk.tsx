@@ -2850,6 +2850,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setVideoFeedCtx({ badgeIds, seed, total, cityIds: null });
       feedLoadingMoreRef.current = false;
       setFeedVideoTime(0);
+      bumpFeedSession();
       setActiveFeedVideoId(items[0].id);
       preloadFirstFeedMedia(items[0]);
       for (const v of items.slice(1, 3)) {
@@ -2919,6 +2920,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       );
       feedLoadingMoreRef.current = false;
       setFeedVideoTime(0);
+      bumpFeedSession();
       setActiveFeedVideoId(feed.videos[0].id);
       preloadFirstFeedMedia(feed.videos[0]);
       for (const v of feed.videos.slice(1, 3)) {
@@ -2960,6 +2962,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setVideoFeedCtx({ badgeIds, seed, total, cityIds: null });
       feedLoadingMoreRef.current = false;
       setFeedVideoTime(0);
+      bumpFeedSession();
       setActiveFeedVideoId(ordered[0].id);
       preloadFirstFeedMedia(ordered[0]);
       for (const v of ordered.slice(1, 3)) {
@@ -3000,6 +3003,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       );
       feedLoadingMoreRef.current = false;
       setFeedVideoTime(0);
+      bumpFeedSession();
       setActiveFeedVideoId(payload.videos[0].id);
       preloadFirstFeedMedia(payload.videos[0]);
       // Miniatures des vidéos suivantes : le swipe démarre sans écran noir.
@@ -3256,6 +3260,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setVideoFeedCtx({ badgeIds: [badge.id], seed, total, cityIds: null });
       setFeedVideoTime(0);
       feedLoadingMoreRef.current = false;
+      bumpFeedSession();
       setActiveFeedVideoId(items[0].id);
     } catch {
       feedLoadingMoreRef.current = false;
@@ -3278,6 +3283,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         setVideoFeedCtx({ badgeIds, seed, total, cityIds: [city.id] });
         setFeedVideoTime(0);
         feedLoadingMoreRef.current = false;
+        bumpFeedSession();
         setActiveFeedVideoId(items[0].id);
         return;
       }
@@ -3292,6 +3298,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setVideoFeedCtx({ badgeIds: nextCtx.badgeIds, seed: nextCtx.seed, total: nextCtx.total, cityIds: [city.id] });
       setFeedVideoTime(0);
       feedLoadingMoreRef.current = false;
+      bumpFeedSession();
       setActiveFeedVideoId(items[0].id);
     } catch {
       feedLoadingMoreRef.current = false;
