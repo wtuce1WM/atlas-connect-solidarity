@@ -881,7 +881,9 @@ const Front = () => {
   // qui interceptait les taps sur la croix de fermeture. On masque donc le chrome
   // Home tant qu'un panneau est ouvert, SAUF l'overlay YouTube qui a besoin du
   // logo One World Morocco comme unique retour.
-  const showHomeChrome = youtubeOpen || (!demoIntro && !mapOpen && !askPanelOpen);
+  // Quand la conversation IA est ouverte, le header reste visible pour que le
+  // logo + OWM ramène à l'accueil IA fermé (owm-host:reset-conversation).
+  const showHomeChrome = youtubeOpen || (conversationOpen && !askPanelOpen) || (!demoIntro && !mapOpen && !askPanelOpen);
 
   /** Feed démo chargé : moitié droite = viewer, moitié gauche = assistant IA fermé. */
   const demoFeedOpen = !!(demoActiveId || demoCardsOnly);
