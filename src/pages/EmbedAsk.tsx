@@ -2288,8 +2288,31 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     }
     // Badge « Où dormir ? » dans les badges résolus de la question : le widget de
     // disponibilité est rattaché à la réponse IA (dates + voyageurs), sans
-    // remplacer les résultats du moteur.
-    void noteLodgingBadges(feedSuggestion?.badge_ids as string[] | undefined, text);
+    // remplacer les résultats du moteur. SANS ville connue : on intercepte AVANT
+    // le moteur — choix de la ville (chips) d'abord, widget ensuite.
+    if (await noteLodgingBadges(feedSuggestion?.badge_ids as string[] | undefined, text)) {
+      setError(null);
+      setActiveSuggestionId(feedSuggestion?.id || null);
+      const msgId = `a-booking-${Date.now()}`;
+      setMessages((prev) => [
+        ...prev,
+        { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+        {
+          id: msgId,
+          role: "assistant",
+          parts: [{
+            type: "text",
+            text: `${lang === "en"
+              ? "Great! Where would you like to stay? Pick a destination:"
+              : lang === "ar"
+              ? "رائع! أين تريد الإقامة؟ اختر الوجهة:"
+              : "Avec plaisir ! Où souhaitez-vous séjourner ? Choisissez une destination :"
+            }\n\n<!--BOOKING_CITY_PICK-->`,
+          }],
+        } as any,
+      ]);
+      return;
+    }
     if (feedSuggestion?.mode === "video_feed" && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
       // Le panneau de gauche reste masqué jusqu'à l'ouverture du lecteur vidéo.
       setFeedOpening(true);
