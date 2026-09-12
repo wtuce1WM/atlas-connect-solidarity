@@ -959,6 +959,34 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // Rattaché au prochain message assistant du moteur (widget sous les cartes).
     pendingBookingCityRef.current = city;
   }, [businessCity]);
+  /** Villes proposées par la suggestion « Réserver une chambre » (sans ville). */
+  const BOOKING_CITY_OPTIONS = ["Marrakech", "Essaouira", "Taghazout", "Oualidia"];
+  /**
+   * Clic sur une ville de l'invitation : le widget de disponibilité s'affiche
+   * directement sur cette ville (sans relancer le moteur).
+   */
+  const pickBookingCity = (city: string) => {
+    setError(null);
+    lastLodgingCityRef.current = city;
+    const msgId = `a-booking-${Date.now()}`;
+    setMessages((prev) => [
+      ...prev,
+      { id: `u-city-${Date.now()}`, role: "user", parts: [{ type: "text", text: city }] } as any,
+      {
+        id: msgId,
+        role: "assistant",
+        parts: [{
+          type: "text",
+          text: `${lang === "en"
+            ? `Choose your dates and number of guests — I'll check live availability in ${city}.`
+            : lang === "ar"
+            ? `اختر التواريخ وعدد المسافرين — سأتحقق من التوفر في ${city}.`
+            : `Choisissez vos dates et le nombre de voyageurs — je vérifie les disponibilités à ${city}.`
+          }\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city, checkIn: null, checkOut: null, adults: null })}-->`,
+        }],
+      } as any,
+    ]);
+  };
   const runCityHotelSearch = async (msgId: string, city: string, checkIn: string, checkOut: string, adults: number) => {
     lastBookingRef.current = { city, checkIn, checkOut, adults };
     lastLodgingCityRef.current = city;
@@ -4387,7 +4415,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides, bookings } = extractPayloads(raw);
+          const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides, bookings, cityPick } = extractPayloads(raw);
           const mapPayloadRaw = maps[maps.length - 1] || null;
           // Le filtre de rayon ne s'applique qu'aux réponses issues d'une question
           // locale (« près de moi ») ou d'une relance de rayon : une question
@@ -4734,6 +4762,26 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload), mapPayload.order)}
 
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
+
+              {cityPick && (
+                <div className="w-full max-w-[85%] flex flex-wrap gap-2">
+                  {BOOKING_CITY_OPTIONS.map((city) => (
+                    <button
+                      key={city}
+                      type="button"
+                      onClick={() => pickBookingCity(city)}
+                      className="px-4 py-2 rounded-full text-sm font-semibold border transition-all hover:scale-[1.03] active:scale-95"
+                      style={{
+                        backgroundColor: "#D4AF37",
+                        borderColor: "rgba(212,175,55,0.6)",
+                        color: "#000000",
+                      }}
+                    >
+                      {city}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {bookingCity && (
                 <div className="w-full flex flex-col gap-3">
