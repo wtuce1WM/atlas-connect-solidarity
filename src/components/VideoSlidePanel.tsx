@@ -2088,7 +2088,8 @@ const VideoSlidePanel = ({
                 commun à la barre info afin que toute la zone basse disparaisse dans
                 la même frame de rendu. */}
             <div
-              className="absolute pointer-events-none bottom-0 left-1/2 -translate-x-1/2 w-[96%] sm:w-[94%] max-w-[540px] z-[85]"
+              className={`absolute pointer-events-none bottom-0 left-1/2 -translate-x-1/2 w-[96%] sm:w-[94%] max-w-[540px] z-[85] ${chromeHidden ? "hidden" : ""}`}
+              aria-hidden={chromeHidden || undefined}
             >
               <div className="relative w-full h-full pointer-events-auto">
                 <PanelSearchBar
