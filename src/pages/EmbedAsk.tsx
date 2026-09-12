@@ -930,6 +930,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // s'affiche donc SOUS les résultats des sous-catégories).
   const pendingBookingCityRef = useRef<string | null>(null);
   const [bookingWidgetByMsg, setBookingWidgetByMsg] = useState<Record<string, string>>({});
+  /** Messages assistant qui affichent l'invitation à choisir la ville (chips). */
+  const [cityPickByMsg, setCityPickByMsg] = useState<Record<string, boolean>>({});
   /** Dernière recherche de disponibilité lancée (pour la relance sur une ville). */
   const lastBookingRef = useRef<{ city: string; checkIn: string; checkOut: string; adults: number } | null>(null);
   /**
@@ -1232,12 +1234,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     if (city === ALL_CITIES) {
       // Pas de ville connue : on invite d'abord à choisir la destination
       // (chips cliquables) — le widget de disponibilité vient après le choix.
-      setMessages((prev) => prev.map((m) => {
-        if (String((m as any).id) !== String(last.id)) return m;
-        const parts = ((m as any).parts || []).map((p: any, i: number) =>
-          i === 0 && p?.type === "text" ? { ...p, text: `${p.text}\n\n<!--BOOKING_CITY_PICK-->` } : p);
-        return { ...(m as any), parts };
-      }));
+      // État dédié (comme bookingWidgetByMsg) : ne pas muter le texte du
+      // message, qui peut être réécrit par le flux du moteur.
+      setCityPickByMsg((prev) => ({ ...prev, [String(last.id)]: true }));
       return;
     }
     setBookingWidgetByMsg((prev) => ({ ...prev, [String(last.id)]: city }));
