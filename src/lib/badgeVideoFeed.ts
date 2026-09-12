@@ -193,8 +193,9 @@ export async function fetchBadgesVideoFeed(
   });
   if (error || !data) return { items: [], total: 0 };
   const rows = data as any[];
+  const mapped = rows.map(mapFeedRow);
   return {
-    items: rows.map(mapFeedRow),
+    items: offset === 0 ? avoidLeadingYoutube(mapped) : mapped,
     total: rows.length ? Number(rows[0].total_count ?? rows.length) : 0,
   };
 }
@@ -254,7 +255,7 @@ export async function fetchTieredBadgesVideoFeed(
     if (page.items.length < 300 || all.length >= total) break;
   }
   const strict = filterStrictBadgeIntersection(all, ids);
-  return { items: strict.slice(0, limit), total: strict.length };
+  return { items: avoidLeadingYoutube(strict.slice(0, limit)), total: strict.length };
 }
 
 
@@ -543,7 +544,7 @@ export async function fetchDiscoveryVideoFeed(options: {
     list = [...rest.slice(0, pos), featured, ...rest.slice(pos)];
   }
   discoveryWindows.delete(seed);
-  return { items: applyDiscoveryUniqueWindow(seed, list), ctx: { ...scope, seed, total } };
+  return { items: avoidLeadingYoutube(applyDiscoveryUniqueWindow(seed, list)), ctx: { ...scope, seed, total } };
 }
 
 /** Pagination du feed découverte (même seed, donc même ordre). */
@@ -574,7 +575,7 @@ export async function fetchDiscoveryVideoFeedForBadge(
   const seed = randomSeed();
   const scope = { badgeIds: [badgeId], cityIds: ctx.cityIds };
   const { items, total } = await fetchDiscoveryPage(scope, seed, limit, 0);
-  return { items, ctx: { ...scope, seed, total } };
+  return { items: avoidLeadingYoutube(items), ctx: { ...scope, seed, total } };
 }
 
 /**
@@ -591,7 +592,7 @@ export async function fetchDiscoveryVideoFeedForCity(
   const full = await loadDiscoveryScope();
   const scope = { badgeIds: full.badgeIds, cityIds: [cityId] };
   const { items, total } = await fetchDiscoveryPage(scope, seed, limit, 0);
-  return { items, ctx: { ...scope, seed, total } };
+  return { items: avoidLeadingYoutube(items), ctx: { ...scope, seed, total } };
 }
 
 /**
@@ -772,7 +773,7 @@ export async function fetchDiscoveryVideoFeedForCard(
       list = [hit, ...copy];
     }
   }
-  return { items: list, ctx: { ...scope, seed, total } };
+  return { items: card.videoId ? list : avoidLeadingYoutube(list), ctx: { ...scope, seed, total } };
 }
 
 
@@ -897,7 +898,7 @@ export async function fetchChainedBadgeFeed(
       limit: Math.min(Math.max(limit * 3, 90), 180),
     });
     const fresh = items.filter((v) => !exclude.has(String(v.id)));
-    if (fresh.length) return { items: fresh.slice(0, limit), badgeId };
+    if (fresh.length) return { items: avoidLeadingYoutube(fresh.slice(0, limit)), badgeId };
   }
   return { items: [], badgeId: null };
 }
