@@ -18,7 +18,7 @@ import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
-import { parseBookingIntent, extractBookingCity } from "@/lib/parseBookingIntent";
+import { parseBookingIntent, extractBookingCity, extractStayDates } from "@/lib/parseBookingIntent";
 import { detectLocalIntent } from "@/lib/detectLocalIntent";
 import EmbedFilterDrawer, { type EmbedFilterGroup } from "@/components/embed/EmbedFilterDrawer";
 
@@ -928,8 +928,36 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [bookingWidgetByMsg, setBookingWidgetByMsg] = useState<Record<string, string>>({});
   /** Dernière recherche de disponibilité lancée (pour la relance sur une ville). */
   const lastBookingRef = useRef<{ city: string; checkIn: string; checkOut: string; adults: number } | null>(null);
+  /**
+   * Dernier contexte hôtelier connu (ville) : suggestion/question rattachée au
+   * badge « Où dormir ? » ou recherche de disponibilité déjà lancée. Permet à une
+   * relance purement datée (« du 10 au 16 octobre pour 2 adultes ») de repartir
+   * en recherche SerpAPI sur la même ville.
+   */
+  const lastLodgingCityRef = useRef<string | null>(null);
+  /** Ids des badges d'hébergement (« Où dormir ? »), résolus une seule fois. */
+  const lodgingBadgeIdsRef = useRef<Set<string> | null>(null);
+  const noteLodgingBadges = useCallback(async (badgeIds: string[] | null | undefined, text: string) => {
+    if (!badgeIds?.length) return;
+    if (!lodgingBadgeIdsRef.current) {
+      const { data } = await supabase.from("badges").select("id, name_fr");
+      const set = new Set<string>();
+      for (const b of (data || []) as any[]) {
+        const n = String(b.name_fr || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        if (/\bou dormir\b/.test(n)) set.add(String(b.id));
+      }
+      lodgingBadgeIdsRef.current = set;
+    }
+    const set = lodgingBadgeIdsRef.current;
+    if (!badgeIds.some((id) => set.has(String(id)))) return;
+    const city = extractBookingCity(text) || businessCity || ALL_CITIES;
+    lastLodgingCityRef.current = city;
+    // Rattaché au prochain message assistant du moteur (widget sous les cartes).
+    pendingBookingCityRef.current = city;
+  }, [businessCity]);
   const runCityHotelSearch = async (msgId: string, city: string, checkIn: string, checkOut: string, adults: number) => {
     lastBookingRef.current = { city, checkIn, checkOut, adults };
+    lastLodgingCityRef.current = city;
     setHotelSearchingMsgId(msgId);
     try {
       const res = await searchCityHotels({ cityName: city, checkIn, checkOut, adults });
@@ -2208,6 +2236,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       });
       return;
     }
+    // Badge « Où dormir ? » dans les badges résolus de la question : le widget de
+    // disponibilité est rattaché à la réponse IA (dates + voyageurs), sans
+    // remplacer les résultats du moteur.
+    void noteLodgingBadges(feedSuggestion?.badge_ids as string[] | undefined, text);
     if (feedSuggestion?.mode === "video_feed" && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
       // Le panneau de gauche reste masqué jusqu'à l'ouverture du lecteur vidéo.
       setFeedOpening(true);
@@ -2242,6 +2274,40 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // ville en conservant les dates et le nombre de voyageurs du tour précédent.
     const relaunchCity = !suggestionId && !followupId ? extractBookingCity(text) : null;
     const lastBooking = lastBookingRef.current;
+    // RELANCE PUREMENT DATÉE : le tour précédent était hôtelier (badge « Où
+    // dormir ? » ou recherche de disponibilité) et la relance n'apporte que des
+    // dates/voyageurs (« avec de la place du 10 au 16 octobre pour 2 adultes ») →
+    // recherche SerpAPI sur la ville du contexte, jamais une réponse du modèle.
+    if (!suggestionId && !followupId) {
+      const stay = extractStayDates(text);
+      const ctxCity = stay.city || lastBooking?.city || lastLodgingCityRef.current;
+      if (stay.checkIn && stay.checkOut && ctxCity) {
+        setError(null);
+        const adults = stay.adults || lastBooking?.adults || 2;
+        const cityLbl =
+          ctxCity === ALL_CITIES ? (lang === "en" ? "Morocco" : lang === "ar" ? "المغرب" : "tout le Maroc") : ctxCity;
+        const msgId = `a-booking-${Date.now()}`;
+        setMessages((prev) => [
+          ...prev,
+          { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+          {
+            id: msgId,
+            role: "assistant",
+            parts: [{
+              type: "text",
+              text: `${lang === "en"
+                ? `Checking live availability in ${cityLbl} for these dates.`
+                : lang === "ar"
+                ? `أتحقق من التوفر في ${cityLbl} في هذه التواريخ.`
+                : `Je vérifie les disponibilités à ${cityLbl} pour ces dates.`}\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city: ctxCity, checkIn: stay.checkIn, checkOut: stay.checkOut, adults })}-->`,
+            }],
+          } as any,
+        ]);
+        lastLodgingCityRef.current = ctxCity;
+        runCityHotelSearch(msgId, ctxCity, stay.checkIn, stay.checkOut, adults);
+        return;
+      }
+    }
     const shortRelaunch = normalizedText.split(" ").filter(Boolean).length <= 5;
     if (
       relaunchCity &&
@@ -2832,6 +2898,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const feed = json?.feed;
       if (!feed?.videos?.length) return false;
       earlyFeedOpenRef.current = true;
+      // Badges résolus côté serveur : si « Où dormir ? » en fait partie, le widget
+      // de disponibilité est rattaché à la réponse IA du même tour.
+      void noteLodgingBadges(feed.badgeIds as string[] | undefined, text);
       setVideoFeedList(feed.videos);
       setVideoFeedCtx(
         feed.badgeIds?.length && feed.seed
@@ -2857,7 +2926,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       return true;
     } catch { /* best-effort : le marqueur VIDEO_FEED du stream reste le filet */ }
     return false;
-  }, [slug, isPlatform, isClubScope, platformCity, lang]);
+  }, [slug, isPlatform, isClubScope, platformCity, lang, noteLodgingBadges]);
 
 
   /**
