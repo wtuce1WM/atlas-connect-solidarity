@@ -5647,24 +5647,30 @@ export type Database = {
           business_id: string
           city: string
           created_at: string
+          has_serp_price: boolean | null
           id: string
           serp_hotel_name: string
+          serp_price_checked_at: string | null
           updated_at: string
         }
         Insert: {
           business_id: string
           city: string
           created_at?: string
+          has_serp_price?: boolean | null
           id?: string
           serp_hotel_name: string
+          serp_price_checked_at?: string | null
           updated_at?: string
         }
         Update: {
           business_id?: string
           city?: string
           created_at?: string
+          has_serp_price?: boolean | null
           id?: string
           serp_hotel_name?: string
+          serp_price_checked_at?: string | null
           updated_at?: string
         }
         Relationships: []
