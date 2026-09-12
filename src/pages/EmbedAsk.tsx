@@ -928,6 +928,33 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [bookingWidgetByMsg, setBookingWidgetByMsg] = useState<Record<string, string>>({});
   /** Dernière recherche de disponibilité lancée (pour la relance sur une ville). */
   const lastBookingRef = useRef<{ city: string; checkIn: string; checkOut: string; adults: number } | null>(null);
+  /**
+   * Dernier contexte hôtelier connu (ville) : suggestion/question rattachée au
+   * badge « Où dormir ? » ou recherche de disponibilité déjà lancée. Permet à une
+   * relance purement datée (« du 10 au 16 octobre pour 2 adultes ») de repartir
+   * en recherche SerpAPI sur la même ville.
+   */
+  const lastLodgingCityRef = useRef<string | null>(null);
+  /** Ids des badges d'hébergement (« Où dormir ? »), résolus une seule fois. */
+  const lodgingBadgeIdsRef = useRef<Set<string> | null>(null);
+  const noteLodgingBadges = useCallback(async (badgeIds: string[] | null | undefined, text: string) => {
+    if (!badgeIds?.length) return;
+    if (!lodgingBadgeIdsRef.current) {
+      const { data } = await supabase.from("badges").select("id, name_fr");
+      const set = new Set<string>();
+      for (const b of (data || []) as any[]) {
+        const n = String(b.name_fr || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        if (/\bou dormir\b/.test(n)) set.add(String(b.id));
+      }
+      lodgingBadgeIdsRef.current = set;
+    }
+    const set = lodgingBadgeIdsRef.current;
+    if (!badgeIds.some((id) => set.has(String(id)))) return;
+    const city = extractBookingCity(text) || businessCity || ALL_CITIES;
+    lastLodgingCityRef.current = city;
+    // Rattaché au prochain message assistant du moteur (widget sous les cartes).
+    pendingBookingCityRef.current = city;
+  }, [businessCity]);
   const runCityHotelSearch = async (msgId: string, city: string, checkIn: string, checkOut: string, adults: number) => {
     lastBookingRef.current = { city, checkIn, checkOut, adults };
     setHotelSearchingMsgId(msgId);
