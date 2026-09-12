@@ -162,6 +162,23 @@ function extractAdults(text: string): number | null {
  * Renvoie l'intention si le texte est une demande d'hébergement, sinon `null`.
  * Exige un terme d'hébergement + (un verbe de réservation/recherche OU des dates).
  */
+/**
+ * RELANCE : dates + voyageurs d'un texte libre, SANS exiger de terme
+ * d'hébergement. Utilisé quand le tour précédent était déjà hôtelier
+ * (« riad essaouira » puis « avec de la place du 10 au 16 octobre pour 2 adultes »).
+ */
+export function extractStayDates(
+  raw: string,
+  now: Date = new Date(),
+): { checkIn: string | null; checkOut: string | null; adults: number | null; city: string | null } {
+  const text = norm(raw);
+  const dates = extractDates(text, now);
+  const checkIn = dates[0] || null;
+  let checkOut = dates[1] || null;
+  if (checkIn && checkOut && checkOut <= checkIn) checkOut = null;
+  return { checkIn, checkOut, adults: extractAdults(text), city: extractCity(text) };
+}
+
 export function parseBookingIntent(raw: string, now: Date = new Date()): BookingIntent | null {
   const text = norm(raw);
   if (!LODGING_RE.test(text)) return null;
