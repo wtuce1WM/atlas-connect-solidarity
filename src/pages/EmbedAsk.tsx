@@ -1422,6 +1422,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [videoFeedList, setVideoFeedList] = useState<VideoFeedItem[]>([]);
   const [videoFeedCtx, setVideoFeedCtx] = useState<{ badgeIds: string[]; seed: string; total: number; cityIds?: string[] | null } | null>(null);
   const feedLoadingMoreRef = useRef(false);
+  /* Identité du feed courant : chaque nouvelle ouverture remonte le lecteur,
+     pour qu'aucune image/fiche du feed précédent ne s'affiche avant la 1re vidéo. */
+  const [feedSession, setFeedSession] = useState(0);
+  const bumpFeedSession = useCallback(() => setFeedSession((n) => n + 1), []);
   const [feedVideoTime, setFeedVideoTime] = useState(0);
   /**
    * Suggestion en mode `video_feed` : le lecteur vidéo doit apparaître AVANT le
