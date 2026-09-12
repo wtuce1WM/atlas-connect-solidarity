@@ -180,26 +180,37 @@ const AiBusinessResultTiles = ({
                 <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/40" />
               </button>
 
-              {ranked ? (
+              {!isOpenText && ranked && !podium ? (
                 <span
                   className="pointer-events-none absolute left-2 top-2 z-[3] inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-extrabold leading-none shadow-lg"
-                  style={podium ? { background: podium.color, color: "#1b1b1b" } : { background: "rgba(0,0,0,0.65)", color: "#fff" }}
+                  style={{ background: "rgba(0,0,0,0.65)", color: "#fff" }}
                 >
-                  {podium ? <><span aria-hidden="true">{podium.medal}</span>{podium.label}</> : `N°${idx + 1}`}
+                  N°{idx + 1}
                 </span>
               ) : null}
 
-              {priceBadges?.[b.id] && !isOpenText ? (
-                <span className="pointer-events-none absolute inset-0 z-[4] flex items-center justify-center">
-                  <span
-                    className="inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-extrabold leading-none text-white shadow-lg"
-                    style={{ background: "#C04F17", ...AI_NAME_FONT }}
-                  >
-                    {priceBadges[b.id]}
-                    <span className="ml-1 text-[10px] font-normal opacity-90">
-                      {lang === "en" ? "/ night" : lang === "ar" ? "/ ليلة" : "/ nuit"}
+              {!isOpenText ? (
+                <span className="pointer-events-none absolute inset-0 z-[5] flex flex-col items-center justify-center gap-2">
+                  {podium ? (
+                    <span
+                      className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[15px] font-extrabold leading-none shadow-2xl"
+                      style={{ background: podium.color, color: "#1b1b1b" }}
+                    >
+                      <span aria-hidden="true" className="text-[18px]">{podium.medal}</span>
+                      {podium.label}
                     </span>
-                  </span>
+                  ) : null}
+                  {priceBadges?.[b.id] ? (
+                    <span
+                      className="inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-extrabold leading-none text-white shadow-lg"
+                      style={{ background: "#C04F17", ...AI_NAME_FONT }}
+                    >
+                      {priceBadges[b.id]}
+                      <span className="ml-1 text-[10px] font-normal opacity-90">
+                        {lang === "en" ? "/ night" : lang === "ar" ? "/ ليلة" : "/ nuit"}
+                      </span>
+                    </span>
+                  ) : null}
                 </span>
               ) : null}
 
