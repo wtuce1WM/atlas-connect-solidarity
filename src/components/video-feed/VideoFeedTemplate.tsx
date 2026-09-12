@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, lazy, useEffect, useState } from "react";
+import { ReactNode, Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSEO } from "@/hooks/useSEO";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
@@ -28,6 +28,8 @@ export interface VideoFeedTemplateProps {
   sectionTitle: string;
   sectionIntro?: string;
   videos: BlogArticleVideo[];
+  /** Badge du feed initial : sert de point de départ au chaînage infini. */
+  feedBadgeId?: string | null;
   bookmarkSlug: string;
   siteUrl?: string;
 }
@@ -48,6 +50,7 @@ const VideoFeedTemplate = ({
   sectionTitle,
   sectionIntro,
   videos,
+  feedBadgeId = null,
   bookmarkSlug,
   siteUrl = DEFAULT_SITE_URL,
 }: VideoFeedTemplateProps) => {
