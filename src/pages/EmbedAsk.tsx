@@ -2208,6 +2208,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       });
       return;
     }
+    // Badge « Où dormir ? » dans les badges résolus de la question : le widget de
+    // disponibilité est rattaché à la réponse IA (dates + voyageurs), sans
+    // remplacer les résultats du moteur.
+    void noteLodgingBadges(feedSuggestion?.badge_ids as string[] | undefined, text);
     if (feedSuggestion?.mode === "video_feed" && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
       // Le panneau de gauche reste masqué jusqu'à l'ouverture du lecteur vidéo.
       setFeedOpening(true);
