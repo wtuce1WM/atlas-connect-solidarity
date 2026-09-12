@@ -383,6 +383,8 @@ const warmAiEngineConnection = () => {
 const DEST_CHIPS_RE = /<!--DESTINATION_CHIPS:([\s\S]*?)-->/g;
 /** Widget de disponibilité hôtelière (suggestion back-office en mode `booking`). */
 const HOTEL_BOOKING_RE = /<!--HOTEL_BOOKING:([\s\S]*?)-->/g;
+/** Invitation à choisir la ville AVANT d'afficher le widget de disponibilité. */
+const BOOKING_CITY_PICK_RE = /<!--BOOKING_CITY_PICK-->/g;
 /** Payload du widget de disponibilité : ville + dates/voyageurs éventuellement pré-remplis. */
 type BookingPayload = { city: string; checkIn: string | null; checkOut: string | null; adults: number | null };
 
@@ -422,7 +424,8 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: BookingPayload[]; competitorGuard: boolean; destChips: ScopeChip[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: BookingPayload[]; competitorGuard: boolean; destChips: ScopeChip[]; cityPick: boolean } {
+  const cityPick = text.includes("<!--BOOKING_CITY_PICK-->");
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
@@ -436,7 +439,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   const destChips: ScopeChip[] = [];
   const hookUpgrades: Record<string, string> = {};
   const competitorGuard = COMPETITOR_GUARD_RE.test(text);
-  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips };
+  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips, cityPick: false };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -532,6 +535,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--DESTINATION_CHIPS:[\s\S]*$/g, "")
     .replace(/<!--HOOKS_UPGRADE:[\s\S]*?-->/g, "")
     .replace(/<!--HOOKS_UPGRADE:[\s\S]*$/g, "")
+    .replace(BOOKING_CITY_PICK_RE, "")
     .trim();
   // Les phrases réécrites remplacent le hook des cartes déjà affichées.
   if (Object.keys(hookUpgrades).length) {
@@ -544,7 +548,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     }
   }
   clean = linkifyPhones(clean);
-  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips };
+  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips, cityPick };
 }
 
 // Convert bare phone / WhatsApp numbers found in AI markdown into clickable links.
@@ -926,6 +930,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // s'affiche donc SOUS les résultats des sous-catégories).
   const pendingBookingCityRef = useRef<string | null>(null);
   const [bookingWidgetByMsg, setBookingWidgetByMsg] = useState<Record<string, string>>({});
+  /** Messages assistant qui affichent l'invitation à choisir la ville (chips). */
+  const [cityPickByMsg, setCityPickByMsg] = useState<Record<string, boolean>>({});
   /** Dernière recherche de disponibilité lancée (pour la relance sur une ville). */
   const lastBookingRef = useRef<{ city: string; checkIn: string; checkOut: string; adults: number } | null>(null);
   /**
@@ -955,6 +961,34 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // Rattaché au prochain message assistant du moteur (widget sous les cartes).
     pendingBookingCityRef.current = city;
   }, [businessCity]);
+  /** Villes proposées par la suggestion « Réserver une chambre » (sans ville). */
+  const BOOKING_CITY_OPTIONS = ["Marrakech", "Essaouira", "Taghazout", "Oualidia"];
+  /**
+   * Clic sur une ville de l'invitation : le widget de disponibilité s'affiche
+   * directement sur cette ville (sans relancer le moteur).
+   */
+  const pickBookingCity = (city: string) => {
+    setError(null);
+    lastLodgingCityRef.current = city;
+    const msgId = `a-booking-${Date.now()}`;
+    setMessages((prev) => [
+      ...prev,
+      { id: `u-city-${Date.now()}`, role: "user", parts: [{ type: "text", text: city }] } as any,
+      {
+        id: msgId,
+        role: "assistant",
+        parts: [{
+          type: "text",
+          text: `${lang === "en"
+            ? `Choose your dates and number of guests — I'll check live availability in ${city}.`
+            : lang === "ar"
+            ? `اختر التواريخ وعدد المسافرين — سأتحقق من التوفر في ${city}.`
+            : `Choisissez vos dates et le nombre de voyageurs — je vérifie les disponibilités à ${city}.`
+          }\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city, checkIn: null, checkOut: null, adults: null })}-->`,
+        }],
+      } as any,
+    ]);
+  };
   const runCityHotelSearch = async (msgId: string, city: string, checkIn: string, checkOut: string, adults: number) => {
     lastBookingRef.current = { city, checkIn, checkOut, adults };
     lastLodgingCityRef.current = city;
@@ -1197,6 +1231,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     const last = messages[messages.length - 1] as any;
     if (last?.role !== "assistant" || !last?.id) return;
     pendingBookingCityRef.current = null;
+    if (city === ALL_CITIES) {
+      // Pas de ville connue : on invite d'abord à choisir la destination
+      // (chips cliquables) — le widget de disponibilité vient après le choix.
+      // État dédié (comme bookingWidgetByMsg) : ne pas muter le texte du
+      // message, qui peut être réécrit par le flux du moteur.
+      setCityPickByMsg((prev) => ({ ...prev, [String(last.id)]: true }));
+      return;
+    }
     setBookingWidgetByMsg((prev) => ({ ...prev, [String(last.id)]: city }));
   }, [messages]);
 
@@ -2380,6 +2422,31 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const checkOut = freeBookingIntent?.checkOut || null;
       const adults = freeBookingIntent?.adults || null;
       const hasDates = !!checkIn && !!checkOut;
+      // Suggestion « Réserver une chambre » SANS ville ni dates : on invite
+      // d'abord à choisir la destination (chips cliquables), puis le widget de
+      // disponibilité s'affiche sur la ville choisie. Les villes couvertes :
+      // Marrakech, Essaouira, Taghazout, Oualidia.
+      if (city === ALL_CITIES && !hasDates) {
+        const msgId = `a-booking-${Date.now()}`;
+        setMessages((prev) => [
+          ...prev,
+          { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+          {
+            id: msgId,
+            role: "assistant",
+            parts: [{
+              type: "text",
+              text: `${lang === "en"
+                ? "Great! Where would you like to stay? Pick a destination:"
+                : lang === "ar"
+                ? "رائع! أين تريد الإقامة؟ اختر الوجهة:"
+                : "Avec plaisir ! Où souhaitez-vous séjourner ? Choisissez une destination :"
+              }\n\n<!--BOOKING_CITY_PICK-->`,
+            }],
+          } as any,
+        ]);
+        return;
+      }
       // Libellé lisible quand le périmètre est national (toutes les villes).
       const cityLabel =
         city === ALL_CITIES ? (lang === "en" ? "Morocco" : lang === "ar" ? "المغرب" : "tout le Maroc") : city;
@@ -4358,7 +4425,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides, bookings } = extractPayloads(raw);
+          const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides, bookings, cityPick } = extractPayloads(raw);
           const mapPayloadRaw = maps[maps.length - 1] || null;
           // Le filtre de rayon ne s'applique qu'aux réponses issues d'une question
           // locale (« près de moi ») ou d'une relance de rayon : une question
@@ -4415,6 +4482,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             (later.role === "assistant" && extractPayloads(messageText(later)).maps.some((payload) => payload.businesses.length > 0)),
           );
           const bookingCity = bookingPayload?.city || bookingWidgetByMsg[msgKey] || null;
+          const showCityPick = cityPick || !!cityPickByMsg[msgKey];
           const bookingResult = hotelResults[msgKey] || null;
           const isLast = i === messages.length - 1;
           const hideAssistantText =
@@ -4705,6 +4773,26 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload), mapPayload.order)}
 
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
+
+              {showCityPick && (
+                <div className="w-full max-w-[85%] flex flex-wrap gap-2">
+                  {BOOKING_CITY_OPTIONS.map((city) => (
+                    <button
+                      key={city}
+                      type="button"
+                      onClick={() => pickBookingCity(city)}
+                      className="px-4 py-2 rounded-full text-sm font-semibold border transition-all hover:scale-[1.03] active:scale-95"
+                      style={{
+                        backgroundColor: "#D4AF37",
+                        borderColor: "rgba(212,175,55,0.6)",
+                        color: "#000000",
+                      }}
+                    >
+                      {city}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {bookingCity && (
                 <div className="w-full flex flex-col gap-3">
