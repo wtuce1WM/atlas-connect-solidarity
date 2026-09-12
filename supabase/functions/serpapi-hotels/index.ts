@@ -114,6 +114,39 @@ Deno.serve(async (req) => {
 
     const requestedMaxPages = Math.min(params.maxPages || 10, 10);
 
+    // Mappings OWM de la ville : sert (a) à l'arrêt anticipé de la pagination
+    // dès que tous les établissements connus pour renvoyer un tarif ont été vus,
+    // (b) à la mise à jour automatique du flag `has_serp_price`.
+    const normName = (v: unknown) =>
+      typeof v === "string"
+        ? v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()
+        : "";
+
+    const { data: mappingRows } = await supabase
+      .from("hotel_mappings")
+      .select("id, serp_hotel_name, city, has_serp_price")
+      .not("business_id", "is", null);
+
+    const cityMappings = (mappingRows || []).filter(
+      (m: Record<string, unknown>) => normalizeCityKey(String(m.city || "")) === cityKey && normName(m.serp_hotel_name),
+    );
+    const mappedNames = new Set(cityMappings.map((m) => normName((m as Record<string, unknown>).serp_hotel_name)));
+    const unknownCount = cityMappings.filter(
+      (m: Record<string, unknown>) => m.has_serp_price === null || m.has_serp_price === undefined,
+    ).length;
+    // Règle (a) « complet » : seulement si la ville est entièrement qualifiée
+    // (aucun mapping jamais vérifié), sinon on risquerait de s'arrêter avant
+    // d'avoir découvert un établissement inconnu.
+    const pricedNames =
+      unknownCount === 0
+        ? new Set(
+            cityMappings
+              .filter((m: Record<string, unknown>) => m.has_serp_price === true)
+              .map((m) => normName((m as Record<string, unknown>).serp_hotel_name)),
+          )
+        : new Set<string>();
+    const earlyStopEnabled = mappedNames.size > 0 && !params.minPrice && !params.maxPrice && !params.rating;
+
     // 1) Try cache. A cache generated with fewer pages must never satisfy a
     // deeper request: otherwise mapped hotels located later in Google results
     // disappear until cache expiry.
@@ -132,7 +165,8 @@ Deno.serve(async (req) => {
         .maybeSingle();
 
       const cachedPages = Number((cached?.payload as Record<string, unknown> | null)?.pages || 0);
-      const cachedExhausted = (cached?.payload as Record<string, unknown> | null)?.exhausted === true;
+      const cachedPayload = cached?.payload as Record<string, unknown> | null;
+      const cachedExhausted = cachedPayload?.exhausted === true || cachedPayload?.earlyStop === true;
       if (cached?.payload && (cachedExhausted || cachedPages >= requestedMaxPages)) {
         console.log(`SerpApi cache HIT: ${cityKey} ${params.checkIn}→${params.checkOut} (${cached.hotel_count} hotels)`);
         return new Response(
@@ -154,6 +188,13 @@ Deno.serve(async (req) => {
     let nextPageToken: string | null = null;
     let page = 0;
     let exhausted = false;
+    let earlyStop = false;
+    // Suivi de la couverture des mappings OWM pour l'arrêt anticipé.
+    const EMPTY_PAGES_STOP = 3;
+    const MIN_PAGES_BEFORE_STOP = 5;
+    const foundMapped = new Set<string>();
+    let lastMappedCount = 0;
+    let lastMappedPage = 0;
 
     while (page < maxPages) {
       const searchParams = new URLSearchParams({
@@ -198,6 +239,33 @@ Deno.serve(async (req) => {
 
       if (page === 0) brands = body.brands || [];
 
+      // Arrêt anticipé (deux déclencheurs, jamais sur une requête filtrée) :
+      //  a) tous les établissements OWM connus pour renvoyer un tarif sont vus ;
+      //  b) EMPTY_PAGES_STOP pages consécutives sans aucun nouvel établissement
+      //     mappé : continuer ne fait que payer de la latence.
+      if (earlyStopEnabled) {
+        const collected = new Set(allProperties.map((h) => normName(h.name)));
+        for (const n of mappedNames) if (collected.has(n)) foundMapped.add(n);
+        console.log(
+          `SerpApi coverage ${cityKey} p${page + 1}: mapped=${mappedNames.size} found=${foundMapped.size} lastMappedPage=${lastMappedPage + 1} priced=${pricedNames.size}`,
+        );
+        if (foundMapped.size > lastMappedCount) {
+          lastMappedCount = foundMapped.size;
+          lastMappedPage = page;
+        }
+        if (pricedNames.size > 0 && [...pricedNames].every((n) => collected.has(n))) {
+          earlyStop = true;
+          console.log(`SerpApi early stop (complet): ${cityKey} après ${page + 1} page(s), ${pricedNames.size} mapping(s) tarifés`);
+          break;
+        }
+        if (page - lastMappedPage >= EMPTY_PAGES_STOP && page + 1 >= MIN_PAGES_BEFORE_STOP) {
+          earlyStop = true;
+          console.log(`SerpApi early stop (plateau): ${cityKey} après ${page + 1} page(s), ${foundMapped.size} mapping(s) trouvés`);
+          break;
+        }
+      }
+
+
       const pagination = body.serpapi_pagination;
       if (pagination?.next_page_token) {
         nextPageToken = pagination.next_page_token;
@@ -210,11 +278,48 @@ Deno.serve(async (req) => {
 
     console.log(`SerpApi: ${allProperties.length} hotels found for ${params.cityName} (${page + 1} page(s))`);
 
+    // 2b) Maintenance automatique de `has_serp_price` : on passe à "true" tout
+    // mapping vu avec un tarif ; on ne passe à "false" qu'après un balayage
+    // complet (sinon on marquerait "sans tarif" des mappings jamais lus).
+    if (!params.minPrice && !params.maxPrice && !params.rating && cityMappings.length > 0 && allProperties.length > 0) {
+      const priceByName = new Map<string, boolean>();
+      for (const h of allProperties) {
+        const n = normName(h.name);
+        if (!n) continue;
+        const raw = h.ratePerNight?.amount;
+        const num = parseFloat(String(raw ?? "").replace(/[^\d.]/g, ""));
+        priceByName.set(n, Number.isFinite(num) && num > 0);
+      }
+      const withPrice: string[] = [];
+      const withoutPrice: string[] = [];
+      for (const m of cityMappings) {
+        const n = normName((m as Record<string, unknown>).serp_hotel_name);
+        (priceByName.get(n) === true ? withPrice : withoutPrice).push(String((m as Record<string, unknown>).id));
+      }
+      const checkedAt = new Date().toISOString();
+      const applyFlag = (ids: string[], value: boolean) =>
+        ids.length === 0
+          ? Promise.resolve()
+          : supabase
+              .from("hotel_mappings")
+              .update({ has_serp_price: value, serp_price_checked_at: checkedAt })
+              .in("id", ids)
+              .then(({ error }) => {
+                if (error) console.error(`Flag update (${value}) failed:`, error.message);
+              });
+      Promise.all([applyFlag(withPrice, true), earlyStop ? Promise.resolve() : applyFlag(withoutPrice, false)]).then(() =>
+        console.log(
+          `has_serp_price maj ${cityKey}: ${withPrice.length} avec tarif${earlyStop ? " (arrêt anticipé, aucun passage à false)" : ` / ${withoutPrice.length} sans`}`,
+        ),
+      );
+    }
+
     const responsePayload = {
       data: allProperties,
       count: allProperties.length,
       pages: page + 1,
       exhausted,
+      earlyStop,
       brands,
       searchInfo: {
         query: `Hotels in ${params.cityName}`,
