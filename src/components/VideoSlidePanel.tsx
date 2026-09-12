@@ -2011,14 +2011,12 @@ const VideoSlidePanel = ({
                 }
                 return null;
               })()}
-              {/* Barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer.
-                  Rendue dans TOUS les modes (feed ET classique) : une vidéo interne liée
-                  à un business affiche toujours Nom / Note / Description du business,
-                  même hors feedLayout (carrousels /search, onglet hashtag, cartes ville).
+              {/* Feed layout : barre info viewer identique à BookOnlineSlidePanel — fond continu jusqu'au bas du viewer.
                   Anti-« reload » au scroll vertical : ViewerInfoBar reste MONTÉE en
-                  permanence ; quand la vidéo courante n'a aucune info à afficher, on
-                  masque le fond via visibility au lieu de démonter le bloc. */}
-              {!chipsExpanded && (
+                  permanence pendant le feed (comme dans BookOnlineSlidePanel) ; quand
+                  la vidéo courante n'a aucune info à afficher, on masque le fond via
+                  visibility au lieu de démonter le bloc — aucun flash/disparition. */}
+              {feedLayout && !chipsExpanded && (
                 <div
                   className="w-full flex flex-col items-center justify-end"
                   style={
