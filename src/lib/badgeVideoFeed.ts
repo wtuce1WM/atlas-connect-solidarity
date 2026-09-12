@@ -133,7 +133,22 @@ export async function fetchBadgeVideoFeed(
     items = items.slice(0, limit);
   }
 
-  return items;
+  return pinnedVideoId ? items : avoidLeadingYoutube(items);
+}
+
+/**
+ * Règle produit : un feed-vidéo ne doit JAMAIS s'ouvrir sur une vidéo YouTube.
+ * Si les premières vidéos sont YouTube, on remonte la 1re vidéo interne ou
+ * générique en tête (ordre du reste inchangé). Seul le feed des chaînes
+ * YouTube (suggestion « Le meilleur de YouTube sur le Maroc ») en est exempt.
+ */
+export function avoidLeadingYoutube(items: BadgeVideoFeedItem[]): BadgeVideoFeedItem[] {
+  if (!items.length || items[0]?.source !== "youtube") return items;
+  const idx = items.findIndex((it) => it.source !== "youtube");
+  if (idx <= 0) return items;
+  const copy = [...items];
+  const [lead] = copy.splice(idx, 1);
+  return [lead, ...copy];
 }
 
 function mapFeedRow(r: any): BadgeVideoFeedItem {
