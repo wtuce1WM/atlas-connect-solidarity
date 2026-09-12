@@ -2902,19 +2902,26 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const moreResultsRemaining = hotelMoreTarget?.remaining ?? poolRemaining;
 
   const showFourMoreResults = () => {
-    const el = scrollRef.current;
-    if (el) {
-      stickDisabledRef.current = false;
-      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-    }
+    const scrollToBottomAfterRender = () => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const el = scrollRef.current;
+          if (!el) return;
+          stickDisabledRef.current = false;
+          el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+        });
+      });
+    };
     if (hotelMoreTarget) {
       setHotelShown((current) => ({
         ...current,
         [hotelMoreTarget.msgKey]: (current[hotelMoreTarget.msgKey] ?? 4) + 4,
       }));
+      scrollToBottomAfterRender();
       return;
     }
     send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres");
+    scrollToBottomAfterRender();
   };
 
   /**
