@@ -966,17 +966,7 @@ const Front = () => {
       <FrontHeader
         fixed
         visible={showHomeChrome}
-        className={
-          youtubeOpen
-            ? "z-[210]"
-            : // Conversation IA ouverte : l'embed (fixed inset-0, rendu après le
-              // header dans le DOM) recouvrait le header z-50 et interceptait le
-              // clic logo + OWM. On élève le header au-dessus de l'embed, tout en
-              // restant sous les panneaux de l'assistant (z-[220]).
-              conversationOpen && !askPanelOpen
-              ? "z-[210]"
-              : ""
-        }
+        className="z-[300]"
         elevatedMenu={youtubeOpen}
         onLogoClick={() => {
 
@@ -986,20 +976,13 @@ const Front = () => {
             setYoutubeOpen(false);
             return;
           }
-          // Suggestions dépliées : simple repli, aucun rechargement (évite le flash #ECD6B8).
-          if (suggestionsExpanded) {
-            try { window.postMessage({ type: "owm-host:collapse-suggestions" }, window.location.origin); } catch { /* noop */ }
-            setSuggestionsExpanded(false);
-            return;
-          }
-          // Conversation IA fermée : le logo ne renvoie plus vers la homepage
-          // (aucun rechargement) — on est déjà sur l'accueil.
-          if (!conversationOpen) return;
-          // Conversation ouverte : retour à l'accueil IA sans rechargement
-          // (le reload provoquait un saut visuel).
+          // Dès que le logo + OWM est visible, son clic revient sans condition
+          // à l'accueil IA fermé. Aucun état intermédiaire (suggestions, relance,
+          // feed) ne doit pouvoir détourner ou neutraliser cette action.
           try {
             window.postMessage({ type: "owm-host:reset-conversation" }, window.location.origin);
           } catch { /* noop */ }
+          setSuggestionsExpanded(false);
           setConversationOpen(false);
           const video = backgroundVideoRef.current;
           if (video?.paused) void video.play().catch(() => undefined);
