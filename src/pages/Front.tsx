@@ -317,7 +317,9 @@ const Front = () => {
   /* Transition « Demo » : ne laisse que le slogan, recentré plein écran */
   // En App installée, masquer l'accueil dès le tout premier rendu : le flux
   // immersif se charge directement, sans écran intermédiaire ni texte d'accueil.
-  const [demoIntro, setDemoIntro] = useState(isInstalledApp);
+  // NEUTRALISÉ TEMPORAIREMENT : plus d'intro démo au premier rendu (App installée incluse).
+  const [demoIntro, setDemoIntro] = useState(false);
+
   const [demoList, setDemoList] = useState<any[]>([]);
   const [demoCtx, setDemoCtx] = useState<DiscoveryFeedContext | null>(null);
   const [demoActiveId, setDemoActiveId] = useState<string | null>(null);
