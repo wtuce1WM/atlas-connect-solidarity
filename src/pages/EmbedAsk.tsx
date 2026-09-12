@@ -2384,6 +2384,31 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const checkOut = freeBookingIntent?.checkOut || null;
       const adults = freeBookingIntent?.adults || null;
       const hasDates = !!checkIn && !!checkOut;
+      // Suggestion « Réserver une chambre » SANS ville ni dates : on invite
+      // d'abord à choisir la destination (chips cliquables), puis le widget de
+      // disponibilité s'affiche sur la ville choisie. Les villes couvertes :
+      // Marrakech, Essaouira, Taghazout, Oualidia.
+      if (city === ALL_CITIES && !hasDates) {
+        const msgId = `a-booking-${Date.now()}`;
+        setMessages((prev) => [
+          ...prev,
+          { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+          {
+            id: msgId,
+            role: "assistant",
+            parts: [{
+              type: "text",
+              text: `${lang === "en"
+                ? "Great! Where would you like to stay? Pick a destination:"
+                : lang === "ar"
+                ? "رائع! أين تريد الإقامة؟ اختر الوجهة:"
+                : "Avec plaisir ! Où souhaitez-vous séjourner ? Choisissez une destination :"
+              }\n\n<!--BOOKING_CITY_PICK-->`,
+            }],
+          } as any,
+        ]);
+        return;
+      }
       // Libellé lisible quand le périmètre est national (toutes les villes).
       const cityLabel =
         city === ALL_CITIES ? (lang === "en" ? "Morocco" : lang === "ar" ? "المغرب" : "tout le Maroc") : city;
