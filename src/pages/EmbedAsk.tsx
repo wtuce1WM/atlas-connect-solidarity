@@ -943,8 +943,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const lastLodgingCityRef = useRef<string | null>(null);
   /** Ids des badges d'hébergement (« Où dormir ? »), résolus une seule fois. */
   const lodgingBadgeIdsRef = useRef<Set<string> | null>(null);
-  const noteLodgingBadges = useCallback(async (badgeIds: string[] | null | undefined, text: string) => {
-    if (!badgeIds?.length) return;
+  const noteLodgingBadges = useCallback(async (badgeIds: string[] | null | undefined, text: string): Promise<boolean> => {
+    if (!badgeIds?.length) return false;
     if (!lodgingBadgeIdsRef.current) {
       const { data } = await supabase.from("badges").select("id, name_fr");
       const set = new Set<string>();
@@ -955,11 +955,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       lodgingBadgeIdsRef.current = set;
     }
     const set = lodgingBadgeIdsRef.current;
-    if (!badgeIds.some((id) => set.has(String(id)))) return;
+    if (!badgeIds.some((id) => set.has(String(id)))) return false;
     const city = extractBookingCity(text) || businessCity || ALL_CITIES;
     lastLodgingCityRef.current = city;
+    // Sans ville connue : l'appelant affiche le choix de la ville AVANT la
+    // réponse IA et le widget (true = interception, ne pas rattacher le widget).
+    if (city === ALL_CITIES) return true;
     // Rattaché au prochain message assistant du moteur (widget sous les cartes).
     pendingBookingCityRef.current = city;
+    return false;
   }, [businessCity]);
   /** Villes proposées par la suggestion « Réserver une chambre » (sans ville). */
   const BOOKING_CITY_OPTIONS = ["Marrakech", "Essaouira"];
