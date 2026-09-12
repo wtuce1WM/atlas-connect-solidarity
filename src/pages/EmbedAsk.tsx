@@ -1229,6 +1229,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     const last = messages[messages.length - 1] as any;
     if (last?.role !== "assistant" || !last?.id) return;
     pendingBookingCityRef.current = null;
+    if (city === ALL_CITIES) {
+      // Pas de ville connue : on invite d'abord à choisir la destination
+      // (chips cliquables) — le widget de disponibilité vient après le choix.
+      setMessages((prev) => prev.map((m) => {
+        if (String((m as any).id) !== String(last.id)) return m;
+        const parts = ((m as any).parts || []).map((p: any, i: number) =>
+          i === 0 && p?.type === "text" ? { ...p, text: `${p.text}\n\n<!--BOOKING_CITY_PICK-->` } : p);
+        return { ...(m as any), parts };
+      }));
+      return;
+    }
     setBookingWidgetByMsg((prev) => ({ ...prev, [String(last.id)]: city }));
   }, [messages]);
 
