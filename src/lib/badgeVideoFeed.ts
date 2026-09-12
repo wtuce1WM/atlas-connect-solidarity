@@ -812,3 +812,77 @@ export async function fetchBusinessDefaultFeedSuffix(
   });
   return items.filter((v) => !exclude.has(String(v.id))).slice(0, limit);
 }
+
+/* ------------------------------------------------------------------ *
+ * Chaînage de feeds : scroll « infini »
+ * ------------------------------------------------------------------ *
+ * Quand un feed est épuisé (dernière vidéo atteinte), on regarde les badges
+ * portés par les VIDÉOS du business de cette dernière vidéo, et on prolonge le
+ * feed avec d'autres vidéos portant l'un de ces badges (badge non encore
+ * utilisé dans la chaîne). Même source de vérité (`get_badges_video_feed`),
+ * aucun nouveau moteur ni nouveau champ en base.
+ */
+
+/** Badges (actifs sur le front) portés par les vidéos d'un business. */
+export async function fetchBusinessVideoBadgeIds(businessId: string): Promise<string[]> {
+  if (!businessId) return [];
+  const bid = String(businessId);
+  const [docsRes, gvRes, ytRes] = await Promise.all([
+    (supabase as any).from("business_documents").select("id").eq("business_id", bid),
+    (supabase as any).from("generic_video_businesses").select("generic_video_id").eq("business_id", bid),
+    (supabase as any).from("business_youtube_videos").select("id").eq("business_id", bid),
+  ]);
+  const docIds = ((docsRes?.data as any[]) || []).map((r) => String(r.id));
+  const gvIds = ((gvRes?.data as any[]) || []).map((r) => String(r.generic_video_id));
+  const ytIds = ((ytRes?.data as any[]) || []).map((r) => String(r.id));
+
+  const select = "badge_id, badges!inner(id, is_active_on_front)";
+  const [dRes, gRes, yRes] = await Promise.all([
+    docIds.length
+      ? (supabase as any).from("business_document_badges").select(select).in("document_id", docIds)
+      : Promise.resolve({ data: [] }),
+    gvIds.length
+      ? (supabase as any).from("generic_video_badges").select(select).in("generic_video_id", gvIds)
+      : Promise.resolve({ data: [] }),
+    ytIds.length
+      ? (supabase as any).from("business_youtube_video_badges").select(select).in("youtube_video_id", ytIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+  const out = new Set<string>();
+  for (const res of [dRes, gRes, yRes]) {
+    for (const row of ((res?.data as any[]) || [])) {
+      if (row?.badges?.is_active_on_front) out.add(String(row.badge_id));
+    }
+  }
+  return Array.from(out);
+}
+
+/**
+ * Prolonge un feed épuisé : choisit un badge des vidéos du business de la
+ * dernière vidéo (hors badges déjà utilisés) et renvoie d'autres vidéos de ce
+ * badge, en excluant celles déjà vues.
+ */
+export async function fetchChainedBadgeFeed(
+  businessId: string,
+  excludeVideoIds: string[] = [],
+  usedBadgeIds: string[] = [],
+  limit = 30,
+  extraBadgeIds: string[] = [],
+): Promise<{ items: BadgeVideoFeedItem[]; badgeId: string | null }> {
+  const used = new Set((usedBadgeIds || []).map(String));
+  const fromBusiness = businessId ? await fetchBusinessVideoBadgeIds(businessId) : [];
+  const candidates = Array.from(new Set([...fromBusiness, ...(extraBadgeIds || []).map(String)]))
+    .filter((id) => id && !used.has(id));
+  if (!candidates.length) return { items: [], badgeId: null };
+
+  const exclude = new Set(excludeVideoIds.map(String));
+  for (const badgeId of candidates) {
+    const { items } = await fetchBadgesVideoFeed([badgeId], {
+      seed: randomSeed(),
+      limit: Math.min(Math.max(limit * 3, 90), 180),
+    });
+    const fresh = items.filter((v) => !exclude.has(String(v.id)));
+    if (fresh.length) return { items: fresh.slice(0, limit), badgeId };
+  }
+  return { items: [], badgeId: null };
+}
