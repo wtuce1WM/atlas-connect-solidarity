@@ -646,7 +646,7 @@ const VideoSlidePanel = ({
     : useVideoOwnText
     ? ((headerVideoTitle || "").trim() || (videoName || "").trim())
     : useBusinessInfo
-    ? (ctaBusiness?.name || currentBusinessName || businessName || "")
+    ? (ctaBusiness?.name || currentBusinessName || businessName || (headerVideoTitle || "").trim() || (videoName || "").trim() || "")
     : (description && description.trim())
       ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
       : (ctaBusiness?.name || businessName || "");
