@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
+import MobileFeedSwipeCoach from "@/components/home/MobileFeedSwipeCoach";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchBusinessViewerRow } from "@/lib/businessRowCache";
 
@@ -207,7 +208,8 @@ function HomeVideoSlidePanel<T extends VideoLike>({
     : (activeVideo?.manualCard?.eventId || null);
 
   return (
-    <BookOnlineSlidePanel
+    <>
+      <BookOnlineSlidePanel
       open={open}
       onClose={onClose}
       videoUrl={activeVideo?.url || null}
@@ -243,8 +245,10 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       aiMode={aiMode}
       aiCtaDisabled={aiCtaDisabled}
       aiCtaReturnsToAssistant={aiCtaReturnsToAssistant}
-      roundedFrame={roundedFrame}
-    />
+        roundedFrame={roundedFrame}
+      />
+      <MobileFeedSwipeCoach open={open} />
+    </>
   );
 }
 

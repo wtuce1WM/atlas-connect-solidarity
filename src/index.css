@@ -2,6 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes owm-feed-swipe-hand {
+  0%, 12% { opacity: 0; transform: translateY(2.75rem) rotate(-12deg); }
+  24% { opacity: 1; }
+  68% { opacity: 1; transform: translateY(-2.75rem) rotate(-12deg); }
+  82%, 100% { opacity: 0; transform: translateY(-3.5rem) rotate(-12deg); }
+}
+
+@keyframes owm-feed-swipe-coach {
+  0% { opacity: 0; }
+  10%, 78% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.owm-feed-swipe-coach {
+  animation: owm-feed-swipe-coach 3.6s ease-in-out both;
+}
+
+.owm-feed-swipe-hand {
+  animation: owm-feed-swipe-hand 1.55s ease-in-out 0.3s 2 both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .owm-feed-swipe-coach {
+    animation: owm-feed-swipe-coach 3.6s linear both;
+  }
+
+  .owm-feed-swipe-hand {
+    animation: none;
+  }
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
