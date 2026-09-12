@@ -5232,12 +5232,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 type="button"
                 onClick={() => setFiltersOpen(true)}
                 style={AI_NAME_FONT}
-                className="group text-xs px-3 py-1.5 rounded-full border inline-flex items-center justify-center gap-1.5 font-semibold transition-all bg-card text-card-foreground border-border shadow-sm hover:shadow-md hover:border-primary/30 active:scale-95"
+                className="group text-xs px-3 py-1.5 rounded-full inline-flex items-center justify-center gap-1.5 font-semibold transition-all bg-[#194CFF] text-white shadow-sm hover:bg-[#194CFF]/90 active:scale-95"
               >
-                <SlidersHorizontal className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                <SlidersHorizontal className="w-3.5 h-3.5 text-white/80 group-hover:text-white transition-colors" />
                 {lang === "en" ? "Filters" : lang === "ar" ? "تصفية" : "Filtres"}
                 {filterCount > 0 && (
-                  <span className="inline-flex items-center justify-center bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 text-[10px] min-w-[18px] group-hover:bg-primary/10 group-hover:text-foreground transition-colors">
+                  <span className="inline-flex items-center justify-center bg-white/20 text-white rounded-full px-1.5 py-0.5 text-[10px] min-w-[18px] group-hover:bg-white/30 transition-colors">
                     {filterCount}
                   </span>
                 )}
