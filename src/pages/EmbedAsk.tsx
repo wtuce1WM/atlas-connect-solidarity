@@ -383,6 +383,8 @@ const warmAiEngineConnection = () => {
 const DEST_CHIPS_RE = /<!--DESTINATION_CHIPS:([\s\S]*?)-->/g;
 /** Widget de disponibilité hôtelière (suggestion back-office en mode `booking`). */
 const HOTEL_BOOKING_RE = /<!--HOTEL_BOOKING:([\s\S]*?)-->/g;
+/** Invitation à choisir la ville AVANT d'afficher le widget de disponibilité. */
+const BOOKING_CITY_PICK_RE = /<!--BOOKING_CITY_PICK-->/g;
 /** Payload du widget de disponibilité : ville + dates/voyageurs éventuellement pré-remplis. */
 type BookingPayload = { city: string; checkIn: string | null; checkOut: string | null; adults: number | null };
 
@@ -422,7 +424,8 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: BookingPayload[]; competitorGuard: boolean; destChips: ScopeChip[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: BookingPayload[]; competitorGuard: boolean; destChips: ScopeChip[]; cityPick: boolean } {
+  const cityPick = BOOKING_CITY_PICK_RE.test(text);
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
