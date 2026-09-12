@@ -2888,6 +2888,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     preflightSuggestionId?: string | null,
   ): Promise<boolean> => {
     if (!text?.trim()) return false;
+    // Suggestion badgée déjà ouverte côté client : on ne rouvre JAMAIS un second
+    // feed (remontage + nouveau seed = saut visible vers la vidéo 2).
+    const early = earlyFeedPromiseRef.current;
+    if (early) {
+      earlyFeedPromiseRef.current = null;
+      try { if (await early) return true; } catch { /* repli pré-vol */ }
+    }
+
     try {
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat-v2`,
