@@ -2884,6 +2884,40 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   }, [messages, poolInfo]);
 
   /**
+   * Dernier lot de disponibilités encore extensible. Il utilise le CTA Gold
+   * commun au-dessus du champ, plutôt qu'un second bouton sous les vignettes.
+   */
+  const hotelMoreTarget = useMemo<{ msgKey: string; remaining: number } | null>(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const msgKey = String(messages[i]?.id || i);
+      const result = hotelResults[msgKey];
+      if (!result?.hotels?.length) continue;
+      const shown = hotelShown[msgKey] ?? 4;
+      const remaining = Math.max(0, result.hotels.length - shown);
+      return remaining > 0 ? { msgKey, remaining } : null;
+    }
+    return null;
+  }, [messages, hotelResults, hotelShown]);
+
+  const moreResultsRemaining = hotelMoreTarget?.remaining ?? poolRemaining;
+
+  const showFourMoreResults = () => {
+    const el = scrollRef.current;
+    if (el) {
+      stickDisabledRef.current = false;
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }
+    if (hotelMoreTarget) {
+      setHotelShown((current) => ({
+        ...current,
+        [hotelMoreTarget.msgKey]: (current[hotelMoreTarget.msgKey] ?? 4) + 4,
+      }));
+      return;
+    }
+    send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres");
+  };
+
+  /**
    * Retour depuis un article : rejouer les actions des CTA affichés en fin
    * d'article — Map (overlay POI du dernier corpus) puis « autres résultats »
    * (relance déterministe du pool, zéro token). Une seule action par retour.
@@ -4905,7 +4939,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                           ...bookingResult.hotels.map((h: any) => String(h.businessId)),
                           ...((bookingResult as any).otherBusinessIds || []),
                         ];
-                        const remaining = bookingResult.hotels.length - visible.length;
                         return (
                           <AiBusinessResultTiles
                             businesses={list as never}
@@ -4930,19 +4963,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                               }
                             }}
                             onOpenBooking={openBookingOverlay}
-                            footer={remaining > 0 ? (
-                              <button
-                                type="button"
-                                onClick={() => setHotelShown((s) => ({ ...s, [msgKey]: shown + 4 }))}
-                                className={`self-start mt-1 inline-flex items-center rounded-full border ${border} ${cardBg} ${cardInk} px-3 py-1.5 text-xs font-semibold`}
-                              >
-                                {lang === "en"
-                                  ? `Show ${Math.min(4, remaining)} more`
-                                  : lang === "ar"
-                                  ? `عرض ${Math.min(4, remaining)} أخرى`
-                                  : `Voir ${Math.min(4, remaining)} de plus`}
-                              </button>
-                            ) : null}
+                            footer={null}
                           />
                         );
                       })()}
@@ -5381,22 +5402,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 - mobile : 2 lignes de 2 CTAs (+ résultats / Filtres | Map / Conversation)
                 - desktop : une ligne horizontale classique. */}
             <div className="grid grid-cols-2 gap-2 pb-2 md:flex md:items-center md:gap-2 md:overflow-x-auto md:scrollbar-hide">
-              {poolRemaining > 0 && (
+              {moreResultsRemaining > 0 && (
                 <button
                   type="button"
-                  onClick={() => {
-                    const el = scrollRef.current;
-                    if (el) {
-                      stickDisabledRef.current = false;
-                      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-                    }
-                    send(lang === "en" ? "Show the others" : lang === "ar" ? "أعرض الباقي" : "Montre-moi les autres");
-                  }}
+                  onClick={showFourMoreResults}
                   style={{ ...moreBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
                   className="text-xs px-3 py-1.5 rounded-full inline-flex items-center justify-center gap-1.5 font-semibold border shadow-sm hover:opacity-90 transition-opacity"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  {lang === "en" ? `${poolRemaining} more results` : lang === "ar" ? `${poolRemaining} نتائج أخرى` : `+${poolRemaining} résultats`}
+                  {lang === "en" ? "+ more results" : lang === "ar" ? "+ نتائج أخرى" : "+ de résultats"}
                 </button>
               )}
               <button
