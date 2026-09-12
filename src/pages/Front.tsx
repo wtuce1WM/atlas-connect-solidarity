@@ -966,7 +966,17 @@ const Front = () => {
       <FrontHeader
         fixed
         visible={showHomeChrome}
-        className={youtubeOpen ? "z-[210]" : ""}
+        className={
+          youtubeOpen
+            ? "z-[210]"
+            : // Conversation IA ouverte : l'embed (fixed inset-0, rendu après le
+              // header dans le DOM) recouvrait le header z-50 et interceptait le
+              // clic logo + OWM. On élève le header au-dessus de l'embed, tout en
+              // restant sous les panneaux de l'assistant (z-[220]).
+              conversationOpen && !askPanelOpen
+              ? "z-[210]"
+              : ""
+        }
         elevatedMenu={youtubeOpen}
         onLogoClick={() => {
 
