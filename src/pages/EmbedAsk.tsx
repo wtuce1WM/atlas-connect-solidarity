@@ -5563,6 +5563,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         return (
           <Suspense fallback={null}>
             <HomeVideoSlidePanel
+              key={`feed-${feedSession}`}
               open
               onClose={() => setActiveFeedVideoId(null)}
               activeVideo={active as any}
