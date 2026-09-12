@@ -2991,7 +2991,61 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   }, [videoFeedList, videoFeedCtx]);
 
   // Nouveau feed (nouveau contexte) → le suffixe redevient disponible.
-  useEffect(() => { feedSuffixDoneRef.current = new Set(); }, [videoFeedCtx]);
+  useEffect(() => {
+    feedSuffixDoneRef.current = new Set();
+    chainUsedBadgesRef.current = new Set(videoFeedCtx?.badgeIds ?? []);
+    chainTriedBusinessRef.current = new Set();
+  }, [videoFeedCtx]);
+
+  /**
+   * Scroll « infini » : à la fin d'un feed, on enchaîne sur un autre feed.
+   * Règle : on lit les badges portés par les VIDÉOS du business de la dernière
+   * vidéo, et on prolonge avec d'autres vidéos d'un de ces badges (badge non
+   * encore utilisé dans la chaîne). Répété à chaque nouvelle fin de feed.
+   */
+  const chainUsedBadgesRef = useRef<Set<string>>(new Set());
+  const chainTriedBusinessRef = useRef<Set<string>>(new Set());
+  const appendChainedBadgeFeed = useCallback(async (currentId: string) => {
+    if (feedLoadingMoreRef.current) return;
+    const list = videoFeedList;
+    const idx = list.findIndex((v) => v.id === currentId);
+    if (idx < 0 || idx < list.length - 3) return;
+    const last = list[list.length - 1] as any;
+    const bizId = (() => {
+      for (let i = list.length - 1; i >= 0; i--) {
+        const b = (list[i] as any)?.businessId;
+        if (b) return String(b);
+      }
+      return null;
+    })();
+    // Badges de la dernière vidéo : repli quand elle n'est liée à aucun business.
+    const lastBadgeIds = ((last?.badges as any[]) || []).map((b) => String(b.id));
+    const tryKey = `${bizId ?? "no-biz"}:${chainUsedBadgesRef.current.size}`;
+    if (chainTriedBusinessRef.current.has(tryKey)) return;
+    chainTriedBusinessRef.current.add(tryKey);
+    feedLoadingMoreRef.current = true;
+    try {
+      const { fetchChainedBadgeFeed } = await import("@/lib/badgeVideoFeed");
+      const { items, badgeId } = await fetchChainedBadgeFeed(
+        bizId || "",
+        list.map((v) => String(v.id)),
+        Array.from(chainUsedBadgesRef.current),
+        30,
+        lastBadgeIds,
+      );
+      if (badgeId) chainUsedBadgesRef.current.add(badgeId);
+      if (items.length) {
+        setVideoFeedList((prev) => {
+          const seen = new Set(prev.map((v) => String(v.id)));
+          return [...prev, ...(items.filter((it) => !seen.has(String(it.id))) as any)];
+        });
+      }
+    } catch {
+      /* best-effort : le feed reste utilisable */
+    } finally {
+      feedLoadingMoreRef.current = false;
+    }
+  }, [videoFeedList]);
 
   const maybeLoadMoreFeed = useCallback(async (currentId: string) => {
 
@@ -2999,9 +3053,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     if (feedLoadingMoreRef.current) return;
     const idx = videoFeedList.findIndex((v) => v.id === currentId);
     if (idx < 0 || idx < videoFeedList.length - 10) return;
-    // Feed épuisé (ou sans contexte de pagination) → suffixe business.
+    // Feed épuisé (ou sans contexte de pagination) → suffixe business puis
+    // chaînage sur un badge des vidéos du dernier business (scroll infini).
     if (!ctx || videoFeedList.length >= ctx.total) {
       await appendBusinessDefaultFeed(currentId);
+      await appendChainedBadgeFeed(currentId);
       return;
     }
     feedLoadingMoreRef.current = true;
