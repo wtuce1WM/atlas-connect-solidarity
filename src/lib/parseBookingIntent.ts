@@ -26,8 +26,6 @@ const CITY_PATTERNS: { city: string; aliases: string[] }[] = [
   { city: "Casablanca", aliases: ["casablanca", "casa blanca", "casablanka", "الدار البيضاء"] },
   { city: "Rabat", aliases: ["rabat", "rabbat", "الرباط"] },
   { city: "Tanger", aliases: ["tanger", "tangier", "tangerine", "tanja", "طنجة"] },
-  { city: "Taghazout", aliases: ["taghazout", "taghazoute", "tagazout", "تاغازوت"] },
-  { city: "Oualidia", aliases: ["oualidia", "walidia", "oualidiya", "الوالدية"] },
 ];
 
 /** Détecte la première ville nommée dans le texte (ordre d'apparition). */
