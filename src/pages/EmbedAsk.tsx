@@ -2273,6 +2273,40 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // ville en conservant les dates et le nombre de voyageurs du tour précédent.
     const relaunchCity = !suggestionId && !followupId ? extractBookingCity(text) : null;
     const lastBooking = lastBookingRef.current;
+    // RELANCE PUREMENT DATÉE : le tour précédent était hôtelier (badge « Où
+    // dormir ? » ou recherche de disponibilité) et la relance n'apporte que des
+    // dates/voyageurs (« avec de la place du 10 au 16 octobre pour 2 adultes ») →
+    // recherche SerpAPI sur la ville du contexte, jamais une réponse du modèle.
+    if (!suggestionId && !followupId) {
+      const stay = extractStayDates(text);
+      const ctxCity = stay.city || lastBooking?.city || lastLodgingCityRef.current;
+      if (stay.checkIn && stay.checkOut && ctxCity) {
+        setError(null);
+        const adults = stay.adults || lastBooking?.adults || 2;
+        const cityLbl =
+          ctxCity === ALL_CITIES ? (lang === "en" ? "Morocco" : lang === "ar" ? "المغرب" : "tout le Maroc") : ctxCity;
+        const msgId = `a-booking-${Date.now()}`;
+        setMessages((prev) => [
+          ...prev,
+          { id: `u-booking-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+          {
+            id: msgId,
+            role: "assistant",
+            parts: [{
+              type: "text",
+              text: `${lang === "en"
+                ? `Checking live availability in ${cityLbl} for these dates.`
+                : lang === "ar"
+                ? `أتحقق من التوفر في ${cityLbl} في هذه التواريخ.`
+                : `Je vérifie les disponibilités à ${cityLbl} pour ces dates.`}\n\n<!--HOTEL_BOOKING:${JSON.stringify({ city: ctxCity, checkIn: stay.checkIn, checkOut: stay.checkOut, adults })}-->`,
+            }],
+          } as any,
+        ]);
+        lastLodgingCityRef.current = ctxCity;
+        runCityHotelSearch(msgId, ctxCity, stay.checkIn, stay.checkOut, adults);
+        return;
+      }
+    }
     const shortRelaunch = normalizedText.split(" ").filter(Boolean).length <= 5;
     if (
       relaunchCity &&
