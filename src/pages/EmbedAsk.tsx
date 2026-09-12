@@ -3081,7 +3081,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     } finally {
       feedLoadingMoreRef.current = false;
     }
-  }, [videoFeedCtx, videoFeedList, appendBusinessDefaultFeed]);
+  }, [videoFeedCtx, videoFeedList, appendBusinessDefaultFeed, appendChainedBadgeFeed]);
 
 
   /**
