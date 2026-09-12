@@ -2247,11 +2247,20 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     if (feedSuggestion?.mode === "video_feed" && (feedSuggestion.badge_ids?.length ?? 0) > 0) {
       // Le panneau de gauche reste masqué jusqu'à l'ouverture du lecteur vidéo.
       setFeedOpening(true);
-      void openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]).then((ok) => {
+      // Le pré-vol serveur attend ce résultat : si l'ouverture immédiate réussit,
+      // il ne doit PAS remplacer le feed (sinon la vidéo 2 s'affiche seule quand
+      // la réponse IA arrive).
+      const earlyPromise = openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]).then((ok) => {
         // Feed vide / erreur : rien ne s'ouvre → on rétablit la conversation.
         if (!ok) setFeedOpening(false);
+        return ok;
       });
+      earlyFeedPromiseRef.current = earlyPromise;
+      void earlyPromise;
+    } else {
+      earlyFeedPromiseRef.current = null;
     }
+
 
     const isBookingLabel = [
       "reserver une chambre",
@@ -2829,6 +2838,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const autoOpenedFeedRef = useRef<string | null>(null);
   /** Feed déjà ouvert côté client avant la réponse du modèle (ouverture immédiate). */
   const earlyFeedOpenRef = useRef(false);
+  /** Ouverture immédiate en cours : le pré-vol ne doit pas la remplacer. */
+  const earlyFeedPromiseRef = useRef<Promise<boolean> | null>(null);
+
   /** Garde anti-boucle du repli « feed pur » vers le parcours standard. */
   const pureFeedFallbackRef = useRef(false);
   /** Dernier envoi (texte + suggestion + relance) : verrou anti double-clic. */
@@ -2876,6 +2888,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     preflightSuggestionId?: string | null,
   ): Promise<boolean> => {
     if (!text?.trim()) return false;
+    // Suggestion badgée déjà ouverte côté client : on ne rouvre JAMAIS un second
+    // feed (remontage + nouveau seed = saut visible vers la vidéo 2).
+    const early = earlyFeedPromiseRef.current;
+    if (early) {
+      earlyFeedPromiseRef.current = null;
+      try { if (await early) return true; } catch { /* repli pré-vol */ }
+    }
+
     try {
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat-v2`,
