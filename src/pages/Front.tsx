@@ -1027,7 +1027,20 @@ const Front = () => {
           transition: motion,
         }}
         aria-hidden={demoFeedOpen ? false : !!(demoIntro || !narrativeActive)}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          // Desktop uniquement : un clic dans le panneau gauche ferme le viewer vidéo
+          // de droite, sauf sur les champs de saisie où l'utilisateur est en train de taper.
+          if (isMobile || !demoActiveId) return;
+          const target = e.target as HTMLElement;
+          const keepOpen = target.closest(
+            'input, textarea, [contenteditable="true"], select, [role="slider"], [role="scrollbar"], [role="listbox"], [role="combobox"]'
+          );
+          if (keepOpen) return;
+          setDemoActiveId(null);
+          setDemoCardsOnly(false);
+          setDemoIntro(false);
+        }}
       >
         {/* Assistant IA — monté directement (plus d'iframe : un seul bundle, pas de flash) */}
         <div className="flex h-full w-full flex-col">
