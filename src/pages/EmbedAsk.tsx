@@ -2838,6 +2838,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const autoOpenedFeedRef = useRef<string | null>(null);
   /** Feed déjà ouvert côté client avant la réponse du modèle (ouverture immédiate). */
   const earlyFeedOpenRef = useRef(false);
+  /** Ouverture immédiate en cours : le pré-vol ne doit pas la remplacer. */
+  const earlyFeedPromiseRef = useRef<Promise<boolean> | null>(null);
+
   /** Garde anti-boucle du repli « feed pur » vers le parcours standard. */
   const pureFeedFallbackRef = useRef(false);
   /** Dernier envoi (texte + suggestion + relance) : verrou anti double-clic. */
