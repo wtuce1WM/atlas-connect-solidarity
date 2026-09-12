@@ -515,7 +515,7 @@ const Front = () => {
   // NEUTRALISÉ TEMPORAIREMENT : le feed vidéo démo ne s'ouvre plus automatiquement
   // au chargement de la homepage. Seul l'assistant IA (mode fermé) reste affiché.
   // Réactiver en décommentant le bloc ci-dessous.
-  const autoDemoRef = useRef(false);
+  void autoDemoRef;
   // useEffect(() => {
   //   if (autoDemoRef.current) return;
   //   autoDemoRef.current = true;
