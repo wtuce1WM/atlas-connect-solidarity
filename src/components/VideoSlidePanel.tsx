@@ -646,16 +646,18 @@ const VideoSlidePanel = ({
     : useVideoOwnText
     ? ((headerVideoTitle || "").trim() || (videoName || "").trim())
     : useBusinessInfo
-    ? (ctaBusiness?.name || currentBusinessName || businessName || "")
+    ? (ctaBusiness?.name || currentBusinessName || businessName || (headerVideoTitle || "").trim() || (videoName || "").trim() || "")
     : (description && description.trim())
       ? (headerVideoTitle || videoName || ctaBusiness?.name || businessName || "")
       : (ctaBusiness?.name || businessName || "");
   /* Le business lié n'a ni description ni hook : l'overlay Full Description
-     n'aurait rien à afficher → la barre info est masquée (résolution terminée
-     uniquement : on attend `resolvedBiz` de CETTE vidéo). */
+      n'aurait rien à afficher → la barre info est masquée SEULEMENT si aucun
+      nom/titre n'est disponible non plus. Quand on a au moins un nom, on
+      l'affiche (même sans description). */
   const resolvedBizDone = !!(resolvedBiz && resolvedBiz.videoId === videoKey);
   const bizHasNoText = resolvedBizDone && !!resolvedBusinessId
-    && !currentBusinessDescription && !(currentBusinessHook && currentBusinessHook.trim());
+    && !currentBusinessDescription && !(currentBusinessHook && currentBusinessHook.trim())
+    && !feedInfoTitle;
   const showFeedInfoBar = (!isExternalVideo || hasBusinessSource || hasVideoOwnText || !!linkedEntity) && !bizHasNoText;
   const feedInfoTeaser = useMemo(() => {
     const clean = (s?: string | null) =>
