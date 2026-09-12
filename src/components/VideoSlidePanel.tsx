@@ -306,7 +306,13 @@ const VideoSlidePanel = ({
     const url = window.location.pathname + window.location.search + window.location.hash;
     rawNavigate(url, { state: { __videoSlidePanel: true } });
     let active = true;
+    /* Remontage du lecteur (nouveau feed) : le démontage précédent consomme son
+       entrée d'historique, et le `popstate` correspondant arrive APRÈS le
+       montage de la nouvelle instance. Sans ce délai de garde, le nouveau feed
+       se fermerait tout seul juste après son ouverture. */
+    const mountedAt = Date.now();
     const onPop = () => {
+      if (Date.now() - mountedAt < 700) return;
       if (!active) return;
       active = false;
       onCloseRef.current();
