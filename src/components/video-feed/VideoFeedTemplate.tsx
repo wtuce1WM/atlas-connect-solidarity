@@ -62,6 +62,74 @@ const VideoFeedTemplate = ({
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
 
+  /**
+   * Scroll « infini » : à la fin du feed, on enchaîne avec d'autres vidéos
+   * d'un badge porté par les vidéos du business de la dernière vidéo (badge
+   * non encore utilisé dans la chaîne), sans doublons — même règle que le
+   * feed Démo de Home et l'assistant IA.
+   */
+  const [extraVideos, setExtraVideos] = useState<BlogArticleVideo[]>([]);
+  const chainUsedBadgesRef = useRef<Set<string>>(new Set());
+  const chainTriedBusinessRef = useRef<Set<string>>(new Set());
+  const chainLoadingRef = useRef(false);
+
+  // Nouveau feed (la liste source change) → la chaîne repart du badge du feed.
+  useEffect(() => {
+    setExtraVideos([]);
+    chainUsedBadgesRef.current = new Set(feedBadgeId ? [feedBadgeId] : []);
+    chainTriedBusinessRef.current = new Set();
+    chainLoadingRef.current = false;
+  }, [videos, feedBadgeId]);
+
+  const allVideos = extraVideos.length ? [...videos, ...extraVideos] : videos;
+
+  const appendChainedBadgeFeed = useCallback(async (currentId: string) => {
+    if (chainLoadingRef.current) return;
+    const list = allVideos;
+    const idx = list.findIndex((v) => v.id === currentId);
+    if (idx < 0 || idx < list.length - 3) return;
+    const last = list[list.length - 1] as any;
+    const bizId = (() => {
+      for (let i = list.length - 1; i >= 0; i--) {
+        const b = (list[i] as any)?.businessId;
+        if (b) return String(b);
+      }
+      return null;
+    })();
+    const lastBadgeIds = ((last?.badges as any[]) || []).map((b) => String(b.id));
+    const tryKey = `${bizId ?? "no-biz"}:${chainUsedBadgesRef.current.size}`;
+    if (chainTriedBusinessRef.current.has(tryKey)) return;
+    chainTriedBusinessRef.current.add(tryKey);
+    chainLoadingRef.current = true;
+    try {
+      const { fetchChainedBadgeFeed } = await import("@/lib/badgeVideoFeed");
+      const { items, badgeId } = await fetchChainedBadgeFeed(
+        bizId || "",
+        list.map((v) => String(v.id)),
+        Array.from(chainUsedBadgesRef.current),
+        30,
+        lastBadgeIds,
+      );
+      if (badgeId) chainUsedBadgesRef.current.add(badgeId);
+      if (items.length) {
+        setExtraVideos((prev) => {
+          const seen = new Set([...videos, ...prev].map((v) => String(v.id)));
+          return [...prev, ...items.filter((it) => !seen.has(String(it.id)))];
+        });
+      }
+    } catch {
+      /* best-effort : le feed reste utilisable */
+    } finally {
+      chainLoadingRef.current = false;
+    }
+  }, [allVideos, videos]);
+
+  const handleActiveVideoChange = useCallback((v: any) => {
+    setActiveVideoId(v.id);
+    setVideoCurrentTime(0);
+    void appendChainedBadgeFeed(String(v.id));
+  }, [appendChainedBadgeFeed]);
+
   const ogImage = heroImage || `${siteUrl}/og-install-app.webp`;
 
   const handleSaveArticle = async () => {
