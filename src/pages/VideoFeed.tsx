@@ -150,6 +150,7 @@ const VideoFeed = () => {
       sectionTitle={sectionTitle}
       sectionIntro={sectionIntro}
       videos={videos}
+      feedBadgeId={page.video_config?.badge_id ?? null}
       bookmarkSlug={page.slug}
     />
   );
