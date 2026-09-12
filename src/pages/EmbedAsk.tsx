@@ -1422,6 +1422,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [videoFeedList, setVideoFeedList] = useState<VideoFeedItem[]>([]);
   const [videoFeedCtx, setVideoFeedCtx] = useState<{ badgeIds: string[]; seed: string; total: number; cityIds?: string[] | null } | null>(null);
   const feedLoadingMoreRef = useRef(false);
+  /* Identité du feed courant : chaque nouvelle ouverture remonte le lecteur,
+     pour qu'aucune image/fiche du feed précédent ne s'affiche avant la 1re vidéo. */
+  const [feedSession, setFeedSession] = useState(0);
+  const bumpFeedSession = useCallback(() => setFeedSession((n) => n + 1), []);
   const [feedVideoTime, setFeedVideoTime] = useState(0);
   /**
    * Suggestion en mode `video_feed` : le lecteur vidéo doit apparaître AVANT le
@@ -2846,6 +2850,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setVideoFeedCtx({ badgeIds, seed, total, cityIds: null });
       feedLoadingMoreRef.current = false;
       setFeedVideoTime(0);
+      bumpFeedSession();
       setActiveFeedVideoId(items[0].id);
       preloadFirstFeedMedia(items[0]);
       for (const v of items.slice(1, 3)) {
@@ -2915,6 +2920,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       );
       feedLoadingMoreRef.current = false;
       setFeedVideoTime(0);
+      bumpFeedSession();
       setActiveFeedVideoId(feed.videos[0].id);
       preloadFirstFeedMedia(feed.videos[0]);
       for (const v of feed.videos.slice(1, 3)) {
@@ -2956,6 +2962,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setVideoFeedCtx({ badgeIds, seed, total, cityIds: null });
       feedLoadingMoreRef.current = false;
       setFeedVideoTime(0);
+      bumpFeedSession();
       setActiveFeedVideoId(ordered[0].id);
       preloadFirstFeedMedia(ordered[0]);
       for (const v of ordered.slice(1, 3)) {
@@ -2996,6 +3003,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       );
       feedLoadingMoreRef.current = false;
       setFeedVideoTime(0);
+      bumpFeedSession();
       setActiveFeedVideoId(payload.videos[0].id);
       preloadFirstFeedMedia(payload.videos[0]);
       // Miniatures des vidéos suivantes : le swipe démarre sans écran noir.
@@ -3252,6 +3260,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setVideoFeedCtx({ badgeIds: [badge.id], seed, total, cityIds: null });
       setFeedVideoTime(0);
       feedLoadingMoreRef.current = false;
+      bumpFeedSession();
       setActiveFeedVideoId(items[0].id);
     } catch {
       feedLoadingMoreRef.current = false;
@@ -3274,6 +3283,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         setVideoFeedCtx({ badgeIds, seed, total, cityIds: [city.id] });
         setFeedVideoTime(0);
         feedLoadingMoreRef.current = false;
+        bumpFeedSession();
         setActiveFeedVideoId(items[0].id);
         return;
       }
@@ -3288,6 +3298,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setVideoFeedCtx({ badgeIds: nextCtx.badgeIds, seed: nextCtx.seed, total: nextCtx.total, cityIds: [city.id] });
       setFeedVideoTime(0);
       feedLoadingMoreRef.current = false;
+      bumpFeedSession();
       setActiveFeedVideoId(items[0].id);
     } catch {
       feedLoadingMoreRef.current = false;
@@ -5552,6 +5563,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         return (
           <Suspense fallback={null}>
             <HomeVideoSlidePanel
+              key={`feed-${feedSession}`}
               open
               onClose={() => setActiveFeedVideoId(null)}
               activeVideo={active as any}
