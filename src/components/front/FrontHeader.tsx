@@ -134,7 +134,7 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
     <>
       <div
         className={`${wrapperClass} flex items-center justify-between px-5 py-4 pt-safe md:px-10 transition-opacity duration-300 ${
-          visible ? "opacity-100" : "pointer-events-none opacity-0"
+          visible ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         } ${solid ? "bg-[rgba(6,5,4,0.92)] backdrop-blur-md border-b border-white/10" : ""}`}
         aria-hidden={!visible}
       >
