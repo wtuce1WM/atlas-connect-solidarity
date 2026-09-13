@@ -86,19 +86,29 @@ export function HotelAvailabilityResult({
               textColor: "#000000",
             });
           }
-          if (business.reserve_now_url) {
-            const isExternal = business.reserve_now_force_external;
+          // Lien de réservation : « Réservez maintenant » en priorité, sinon le
+          // site web de l'établissement (même logique que les vignettes IA).
+          const bookUrl = business.reserve_now_url || (business as any).website || null;
+          const usesWebsiteFallback = !business.reserve_now_url && !!bookUrl;
+          if (bookUrl) {
+            const isExternal = usesWebsiteFallback
+              ? !!(business as any).website_force_external
+              : business.reserve_now_force_external;
+            const websiteLabel = ((business as any).website_cta || "").trim();
             actionCards.push({
               icon: <CalendarCheck className="h-5 w-5" />,
-              label: CTA_MODE_LABELS[business.presentation_mode]?.[language === "en" ? "en" : "fr"] || (language === "en" ? "Book online" : "Réservez en ligne"),
-              mobileLabel: language === "en" ? "Book" : "Réserver",
+              label:
+                (usesWebsiteFallback ? websiteLabel : "") ||
+                CTA_MODE_LABELS[business.presentation_mode]?.[language === "en" ? "en" : "fr"] ||
+                (language === "en" ? "Book online" : "Réservez en ligne"),
+              mobileLabel: (usesWebsiteFallback ? websiteLabel : "") || (language === "en" ? "Book" : "Réserver"),
               onClick: () => {
                 if (isExternal) {
-                  window.open(business.reserve_now_url!, "_blank");
+                  window.open(bookUrl, "_blank");
                 } else {
                   setBookingOverlayLoaded(false);
-                  setBookingOverlayUrl(null);
-                  setBookingOverlayTitle(undefined);
+                  setBookingOverlayUrl(usesWebsiteFallback ? bookUrl : null);
+                  setBookingOverlayTitle(usesWebsiteFallback ? websiteLabel || undefined : undefined);
                   setShowBookingOverlay(true);
                 }
               },
