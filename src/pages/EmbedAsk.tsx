@@ -2390,13 +2390,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         return;
       }
     }
-    const shortRelaunch = normalizedText.split(" ").filter(Boolean).length <= 5;
+    // Relance du widget de disponibilité : réservée aux demandes hôtelières.
+    // Le message doit soit contenir un terme d'hébergement (« riad », « hôtel »…),
+    // soit se limiter à nommer une ville (« Essaouira », « et à Mogador ? ») —
+    // jamais une vraie nouvelle demande (« rooftops à marrakech »).
     if (
       relaunchCity &&
       lastBooking?.checkIn &&
       lastBooking?.checkOut &&
       !freeBookingHasDates &&
-      (shortRelaunch || !!freeBookingIntent)
+      (!!freeBookingIntent || isBareCityMention(text))
     ) {
       setError(null);
       const msgId = `a-booking-${Date.now()}`;
