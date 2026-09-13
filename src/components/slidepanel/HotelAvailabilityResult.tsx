@@ -135,10 +135,7 @@ export function HotelAvailabilityResult({
                           ? (language === "en" ? "The price observed is" : "Le prix constaté est de")
                           : (language === "en" ? "The minimum price generally observed is" : "Le prix minimum généralement constaté est de")}{" "}
                         <span className="font-bold">{serpPriceAmount || minPrice} €</span>{" "}
-                        {language === "en" ? "per night" : "par nuit"}{" "}
-                        {language === "en"
-                          ? "but the price per night may vary depending on season and room type."
-                          : "mais le prix par nuitée peut varier selon la saison et du type de chambre."}
+                        {language === "en" ? "per night" : "par nuit"}.
                       </p>
                     ) : null}
                     {totalSerpPrice || totalMinPrice ? (
