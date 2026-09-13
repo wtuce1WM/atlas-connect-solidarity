@@ -57,6 +57,8 @@ export function HotelAvailabilityResult({
         const hasAvailability = !!currentHotel;
         const hotelName = business?.name || "";
         const minPrice = business?.min_price;
+        const serpPrice = currentHotel?.serpPrice;
+        const serpPriceAmount = serpPrice?.amount ? parseFloat(serpPrice.amount) : null;
         const nightsCount = (() => {
           const d1 = new Date(fallbackPanelData.checkIn);
           const d2 = new Date(fallbackPanelData.checkOut);
@@ -64,6 +66,7 @@ export function HotelAvailabilityResult({
           return diff > 0 ? diff : 1;
         })();
         const totalMinPrice = minPrice ? minPrice * nightsCount : null;
+        const totalSerpPrice = serpPriceAmount ? Math.round(serpPriceAmount * nightsCount) : null;
 
         const actionCards: { icon: React.ReactNode; label: string; mobileLabel?: string; onClick: () => void; color: string; textColor?: string }[] = [];
         if (hasAvailability && business) {
@@ -129,7 +132,12 @@ export function HotelAvailabilityResult({
                     {minPrice ? (
                       <p>
                         {language === "en" ? "The minimum price generally observed is" : "Le prix minimum généralement constaté est de"}{" "}
-                        <span className="font-bold">{minPrice} €</span>{" "}
+                        <span className="font-bold">{minPrice} €</span>
+                        {serpPriceAmount ? (
+                          <span className="text-white/80">
+                            {" "}({serpPriceAmount} € SerpAPI)
+                          </span>
+                        ) : null}{" "}
                         {language === "en" ? "per night" : "par nuit"}{" "}
                         {language === "en"
                           ? "but the price per night may vary depending on season and room type."
@@ -141,7 +149,12 @@ export function HotelAvailabilityResult({
                         {language === "en"
                           ? `You can therefore expect a minimum price for your stay of`
                           : `Vous pouvez donc vous attendre à un prix minimal pour votre séjour de`}{" "}
-                        <span className="font-bold">{totalMinPrice} €</span>.
+                        <span className="font-bold">{totalMinPrice} €</span>
+                        {totalSerpPrice ? (
+                          <span className="text-white/80">
+                            {" "}({totalSerpPrice} € SerpAPI)
+                          </span>
+                        ) : null}.
                       </p>
                     ) : null}
                     <p>
