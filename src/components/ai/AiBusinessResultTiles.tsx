@@ -153,6 +153,15 @@ const AiBusinessResultTiles = ({
             : null;
           const bookingUrl = b.booking_url || b.website || null;
           const bookingLabel = (b.booking_label || "").trim() || (b.website_cta || "").trim() || t.book;
+          // Même règle que la fiche : un lien marqué « Lien externe »
+          // (force_external, ex. URL 1 de Nobu) s'ouvre dans un nouvel onglet,
+          // jamais dans l'overlay de réservation intégré. Le flag retenu est
+          // celui du champ dont provient réellement l'URL affichée.
+          const normUrl = (u?: string | null) => (u || "").trim().toLowerCase().replace(/\/+$/, "");
+          const nb = normUrl(bookingUrl);
+          const bookingForceExternal =
+            (!!nb && nb === normUrl(b.website) && b.website_force_external === true) ||
+            (!!nb && nb === normUrl((b as { reserve_now_url?: string | null }).reserve_now_url) && b.reserve_now_force_external === true);
 
           return (
             <div
@@ -236,9 +245,11 @@ const AiBusinessResultTiles = ({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onOpenBooking
-                            ? onOpenBooking(bookingUrl, bookingLabel)
-                            : window.open(bookingUrl, "_blank", "noopener,noreferrer");
+                          if (bookingForceExternal || !onOpenBooking) {
+                            window.open(bookingUrl, "_blank", "noopener,noreferrer");
+                          } else {
+                            onOpenBooking(bookingUrl, bookingLabel);
+                          }
                         }}
                         className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white shadow-lg"
                         style={{ backgroundColor: "#C04F17", ...AI_NAME_FONT }}

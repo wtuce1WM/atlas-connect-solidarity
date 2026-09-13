@@ -38,6 +38,8 @@ export interface AiResultBusiness {
   booking_label?: string | null;
   website?: string | null;
   website_cta?: string | null;
+  website_force_external?: boolean | null;
+  reserve_now_force_external?: boolean | null;
   show_opening_hours?: boolean | null;
   [key: string]: unknown;
 }
