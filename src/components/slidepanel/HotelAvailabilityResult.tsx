@@ -129,32 +129,28 @@ export function HotelAvailabilityResult({
                         ? "has availability for the selected dates."
                         : "a de la disponibilité sur les dates recherchées."}
                     </p>
-                    {minPrice ? (
+                    {serpPriceAmount || minPrice ? (
                       <p>
-                        {language === "en" ? "The minimum price generally observed is" : "Le prix minimum généralement constaté est de"}{" "}
-                        <span className="font-bold">{minPrice} €</span>
-                        {serpPriceAmount ? (
-                          <span className="text-white/80">
-                            {" "}({serpPriceAmount} € SerpAPI)
-                          </span>
-                        ) : null}{" "}
+                        {serpPriceAmount
+                          ? (language === "en" ? "The price observed is" : "Le prix constaté est de")
+                          : (language === "en" ? "The minimum price generally observed is" : "Le prix minimum généralement constaté est de")}{" "}
+                        <span className="font-bold">{serpPriceAmount || minPrice} €</span>{" "}
                         {language === "en" ? "per night" : "par nuit"}{" "}
                         {language === "en"
                           ? "but the price per night may vary depending on season and room type."
                           : "mais le prix par nuitée peut varier selon la saison et du type de chambre."}
                       </p>
                     ) : null}
-                    {totalMinPrice ? (
+                    {totalSerpPrice || totalMinPrice ? (
                       <p>
-                        {language === "en"
-                          ? `You can therefore expect a minimum price for your stay of`
-                          : `Vous pouvez donc vous attendre à un prix minimal pour votre séjour de`}{" "}
-                        <span className="font-bold">{totalMinPrice} €</span>
-                        {totalSerpPrice ? (
-                          <span className="text-white/80">
-                            {" "}({totalSerpPrice} € SerpAPI)
-                          </span>
-                        ) : null}.
+                        {totalSerpPrice
+                          ? (language === "en"
+                            ? `You can therefore expect a price for your stay of`
+                            : `Vous pouvez donc vous attendre à un prix pour votre séjour de`)
+                          : (language === "en"
+                            ? `You can therefore expect a minimum price for your stay of`
+                            : `Vous pouvez donc vous attendre à un prix minimal pour votre séjour de`)}{" "}
+                        <span className="font-bold">{totalSerpPrice || totalMinPrice} €</span>.
                       </p>
                     ) : null}
                     <p>
