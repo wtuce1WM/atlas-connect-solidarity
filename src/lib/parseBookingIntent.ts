@@ -48,6 +48,30 @@ export function extractBookingCity(raw: string): string | null {
   return extractCity(norm(raw));
 }
 
+/** Mots de liaison tolérés autour du nom de ville dans une relance courte. */
+const RELAUNCH_STOPWORDS = new Set([
+  "et", "a", "au", "aux", "en", "de", "du", "des", "le", "la", "les",
+  "ou", "plutot", "sinon", "vers", "sur", "the", "and", "or", "in", "to", "instead",
+]);
+
+/**
+ * Le message ne fait que nommer une ville (variantes/quartiers inclus), ex.
+ * « Essaouira », « et à Mogador ? ». Utilisé pour n'autoriser la relance du
+ * widget de disponibilité que sur une mention nue de la ville — jamais sur
+ * une vraie nouvelle demande (« rooftops à marrakech »).
+ */
+export function isBareCityMention(raw: string): boolean {
+  if (!extractCity(norm(raw))) return false;
+  let text = ` ${norm(raw)} `;
+  for (const { aliases } of CITY_PATTERNS) {
+    for (const alias of aliases) {
+      text = text.split(alias).join(" ");
+    }
+  }
+  const words = text.replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter(Boolean);
+  return words.every((w) => RELAUNCH_STOPWORDS.has(w));
+}
+
 const norm = (s: string) =>
   s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
