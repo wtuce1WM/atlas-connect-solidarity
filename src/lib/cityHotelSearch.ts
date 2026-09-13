@@ -63,7 +63,7 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 }
 
 const BIZ_FIELDS =
-  "id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, latitude, longitude, rating, min_price, main_category";
+  "id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, reserve_now_cta, website, website_cta, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, latitude, longitude, rating, min_price, main_category";
 
 /** Ville non renseignée (ou `*` / `all`) = recherche sur toutes les villes couvertes. */
 export const ALL_CITIES = "*";
