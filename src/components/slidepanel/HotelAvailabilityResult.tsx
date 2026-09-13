@@ -199,6 +199,40 @@ export function HotelAvailabilityResult({
               </div>
             )}
 
+            {/* CTA Réservez vert WhatsApp — même logique d'affichage que l'overlay Full Description (WhatsApp si renseigné, sinon téléphone). */}
+            {hasAvailability && business && (business.whatsapp || business.phone) && (
+              <div className="flex flex-col items-center gap-2 mt-2 w-full">
+                {business.whatsapp ? (
+                  <a
+                    href={whatsappUrl(
+                      business.whatsapp,
+                      language === "en"
+                        ? `Hello ${business.name}, I would like to book a stay at your property.`
+                        : language === "ar"
+                        ? `مرحبا ${business.name}، أود حجز إقامة في فندقك.`
+                        : `Bonjour ${business.name}, je souhaite réserver un séjour chez vous.`
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 md:gap-2 px-4 md:px-6 py-2 rounded-lg text-xs md:text-sm font-medium font-['Montserrat',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal whitespace-nowrap w-fit max-w-full"
+                    style={{ backgroundColor: "#25D366", color: "#FFFFFF", height: '40px' }}
+                  >
+                    <WhatsAppIcon className="h-5 w-5" />
+                    <span>{language === "en" ? "Book" : language === "ar" ? "احجز" : "Réservez"}</span>
+                  </a>
+                ) : (
+                  <a
+                    href={`tel:${business.phone!.replace(/(?!^\+)[^\d]/g, '')}`}
+                    className="flex items-center justify-center gap-1.5 md:gap-2 px-4 md:px-6 py-2 rounded-lg text-xs md:text-sm font-medium font-['Montserrat',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal whitespace-nowrap w-fit max-w-full"
+                    style={{ backgroundColor: "#25D366", color: "#FFFFFF", height: '40px' }}
+                  >
+                    <span className="text-lg">📞</span>
+                    <span>{language === "en" ? "Book" : language === "ar" ? "احجز" : "Réservez"}</span>
+                  </a>
+                )}
+              </div>
+            )}
+
           </div>
         );
       })()}
