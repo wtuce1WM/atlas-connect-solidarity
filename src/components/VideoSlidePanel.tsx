@@ -1705,7 +1705,8 @@ const VideoSlidePanel = ({
         {((feedLayout && !!ctaBusiness) || (!hideLeftCtas && !!ctaBusiness?.youtube_url))
           && !chromeHidden && !chipsExpanded && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !descBusinessId && !showYoutubeOverlay && (
           <div dir="ltr" className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
-            {feedLayout && (() => {
+            {/* CTA changement de langues — désactivé sur le rail de gauche */}
+            {/* {feedLayout && (() => {
               const LANG_OPTIONS = [
                 { code: "fr" as const, flag: "🇫🇷", label: "Français" },
                 { code: "en" as const, flag: "🇬🇧", label: "English" },
@@ -1744,7 +1745,7 @@ const VideoSlidePanel = ({
                   </span>
                 </div>
               );
-            })()}
+            })()} */}
             {feedLayout && ctaBusiness?.id && ctaBusiness.latitude && ctaBusiness.longitude && (
               <div
                 onClick={() => { setNestedOverlayKind("poi"); setDescBusinessId(String(ctaBusiness.id)); }}
