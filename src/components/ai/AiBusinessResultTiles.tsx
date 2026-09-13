@@ -151,8 +151,8 @@ const AiBusinessResultTiles = ({
                   : `Bonjour ${b.name}, je vous ai trouvé sur One World Morocco.`,
               )
             : null;
-          const bookingUrl = b.booking_url || null;
-          const bookingLabel = (b.booking_label || "").trim() || t.book;
+          const bookingUrl = b.booking_url || b.website || null;
+          const bookingLabel = (b.booking_label || "").trim() || (b.website_cta || "").trim() || t.book;
 
           return (
             <div
