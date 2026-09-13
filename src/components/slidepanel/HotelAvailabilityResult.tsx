@@ -57,6 +57,8 @@ export function HotelAvailabilityResult({
         const hasAvailability = !!currentHotel;
         const hotelName = business?.name || "";
         const minPrice = business?.min_price;
+        const serpPrice = currentHotel?.serpPrice;
+        const serpPriceAmount = serpPrice?.amount ? parseFloat(serpPrice.amount) : null;
         const nightsCount = (() => {
           const d1 = new Date(fallbackPanelData.checkIn);
           const d2 = new Date(fallbackPanelData.checkOut);
@@ -64,6 +66,7 @@ export function HotelAvailabilityResult({
           return diff > 0 ? diff : 1;
         })();
         const totalMinPrice = minPrice ? minPrice * nightsCount : null;
+        const totalSerpPrice = serpPriceAmount ? Math.round(serpPriceAmount * nightsCount) : null;
 
         const actionCards: { icon: React.ReactNode; label: string; mobileLabel?: string; onClick: () => void; color: string; textColor?: string }[] = [];
         if (hasAvailability && business) {
