@@ -2649,12 +2649,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           },
         },
       );
-    // Le lecteur vidéo passe TOUJOURS avant la réponse IA : pré-vol serveur sans
-    // modèle (mêmes badges, même pool, même intersection stricte). S'il
-    // renvoie un feed, VideoSlidePanel s'ouvre d'abord, puis la question part.
+    // Désactivé : le feed vidéo ne s'ouvre plus AVANT la réponse IA.
+    // On affiche d'abord la réponse IA ; l'utilisateur déclenche le feed
+    // VideoSlidePanel en cliquant sur une vignette de résultat.
     // Suggestion curatée : ses `badge_ids` font autorité (source de vérité
     // unique) — le matching texte ne doit pas ouvrir un feed d'un autre badge.
-    void openPreflightBadgeFeed(text, effectiveSuggestionId).finally(fire);
+    // void openPreflightBadgeFeed(text, effectiveSuggestionId).finally(fire);
+    fire();
+
   };
 
   /**
