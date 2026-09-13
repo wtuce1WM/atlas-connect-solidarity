@@ -36,6 +36,8 @@ export interface AiResultBusiness {
   whatsapp?: string | null;
   booking_url?: string | null;
   booking_label?: string | null;
+  website?: string | null;
+  website_cta?: string | null;
   show_opening_hours?: boolean | null;
   [key: string]: unknown;
 }
