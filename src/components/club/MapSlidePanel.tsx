@@ -40,6 +40,11 @@ export interface MapPanelBusiness {
   computed_rating?: number | null;
   total_review_count?: number | null;
   engagements?: string[] | null;
+  whatsapp?: string | null;
+  booking_url?: string | null;
+  booking_label?: string | null;
+  website?: string | null;
+  website_cta?: string | null;
 }
 
 interface MapSlidePanelProps {
