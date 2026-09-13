@@ -4938,7 +4938,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                           id: h.businessId,
                           name: h.name,
                           images: h.dbBusiness?.images?.length ? h.dbBusiness.images : (h.mainImage ? [h.mainImage] : []),
-                          booking_url: h.reserveNowUrl || h.dbBusiness?.reserve_now_url || null,
+                          booking_url:
+                            h.reserveNowUrl || h.dbBusiness?.reserve_now_url || h.dbBusiness?.website || null,
+                          booking_label:
+                            (h.dbBusiness?.reserve_now_cta || "").trim() ||
+                            (h.dbBusiness?.website_cta || "").trim() ||
+                            null,
                         }));
                         // Le feed vidéo ne s'arrête pas aux hôtels retournés par
                         // SerpAPI : il continue avec les autres hôtels/riads
