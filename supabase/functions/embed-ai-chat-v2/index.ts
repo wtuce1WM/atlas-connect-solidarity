@@ -103,7 +103,13 @@ const HOST_FIELDS =
 const CARD_FIELDS =
   "id, name, slug, city, neighborhood, main_category, hook_fr, hook_en, hook_ar, latitude, longitude, " +
   "min_price, manual_price_range, avg_price_range, logo_url, images, google_rating, google_review_count, " +
-  "tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count, glovo_url";
+  "tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count, glovo_url, " +
+  "phone, whatsapp, website, website_cta, website_force_external, " +
+  "reserve_now_url, reserve_now_cta, reserve_now_force_external, presentation_mode, " +
+  "online_shop_url, online_shop_cta, online_shop_presentation_mode, online_shop_force_external, " +
+  "url_4, url_4_cta, url_4_presentation_mode, url_4_force_external, " +
+  "url_5, url_5_cta, url_5_presentation_mode, url_5_force_external";
+
 
 
 function textOf(m: UIMessage): string {

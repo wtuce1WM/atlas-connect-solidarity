@@ -5186,7 +5186,7 @@ serve(async (req) => {
         // Fetch the missing businesses directly
         const { data: missingBusinesses } = await supabase
           .from("businesses")
-          .select("id, name, slug, description, categories, services, city, region, latitude, longitude, wtuce_status, priority_score, phone, email, website, address, logo_url, main_category, neighborhood, keywords, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, trustpilot_rating, trustpilot_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, avis_verifies_rating, avis_verifies_review_count, tourradar_rating, tourradar_review_count, computed_rating, total_review_count, images, google_maps_url, badge_id, gamme_id, is_featured, default_service, hook_fr, hook_en, hook_ar, engagements, online_shop_url, opening_hours, show_opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, business_type")
+          .select("id, name, slug, description, categories, services, city, region, latitude, longitude, wtuce_status, priority_score, phone, email, website, website_cta, website_force_external, whatsapp, address, logo_url, main_category, neighborhood, keywords, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, trustpilot_rating, trustpilot_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, avis_verifies_rating, avis_verifies_review_count, tourradar_rating, tourradar_review_count, computed_rating, total_review_count, images, google_maps_url, badge_id, gamme_id, is_featured, default_service, hook_fr, hook_en, hook_ar, engagements, online_shop_url, opening_hours, show_opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, business_type, reserve_now_url, reserve_now_cta, reserve_now_force_external, presentation_mode, url_4, url_4_cta, url_4_presentation_mode, url_4_force_external, url_5, url_5_cta, url_5_presentation_mode, url_5_force_external")
           .in("id", missingIds)
           .eq("is_active", true);
         if (missingBusinesses && missingBusinesses.length > 0) {
@@ -5689,6 +5689,21 @@ serve(async (req) => {
         address: b.address ?? null,
         phone: b.phone ?? null,
         whatsapp: b.whatsapp ?? null,
+        website: b.website ?? null,
+        website_cta: b.website_cta ?? null,
+        website_force_external: b.website_force_external ?? null,
+        reserve_now_url: b.reserve_now_url ?? null,
+        reserve_now_cta: b.reserve_now_cta ?? null,
+        reserve_now_force_external: b.reserve_now_force_external ?? null,
+        presentation_mode: b.presentation_mode ?? null,
+        url_4: b.url_4 ?? null,
+        url_4_cta: b.url_4_cta ?? null,
+        url_4_presentation_mode: b.url_4_presentation_mode ?? null,
+        url_4_force_external: b.url_4_force_external ?? null,
+        url_5: b.url_5 ?? null,
+        url_5_cta: b.url_5_cta ?? null,
+        url_5_presentation_mode: b.url_5_presentation_mode ?? null,
+        url_5_force_external: b.url_5_force_external ?? null,
         hook_fr: b.hook_fr ?? null,
         hook_en: b.hook_en ?? null,
         hook_ar: b.hook_ar ?? null,
