@@ -153,6 +153,12 @@ const AiBusinessResultTiles = ({
             : null;
           const bookingUrl = b.booking_url || b.website || null;
           const bookingLabel = (b.booking_label || "").trim() || (b.website_cta || "").trim() || t.book;
+          // Même règle que la fiche : un lien marqué « Lien externe »
+          // (force_external, ex. URL 1 de Nobu) s'ouvre dans un nouvel onglet,
+          // jamais dans l'overlay de réservation intégré.
+          const bookingForceExternal = b.booking_url
+            ? b.reserve_now_force_external === true
+            : b.website_force_external === true;
 
           return (
             <div
