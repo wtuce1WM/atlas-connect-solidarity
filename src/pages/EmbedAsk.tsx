@@ -18,7 +18,7 @@ import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
-import { parseBookingIntent, extractBookingCity, extractStayDates, isBareCityMention } from "@/lib/parseBookingIntent";
+import { parseBookingIntent, extractBookingCity, extractStayDates } from "@/lib/parseBookingIntent";
 import { detectLocalIntent } from "@/lib/detectLocalIntent";
 import EmbedFilterDrawer, { type EmbedFilterGroup } from "@/components/embed/EmbedFilterDrawer";
 
@@ -2350,10 +2350,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // (« un hôtel avec vue sur mer ») : on ne court-circuite pas le moteur, la
     // question part en recherche et le widget s'affiche sous les cartes.
     const freeBookingHasDates = !!freeBookingIntent?.checkIn && !!freeBookingIntent?.checkOut;
-    // RELANCE SUR UNE VILLE : après une recherche de disponibilité, une relance
-    // qui nomme une ville (variantes orthographiques et quartiers inclus, ex.
-    // « Essaouira », « et à Mogador ? ») relance la recherche SerpAPI sur cette
-    // ville en conservant les dates et le nombre de voyageurs du tour précédent.
+    // Une ville seule ne déclenche jamais la disponibilité. Le widget reste
+    // réservé aux demandes explicitement hôtelières et au badge « Où dormir ».
     const relaunchCity = !suggestionId && !followupId ? extractBookingCity(text) : null;
     const lastBooking = lastBookingRef.current;
     // RELANCE PUREMENT DATÉE : le tour précédent était hôtelier (badge « Où
@@ -2390,16 +2388,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         return;
       }
     }
-    // Relance du widget de disponibilité : réservée aux demandes hôtelières.
-    // Le message doit soit contenir un terme d'hébergement (« riad », « hôtel »…),
-    // soit se limiter à nommer une ville (« Essaouira », « et à Mogador ? ») —
-    // jamais une vraie nouvelle demande (« rooftops à marrakech »).
+    // Relance du widget de disponibilité : uniquement si la nouvelle demande
+    // contient elle-même un terme d'hébergement (« riad », « hôtel »…).
     if (
       relaunchCity &&
       lastBooking?.checkIn &&
       lastBooking?.checkOut &&
       !freeBookingHasDates &&
-      (!!freeBookingIntent || isBareCityMention(text))
+      !!freeBookingIntent
     ) {
       setError(null);
       const msgId = `a-booking-${Date.now()}`;
