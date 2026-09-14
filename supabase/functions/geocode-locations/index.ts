@@ -34,9 +34,6 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const auth = await assertStaff(req, corsHeaders);
-  if (auth instanceof Response) return auth;
-
   try {
     const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
     if (!apiKey) {
@@ -47,6 +44,13 @@ serve(async (req) => {
 
     const body = await req.json();
     const { mode, name, context } = body;
+
+    // Le géocodage inverse d'un point GPS est utilisé par les visiteurs (sélecteur de position).
+    // Tous les autres modes (single / batch) restent réservés au staff.
+    if (mode !== 'reverse') {
+      const auth = await assertStaff(req, corsHeaders);
+      if (auth instanceof Response) return auth;
+    }
     // mode: "single" (geocode one name) or "batch" (geocode all missing GPS)
 
     if (mode === 'reverse') {
