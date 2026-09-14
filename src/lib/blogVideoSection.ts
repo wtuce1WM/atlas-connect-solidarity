@@ -99,9 +99,13 @@ export async function fetchBlogVideoSection(
       const docs2 = (docs || []).filter((d: any) => d.business_is_active !== false);
       const bizIds = Array.from(new Set(docs2.map((d: any) => d.business_id).filter(Boolean)));
       const bizMap: Record<string, string> = {};
+      const bizImg: Record<string, string> = {};
       if (bizIds.length > 0) {
-        const { data: bizs } = await supabase.from("businesses").select("id, name").in("id", bizIds);
-        (bizs || []).forEach((b: any) => (bizMap[b.id] = b.name));
+        const { data: bizs } = await supabase.from("businesses").select("id, name, images").in("id", bizIds);
+        (bizs || []).forEach((b: any) => {
+          bizMap[b.id] = b.name;
+          if (Array.isArray(b.images) && b.images.length) bizImg[b.id] = String(b.images[0]);
+        });
       }
       internal = docs2.map((d: any) => ({
         id: d.id,
@@ -109,7 +113,7 @@ export async function fetchBlogVideoSection(
         title: d.name || null,
         description: d.description || null,
         price: d.price || null,
-        thumbnailUrl: d.thumbnail_url || null,
+        thumbnailUrl: d.thumbnail_url || (d.business_id ? bizImg[d.business_id] ?? null : null),
         isGeneric: false,
         businessId: d.business_id,
         businessName: bizMap[d.business_id] || null,
