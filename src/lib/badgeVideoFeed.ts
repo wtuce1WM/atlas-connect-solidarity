@@ -390,8 +390,7 @@ async function fetchDiscoveryPage(
   if (error || !data) return { items: [], total: 0 };
   const rows = data as any[];
   const excluded = await loadDiscoveryExclusions();
-  const items = rows
-    .map(mapFeedRow)
+  const items = (await applyBusinessImageFallback(rows.map(mapFeedRow)))
     .filter(
       (it) =>
         !excluded.videoIds.has(String(it.id)) &&
