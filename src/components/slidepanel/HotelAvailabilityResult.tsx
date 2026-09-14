@@ -4,6 +4,7 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
 import type { FallbackPanelData } from "@/components/HotelAvailabilityOverlay";
 import { CTA_MODE_LABELS } from "./CtaBar";
+import { parseSerpAmount, formatEuro } from "@/lib/parseSerpAmount";
 
 interface HotelAvailabilityResultProps {
   business: any;
@@ -58,7 +59,7 @@ export function HotelAvailabilityResult({
         const hotelName = business?.name || "";
         const minPrice = business?.min_price;
         const serpPrice = currentHotel?.serpPrice;
-        const serpPriceAmount = serpPrice?.amount ? parseFloat(serpPrice.amount) : null;
+        const serpPriceAmount = parseSerpAmount(serpPrice);
         const nightsCount = (() => {
           const d1 = new Date(fallbackPanelData.checkIn);
           const d2 = new Date(fallbackPanelData.checkOut);
@@ -144,7 +145,7 @@ export function HotelAvailabilityResult({
                         {serpPriceAmount
                           ? (language === "en" ? "The price observed is" : "Le prix constaté est de")
                           : (language === "en" ? "The minimum price generally observed is" : "Le prix minimum généralement constaté est de")}{" "}
-                        <span className="font-bold">{serpPriceAmount || minPrice} €</span>{" "}
+                        <span className="font-bold">{formatEuro(serpPriceAmount || minPrice)} €</span>{" "}
                         {language === "en" ? "per night" : "par nuit"}.
                       </p>
                     ) : null}
@@ -157,7 +158,7 @@ export function HotelAvailabilityResult({
                           : (language === "en"
                             ? `You can therefore expect a minimum price for your stay of`
                             : `Vous pouvez donc vous attendre à un prix minimal pour votre séjour de`)}{" "}
-                        <span className="font-bold">{totalSerpPrice || totalMinPrice} €</span>.
+                        <span className="font-bold">{formatEuro((totalSerpPrice || totalMinPrice) as number)} €</span>.
                       </p>
                     ) : null}
                     <p>
