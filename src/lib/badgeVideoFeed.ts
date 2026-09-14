@@ -121,7 +121,7 @@ export async function fetchBadgeVideoFeed(
     _city_ids: cityIds && cityIds.length > 0 ? cityIds : null,
   });
   if (error || !data) return [];
-  let items = (data as any[]).map(mapFeedRow);
+  let items = await applyBusinessImageFallback((data as any[]).map(mapFeedRow));
 
   // TEMPORAIRE — debug : force la vidéo épinglée en première position.
   if (pinnedVideoId) {
