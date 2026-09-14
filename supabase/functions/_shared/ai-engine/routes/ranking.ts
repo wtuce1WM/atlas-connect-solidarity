@@ -98,14 +98,24 @@ export function extractPriorOrderedBusinesses(messages: any[], hostId: string): 
   return [];
 }
 
-export async function buildDistanceRanking(admin: any, host: any, ids: string[], mode: "closest" | "farthest", lang: "fr" | "en" | "ar"): Promise<string | null> {
+export async function buildDistanceRanking(
+  admin: any,
+  host: any,
+  ids: string[],
+  mode: "closest" | "farthest",
+  lang: "fr" | "en" | "ar",
+  userAnchor?: { lat: number; lng: number } | null,
+  radiusKm?: number,
+): Promise<string | null> {
   if (!ids.length) return null;
-  const hLat = Number(host.latitude), hLng = Number(host.longitude);
+  const hLat = userAnchor?.lat ?? Number(host?.latitude);
+  const hLng = userAnchor?.lng ?? Number(host?.longitude);
   if (!Number.isFinite(hLat) || !Number.isFinite(hLng)) return null;
   const rows = await fetchPriorFull(admin, ids);
   const withDist = rows
     .filter((r: any) => Number.isFinite(Number(r.latitude)) && Number.isFinite(Number(r.longitude)))
-    .map((r: any) => ({ ...r, _dist_km: haversineKmLocal(hLat, hLng, Number(r.latitude), Number(r.longitude)) }));
+    .map((r: any) => ({ ...r, _dist_km: haversineKmLocal(hLat, hLng, Number(r.latitude), Number(r.longitude)) }))
+    .filter((r: any) => !userAnchor || radiusKm == null || r._dist_km <= radiusKm);
   if (!withDist.length) return null;
   withDist.sort((a: any, b: any) => (mode === "closest" ? a._dist_km - b._dist_km : b._dist_km - a._dist_km));
   // Rendu unifié : 4 adresses par lot, toujours avec leurs cartes.
@@ -114,13 +124,16 @@ export async function buildDistanceRanking(admin: any, host: any, ids: string[],
     const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
     return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${fmtKm(r._dist_km)}`;
   });
+  const reference = userAnchor
+    ? (lang === "en" ? "your address" : lang === "ar" ? "عنوانك" : "votre adresse")
+    : `**${host.name}**`;
   const intro = mode === "closest"
-    ? (lang === "en" ? `Among the previous results, **${top[0].name}** is the closest to **${host.name}**:`
-      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** هو الأقرب إلى **${host.name}**:`
-      : `Parmi les précédents, c'est **${top[0].name}** le plus proche de **${host.name}** :`)
-    : (lang === "en" ? `Among the previous results, **${top[0].name}** is the farthest from **${host.name}**:`
-      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** هو الأبعد عن **${host.name}**:`
-      : `Parmi les précédents, c'est **${top[0].name}** le plus loin de **${host.name}** :`);
+    ? (lang === "en" ? `Within ${radiusKm ?? 10} km, **${top[0].name}** is the closest to ${reference}:`
+      : lang === "ar" ? `ضمن ${radiusKm ?? 10} كم، **${top[0].name}** هو الأقرب إلى ${reference}:`
+      : `Dans un rayon de ${radiusKm ?? 10} km, **${top[0].name}** est le plus proche de ${reference} :`)
+    : (lang === "en" ? `Among the previous results, **${top[0].name}** is the farthest from ${reference}:`
+      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** هو الأبعد عن ${reference}:`
+      : `Parmi les précédents, c'est **${top[0].name}** le plus loin de ${reference} :`);
   return `${intro}\n\n${lines.join("\n")}${toMapMarker(top, null, "distance")}`;
 }
 

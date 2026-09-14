@@ -145,6 +145,7 @@ export interface ForcedRouteContext {
   userMessage: string;
   scopeCity: string;
   radiusKm: number;
+  userAnchor?: { lat: number; lng: number } | null;
   hostCategoryNames?: Set<string>;
   /** Clé passerelle IA : active le descriptif immersif sur les cartes des classements. */
   apiKey?: string | null;
@@ -220,10 +221,10 @@ export async function runForcedRoute(ctx: ForcedRouteContext): Promise<ForcedRou
 
     case "distance_ranking_closest":
     case "distance_ranking_farthest": {
-      if (!ids.length || !host) return null;
+      if (!ids.length || (!host && !ctx.userAnchor)) return null;
       const mode = key === "distance_ranking_closest" ? "closest" : "farthest";
-      const text = await buildDistanceRanking(admin, host, ids, mode, lang)
-        ?? await buildDistanceList(admin, host, ids, lang);
+      const text = await buildDistanceRanking(admin, host, ids, mode, lang, ctx.userAnchor, radiusKm)
+        ?? (!ctx.userAnchor && host ? await buildDistanceList(admin, host, ids, lang) : null);
       return text ? { text, route: "nearby", resultsCount: ids.length } : null;
     }
 

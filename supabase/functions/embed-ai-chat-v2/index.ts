@@ -906,7 +906,7 @@ Deno.serve(async (req) => {
             const hostRadius = RADIUS_OPTIONS.includes(Number(host?.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
             const forced = await runForcedRoute({
               admin, key: clientForcedRoute, lang, host, priorIds: poolIds, userMessage,
-              scopeCity, radiusKm: requestedRadiusKm ?? hostRadius,
+              scopeCity, radiusKm: requestedRadiusKm ?? hostRadius, userAnchor,
               apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks,
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] client_forced_route_failed", clientForcedRoute, String(e));
@@ -1378,6 +1378,7 @@ Deno.serve(async (req) => {
               userMessage,
               scopeCity,
               radiusKm: requestedRadiusKm ?? curated.radiusKm ?? hostRadius,
+              userAnchor,
               apiKey: LOVABLE_API_KEY, deferUpgrade: deferHooks,
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] forced_route_failed", forcedKey, String(e));
