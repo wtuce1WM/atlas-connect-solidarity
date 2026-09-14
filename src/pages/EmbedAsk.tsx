@@ -4393,7 +4393,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     className="flex w-full flex-col justify-center max-w-xl mx-auto"
                     style={heroReveal(260)}
                   >
-                    <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl border-2 ${border} ${inputBg} px-4 py-5 md:py-3 shadow-2xl`}>
+                    <div className={`flex flex-col md:flex-row md:items-center gap-2 rounded-3xl ${heroLayout ? "border border-white/80" : `border-2 ${border}`} ${inputBg} px-4 py-5 md:py-3 shadow-2xl`}>
                       <textarea
                         ref={inputRef}
                         value={input}
