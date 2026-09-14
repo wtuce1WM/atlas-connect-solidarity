@@ -923,6 +923,9 @@ Deno.serve(async (req) => {
               if (forced.knownBusinesses?.length) {
                 emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(forced.knownBusinesses)}-->`);
               }
+              if (forced.poolIds?.length) {
+                emit("\n\n" + await poolMarker(admin, forced.poolIds, scopeCity));
+              }
               await finish(true);
               return;
             }
@@ -1392,6 +1395,9 @@ Deno.serve(async (req) => {
               if (forced.mapBusinesses?.length) emit(`\n\n${forcedMapMarker(forced.mapBusinesses)}`);
               if (forced.knownBusinesses?.length) {
                 emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(forced.knownBusinesses)}-->`);
+              }
+              if (forced.poolIds?.length) {
+                emit("\n\n" + await poolMarker(admin, forced.poolIds, scopeCity));
               }
               await finish(true);
               return;

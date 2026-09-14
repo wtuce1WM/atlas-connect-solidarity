@@ -6,7 +6,7 @@
 import { normalize, toMapMarker, fetchPriorFull, orderByIds } from "./shared.ts";
 import { buildHoursAnswer, buildHoursForBusinesses, buildHoursRanking, buildOpenFilter } from "./opening.ts";
 import { buildBookingAnswer, buildBookingForBusinesses } from "./booking.ts";
-import { buildDistanceRanking, buildDistanceList, buildRatingRanking, buildCountAnswer } from "./ranking.ts";
+import { buildDistanceRankingResult, buildDistanceList, buildRatingRanking, buildCountAnswer } from "./ranking.ts";
 import { buildNearbyOverview, buildPoiNearby } from "./nearby.ts";
 import { buildDescribePriors, parseDescribeFacet } from "./describe.ts";
 import { resolveTidesCity, tidesIntro } from "./tides.ts";
@@ -71,6 +71,8 @@ export type ForcedRouteResult = {
   mapBusinesses?: any[];
   /** Ids à mémoriser côté client (marqueur KNOWN_BUSINESSES). */
   knownBusinesses?: Array<{ id: string; name: string; slug?: string | null }>;
+  /** Corpus complet issu d'un filtre local, à préserver pour les relances suivantes. */
+  poolIds?: string[];
 };
 
 const CONTACT_FIELDS =
@@ -223,9 +225,15 @@ export async function runForcedRoute(ctx: ForcedRouteContext): Promise<ForcedRou
     case "distance_ranking_farthest": {
       if (!ids.length || (!host && !ctx.userAnchor)) return null;
       const mode = key === "distance_ranking_closest" ? "closest" : "farthest";
-      const text = await buildDistanceRanking(admin, host, ids, mode, lang, ctx.userAnchor, radiusKm)
+      const ranked = await buildDistanceRankingResult(admin, host, ids, mode, lang, ctx.userAnchor, radiusKm);
+      const text = ranked?.text
         ?? (!ctx.userAnchor && host ? await buildDistanceList(admin, host, ids, lang) : null);
-      return text ? { text, route: "nearby", resultsCount: ids.length } : null;
+      return text ? {
+        text,
+        route: "nearby",
+        resultsCount: ranked?.orderedIds.length ?? ids.length,
+        poolIds: ranked?.orderedIds,
+      } : null;
     }
 
     case "rating_best":
