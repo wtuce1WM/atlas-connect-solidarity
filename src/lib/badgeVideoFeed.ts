@@ -214,7 +214,7 @@ export async function fetchBadgesVideoFeed(
   });
   if (error || !data) return { items: [], total: 0 };
   const rows = data as any[];
-  const mapped = rows.map(mapFeedRow);
+  const mapped = await applyBusinessImageFallback(rows.map(mapFeedRow));
   return {
     items: offset === 0 ? avoidLeadingYoutube(mapped) : mapped,
     total: rows.length ? Number(rows[0].total_count ?? rows.length) : 0,
