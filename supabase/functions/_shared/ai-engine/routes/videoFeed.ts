@@ -169,11 +169,14 @@ export async function loadVideoFeed(
     const bizIds = [...new Set(rows.map((d: any) => d.business_id).filter(Boolean))] as string[];
     const bizMap = new Map<string, string>();
     const bizCity = new Map<string, string>();
+    const bizImage = new Map<string, string>();
     if (bizIds.length) {
-      const { data: bizs } = await admin.from("businesses").select("id, name, city").in("id", bizIds);
+      const { data: bizs } = await admin.from("businesses").select("id, name, city, images").in("id", bizIds);
       for (const b of bizs || []) {
         bizMap.set(String(b.id), String(b.name));
         bizCity.set(String(b.id), normCity(b.city));
+        const img = Array.isArray(b.images) && b.images.length ? String(b.images[0]) : "";
+        if (img) bizImage.set(String(b.id), img);
       }
     }
     for (const d of rows) {
