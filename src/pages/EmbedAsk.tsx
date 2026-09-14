@@ -485,7 +485,15 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   }).replace(VIDEOFEED_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
-      if (p && Array.isArray(p.videos) && p.videos.length) videoFeeds.push({ title: p.title ?? null, videos: p.videos });
+      if (p && Array.isArray(p.videos) && p.videos.length) {
+        videoFeeds.push({
+          title: p.title ?? null,
+          videos: p.videos,
+          total: typeof p.total === "number" ? p.total : p.videos.length,
+          badgeIds: Array.isArray(p.badgeIds) ? p.badgeIds.map(String) : undefined,
+          seed: typeof p.seed === "string" ? p.seed : undefined,
+        });
+      }
     } catch { /* */ }
     return "";
   
@@ -5173,9 +5181,35 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
               })()}
 
-              {/* Carousel miniatures supprimé : la réponse IA n'affiche plus le
-                  flux vidéo horizontalement ; le flux reste accessible via le
-                  slidepanel vidéo ouvert depuis VIDEO_FEED. */}
+              {videoFeedPayload && videoFeedPayload.videos.length > 0 && (
+                <EmbedCardCarousel
+                  limit={4}
+                  items={videoFeedPayload.videos.slice(0, 4).map((video) => ({
+                    key: video.id,
+                    image: video.thumbnailUrl || null,
+                    title: video.businessName || video.title || (lang === "en" ? "Video" : lang === "ar" ? "فيديو" : "Vidéo"),
+                    subtitle: video.businessName && video.title && video.title !== video.businessName ? video.title : null,
+                    onClick: () => {
+                      notifyHostPanelOpen();
+                      setVideoFeedList(videoFeedPayload.videos);
+                      setVideoFeedCtx(
+                        videoFeedPayload.badgeIds?.length && videoFeedPayload.seed
+                          ? {
+                              badgeIds: videoFeedPayload.badgeIds,
+                              seed: videoFeedPayload.seed,
+                              total: Number(videoFeedPayload.total ?? videoFeedPayload.videos.length),
+                            }
+                          : null,
+                      );
+                      feedLoadingMoreRef.current = false;
+                      setFeedVideoTime(0);
+                      bumpFeedSession();
+                      setActiveFeedVideoId(video.id);
+                      preloadFirstFeedMedia(video);
+                    },
+                  }))}
+                />
+              )}
 
               {/* Article recommandé : jamais une réponse — simple option cliquable,
                   affichée APRÈS le carrousel de miniatures des résultats. */}
