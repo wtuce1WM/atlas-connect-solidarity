@@ -121,7 +121,7 @@ export async function fetchBadgeVideoFeed(
     _city_ids: cityIds && cityIds.length > 0 ? cityIds : null,
   });
   if (error || !data) return [];
-  let items = (data as any[]).map(mapFeedRow);
+  let items = await applyBusinessImageFallback((data as any[]).map(mapFeedRow));
 
   // TEMPORAIRE — debug : force la vidéo épinglée en première position.
   if (pinnedVideoId) {
@@ -149,6 +149,27 @@ export function avoidLeadingYoutube(items: BadgeVideoFeedItem[]): BadgeVideoFeed
   const copy = [...items];
   const [lead] = copy.splice(idx, 1);
   return [lead, ...copy];
+}
+
+/**
+ * Repli miniature : vidéo sans thumbnail → image 1 du business
+ * (première image selon l'ordre interne du tableau `businesses.images`).
+ */
+async function applyBusinessImageFallback(items: BadgeVideoFeedItem[]): Promise<BadgeVideoFeedItem[]> {
+  const ids = [...new Set(items.filter((i) => !i.thumbnailUrl && i.businessId).map((i) => String(i.businessId)))];
+  if (!ids.length) return items;
+  const { data } = await (supabase as any).from("businesses").select("id, images").in("id", ids);
+  const img = new Map<string, string>();
+  for (const b of data || []) {
+    const first = Array.isArray(b.images) && b.images.length ? String(b.images[0]) : "";
+    if (first) img.set(String(b.id), first);
+  }
+  if (!img.size) return items;
+  return items.map((i) =>
+    !i.thumbnailUrl && i.businessId && img.has(String(i.businessId))
+      ? { ...i, thumbnailUrl: img.get(String(i.businessId))! }
+      : i,
+  );
 }
 
 function mapFeedRow(r: any): BadgeVideoFeedItem {
@@ -193,7 +214,7 @@ export async function fetchBadgesVideoFeed(
   });
   if (error || !data) return { items: [], total: 0 };
   const rows = data as any[];
-  const mapped = rows.map(mapFeedRow);
+  const mapped = await applyBusinessImageFallback(rows.map(mapFeedRow));
   return {
     items: offset === 0 ? avoidLeadingYoutube(mapped) : mapped,
     total: rows.length ? Number(rows[0].total_count ?? rows.length) : 0,
@@ -369,8 +390,7 @@ async function fetchDiscoveryPage(
   if (error || !data) return { items: [], total: 0 };
   const rows = data as any[];
   const excluded = await loadDiscoveryExclusions();
-  const items = rows
-    .map(mapFeedRow)
+  const items = (await applyBusinessImageFallback(rows.map(mapFeedRow)))
     .filter(
       (it) =>
         !excluded.videoIds.has(String(it.id)) &&

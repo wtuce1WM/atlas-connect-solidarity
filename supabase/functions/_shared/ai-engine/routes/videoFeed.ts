@@ -91,13 +91,25 @@ export async function loadBadgeVideoFeed(
   if (error || !data) return { videos: [], total: 0, seed };
 
   const rows = data as any[];
+  // Repli miniature : vidéo sans thumbnail → image 1 du business (ordre interne).
+  const missingThumbBiz = [...new Set(
+    rows.filter((r) => !r.thumbnail_url && r.business_id).map((r) => String(r.business_id)),
+  )];
+  const bizImage = new Map<string, string>();
+  if (missingThumbBiz.length) {
+    const { data: bizs } = await admin.from("businesses").select("id, images").in("id", missingThumbBiz);
+    for (const b of bizs || []) {
+      const img = Array.isArray(b.images) && b.images.length ? String(b.images[0]) : "";
+      if (img) bizImage.set(String(b.id), img);
+    }
+  }
   const videos: VideoFeedItem[] = rows.map((r) => ({
     id: String(r.id),
     url: String(r.url),
     title: r.title || null,
     description: r.description || null,
     price: r.price || null,
-    thumbnailUrl: r.thumbnail_url || null,
+    thumbnailUrl: r.thumbnail_url || (r.business_id ? bizImage.get(String(r.business_id)) ?? null : null),
     isGeneric: !!r.is_generic,
     businessId: r.business_id ? String(r.business_id) : null,
     businessName: r.business_name || null,
@@ -169,11 +181,14 @@ export async function loadVideoFeed(
     const bizIds = [...new Set(rows.map((d: any) => d.business_id).filter(Boolean))] as string[];
     const bizMap = new Map<string, string>();
     const bizCity = new Map<string, string>();
+    const bizImage = new Map<string, string>();
     if (bizIds.length) {
-      const { data: bizs } = await admin.from("businesses").select("id, name, city").in("id", bizIds);
+      const { data: bizs } = await admin.from("businesses").select("id, name, city, images").in("id", bizIds);
       for (const b of bizs || []) {
         bizMap.set(String(b.id), String(b.name));
         bizCity.set(String(b.id), normCity(b.city));
+        const img = Array.isArray(b.images) && b.images.length ? String(b.images[0]) : "";
+        if (img) bizImage.set(String(b.id), img);
       }
     }
     for (const d of rows) {
@@ -191,7 +206,7 @@ export async function loadVideoFeed(
         title: d.name || null,
         description: d.description || null,
         price: d.price || null,
-        thumbnailUrl: d.thumbnail_url || null,
+        thumbnailUrl: d.thumbnail_url || (d.business_id ? bizImage.get(String(d.business_id)) ?? null : null),
         isGeneric: false,
         businessId: d.business_id ? String(d.business_id) : null,
         businessName: d.business_id ? bizMap.get(String(d.business_id)) ?? null : null,
