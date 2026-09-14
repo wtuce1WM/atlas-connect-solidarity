@@ -145,7 +145,7 @@ export function HotelAvailabilityResult({
                         {serpPriceAmount
                           ? (language === "en" ? "The price observed is" : "Le prix constaté est de")
                           : (language === "en" ? "The minimum price generally observed is" : "Le prix minimum généralement constaté est de")}{" "}
-                        <span className="font-bold">{serpPriceAmount || minPrice} €</span>{" "}
+                        <span className="font-bold">{formatEuro(serpPriceAmount || minPrice)} €</span>{" "}
                         {language === "en" ? "per night" : "par nuit"}.
                       </p>
                     ) : null}
