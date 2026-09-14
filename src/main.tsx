@@ -3,6 +3,10 @@ import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
+import { pruneAppCaches } from "@/lib/storagePressure";
+
+// Libère de la place avant toute écriture du jeton d'authentification.
+if (typeof window !== "undefined") pruneAppCaches();
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
