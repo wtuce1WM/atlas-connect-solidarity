@@ -151,6 +151,27 @@ export function avoidLeadingYoutube(items: BadgeVideoFeedItem[]): BadgeVideoFeed
   return [lead, ...copy];
 }
 
+/**
+ * Repli miniature : vidéo sans thumbnail → image 1 du business
+ * (première image selon l'ordre interne du tableau `businesses.images`).
+ */
+async function applyBusinessImageFallback(items: BadgeVideoFeedItem[]): Promise<BadgeVideoFeedItem[]> {
+  const ids = [...new Set(items.filter((i) => !i.thumbnailUrl && i.businessId).map((i) => String(i.businessId)))];
+  if (!ids.length) return items;
+  const { data } = await (supabase as any).from("businesses").select("id, images").in("id", ids);
+  const img = new Map<string, string>();
+  for (const b of data || []) {
+    const first = Array.isArray(b.images) && b.images.length ? String(b.images[0]) : "";
+    if (first) img.set(String(b.id), first);
+  }
+  if (!img.size) return items;
+  return items.map((i) =>
+    !i.thumbnailUrl && i.businessId && img.has(String(i.businessId))
+      ? { ...i, thumbnailUrl: img.get(String(i.businessId))! }
+      : i,
+  );
+}
+
 function mapFeedRow(r: any): BadgeVideoFeedItem {
   return {
     id: String(r.id),
