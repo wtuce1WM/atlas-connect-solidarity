@@ -5,6 +5,33 @@ import { supabase } from "@/integrations/supabase/client";
 import { fetchBusinessViewerRow } from "@/lib/businessRowCache";
 
 type FeedBadge = { id: string; name: string; color?: string | null; text_color?: string | null };
+type FeedSocial = { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null };
+
+function socialFromVideoRow(row: any): FeedSocial | null {
+  if (row?.instagram_account) {
+    return { platform: "instagram", account: String(row.instagram_account).replace(/^@+/, ""), url: row.instagram_url ?? null };
+  }
+  if (row?.tiktok_account) {
+    return { platform: "tiktok", account: String(row.tiktok_account).replace(/^@+/, ""), url: row.tiktok_url ?? null };
+  }
+  if (row?.youtube_account) {
+    return { platform: "youtube", account: String(row.youtube_account).replace(/^@+/, ""), url: row.youtube_url ?? null };
+  }
+  return null;
+}
+
+/** Lit uniquement le compte saisi sur la vidéo active — jamais celui du business. */
+async function loadVideoSocial(videoId: string): Promise<FeedSocial | null> {
+  const raw = videoId.replace(/^(?:self-|gv-|yt-)/, "");
+  const table = videoId.startsWith("gv-") ? "generic_videos" : "business_documents";
+  if (videoId.startsWith("yt-")) return null;
+  const { data } = await (supabase as any)
+    .from(table)
+    .select("instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
+    .eq("id", raw)
+    .maybeSingle();
+  return socialFromVideoRow(data);
+}
 
 /** Normalise les lignes de liaison badge en FeedBadge (actifs sur le front). */
 
@@ -178,11 +205,14 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   // peut fournir un tableau partiel (par exemple uniquement le badge filtrant).
   const activeId = activeVideo?.id || null;
   const [fetchedBadges, setFetchedBadges] = useState<{ videoId: string; badges: FeedBadge[] } | null>(null);
+  const [fetchedSocial, setFetchedSocial] = useState<{ videoId: string; social: FeedSocial | null } | null>(null);
   useEffect(() => {
     if (!open || !activeId) return;
     let cancelled = false;
-    fetchVideoBadgesById(activeId).then((b) => {
-      if (!cancelled) setFetchedBadges({ videoId: activeId, badges: b });
+    void Promise.all([fetchVideoBadgesById(activeId), loadVideoSocial(activeId)]).then(([badges, social]) => {
+      if (cancelled) return;
+      setFetchedBadges({ videoId: activeId, badges });
+      setFetchedSocial({ videoId: activeId, social });
     });
     return () => { cancelled = true; };
   }, [open, activeId]);
@@ -194,6 +224,8 @@ function HomeVideoSlidePanel<T extends VideoLike>({
     }
     return out.size ? Array.from(out.values()) : null;
   }, [activeId, activeVideo?.badges, fetchedBadges]);
+  const resolvedSocial = activeVideo?.social
+    ?? (fetchedSocial?.videoId === activeId ? fetchedSocial.social : null);
 
   const goPrev = useCallback(() => {
     if (hasPrev) onActiveVideoChange(activeList[currentIndex - 1]);
@@ -219,8 +251,8 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       pageBusinessId={activeVideo?.pageBusinessId ?? null}
       isGeneric={isActiveGeneric}
       owner={activeVideo?.owner || null}
-      social={activeVideo?.social || null}
-      showSocialBadge={!!activeVideo?.showSocialBadge}
+      social={resolvedSocial}
+      showSocialBadge={!!resolvedSocial}
       description={activeVideo?.description || null}
       headerVideoTitle={activeVideo?.title ?? null}
       currentTime={currentTime}
