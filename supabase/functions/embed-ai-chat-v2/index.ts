@@ -1503,12 +1503,16 @@ Deno.serve(async (req) => {
           // dans le rayon, puis on rend les cartes via le corpus clos.
           if (curated && keepCurated && curated.proximity) {
             const strictRadius = parseInlineRadiusKm(userMessage) != null;
+            // Pour un croisement A/B, la ville enregistrée sur la suggestion est
+            // le périmètre de recherche : elle évite de dépendre de la position
+            // utilisateur ou de la ville active de la surface.
+            const proximityCity = curated.city || scopeCity || host?.city || "Marrakech";
             // Mode « Proximité A à côté de B (deux entités) » : rayon par défaut
             // 10 km. Priorité : rayon saisi dans la phrase → rayon de la relance
             // → 10 km. Le rayon POI de l'hôte ne s'applique pas à ce croisement.
             const built = await buildTwoEntityProximityCurated(
               admin,
-              { ...(host || {}), city: scopeCity || host?.city || "Marrakech" },
+              { ...(host || {}), city: proximityCity },
               {
                 aTerms: [curated.label || "A"],
                 bTerm: curated.label || "B",
@@ -1522,7 +1526,8 @@ Deno.serve(async (req) => {
               return null;
             });
             console.log("[embed-ai-chat-v2] two_entity_proximity", JSON.stringify({
-              applied: !!built, count: built?.results?.length ?? 0, radius: built?.radiusUsed ?? null,
+              applied: !!built, count: built?.results?.length ?? 0,
+              radius: built?.radiusUsed ?? null, city: proximityCity,
             }));
             if (built?.results?.length) {
               const ids = built.results.map((b: any) => String(b.id));
