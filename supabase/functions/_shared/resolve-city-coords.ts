@@ -22,14 +22,19 @@ export async function resolveCityCoords(
 
   const { data, error } = await supabase
     .from("cities")
-    .select("name_fr, name_en, name_ar, latitude, longitude");
+    .select("name_fr, name_en, name_ar, keywords, latitude, longitude");
 
   if (error || !data) return null;
 
   const target = normalize(query);
   const candidates = data.filter((c: any) => c.latitude != null && c.longitude != null);
 
-  const fields = (c: any) => [c.name_fr, c.name_en, c.name_ar].filter(Boolean) as string[];
+  // Noms FR/EN/AR + `keywords` (variantes orthographiques pilotées en back-office).
+  const fields = (c: any) =>
+    [c.name_fr, c.name_en, c.name_ar, ...(Array.isArray(c.keywords) ? c.keywords : [])].filter(
+      Boolean,
+    ) as string[];
+
 
   // 1. Correspondance exacte (normalisée) sur FR / EN / AR / slug
   let hit = candidates.find((c: any) => fields(c).some((v) => normalize(v) === target));

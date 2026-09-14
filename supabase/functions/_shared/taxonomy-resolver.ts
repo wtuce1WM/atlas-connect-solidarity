@@ -206,8 +206,9 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
       (q) => q.eq("is_active", true),
     ),
     selectAll(admin, "categories", "id, name_fr, name_en, name_ar"),
-    selectAll(admin, "cities", "name_fr, name_en, name_ar"),
-    selectAll(admin, "neighborhoods", "name, name_en, name_ar"),
+    selectAll(admin, "cities", "name_fr, name_en, name_ar, keywords"),
+    selectAll(admin, "neighborhoods", "name, name_en, name_ar, keywords, keywords_en, keywords_ar"),
+
   ]);
 
   const entries = new Map<string, ResolvedTarget[]>();
@@ -299,12 +300,15 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
     }
   }
 
-  // Géo.
+  // Géo. Noms FR/EN/AR + `keywords` (variantes orthographiques back-office).
   for (const c of cities) {
     const value = c.name_fr;
     if (!value) continue;
     for (const [name, lang] of [[c.name_fr, undefined], [c.name_en, "en"], [c.name_ar, "ar"]] as Array<[string | null, TermLang | undefined]>) {
       if (name) push(entries, name, { type: "city", value, source: "cities.name", lang });
+    }
+    for (const k of c.keywords ?? []) {
+      if (k) push(entries, k, { type: "city", value, source: "cities.keywords" });
     }
   }
   for (const n of neighborhoods) {
@@ -313,7 +317,13 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
     for (const [name, lang] of [[n.name, undefined], [n.name_en, "en"], [n.name_ar, "ar"]] as Array<[string | null, TermLang | undefined]>) {
       if (name) push(entries, name, { type: "neighborhood", value, source: "neighborhoods.name", lang });
     }
+    for (const [list, lang] of [[n.keywords, undefined], [n.keywords_en, "en"], [n.keywords_ar, "ar"]] as Array<[string[] | null, TermLang | undefined]>) {
+      for (const k of list ?? []) {
+        if (k) push(entries, k, { type: "neighborhood", value, source: "neighborhoods.keywords", lang });
+      }
+    }
   }
+
 
   // 5. Synonymes : chaque clé/variante pointe vers les mappings curés.
   for (const row of synonyms) {
