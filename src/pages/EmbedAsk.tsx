@@ -2224,7 +2224,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // d'abord faire confirmer l'adresse dans le sélecteur inline. Même si une
     // ancienne position existe déjà, AUCUNE recherche ni réponse texte ne part
     // avant le choix explicite de l'utilisateur pour cette nouvelle demande.
-    if (!skipGeoPrompt && detectLocalIntent(text)) {
+    const clickedSuggestion = suggestionId
+      ? suggestions.find((suggestion) => suggestion.id === suggestionId)
+      : null;
+    const suggestionHasFixedCity = !!clickedSuggestion?.city?.trim();
+    if (!skipGeoPrompt && !suggestionHasFixedCity && detectLocalIntent(text)) {
       pendingGeoTextRef.current = text;
       setGeoPromptWaiting(false);
       setGeoPromptText(text);
