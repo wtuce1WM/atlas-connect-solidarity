@@ -1437,9 +1437,22 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Source unique de vérité pour tous les overlays Map. Un second effet dédié à
   // `openMap` envoyait parfois « map-closed » pendant l'ouverture du POI générique.
   useEffect(() => {
-    const payload = { type: openGenericPoi || openMap ? "owm-ask:map-open" : "owm-ask:map-closed" };
+    const isOpen = !!(openGenericPoi || openMap);
+    const payload = { type: isOpen ? "owm-ask:map-open" : "owm-ask:map-closed" };
     try { window.postMessage(payload, "*"); } catch { /* noop */ }
     try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
+    // Quand la carte s'ouvre, on ferme les slidepanels (fiche business / feed vidéo)
+    // pour qu'ils ne flottent pas au-dessus de l'overlay Map.
+    if (isOpen) {
+      if (openBusinessId) {
+        setOpenBusinessId(null);
+        setOpenBusinessOverlay(null);
+        setFeedPinnedBusinessId(null);
+        setOpenBusinessStay(null);
+        setAvailabilityBusinessIds([]);
+      }
+      if (activeFeedVideoId) setActiveFeedVideoId(null);
+    }
   }, [openGenericPoi, openMap]);
   const [poiMasterAnchorId, setPoiMasterAnchorId] = useState<string | null>(null);
   /** Ancre POI de la carte générique : le POI Koutoubia lui-même, pour que la carte
