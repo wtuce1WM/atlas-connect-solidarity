@@ -3224,14 +3224,6 @@ const BookOnlineSlidePanelInner = ({
         {/* Bottom carousel removed — all sections now accessible via description overlay grid */}
         </div>
 
-        {/* Badge social de la vidéo courante (logo plateforme + Follow @compte) */}
-        {effectiveMedia?.kind === "video" && !chromeHidden && !availabilityConfirmationShown && (
-          <VideoSocialBadge
-            social={getVideoSocial(videoDocs.find((d) => d.url === effectiveMedia?.url))}
-            animKey={`${currentMediaIndex}-${effectiveMedia?.url || ""}`}
-          />
-        )}
-
          {/* Offres B2B — le badge "N Offres" au-dessus des CTAs a été retiré.
              Les offres sont désormais présentées en slides dans le popup d'accueil
              et dans l'overlay Full Description (sous le badge avis). */}
@@ -3309,6 +3301,15 @@ const BookOnlineSlidePanelInner = ({
               style={chromeHidden || autoAvailabilityPending ? { visibility: "hidden", pointerEvents: "none" } : undefined}
               aria-hidden={chromeHidden || autoAvailabilityPending || undefined}
             >
+        {/* Crédit social ancré avec la barre viewer : dans le flux scrollable il
+            pouvait rester hors écran, notamment sur mobile. La donnée vient
+            exclusivement de la vidéo courante, jamais du business. */}
+        {effectiveMedia?.kind === "video" && !cardsHidden && !chipsExpanded && !availabilityConfirmationShown && (
+          <VideoSocialBadge
+            social={getVideoSocial(videoDocs.find((d) => d.url === effectiveMedia.url))}
+            animKey={`${currentMediaIndex}-${effectiveMedia.url}`}
+          />
+        )}
         <CtaBar
           business={business}
           language={language}
