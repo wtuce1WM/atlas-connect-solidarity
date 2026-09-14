@@ -5466,7 +5466,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 <button
                   type="button"
                   onClick={showFourMoreResults}
-                  style={AI_NAME_FONT}
                   className="text-xs px-3 py-1.5 rounded-full inline-flex items-center justify-center gap-1.5 font-semibold shadow-sm hover:opacity-90 active:scale-95 transition-all"
                   style={{ ...AI_NAME_FONT, background: "#D4AF37", color: "#000000", borderColor: "#D4AF37" }}
                 >
