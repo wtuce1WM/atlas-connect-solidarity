@@ -2956,6 +2956,26 @@ Deno.serve(async (req) => {
           }
         }
 
+        // ── Destination homonyme d'une VILLE (« Taghazout ») ────────────────
+        // Le périmètre destination n'a aucun établissement rattaché : on retombe
+        // EXPLICITEMENT sur la ville du même nom (nommée par l'utilisateur, variantes
+        // orthographiques incluses). Jamais sur la ville active ni sur la position GPS.
+        if (!nameHit && !results.length && destScope) {
+          const destCity = explicitCity && normalize(explicitCity) === normalize(destScope.name)
+            ? explicitCity
+            : await detectExplicitCity(admin, destScope.name).catch(() => null);
+          if (destCity && normalize(destCity) === normalize(destScope.name)) {
+            const q = [...strongTerms, ...specializingTerms, ...expansionTerms]
+              .filter(Boolean).join(" ") || userMessage.slice(0, 200);
+            await runSearch(q, destCity, excludedTerms as string[]);
+            console.log("[embed-ai-chat-v2] destination_city_fallback", JSON.stringify({
+              destination: destScope.name, city: destCity, query: q, results: results.length,
+            }));
+          }
+        }
+
+
+
         if (!nameHit && !destScope && !contextualFollowUp && !poolRefined && out && confident && (out.intent === "search" || out.intent === "compare")) {
           const views = detectViewIntent(userMessage);
           const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
