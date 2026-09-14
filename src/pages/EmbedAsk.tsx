@@ -933,6 +933,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [hotelSearchingMsgId, setHotelSearchingMsgId] = useState<string | null>(null);
   /** Résultats de disponibilité affichés 4 par 4, par message assistant. */
   const [hotelShown, setHotelShown] = useState<Record<string, number>>({});
+  /** Résultats vidéo affichés en grille, par lots de 4 et par message assistant. */
+  const [videoShown, setVideoShown] = useState<Record<string, number>>({});
   // Suggestion `booking` liée à des sous-catégories : la ville du widget est
   // mémorisée au clic, puis rattachée au message assistant du moteur (le widget
   // s'affiche donc SOUS les résultats des sous-catégories).
@@ -2908,7 +2910,21 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return null;
   }, [messages, hotelResults, hotelShown]);
 
-  const moreResultsRemaining = hotelMoreTarget?.remaining ?? poolRemaining;
+  const videoMoreTarget = useMemo<{ msgKey: string; remaining: number } | null>(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i]?.role !== "assistant") continue;
+      const msgKey = String(messages[i]?.id || i);
+      const { videoFeeds } = extractPayloads(messageText(messages[i]));
+      const feed = videoFeeds[videoFeeds.length - 1];
+      if (!feed?.videos?.length) continue;
+      const shown = videoShown[msgKey] ?? 4;
+      const remaining = Math.max(0, feed.videos.length - shown);
+      return remaining > 0 ? { msgKey, remaining } : null;
+    }
+    return null;
+  }, [messages, videoShown]);
+
+  const moreResultsRemaining = hotelMoreTarget?.remaining ?? videoMoreTarget?.remaining ?? poolRemaining;
 
   const showFourMoreResults = () => {
     const scrollToBottomAfterRender = () => {
@@ -2925,6 +2941,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setHotelShown((current) => ({
         ...current,
         [hotelMoreTarget.msgKey]: (current[hotelMoreTarget.msgKey] ?? 4) + 4,
+      }));
+      scrollToBottomAfterRender();
+      return;
+    }
+    if (videoMoreTarget) {
+      setVideoShown((current) => ({
+        ...current,
+        [videoMoreTarget.msgKey]: (current[videoMoreTarget.msgKey] ?? 4) + 4,
       }));
       scrollToBottomAfterRender();
       return;
@@ -5183,8 +5207,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
               {videoFeedPayload && videoFeedPayload.videos.length > 0 && (
                 <EmbedCardCarousel
-                  limit={4}
-                  items={videoFeedPayload.videos.slice(0, 4).map((video) => ({
+                  layout="grid"
+                  limit={videoShown[msgKey] ?? 4}
+                  items={videoFeedPayload.videos.map((video) => ({
                     key: video.id,
                     image: video.thumbnailUrl || null,
                     title: video.businessName || video.title || (lang === "en" ? "Video" : lang === "ar" ? "فيديو" : "Vidéo"),
@@ -5453,8 +5478,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 <button
                   type="button"
                   onClick={showFourMoreResults}
-                  style={{ ...moreBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                  className="text-xs px-3 py-1.5 rounded-full inline-flex items-center justify-center gap-1.5 font-semibold border shadow-sm hover:opacity-90 transition-opacity"
+                  style={AI_NAME_FONT}
+                  className="text-xs px-3 py-1.5 rounded-full inline-flex items-center justify-center gap-1.5 font-semibold bg-[#194CFF] text-white shadow-sm hover:bg-[#194CFF]/90 active:scale-95 transition-all"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   {lang === "en" ? "+ more results" : lang === "ar" ? "+ نتائج أخرى" : "+ de résultats"}
