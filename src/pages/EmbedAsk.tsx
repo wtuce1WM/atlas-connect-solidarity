@@ -1180,8 +1180,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           .join(" ") || ""
       );
       const isRadiusRelance = !!(body as any)?.searchQuery;
+      const requestSuggestionId = (body as any)?.suggestionId;
+      const requestHasFixedCity = !!requestSuggestionId && suggestions.some(
+        (suggestion) => suggestion.id === requestSuggestionId && !!suggestion.city?.trim(),
+      );
       const geoApplies =
         !!geoAnchorRef.current &&
+        !requestHasFixedCity &&
         (isRadiusRelance || detectLocalIntent(lastUserText) || parseRadiusCommand(lastUserText) != null);
       return {
        body: {
@@ -1227,7 +1232,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
        },
       };
     },
-  }), [slug, lang, isPlatform, platformCity, isClubScope]);
+  }), [slug, lang, isPlatform, platformCity, isClubScope, suggestions]);
 
 
 
@@ -4564,8 +4569,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           for (let k = i - 1; k >= 0; k--) {
             if (messages[k].role === "user") { precedingUserText = messageText(messages[k]); break; }
           }
+          const normalizeSuggestionLabel = (value: string) =>
+            value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+          const precedingSuggestionHasFixedCity = suggestions.some(
+            (suggestion) =>
+              !!suggestion.city?.trim() &&
+              normalizeSuggestionLabel(suggestion.label) === normalizeSuggestionLabel(precedingUserText),
+          );
           const geoActiveForMsg =
             geoAnchor &&
+            !precedingSuggestionHasFixedCity &&
             // Une réponse « distances exactes » est déjà triée par le serveur autour
             // du lieu demandé. Ne pas la refiltrer autour de la position du téléphone.
             !clean.includes("📐") &&
