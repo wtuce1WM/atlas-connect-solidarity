@@ -803,6 +803,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [geoPromptText, setGeoPromptText] = useState<string | null>(null);
   const [geoPromptWaiting, setGeoPromptWaiting] = useState(false);
   const pendingGeoTextRef = useRef<string | null>(null);
+  /** Filtre « Les plus proches » en attente de confirmation de l'adresse. */
+  const pendingGeoForcedRouteRef = useRef<string | null>(null);
   const geo = useGeolocation();
 
   useEffect(() => {
@@ -2685,26 +2687,35 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const handleGeoPickerConfirm = (coords: { lat: number; lng: number }, address: string) => {
     geoJustConfirmedRef.current = true;
     geo.setManualLocation(coords, address);
-    // Les résultats sont restreints à 1 km autour de l'adresse choisie ;
-    // l'utilisateur peut ensuite élargir le rayon (texte ou voix).
+    const forcedRoute = pendingGeoForcedRouteRef.current;
+    pendingGeoForcedRouteRef.current = null;
+    // « Les plus proches » recalcule le corpus dans un rayon de 10 km.
+    // Les autres recherches locales conservent leur rayon initial de 1 km.
     setGeoAnchorPoint(coords);
-    applyGeoRadius(1);
+    applyGeoRadius(forcedRoute === "distance_ranking_closest" ? 10 : 1);
     const text = pendingGeoTextRef.current;
     pendingGeoTextRef.current = null;
     setGeoPromptWaiting(false);
     if (text) setGeoSendPending(true);
     setGeoPromptText(null);
-    if (text) window.setTimeout(() => send(text, undefined, undefined, true), 0);
+    if (text) {
+      window.setTimeout(() => {
+        if (forcedRoute) sendLocalFilter(text, forcedRoute);
+        else send(text, undefined, undefined, true);
+      }, 0);
+    }
   };
 
   /** Refus / fermeture : la question part sans position. */
   const handleGeoPromptDismiss = () => {
     const text = pendingGeoTextRef.current;
+    const forcedRoute = pendingGeoForcedRouteRef.current;
     pendingGeoTextRef.current = null;
+    pendingGeoForcedRouteRef.current = null;
     setGeoPromptWaiting(false);
     setGeoPromptText(null);
     setGeoAnchorPoint(null);
-    if (text) send(text, undefined, undefined, true);
+    if (text && !forcedRoute) send(text, undefined, undefined, true);
   };
 
   /**
@@ -2785,6 +2796,20 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       { text },
       { body: { suggestionId: null, followupId: null, scope: null, forcedRoute } },
     );
+  };
+
+  const sendClosestFilter = () => {
+    if (streaming || !assistantReady) return;
+    const text = lang === "en" ? "The closest ones" : lang === "ar" ? "الأقرب" : "Les plus proches";
+    if (!geoAnchorRef.current) {
+      pendingGeoTextRef.current = text;
+      pendingGeoForcedRouteRef.current = "distance_ranking_closest";
+      setGeoPromptWaiting(false);
+      setGeoPromptText(text);
+      return;
+    }
+    applyGeoRadius(10);
+    sendLocalFilter(text, "distance_ranking_closest");
   };
 
   /**
@@ -4125,7 +4150,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               id: "closest",
               label: lang === "en" ? "Closest" : lang === "ar" ? "الأقرب" : "Les plus proches",
               icon: <Navigation className="w-3.5 h-3.5" />,
-              onClick: () => sendLocalFilter(lang === "en" ? "The closest ones" : lang === "ar" ? "الأقرب" : "Les plus proches", "distance_ranking_closest"),
+              onClick: sendClosestFilter,
               className: pillClass,
             }]
           : []),
