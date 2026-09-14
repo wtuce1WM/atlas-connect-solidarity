@@ -25,6 +25,7 @@ interface Props {
   items: EmbedCardItem[];
   footer?: React.ReactNode;
   limit?: number;
+  layout?: "carousel" | "grid";
 }
 
 /**
@@ -35,7 +36,7 @@ interface Props {
 const CARD_H_MAX = 256;
 const CARD_H_MIN = 168;
 
-export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) {
+export default function EmbedCardCarousel({ items, footer, limit = 20, layout = "carousel" }: Props) {
   const scrollerRef = React.useRef<HTMLDivElement | null>(null);
   // Le verrou vertical ne s'active que lorsque les vignettes sont ENTIÈREMENT
   // visibles : sinon on laisserait le carrousel coupé en bas sans pouvoir le
@@ -76,6 +77,77 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
   };
 
   if (!items.length) return null;
+  const cards = items.slice(0, limit).map((it) => (
+    <div
+      key={it.key}
+      role="button"
+      tabIndex={0}
+      onClick={it.onClick}
+      onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && it.onClick) { e.preventDefault(); it.onClick(); } }}
+      style={{ textTransform: "none", letterSpacing: "normal" }}
+      className={layout === "grid" ? "min-w-0 text-left group cursor-pointer" : "shrink-0 w-44 text-left group cursor-pointer"}
+    >
+      <div
+        className={layout === "grid" ? "relative w-full aspect-[11/16] rounded-xl overflow-hidden bg-neutral-800" : "relative w-44 rounded-xl overflow-hidden bg-neutral-800"}
+        style={layout === "grid" ? undefined : { height: cardH }}
+      >
+        {it.image ? (
+          <img
+            src={it.image}
+            alt={it.title}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-white/40">
+            {it.fallbackIcon ?? <MapPin className="w-10 h-10" />}
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 pointer-events-none" />
+        {it.badge && (
+          <div
+            className="absolute top-2 right-2 text-[11px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-sm whitespace-nowrap"
+            style={{ background: "rgba(0,0,0,0.6)", color: "#D4AF37" }}
+          >
+            {it.badge}
+          </div>
+        )}
+        <div className="absolute inset-x-0 bottom-0 p-2.5">
+          {it.overline && (
+            <div
+              className="text-[11px] font-semibold text-[#D4AF37] mb-0.5 break-words"
+              style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+            >
+              {it.overline}
+            </div>
+          )}
+          {it.titlePrefix && <div className="mb-0.5">{it.titlePrefix}</div>}
+          <div
+            className="text-[13px] !font-bold text-white leading-tight break-words [text-shadow:0_1px_3px_rgba(0,0,0,0.6)]"
+            style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+          >
+            {it.title}
+          </div>
+          {it.subtitle && (
+            <div className="text-[11px] text-white/85 mt-0.5 break-words" style={{ textTransform: "none", letterSpacing: "normal" }}>
+              {it.subtitle}
+            </div>
+          )}
+          {it.extra}
+        </div>
+      </div>
+    </div>
+  ));
+
+  if (layout === "grid") {
+    return (
+      <div className="w-full max-w-full mt-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pb-1">{cards}</div>
+        {footer}
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-full mt-3">
     <div
@@ -109,73 +181,7 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
 
 
 
-      <div className="flex gap-3 pb-1">
-        {items.slice(0, limit).map((it) => (
-          <div
-            key={it.key}
-            role="button"
-            tabIndex={0}
-            onClick={it.onClick}
-            onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && it.onClick) { e.preventDefault(); it.onClick(); } }}
-            style={{ textTransform: "none", letterSpacing: "normal" }}
-            className="shrink-0 w-44 text-left group cursor-pointer"
-
-          >
-            <div className="relative w-44 rounded-xl overflow-hidden bg-neutral-800" style={{ height: cardH }}>
-              {it.image ? (
-                <img
-                  src={it.image}
-                  alt={it.title}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-white/40">
-                  {it.fallbackIcon ?? <MapPin className="w-10 h-10" />}
-                </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 pointer-events-none" />
-              {it.badge && (
-                <div
-                  className="absolute top-2 right-2 text-[11px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-sm whitespace-nowrap"
-                  style={{ background: "rgba(0,0,0,0.6)", color: "#D4AF37" }}
-                >
-                  {it.badge}
-                </div>
-              )}
-              <div className="absolute inset-x-0 bottom-0 p-2.5">
-                {it.overline && (
-                  <div
-                    className="text-[11px] font-semibold text-[#D4AF37] mb-0.5 break-words"
-                    style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                  >
-                    {it.overline}
-                  </div>
-                )}
-                {it.titlePrefix && (
-                  <div className="mb-0.5">{it.titlePrefix}</div>
-                )}
-                <div
-                  className="text-[13px] !font-bold text-white leading-tight break-words [text-shadow:0_1px_3px_rgba(0,0,0,0.6)]"
-                  style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
-                >
-                  {it.title}
-                </div>
-                {it.subtitle && (
-                  <div
-                    className="text-[11px] text-white/85 mt-0.5 break-words"
-                    style={{ textTransform: "none", letterSpacing: "normal" }}
-                  >
-                    {it.subtitle}
-                  </div>
-                )}
-                {it.extra}
-              </div>
-
-            </div>
-          </div>
-        ))}
-      </div>
+      <div className="flex gap-3 pb-1">{cards}</div>
     </div>
     {footer}
     </div>
