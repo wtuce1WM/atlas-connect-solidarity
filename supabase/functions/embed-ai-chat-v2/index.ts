@@ -1504,15 +1504,15 @@ Deno.serve(async (req) => {
           if (curated && keepCurated && curated.proximity) {
             const strictRadius = parseInlineRadiusKm(userMessage) != null;
             // Mode « Proximité A à côté de B (deux entités) » : rayon par défaut
-            // 10 km (sauf rayon saisi dans la phrase ou imposé par la relance).
-            const hostRadiusProx = RADIUS_OPTIONS.includes(Number(host?.poi_radius_km)) ? Number(host?.poi_radius_km) : 10;
+            // 10 km. Priorité : rayon saisi dans la phrase → rayon de la relance
+            // → 10 km. Le rayon POI de l'hôte ne s'applique pas à ce croisement.
             const built = await buildTwoEntityProximityCurated(
               admin,
               { ...(host || {}), city: scopeCity || host?.city || "Marrakech" },
               {
                 aTerms: [curated.label || "A"],
                 bTerm: curated.label || "B",
-                radiusKm: parseInlineRadiusKm(userMessage) ?? curated.radiusKm ?? hostRadiusProx,
+                radiusKm: parseInlineRadiusKm(userMessage) ?? curated.radiusKm ?? 10,
               },
               lang as any,
               strictRadius,
