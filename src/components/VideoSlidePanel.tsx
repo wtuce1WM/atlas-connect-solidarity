@@ -1970,14 +1970,16 @@ const VideoSlidePanel = ({
                       key={`credit-owner-${videoId || videoUrl}`}
                       className="flex flex-col items-center justify-center gap-2 px-4 pointer-events-none"
                     >
-                    {isGeneric && social && (
+                    {/* Compte social propre à la vidéo (interne OU générique) :
+                        logo + « Follow @… ». Aucun repli sur les réseaux du business. */}
+                    {social && (
                       <>
                         {social.platform === "instagram" && <InstagramIcon className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
                         {social.platform === "tiktok" && <SiTiktok className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
                         {social.platform === "youtube" && <Youtube className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
                       </>
                     )}
-                    {isGeneric && social ? (
+                    {social ? (
                       <a
                         href={social.url || undefined}
                         target="_blank"
