@@ -2882,7 +2882,7 @@ const BookOnlineSlidePanelInner = ({
         anyOverlay={anyOverlay}
         toolbarPortalPrefix={toolbarPortalPrefix}
         openBadgeInfo={openBadgeInfo}
-        hideToolbarButtons={showDescriptionOverlay}
+        hideToolbarButtons={showDescriptionOverlay && !availabilityConfirmationShown}
         activeYoutubeVideo={activeYoutubeVideo}
         activeInternalVideoId={activeInternalVideoLikeId}
       />
