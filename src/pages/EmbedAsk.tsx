@@ -1181,7 +1181,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       );
       const isRadiusRelance = !!(body as any)?.searchQuery;
       const requestSuggestionId = (body as any)?.suggestionId;
-      const requestHasFixedCity = !!requestSuggestionId && suggestions.some(
+      const requestHasFixedCity = !!requestSuggestionId && !!dbSuggestions?.some(
         (suggestion) => suggestion.id === requestSuggestionId && !!suggestion.city?.trim(),
       );
       const geoApplies =
@@ -1232,7 +1232,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
        },
       };
     },
-  }), [slug, lang, isPlatform, platformCity, isClubScope, suggestions]);
+  }), [slug, lang, isPlatform, platformCity, isClubScope, dbSuggestions]);
 
 
 
