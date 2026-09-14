@@ -4,6 +4,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import type { FallbackPanelData } from "@/components/HotelAvailabilityOverlay";
+import { parseSerpAmount } from "@/lib/parseSerpAmount";
 
 export interface CityHotelSearchParams {
   cityName: string;
