@@ -194,7 +194,7 @@ export async function loadVideoFeed(
         title: d.name || null,
         description: d.description || null,
         price: d.price || null,
-        thumbnailUrl: d.thumbnail_url || null,
+        thumbnailUrl: d.thumbnail_url || (d.business_id ? bizImage.get(String(d.business_id)) ?? null : null),
         isGeneric: false,
         businessId: d.business_id ? String(d.business_id) : null,
         businessName: d.business_id ? bizMap.get(String(d.business_id)) ?? null : null,
