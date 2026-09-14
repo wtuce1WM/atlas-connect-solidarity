@@ -109,7 +109,7 @@ export async function loadBadgeVideoFeed(
     title: r.title || null,
     description: r.description || null,
     price: r.price || null,
-    thumbnailUrl: r.thumbnail_url || null,
+    thumbnailUrl: r.thumbnail_url || (r.business_id ? bizImage.get(String(r.business_id)) ?? null : null),
     isGeneric: !!r.is_generic,
     businessId: r.business_id ? String(r.business_id) : null,
     businessName: r.business_name || null,
