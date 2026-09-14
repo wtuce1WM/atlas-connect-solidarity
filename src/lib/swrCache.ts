@@ -11,6 +11,8 @@
  * - Cache is keyed by string and capped at ~1MB per entry to stay safe.
  */
 
+import { safeSetItem } from "@/lib/storagePressure";
+
 const PREFIX = "swr:v1:";
 const MAX_AGE_MS = 1000 * 60 * 60 * 24 * 7; // 7 days hard cap
 

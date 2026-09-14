@@ -2,6 +2,8 @@
 // Persists the latest videos array per (city + entry + sub + badge + event + popular) key.
 // Hydrates instantly on mount → reduces LCP from ~13s to ~3s on repeat visits.
 
+import { safeSetItem } from "@/lib/storagePressure";
+
 const VERSION = "v1";
 const PREFIX = "home:videos:";
 const MAX_AGE_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
@@ -46,7 +48,7 @@ export function writeHomeVideosCache<T = unknown>(key: string, videos: T[]): voi
     if (!Array.isArray(videos) || videos.length === 0) return;
     // Keep only first 24 cards (enough for 4 rows above + buffer) to limit storage size
     const slim = videos.slice(0, 24);
-    localStorage.setItem(key, JSON.stringify({ t: Date.now(), v: slim }));
+    safeSetItem(key, JSON.stringify({ t: Date.now(), v: slim }));
   } catch {
     // QuotaExceeded or serialization error → ignore silently
   }
