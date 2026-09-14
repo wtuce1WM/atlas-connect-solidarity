@@ -98,7 +98,7 @@ export function extractPriorOrderedBusinesses(messages: any[], hostId: string): 
   return [];
 }
 
-export async function buildDistanceRanking(
+export async function buildDistanceRankingResult(
   admin: any,
   host: any,
   ids: string[],
@@ -106,7 +106,7 @@ export async function buildDistanceRanking(
   lang: "fr" | "en" | "ar",
   userAnchor?: { lat: number; lng: number } | null,
   radiusKm?: number,
-): Promise<string | null> {
+): Promise<{ text: string; orderedIds: string[] } | null> {
   if (!ids.length) return null;
   const hLat = userAnchor?.lat ?? Number(host?.latitude);
   const hLng = userAnchor?.lng ?? Number(host?.longitude);
@@ -134,7 +134,22 @@ export async function buildDistanceRanking(
     : (lang === "en" ? `Among the previous results, **${top[0].name}** is the farthest from ${reference}:`
       : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** هو الأبعد عن ${reference}:`
       : `Parmi les précédents, c'est **${top[0].name}** le plus loin de ${reference} :`);
-  return `${intro}\n\n${lines.join("\n")}${toMapMarker(top, null, "distance")}`;
+  return {
+    text: `${intro}\n\n${lines.join("\n")}${toMapMarker(top, null, "distance")}`,
+    orderedIds: withDist.map((r: any) => String(r.id)),
+  };
+}
+
+export async function buildDistanceRanking(
+  admin: any,
+  host: any,
+  ids: string[],
+  mode: "closest" | "farthest",
+  lang: "fr" | "en" | "ar",
+  userAnchor?: { lat: number; lng: number } | null,
+  radiusKm?: number,
+): Promise<string | null> {
+  return (await buildDistanceRankingResult(admin, host, ids, mode, lang, userAnchor, radiusKm))?.text ?? null;
 }
 
 export async function buildDistanceList(admin: any, host: any, ids: string[], lang: "fr" | "en" | "ar"): Promise<string | null> {
