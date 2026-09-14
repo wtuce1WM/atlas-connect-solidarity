@@ -91,6 +91,18 @@ export async function loadBadgeVideoFeed(
   if (error || !data) return { videos: [], total: 0, seed };
 
   const rows = data as any[];
+  // Repli miniature : vidéo sans thumbnail → image 1 du business (ordre interne).
+  const missingThumbBiz = [...new Set(
+    rows.filter((r) => !r.thumbnail_url && r.business_id).map((r) => String(r.business_id)),
+  )];
+  const bizImage = new Map<string, string>();
+  if (missingThumbBiz.length) {
+    const { data: bizs } = await admin.from("businesses").select("id, images").in("id", missingThumbBiz);
+    for (const b of bizs || []) {
+      const img = Array.isArray(b.images) && b.images.length ? String(b.images[0]) : "";
+      if (img) bizImage.set(String(b.id), img);
+    }
+  }
   const videos: VideoFeedItem[] = rows.map((r) => ({
     id: String(r.id),
     url: String(r.url),
