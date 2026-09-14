@@ -4,6 +4,7 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
 import type { FallbackPanelData } from "@/components/HotelAvailabilityOverlay";
 import { CTA_MODE_LABELS } from "./CtaBar";
+import { parseSerpAmount, formatEuro } from "@/lib/parseSerpAmount";
 
 interface HotelAvailabilityResultProps {
   business: any;
