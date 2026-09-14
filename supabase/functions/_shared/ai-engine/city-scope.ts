@@ -46,7 +46,12 @@ const norm = (s: unknown) =>
 
 let cityCache: { at: number; rows: any[] } | null = null;
 
-/** Détecte une ville explicitement nommée dans le texte (FR / EN / AR). */
+/**
+ * Détecte une ville explicitement nommée dans le texte (FR / EN / AR).
+ * Vocabulaire = noms FR/EN/AR + `keywords` (variantes orthographiques pilotées
+ * en back-office : « tarazout » → « Taghazout »).
+ * Libellé le plus long d'abord, correspondance sur mots entiers.
+ */
 export async function detectExplicitCity(
   admin: any,
   text: string,
@@ -55,20 +60,30 @@ export async function detectExplicitCity(
   if (haystack.trim().length < 3) return null;
   try {
     if (!cityCache || Date.now() - cityCache.at > 5 * 60_000) {
-      const { data } = await admin.from("cities").select("name_fr, name_en, name_ar");
+      const { data } = await admin.from("cities").select("name_fr, name_en, name_ar, keywords");
       cityCache = { at: Date.now(), rows: data || [] };
     }
+    const entries: Array<{ canonical: string; nn: string }> = [];
     for (const row of cityCache.rows) {
-      const names = [row?.name_fr, row?.name_en, row?.name_ar].filter(Boolean) as string[];
-      for (const n of names) {
-        const nn = norm(n);
-        if (nn.length > 2 && haystack.includes(` ${nn} `)) {
-          return String(row.name_fr || row.name_en || n);
-        }
+      const canonical = String(row?.name_fr || row?.name_en || row?.name_ar || "");
+      const labels = [
+        row?.name_fr,
+        row?.name_en,
+        row?.name_ar,
+        ...(Array.isArray(row?.keywords) ? row.keywords : []),
+      ].filter(Boolean) as string[];
+      for (const label of labels) {
+        const nn = norm(label);
+        if (nn.length > 2) entries.push({ canonical: canonical || label, nn });
       }
+    }
+    entries.sort((a, b) => b.nn.length - a.nn.length);
+    for (const e of entries) {
+      if (haystack.includes(` ${e.nn} `)) return e.canonical;
     }
   } catch (e) {
     console.warn("[ai-engine/city-scope] detectExplicitCity failed", String(e));
   }
   return null;
 }
+
