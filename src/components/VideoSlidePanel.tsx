@@ -1939,7 +1939,14 @@ const VideoSlidePanel = ({
           >
             {/* Pas de px-4 ici : la marge latérale de la barre info viewer est portée
                 par ViewerInfoBar (source unique partagée avec BookOnlineSlidePanel). */}
-            <div className="fixed lg:absolute inset-x-0 bottom-[calc(96px+env(safe-area-inset-bottom))] lg:bottom-[5.5rem] z-30 flex flex-col items-center justify-end gap-3 pointer-events-none">
+            {/* iOS/Safari : NE PAS utiliser `fixed` ici. Un ancêtre porteur d'un
+                transform / backdrop-filter (animation morph de la Full Description,
+                transitions de route) devient le bloc conteneur d'un élément `fixed`,
+                donc `inset-x-0` ne vaut plus la largeur du viewport et la barre info
+                débordait vers la droite en bas. `absolute` s'appuie sur le parent
+                `absolute inset-0` du viewer → largeur toujours correcte. */}
+            <div className="absolute inset-x-0 max-w-full bottom-[calc(96px+env(safe-area-inset-bottom))] lg:bottom-[5.5rem] z-30 flex flex-col items-center justify-end gap-3 pointer-events-none">
+
               {compactBusinessHeader && !chromeHidden && (
                 <YouTubeIcon className="h-16 w-16 text-red-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />
               )}
