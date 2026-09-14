@@ -158,7 +158,7 @@ export function HotelAvailabilityResult({
                           : (language === "en"
                             ? `You can therefore expect a minimum price for your stay of`
                             : `Vous pouvez donc vous attendre à un prix minimal pour votre séjour de`)}{" "}
-                        <span className="font-bold">{totalSerpPrice || totalMinPrice} €</span>.
+                        <span className="font-bold">{formatEuro((totalSerpPrice || totalMinPrice) as number)} €</span>.
                       </p>
                     ) : null}
                     <p>
