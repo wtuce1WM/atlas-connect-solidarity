@@ -36,7 +36,8 @@ export function setCached<T>(key: string, value: T): void {
   try {
     const payload = JSON.stringify({ t: Date.now(), v: value } satisfies CacheEntry<T>);
     if (payload.length > 1_000_000) return; // skip oversized payloads
-    localStorage.setItem(PREFIX + key, payload);
+    // Tolérant au quota : purge des caches jetables puis nouvel essai.
+    safeSetItem(PREFIX + key, payload);
   } catch {
     // Quota exceeded or serialization issue — silently ignore.
   }
