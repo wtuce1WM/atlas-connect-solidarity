@@ -892,15 +892,18 @@ const Front = () => {
   /** Feed démo chargé : moitié droite = viewer, moitié gauche = assistant IA fermé. */
   const demoFeedOpen = !!(demoActiveId || demoCardsOnly);
 
-  // Priorité au viewer vidéo : l'assistant IA (bundle + requêtes suggestions) n'est
-  // monté qu'une fois le feed prêt. Filet de sécurité à 3 s si le feed échoue.
-  const [askMounted, setAskMounted] = useState(false);
-  useEffect(() => {
-    if (askMounted) return;
-    if (demoFeedOpen) { setAskMounted(true); return; }
-    const t = window.setTimeout(() => setAskMounted(true), 3000);
-    return () => window.clearTimeout(t);
-  }, [askMounted, demoFeedOpen]);
+  // NEUTRALISÉ TEMPORAIREMENT en même temps que le lancement auto du feed démo :
+  // le filet de sécurité à 3 s n'avait plus rien à attendre (le feed ne s'ouvre
+  // plus au chargement), donc on attendait systématiquement 3 s + flash noir.
+  // Réactiver ce mécanisme en même temps que le bloc `autoDemoRef` ci-dessus.
+  // const [askMounted, setAskMounted] = useState(false);
+  // useEffect(() => {
+  //   if (askMounted) return;
+  //   if (demoFeedOpen) { setAskMounted(true); return; }
+  //   const t = window.setTimeout(() => setAskMounted(true), 3000);
+  //   return () => window.clearTimeout(t);
+  // }, [askMounted, demoFeedOpen]);
+  const [askMounted] = useState(true);
 
 
   
