@@ -2802,6 +2802,97 @@ const LocationManagement = () => {
                   </Select>
                 </div>
 
+                {/* Image */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    Image
+                  </h3>
+                  <LogoUploader
+                    logoUrl={cityForm.image_url}
+                    onChange={(url) => setCityForm({ ...cityForm, image_url: url })}
+                    businessId={editingCity?.id || "city"}
+                  />
+                </div>
+
+                {/* Description */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Description
+                    <span className="text-sm font-normal text-muted-foreground">
+                      ({cityForm.description.length} / 10 000 caractères)
+                    </span>
+                  </h3>
+                  <RichTextEditor
+                    content={cityForm.description}
+                    onChange={(value) => {
+                      if (value.length <= 10000) {
+                        setCityForm(prev => ({ ...prev, description: value }));
+                      }
+                    }}
+                    placeholder="Description de la ville..."
+                  />
+                </div>
+
+                {/* Établissement lié */}
+                <div className="space-y-3">
+                  <h3 className="font-medium text-lg flex items-center gap-2">
+                    <Building className="h-4 w-4" />
+                    Établissement lié
+                    <span className="text-sm font-normal text-muted-foreground">
+                      (1 établissement de la ville)
+                    </span>
+                  </h3>
+                  {cityForm.business_id ? (
+                    <div className="flex items-center gap-2 max-w-md p-2 border rounded-lg">
+                      <span className="text-sm flex-1 truncate">
+                        {cityBusinesses.find(b => b.id === cityForm.business_id)?.name || cityForm.business_id}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setCityForm({ ...cityForm, business_id: "" })}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-w-md">
+                      <Input
+                        value={cityBusinessSearch}
+                        onChange={(e) => setCityBusinessSearch(e.target.value)}
+                        placeholder={cityForm.name_fr ? `Rechercher un établissement à ${cityForm.name_fr}...` : "Renseignez d'abord le nom de la ville"}
+                        disabled={!cityForm.name_fr.trim()}
+                      />
+                      {cityBusinessSearch.trim().length > 0 && (
+                        <div className="max-h-56 overflow-y-auto border rounded-lg divide-y">
+                          {cityBusinesses
+                            .filter(b => b.name.toLowerCase().includes(cityBusinessSearch.trim().toLowerCase()))
+                            .slice(0, 50)
+                            .map(b => (
+                              <button
+                                key={b.id}
+                                type="button"
+                                onClick={() => {
+                                  setCityForm({ ...cityForm, business_id: b.id });
+                                  setCityBusinessSearch("");
+                                }}
+                                className="w-full text-left px-3 py-2 text-sm hover:bg-muted"
+                              >
+                                {b.name}
+                              </button>
+                            ))}
+                          {cityBusinesses.filter(b => b.name.toLowerCase().includes(cityBusinessSearch.trim().toLowerCase())).length === 0 && (
+                            <p className="px-3 py-2 text-sm text-muted-foreground">Aucun établissement trouvé</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="font-medium text-lg">Coordonnées GPS</h3>
