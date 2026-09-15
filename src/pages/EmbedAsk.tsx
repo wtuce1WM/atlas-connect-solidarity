@@ -4984,6 +4984,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 <div className="w-full flex flex-col gap-3">
                 <AvailabilitySearchOverlay
                     inline
+                    transparent
                     language={lang}
                     isSearching={hotelSearchingMsgId === msgKey}
                     initialCheckIn={bookingResult?.checkIn ?? bookingPayload?.checkIn ?? undefined}
