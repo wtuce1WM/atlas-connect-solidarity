@@ -676,6 +676,7 @@ const LocationManagement = () => {
       official_site_6_url: cityForm.official_site_6_url.trim() || null,
       description: cityForm.description.trim().slice(0, 10000) || null,
       image_url: cityForm.image_url.trim() || null,
+      business_id: cityForm.business_id || null,
       keywords: cityForm.keywords.length > 0 ? cityForm.keywords : [],
     };
 
