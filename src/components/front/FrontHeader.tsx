@@ -65,6 +65,8 @@ interface Props {
   links?: { label: string; to?: string; onClick?: () => void; danger?: boolean }[];
   /** Masque le sélecteur de langue dans le menu. */
   hideLanguageSwitch?: boolean;
+  /** Masque uniquement le bouton hamburger, sans masquer le logo. */
+  hideMenuButton?: boolean;
   /** Classes supplémentaires sur le wrapper (utile pour élever le z-index au-dessus d'un overlay). */
   className?: string;
   /** Élever l'overlay menu navigation au-dessus d'un panneau tiers (ex: overlay YouTube). */
@@ -113,7 +115,7 @@ const LogoBlock = ({
   );
 };
 
-const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggle, onLogoClick, links, hideLanguageSwitch = false, className = "", elevatedMenu = false }: Props) => {
+const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggle, onLogoClick, links, hideLanguageSwitch = false, hideMenuButton = false, className = "", elevatedMenu = false }: Props) => {
   const { language, setLanguage } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -155,8 +157,10 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
           aria-expanded={menuOpen}
           onClick={() => setOpen(true)}
           className={`mt-2 rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-            visible && !menuOpen ? "pointer-events-auto" : "opacity-0"
+            visible && !menuOpen && !hideMenuButton ? "pointer-events-auto" : "pointer-events-none opacity-0"
           }`}
+          aria-hidden={hideMenuButton}
+          tabIndex={hideMenuButton ? -1 : 0}
         >
           <Menu className="h-5 w-5" />
         </button>

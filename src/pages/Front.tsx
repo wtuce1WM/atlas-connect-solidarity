@@ -984,6 +984,7 @@ const Front = () => {
         visible={showHomeChrome}
         className="z-[300]"
         elevatedMenu={youtubeOpen}
+        hideMenuButton={youtubePanelOpen}
         onLogoClick={() => {
           // Même action pour toutes les suggestions : retour à l'accueil IA fermé.
           try {
