@@ -31,6 +31,24 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
   const blackHamburger = (cleanPath === "/" || cleanPath === "/install" || cleanPath === "/join" || cleanPath === "/devenir-affilie") && !isWhiteHeaderPage;
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // Overlay YouTube de l'assistant (suggestion « Le meilleur de YouTube ») :
+  // plein écran au-dessus de la Home. Tant qu'il est ouvert, le hamburger est
+  // masqué (sinon il passe derrière le header du panneau vidéo) et le logo
+  // sert de retour : fermeture de l'overlay + assistant IA refermé.
+  const [youtubeOverlayOpen, setYoutubeOverlayOpen] = useState(false);
+
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      if (e.data?.type === "owm-ask:youtube-open") {
+        setYoutubeOverlayOpen(true);
+        setMenuOpen(false);
+      } else if (e.data?.type === "owm-ask:youtube-closed") {
+        setYoutubeOverlayOpen(false);
+      }
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
   const englishEnabled = useEnglishFlag();
 
   useEffect(() => {
