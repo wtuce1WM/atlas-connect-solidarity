@@ -2939,6 +2939,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return { ids: [], nb: {}, hasGeo: false, hasHours: false };
   }, [messages]);
 
+  // Le corpus du tour sert de périmètre à la vérification SerpAPI.
+  useEffect(() => { poolIdsRef.current = poolInfo.ids; }, [poolInfo.ids]);
+
   /** La dernière réponse assistant a-t-elle écarté des concurrents de l'hôte ? */
   const competitorGuardActive = useMemo<boolean>(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
