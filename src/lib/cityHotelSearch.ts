@@ -205,7 +205,10 @@ export async function searchCityHotels(params: CityHotelSearchParams): Promise<C
     .select("id, computed_rating, total_review_count")
     .eq("is_active", true)
     .eq("main_category", "Hôtellerie");
-  otherQuery = allCities ? otherQuery.in("city", cities) : otherQuery.ilike("city", requested);
+  // Corpus imposé : la suite du feed reste dans ces établissements.
+  otherQuery = restrict.size > 0
+    ? otherQuery.in("id", [...restrict])
+    : allCities ? otherQuery.in("city", cities) : otherQuery.ilike("city", requested);
   const { data: otherRows } = await otherQuery
     .order("computed_rating", { ascending: false, nullsFirst: false })
     .limit(200);
