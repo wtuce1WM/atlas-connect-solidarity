@@ -123,19 +123,36 @@ export async function buildTwoEntityProximityCurated(
 
   const initial = intent.radiusKm ?? 1;
   const ladder = strictRadius ? [initial] : [initial, Math.max(initial, 2), Math.max(initial, 3)];
+  // RÈGLE (validée par le propriétaire) : une entité qui porte elle-même la
+  // qualité B (ex. un resort qui EST un golf) est un résultat valide, à distance 0
+  // d'elle-même — en plus de continuer à servir de repère pour les autres.
+  const bIds = new Set(poolB.map((b: any) => String(b.id)));
+  const candidates: any[] = [...poolA];
+  const seenCand = new Set(poolA.map((a: any) => String(a.id)));
+  for (const b of poolB) {
+    const id = String(b.id);
+    if (!seenCand.has(id)) { seenCand.add(id); candidates.push(b); }
+  }
   let kept: any[] = [];
   let radiusUsed = initial;
+  const nearestB = (a: any) => {
+    let bestKm = Infinity;
+    let bestB: any = null;
+    for (const b of poolB) {
+      if (String(b.id) === String(a.id)) continue;
+      if (a.latitude == null || a.longitude == null || b.latitude == null || b.longitude == null) continue;
+      const d = haversineKmLocal(a.latitude, a.longitude, b.latitude, b.longitude);
+      if (d < bestKm) { bestKm = d; bestB = b; }
+    }
+    return { bestKm, bestB };
+  };
   for (const r of ladder) {
-    kept = poolA
+    kept = candidates
       .map((a) => {
-        let bestKm = Infinity;
-        let bestB: any = null;
-        for (const b of poolB) {
-          if (b.id === a.id) continue;
-          if (a.latitude == null || a.longitude == null || b.latitude == null || b.longitude == null) continue;
-          const d = haversineKmLocal(a.latitude, a.longitude, b.latitude, b.longitude);
-          if (d < bestKm) { bestKm = d; bestB = b; }
+        if (bIds.has(String(a.id))) {
+          return { ...a, _nearest_b_km: 0, _nearest_b_name: null, _is_self_b: true };
         }
+        const { bestKm, bestB } = nearestB(a);
         return bestKm <= r ? { ...a, _nearest_b_km: bestKm, _nearest_b_name: bestB?.name || null } : null;
       })
       .filter(Boolean) as any[];
@@ -147,22 +164,17 @@ export async function buildTwoEntityProximityCurated(
   const top = kept.slice(0, 12);
 
   // Collect the B references actually used (nearest B for each kept A within radius).
-  const usedBIds = new Set<string>();
+  const usedBIds = new Set<string>(top.map((b: any) => String(b.id)));
   const bReferences: any[] = [];
   for (const a of top) {
-    let bestKm = Infinity;
-    let bestB: any = null;
-    for (const b of poolB) {
-      if (b.id === a.id) continue;
-      if (a.latitude == null || a.longitude == null || b.latitude == null || b.longitude == null) continue;
-      const d = haversineKmLocal(a.latitude, a.longitude, b.latitude, b.longitude);
-      if (d < bestKm) { bestKm = d; bestB = b; }
-    }
-    if (bestB && !usedBIds.has(bestB.id)) {
-      usedBIds.add(bestB.id);
+    if (a._is_self_b) continue;
+    const { bestB } = nearestB(a);
+    if (bestB && !usedBIds.has(String(bestB.id))) {
+      usedBIds.add(String(bestB.id));
       bReferences.push({ ...bestB, _is_reference: true });
     }
   }
+
 
   const radiusExpanded = radiusUsed > (intent.radiusKm ?? 1);
   const fmt = (r: number) => (r < 1 ? `${Math.round(r * 1000)} m` : Number.isInteger(r) ? `${r} km` : `${r.toFixed(1)} km`);
