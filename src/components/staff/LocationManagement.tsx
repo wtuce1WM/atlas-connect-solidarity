@@ -794,6 +794,7 @@ const LocationManagement = () => {
       official_site_6_url: "",
       description: "",
       image_url: "",
+      business_id: "",
     });
   };
 
