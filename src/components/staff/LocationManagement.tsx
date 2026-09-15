@@ -2985,36 +2985,6 @@ const LocationManagement = () => {
                   </div>
                 </div>
 
-                {/* Description */}
-                <div className="space-y-4">
-                  <h3 className="font-medium text-lg flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4" />
-                    Image
-                  </h3>
-                  <LogoUploader
-                    logoUrl={cityForm.image_url}
-                    onChange={(url) => setCityForm({ ...cityForm, image_url: url })}
-                    businessId={editingCity?.id || "city"}
-                  />
-                </div>
-                <div className="space-y-4">
-                  <h3 className="font-medium text-lg flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Description
-                    <span className="text-sm font-normal text-muted-foreground">
-                      ({cityForm.description.length} / 10 000 caractères)
-                    </span>
-                  </h3>
-                  <RichTextEditor
-                    content={cityForm.description}
-                    onChange={(value) => {
-                      if (value.length <= 10000) {
-                        setCityForm(prev => ({ ...prev, description: value }));
-                      }
-                    }}
-                    placeholder="Description de la ville..."
-                  />
-                </div>
               </CardContent>
             </Card>
 
