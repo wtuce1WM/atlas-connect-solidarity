@@ -168,7 +168,22 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
       }`}
     >
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 md:px-12">
-        <Link to={withLangPrefix("/", language)} aria-label="Accueil" className="flex items-center gap-2 md:gap-3" onClick={() => setMenuOpen(false)}>
+        <Link
+          to={withLangPrefix("/", language)}
+          aria-label="Accueil"
+          className="flex items-center gap-2 md:gap-3"
+          onClick={(e) => {
+            setMenuOpen(false);
+            if (youtubeOverlayOpen) {
+              e.preventDefault();
+              try {
+                window.postMessage({ type: "owm-host:close-youtube" }, window.location.origin);
+                window.postMessage({ type: "owm-host:reset-conversation" }, window.location.origin);
+              } catch { /* noop */ }
+              setYoutubeOverlayOpen(false);
+            }
+          }}
+        >
           <img
             src={logoSrc}
             alt="One World Morocco"
