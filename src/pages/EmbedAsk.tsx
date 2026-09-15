@@ -1004,6 +1004,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       } as any,
     ]);
   };
+  /** Corpus complet du dernier tour (POOL_BUSINESS_IDS), tenu à jour plus bas. */
+  const poolIdsRef = useRef<string[]>([]);
+
   const runCityHotelSearch = async (msgId: string, city: string, checkIn: string, checkOut: string, adults: number) => {
     lastBookingRef.current = { city, checkIn, checkOut, adults };
     lastLodgingCityRef.current = city;
