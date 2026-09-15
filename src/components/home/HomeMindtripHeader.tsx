@@ -31,6 +31,24 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
   const blackHamburger = (cleanPath === "/" || cleanPath === "/install" || cleanPath === "/join" || cleanPath === "/devenir-affilie") && !isWhiteHeaderPage;
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // Overlay YouTube de l'assistant (suggestion « Le meilleur de YouTube ») :
+  // plein écran au-dessus de la Home. Tant qu'il est ouvert, le hamburger est
+  // masqué (sinon il passe derrière le header du panneau vidéo) et le logo
+  // sert de retour : fermeture de l'overlay + assistant IA refermé.
+  const [youtubeOverlayOpen, setYoutubeOverlayOpen] = useState(false);
+
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      if (e.data?.type === "owm-ask:youtube-open") {
+        setYoutubeOverlayOpen(true);
+        setMenuOpen(false);
+      } else if (e.data?.type === "owm-ask:youtube-closed") {
+        setYoutubeOverlayOpen(false);
+      }
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
   const englishEnabled = useEnglishFlag();
 
   useEffect(() => {
@@ -150,7 +168,22 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
       }`}
     >
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 md:px-12">
-        <Link to={withLangPrefix("/", language)} aria-label="Accueil" className="flex items-center gap-2 md:gap-3" onClick={() => setMenuOpen(false)}>
+        <Link
+          to={withLangPrefix("/", language)}
+          aria-label="Accueil"
+          className="flex items-center gap-2 md:gap-3"
+          onClick={(e) => {
+            setMenuOpen(false);
+            if (youtubeOverlayOpen) {
+              e.preventDefault();
+              try {
+                window.postMessage({ type: "owm-host:close-youtube" }, window.location.origin);
+                window.postMessage({ type: "owm-host:reset-conversation" }, window.location.origin);
+              } catch { /* noop */ }
+              setYoutubeOverlayOpen(false);
+            }
+          }}
+        >
           <img
             src={logoSrc}
             alt="One World Morocco"
@@ -210,7 +243,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
           onClick={() => setMenuOpen((v) => !v)}
           className={`${forceHamburger ? "" : "lg:hidden"} ${
             blackHamburger && !scrolled ? "text-black" : "text-white"
-          }`}
+          } ${youtubeOverlayOpen ? "hidden" : ""}`}
         >
           {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
