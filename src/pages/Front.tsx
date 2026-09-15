@@ -889,10 +889,11 @@ const Front = () => {
   // Un panneau de l'assistant (feed vidéo, fiche business, POI) est rendu DANS le
   // conteneur de l'embed : son z-index reste piégé sous le header de /front (z-50),
   // qui intercepterait les taps sur la croix de fermeture. On masque donc le chrome
-  // Home tant qu'un panneau est ouvert, sans exception pour YouTube.
+  // Home tant qu'un panneau est ouvert. Dans l'espace YouTube, le header reste le
+  // header Home normal et son logo conserve la même action de remise à zéro.
   // Quand la conversation IA est ouverte, le header reste visible pour que le
   // logo + OWM ramène à l'accueil IA fermé (owm-host:reset-conversation).
-  const showHomeChrome = (conversationOpen && !askPanelOpen) || (!demoIntro && !mapOpen && !askPanelOpen);
+  const showHomeChrome = youtubeOpen || (conversationOpen && !askPanelOpen) || (!demoIntro && !mapOpen && !askPanelOpen);
 
   /** Feed démo chargé : moitié droite = viewer, moitié gauche = assistant IA fermé. */
   const demoFeedOpen = !!(demoActiveId || demoCardsOnly);
@@ -978,6 +979,7 @@ const Front = () => {
         fixed
         visible={showHomeChrome}
         className="z-[300]"
+        elevatedMenu={youtubeOpen}
         onLogoClick={() => {
           // Même action pour toutes les suggestions : retour à l'accueil IA fermé.
           try {
