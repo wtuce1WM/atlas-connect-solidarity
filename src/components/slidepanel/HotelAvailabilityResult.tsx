@@ -82,10 +82,10 @@ export function HotelAvailabilityResult({
               textColor: "#000000",
             });
           }
-          // Lien de réservation : « Réservez maintenant » en priorité, sinon le
-          // site web de l'établissement (même logique que les vignettes IA).
-          const bookUrl = business.reserve_now_url || (business as any).website || null;
-          const usesWebsiteFallback = !business.reserve_now_url && !!bookUrl;
+          // Lien de réservation : affiché uniquement si une URL de réservation
+          // est renseignée — aucun repli sur le site web.
+          const bookUrl = business.reserve_now_url || null;
+          const usesWebsiteFallback = false;
           if (bookUrl) {
             const isExternal = usesWebsiteFallback
               ? !!(business as any).website_force_external
