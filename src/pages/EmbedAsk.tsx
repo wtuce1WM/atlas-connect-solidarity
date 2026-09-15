@@ -1004,12 +1004,23 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       } as any,
     ]);
   };
+  /** Corpus complet du dernier tour (POOL_BUSINESS_IDS), tenu à jour plus bas. */
+  const poolIdsRef = useRef<string[]>([]);
+
   const runCityHotelSearch = async (msgId: string, city: string, checkIn: string, checkOut: string, adults: number) => {
     lastBookingRef.current = { city, checkIn, checkOut, adults };
     lastLodgingCityRef.current = city;
     setHotelSearchingMsgId(msgId);
     try {
-      const res = await searchCityHotels({ cityName: city, checkIn, checkOut, adults });
+      // Corpus du tour en cours (POOL_BUSINESS_IDS) : la vérification SerpAPI
+      // se limite à ces établissements, jamais à toute la ville.
+      const res = await searchCityHotels({
+        cityName: city,
+        checkIn,
+        checkOut,
+        adults,
+        restrictBusinessIds: poolIdsRef.current,
+      });
       // Le feed vidéo part AVANT l'affichage des résultats dans la réponse IA :
       // d'abord les établissements retournés par SerpAPI (fallback disponibilité),
       // puis les autres hôtels/riads de la ville en affichage normal.
@@ -2927,6 +2938,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     }
     return { ids: [], nb: {}, hasGeo: false, hasHours: false };
   }, [messages]);
+
+  // Le corpus du tour sert de périmètre à la vérification SerpAPI.
+  useEffect(() => { poolIdsRef.current = poolInfo.ids; }, [poolInfo.ids]);
 
   /** La dernière réponse assistant a-t-elle écarté des concurrents de l'hôte ? */
   const competitorGuardActive = useMemo<boolean>(() => {
@@ -4970,6 +4984,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 <div className="w-full flex flex-col gap-3">
                 <AvailabilitySearchOverlay
                     inline
+                    transparent
                     language={lang}
                     isSearching={hotelSearchingMsgId === msgKey}
                     initialCheckIn={bookingResult?.checkIn ?? bookingPayload?.checkIn ?? undefined}

@@ -12,6 +12,12 @@ export interface CityHotelSearchParams {
   checkOut: string;
   adults: number;
   currency?: string;
+  /**
+   * Corpus de la réponse IA en cours (POOL_BUSINESS_IDS) : la vérification
+   * SerpAPI et la suite du feed sont alors limitées à ces établissements,
+   * jamais à toute la ville.
+   */
+  restrictBusinessIds?: string[];
 }
 
 export interface CityHotelSearchResult extends FallbackPanelData {
@@ -81,8 +87,14 @@ export async function searchCityHotels(params: CityHotelSearchParams): Promise<C
     supabase.rpc("get_hotel_mappings_by_city", { _city: allCities ? "%" : requested }),
     supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
   ]);
-  const allMappings = (mappingResult.data || []) as any[];
+  const restrict = new Set((params.restrictBusinessIds || []).map(String).filter(Boolean));
+  // Corpus imposé par la réponse IA : on ne garde que les mappings de ces
+  // établissements (aucune requête SerpAPI sur le reste de la ville).
+  const allMappings = ((mappingResult.data || []) as any[]).filter(
+    (m: any) => restrict.size === 0 || restrict.has(String(m.business_id)),
+  );
   const gammes = (gammeResult.data || []) as any[];
+
 
   // Villes réellement interrogées : celle demandée, ou toutes celles qui ont au
   // moins un établissement mappé (une requête SerpAPI par ville).
@@ -193,7 +205,10 @@ export async function searchCityHotels(params: CityHotelSearchParams): Promise<C
     .select("id, computed_rating, total_review_count")
     .eq("is_active", true)
     .eq("main_category", "Hôtellerie");
-  otherQuery = allCities ? otherQuery.in("city", cities) : otherQuery.ilike("city", requested);
+  // Corpus imposé : la suite du feed reste dans ces établissements.
+  otherQuery = restrict.size > 0
+    ? otherQuery.in("id", [...restrict])
+    : allCities ? otherQuery.in("city", cities) : otherQuery.ilike("city", requested);
   const { data: otherRows } = await otherQuery
     .order("computed_rating", { ascending: false, nullsFirst: false })
     .limit(200);
