@@ -1128,13 +1128,45 @@ serve(async (req) => {
       console.log(`Resolved Web Only service ID → "${webOnlyServiceName}"`);
     }
 
+    // ── Périmètre par les villes des VIDÉOS internes ──────────────────────────
+    // Règle produit : quand au moins une vidéo interne d'un établissement est
+    // rattachée à une ville (`business_document_cities`), cette liaison
+    // vidéo+ville vaut périmètre géographique pour l'établissement — en plus de
+    // sa propre ville de fiche. Ex. « Plage Jebha » (fiche Chefchaouen) dont les
+    // vidéos sont liées à Al Hoceïma doit sortir sur « hoceïma ».
+    let videoCityBusinessIds: string[] = [];
+    if (effectiveCityId) {
+      const { data: vcDocs } = await supabase
+        .from("business_document_cities")
+        .select("document_id")
+        .eq("city_id", effectiveCityId);
+      const docIds = [...new Set((vcDocs || []).map((r: any) => String(r.document_id)))];
+      if (docIds.length) {
+        const ids = new Set<string>();
+        for (let i = 0; i < docIds.length; i += 500) {
+          const { data: docs } = await supabase
+            .from("business_documents")
+            .select("business_id")
+            .eq("type", "video")
+            .in("id", docIds.slice(i, i + 500));
+          for (const d of docs || []) if (d.business_id) ids.add(String(d.business_id));
+        }
+        videoCityBusinessIds = [...ids];
+        console.log(`City "${effectiveCity}" — ${videoCityBusinessIds.length} business(es) rattaché(s) via vidéos internes`);
+      }
+    }
+
     // Helper: build city OR clause including zone_city_ids coverage + "Web only" + "internationale" businesses
     const applyCityFilter = (builder: any) => {
       if (!effectiveCity) return builder;
-      if (strictCity) {
-        return builder.ilike("city", effectiveCity);
-      }
       const conditions: string[] = [`city.ilike.${effectiveCity}`];
+      if (videoCityBusinessIds.length) {
+        conditions.push(`id.in.(${videoCityBusinessIds.join(",")})`);
+      }
+      if (strictCity) {
+        // Strict : ville de la fiche OU ville portée par une vidéo interne.
+        return conditions.length > 1 ? builder.or(conditions.join(",")) : builder.ilike("city", effectiveCity);
+      }
       if (effectiveCityId) {
         // Zone nationale: ville dans zone_city_ids ET is_visible_locale = true
         conditions.push(`and(zone_city_ids.cs.{"${effectiveCityId}"},is_visible_locale.eq.true)`);
@@ -1143,6 +1175,7 @@ serve(async (req) => {
       conditions.push(`and(zone_chalandise.eq.internationale,is_visible_locale.eq.true)`);
       return builder.or(conditions.join(","));
     };
+    const videoCityIdSet = new Set(videoCityBusinessIds);
 
 
     // Related subcategories
@@ -4842,6 +4875,7 @@ serve(async (req) => {
       const cityLower = effectiveCity.toLowerCase();
       const hasAnyInCity = businesses.some((b: any) => {
         if ((b.city || "").toLowerCase() === cityLower) return true;
+        if (videoCityIdSet.has(String(b.id))) return true;
         if (effectiveCityId && b.zone_city_ids?.includes(effectiveCityId) && b.is_visible_locale) return true;
         return false;
       });
