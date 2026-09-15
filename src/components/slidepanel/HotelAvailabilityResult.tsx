@@ -71,14 +71,9 @@ export function HotelAvailabilityResult({
 
         const actionCards: { icon: React.ReactNode; label: string; mobileLabel?: string; onClick: () => void; color: string; textColor?: string }[] = [];
         if (hasAvailability && business) {
-          if (business.whatsapp) {
-            actionCards.push({
-              icon: <WhatsAppIcon className="h-5 w-5" />,
-              label: "WhatsApp",
-              onClick: () => window.open(whatsappUrl(business.whatsapp!), "_blank"),
-              color: "#25D366",
-            });
-          } else if (business.phone) {
+          // Pas de CTA WhatsApp ici : le CTA « Réservez » vert WhatsApp en bas
+          // de bloc joue déjà ce rôle.
+          if (business.phone && !business.whatsapp) {
             actionCards.push({
               icon: <span className="text-lg">📞</span>,
               label: language === "en" ? "Call" : "Téléphone",
