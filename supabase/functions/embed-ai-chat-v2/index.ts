@@ -112,13 +112,25 @@ const CARD_FIELDS =
 
 
 
+/**
+ * Replie les caractères Unicode « stylisés » (gras/italique mathématiques,
+ * pleine largeur, ligatures) vers leurs équivalents ASCII : un copier-coller
+ * depuis Facebook/Instagram (« 𝗣𝗮𝗿𝗰 𝗡𝗮𝘁𝗶𝗼𝗻𝗮𝗹 ») était invisible pour la
+ * normalisation NFD du moteur → aucune ville/destination détectée et repli
+ * texte incohérent. NFKC ne touche pas au texte déjà en ASCII.
+ */
+function foldStyledText(s: string): string {
+  try { return s.normalize("NFKC"); } catch { return s; }
+}
+
 function textOf(m: UIMessage): string {
   const parts = (m as any)?.parts;
   if (Array.isArray(parts)) {
-    return parts.filter((p: any) => p?.type === "text" && typeof p.text === "string").map((p: any) => p.text).join("");
+    return foldStyledText(parts.filter((p: any) => p?.type === "text" && typeof p.text === "string").map((p: any) => p.text).join(""));
   }
-  return String((m as any)?.content ?? "");
+  return foldStyledText(String((m as any)?.content ?? ""));
 }
+
 
 /**
  * Ids d'établissements présentés dans le fil.
