@@ -1009,7 +1009,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     lastLodgingCityRef.current = city;
     setHotelSearchingMsgId(msgId);
     try {
-      const res = await searchCityHotels({ cityName: city, checkIn, checkOut, adults });
+      // Corpus du tour en cours (POOL_BUSINESS_IDS) : la vérification SerpAPI
+      // se limite à ces établissements, jamais à toute la ville.
+      const res = await searchCityHotels({
+        cityName: city,
+        checkIn,
+        checkOut,
+        adults,
+        restrictBusinessIds: poolIdsRef.current,
+      });
       // Le feed vidéo part AVANT l'affichage des résultats dans la réponse IA :
       // d'abord les établissements retournés par SerpAPI (fallback disponibilité),
       // puis les autres hôtels/riads de la ville en affichage normal.
