@@ -1,0 +1,2 @@
+ALTER TABLE public.cities ADD COLUMN IF NOT EXISTS business_id uuid REFERENCES public.businesses(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_cities_business_id ON public.cities(business_id);
