@@ -752,6 +752,7 @@ const LocationManagement = () => {
       official_site_6_url: city.official_site_6_url || "",
       description: city.description || "",
       image_url: (city as any).image_url || "",
+      business_id: (city as any).business_id || "",
     });
     setShowCityForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
