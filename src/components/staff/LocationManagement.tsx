@@ -97,6 +97,7 @@ interface City {
   official_site_6_url: string | null;
   description: string | null;
   image_url: string | null;
+  business_id?: string | null;
 }
 
 interface Neighborhood {
