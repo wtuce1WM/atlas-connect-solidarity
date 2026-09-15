@@ -3654,6 +3654,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setOpenMap(null);
       setOpenEvents(null);
       setOpenBusinessId(null);
+      setYoutubeOpen(false);
     }
     setActiveSuggestionId(null);
     setUsedFollowupIds([]);

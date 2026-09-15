@@ -888,12 +888,11 @@ const Front = () => {
   const narrativeActive = progress < 0.35;
   // Un panneau de l'assistant (feed vidéo, fiche business, POI) est rendu DANS le
   // conteneur de l'embed : son z-index reste piégé sous le header de /front (z-50),
-  // qui interceptait les taps sur la croix de fermeture. On masque donc le chrome
-  // Home tant qu'un panneau est ouvert, SAUF l'overlay YouTube qui a besoin du
-  // logo One World Morocco comme unique retour.
+  // qui intercepterait les taps sur la croix de fermeture. On masque donc le chrome
+  // Home tant qu'un panneau est ouvert, sans exception pour YouTube.
   // Quand la conversation IA est ouverte, le header reste visible pour que le
   // logo + OWM ramène à l'accueil IA fermé (owm-host:reset-conversation).
-  const showHomeChrome = youtubeOpen || (conversationOpen && !askPanelOpen) || (!demoIntro && !mapOpen && !askPanelOpen);
+  const showHomeChrome = (conversationOpen && !askPanelOpen) || (!demoIntro && !mapOpen && !askPanelOpen);
 
   /** Feed démo chargé : moitié droite = viewer, moitié gauche = assistant IA fermé. */
   const demoFeedOpen = !!(demoActiveId || demoCardsOnly);
@@ -974,27 +973,17 @@ const Front = () => {
         }}
       />
 
-      {/* Mini-header pinné (identité + menu) — visible écrans 1 et 2, masqué pendant la démo.
-          Reste affiché au-dessus de l'overlay YouTube pour servir de retour (logo + OWM). */}
+      {/* Mini-header pinné (identité + menu) — même comportement pour toutes les suggestions. */}
       <FrontHeader
         fixed
         visible={showHomeChrome}
         className="z-[300]"
-        elevatedMenu={youtubeOpen}
         onLogoClick={() => {
-
-          // Overlay YouTube ouvert : le logo sert de fermeture.
-          if (youtubeOpen) {
-            try { window.postMessage({ type: "owm-host:close-youtube" }, window.location.origin); } catch { /* noop */ }
-            try { window.postMessage({ type: "owm-host:reset-conversation" }, window.location.origin); } catch { /* noop */ }
-            setYoutubeOpen(false);
-          }
-          // Dès que le logo + OWM est visible, son clic revient sans condition
-          // à l'accueil IA fermé. Aucun état intermédiaire (suggestions, relance,
-          // feed) ne doit pouvoir détourner ou neutraliser cette action.
+          // Même action pour toutes les suggestions : retour à l'accueil IA fermé.
           try {
             window.postMessage({ type: "owm-host:reset-conversation" }, window.location.origin);
           } catch { /* noop */ }
+          setYoutubeOpen(false);
           setSuggestionsExpanded(false);
           setConversationOpen(false);
           setAskLocked(false);
