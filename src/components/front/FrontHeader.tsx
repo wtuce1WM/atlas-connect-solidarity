@@ -100,7 +100,12 @@ const LogoBlock = ({
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={(event) => {
+        // Le header est rendu dans la section cliquable de la Home : sans arrêt
+        // de propagation, le retour logo déclenche aussi l'étape suivante du Hero.
+        event.stopPropagation();
+        onClick();
+      }}
       className="flex items-center gap-3 cursor-pointer transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-sm"
     >
       {content}
