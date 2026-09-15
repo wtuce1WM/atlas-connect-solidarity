@@ -133,21 +133,24 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
   return (
     <>
       <div
-        className={`${wrapperClass} flex items-center justify-between px-5 py-4 pt-safe md:px-10 transition-opacity duration-300 ${
-          // Menu ouvert : le header (z-300) passerait au-dessus de l'overlay (z-60)
-          // et intercepterait le clic sur la croix — on neutralise ses événements.
-          visible && !menuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        className={`${wrapperClass} flex items-center justify-between px-5 py-4 pt-safe md:px-10 transition-opacity duration-300 pointer-events-none ${
+          // Le conteneur ne capte JAMAIS les clics : transparent et pleine largeur,
+          // il masquait la croix des panneaux ouverts dessous (overlay YouTube…).
+          // Seuls le logo et le hamburger sont cliquables.
+          visible && !menuOpen ? "opacity-100" : "opacity-0"
         } ${solid ? "bg-[rgba(6,5,4,0.92)] backdrop-blur-md border-b border-white/10" : ""}`}
         aria-hidden={!visible || menuOpen}
       >
-        <LogoBlock onClick={handleLogoClick} />
+        <div className={visible && !menuOpen ? "pointer-events-auto" : ""}>
+          <LogoBlock onClick={handleLogoClick} />
+        </div>
         <button
           type="button"
           aria-label="Ouvrir le menu"
           aria-expanded={menuOpen}
           onClick={() => setOpen(true)}
           className={`mt-2 rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-            menuOpen ? "pointer-events-none opacity-0" : ""
+            visible && !menuOpen ? "pointer-events-auto" : "opacity-0"
           }`}
         >
           <Menu className="h-5 w-5" />
