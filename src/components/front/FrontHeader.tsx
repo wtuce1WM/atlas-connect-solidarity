@@ -159,7 +159,7 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
 
       {/* Overlay menu navigation */}
       <div
-        className={`fixed inset-0 ${elevatedMenu ? "z-[220]" : "z-[60]"} flex flex-col bg-black/90 backdrop-blur-md transition-opacity duration-300 ${
+        className={`fixed inset-0 ${elevatedMenu ? "z-[420]" : "z-[60]"} flex flex-col bg-black/90 backdrop-blur-md transition-opacity duration-300 ${
           menuOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         aria-hidden={!menuOpen}
