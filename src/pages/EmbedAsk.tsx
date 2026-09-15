@@ -1560,10 +1560,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // ET masque son header + CTA vert, qui sinon interceptent les taps au-dessus de
   // l'iframe (croix de fermeture des panneaux / de l'overlay Réservation).
   useEffect(() => {
-    const payload = { type: "owm-ask:video-panel", open: anyPanelOpen || showBookingOverlay };
+    const payload = {
+      type: "owm-ask:video-panel",
+      open: anyPanelOpen || showBookingOverlay,
+      youtubePanelOpen,
+    };
     try { window.postMessage(payload, "*"); } catch { /* noop */ }
     try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, "*"); } catch { /* cross-origin */ }
-  }, [anyPanelOpen, showBookingOverlay]);
+  }, [anyPanelOpen, showBookingOverlay, youtubePanelOpen]);
 
 
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);

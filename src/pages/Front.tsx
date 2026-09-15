@@ -791,6 +791,9 @@ const Front = () => {
   const [heroRevealed, setHeroRevealed] = useState(false);
   // Panneau de l'assistant ouvert (feed vidéo / fiche business / POI).
   const [askPanelOpen, setAskPanelOpen] = useState(false);
+  // Conserve explicitement le header Home au-dessus du slidepanel ouvert depuis
+  // la suggestion YouTube, même si l'état de l'overlay se ferme avant le panneau.
+  const [youtubePanelOpen, setYoutubePanelOpen] = useState(false);
 
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
@@ -819,6 +822,7 @@ const Front = () => {
       } else if (e.data?.type === "owm-ask:video-panel") {
          // VideoSlidePanel OU BookOnlineSlidePanel ouvert : vidéo de fond en pause.
          setAskPanelOpen(!!e.data.open);
+         setYoutubePanelOpen(!!e.data.youtubePanelOpen);
          if (e.data.open) backgroundVideoRef.current?.pause();
       } else if (e.data?.type === "owm-ask:suggestions-expanded") {
         setSuggestionsExpanded(!!e.data.expanded);
@@ -893,7 +897,7 @@ const Front = () => {
   // header Home normal et son logo conserve la même action de remise à zéro.
   // Quand la conversation IA est ouverte, le header reste visible pour que le
   // logo + OWM ramène à l'accueil IA fermé (owm-host:reset-conversation).
-  const showHomeChrome = youtubeOpen || (conversationOpen && !askPanelOpen) || (!demoIntro && !mapOpen && !askPanelOpen);
+  const showHomeChrome = youtubeOpen || youtubePanelOpen || (conversationOpen && !askPanelOpen) || (!demoIntro && !mapOpen && !askPanelOpen);
 
   /** Feed démo chargé : moitié droite = viewer, moitié gauche = assistant IA fermé. */
   const demoFeedOpen = !!(demoActiveId || demoCardsOnly);
@@ -990,6 +994,7 @@ const Front = () => {
           setConversationOpen(false);
           setAskLocked(false);
           setAskPanelOpen(false);
+          setYoutubePanelOpen(false);
           setMapOpen(false);
           const video = backgroundVideoRef.current;
           if (video?.paused) void video.play().catch(() => undefined);
