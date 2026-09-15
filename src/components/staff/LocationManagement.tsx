@@ -649,7 +649,7 @@ const LocationManagement = () => {
     }
 
     const data = {
-      country_id: cityForm.country_id,
+      country_id: cityForm.country_id || countries[0]?.id,
       name_fr: cityForm.name_fr.trim(),
       name_en: cityForm.name_en.trim() || null,
       name_ar: cityForm.name_ar.trim() || null,
