@@ -2751,23 +2751,6 @@ const LocationManagement = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Country selection */}
-                <div className="space-y-2">
-                  <Label>Pays *</Label>
-                  <Select
-                    value={cityForm.country_id}
-                    onValueChange={(val) => setCityForm({ ...cityForm, country_id: val })}
-                  >
-                    <SelectTrigger className="max-w-md">
-                      <SelectValue placeholder="Sélectionner un pays" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countries.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.name_fr}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
 
                 {/* Names section */}
                 <div className="space-y-4">
