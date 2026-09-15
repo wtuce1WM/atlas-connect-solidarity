@@ -201,7 +201,10 @@ export async function matchFrontBadgeInMessage(
         ]),
       ),
     );
-    const extra = alsoSyn.some((s) => s.id !== best!.id);
+    // Un synonyme curé qui désigne LE MÊME badge (ex. ligne « plages » ⇢ badge
+    // « Plage ») vaut intention explicite : il ouvre la route même sur un
+    // libellé mono-mot, comme un synonyme désignant un autre badge.
+    const extra = alsoSyn.length > 0;
     return { id: best.id, name: best.name, viaSynonym: extra || undefined };
   }
   // Repli SYNONYME : aucun libellé littéral, mais le message porte une intention
