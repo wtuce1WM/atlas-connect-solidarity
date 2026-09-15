@@ -162,7 +162,7 @@ export async function buildTwoEntityProximityCurated(
 
 
   kept.sort((x, y) => (Number(y.priority_score ?? 0) - Number(x.priority_score ?? 0)) || (Number(y.computed_rating ?? 0) - Number(x.computed_rating ?? 0)));
-  const top = kept.slice(0, 12);
+  const top = kept.slice(0, 20);
 
   // Collect the B references actually used (nearest B for each kept A within radius).
   const usedBIds = new Set<string>(top.map((b: any) => String(b.id)));
