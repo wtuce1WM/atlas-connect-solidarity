@@ -12,6 +12,12 @@ export interface CityHotelSearchParams {
   checkOut: string;
   adults: number;
   currency?: string;
+  /**
+   * Corpus de la réponse IA en cours (POOL_BUSINESS_IDS) : la vérification
+   * SerpAPI et la suite du feed sont alors limitées à ces établissements,
+   * jamais à toute la ville.
+   */
+  restrictBusinessIds?: string[];
 }
 
 export interface CityHotelSearchResult extends FallbackPanelData {
