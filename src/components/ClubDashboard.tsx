@@ -898,13 +898,19 @@ const ClubDashboard = ({ user }: ClubDashboardProps) => {
               `transform: translateZ(0)` crée un bloc conteneur : tous les
               enfants `position: fixed` de EmbedAsk (assistant, overlays,
               panneaux) restent enfermés dans ce cadre noir. */}
-          <div
-            className="relative h-[calc(100dvh-13rem)] min-h-[480px] w-full overflow-hidden rounded-2xl bg-[hsl(0_0%_4%)]"
-            style={{ transform: "translateZ(0)", contain: "paint" }}
-          >
-            <Suspense fallback={<div className="h-full w-full bg-[hsl(0_0%_4%)]" />}>
-              <EmbedAskInline paramsOverride="scope=club&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light&persist=0" />
-            </Suspense>
+          {/* Pleine largeur : le parent (section px-4 dans Club.tsx) ajoute un
+              padding horizontal de 1rem — `-mx-4` annule ce padding pour que
+              l'assistant occupe 100 % de la largeur du viewport, sans coins
+              arrondis (sinon liseré orange visible sur les bords). */}
+          <div className="-mx-4">
+            <div
+              className="relative h-[calc(100dvh-13rem)] min-h-[480px] w-full overflow-hidden bg-[hsl(0_0%_4%)]"
+              style={{ transform: "translateZ(0)", contain: "paint" }}
+            >
+              <Suspense fallback={<div className="h-full w-full bg-[hsl(0_0%_4%)]" />}>
+                <EmbedAskInline paramsOverride="scope=club&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light&persist=0" />
+              </Suspense>
+            </div>
           </div>
         </TabsContent>
 
