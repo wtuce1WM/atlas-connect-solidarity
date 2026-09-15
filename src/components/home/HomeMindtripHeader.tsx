@@ -243,7 +243,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
           onClick={() => setMenuOpen((v) => !v)}
           className={`${forceHamburger ? "" : "lg:hidden"} ${
             blackHamburger && !scrolled ? "text-black" : "text-white"
-          }`}
+          } ${youtubeOverlayOpen ? "hidden" : ""}`}
         >
           {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
