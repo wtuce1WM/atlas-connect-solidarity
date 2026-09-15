@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import FrontHeader from "@/components/front/FrontHeader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import HomeBottomBar from "@/components/HomeBottomBar";
+
 import { Crown, Loader2, Mail, Eye, EyeOff, Home, ArrowUp, ChevronDown, ChevronUp } from "lucide-react";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
@@ -1177,23 +1177,11 @@ const Club = () => {
       )}
       {user && activeTab !== "assistant" && <ClubYoutubeRecommendations />}
       <Footer variant="verified" />
-      <ClubBottomBarSlot />
+
 
     </div>
   );
 };
 
-// Hides HomeBottomBar (4 CTAs) when the ClubAiAssistant opens a business slide-panel
-// (which renders its own PanelSearchBar with 6 CTAs at the bottom).
-const ClubBottomBarSlot = () => {
-  const [panelOpen, setPanelOpen] = useState(false);
-  useEffect(() => {
-    const handler = (e: Event) => setPanelOpen(!!(e as CustomEvent).detail?.open);
-    window.addEventListener("club:panel", handler as EventListener);
-    return () => window.removeEventListener("club:panel", handler as EventListener);
-  }, []);
-  if (panelOpen) return null;
-  return <HomeBottomBar />;
-};
 
 export default Club;
