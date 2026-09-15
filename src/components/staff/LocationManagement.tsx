@@ -97,6 +97,7 @@ interface City {
   official_site_6_url: string | null;
   description: string | null;
   image_url: string | null;
+  business_id?: string | null;
 }
 
 interface Neighborhood {
@@ -419,7 +420,29 @@ const LocationManagement = () => {
     official_site_6_url: "",
     description: "",
     image_url: "",
+    business_id: "",
   });
+
+  // Établissements de la ville en cours d'édition (pour le lien Ville ↔ établissement)
+  const [cityBusinesses, setCityBusinesses] = useState<{ id: string; name: string }[]>([]);
+  const [cityBusinessSearch, setCityBusinessSearch] = useState("");
+
+  useEffect(() => {
+    const cityName = cityForm.name_fr.trim();
+    if (!showCityForm || !cityName) { setCityBusinesses([]); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name")
+        .eq("city", cityName)
+        .order("name");
+      if (!cancelled) setCityBusinesses(((data as any[]) || []).map((b) => ({ id: b.id, name: b.name })));
+    })();
+    return () => { cancelled = true; };
+  }, [showCityForm, cityForm.name_fr]);
+
+
 
   useEffect(() => {
     fetchData();
@@ -637,7 +660,7 @@ const LocationManagement = () => {
   // City handlers
 
   const handleSaveCity = async () => {
-    if (!cityForm.name_fr.trim() || !cityForm.country_id) {
+    if (!cityForm.name_fr.trim() || !(cityForm.country_id || countries[0]?.id)) {
       toast({ variant: "destructive", title: "Erreur", description: "Le nom français et le pays sont requis." });
       return;
     }
@@ -647,7 +670,7 @@ const LocationManagement = () => {
     }
 
     const data = {
-      country_id: cityForm.country_id,
+      country_id: cityForm.country_id || countries[0]?.id,
       name_fr: cityForm.name_fr.trim(),
       name_en: cityForm.name_en.trim() || null,
       name_ar: cityForm.name_ar.trim() || null,
@@ -674,6 +697,7 @@ const LocationManagement = () => {
       official_site_6_url: cityForm.official_site_6_url.trim() || null,
       description: cityForm.description.trim().slice(0, 10000) || null,
       image_url: cityForm.image_url.trim() || null,
+      business_id: cityForm.business_id || null,
       keywords: cityForm.keywords.length > 0 ? cityForm.keywords : [],
     };
 
@@ -750,6 +774,7 @@ const LocationManagement = () => {
       official_site_6_url: city.official_site_6_url || "",
       description: city.description || "",
       image_url: (city as any).image_url || "",
+      business_id: (city as any).business_id || "",
     });
     setShowCityForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
@@ -791,6 +816,7 @@ const LocationManagement = () => {
       official_site_6_url: "",
       description: "",
       image_url: "",
+      business_id: "",
     });
   };
 
@@ -2725,23 +2751,6 @@ const LocationManagement = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Country selection */}
-                <div className="space-y-2">
-                  <Label>Pays *</Label>
-                  <Select
-                    value={cityForm.country_id}
-                    onValueChange={(val) => setCityForm({ ...cityForm, country_id: val })}
-                  >
-                    <SelectTrigger className="max-w-md">
-                      <SelectValue placeholder="Sélectionner un pays" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countries.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.name_fr}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
 
                 {/* Names section */}
                 <div className="space-y-4">
@@ -2791,6 +2800,97 @@ const LocationManagement = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Image */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    Image
+                  </h3>
+                  <LogoUploader
+                    logoUrl={cityForm.image_url}
+                    onChange={(url) => setCityForm({ ...cityForm, image_url: url })}
+                    businessId={editingCity?.id || "city"}
+                  />
+                </div>
+
+                {/* Description */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Description
+                    <span className="text-sm font-normal text-muted-foreground">
+                      ({cityForm.description.length} / 10 000 caractères)
+                    </span>
+                  </h3>
+                  <RichTextEditor
+                    content={cityForm.description}
+                    onChange={(value) => {
+                      if (value.length <= 10000) {
+                        setCityForm(prev => ({ ...prev, description: value }));
+                      }
+                    }}
+                    placeholder="Description de la ville..."
+                  />
+                </div>
+
+                {/* Établissement lié */}
+                <div className="space-y-3">
+                  <h3 className="font-medium text-lg flex items-center gap-2">
+                    <Building className="h-4 w-4" />
+                    Établissement lié
+                    <span className="text-sm font-normal text-muted-foreground">
+                      (1 établissement de la ville)
+                    </span>
+                  </h3>
+                  {cityForm.business_id ? (
+                    <div className="flex items-center gap-2 max-w-md p-2 border rounded-lg">
+                      <span className="text-sm flex-1 truncate">
+                        {cityBusinesses.find(b => b.id === cityForm.business_id)?.name || cityForm.business_id}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setCityForm({ ...cityForm, business_id: "" })}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-w-md">
+                      <Input
+                        value={cityBusinessSearch}
+                        onChange={(e) => setCityBusinessSearch(e.target.value)}
+                        placeholder={cityForm.name_fr ? `Rechercher un établissement à ${cityForm.name_fr}...` : "Renseignez d'abord le nom de la ville"}
+                        disabled={!cityForm.name_fr.trim()}
+                      />
+                      {cityBusinessSearch.trim().length > 0 && (
+                        <div className="max-h-56 overflow-y-auto border rounded-lg divide-y">
+                          {cityBusinesses
+                            .filter(b => b.name.toLowerCase().includes(cityBusinessSearch.trim().toLowerCase()))
+                            .slice(0, 50)
+                            .map(b => (
+                              <button
+                                key={b.id}
+                                type="button"
+                                onClick={() => {
+                                  setCityForm({ ...cityForm, business_id: b.id });
+                                  setCityBusinessSearch("");
+                                }}
+                                className="w-full text-left px-3 py-2 text-sm hover:bg-muted"
+                              >
+                                {b.name}
+                              </button>
+                            ))}
+                          {cityBusinesses.filter(b => b.name.toLowerCase().includes(cityBusinessSearch.trim().toLowerCase())).length === 0 && (
+                            <p className="px-3 py-2 text-sm text-muted-foreground">Aucun établissement trouvé</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-4">
@@ -2976,36 +3076,6 @@ const LocationManagement = () => {
                   </div>
                 </div>
 
-                {/* Description */}
-                <div className="space-y-4">
-                  <h3 className="font-medium text-lg flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4" />
-                    Image
-                  </h3>
-                  <LogoUploader
-                    logoUrl={cityForm.image_url}
-                    onChange={(url) => setCityForm({ ...cityForm, image_url: url })}
-                    businessId={editingCity?.id || "city"}
-                  />
-                </div>
-                <div className="space-y-4">
-                  <h3 className="font-medium text-lg flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Description
-                    <span className="text-sm font-normal text-muted-foreground">
-                      ({cityForm.description.length} / 10 000 caractères)
-                    </span>
-                  </h3>
-                  <RichTextEditor
-                    content={cityForm.description}
-                    onChange={(value) => {
-                      if (value.length <= 10000) {
-                        setCityForm(prev => ({ ...prev, description: value }));
-                      }
-                    }}
-                    placeholder="Description de la ville..."
-                  />
-                </div>
               </CardContent>
             </Card>
 

@@ -3745,6 +3745,7 @@ export type Database = {
       }
       cities: {
         Row: {
+          business_id: string | null
           country_id: string
           created_at: string | null
           description: string | null
@@ -3781,6 +3782,7 @@ export type Database = {
           wikipedia_fr: string | null
         }
         Insert: {
+          business_id?: string | null
           country_id: string
           created_at?: string | null
           description?: string | null
@@ -3817,6 +3819,7 @@ export type Database = {
           wikipedia_fr?: string | null
         }
         Update: {
+          business_id?: string | null
           country_id?: string
           created_at?: string | null
           description?: string | null
@@ -3853,6 +3856,20 @@ export type Database = {
           wikipedia_fr?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "cities_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cities_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "cities_country_id_fkey"
             columns: ["country_id"]
