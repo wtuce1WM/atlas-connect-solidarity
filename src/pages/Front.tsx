@@ -806,6 +806,12 @@ const Front = () => {
         setDemoIntro(false);
       } else if (e.data?.type === "owm-ask:new-conversation") {
         // Nouvelle conversation : la lecture de la vidéo de fond reprend.
+        setAskLocked(false);
+        setConversationOpen(false);
+        setAskPanelOpen(false);
+        setSuggestionsExpanded(false);
+        setMapOpen(false);
+        setYoutubeOpen(false);
         const video = backgroundVideoRef.current;
         if (video?.paused) void video.play().catch(() => undefined);
      } else if (e.data?.type === "owm-ask:conversation-open") {
@@ -980,8 +986,8 @@ const Front = () => {
           // Overlay YouTube ouvert : le logo sert de fermeture.
           if (youtubeOpen) {
             try { window.postMessage({ type: "owm-host:close-youtube" }, window.location.origin); } catch { /* noop */ }
+            try { window.postMessage({ type: "owm-host:reset-conversation" }, window.location.origin); } catch { /* noop */ }
             setYoutubeOpen(false);
-            return;
           }
           // Dès que le logo + OWM est visible, son clic revient sans condition
           // à l'accueil IA fermé. Aucun état intermédiaire (suggestions, relance,
@@ -991,6 +997,9 @@ const Front = () => {
           } catch { /* noop */ }
           setSuggestionsExpanded(false);
           setConversationOpen(false);
+          setAskLocked(false);
+          setAskPanelOpen(false);
+          setMapOpen(false);
           const video = backgroundVideoRef.current;
           if (video?.paused) void video.play().catch(() => undefined);
         }}
