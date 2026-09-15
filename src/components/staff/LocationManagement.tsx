@@ -639,7 +639,7 @@ const LocationManagement = () => {
   // City handlers
 
   const handleSaveCity = async () => {
-    if (!cityForm.name_fr.trim() || !cityForm.country_id) {
+    if (!cityForm.name_fr.trim() || !(cityForm.country_id || countries[0]?.id)) {
       toast({ variant: "destructive", title: "Erreur", description: "Le nom français et le pays sont requis." });
       return;
     }
