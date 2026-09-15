@@ -902,7 +902,7 @@ const ClubDashboard = ({ user }: ClubDashboardProps) => {
               padding horizontal de 1rem — `-mx-4` annule ce padding pour que
               l'assistant occupe 100 % de la largeur du viewport, sans coins
               arrondis (sinon liseré orange visible sur les bords). */}
-          <div className="-mx-4 -mt-6 mb-6">
+          <div className="-mx-4">
             <div
               className="relative h-[calc(100dvh-13rem)] min-h-[480px] w-full overflow-hidden bg-[hsl(0_0%_4%)]"
               style={{ transform: "translateZ(0)", contain: "paint" }}
