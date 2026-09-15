@@ -1407,6 +1407,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
   /** Overlay inline « Le meilleur de YouTube sur le Maroc » (variante compacte de /youtube). */
   const [youtubeOpen, setYoutubeOpen] = useState(false);
+  const [youtubePanelOpen, setYoutubePanelOpen] = useState(false);
+  useEffect(() => {
+    const onYoutubePanel = (event: Event) => {
+      const detail = (event as CustomEvent<{ open?: boolean }>).detail;
+      setYoutubePanelOpen(!!detail?.open);
+    };
+    window.addEventListener("ytbg:panel", onYoutubePanel);
+    return () => window.removeEventListener("ytbg:panel", onYoutubePanel);
+  }, []);
   // Signale au parent (/front) l'ouverture/fermeture de l'overlay YouTube :
   // le header de l'hôte se masque pendant l'overlay (comme l'overlay Map).
   useEffect(() => {
@@ -1520,7 +1529,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Signal « panneau ouvert/fermé » : l'hôte (/front) met sa vidéo de fond en pause.
   // Couvre les DEUX parcours viewer : VideoSlidePanel (feed vidéo) ET
   // BookOnlineSlidePanel (fiche business, carte des résultats, POI générique).
-  const anyPanelOpen = !!activeFeedVideoId || !!openBusinessId || !!openMap || openGenericPoi;
+  const anyPanelOpen = !!activeFeedVideoId || !!openBusinessId || !!openMap || openGenericPoi || youtubePanelOpen;
 
   // Dès que l'accueil IA se transforme en conversation, lecteur vidéo ou overlay,
   // on efface le texte d'attente et l'état visuel du chip cliqué.
@@ -3654,6 +3663,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       setOpenMap(null);
       setOpenEvents(null);
       setOpenBusinessId(null);
+      setYoutubeOpen(false);
     }
     setActiveSuggestionId(null);
     setUsedFollowupIds([]);
