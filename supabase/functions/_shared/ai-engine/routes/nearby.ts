@@ -159,6 +159,12 @@ export async function buildTwoEntityProximityCurated(
     if (kept.length) { radiusUsed = r; break; }
   }
   if (!kept.length) return null;
+  console.log("[nearby] two_entity_pools", JSON.stringify({
+    poolA: poolA.map((b: any) => b.name),
+    poolB: poolB.map((b: any) => b.name),
+    kept: kept.map((b: any) => `${b.name}${b._is_self_b ? "*" : ""}`),
+  }));
+
 
   kept.sort((x, y) => (Number(y.priority_score ?? 0) - Number(x.priority_score ?? 0)) || (Number(y.computed_rating ?? 0) - Number(x.computed_rating ?? 0)));
   const top = kept.slice(0, 12);
