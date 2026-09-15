@@ -87,8 +87,14 @@ export async function searchCityHotels(params: CityHotelSearchParams): Promise<C
     supabase.rpc("get_hotel_mappings_by_city", { _city: allCities ? "%" : requested }),
     supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
   ]);
-  const allMappings = (mappingResult.data || []) as any[];
+  const restrict = new Set((params.restrictBusinessIds || []).map(String).filter(Boolean));
+  // Corpus imposé par la réponse IA : on ne garde que les mappings de ces
+  // établissements (aucune requête SerpAPI sur le reste de la ville).
+  const allMappings = ((mappingResult.data || []) as any[]).filter(
+    (m: any) => restrict.size === 0 || restrict.has(String(m.business_id)),
+  );
   const gammes = (gammeResult.data || []) as any[];
+
 
   // Villes réellement interrogées : celle demandée, ou toutes celles qui ont au
   // moins un établissement mappé (une requête SerpAPI par ville).
