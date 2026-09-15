@@ -536,7 +536,7 @@ Deno.serve(async (req) => {
   const visibleUserMessage = textOf([...uiMessages].reverse().find((m: any) => m?.role === "user") as UIMessage) || "";
   // Changement de rayon depuis Home : le message visible reste « rayon 5 km »,
   // mais la recherche initiale est rejouée pour reconstruire un corpus complet.
-  const searchQuery = typeof body.searchQuery === "string" ? body.searchQuery.trim().slice(0, 500) : "";
+  const searchQuery = typeof body.searchQuery === "string" ? foldStyledText(body.searchQuery.trim()).slice(0, 500) : "";
   const userMessage = searchQuery || visibleUserMessage;
   /**
    * Demande utilisateur du tour précédent. Sert à une seule chose : une relance qui
