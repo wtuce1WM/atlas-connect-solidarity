@@ -423,6 +423,27 @@ const LocationManagement = () => {
     business_id: "",
   });
 
+  // Établissements de la ville en cours d'édition (pour le lien Ville ↔ établissement)
+  const [cityBusinesses, setCityBusinesses] = useState<{ id: string; name: string }[]>([]);
+  const [cityBusinessSearch, setCityBusinessSearch] = useState("");
+
+  useEffect(() => {
+    const cityName = cityForm.name_fr.trim();
+    if (!showCityForm || !cityName) { setCityBusinesses([]); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name")
+        .eq("city", cityName)
+        .order("name");
+      if (!cancelled) setCityBusinesses(((data as any[]) || []).map((b) => ({ id: b.id, name: b.name })));
+    })();
+    return () => { cancelled = true; };
+  }, [showCityForm, cityForm.name_fr]);
+
+
+
   useEffect(() => {
     fetchData();
   }, []);
