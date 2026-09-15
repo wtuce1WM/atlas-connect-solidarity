@@ -160,6 +160,7 @@ export async function buildTwoEntityProximityCurated(
   }
   if (!kept.length) return null;
 
+
   kept.sort((x, y) => (Number(y.priority_score ?? 0) - Number(x.priority_score ?? 0)) || (Number(y.computed_rating ?? 0) - Number(x.computed_rating ?? 0)));
   const top = kept.slice(0, 12);
 
