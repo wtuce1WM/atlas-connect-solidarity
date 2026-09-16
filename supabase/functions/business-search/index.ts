@@ -2195,7 +2195,7 @@ serve(async (req) => {
         .select("business_id")
         .eq("badge_id", matchedSynonymBadgeId);
       if (bbErr) console.error("badge-only badges error:", bbErr.message);
-      console.log(`badge-only debug: badgeBiz=${bbData?.length ?? 0} videoCityIds=${videoCityBusinessIds.length}`);
+      
       if (bbData && bbData.length > 0) {
         const badgeBizIds = bbData.map((bb: any) => bb.business_id);
         let builder = supabase.from("businesses").select("*")
