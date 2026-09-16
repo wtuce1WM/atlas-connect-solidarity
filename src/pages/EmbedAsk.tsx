@@ -815,7 +815,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   }, []);
 
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null; is_platform_visible?: boolean };
-  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null; city?: string | null; subcategory_ids?: string[]; badge_ids?: string[]; business_ids?: string[] };
+  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[]; mode?: string | null; city?: string | null; subcategory_ids?: string[]; badge_ids?: string[]; badges_match_all?: boolean; business_ids?: string[] };
   // Affichage immédiat : les suggestions du dernier chargement sont relues
   // synchrone (mémoire puis localStorage) pour que les chips soient peintes dès
   // la première frame ; la requête réseau rafraîchit ensuite la liste.
@@ -1904,7 +1904,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     (async () => {
       const data = await publicSelect(
         "ai_suggestions",
-        `select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode,subcategory_ids,badge_ids,updated_at&surface=eq.${suggestionSurface}&is_active=eq.true&order=sort_order.asc`,
+        `select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode,subcategory_ids,badge_ids,badges_match_all,updated_at&surface=eq.${suggestionSurface}&is_active=eq.true&order=sort_order.asc`,
       );
       if (cancelled) return;
       if (!data) {
@@ -1940,6 +1940,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           mode: (r.mode as string | null) ?? null,
           subcategory_ids: Array.isArray(r.subcategory_ids) ? (r.subcategory_ids as string[]) : [],
           badge_ids: Array.isArray(r.badge_ids) ? (r.badge_ids as string[]) : [],
+          badges_match_all: r.badges_match_all === true,
           business_ids: Array.isArray(r.business_ids) ? (r.business_ids as string[]) : [],
           city: (r.city as string | null) ?? null,
         }))
@@ -2377,7 +2378,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       // Le pré-vol serveur attend ce résultat : si l'ouverture immédiate réussit,
       // il ne doit PAS remplacer le feed (sinon la vidéo 2 s'affiche seule quand
       // la réponse IA arrive).
-      const earlyPromise = openEarlyBadgeFeed(feedSuggestion.badge_ids as string[]).then((ok) => {
+      const earlyPromise = openEarlyBadgeFeed(
+        feedSuggestion.badge_ids as string[],
+        feedSuggestion.badges_match_all === true,
+      ).then((ok) => {
         // Feed vide / erreur : rien ne s'ouvre → on rétablit la conversation.
         if (!ok) setFeedOpening(false);
         return ok;
@@ -3104,12 +3108,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * Ouverture immédiate du feed vidéo d'une suggestion badgée, sans attendre le
    * modèle : même source de vérité (`fetchBadgesVideoFeed`) que le serveur.
    */
-  const openEarlyBadgeFeed = useCallback(async (badgeIds: string[]): Promise<boolean> => {
+  const openEarlyBadgeFeed = useCallback(async (badgeIds: string[], matchAll = true): Promise<boolean> => {
     try {
-      const { fetchTieredBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
+      const { fetchBadgesVideoFeed, fetchTieredBadgesVideoFeed } = await import("@/lib/badgeVideoFeed");
       const seed = Math.random().toString(36).slice(2, 10);
-      // Multi-badges : intersection STRICTE uniquement — vide ⇒ pas de feed.
-      const { items, total } = await fetchTieredBadgesVideoFeed(badgeIds, { seed, limit: 30 });
+      // Respecte le réglage back-office : tous les badges = intersection stricte,
+      // au moins un badge = union du pool (cas de la suggestion « Culture »).
+      const { items, total } = matchAll
+        ? await fetchTieredBadgesVideoFeed(badgeIds, { seed, limit: 30 })
+        : await fetchBadgesVideoFeed(badgeIds, { seed, limit: 30 });
       if (!items.length) return false;
       earlyFeedOpenRef.current = true;
       setVideoFeedList(items);
