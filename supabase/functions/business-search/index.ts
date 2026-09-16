@@ -1134,33 +1134,36 @@ serve(async (req) => {
     // vidéo+ville vaut périmètre géographique pour l'établissement — en plus de
     // sa propre ville de fiche. Ex. « Plage Jebha » (fiche Chefchaouen) dont les
     // vidéos sont liées à Al Hoceïma doit sortir sur « hoceïma ».
+    // Une seule requête en base (jointure côté Postgres, ~10 ms) : la version
+    // précédente enchaînait 1 + N/500 allers-retours (≈16 s sur Marrakech) et
+    // était en plus tronquée à 1 000 lignes par le client → résultat faux.
+    // La fonction ne renvoie que les établissements dont la fiche n'est PAS
+    // déjà dans la ville demandée : ce sont les seuls que cette règle ajoute.
     let videoCityBusinessIds: string[] = [];
     if (effectiveCityId) {
-      const { data: vcDocs } = await supabase
-        .from("business_document_cities")
-        .select("document_id")
-        .eq("city_id", effectiveCityId);
-      const docIds = [...new Set((vcDocs || []).map((r: any) => String(r.document_id)))];
-      if (docIds.length) {
-        const ids = new Set<string>();
-        for (let i = 0; i < docIds.length; i += 500) {
-          const { data: docs } = await supabase
-            .from("business_documents")
-            .select("business_id")
-            .eq("type", "video")
-            .in("id", docIds.slice(i, i + 500));
-          for (const d of docs || []) if (d.business_id) ids.add(String(d.business_id));
-        }
-        videoCityBusinessIds = [...ids];
-        console.log(`City "${effectiveCity}" — ${videoCityBusinessIds.length} business(es) rattaché(s) via vidéos internes`);
+      const t0 = Date.now();
+      const { data: vcIds, error: vcErr } = await supabase.rpc("get_city_video_business_ids", {
+        _city_id: effectiveCityId,
+        _city_name: effectiveCity || null,
+      });
+      if (vcErr) {
+        console.error("video_city_scope error:", vcErr.message);
+      } else {
+        videoCityBusinessIds = (vcIds || []).map((r: any) => String(typeof r === "string" ? r : r.id ?? r));
+        console.log(`City "${effectiveCity}" — ${videoCityBusinessIds.length} business(es) rattaché(s) via vidéos internes (${Date.now() - t0}ms)`);
       }
     }
 
     // Helper: build city OR clause including zone_city_ids coverage + "Web only" + "internationale" businesses
-    const applyCityFilter = (builder: any) => {
+    // `includeVideoCities: false` : chemins qui filtrent déjà sur une longue liste
+    // d'IDs (badge curé) — ajouter 37 UUID de plus faisait dépasser la taille
+    // maximale de l'URL PostgREST (« error sending request »), la requête
+    // échouait silencieusement et la recherche repartait sur la chaîne FTS (+8 s).
+    const applyCityFilter = (builder: any, opts: { includeVideoCities?: boolean } = {}) => {
       if (!effectiveCity) return builder;
+      const withVideoCities = opts.includeVideoCities !== false;
       const conditions: string[] = [`city.ilike.${effectiveCity}`];
-      if (videoCityBusinessIds.length) {
+      if (withVideoCities && videoCityBusinessIds.length) {
         conditions.push(`id.in.(${videoCityBusinessIds.join(",")})`);
       }
       if (strictCity) {
@@ -2187,10 +2190,12 @@ serve(async (req) => {
       //    "Aquaparc" aren't drowned by a generic badge like "famille".
       const badgeIntersectSubcat = detectedSubcategory || null;
       console.log(`⚡ Synonym badge-only PRIORITY: badge_id=${matchedSynonymBadgeId}${badgeIntersectSubcat ? ` ∩ subcat="${badgeIntersectSubcat}"` : ""} — skipping FTS`);
-      const { data: bbData } = await supabase
+      const { data: bbData, error: bbErr } = await supabase
         .from("business_badges")
         .select("business_id")
         .eq("badge_id", matchedSynonymBadgeId);
+      if (bbErr) console.error("badge-only badges error:", bbErr.message);
+      
       if (bbData && bbData.length > 0) {
         const badgeBizIds = bbData.map((bb: any) => bb.business_id);
         let builder = supabase.from("businesses").select("*")
@@ -2205,7 +2210,7 @@ serve(async (req) => {
         const synKeyNorm = matchedSynonymBadgeKey ? stripAccentsGlobal(matchedSynonymBadgeKey.toLowerCase()).trim() : "";
         const cityMatchesSynKey = effectiveCity && synKeyNorm && stripAccentsGlobal(effectiveCity.toLowerCase()).trim() === synKeyNorm;
         const neighMatchesSynKey = detectedNeighborhood && synKeyNorm && stripAccentsGlobal(detectedNeighborhood.toLowerCase()).trim() === synKeyNorm;
-        if (effectiveCity && !cityMatchesSynKey) builder = applyCityFilter(builder);
+        if (effectiveCity && !cityMatchesSynKey) builder = applyCityFilter(builder, { includeVideoCities: false });
         if (detectedNeighborhood && !neighMatchesSynKey) {
           builder = builder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
         }
@@ -2215,6 +2220,7 @@ serve(async (req) => {
           .order("priority_score", { ascending: false })
           .limit(limit);
         const { data, error } = await builder;
+        if (error) console.error("badge-only query error:", error.message, error.details || "");
         if (!error && data && data.length > 0) {
           businesses = data.map((b: any) => ({
             ...b,
