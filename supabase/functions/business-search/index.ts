@@ -2185,10 +2185,12 @@ serve(async (req) => {
       //    "Aquaparc" aren't drowned by a generic badge like "famille".
       const badgeIntersectSubcat = detectedSubcategory || null;
       console.log(`⚡ Synonym badge-only PRIORITY: badge_id=${matchedSynonymBadgeId}${badgeIntersectSubcat ? ` ∩ subcat="${badgeIntersectSubcat}"` : ""} — skipping FTS`);
-      const { data: bbData } = await supabase
+      const { data: bbData, error: bbErr } = await supabase
         .from("business_badges")
         .select("business_id")
         .eq("badge_id", matchedSynonymBadgeId);
+      if (bbErr) console.error("badge-only badges error:", bbErr.message);
+      console.log(`badge-only debug: badgeBiz=${bbData?.length ?? 0} videoCityIds=${videoCityBusinessIds.length}`);
       if (bbData && bbData.length > 0) {
         const badgeBizIds = bbData.map((bb: any) => bb.business_id);
         let builder = supabase.from("businesses").select("*")
