@@ -1155,10 +1155,15 @@ serve(async (req) => {
     }
 
     // Helper: build city OR clause including zone_city_ids coverage + "Web only" + "internationale" businesses
-    const applyCityFilter = (builder: any) => {
+    // `includeVideoCities: false` : chemins qui filtrent déjà sur une longue liste
+    // d'IDs (badge curé) — ajouter 37 UUID de plus faisait dépasser la taille
+    // maximale de l'URL PostgREST (« error sending request »), la requête
+    // échouait silencieusement et la recherche repartait sur la chaîne FTS (+8 s).
+    const applyCityFilter = (builder: any, opts: { includeVideoCities?: boolean } = {}) => {
       if (!effectiveCity) return builder;
+      const withVideoCities = opts.includeVideoCities !== false;
       const conditions: string[] = [`city.ilike.${effectiveCity}`];
-      if (videoCityBusinessIds.length) {
+      if (withVideoCities && videoCityBusinessIds.length) {
         conditions.push(`id.in.(${videoCityBusinessIds.join(",")})`);
       }
       if (strictCity) {
