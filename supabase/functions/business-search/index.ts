@@ -2213,6 +2213,7 @@ serve(async (req) => {
           .order("priority_score", { ascending: false })
           .limit(limit);
         const { data, error } = await builder;
+        if (error) console.error("badge-only query error:", error.message, error.details || "");
         if (!error && data && data.length > 0) {
           businesses = data.map((b: any) => ({
             ...b,
