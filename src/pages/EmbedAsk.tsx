@@ -48,6 +48,7 @@ import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/Embe
 import AiTidesWidget from "@/components/embed/AiTidesWidget";
 import AvailabilitySearchOverlay from "@/components/overlays/AvailabilitySearchOverlay";
 import { searchCityHotels, ALL_CITIES, type CityHotelSearchResult } from "@/lib/cityHotelSearch";
+import { formatEuro, parseSerpAmount } from "@/lib/parseSerpAmount";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { applyEmbedBg, parseBg, resolveEmbedInk, parseFit, fitFlags } from "@/lib/embedFit";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
@@ -5032,8 +5033,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         const visible = bookingResult.hotels.slice(0, shown);
                         const priceBadges: Record<string, string> = {};
                         for (const h of bookingResult.hotels as any[]) {
-                          const raw = typeof h.serpPrice === "object" ? h.serpPrice?.amount : h.serpPrice;
-                          if (raw) priceBadges[h.businessId] = String(raw);
+                          const nightlyAmount = parseSerpAmount(h.serpPrice) ?? parseSerpAmount(h.dbBusiness?.min_price);
+                          if (nightlyAmount) priceBadges[h.businessId] = `${formatEuro(nightlyAmount)} €`;
                         }
                         const list = visible.map((h: any) => ({
                           ...(h.dbBusiness || {}),

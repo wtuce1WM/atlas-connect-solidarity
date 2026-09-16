@@ -205,7 +205,7 @@ export function HotelAvailabilityResult({
               </div>
             )}
 
-            {/* CTA Réservez vert WhatsApp — même logique d'affichage que l'overlay Full Description : affiché uniquement si un numéro WhatsApp est renseigné. */}
+            {/* CTA WhatsApp vert — affiché uniquement si un numéro WhatsApp est renseigné. */}
             {hasAvailability && business?.whatsapp && (
               <div className="flex flex-col items-center gap-2 mt-2 w-full">
                 <a
@@ -223,7 +223,7 @@ export function HotelAvailabilityResult({
                   style={{ backgroundColor: "#25D366", color: "#FFFFFF", height: '40px' }}
                 >
                   <WhatsAppIcon className="h-5 w-5" />
-                  <span>{language === "en" ? "Book" : language === "ar" ? "احجز" : "Réservez"}</span>
+                  <span>WhatsApp</span>
                 </a>
               </div>
             )}
