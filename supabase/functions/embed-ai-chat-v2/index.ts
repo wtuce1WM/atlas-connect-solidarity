@@ -564,14 +564,16 @@ Deno.serve(async (req) => {
        * feed du badge « Rooftop », matché sur le mot du libellé.
        */
       let feedBadges: Array<{ id: string; name: string }> = [];
+      let feedBadgesMatchAll = true;
       if (suggestionId) {
         const { data: sgFeed } = await admin
           .from("ai_suggestions")
-          .select("mode, badge_ids")
+          .select("mode, badge_ids, badges_match_all")
           .eq("id", suggestionId)
           .maybeSingle();
         const curatedIds = (((sgFeed as any)?.badge_ids || []) as any[]).map(String).filter(Boolean);
         if ((sgFeed as any)?.mode === "video_feed" && curatedIds.length) {
+          feedBadgesMatchAll = (sgFeed as any)?.badges_match_all === true;
           const { data: bRows } = await admin
             .from("badges")
             .select("id, name_fr, name_en, name_ar")
@@ -611,8 +613,9 @@ Deno.serve(async (req) => {
         badgeIds: feedBadgeIds,
         city: feedCity || null,
       }).catch(() => null);
-      // Intersection STRICTE, aucun fallback : intersection vide ⇒ feed null.
-      const strictVideos = pool ? strictBadgeIntersection(pool.videos, feedBadgeIds).slice(0, 60) : [];
+      const selectedVideos = pool
+        ? (feedBadgesMatchAll ? strictBadgeIntersection(pool.videos, feedBadgeIds) : pool.videos).slice(0, 60)
+        : [];
       /* IDs de villes renvoyés au front : la pagination du feed (pages
          suivantes) doit rester dans le même périmètre que la 1re page. */
       let feedCityIds: string[] | null = null;
@@ -625,15 +628,15 @@ Deno.serve(async (req) => {
         feedCityIds = ids.length ? ids : null;
       }
       console.log("[embed-ai-chat-v2] feed_preflight", JSON.stringify({
-        badges: feedBadges.map((b) => b.name), city: feedCity, emitted: strictVideos.length,
+        badges: feedBadges.map((b) => b.name), matchAll: feedBadgesMatchAll, city: feedCity, emitted: selectedVideos.length,
       }));
       return new Response(
         JSON.stringify({
-          feed: strictVideos.length
+          feed: selectedVideos.length
             ? {
                 title: feedBadges.map((b) => b.name).join(" · "),
-                videos: strictVideos,
-                total: strictVideos.length,
+                videos: selectedVideos,
+                total: feedBadgesMatchAll ? selectedVideos.length : (pool?.total ?? selectedVideos.length),
                 badgeIds: feedBadgeIds,
                 seed: pool?.seed ?? null,
                 cityIds: feedCityIds,
