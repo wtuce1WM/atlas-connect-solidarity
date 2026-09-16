@@ -2210,7 +2210,7 @@ serve(async (req) => {
         const synKeyNorm = matchedSynonymBadgeKey ? stripAccentsGlobal(matchedSynonymBadgeKey.toLowerCase()).trim() : "";
         const cityMatchesSynKey = effectiveCity && synKeyNorm && stripAccentsGlobal(effectiveCity.toLowerCase()).trim() === synKeyNorm;
         const neighMatchesSynKey = detectedNeighborhood && synKeyNorm && stripAccentsGlobal(detectedNeighborhood.toLowerCase()).trim() === synKeyNorm;
-        if (effectiveCity && !cityMatchesSynKey) builder = applyCityFilter(builder);
+        if (effectiveCity && !cityMatchesSynKey) builder = applyCityFilter(builder, { includeVideoCities: false });
         if (detectedNeighborhood && !neighMatchesSynKey) {
           builder = builder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
         }
