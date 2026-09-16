@@ -2520,6 +2520,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     if (freeBookingIntent && !freeBookingHasDates) {
       pendingBookingCityRef.current =
         freeBookingIntent.city || businessCity || ALL_CITIES;
+    } else if (!suggestionId && !followupId && !freeBookingIntent && hasLodgingTerm(text)) {
+      // Simple mention d'hôtels/riads sans verbe de réservation ni dates
+      // (« montre-moi les hôtels avec piscine à Marrakech ») : le widget de
+      // disponibilité se rattache à la réponse dès qu'une ville est connue.
+      const lodgingCity = extractBookingCity(text) || businessCity || null;
+      if (lodgingCity) {
+        lastLodgingCityRef.current = lodgingCity;
+        pendingBookingCityRef.current = lodgingCity;
+      }
     }
     if (isBookingRequest && !bookingWithSubcats) {
       setError(null);
