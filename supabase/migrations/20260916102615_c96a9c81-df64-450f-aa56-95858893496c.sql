@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.get_city_video_business_ids(uuid, text) FROM anon, authenticated, PUBLIC;
