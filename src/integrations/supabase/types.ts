@@ -9460,6 +9460,10 @@ export type Database = {
         Args: { p_business_id: string; p_range?: string }
         Returns: Json
       }
+      get_city_video_business_ids: {
+        Args: { _city_id: string; _city_name?: string }
+        Returns: string[]
+      }
       get_club_ai_usage_by_user: {
         Args: { p_since?: string }
         Returns: {
