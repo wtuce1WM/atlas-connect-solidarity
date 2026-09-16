@@ -203,6 +203,16 @@ export function extractStayDates(
   return { checkIn, checkOut, adults: extractAdults(text), city: extractCity(text) };
 }
 
+/**
+ * Le texte mentionne un hébergement (hôtel, riad, chambre, maison d'hôtes…),
+ * sans exiger de verbe de réservation ni de dates. Utilisé pour rattacher le
+ * widget de disponibilité à la réponse dès qu'on détecte des hôtels/riads
+ * (« montre-moi les hôtels avec piscine à Marrakech »).
+ */
+export function hasLodgingTerm(raw: string): boolean {
+  return LODGING_RE.test(norm(raw));
+}
+
 export function parseBookingIntent(raw: string, now: Date = new Date()): BookingIntent | null {
   const text = norm(raw);
   if (!LODGING_RE.test(text)) return null;
