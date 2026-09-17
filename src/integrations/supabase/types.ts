@@ -5668,6 +5668,7 @@ export type Database = {
           id: string
           serp_hotel_name: string
           serp_price_checked_at: string | null
+          serp_property_token: string | null
           updated_at: string
         }
         Insert: {
@@ -5678,6 +5679,7 @@ export type Database = {
           id?: string
           serp_hotel_name: string
           serp_price_checked_at?: string | null
+          serp_property_token?: string | null
           updated_at?: string
         }
         Update: {
@@ -5688,6 +5690,7 @@ export type Database = {
           id?: string
           serp_hotel_name?: string
           serp_price_checked_at?: string | null
+          serp_property_token?: string | null
           updated_at?: string
         }
         Relationships: []

@@ -1,0 +1,1 @@
+ALTER TABLE public.hotel_mappings ADD COLUMN IF NOT EXISTS serp_property_token text;
