@@ -323,10 +323,6 @@ Deno.serve(async (req) => {
 
       exhausted = true;
       console.log(`SerpApi mode ciblé ${cityKey}: ${allProperties.length}/${cityMappings.length} hôtel(s) avec tarif`);
-    } else if (noFilters && cityMappings.length > 0) {
-      console.log(
-        `SerpApi ${cityKey}: pagination ville (identifiants manquants sur ${cityMappings.length - tokenMappings.length}/${cityMappings.length} mapping(s))`,
-      );
     }
 
     while (!targeted && page < maxPages) {
