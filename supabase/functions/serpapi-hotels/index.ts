@@ -145,7 +145,11 @@ Deno.serve(async (req) => {
               .map((m) => normName((m as Record<string, unknown>).serp_hotel_name)),
           )
         : new Set<string>();
-    const earlyStopEnabled = mappedNames.size > 0 && !params.minPrice && !params.maxPrice && !params.rating;
+    // Quand des identifiants Google manquent encore, la pagination doit aller au
+    // bout : elle sert précisément à les découvrir (un seul balayage par ville).
+    const missingTokens = cityMappings.some((m: Record<string, unknown>) => !m.serp_property_token);
+    const earlyStopEnabled =
+      mappedNames.size > 0 && !missingTokens && !params.minPrice && !params.maxPrice && !params.rating;
 
     // 1) Try cache. A cache generated with fewer pages must never satisfy a
     // deeper request: otherwise mapped hotels located later in Google results
