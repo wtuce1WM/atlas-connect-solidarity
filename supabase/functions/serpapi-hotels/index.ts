@@ -237,18 +237,50 @@ Deno.serve(async (req) => {
         }
       };
 
+      /* Google renvoie parfois le nom sous une forme légèrement différente du
+         nom mappé (« Riad Yasmine » vs « Riad Yasmine Marrakech »). On accepte
+         donc l'inclusion d'un nom dans l'autre ou un fort recouvrement de mots
+         (≥ 70 %), et JAMAIS le simple premier résultat. Le nom retenu est
+         réécrit avec le nom mappé pour que la correspondance côté client
+         (nom exact du mapping) reste inchangée. */
+      const tokens = (s: string) => new Set(s.split(" ").filter((t) => t.length > 2));
+      const overlap = (a: string, b: string) => {
+        const ta = tokens(a);
+        const tb = tokens(b);
+        if (ta.size === 0 || tb.size === 0) return 0;
+        let inter = 0;
+        for (const t of ta) if (tb.has(t)) inter++;
+        return inter / Math.min(ta.size, tb.size);
+      };
+
       for (let i = 0; i < wanted.length; i += CONCURRENCY) {
         const slice = wanted.slice(i, i + CONCURRENCY);
         const results = await Promise.all(slice.map((n) => fetchOne(n)));
         results.forEach((props, idx) => {
-          const target = normName(slice[idx]);
-          // Correspondance stricte sur le nom mappé (même règle que le matching
-          // client) : aucun repli sur le premier résultat renvoyé par Google.
-          const hit = props.find((p) => normName(p.name) === target) || null;
-          if (!hit) return;
+          const mappedName = slice[idx];
+          const target = normName(mappedName);
           if (seenTargeted.has(target)) return;
+          const candidates = props.slice(0, 5);
+          let hit: Record<string, unknown> | null = null;
+          let best = 0;
+          for (const p of candidates) {
+            const n = normName(p.name);
+            if (!n) continue;
+            const score =
+              n === target ? 1 : n.includes(target) || target.includes(n) ? 0.9 : overlap(n, target);
+            if (score > best) {
+              best = score;
+              hit = p;
+            }
+          }
+          if (!hit || best < 0.7) {
+            console.log(
+              `SerpApi ciblé sans correspondance "${mappedName}" → ${candidates.map((p) => p.name).slice(0, 3).join(" | ") || "aucun résultat"}`,
+            );
+            return;
+          }
           seenTargeted.add(target);
-          allProperties.push(mapProperty(hit, allProperties.length, currency));
+          allProperties.push(mapProperty({ ...hit, name: mappedName }, allProperties.length, currency));
         });
       }
 
