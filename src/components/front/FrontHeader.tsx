@@ -185,7 +185,7 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
             <X className="h-5 w-5" />
           </button>
         </div>
-        <nav className="flex flex-1 flex-col gap-2 overflow-y-auto px-5 py-3 pb-8 md:px-10 [&>*]:shrink-0 [&>*:first-child]:mt-auto [&>*:last-child]:mb-auto">
+        <nav className="flex flex-1 flex-col gap-2 overflow-y-auto px-5 py-3 pb-8 md:px-10 [&>*]:shrink-0">
           {(links ?? CTAS).map((cta) => {
             const itemClass = `group relative overflow-hidden rounded-xl border bg-black/35 p-3 text-left backdrop-blur-md transition-all focus-visible:outline-none ${
               cta.danger
