@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
 
     const { data: mappingRows } = await supabase
       .from("hotel_mappings")
-      .select("id, serp_hotel_name, city, has_serp_price")
+      .select("id, serp_hotel_name, city, has_serp_price, serp_property_token")
       .not("business_id", "is", null);
 
     const cityMappings = (mappingRows || []).filter(
