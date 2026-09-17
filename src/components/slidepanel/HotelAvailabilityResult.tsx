@@ -82,29 +82,34 @@ export function HotelAvailabilityResult({
               textColor: "#000000",
             });
           }
-          // Lien de réservation : affiché uniquement si une URL de réservation
-          // est renseignée — aucun repli sur le site web.
-          const bookUrl = business.reserve_now_url || null;
-          const usesWebsiteFallback = false;
-          if (bookUrl) {
-            const isExternal = usesWebsiteFallback
-              ? !!(business as any).website_force_external
-              : business.reserve_now_force_external;
-            const websiteLabel = ((business as any).website_cta || "").trim();
+          // Lien de réservation : exactement la même règle que les miniatures
+          // de résultats de l'assistant IA (AiBusinessResultTiles) —
+          // URL 1 (reserve_now_url) sinon site web, libellé du backoffice,
+          // ouverture inline sauf si le champ source est marqué « Lien externe ».
+          const rawBookUrl = business.reserve_now_url || (business as any).website || null;
+          if (rawBookUrl) {
+            const bookUrl = String(rawBookUrl).startsWith("http") ? String(rawBookUrl) : `https://${rawBookUrl}`;
+            const normUrl = (u?: string | null) => (u || "").trim().toLowerCase().replace(/\/+$/, "");
+            const nb = normUrl(rawBookUrl);
+            const isExternal =
+              (!!nb && nb === normUrl((business as any).website) && (business as any).website_force_external === true) ||
+              (!!nb && nb === normUrl(business.reserve_now_url) && business.reserve_now_force_external === true);
+            const bookLabel =
+              (business.reserve_now_cta || "").trim() ||
+              ((business as any).website_cta || "").trim() ||
+              CTA_MODE_LABELS[business.presentation_mode]?.[language === "en" ? "en" : "fr"] ||
+              (language === "en" ? "Book" : "Réservez");
             actionCards.push({
               icon: <CalendarCheck className="h-5 w-5" />,
-              label:
-                (usesWebsiteFallback ? websiteLabel : "") ||
-                CTA_MODE_LABELS[business.presentation_mode]?.[language === "en" ? "en" : "fr"] ||
-                (language === "en" ? "Book online" : "Réservez en ligne"),
-              mobileLabel: (usesWebsiteFallback ? websiteLabel : "") || (language === "en" ? "Book" : "Réserver"),
+              label: bookLabel,
+              mobileLabel: bookLabel,
               onClick: () => {
                 if (isExternal) {
                   window.open(bookUrl, "_blank");
                 } else {
                   setBookingOverlayLoaded(false);
-                  setBookingOverlayUrl(usesWebsiteFallback ? bookUrl : null);
-                  setBookingOverlayTitle(usesWebsiteFallback ? websiteLabel || undefined : undefined);
+                  setBookingOverlayUrl(bookUrl);
+                  setBookingOverlayTitle(bookLabel);
                   setShowBookingOverlay(true);
                 }
               },
