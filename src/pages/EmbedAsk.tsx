@@ -1890,26 +1890,34 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         let prev: string | null = null;
         try { prev = window.localStorage.getItem(suggStampKey); } catch { /* noop */ }
         if (stamp && prev !== stamp) {
+          // Cache disque purgé (badges obsolètes), mais on garde la liste
+          // affichée : la vider ici faisait disparaître les chips sur mobile
+          // quand le rafraîchissement réseau échouait juste après.
           dropSuggCache();
-          setDbSuggestions(null);
         }
       })();
     }
 
     const loadingTimeout = window.setTimeout(() => {
-      if (!cancelled) setDbSuggestions([]);
+      // Réseau lent (iOS/5G) : on ne vide JAMAIS une liste déjà affichée.
+      if (!cancelled && !cachedNow) setDbSuggestions([]);
     }, 8000);
 
 
     (async () => {
-      const data = await publicSelect(
-        "ai_suggestions",
-        `select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode,subcategory_ids,badge_ids,badges_match_all,updated_at&surface=eq.${suggestionSurface}&is_active=eq.true&order=sort_order.asc`,
-      );
+      const query = `select=id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids,is_platform_visible,mode,subcategory_ids,badge_ids,badges_match_all,updated_at&surface=eq.${suggestionSurface}&is_active=eq.true&order=sort_order.asc`;
+      let data = await publicSelect("ai_suggestions", query);
+      // iOS Safari annule les requêtes au retour d'arrière-plan : une relance.
+      if (!data && !cancelled) {
+        await new Promise((r) => window.setTimeout(r, 1200));
+        if (cancelled) return;
+        data = await publicSelect("ai_suggestions", query);
+      }
       if (cancelled) return;
       if (!data) {
         window.clearTimeout(loadingTimeout);
-        setDbSuggestions([]);
+        if (cachedNow) setDbSuggestions(cachedNow);
+        else setDbSuggestions([]);
         return;
       }
       const col = lang === "en" ? "label_en" : lang === "ar" ? "label_ar" : "label_fr";
