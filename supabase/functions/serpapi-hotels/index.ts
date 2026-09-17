@@ -196,7 +196,67 @@ Deno.serve(async (req) => {
     let lastMappedCount = 0;
     let lastMappedPage = 0;
 
-    while (page < maxPages) {
+    /* ── Mode ciblé (source de vérité) ───────────────────────────────────────
+       On n'interroge QUE les hôtels mappés en back-office : une requête par
+       établissement, toutes lancées en parallèle (par vagues de 8), au lieu de
+       paginer toute la ville en série (11 pages ≈ 49 s). Les hôtels non mappés
+       ne sont pas exploités par le produit, donc jamais demandés.
+       La pagination ville reste en repli quand la ville n'a aucun mapping ou
+       quand la requête porte des filtres prix/note (cache non réutilisable). */
+    const targeted = cityMappings.length > 0 && !params.minPrice && !params.maxPrice && !params.rating;
+
+    if (targeted) {
+      const CONCURRENCY = 8;
+      const seenTargeted = new Set<string>();
+      const wanted = cityMappings.map((m) => String((m as Record<string, unknown>).serp_hotel_name || "")).filter(Boolean);
+      console.log(`SerpApi mode ciblé ${cityKey}: ${wanted.length} hôtel(s) mappé(s) interrogé(s) en parallèle`);
+
+      const fetchOne = async (hotelName: string) => {
+        const sp = new URLSearchParams({
+          engine: "google_hotels",
+          q: `${hotelName} ${params.cityName}`,
+          check_in_date: params.checkIn,
+          check_out_date: params.checkOut,
+          adults: String(adults),
+          currency,
+          hl: language,
+          gl: country,
+          api_key: apiKey,
+        });
+        try {
+          const res = await fetch(`${SERPAPI_BASE}?${sp}`);
+          const body = await res.json();
+          if (!res.ok || body.error) {
+            console.warn(`SerpApi ciblé "${hotelName}": ${body?.error || res.status}`);
+            return [] as Record<string, unknown>[];
+          }
+          return (body.properties || []) as Record<string, unknown>[];
+        } catch (e) {
+          console.warn(`SerpApi ciblé "${hotelName}" échec réseau:`, e instanceof Error ? e.message : e);
+          return [] as Record<string, unknown>[];
+        }
+      };
+
+      for (let i = 0; i < wanted.length; i += CONCURRENCY) {
+        const slice = wanted.slice(i, i + CONCURRENCY);
+        const results = await Promise.all(slice.map((n) => fetchOne(n)));
+        results.forEach((props, idx) => {
+          const target = normName(slice[idx]);
+          // Correspondance stricte sur le nom mappé (même règle que le matching
+          // client) : aucun repli sur le premier résultat renvoyé par Google.
+          const hit = props.find((p) => normName(p.name) === target) || null;
+          if (!hit) return;
+          if (seenTargeted.has(target)) return;
+          seenTargeted.add(target);
+          allProperties.push(mapProperty(hit, allProperties.length, currency));
+        });
+      }
+
+      exhausted = true;
+      console.log(`SerpApi mode ciblé ${cityKey}: ${allProperties.length}/${wanted.length} hôtel(s) trouvé(s)`);
+    }
+
+    while (!targeted && page < maxPages) {
       const searchParams = new URLSearchParams({
         engine: "google_hotels",
         q: `Hotels in ${params.cityName}`,
