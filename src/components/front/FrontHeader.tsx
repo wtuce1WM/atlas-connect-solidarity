@@ -203,7 +203,7 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
                   }}
                   aria-hidden="true"
                 />
-                <ArrowUpRight className="absolute right-4 top-5 h-4 w-4 text-[rgba(244,238,228,0.6)] transition-colors group-hover:text-gold" />
+                <ArrowUpRight className="absolute right-4 top-3.5 h-4 w-4 text-[rgba(244,238,228,0.6)] transition-colors group-hover:text-gold" />
                 <span className="block pr-8 font-roboto text-base font-bold text-[#F4EEE4] md:text-lg">
                   {cta.label}
                 </span>
