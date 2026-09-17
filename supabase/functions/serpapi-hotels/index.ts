@@ -197,24 +197,25 @@ Deno.serve(async (req) => {
     let lastMappedPage = 0;
 
     /* ── Mode ciblé (source de vérité) ───────────────────────────────────────
-       On n'interroge QUE les hôtels mappés en back-office : une requête par
-       établissement, toutes lancées en parallèle (par vagues de 8), au lieu de
-       paginer toute la ville en série (11 pages ≈ 49 s). Les hôtels non mappés
-       ne sont pas exploités par le produit, donc jamais demandés.
-       La pagination ville reste en repli quand la ville n'a aucun mapping ou
-       quand la requête porte des filtres prix/note (cache non réutilisable). */
-    const targeted = cityMappings.length > 0 && !params.minPrice && !params.maxPrice && !params.rating;
+       On n'interroge QUE les hôtels mappés : une requête par établissement, par
+       son identifiant Google (`property_token`), toutes lancées en parallèle —
+       au lieu de paginer toute la ville en série (11 pages ≈ 49 s). Les hôtels
+       non mappés ne sont pas exploités par le produit, donc jamais demandés.
+       La pagination ville ne sert plus qu'à découvrir les identifiants manquants
+       (elle les enregistre ensuite) ou quand la requête porte des filtres. */
+    const tokenMappings = cityMappings.filter((m: Record<string, unknown>) => !!m.serp_property_token);
+    const noFilters = !params.minPrice && !params.maxPrice && !params.rating;
+    const targeted = noFilters && tokenMappings.length > 0 && tokenMappings.length === cityMappings.length;
 
     if (targeted) {
       const CONCURRENCY = 32;
-      const seenTargeted = new Set<string>();
-      const wanted = cityMappings.map((m) => String((m as Record<string, unknown>).serp_hotel_name || "")).filter(Boolean);
-      console.log(`SerpApi mode ciblé ${cityKey}: ${wanted.length} hôtel(s) mappé(s) interrogé(s) en parallèle`);
+      console.log(`SerpApi mode ciblé ${cityKey}: ${tokenMappings.length} hôtel(s) mappé(s) interrogé(s) en parallèle`);
 
-      const fetchOne = async (hotelName: string) => {
+      const fetchByToken = async (m: Record<string, unknown>) => {
         const sp = new URLSearchParams({
           engine: "google_hotels",
-          q: `${hotelName} ${params.cityName}`,
+          q: params.cityName,
+          property_token: String(m.serp_property_token),
           check_in_date: params.checkIn,
           check_out_date: params.checkOut,
           adults: String(adults),
@@ -227,65 +228,34 @@ Deno.serve(async (req) => {
           const res = await fetch(`${SERPAPI_BASE}?${sp}`);
           const body = await res.json();
           if (!res.ok || body.error) {
-            console.warn(`SerpApi ciblé "${hotelName}": ${body?.error || res.status}`);
-            return [] as Record<string, unknown>[];
+            console.warn(`SerpApi ciblé "${m.serp_hotel_name}": ${body?.error || res.status}`);
+            return null;
           }
-          return (body.properties || []) as Record<string, unknown>[];
+          // Réponse « fiche hôtel » : les tarifs sont à la racine. Le nom retenu
+          // est celui du mapping pour que la correspondance côté client (nom
+          // exact du mapping) reste inchangée.
+          return { ...(body as Record<string, unknown>), name: m.serp_hotel_name };
         } catch (e) {
-          console.warn(`SerpApi ciblé "${hotelName}" échec réseau:`, e instanceof Error ? e.message : e);
-          return [] as Record<string, unknown>[];
+          console.warn(`SerpApi ciblé "${m.serp_hotel_name}" échec réseau:`, e instanceof Error ? e.message : e);
+          return null;
         }
       };
 
-      /* Google renvoie parfois le nom sous une forme légèrement différente du
-         nom mappé (« Riad Yasmine » vs « Riad Yasmine Marrakech »). On accepte
-         donc l'inclusion d'un nom dans l'autre ou un fort recouvrement de mots
-         (≥ 70 %), et JAMAIS le simple premier résultat. Le nom retenu est
-         réécrit avec le nom mappé pour que la correspondance côté client
-         (nom exact du mapping) reste inchangée. */
-      const tokens = (s: string) => new Set(s.split(" ").filter((t) => t.length > 2));
-      const overlap = (a: string, b: string) => {
-        const ta = tokens(a);
-        const tb = tokens(b);
-        if (ta.size === 0 || tb.size === 0) return 0;
-        let inter = 0;
-        for (const t of ta) if (tb.has(t)) inter++;
-        return inter / Math.min(ta.size, tb.size);
-      };
-
-      for (let i = 0; i < wanted.length; i += CONCURRENCY) {
-        const slice = wanted.slice(i, i + CONCURRENCY);
-        const results = await Promise.all(slice.map((n) => fetchOne(n)));
-        results.forEach((props, idx) => {
-          const mappedName = slice[idx];
-          const target = normName(mappedName);
-          if (seenTargeted.has(target)) return;
-          const candidates = props.slice(0, 5);
-          let hit: Record<string, unknown> | null = null;
-          let best = 0;
-          for (const p of candidates) {
-            const n = normName(p.name);
-            if (!n) continue;
-            const score =
-              n === target ? 1 : n.includes(target) || target.includes(n) ? 0.9 : overlap(n, target);
-            if (score > best) {
-              best = score;
-              hit = p;
-            }
-          }
-          if (!hit || best < 0.7) {
-            console.log(
-              `SerpApi ciblé sans correspondance "${mappedName}" → ${candidates.map((p) => p.name).slice(0, 3).join(" | ") || "aucun résultat"}`,
-            );
-            return;
-          }
-          seenTargeted.add(target);
-          allProperties.push(mapProperty({ ...hit, name: mappedName }, allProperties.length, currency));
-        });
+      for (let i = 0; i < tokenMappings.length; i += CONCURRENCY) {
+        const slice = tokenMappings.slice(i, i + CONCURRENCY);
+        const results = await Promise.all(slice.map((m) => fetchByToken(m as Record<string, unknown>)));
+        for (const hit of results) {
+          if (!hit) continue;
+          allProperties.push(mapProperty(hit, allProperties.length, currency));
+        }
       }
 
       exhausted = true;
-      console.log(`SerpApi mode ciblé ${cityKey}: ${allProperties.length}/${wanted.length} hôtel(s) trouvé(s)`);
+      console.log(`SerpApi mode ciblé ${cityKey}: ${allProperties.length}/${tokenMappings.length} hôtel(s) trouvé(s)`);
+    } else if (noFilters && cityMappings.length > 0) {
+      console.log(
+        `SerpApi ${cityKey}: pagination ville (identifiants manquants sur ${cityMappings.length - tokenMappings.length}/${cityMappings.length} mapping(s))`,
+      );
     }
 
     while (!targeted && page < maxPages) {
