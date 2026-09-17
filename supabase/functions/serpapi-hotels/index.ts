@@ -344,6 +344,29 @@ Deno.serve(async (req) => {
     // mapping vu avec un tarif ; on ne passe à "false" qu'après un balayage
     // complet (sinon on marquerait "sans tarif" des mappings jamais lus).
     if (!params.minPrice && !params.maxPrice && !params.rating && cityMappings.length > 0 && allProperties.length > 0) {
+      // Mémorisation de l'identifiant Google de chaque hôtel mappé : dès qu'il
+      // est connu, la ville n'est plus paginée (mode ciblé, ~5 s).
+      if (!targeted) {
+        const tokenByName = new Map<string, string>();
+        for (const h of allProperties) {
+          const n = normName(h.name);
+          const tok = h.serpApiPropertyId;
+          if (n && typeof tok === "string" && tok) tokenByName.set(n, tok);
+        }
+        for (const m of cityMappings) {
+          const row = m as Record<string, unknown>;
+          const tok = tokenByName.get(normName(row.serp_hotel_name));
+          if (!tok || row.serp_property_token === tok) continue;
+          supabase
+            .from("hotel_mappings")
+            .update({ serp_property_token: tok })
+            .eq("id", String(row.id))
+            .then(({ error }) => {
+              if (error) console.error(`Token update failed (${row.serp_hotel_name}):`, error.message);
+            });
+        }
+        console.log(`SerpApi identifiants mémorisés ${cityKey}: ${tokenByName.size} hôtel(s) vus`);
+      }
       const priceByName = new Map<string, boolean>();
       for (const h of allProperties) {
         const n = normName(h.name);
