@@ -5514,7 +5514,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
 
 
-      <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`relative p-3 border-t ${border} ${bg} ${homeState ? "hidden" : ""}`}>
+      <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`relative p-3 border-t ${border} ${bg} ${homeState || (heroLayout && !assistantReady) ? "hidden" : ""}`}>
         {/* Bouton flottant « bas » — desktop uniquement, juste au-dessus de la barre fixe. */}
         {!autoHeight && !homeState && convScroll.canDown && (
           <button
