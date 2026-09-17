@@ -87,7 +87,37 @@ Deno.serve(async (req) => {
     const apiKey = Deno.env.get("SERPAPI_API_KEY");
     if (!apiKey) throw new Error("SERPAPI_API_KEY not configured");
 
-    const params: SerpApiRequest = await req.json();
+    const params: SerpApiRequest & { probeQuery?: string } = await req.json();
+
+    // Sonde de diagnostic (staff/outillage) : renvoie les noms et identifiants
+    // Google renvoyés pour une requête libre, sans toucher au cache.
+    if (params.probeQuery) {
+      const sp = new URLSearchParams({
+        engine: "google_hotels",
+        q: params.probeQuery,
+        check_in_date: params.checkIn || "2026-12-01",
+        check_out_date: params.checkOut || "2026-12-03",
+        adults: "2",
+        currency: params.currency || "EUR",
+        hl: params.language || "fr",
+        gl: params.country || "ma",
+        api_key: apiKey,
+      });
+      const r = await fetch(`${SERPAPI_BASE}?${sp}`);
+      const b = await r.json();
+      return new Response(
+        JSON.stringify({
+          error: b.error || null,
+          keys: Object.keys(b),
+          properties: (b.properties || []).slice(0, 5).map((p: Record<string, unknown>) => ({
+            name: p.name,
+            token: p.property_token,
+          })),
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     if (!params.cityName) throw new Error("cityName is required");
     if (!params.checkIn) throw new Error("checkIn is required");
     if (!params.checkOut) throw new Error("checkOut is required");
