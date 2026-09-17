@@ -1685,7 +1685,8 @@ const BookOnlineSlidePanelInner = ({
     ? showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
       !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
       !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay || showFallbackOverlay ||
-      aiAssistantOpen || showDescriptionOverlay || showWelcomePopup || showPromosPopup
+      aiAssistantOpen || showDescriptionOverlay || showWelcomePopup || showPromosPopup ||
+      (clubAuthOpen && !clubUserId)
     : anyOverlayOpen;
 
   // Moteur UNIQUE de lecture/son des vidéos natives — identique à VideoSlidePanel.
