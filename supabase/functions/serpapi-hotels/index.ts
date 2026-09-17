@@ -206,7 +206,7 @@ Deno.serve(async (req) => {
     const targeted = cityMappings.length > 0 && !params.minPrice && !params.maxPrice && !params.rating;
 
     if (targeted) {
-      const CONCURRENCY = 8;
+      const CONCURRENCY = 32;
       const seenTargeted = new Set<string>();
       const wanted = cityMappings.map((m) => String((m as Record<string, unknown>).serp_hotel_name || "")).filter(Boolean);
       console.log(`SerpApi mode ciblé ${cityKey}: ${wanted.length} hôtel(s) mappé(s) interrogé(s) en parallèle`);
