@@ -1664,7 +1664,10 @@ const BookOnlineSlidePanelInner = ({
     showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
     !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
-    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || aiAssistantOpen || showDescriptionOverlay || !!forceMuted || showWelcomePopup || showPromosPopup;
+    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || aiAssistantOpen || showDescriptionOverlay || !!forceMuted || showWelcomePopup || showPromosPopup ||
+    // Popup Club bleu : sur mobile réel, les listeners tactiles en capture du
+    // panneau avalaient les taps du popup (invisible en preview souris).
+    (clubAuthOpen && !clubUserId);
 
   // Same as anyOverlayOpen but excluding welcome/promo popups so the background video
   // keeps playing and sound stays on while the popup is visible.
@@ -1682,7 +1685,8 @@ const BookOnlineSlidePanelInner = ({
     ? showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
       !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
       !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay || showFallbackOverlay ||
-      aiAssistantOpen || showDescriptionOverlay || showWelcomePopup || showPromosPopup
+      aiAssistantOpen || showDescriptionOverlay || showWelcomePopup || showPromosPopup ||
+      (clubAuthOpen && !clubUserId)
     : anyOverlayOpen;
 
   // Moteur UNIQUE de lecture/son des vidéos natives — identique à VideoSlidePanel.
