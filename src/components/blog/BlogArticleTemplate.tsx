@@ -13,7 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, MapPin, Star, Clock, Bookmark, ArrowDown, X, Sparkles, MessageSquarePlus } from "lucide-react";
 import { ARTICLE_THREAD_HANDOFF_KEY } from "@/lib/articleThreadHandoff";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
-import ClubLoginPopup from "@/components/club/ClubLoginPopup";
+import ClubBlueAuthPopup, { clubPopupTranslations } from "@/components/club/ClubBlueAuthPopup";
+import ClubAuthPanel from "@/components/club/ClubAuthPanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
@@ -180,6 +181,7 @@ const BlogArticleTemplate = ({
   const [isClosing, setIsClosing] = useState(false);
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
+  const [clubAuthOpen, setClubAuthOpen] = useState(false);
   // Pre-load the lazy panel chunk early to avoid Suspense flash on first open
   useEffect(() => {
     const t = setTimeout(() => { import("@/components/BookOnlineSlidePanel"); }, 1200);
@@ -364,7 +366,7 @@ const BlogArticleTemplate = ({
 
   const handleSaveArticle = async () => {
     if (!isLoggedIn) {
-      window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
+      setClubAuthOpen(true);
       return;
     }
     const ok = await toggleBookmark();
@@ -1151,7 +1153,25 @@ const BlogArticleTemplate = ({
       {!embedBackSlug && <Footer />}
       </div>
       {!embedBackSlug && !openBusinessId && !activeVideoId && <HomeBottomBar />}
-      <ClubLoginPopup />
+      {clubAuthOpen && !isLoggedIn && (
+        <ClubBlueAuthPopup onClose={() => setClubAuthOpen(false)}>
+          {(() => {
+            const clubT = clubPopupTranslations[language as keyof typeof clubPopupTranslations] || clubPopupTranslations.fr;
+            return (
+              <div className="p-3 sm:p-6 text-stone-900 bg-transparent">
+                <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 !font-sans text-stone-900 text-center">
+                  {clubT.memberTitle}
+                </h3>
+                <p className="text-stone-700 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5 text-center">{clubT.memberDescGeneric}</p>
+                <ClubAuthPanel
+                  redirectPath={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/"}
+                  onSuccess={() => setClubAuthOpen(false)}
+                />
+              </div>
+            );
+          })()}
+        </ClubBlueAuthPopup>
+      )}
 
       {openBusinessId && (
         <div
