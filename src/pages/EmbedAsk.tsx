@@ -659,6 +659,7 @@ const MarkdownLink = ({
 // relais du fil de conversation pendant la visite d'un article (navigation
 // pleine page). Consommé puis supprimé au retour.
 import { ARTICLE_THREAD_HANDOFF_KEY } from "@/lib/articleThreadHandoff";
+import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 // `paramsOverride` : montage direct du composant (sans iframe) — la Home passe
 // la même query string que l'ancienne URL d'iframe (scope, theme, chrome…).
@@ -1584,6 +1585,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
 
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
+
+  // Overlay Map (CTA Map de l'assistant) : même plein écran mobile 100dvh que les articles de blog.
+  useDarkBrowserChrome(isMobile && !!openMap);
 
   // Couleurs de fond des widgets définies par l'affilié (mode clair / mode sombre).
   const [widgetColors, setWidgetColors] = useState<{ light: string | null; dark: string | null }>({ light: null, dark: null });
@@ -5719,7 +5723,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         // maître global (Koutoubia) en 2 requêtes légères : centre + header immédiats,
         // au lieu d'attendre la fiche complète du 1er résultat (≈30 s) et d'afficher
         // « À proximité de <résultat> ».
-        <div className="fixed inset-0 z-[220]">
+        <div className="fixed inset-0 z-[220] h-[100dvh] w-full overflow-hidden">
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
               key={openMapPoiIds.join(",")}
