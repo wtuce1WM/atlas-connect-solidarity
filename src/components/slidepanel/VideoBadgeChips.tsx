@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, MapPin } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 
 /**
  * Source de vérité unique du bloc de chips badges affiché en haut de la vidéo.
@@ -135,10 +133,6 @@ interface VideoBadgeChipsProps {
   selectedBadgeId?: string | null;
   onFeedBadgeSelect?: (badge: { id: string; name: string }) => void;
   onFeedCitySelect?: (city: { id: string; name: string }) => void;
-  onFeedYouTubeSelect?: () => void;
-  isYouTubeUrl?: boolean;
-  /** Repli utilisé si aucun handler YouTube : fermer puis naviguer vers /youtube. */
-  onClose?: () => void;
 }
 
 const VideoBadgeChips = ({
@@ -148,11 +142,7 @@ const VideoBadgeChips = ({
   selectedBadgeId,
   onFeedBadgeSelect,
   onFeedCitySelect,
-  onFeedYouTubeSelect,
-  isYouTubeUrl,
-  onClose,
 }: VideoBadgeChipsProps) => {
-  const navigate = useNavigate();
   const chipsBadges = badges;
   const setChipsExpanded = onExpandedChange;
   const [pinnedBadge, setPinnedBadge] = useState<{ id: string; name: string; color?: string | null; textColor?: string | null } | null>(null);
@@ -312,27 +302,6 @@ const VideoBadgeChips = ({
                       </button>
                     );
                   })}
-                  {isYouTubeUrl && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPinnedBadge({ id: "youtube", name: "YouTube", color: "#FF0000", textColor: "#FFFFFF" });
-                        setChipsExpanded(false);
-                        if (onFeedYouTubeSelect) {
-                          onFeedYouTubeSelect();
-                          return;
-                        }
-                        onClose?.();
-                        navigate("/youtube");
-                      }}
-                      className="pointer-events-auto w-full whitespace-nowrap inline-flex items-center justify-center gap-1 rounded-full border border-white/25 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
-                      style={{ backgroundColor: "#FF0000", fontFamily: "'Montserrat',system-ui,sans-serif" }}
-                      title="Voir le feed YouTube"
-                    >
-                      <YouTubeIcon className="h-3.5 w-3.5 shrink-0" />
-                      YouTube
-                    </button>
-                  )}
                 </>
               );
             })()}
