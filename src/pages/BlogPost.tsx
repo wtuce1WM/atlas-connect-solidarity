@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { logBlogView } from "@/lib/blogAnalytics";
 
 import { useSEO } from "@/hooks/useSEO";
@@ -108,6 +108,13 @@ const BlogPost = () => {
     ? returnToOrigin || `/embed/ask${qs || "?scope=platform"}`
     : null;
   useDarkBrowserChrome(Boolean(embedSlug) || isPlatformArticle);
+  // Une navigation SPA depuis l'assistant conserve parfois le scroll de Home
+  // sur iOS. Replacer la page avant la première peinture évite d'ouvrir le Hero
+  // déjà décalé vers le haut, avec seulement son fond sombre visible.
+  useLayoutEffect(() => {
+    if (!embedSlug && !isPlatformArticle) return;
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [slug, embedSlug, isPlatformArticle]);
   const { language, t } = useLanguage();
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -159,7 +166,7 @@ const BlogPost = () => {
   // at the bottom of the page (chat history position). Force the article to open
   // at the top once the post is rendered.
   useEffect(() => {
-    if (!embedSlug || isLoading || !post || didEmbedScrollRef.current) return;
+    if ((!embedSlug && !isPlatformArticle) || isLoading || !post || didEmbedScrollRef.current) return;
     didEmbedScrollRef.current = true;
     const scrollTop = () => window.scrollTo({ top: 0, behavior: "auto" });
     scrollTop();
@@ -169,7 +176,7 @@ const BlogPost = () => {
       cancelAnimationFrame(raf);
       clearTimeout(t);
     };
-  }, [embedSlug, isLoading, post]);
+  }, [embedSlug, isPlatformArticle, isLoading, post]);
 
   useEffect(() => {
     let cancelled = false;
