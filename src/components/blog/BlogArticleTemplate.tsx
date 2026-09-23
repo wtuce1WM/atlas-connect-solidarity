@@ -20,6 +20,7 @@ import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
 import { withLangPrefix } from "@/lib/localizedPath";
 import { mapLabel } from "@/lib/mapLabels";
 import BlogEditorialSections, { type BlogEditorialSection } from "@/components/blog/BlogEditorialSections";
+import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 export type { BlogEditorialSection };
 
@@ -159,6 +160,7 @@ const BlogArticleTemplate = ({
 }: BlogArticleTemplateProps) => {
 
   const navigate = useNavigate();
+  useDarkBrowserChrome(Boolean(embedBackSlug));
   // Header de Home (FrontHeader) : fond opaque dès que la page défile sous le hero.
   const [headerScrolled, setHeaderScrolled] = useState(false);
   useEffect(() => {
@@ -602,7 +604,7 @@ const BlogArticleTemplate = ({
         {embedBackSlug && (
           <button
             onClick={() => navigate(embedBackSlug.includes("/embed/ask/") || embedBackSlug.startsWith("/embed/ask?") ? embedBackSlug : `/embed/ask/${embedBackSlug}`)}
-            className="fixed top-4 left-4 z-40 h-10 w-10 flex items-center justify-center rounded-full bg-black text-white shadow-2xl hover:opacity-90 transition-opacity"
+            className="fixed top-[calc(1rem+env(safe-area-inset-top))] left-[calc(1rem+env(safe-area-inset-left))] z-40 h-10 w-10 flex items-center justify-center rounded-full bg-black text-white shadow-2xl hover:opacity-90 transition-opacity"
             aria-label={language === "en" ? "Close article" : language === "ar" ? "إغلاق المقال" : "Fermer l'article"}
             title={language === "en" ? "Close" : language === "ar" ? "إغلاق" : "Fermer"}
           >
