@@ -628,7 +628,7 @@ const BlogArticleTemplate = ({
               <button
                 onClick={handleSaveArticle}
                 disabled={bmLoading}
-                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-300 backdrop-blur-md shadow-sm ${
+                className={`fixed top-[calc(1rem+env(safe-area-inset-top))] left-1/2 z-[70] -translate-x-1/2 inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-300 backdrop-blur-md shadow-sm ${
                   isBookmarked
                     ? "bg-gold text-black border-gold hover:bg-gold/90"
                     : "bg-black/50 text-white border-white/20 hover:border-gold hover:text-gold hover:bg-black/70"
