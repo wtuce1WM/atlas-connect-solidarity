@@ -4355,13 +4355,27 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           </button>
         )}
 
-        <div className="w-8 h-8 rounded-full bg-[#C04F17] flex items-center justify-center text-white">
-          <Sparkles className="w-4 h-4" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className={`font-semibold truncate text-sm ${whiteInk}`}>{headerTitle || "…"}</div>
-          <div className={`text-[11px] truncate ${whiteInk || "opacity-60"}`}>{L.hint}</div>
-        </div>
+        {isTopLevelPlatform ? (
+          /* Assistant plateforme ouvert en pleine page (hors Home, hors iframe) :
+             le header reprend le logo + ONE WORLD MOROCCO et ramène à la Home,
+             sinon l'utilisateur reste piégé sans retour possible. */
+          <a href="/" className="flex min-w-0 flex-1 items-center gap-3" aria-label="One World Morocco">
+            <span className="w-8 h-8 shrink-0 rounded-lg border border-white/30 bg-white flex items-center justify-center overflow-hidden">
+              <img src="/logo-gold.webp" alt="One World Morocco" className="h-6 w-6 object-contain" />
+            </span>
+            <span className={`min-w-0 truncate text-sm font-semibold tracking-wide ${whiteInk}`}>ONE WORLD MOROCCO</span>
+          </a>
+        ) : (
+          <>
+            <div className="w-8 h-8 rounded-full bg-[#C04F17] flex items-center justify-center text-white">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className={`font-semibold truncate text-sm ${whiteInk}`}>{headerTitle || "…"}</div>
+              <div className={`text-[11px] truncate ${whiteInk || "opacity-60"}`}>{L.hint}</div>
+            </div>
+          </>
+        )}
         <button
           type="button"
           onClick={() => startNewConversation(true)}
