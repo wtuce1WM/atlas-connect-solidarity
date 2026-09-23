@@ -27,6 +27,7 @@ import {
   pickVideoSectionCopy,
   type BlogVideoSectionConfig,
 } from "@/lib/blogVideoSection";
+import { ARTICLE_THREAD_HANDOFF_KEY } from "@/lib/articleThreadHandoff";
 
 interface BlogPostData {
   id: string;
@@ -87,10 +88,23 @@ const BlogPost = () => {
   // restaurer l'habillage exact de l'assistant au retour (ex. dark mode).
   const isPlatformArticle = location.pathname.startsWith("/embed/ask/article/");
   const qs = location.search || "";
+  const returnToOrigin = (() => {
+    if (!isPlatformArticle) return null;
+    try {
+      const raw = window.sessionStorage.getItem(ARTICLE_THREAD_HANDOFF_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { returnTo?: unknown };
+      return typeof parsed.returnTo === "string" && parsed.returnTo.startsWith("/")
+        ? parsed.returnTo
+        : null;
+    } catch {
+      return null;
+    }
+  })();
   const backToAssistant = embedSlug
     ? `/embed/ask/${embedSlug}${qs}`
     : isPlatformArticle
-    ? `/embed/ask${qs || "?scope=platform"}`
+    ? returnToOrigin || `/embed/ask${qs || "?scope=platform"}`
     : null;
   const { language, t } = useLanguage();
   const [post, setPost] = useState<BlogPostData | null>(null);

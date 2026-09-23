@@ -740,6 +740,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             // disponibilité Map + reste du corpus non affiché.
             hasMap: !!(mapReplayTarget && poolInfo.hasGeo),
             moreRemaining: poolRemaining,
+            returnTo: `${window.location.pathname}${window.location.search}${window.location.hash}`,
             savedAt: Date.now(),
           }));
         }
