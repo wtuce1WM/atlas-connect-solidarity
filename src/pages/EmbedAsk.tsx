@@ -1585,6 +1585,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
 
+  // Overlay Map (CTA Map de l'assistant) : même plein écran mobile 100dvh que les articles de blog.
+  useDarkBrowserChrome(isMobile && !!openMap);
+
   // Couleurs de fond des widgets définies par l'affilié (mode clair / mode sombre).
   const [widgetColors, setWidgetColors] = useState<{ light: string | null; dark: string | null }>({ light: null, dark: null });
   // Couleur de fond de la carte propriétaire (/affiliates/presence → Map).
