@@ -1012,7 +1012,7 @@ const Front = () => {
         className={
           demoFeedOpen
             ? "owm-front-demo-ask absolute left-0 top-0 bottom-0 z-40 hidden w-1/2 flex-col overflow-hidden px-2 pt-14 pb-4 md:flex"
-            : `absolute inset-0 z-0 flex flex-col ${mapOpen ? "p-0" : askLocked ? "pt-14 pb-0 md:pt-14 md:pb-0" : "pt-16 pb-16 md:pt-14 md:pb-10"} ${askLocked || mapOpen ? "px-0" : "px-2 md:px-10 lg:px-16"}`
+            : `absolute inset-0 z-0 flex flex-col ${askLocked ? "pt-14 pb-0 md:pt-14 md:pb-0" : "pt-16 pb-16 md:pt-14 md:pb-10"} ${askLocked || mapOpen ? "px-0" : "px-2 md:px-10 lg:px-16"}`
         }
         style={{
           opacity: demoFeedOpen ? 1 : (demoIntro ? 0 : narrativeOpacity),
