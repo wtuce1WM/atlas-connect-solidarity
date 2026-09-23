@@ -659,6 +659,7 @@ const MarkdownLink = ({
 // relais du fil de conversation pendant la visite d'un article (navigation
 // pleine page). Consommé puis supprimé au retour.
 import { ARTICLE_THREAD_HANDOFF_KEY } from "@/lib/articleThreadHandoff";
+import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 // `paramsOverride` : montage direct du composant (sans iframe) — la Home passe
 // la même query string que l'ancienne URL d'iframe (scope, theme, chrome…).
