@@ -191,7 +191,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
   return (
     <div className="space-y-4">
       {/* Tabs */}
-      <div className="flex bg-[#ECD6B8] rounded-lg p-1 mb-2">
+      <div className="flex rounded-lg p-1 mb-2">
         <button
           type="button"
           onClick={() => setMode("login")}
