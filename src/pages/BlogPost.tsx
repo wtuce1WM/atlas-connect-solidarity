@@ -28,6 +28,7 @@ import {
   type BlogVideoSectionConfig,
 } from "@/lib/blogVideoSection";
 import { ARTICLE_THREAD_HANDOFF_KEY } from "@/lib/articleThreadHandoff";
+import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 interface BlogPostData {
   id: string;
@@ -106,6 +107,7 @@ const BlogPost = () => {
     : isPlatformArticle
     ? returnToOrigin || `/embed/ask${qs || "?scope=platform"}`
     : null;
+  useDarkBrowserChrome(Boolean(embedSlug) || isPlatformArticle);
   const { language, t } = useLanguage();
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [isLoading, setIsLoading] = useState(true);

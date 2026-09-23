@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 
 /**
  * Force le chrome du navigateur mobile (barre d'état / barre d'URL Safari & Chrome)
@@ -8,7 +8,7 @@ import { useEffect } from "react";
  * (#ECD6B8) — d'où les deux bandes beiges au-dessus et en dessous du média.
  */
 export function useDarkBrowserChrome(active: boolean, color = "#000000") {
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!active || typeof document === "undefined") return;
 
     const metas = Array.from(
@@ -29,18 +29,22 @@ export function useDarkBrowserChrome(active: boolean, color = "#000000") {
     const body = document.body;
     const prevHtmlBg = html.style.backgroundColor;
     const prevBodyBg = body.style.backgroundColor;
+    const prevBodyPadding = body.style.padding;
     html.style.backgroundColor = color;
     body.style.backgroundColor = color;
-    // Annule les paddings safe-area du body → média plein cadre (style Instagram/TikTok)
+    // L'inline style est volontaire : Safari iOS peut attendre le premier scroll
+    // avant de repeindre la règle dynamique body.owm-fullbleed.
+    body.style.padding = "0px";
     body.classList.add("owm-fullbleed");
 
     return () => {
       metas.forEach((m, i) => {
         if (m.dataset.darkChrome === "1") m.remove();
-        else if (prevMeta[i] != null) m.setAttribute("content", prevMeta[i]!);
+        else if (prevMeta[i] != null) m.setAttribute("content", prevMeta[i] ?? "");
       });
       html.style.backgroundColor = prevHtmlBg;
       body.style.backgroundColor = prevBodyBg;
+      body.style.padding = prevBodyPadding;
       body.classList.remove("owm-fullbleed");
     };
   }, [active, color]);
