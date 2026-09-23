@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import HScroll from "@/components/HScroll";
 import { useWheelHijackWhenCentered } from "@/hooks/useWheelHijackWhenCentered";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot, type TimePeriod } from "@/lib/timeSlots";
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
@@ -218,6 +219,7 @@ const SearchPage = () => {
     return () => mql.removeEventListener("change", onChange);
   }, []);
   const [showMobileMap, setShowMobileMap] = useState(false);
+  useDarkBrowserChrome(isSubDesktop && showMobileMap);
   const [hideResultsMap, setHideResultsMap] = useState(false);
   const [hidePoiMap, setHidePoiMap] = useState(false);
   const [hideDestMap, setHideDestMap] = useState(false);
@@ -5758,7 +5760,7 @@ const SearchPage = () => {
 
       {/* Mobile/Tablet Map Overlay — slide-in from right */}
       {isSubDesktop && showMobileMap && (
-        <div className="fixed inset-0 z-[201] bg-background animate-slide-in-right lg:hidden">
+        <div className="fixed inset-0 z-[201] h-[100dvh] w-full overflow-hidden bg-background animate-slide-in-right lg:hidden">
           {activeTab === "suggestions" ? (
             <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col">
               <div className="relative z-10 flex items-center gap-3 px-3 py-3 bg-white/70 backdrop-blur-md">
