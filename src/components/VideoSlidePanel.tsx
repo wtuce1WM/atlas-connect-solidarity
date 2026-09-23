@@ -1691,9 +1691,6 @@ const VideoSlidePanel = ({
             selectedBadgeId={selectedBadgeId}
             onFeedBadgeSelect={onFeedBadgeSelect}
             onFeedCitySelect={onFeedCitySelect}
-            onFeedYouTubeSelect={onFeedYouTubeSelect}
-            isYouTubeUrl={isYouTubeUrl}
-            onClose={onClose}
           />
         )}
 

@@ -5445,9 +5445,6 @@ const BookOnlineSlidePanelInner = ({
           onExpandedChange={setChipsExpanded}
           onFeedBadgeSelect={onFeedBadgeSelect}
           onFeedCitySelect={onFeedCitySelect}
-          onFeedYouTubeSelect={onFeedYouTubeSelect}
-          isYouTubeUrl={videoInfo?.type === "youtube"}
-          onClose={onClose}
         />
 
       )}
