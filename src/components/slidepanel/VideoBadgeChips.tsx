@@ -312,27 +312,6 @@ const VideoBadgeChips = ({
                       </button>
                     );
                   })}
-                  {isYouTubeUrl && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPinnedBadge({ id: "youtube", name: "YouTube", color: "#FF0000", textColor: "#FFFFFF" });
-                        setChipsExpanded(false);
-                        if (onFeedYouTubeSelect) {
-                          onFeedYouTubeSelect();
-                          return;
-                        }
-                        onClose?.();
-                        navigate("/youtube");
-                      }}
-                      className="pointer-events-auto w-full whitespace-nowrap inline-flex items-center justify-center gap-1 rounded-full border border-white/25 px-3.5 py-1.5 text-sm md:text-base font-semibold normal-case tracking-normal text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
-                      style={{ backgroundColor: "#FF0000", fontFamily: "'Montserrat',system-ui,sans-serif" }}
-                      title="Voir le feed YouTube"
-                    >
-                      <YouTubeIcon className="h-3.5 w-3.5 shrink-0" />
-                      YouTube
-                    </button>
-                  )}
                 </>
               );
             })()}
