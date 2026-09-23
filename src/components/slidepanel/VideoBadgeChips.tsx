@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, MapPin } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 
 /**
  * Source de vérité unique du bloc de chips badges affiché en haut de la vidéo.
@@ -135,10 +133,6 @@ interface VideoBadgeChipsProps {
   selectedBadgeId?: string | null;
   onFeedBadgeSelect?: (badge: { id: string; name: string }) => void;
   onFeedCitySelect?: (city: { id: string; name: string }) => void;
-  onFeedYouTubeSelect?: () => void;
-  isYouTubeUrl?: boolean;
-  /** Repli utilisé si aucun handler YouTube : fermer puis naviguer vers /youtube. */
-  onClose?: () => void;
 }
 
 const VideoBadgeChips = ({
@@ -148,11 +142,7 @@ const VideoBadgeChips = ({
   selectedBadgeId,
   onFeedBadgeSelect,
   onFeedCitySelect,
-  onFeedYouTubeSelect,
-  isYouTubeUrl,
-  onClose,
 }: VideoBadgeChipsProps) => {
-  const navigate = useNavigate();
   const chipsBadges = badges;
   const setChipsExpanded = onExpandedChange;
   const [pinnedBadge, setPinnedBadge] = useState<{ id: string; name: string; color?: string | null; textColor?: string | null } | null>(null);
