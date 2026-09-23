@@ -5723,7 +5723,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         // maître global (Koutoubia) en 2 requêtes légères : centre + header immédiats,
         // au lieu d'attendre la fiche complète du 1er résultat (≈30 s) et d'afficher
         // « À proximité de <résultat> ».
-        <div className="fixed inset-0 z-[220]">
+        <div className="fixed inset-0 z-[220] h-[100dvh] w-full overflow-hidden">
           <Suspense fallback={null}>
             <BookOnlineSlidePanel
               key={openMapPoiIds.join(",")}
