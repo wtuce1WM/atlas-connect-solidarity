@@ -154,8 +154,8 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
         toast({ variant: "destructive", title: "Type invalide", description: "Sélectionnez une image." });
         return;
       }
-      if (rawFile.size > 25 * 1024 * 1024) {
-        toast({ variant: "destructive", title: "Trop volumineux", description: "Max 25 Mo." });
+      if (rawFile.size > 100 * 1024 * 1024) {
+        toast({ variant: "destructive", title: "Trop volumineux", description: "Max 100 Mo." });
         return;
       }
       setUploadingIndex(index);
