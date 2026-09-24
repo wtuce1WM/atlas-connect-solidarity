@@ -2632,6 +2632,7 @@ Deno.serve(async (req) => {
             // ── Nom exact (match littéral) : la fiche nommée passe en TÊTE ──
             // business-search classe par score de priorité : « Riad Dar Najat »
             // sortait 16e et n'était donc jamais affiché dans le lot de 4.
+            console.log("[embed-ai-chat-v2] exact_name_check", JSON.stringify({ hit: nameHit?.id ?? null, literal: nameHit?.literal ?? null, kept: kept.length }));
             if (nameHit?.literal && nameHit.id) {
               const exactId = String(nameHit.id);
               let exact = kept.find((b: any) => String(b.id) === exactId);
