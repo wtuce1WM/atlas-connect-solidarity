@@ -35,7 +35,7 @@ import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 import { isTidesIntent, resolveTidesCity, tidesIntro, bonusTidesCity } from "../_shared/ai-engine/routes/tides.ts";
 import { isGlovoIntent, loadGlovoBusinessIds, glovoHeading, glovoEmpty } from "../_shared/ai-engine/routes/glovo.ts";
 import {
-  loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle, matchCuratedByText,
+  loadCuratedTargets, loadHomeCardTargets, fetchBlogPostsCached, matchBlogArticle, matchCuratedByText,
   buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer, applyLabelPlaceholders,
 
 } from "../_shared/ai-engine/routes/curated.ts";
@@ -486,9 +486,10 @@ Deno.serve(async (req) => {
       ? body.destinationId.trim()
       : null;
   const uuidRe = /^[0-9a-f-]{36}$/i;
-  const homeCardBadgeIds: string[] = Array.isArray(body.homeCardBadgeIds)
-    ? body.homeCardBadgeIds.filter((x: unknown) => typeof x === "string" && uuidRe.test(x)).slice(0, 5)
-    : [];
+  const homeCardEntryId: string | null =
+    typeof body.homeCardEntryId === "string" && uuidRe.test(body.homeCardEntryId) ? body.homeCardEntryId : null;
+  const homeCardCity: string | null =
+    body.homeCardCity === "Marrakech" || body.homeCardCity === "Essaouira" ? body.homeCardCity : null;
   const homeCardPinnedIds: string[] = Array.isArray(body.homeCardPinnedIds)
     ? body.homeCardPinnedIds.filter((x: unknown) => typeof x === "string" && uuidRe.test(x)).slice(0, 5)
     : [];
