@@ -25,7 +25,7 @@ async function buildSnapshot(supabase: any, city: string) {
     supabase.from("badges").select("id, name_fr"),
     supabase
       .from("front_structure_homepage_extra_cards")
-      .select("id, city, image_url, sort_order, badge_id")
+      .select("id, city, image_url, sort_order, badge_id, title")
       .eq("city", city)
       .order("sort_order", { ascending: true }),
     supabase
@@ -72,7 +72,7 @@ async function buildSnapshot(supabase: any, city: string) {
     ...extraRows.map((c) => ({
       kind: "extra" as const,
       id: c.id,
-      label: (badgeMap.get(c.badge_id) as string | undefined) || null,
+      label: c.title?.trim() || null,
       forcedImage: c.image_url || null,
     })),
 
@@ -80,10 +80,6 @@ async function buildSnapshot(supabase: any, city: string) {
 
   const cards = targets.map((t) => {
     const assigned = badgesByItem.get(`${t.kind}:${t.id}`) || [];
-    const label =
-      t.kind === "entry"
-        ? t.label
-        : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" / ") || t.label;
 
     const primaryBadgeId = assigned[0] || null;
     const target = t.kind === "extra" && primaryBadgeId ? { type: "badge", id: primaryBadgeId } : null;
@@ -101,7 +97,7 @@ async function buildSnapshot(supabase: any, city: string) {
         ownerId: null,
         rating: null,
         reviewCount: null,
-        label,
+        label: t.label,
         badgeIds: assigned,
         badgeId: primaryBadgeId,
         eventId: null,
