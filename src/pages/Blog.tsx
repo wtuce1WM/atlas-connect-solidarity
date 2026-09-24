@@ -161,7 +161,7 @@ const Blog = () => {
 
   const BLOG_HERO_T = {
     fr: {
-      eyebrow: "Le Journal",
+      eyebrow: "BLOG",
       title: "Histoires, adresses et coulisses du Maroc",
       text: "Nos guides de Marrakech et Essaouira, nos rencontres avec les artisans, les riads et les maisons d'hôtes, et les coulisses de One World Morocco — écrits sur place, au fil des saisons.",
     },
