@@ -51,6 +51,7 @@ const preloadFirstMedia = (item?: { url?: string | null; thumbnail_url?: string 
   } catch { /* best-effort */ }
 };
 const EmbedAskInline = lazy(() => import("@/pages/EmbedAsk"));
+const HomepageCardsFrontLazy = lazy(() => import("@/components/HomepageCardsFront"));
 
 
 /** Vidéo de fond ré-encodée pour iOS Safari (yuv420p / Main / faststart).
@@ -901,6 +902,10 @@ const Front = () => {
 
   /** Feed démo chargé : moitié droite = viewer, moitié gauche = assistant IA fermé. */
   const demoFeedOpen = !!(demoActiveId || demoCardsOnly);
+  const [screen2Open, setScreen2Open] = useState(false);
+  const [screen2City, setScreen2City] = useState<"Marrakech" | "Essaouira">(() => {
+    try { return localStorage.getItem("oneworld:lastHomepageCity") === "Essaouira" ? "Essaouira" : "Marrakech"; } catch { return "Marrakech"; }
+  });
 
   // NEUTRALISÉ TEMPORAIREMENT en même temps que le lancement auto du feed démo :
   // le filet de sécurité à 3 s n'avait plus rien à attendre (le feed ne s'ouvre
@@ -1073,7 +1078,63 @@ const Front = () => {
         }
       `}</style>
 
-      {/* Écran 2 supprimé — la homepage tient sur un seul écran (assistant IA). */}
+      {/* CTA « Catégories » en bas de l'écran 1 (modèle /corporate). */}
+      {!screen2Open && showHomeChrome && !askLocked && !mapOpen && !demoFeedOpen && !conversationOpen && !youtubeOpen && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setScreen2Open(true); }}
+          className="absolute bottom-2 left-1/2 z-[60] flex -translate-x-1/2 flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+        >
+          <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+          <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">Catégories</span>
+        </button>
+      )}
+
+      {/* Écran 2 : JSON Homepage (snapshot) avec toggle Marrakech / Essaouira. */}
+      <div
+        className="absolute inset-0 z-[250] flex flex-col bg-[hsl(0_0%_4%)]"
+        style={{
+          transform: screen2Open ? "translateY(0)" : "translateY(100%)",
+          transition: reduced ? undefined : "transform 600ms cubic-bezier(.22,.61,.36,1)",
+          pointerEvents: screen2Open ? "auto" : "none",
+          touchAction: "pan-y",
+        }}
+        aria-hidden={!screen2Open}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-col items-center gap-3 px-4 pt-[calc(4.5rem+env(safe-area-inset-top))] pb-3">
+          <button
+            type="button"
+            onClick={() => setScreen2Open(false)}
+            className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+          >
+            <ChevronUp className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">Retour</span>
+          </button>
+          <div className="inline-flex rounded-full border border-gold/40 p-1">
+            {(["Marrakech", "Essaouira"] as const).map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setScreen2City(c)}
+                className={`rounded-full px-5 py-2 text-sm font-bold uppercase tracking-wider transition-colors ${
+                  screen2City === c ? "bg-gold text-[hsl(0_0%_4%)]" : "text-[rgba(244,238,228,0.85)]"
+                }`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto overscroll-contain px-3 pb-[calc(1.5rem+env(safe-area-inset-bottom))] md:px-8">
+          {screen2Open && (
+            <Suspense fallback={null}>
+              <HomepageCardsFrontLazy city={screen2City} />
+            </Suspense>
+          )}
+        </div>
+      </div>
+
 
 
       {/* Panneau blanc gauche (desktop) : cartes du snapshot homepage.
