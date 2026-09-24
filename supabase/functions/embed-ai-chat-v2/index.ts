@@ -485,6 +485,13 @@ Deno.serve(async (req) => {
     typeof body.destinationId === "string" && body.destinationId.trim()
       ? body.destinationId.trim()
       : null;
+  const uuidRe = /^[0-9a-f-]{36}$/i;
+  const homeCardBadgeIds: string[] = Array.isArray(body.homeCardBadgeIds)
+    ? body.homeCardBadgeIds.filter((x: unknown) => typeof x === "string" && uuidRe.test(x)).slice(0, 5)
+    : [];
+  const homeCardPinnedIds: string[] = Array.isArray(body.homeCardPinnedIds)
+    ? body.homeCardPinnedIds.filter((x: unknown) => typeof x === "string" && uuidRe.test(x)).slice(0, 5)
+    : [];
 
   // Seule la surface embed exige un établissement hôte — sauf en mode
   // « plateforme » (assistant 1WM global, sans fiche d'ancrage) : même
