@@ -1127,7 +1127,7 @@ const Front = () => {
                 labelTakesPriority
                 onLabelClick={(info) => {
                   setScreen2Open(false);
-                  const text = info.kind === "entry" ? info.label : `${info.label} ${screen2City}`;
+                  const text = `${info.label} ${screen2City}`;
                   try {
                     window.postMessage({
                       type: "owm-host:home-card",
