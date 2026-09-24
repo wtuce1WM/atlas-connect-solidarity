@@ -2864,6 +2864,32 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     );
   };
 
+  /** Carte Homepage (écran 2 de Home) : feed vidéo du badge + réponse fiches par 4. */
+  const sendHomeCardRef = useRef<(d: any) => void>(() => {});
+  sendHomeCardRef.current = (d: any) => {
+    const text = typeof d?.text === "string" ? d.text.trim() : "";
+    if (!text || streaming || !assistantReady) return;
+    setError(null);
+    lastLocalFilterRef.current = null;
+    messageIndexRef.current += 1;
+    setActiveSuggestionId(null);
+    sendMessage(
+      { text },
+      { body: {
+        suggestionId: null, followupId: null, scope: null,
+        homeCardBadgeIds: Array.isArray(d.badgeIds) ? d.badgeIds : [],
+        homeCardPinnedIds: Array.isArray(d.pinnedIds) ? d.pinnedIds : [],
+      } },
+    );
+  };
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      if (e.data?.type === "owm-host:home-card") sendHomeCardRef.current(e.data);
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
+
   const sendClosestFilter = () => {
     if (streaming || !assistantReady) return;
     const text = lang === "en" ? "The closest ones" : lang === "ar" ? "الأقرب" : "Les plus proches";
