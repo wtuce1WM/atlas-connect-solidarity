@@ -163,7 +163,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false, mo
 
   if (loading) {
     return (
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-3 lg:grid-cols-6">
+      <div className={`grid gap-4 ${mobileCols === 2 ? "grid-cols-2" : "grid-cols-1"} md:grid-cols-3 lg:grid-cols-6`}>
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
