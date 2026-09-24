@@ -589,6 +589,32 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
             </TabsContent>
           ))}
         </Tabs>
+
+        <Dialog open={translateOpen} onOpenChange={(o) => { if (!o) closeAndDismiss(); }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Languages className="h-5 w-5 text-primary" />
+                Traduire en anglais ?
+              </DialogTitle>
+              <DialogDescription>
+                Vous venez de modifier {dirtyFr.length > 1 ? "ces champs" : "ce champ"} en français :
+                {" "}
+                <strong>{dirtyFr.map(FR_LABEL).join(", ")}</strong>.
+                Voulez-vous générer automatiquement la version anglaise ? Vous pourrez la relire avant d'enregistrer.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-2">
+              <Button variant="outline" onClick={closeAndDismiss} disabled={translating}>
+                Non merci
+              </Button>
+              <Button onClick={runTranslation} disabled={translating}>
+                {translating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Languages className="h-4 w-4 mr-2" />}
+                Traduire en anglais
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
