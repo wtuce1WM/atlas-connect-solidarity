@@ -117,35 +117,42 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
       return `Bloc #${n} – ${f}`;
     };
 
-    const frTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-    useEffect(() => {
-      if (loading || translating) return;
-      if (frTimer.current) clearTimeout(frTimer.current);
-      frTimer.current = setTimeout(() => {
-        const snap = frSnapshot();
-        const changed = Object.keys(snap).filter((k) => {
-          const v = (snap[k] || "").trim();
-          if (v.length === 0) return false;
-          if (v === (baseline.current[k] || "").trim()) return false;
-          if (v === (dismissed.current[k] || "").trim()) return false;
-          return true;
-        });
-        if (changed.length > 0) {
-          setDirtyFr(changed);
-          setTranslateOpen(true);
-        }
-      }, 2000);
-      return () => {
-        if (frTimer.current) clearTimeout(frTimer.current);
-      };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [highlights, sectionTitle.fr, sectionIntro.fr, loading, translating]);
+    const computeChangedFr = (): string[] => {
+      const snap = frSnapshot();
+      return Object.keys(snap).filter((k) => {
+        const v = (snap[k] || "").trim();
+        if (v.length === 0) return false;
+        return v !== (baseline.current[k] || "").trim();
+      });
+    };
+    const changedFrCount = loading ? 0 : computeChangedFr().length;
+    const pendingSave = useRef(false);
+
+    const openTranslate = (withSave: boolean) => {
+      const changed = computeChangedFr();
+      if (changed.length === 0) return false;
+      pendingSave.current = withSave;
+      setDirtyFr(changed);
+      setTranslateOpen(true);
+      return true;
+    };
 
     const closeAndDismiss = () => {
-      const snap = frSnapshot();
-      for (const k of dirtyFr) dismissed.current[k] = snap[k] || "";
+      pendingSave.current = false;
       setDirtyFr([]);
       setTranslateOpen(false);
+    };
+
+    const saveWithoutTranslating = () => {
+      const snap = frSnapshot();
+      for (const k of dirtyFr) baseline.current[k] = snap[k] || "";
+      closeAndDismiss();
+      handleSave().catch(() => {});
+    };
+
+    const requestSaveBlocks = () => {
+      if (openTranslate(true)) return;
+      handleSave().catch(() => {});
     };
 
     const runTranslation = async () => {
@@ -188,8 +195,8 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
 
         for (const k of dirtyFr) {
           baseline.current[k] = snap[k] || "";
-          dismissed.current[k] = snap[k] || "";
         }
+        pendingSave.current = false;
         markDirty();
         toast({ title: "Traduction appliquée", description: "Vérifiez l'onglet English, puis enregistrez." });
         setDirtyFr([]);
@@ -578,8 +585,14 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                     })}
                   </div>
 
-                  <div className="flex justify-end pt-2">
-                    <Button size="sm" disabled={!dirty || saving} onClick={() => handleSave().catch(() => {})}>
+                  <div className="flex flex-wrap justify-end gap-2 pt-2">
+                    {changedFrCount > 0 && (
+                      <Button size="sm" variant="outline" onClick={() => openTranslate(false)} disabled={translating}>
+                        <Languages className="mr-1 h-3 w-3" />
+                        Traduire en anglais ({changedFrCount} champ{changedFrCount > 1 ? "s" : ""} modifié{changedFrCount > 1 ? "s" : ""})
+                      </Button>
+                    )}
+                    <Button size="sm" disabled={!dirty || saving} onClick={requestSaveBlocks}>
                       {saving && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
                       Enregistrer les blocs
                     </Button>
@@ -598,16 +611,22 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                 Traduire en anglais ?
               </DialogTitle>
               <DialogDescription>
-                Vous venez de modifier {dirtyFr.length > 1 ? "ces champs" : "ce champ"} en français :
+                Vous avez modifié {dirtyFr.length > 1 ? "ces champs" : "ce champ"} en français :
                 {" "}
                 <strong>{dirtyFr.map(FR_LABEL).join(", ")}</strong>.
                 Voulez-vous générer automatiquement la version anglaise ? Vous pourrez la relire avant d'enregistrer.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="gap-2 sm:gap-2">
-              <Button variant="outline" onClick={closeAndDismiss} disabled={translating}>
-                Non merci
-              </Button>
+              {pendingSave.current ? (
+                <Button variant="outline" onClick={saveWithoutTranslating} disabled={translating}>
+                  Enregistrer sans traduire
+                </Button>
+              ) : (
+                <Button variant="outline" onClick={closeAndDismiss} disabled={translating}>
+                  Plus tard
+                </Button>
+              )}
               <Button onClick={runTranslation} disabled={translating}>
                 {translating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Languages className="h-4 w-4 mr-2" />}
                 Traduire en anglais
