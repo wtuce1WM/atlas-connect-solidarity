@@ -19,6 +19,8 @@ interface Props {
   onLabelClick?: (info: { label: string; kind: "entry" | "extra"; target: HomeCardTarget; badgeId: string | null; eventId?: string | null; pinnedBusinessId?: string | null }) => void;
   /** If true, clicking a labeled video card triggers the label filter instead of opening the video panel. Used on the Test homepage. */
   labelTakesPriority?: boolean;
+  /** 2 cards per row on mobile (screen 2 of /front). Default 1. */
+  mobileCols?: 1 | 2;
 }
 
 interface CardData {
@@ -45,7 +47,7 @@ interface MixedSlot {
   data: CardData;
 }
 
-const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: Props) => {
+const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false, mobileCols = 1 }: Props) => {
   const navigate = useLocalizedNavigate();
   const cacheKey = `home:cards:${city}`;
   const { language } = useLanguage();
@@ -161,7 +163,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
   if (loading) {
     return (
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-3 lg:grid-cols-6">
+      <div className={`grid gap-4 ${mobileCols === 2 ? "grid-cols-2" : "grid-cols-1"} md:grid-cols-3 lg:grid-cols-6`}>
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
@@ -349,7 +351,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
   return (
     <div>
-      <div className={`grid gap-4 ${activeSlot ? "grid-cols-1 md:grid-cols-3 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-3 lg:grid-cols-6"}`}>
+      <div className={`grid gap-4 ${mobileCols === 2 ? "grid-cols-2" : "grid-cols-1"} ${activeSlot ? "md:grid-cols-3 lg:grid-cols-3" : "md:grid-cols-3 lg:grid-cols-6"}`}>
         {slots.map((slot, index) => (
           <div key={slot.key}>
             {renderCard(slot, index)}

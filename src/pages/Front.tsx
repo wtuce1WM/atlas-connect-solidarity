@@ -9,7 +9,7 @@ type FrontDemoCard = import("@/components/front/FrontDemoCardsPanel").FrontDemoC
 
 
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronUp, ArrowUpRight } from "lucide-react";
+import { ChevronDown, ArrowUpRight } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -1103,14 +1103,6 @@ const Front = () => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center gap-3 px-4 pt-[calc(4.5rem+env(safe-area-inset-top))] pb-3">
-          <button
-            type="button"
-            onClick={() => setScreen2Open(false)}
-            className="flex flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
-          >
-            <ChevronUp className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
-            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">Retour</span>
-          </button>
           <div className="inline-flex rounded-full border border-gold/40 p-1">
             {(["Marrakech", "Essaouira"] as const).map((c) => (
               <button
@@ -1126,13 +1118,22 @@ const Front = () => {
             ))}
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto overscroll-contain px-3 pb-[calc(1.5rem+env(safe-area-inset-bottom))] md:px-8">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-3 pb-3 md:px-8">
           {screen2Open && (
             <Suspense fallback={null}>
-              <HomepageCardsFrontLazy city={screen2City} />
+              <HomepageCardsFrontLazy city={screen2City} mobileCols={2} />
             </Suspense>
           )}
         </div>
+        {/* CTA « Retour » en bas de l'écran 2. */}
+        <button
+          type="button"
+          onClick={() => setScreen2Open(false)}
+          className="flex flex-col items-center gap-1 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-2 text-[rgba(244,238,228,0.85)] hover:text-gold"
+        >
+          <ChevronDown className={`h-6 w-6 rotate-180 text-gold ${reduced ? "" : "animate-bounce"}`} />
+          <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">Retour</span>
+        </button>
       </div>
 
 
