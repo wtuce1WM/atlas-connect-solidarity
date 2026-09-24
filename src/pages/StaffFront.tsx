@@ -431,6 +431,7 @@ const StaffFront = () => {
 
           <TabsContent value="homepage">
             <RegenerateHomepageSnapshotButton cityName="Marrakech" />
+            <RegenerateHomepageSnapshotButton cityName="Essaouira" />
             <HomepageFrontStructurePreview />
           </TabsContent>
 
