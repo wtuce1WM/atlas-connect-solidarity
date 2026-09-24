@@ -349,7 +349,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
   return (
     <div>
-      <div className={`grid gap-4 ${activeSlot ? "grid-cols-1 md:grid-cols-3 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-3 lg:grid-cols-6"}`}>
+      <div className={`grid gap-4 ${mobileCols === 2 ? "grid-cols-2" : "grid-cols-1"} ${activeSlot ? "md:grid-cols-3 lg:grid-cols-3" : "md:grid-cols-3 lg:grid-cols-6"}`}>
         {slots.map((slot, index) => (
           <div key={slot.key}>
             {renderCard(slot, index)}
