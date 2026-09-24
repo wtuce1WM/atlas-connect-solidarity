@@ -4,7 +4,8 @@ import { compressImage } from "@/lib/imageCompression";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Upload, X, Languages } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import IconPicker from "@/components/staff/IconPicker";
 import DynamicIcon from "@/components/DynamicIcon";
@@ -85,6 +86,126 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
       onDirtyChange?.(true);
     };
 
+    // --- Proposition de traduction automatique FR -> EN (même mécanisme que l'onglet Texte) ---
+    const baseline = useRef<Record<string, string>>({});
+    const dismissed = useRef<Record<string, string>>({});
+    const [dirtyFr, setDirtyFr] = useState<string[]>([]);
+    const [translateOpen, setTranslateOpen] = useState(false);
+    const [translating, setTranslating] = useState(false);
+
+    const frSnapshot = (): Record<string, string> => {
+      const snap: Record<string, string> = {
+        section_title: sectionTitle.fr || "",
+        section_intro: sectionIntro.fr || "",
+      };
+      highlights.forEach((h, i) => {
+        snap[`b${i}_title`] = h.title || "";
+        snap[`b${i}_description`] = h.description || "";
+        snap[`b${i}_metric_title`] = h.metric_title || "";
+        snap[`b${i}_metric_value`] = h.metric_value || "";
+      });
+      return snap;
+    };
+
+    const FR_LABEL = (key: string): string => {
+      if (key === "section_title") return "Titre de la section";
+      if (key === "section_intro") return "Texte d'introduction";
+      const m = key.match(/^b(\d+)_(.+)$/);
+      if (!m) return key;
+      const n = Number(m[1]) + 1;
+      const f = m[2] === "title" ? "Titre" : m[2] === "description" ? "Texte" : m[2] === "metric_title" ? "Titre métrique" : "Valeur";
+      return `Bloc #${n} – ${f}`;
+    };
+
+    const frTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    useEffect(() => {
+      if (loading || translating) return;
+      if (frTimer.current) clearTimeout(frTimer.current);
+      frTimer.current = setTimeout(() => {
+        const snap = frSnapshot();
+        const changed = Object.keys(snap).filter((k) => {
+          const v = (snap[k] || "").trim();
+          if (v.length === 0) return false;
+          if (v === (baseline.current[k] || "").trim()) return false;
+          if (v === (dismissed.current[k] || "").trim()) return false;
+          return true;
+        });
+        if (changed.length > 0) {
+          setDirtyFr(changed);
+          setTranslateOpen(true);
+        }
+      }, 2000);
+      return () => {
+        if (frTimer.current) clearTimeout(frTimer.current);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [highlights, sectionTitle.fr, sectionIntro.fr, loading, translating]);
+
+    const closeAndDismiss = () => {
+      const snap = frSnapshot();
+      for (const k of dirtyFr) dismissed.current[k] = snap[k] || "";
+      setDirtyFr([]);
+      setTranslateOpen(false);
+    };
+
+    const runTranslation = async () => {
+      const snap = frSnapshot();
+      if (dirtyFr.length === 0) {
+        closeAndDismiss();
+        return;
+      }
+      setTranslating(true);
+      try {
+        const fields: Record<string, string> = {};
+        for (const k of dirtyFr) fields[k] = snap[k] || "";
+        const { data, error } = await supabase.functions.invoke("translate-business-fields", {
+          body: { business_id: businessId, fields },
+        });
+        if (error) throw error;
+        if ((data as any)?.error) throw new Error((data as any).error);
+        const t = (data as any)?.translations as Record<string, string> | undefined;
+        if (!t || Object.keys(t).length === 0) throw new Error("Aucune traduction reçue");
+
+        if (typeof t.section_title === "string") {
+          setSectionTitle((s) => ({ ...s, en: t.section_title.slice(0, MAX_SECTION_TITLE) }));
+        }
+        if (typeof t.section_intro === "string") {
+          setSectionIntro((s) => ({ ...s, en: t.section_intro }));
+        }
+        setHighlights((prev) => {
+          const next = [...prev];
+          for (const [k, v] of Object.entries(t)) {
+            const m = k.match(/^b(\d+)_(.+)$/);
+            if (!m || typeof v !== "string") continue;
+            const idx = Number(m[1]);
+            if (!next[idx]) continue;
+            const base = m[2];
+            const value = base.startsWith("metric_") ? v.slice(0, MAX_METRIC) : v;
+            next[idx] = { ...next[idx], [`${base}_en`]: value } as Highlight;
+          }
+          return next;
+        });
+
+        for (const k of dirtyFr) {
+          baseline.current[k] = snap[k] || "";
+          dismissed.current[k] = snap[k] || "";
+        }
+        markDirty();
+        toast({ title: "Traduction appliquée", description: "Vérifiez l'onglet English, puis enregistrez." });
+        setDirtyFr([]);
+        setTranslateOpen(false);
+      } catch (e: any) {
+        toast({
+          variant: "destructive",
+          title: "Traduction impossible",
+          description: String(e?.message ?? e).slice(0, 200),
+        });
+      } finally {
+        setTranslating(false);
+      }
+    };
+
+
     useEffect(() => {
       const fetchData = async () => {
         setLoading(true);
@@ -135,6 +256,18 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
         }
 
         setHighlights(result);
+        const initial: Record<string, string> = {
+          section_title: (result[0]?.section_title as string) || "",
+          section_intro: (result[0]?.section_intro as string) || "",
+        };
+        result.forEach((h, i) => {
+          initial[`b${i}_title`] = h.title || "";
+          initial[`b${i}_description`] = h.description || "";
+          initial[`b${i}_metric_title`] = h.metric_title || "";
+          initial[`b${i}_metric_value`] = h.metric_value || "";
+        });
+        baseline.current = initial;
+        dismissed.current = {};
         setLoading(false);
       };
       fetchData();
@@ -456,6 +589,32 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
             </TabsContent>
           ))}
         </Tabs>
+
+        <Dialog open={translateOpen} onOpenChange={(o) => { if (!o) closeAndDismiss(); }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Languages className="h-5 w-5 text-primary" />
+                Traduire en anglais ?
+              </DialogTitle>
+              <DialogDescription>
+                Vous venez de modifier {dirtyFr.length > 1 ? "ces champs" : "ce champ"} en français :
+                {" "}
+                <strong>{dirtyFr.map(FR_LABEL).join(", ")}</strong>.
+                Voulez-vous générer automatiquement la version anglaise ? Vous pourrez la relire avant d'enregistrer.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-2">
+              <Button variant="outline" onClick={closeAndDismiss} disabled={translating}>
+                Non merci
+              </Button>
+              <Button onClick={runTranslation} disabled={translating}>
+                {translating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Languages className="h-4 w-4 mr-2" />}
+                Traduire en anglais
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
