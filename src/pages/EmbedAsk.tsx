@@ -1226,6 +1226,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         scope: (body as any)?.scope ?? null,
         forcedRoute: (body as any)?.forcedRoute ?? null,
         destinationId: (body as any)?.destinationId ?? null,
+        homeCardBadgeIds: (body as any)?.homeCardBadgeIds ?? [],
+        homeCardPinnedIds: (body as any)?.homeCardPinnedIds ?? [],
         // Point confirmé par l'utilisateur : le moteur restreint le corpus lui-même,
         // sinon la réponse rédigée citait des adresses hors rayon.
         radiusKm: geoApplies ? geoRadiusRef.current : radiusRef.current,
