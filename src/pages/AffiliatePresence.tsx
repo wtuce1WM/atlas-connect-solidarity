@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { verifySession } from "@/hooks/useAuthSession";
@@ -25,7 +25,7 @@ import AffiliateContactEditor, { type CityOption, type NeighborhoodOption, type 
 import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
 import AffiliateLegalTab from "@/components/affiliate/AffiliateLegalTab";
 import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
-import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
+import AffiliateTextEditor, { type AffiliateTextEditorHandle } from "@/components/affiliate/AffiliateTextEditor";
 import AffiliateAiTextsEditor from "@/components/affiliate/AffiliateAiTextsEditor";
 import AffiliateAgentIaEditor from "@/components/affiliate/AffiliateAgentIaEditor";
 import AffiliateMapEditor from "@/components/affiliate/AffiliateMapEditor";
@@ -472,6 +472,12 @@ const AffiliatePresence = () => {
     setPendingBusinessId(null);
   };
 
+  const textEditorRef = useRef<AffiliateTextEditorHandle>(null);
+  const requestSave = (businessId: string) => {
+    if (textEditorRef.current?.requestSave(() => { handleSave(businessId); })) return;
+    handleSave(businessId);
+  };
+
   const saveAndSwitch = async () => {
     if (!pendingBusinessId || !selectedBusiness) return;
     const target = pendingBusinessId;
@@ -659,7 +665,7 @@ const AffiliatePresence = () => {
                         size="sm"
                         className="w-full sm:w-auto"
                         disabled={!hasEdits || savingId === currentBusiness.id}
-                        onClick={() => handleSave(currentBusiness.id)}
+                        onClick={() => requestSave(currentBusiness.id)}
                       >
                         {savingId === currentBusiness.id ? (
                           <Loader2 className="h-4 w-4 animate-spin mr-1" />
@@ -1015,6 +1021,7 @@ const AffiliatePresence = () => {
                     {/* Text Tab */}
                     <TabsContent value="text">
                       <AffiliateTextEditor
+                        ref={textEditorRef}
                         key={currentBusiness.id}
                         businessId={currentBusiness.id}
                         nameFr={getCurrentValue(currentBusiness.id, "name", currentBusiness.name) || ""}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -47,13 +47,18 @@ const stripHtml = (html: string): string => {
   return tmp.textContent || tmp.innerText || "";
 };
 
-const AffiliateTextEditor = ({
+export interface AffiliateTextEditorHandle {
+  /** Ouvre le popup de traduction si des champs FR ont changé. Retourne true si le popup a été ouvert. */
+  requestSave: (save: () => void) => boolean;
+}
+
+const AffiliateTextEditor = forwardRef<AffiliateTextEditorHandle, AffiliateTextEditorProps>(({
   businessId,
   nameFr, nameEn, nameAr,
   hookFr, hookEn, hookAr,
   descriptionFr, descriptionEn, descriptionAr,
   onNameChange, onHookChange, onDescriptionChange,
-}: AffiliateTextEditorProps) => {
+}, ref) => {
   const names = { fr: nameFr, en: nameEn, ar: nameAr };
   const hooks = { fr: hookFr, en: hookEn, ar: hookAr };
   const descriptions = { fr: descriptionFr, en: descriptionEn, ar: descriptionAr };
@@ -71,37 +76,44 @@ const AffiliateTextEditor = ({
     hook: hookFr || "",
     description: descriptionFr || "",
   });
-  const [dirty, setDirty] = useState<FieldKey[]>([]);
   const [translateOpen, setTranslateOpen] = useState(false);
   const [translating, setTranslating] = useState(false);
-  const dismissed = useRef<Record<FieldKey, string>>({ name: "", hook: "", description: "" });
+  const pendingSave = useRef<(() => void) | null>(null);
 
   const currentFr: Record<FieldKey, string> = { name: nameFr || "", hook: hookFr || "", description: descriptionFr || "" };
+  const dirty = (Object.keys(currentFr) as FieldKey[]).filter(
+    (f) => currentFr[f].trim().length > 0 && currentFr[f].trim() !== baseline.current[f].trim()
+  );
 
-  const markDirty = (field: FieldKey) => {
-    const value = currentFr[field];
-    if (value.trim() === baseline.current[field].trim()) return;
-    if (value.trim() === dismissed.current[field].trim()) return;
-    setDirty((prev) => (prev.includes(field) ? prev : [...prev, field]));
+  const acceptCurrentFr = () => {
+    for (const f of dirty) baseline.current[f] = currentFr[f];
+  };
+
+  useImperativeHandle(ref, () => ({
+    requestSave: (save) => {
+      if (dirty.length === 0 || !businessId) return false;
+      pendingSave.current = save;
+      setTranslateOpen(true);
+      return true;
+    },
+  }));
+
+  const openManual = () => {
+    pendingSave.current = null;
     setTranslateOpen(true);
   };
 
-  // La Description n'a pas d'événement blur (éditeur riche) : on détecte après une pause de saisie.
-  const descTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => {
-    if (descTimer.current) clearTimeout(descTimer.current);
-    if ((descriptionFr || "").trim() === baseline.current.description.trim()) return;
-    descTimer.current = setTimeout(() => markDirty("description"), 2000);
-    return () => {
-      if (descTimer.current) clearTimeout(descTimer.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [descriptionFr]);
-
   const closeAndDismiss = () => {
-    for (const f of dirty) dismissed.current[f] = currentFr[f];
-    setDirty([]);
+    pendingSave.current = null;
     setTranslateOpen(false);
+  };
+
+  const saveWithoutTranslating = () => {
+    const save = pendingSave.current;
+    acceptCurrentFr();
+    pendingSave.current = null;
+    setTranslateOpen(false);
+    save?.();
   };
 
   const runTranslation = async () => {
@@ -126,12 +138,9 @@ const AffiliateTextEditor = ({
         lastValidDesc.current.en = t.description;
         onDescriptionChange("en", t.description);
       }
-      for (const f of dirty) {
-        baseline.current[f] = currentFr[f];
-        dismissed.current[f] = currentFr[f];
-      }
+      acceptCurrentFr();
       toast({ title: "Traduction appliquée", description: "Vérifiez l'onglet English, puis enregistrez." });
-      setDirty([]);
+      pendingSave.current = null;
       setTranslateOpen(false);
     } catch (e: any) {
       toast({
@@ -166,6 +175,14 @@ const AffiliateTextEditor = ({
         const isRequired = l.code === "fr";
         return (
           <TabsContent key={l.code} value={l.code} className="space-y-6" dir={l.dir}>
+            {isRequired && dirty.length > 0 && businessId && (
+              <div className="flex justify-end">
+                <Button type="button" size="sm" variant="outline" onClick={openManual} disabled={translating}>
+                  <Languages className="h-4 w-4 mr-2" />
+                  Traduire en anglais ({dirty.length} champ{dirty.length > 1 ? "s" : ""} modifié{dirty.length > 1 ? "s" : ""})
+                </Button>
+              </div>
+            )}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor={`name_${l.code}`} className="text-white">
@@ -181,7 +198,6 @@ const AffiliateTextEditor = ({
                 id={`name_${l.code}`}
                 value={nameValue}
                 onChange={(e) => onNameChange(l.code, e.target.value.slice(0, MAX_NAME))}
-                onBlur={isRequired ? () => markDirty("name") : undefined}
                 placeholder={`Nom de l'établissement en ${l.label.toLowerCase()}`}
                 maxLength={MAX_NAME}
                 className={`h-12 text-white placeholder:text-white/50 ${nameValue.length === 0 && isRequired ? "border-destructive focus-visible:ring-destructive" : ""}`}
@@ -201,7 +217,6 @@ const AffiliateTextEditor = ({
                 id={`hook_${l.code}`}
                 value={hookValue}
                 onChange={(e) => onHookChange(l.code, e.target.value.slice(0, MAX_HOOK))}
-                onBlur={isRequired ? () => markDirty("hook") : undefined}
                 placeholder={`Accroche courte en ${l.label.toLowerCase()} (max ${MAX_HOOK} caractères)`}
                 maxLength={MAX_HOOK}
                 className="!text-lg font-semibold h-12 text-white placeholder:text-white/50"
@@ -234,16 +249,22 @@ const AffiliateTextEditor = ({
             Traduire en anglais ?
           </DialogTitle>
           <DialogDescription>
-            Vous venez de modifier {dirty.length > 1 ? "ces champs" : "ce champ"} en français :
+            Vous avez modifié {dirty.length > 1 ? "ces champs" : "ce champ"} en français :
             {" "}
             <strong>{dirty.map((f) => FIELD_LABEL[f]).join(", ")}</strong>.
             Voulez-vous générer automatiquement la version anglaise ? Vous pourrez la relire avant d'enregistrer.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-2">
-          <Button variant="outline" onClick={closeAndDismiss} disabled={translating}>
-            Non merci
-          </Button>
+          {pendingSave.current ? (
+            <Button variant="outline" onClick={saveWithoutTranslating} disabled={translating}>
+              Enregistrer sans traduire
+            </Button>
+          ) : (
+            <Button variant="outline" onClick={closeAndDismiss} disabled={translating}>
+              Plus tard
+            </Button>
+          )}
           <Button onClick={runTranslation} disabled={translating}>
             {translating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Languages className="h-4 w-4 mr-2" />}
             Traduire en anglais
@@ -253,6 +274,8 @@ const AffiliateTextEditor = ({
     </Dialog>
     </>
   );
-};
+});
+
+AffiliateTextEditor.displayName = "AffiliateTextEditor";
 
 export default AffiliateTextEditor;
