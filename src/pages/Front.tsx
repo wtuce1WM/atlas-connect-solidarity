@@ -1121,7 +1121,23 @@ const Front = () => {
         <div className="flex-1 overflow-y-auto overscroll-contain px-3 pb-3 md:px-8">
           {screen2Open && (
             <Suspense fallback={null}>
-              <HomepageCardsFrontLazy city={screen2City} mobileCols={2} />
+              <HomepageCardsFrontLazy
+                city={screen2City}
+                mobileCols={2}
+                labelTakesPriority
+                onLabelClick={(info) => {
+                  setScreen2Open(false);
+                  const text = `${info.label} ${screen2City}`;
+                  try {
+                    window.postMessage({
+                      type: "owm-host:home-card",
+                      text,
+                      badgeIds: info.badgeId ? [info.badgeId] : [],
+                      pinnedIds: info.pinnedBusinessId ? [info.pinnedBusinessId] : [],
+                    }, window.location.origin);
+                  } catch { /* noop */ }
+                }}
+              />
             </Suspense>
           )}
         </div>

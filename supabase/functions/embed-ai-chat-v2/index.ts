@@ -485,6 +485,13 @@ Deno.serve(async (req) => {
     typeof body.destinationId === "string" && body.destinationId.trim()
       ? body.destinationId.trim()
       : null;
+  const uuidRe = /^[0-9a-f-]{36}$/i;
+  const homeCardBadgeIds: string[] = Array.isArray(body.homeCardBadgeIds)
+    ? body.homeCardBadgeIds.filter((x: unknown) => typeof x === "string" && uuidRe.test(x)).slice(0, 5)
+    : [];
+  const homeCardPinnedIds: string[] = Array.isArray(body.homeCardPinnedIds)
+    ? body.homeCardPinnedIds.filter((x: unknown) => typeof x === "string" && uuidRe.test(x)).slice(0, 5)
+    : [];
 
   // Seule la surface embed exige un établissement hôte — sauf en mode
   // « plateforme » (assistant 1WM global, sans fiche d'ancrage) : même
@@ -1168,6 +1175,23 @@ Deno.serve(async (req) => {
               }
             }
           }
+        }
+
+        // Carte Homepage (écran 2 de Home) : feed vidéo du badge de la carte,
+        // ouvert d'abord, puis le tour continue vers la réponse fiches (lots de 4).
+        if (homeCardBadgeIds.length || homeCardPinnedIds.length) {
+          const builtHc = await buildVideoFeedAnswer(admin, {
+            badgeIds: homeCardBadgeIds,
+            pinnedBusinessIds: homeCardPinnedIds,
+            label: userMessage,
+            lang: lang as any,
+            city: scopeCity,
+            max: 30,
+          }).catch((e) => {
+            console.error("[embed-ai-chat-v2] home_card_feed_failed", String(e));
+            return null;
+          });
+          if (builtHc && builtHc.count > 0) emit(videoFeedMarker(builtHc.payload));
         }
 
         if (suggestionId || followupId) {
