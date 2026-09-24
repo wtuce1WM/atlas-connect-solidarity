@@ -57,9 +57,6 @@ async function compress(bytes: Uint8Array): Promise<Uint8Array> {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  const auth = await assertStaff(req, corsHeaders);
-  if (auth instanceof Response) return auth;
-
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), {
       status,
