@@ -77,7 +77,6 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
       ]);
 
       const badges: BadgeLite[] = ((badgesRes.data as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr }));
-      const badgeMap = new Map(badges.map((b) => [b.id, b.name_fr]));
       const assignments = await fetchHomepageCardBadges(city);
 
       const entries = ((entriesRes.data as any[]) || []).filter((e) => e.show_in_menu !== false);

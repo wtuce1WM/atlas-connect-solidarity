@@ -19,10 +19,9 @@ const getCityAliases = (c: string): string[] => CITY_ALIASES[c] || [c];
  */
 async function buildSnapshot(supabase: any, city: string) {
   const aliasNames = getCityAliases(city);
-  const [cityRowsRes, entriesRes, badgesRes, extraRes, orderRes, cardBadgesRes, overridesRes] = await Promise.all([
+  const [cityRowsRes, entriesRes, extraRes, orderRes, cardBadgesRes, overridesRes] = await Promise.all([
     supabase.from("cities").select("id").in("name_fr", aliasNames),
     supabase.from("front_structure").select("id, name, sort_order, show_in_menu").order("sort_order"),
-    supabase.from("badges").select("id, name_fr"),
     supabase
       .from("front_structure_homepage_extra_cards")
       .select("id, city, image_url, sort_order, badge_id, title")
@@ -43,8 +42,6 @@ async function buildSnapshot(supabase: any, city: string) {
       .select("front_structure_id, image_url")
       .eq("city", city),
   ]);
-
-  const badgeMap = new Map<string, string>(((badgesRes.data as any[]) || []).map((b) => [b.id, b.name_fr]));
 
   const badgesByItem = new Map<string, string[]>();
   ((cardBadgesRes.data as any[]) || []).forEach((r) => {
