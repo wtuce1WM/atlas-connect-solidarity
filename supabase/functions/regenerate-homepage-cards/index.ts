@@ -19,13 +19,12 @@ const getCityAliases = (c: string): string[] => CITY_ALIASES[c] || [c];
  */
 async function buildSnapshot(supabase: any, city: string) {
   const aliasNames = getCityAliases(city);
-  const [cityRowsRes, entriesRes, badgesRes, extraRes, orderRes, cardBadgesRes, overridesRes] = await Promise.all([
+  const [cityRowsRes, entriesRes, extraRes, orderRes, cardBadgesRes, overridesRes] = await Promise.all([
     supabase.from("cities").select("id").in("name_fr", aliasNames),
     supabase.from("front_structure").select("id, name, sort_order, show_in_menu").order("sort_order"),
-    supabase.from("badges").select("id, name_fr"),
     supabase
       .from("front_structure_homepage_extra_cards")
-      .select("id, city, image_url, sort_order, badge_id")
+      .select("id, city, image_url, sort_order, badge_id, title")
       .eq("city", city)
       .order("sort_order", { ascending: true }),
     supabase
@@ -43,8 +42,6 @@ async function buildSnapshot(supabase: any, city: string) {
       .select("front_structure_id, image_url")
       .eq("city", city),
   ]);
-
-  const badgeMap = new Map<string, string>(((badgesRes.data as any[]) || []).map((b) => [b.id, b.name_fr]));
 
   const badgesByItem = new Map<string, string[]>();
   ((cardBadgesRes.data as any[]) || []).forEach((r) => {
@@ -72,7 +69,7 @@ async function buildSnapshot(supabase: any, city: string) {
     ...extraRows.map((c) => ({
       kind: "extra" as const,
       id: c.id,
-      label: (badgeMap.get(c.badge_id) as string | undefined) || null,
+      label: c.title?.trim() || null,
       forcedImage: c.image_url || null,
     })),
 
@@ -80,10 +77,6 @@ async function buildSnapshot(supabase: any, city: string) {
 
   const cards = targets.map((t) => {
     const assigned = badgesByItem.get(`${t.kind}:${t.id}`) || [];
-    const label =
-      t.kind === "entry"
-        ? t.label
-        : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" / ") || t.label;
 
     const primaryBadgeId = assigned[0] || null;
     const target = t.kind === "extra" && primaryBadgeId ? { type: "badge", id: primaryBadgeId } : null;
@@ -101,7 +94,7 @@ async function buildSnapshot(supabase: any, city: string) {
         ownerId: null,
         rating: null,
         reviewCount: null,
-        label,
+        label: t.label,
         badgeIds: assigned,
         badgeId: primaryBadgeId,
         eventId: null,

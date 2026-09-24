@@ -65,7 +65,7 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
         supabase.from("badges").select("id, name_fr").order("name_fr"),
         (supabase as any)
           .from("front_structure_homepage_extra_cards")
-          .select("id, image_url, sort_order, badge_id")
+          .select("id, image_url, sort_order, badge_id, title")
           .eq("city", city)
           .order("sort_order", { ascending: true }),
 
@@ -77,7 +77,6 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
       ]);
 
       const badges: BadgeLite[] = ((badgesRes.data as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr }));
-      const badgeMap = new Map(badges.map((b) => [b.id, b.name_fr]));
       const assignments = await fetchHomepageCardBadges(city);
 
       const entries = ((entriesRes.data as any[]) || []).filter((e) => e.show_in_menu !== false);
@@ -97,23 +96,18 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
         ...extras.map((c) => ({
           kind: "extra" as const,
           id: c.id,
-          label: badgeMap.get(c.badge_id) || "Carte libre",
+          label: c.title?.trim() || "Carte libre",
           imageUrl: c.image_url || null,
         })),
 
       ];
 
       const previews: CardPreview[] = targets.map((t) => {
-        const assigned = assignments[cardKey(t.kind, t.id)] || [];
-        const label =
-          t.kind === "entry"
-            ? t.label
-            : assigned.map((b) => badgeMap.get(b)).filter(Boolean).join(" / ") || t.label;
         return {
           key: cardKey(t.kind, t.id),
           kind: t.kind,
           id: t.id,
-          label,
+          label: t.label,
           imageUrl: t.imageUrl,
         };
       });
@@ -216,6 +210,26 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
     }
     invalidateManualCardCache(city as any);
     setReloadKey((k) => k + 1);
+  };
+
+  const setExtraTitle = async (cardId: string, title: string) => {
+    const cleanTitle = title.trim();
+    const { error } = await (supabase as any)
+      .from("front_structure_homepage_extra_cards")
+      .update({ title: cleanTitle || null })
+      .eq("id", cardId);
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      return;
+    }
+    invalidateManualCardCache(city as any);
+    setCards((current) =>
+      current.map((card) =>
+        card.id === cardId && card.kind === "extra"
+          ? { ...card, label: cleanTitle || "Carte libre" }
+          : card,
+      ),
+    );
   };
 
   const uploadImage = async (card: CardPreview, file: File) => {
@@ -368,6 +382,17 @@ const HomepageFrontStructurePreview = ({ city = "Marrakech" }: Props) => {
                         </button>
                       )}
                     </div>
+
+                    {card.kind === "extra" && (
+                      <Input
+                        key={`${card.id}:${card.label}`}
+                        defaultValue={card.label === "Carte libre" ? "" : card.label}
+                        placeholder="Nom de la carte"
+                        aria-label="Nom de la carte"
+                        onBlur={(event) => void setExtraTitle(card.id, event.currentTarget.value)}
+                        className="h-9 text-sm font-semibold"
+                      />
+                    )}
 
                     <div className="flex gap-3">
                       <div className="w-[38%] shrink-0">{renderThumbBox(card)}</div>
