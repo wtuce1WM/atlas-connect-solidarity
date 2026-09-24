@@ -78,6 +78,12 @@ Deno.serve(async (req) => {
 
     if (!businessId && !slug) return json({ error: "business_id ou slug requis" }, 400);
 
+    // Staff, ou affilié propriétaire de l'établissement ciblé (par id uniquement).
+    const auth = businessId
+      ? await assertStaffOrAffiliateBusiness(req, corsHeaders, businessId)
+      : await assertStaff(req, corsHeaders);
+    if (auth instanceof Response) return auth;
+
     const sel = supabase.from("businesses").select("id, name, slug, images").limit(1);
     const { data: biz, error: bizErr } = businessId
       ? await sel.eq("id", businessId).maybeSingle()
