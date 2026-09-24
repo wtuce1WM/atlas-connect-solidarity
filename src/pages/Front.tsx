@@ -9,7 +9,7 @@ type FrontDemoCard = import("@/components/front/FrontDemoCardsPanel").FrontDemoC
 
 
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown, ArrowUpRight } from "lucide-react";
+import { ChevronDown, ChevronUp, ArrowUpRight } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import { useLanguage } from "@/contexts/LanguageContext";
