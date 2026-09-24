@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { assertStaff } from "../_shared/auth-helpers.ts";
+import { assertStaff, assertStaffOrAffiliateBusiness } from "../_shared/auth-helpers.ts";
 import {
   ImageMagick,
   initializeImageMagick,
