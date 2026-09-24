@@ -1070,8 +1070,9 @@ const AffiliatePresence = () => {
                     </TabsContent>
 
                     {/* Images Tab */}
-                    <TabsContent value="images">
+                    <TabsContent value="images" className="space-y-4">
                       <AffiliateImagesEditor businessId={currentBusiness.id} />
+                      <AffiliateImageCompressionPanel businessId={currentBusiness.id} />
                     </TabsContent>
 
                     {/* Videos Tab */}
