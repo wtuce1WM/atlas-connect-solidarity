@@ -256,6 +256,18 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
         }
 
         setHighlights(result);
+        const initial: Record<string, string> = {
+          section_title: (result[0]?.section_title as string) || "",
+          section_intro: (result[0]?.section_intro as string) || "",
+        };
+        result.forEach((h, i) => {
+          initial[`b${i}_title`] = h.title || "";
+          initial[`b${i}_description`] = h.description || "";
+          initial[`b${i}_metric_title`] = h.metric_title || "";
+          initial[`b${i}_metric_value`] = h.metric_value || "";
+        });
+        baseline.current = initial;
+        dismissed.current = {};
         setLoading(false);
       };
       fetchData();
