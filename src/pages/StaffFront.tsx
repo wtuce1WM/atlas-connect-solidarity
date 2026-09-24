@@ -430,10 +430,23 @@ const StaffFront = () => {
 
 
           <TabsContent value="homepage">
-            <RegenerateHomepageSnapshotButton cityName="Marrakech" />
-            <RegenerateHomepageSnapshotButton cityName="Essaouira" />
-            <HomepageFrontStructurePreview />
+            <div className="mb-4 flex items-center gap-2">
+              <span className="text-sm font-medium">Ville :</span>
+              {(["Marrakech", "Essaouira"] as const).map((c) => (
+                <Button
+                  key={c}
+                  size="sm"
+                  variant={homepageCity === c ? "default" : "outline"}
+                  onClick={() => setHomepageCity(c)}
+                >
+                  {c}
+                </Button>
+              ))}
+            </div>
+            <RegenerateHomepageSnapshotButton cityName={homepageCity} />
+            <HomepageFrontStructurePreview key={homepageCity} city={homepageCity} />
           </TabsContent>
+
 
 
           <TabsContent value="popup">
