@@ -226,8 +226,18 @@ export async function runForcedRoute(ctx: ForcedRouteContext): Promise<ForcedRou
       if (!ids.length || (!host && !ctx.userAnchor)) return null;
       const mode = key === "distance_ranking_closest" ? "closest" : "farthest";
       const ranked = await buildDistanceRankingResult(admin, host, ids, mode, lang, ctx.userAnchor, radiusKm);
+      if (!ranked && ctx.userAnchor) {
+        // Aucun lieu de la liste dans le rayon : on le dit et on conserve la liste précédente.
+        const km = radiusKm ?? 10;
+        const emptyText = lang === "en"
+          ? `None of these places is within ${km} km of your address.`
+          : lang === "ar"
+            ? `لا يوجد أي من هذه الأماكن على بعد ${km} كم من عنوانك.`
+            : `Aucun de ces lieux ne se trouve à moins de ${km} km de votre adresse.`;
+        return { text: emptyText, route: "nearby", resultsCount: 0, poolIds: ids };
+      }
       const text = ranked?.text
-        ?? (!ctx.userAnchor && host ? await buildDistanceList(admin, host, ids, lang) : null);
+        ?? (host ? await buildDistanceList(admin, host, ids, lang) : null);
       return text ? {
         text,
         route: "nearby",
