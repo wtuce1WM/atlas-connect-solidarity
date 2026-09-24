@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { assertStaff } from "../_shared/auth-helpers.ts";
+import { assertStaff, assertStaffOrAffiliateBusiness } from "../_shared/auth-helpers.ts";
 import {
   ImageMagick,
   initializeImageMagick,
@@ -57,9 +57,6 @@ async function compress(bytes: Uint8Array): Promise<Uint8Array> {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  const auth = await assertStaff(req, corsHeaders);
-  if (auth instanceof Response) return auth;
-
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), {
       status,
@@ -80,6 +77,12 @@ Deno.serve(async (req) => {
     const revert: boolean = body.revert === true;
 
     if (!businessId && !slug) return json({ error: "business_id ou slug requis" }, 400);
+
+    // Staff, ou affilié propriétaire de l'établissement ciblé (par id uniquement).
+    const auth = businessId
+      ? await assertStaffOrAffiliateBusiness(req, corsHeaders, businessId)
+      : await assertStaff(req, corsHeaders);
+    if (auth instanceof Response) return auth;
 
     const sel = supabase.from("businesses").select("id, name, slug, images").limit(1);
     const { data: biz, error: bizErr } = businessId
