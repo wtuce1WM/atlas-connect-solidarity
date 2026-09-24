@@ -325,6 +325,8 @@ const StaffFront = () => {
   const navigate = useNavigate();
   const [showTopArrow, setShowTopArrow] = useState(false);
   const [showBottomArrow, setShowBottomArrow] = useState(false);
+  const [homepageCity, setHomepageCity] = useState<"Marrakech" | "Essaouira">("Marrakech");
+
 
   useEffect(() => {
     const onScroll = () => {
