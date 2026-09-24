@@ -2628,6 +2628,23 @@ Deno.serve(async (req) => {
 
             searchPoolIds = poolWithUnratedNext(kept, CFG.maxResults).map((b: any) => String(b.id)).slice(0, POOL_CAP);
             results = withUnratedTail(kept, CFG.maxResults);
+
+            // ── Nom exact (match littéral) : la fiche nommée passe en TÊTE ──
+            // business-search classe par score de priorité : « Riad Dar Najat »
+            // sortait 16e et n'était donc jamais affiché dans le lot de 4.
+            if (nameHit?.literal && nameHit.id) {
+              const exactId = String(nameHit.id);
+              let exact = kept.find((b: any) => String(b.id) === exactId);
+              if (!exact) {
+                const extra = await fetchPriorFull(admin, [exactId], 1).catch(() => [] as any[]);
+                exact = (extra as any[])[0];
+              }
+              if (exact) {
+                results = [exact, ...results.filter((b: any) => String(b.id) !== exactId)];
+                searchPoolIds = [exactId, ...searchPoolIds.filter((id) => id !== exactId)].slice(0, POOL_CAP);
+                console.log("[embed-ai-chat-v2] exact_name_pinned", JSON.stringify({ id: exactId, name: nameHit.name }));
+              }
+            }
           } catch (e) {
             console.error("[embed-ai-chat-v2] search_failed", e);
             hadError = true;
