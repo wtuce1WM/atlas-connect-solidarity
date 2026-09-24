@@ -1170,6 +1170,23 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Carte Homepage (écran 2 de Home) : feed vidéo du badge de la carte,
+        // ouvert d'abord, puis le tour continue vers la réponse fiches (lots de 4).
+        if (homeCardBadgeIds.length || homeCardPinnedIds.length) {
+          const builtHc = await buildVideoFeedAnswer(admin, {
+            badgeIds: homeCardBadgeIds,
+            pinnedBusinessIds: homeCardPinnedIds,
+            label: userMessage,
+            lang: lang as any,
+            city: scopeCity,
+            max: 30,
+          }).catch((e) => {
+            console.error("[embed-ai-chat-v2] home_card_feed_failed", String(e));
+            return null;
+          });
+          if (builtHc && builtHc.count > 0) emit(videoFeedMarker(builtHc.payload));
+        }
+
         if (suggestionId || followupId) {
           const curated = await loadCuratedTargets(admin, {
             suggestionId, followupId, businessId: host?.id ?? null,
