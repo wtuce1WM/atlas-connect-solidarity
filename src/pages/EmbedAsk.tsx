@@ -1226,7 +1226,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         scope: (body as any)?.scope ?? null,
         forcedRoute: (body as any)?.forcedRoute ?? null,
         destinationId: (body as any)?.destinationId ?? null,
-        homeCardBadgeIds: (body as any)?.homeCardBadgeIds ?? [],
+        homeCardEntryId: (body as any)?.homeCardEntryId ?? null,
+        homeCardCity: (body as any)?.homeCardCity ?? null,
         homeCardPinnedIds: (body as any)?.homeCardPinnedIds ?? [],
         // Point confirmé par l'utilisateur : le moteur restreint le corpus lui-même,
         // sinon la réponse rédigée citait des adresses hors rayon.
@@ -2879,7 +2880,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       { text },
       { body: {
         suggestionId: null, followupId: null, scope: null,
-        homeCardBadgeIds: Array.isArray(d.badgeIds) ? d.badgeIds : [],
+        homeCardEntryId: typeof d.entryId === "string" ? d.entryId : null,
+        homeCardCity: typeof d.city === "string" ? d.city : null,
         homeCardPinnedIds: Array.isArray(d.pinnedIds) ? d.pinnedIds : [],
       } },
     );
