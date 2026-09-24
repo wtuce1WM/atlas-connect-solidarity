@@ -253,10 +253,9 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
           <TabsList>
             <TabsTrigger value="fr">🇫🇷 Français</TabsTrigger>
             <TabsTrigger value="en">🇬🇧 English</TabsTrigger>
-            <TabsTrigger value="ar">🇲🇦 العربية</TabsTrigger>
           </TabsList>
 
-          {(["fr", "en", "ar"] as Lang[]).map((l) => (
+          {(["fr", "en"] as Lang[]).map((l) => (
             <TabsContent key={l} value={l} className="space-y-4 mt-4" dir={l === "ar" ? "rtl" : "ltr"}>
               {l === lang && (
                 <>
