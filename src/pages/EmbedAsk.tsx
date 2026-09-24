@@ -2778,7 +2778,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     setGeoPromptWaiting(false);
     setGeoPromptText(null);
     setGeoAnchorPoint(null);
-    if (text && !forcedRoute) send(text, undefined, undefined, true);
+    if (!text) return;
+    // Filtre local refusé : il part quand même (classement depuis l'hôte côté serveur).
+    if (forcedRoute) sendLocalFilter(text, forcedRoute);
+    else send(text, undefined, undefined, true);
   };
 
   /**

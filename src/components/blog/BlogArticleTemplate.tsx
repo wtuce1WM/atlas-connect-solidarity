@@ -1154,6 +1154,7 @@ const BlogArticleTemplate = ({
       </div>
       {!embedBackSlug && !openBusinessId && !activeVideoId && <HomeBottomBar />}
       {clubAuthOpen && !isLoggedIn && (
+        <div className="fixed inset-0 z-[9999]">
         <ClubBlueAuthPopup onClose={() => setClubAuthOpen(false)}>
           {(() => {
             const clubT = clubPopupTranslations[language as keyof typeof clubPopupTranslations] || clubPopupTranslations.fr;
@@ -1171,6 +1172,7 @@ const BlogArticleTemplate = ({
             );
           })()}
         </ClubBlueAuthPopup>
+        </div>
       )}
 
       {openBusinessId && (
