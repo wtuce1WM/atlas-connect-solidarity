@@ -253,7 +253,6 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
           <TabsList>
             <TabsTrigger value="fr">🇫🇷 Français</TabsTrigger>
             <TabsTrigger value="en">🇬🇧 English</TabsTrigger>
-            <TabsTrigger value="ar">🇲🇦 العربية</TabsTrigger>
           </TabsList>
 
           {(["fr", "en", "ar"] as Lang[]).map((l) => (

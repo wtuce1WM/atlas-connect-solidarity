@@ -22,7 +22,6 @@ interface AffiliateTextEditorProps {
 const LANGS: Array<{ code: "fr" | "en" | "ar"; label: string; dir?: "rtl" | "ltr" }> = [
   { code: "fr", label: "Français" },
   { code: "en", label: "English" },
-  { code: "ar", label: "العربية", dir: "rtl" },
 ];
 
 const MAX_HOOK = 120;
