@@ -9,7 +9,7 @@ type FrontDemoCard = import("@/components/front/FrontDemoCardsPanel").FrontDemoC
 
 
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown, ArrowUpRight } from "lucide-react";
+import { ChevronDown, ChevronUp, ArrowUpRight } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -1131,7 +1131,7 @@ const Front = () => {
           onClick={() => setScreen2Open(false)}
           className="flex flex-col items-center gap-1 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-2 text-[rgba(244,238,228,0.85)] hover:text-gold"
         >
-          <ChevronDown className={`h-6 w-6 rotate-180 text-gold ${reduced ? "" : "animate-bounce"}`} />
+          <ChevronUp className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
           <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">Retour</span>
         </button>
       </div>
