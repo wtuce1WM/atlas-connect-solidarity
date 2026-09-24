@@ -16,7 +16,7 @@ export type HomeCardTarget = { type: "badge" | "event"; id: string } | null;
 
 interface Props {
   city: string;
-  onLabelClick?: (info: { label: string; kind: "entry" | "extra"; target: HomeCardTarget; badgeId: string | null; eventId?: string | null; pinnedBusinessId?: string | null }) => void;
+  onLabelClick?: (info: { label: string; kind: "entry" | "extra"; target: HomeCardTarget; badgeId: string | null; eventId?: string | null; pinnedBusinessId?: string | null; entryId?: string | null }) => void;
   /** If true, clicking a labeled video card triggers the label filter instead of opening the video panel. Used on the Test homepage. */
   labelTakesPriority?: boolean;
   /** 2 cards per row on mobile (screen 2 of /front). Default 1. */
@@ -217,6 +217,8 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false, mo
         // entry-card whose video was forced via front_structure_homepage_overrides),
         // pin that business at the top of the next page.
         pinnedBusinessId: slot.data.ownerId ?? null,
+        entryId: slot.kind === "entry" && typeof (slot as any).key === "string" && (slot as any).key.startsWith("entry:")
+          ? (slot as any).key.slice(6) : null,
       });
       return;
     }

@@ -1132,7 +1132,8 @@ const Front = () => {
                     window.postMessage({
                       type: "owm-host:home-card",
                       text,
-                      badgeIds: info.badgeId ? [info.badgeId] : [],
+                      entryId: info.entryId ?? null,
+                      city: screen2City,
                       pinnedIds: info.pinnedBusinessId ? [info.pinnedBusinessId] : [],
                     }, window.location.origin);
                   } catch { /* noop */ }

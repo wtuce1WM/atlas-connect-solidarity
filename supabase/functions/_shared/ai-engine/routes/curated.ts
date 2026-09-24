@@ -1096,3 +1096,37 @@ export function applyLabelPlaceholders(label: string | null | undefined, host: a
     .replace(/\s{2,}/g, " ")
     .trim();
 }
+
+/**
+ * Carte Homepage (écran 2 de Home) : cibles lues depuis la configuration
+ * /staff/front → Homepage. Feed = badges de la carte POUR CETTE VILLE ;
+ * réponse fiches = sous-catégories / services de la rubrique.
+ */
+export async function loadHomeCardTargets(
+  admin: any,
+  opts: { entryId: string; city: string; label: string; pinnedBusinessIds?: string[] },
+): Promise<CuratedTargets> {
+  const out: CuratedTargets = { ...EMPTY_TARGETS, blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], serviceNames: [], badgeIds: [], destinationIds: [], aiTexts: [] };
+  out.mode = "video_feed";
+  out.city = opts.city;
+  out.label = opts.label;
+  out.pinnedBusinessIds = (opts.pinnedBusinessIds || []).filter(Boolean);
+  const [{ data: cb }, { data: fs }, { data: fsv }] = await Promise.all([
+    admin.from("front_structure_homepage_card_badges").select("badge_id, sort_order")
+      .eq("item_id", opts.entryId).eq("city", opts.city).order("sort_order"),
+    admin.from("front_structure_subcategories").select("subcategory_id").eq("front_structure_id", opts.entryId),
+    admin.from("front_structure_services").select("service_id").eq("front_structure_id", opts.entryId),
+  ]);
+  out.badgeIds = (cb || []).map((r: any) => r.badge_id).filter(Boolean);
+  const subIds = (fs || []).map((r: any) => r.subcategory_id).filter(Boolean);
+  if (subIds.length) {
+    const { data: subs } = await admin.from("subcategories").select("name_fr").in("id", subIds);
+    out.subcategoryNames = (subs || []).map((s: any) => s.name_fr).filter(Boolean);
+  }
+  const svcIds = (fsv || []).map((r: any) => r.service_id).filter(Boolean);
+  if (svcIds.length) {
+    const { data: svcs } = await admin.from("services").select("name_fr").in("id", svcIds);
+    out.serviceNames = (svcs || []).map((s: any) => s.name_fr).filter(Boolean);
+  }
+  return out;
+}

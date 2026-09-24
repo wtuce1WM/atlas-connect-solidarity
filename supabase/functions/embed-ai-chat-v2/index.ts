@@ -35,7 +35,7 @@ import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 import { isTidesIntent, resolveTidesCity, tidesIntro, bonusTidesCity } from "../_shared/ai-engine/routes/tides.ts";
 import { isGlovoIntent, loadGlovoBusinessIds, glovoHeading, glovoEmpty } from "../_shared/ai-engine/routes/glovo.ts";
 import {
-  loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle, matchCuratedByText,
+  loadCuratedTargets, loadHomeCardTargets, fetchBlogPostsCached, matchBlogArticle, matchCuratedByText,
   buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer, applyLabelPlaceholders,
 
 } from "../_shared/ai-engine/routes/curated.ts";
@@ -486,9 +486,10 @@ Deno.serve(async (req) => {
       ? body.destinationId.trim()
       : null;
   const uuidRe = /^[0-9a-f-]{36}$/i;
-  const homeCardBadgeIds: string[] = Array.isArray(body.homeCardBadgeIds)
-    ? body.homeCardBadgeIds.filter((x: unknown) => typeof x === "string" && uuidRe.test(x)).slice(0, 5)
-    : [];
+  const homeCardEntryId: string | null =
+    typeof body.homeCardEntryId === "string" && uuidRe.test(body.homeCardEntryId) ? body.homeCardEntryId : null;
+  const homeCardCity: string | null =
+    body.homeCardCity === "Marrakech" || body.homeCardCity === "Essaouira" ? body.homeCardCity : null;
   const homeCardPinnedIds: string[] = Array.isArray(body.homeCardPinnedIds)
     ? body.homeCardPinnedIds.filter((x: unknown) => typeof x === "string" && uuidRe.test(x)).slice(0, 5)
     : [];
@@ -1177,25 +1178,18 @@ Deno.serve(async (req) => {
           }
         }
 
-        // Carte Homepage (écran 2 de Home) : feed vidéo du badge de la carte,
-        // ouvert d'abord, puis le tour continue vers la réponse fiches (lots de 4).
-        if (homeCardBadgeIds.length || homeCardPinnedIds.length) {
-          const builtHc = await buildVideoFeedAnswer(admin, {
-            badgeIds: homeCardBadgeIds,
-            pinnedBusinessIds: homeCardPinnedIds,
-            label: userMessage,
-            lang: lang as any,
-            city: scopeCity,
-            max: 30,
-          }).catch((e) => {
-            console.error("[embed-ai-chat-v2] home_card_feed_failed", String(e));
-            return null;
-          });
-          if (builtHc && builtHc.count > 0) emit(videoFeedMarker(builtHc.payload));
-        }
-
-        if (suggestionId || followupId) {
-          const curated = await loadCuratedTargets(admin, {
+        // Carte Homepage (écran 2 de Home) : cibles = réglages /staff/front → Homepage
+        // (badges de la carte pour la ville + sous-catégories/services de la rubrique).
+        if (suggestionId || followupId || homeCardEntryId) {
+          const curated = homeCardEntryId
+            ? await loadHomeCardTargets(admin, {
+                entryId: homeCardEntryId, city: homeCardCity || scopeCity || "Marrakech",
+                label: userMessage, pinnedBusinessIds: homeCardPinnedIds,
+              }).catch((e) => {
+                console.error("[embed-ai-chat-v2] home_card_lookup_failed", String(e));
+                return null;
+              })
+            : await loadCuratedTargets(admin, {
             suggestionId, followupId, businessId: host?.id ?? null,
           }).catch((e) => {
             console.error("[embed-ai-chat-v2] curated_lookup_failed", String(e));
@@ -1207,7 +1201,7 @@ Deno.serve(async (req) => {
           // Le clic initial (message == libellé) ou une relance explicite gardent la cible.
           const norm = (s: string) => normalize(s).replace(/[?!.\s]+$/g, "").trim();
           const isInitialClick = !!(curated?.label && norm(userMessage) === norm(curated.label));
-          const keepCurated = !!curated && (!!followupId || isInitialClick || suggestionFromText || !priorIds.length);
+          const keepCurated = !!curated && (!!homeCardEntryId || !!followupId || isInitialClick || suggestionFromText || !priorIds.length);
 
           /**
            * RELANCE = AFFINAGE DU POOL. Quand le tour précédent a mémorisé un
