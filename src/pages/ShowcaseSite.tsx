@@ -381,6 +381,25 @@ const ShowcaseSite = () => {
             </div>
           </section>
 
+          <section className="px-6 py-20 md:px-12 md:py-28">
+            <div className="mx-auto max-w-6xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Around you" : "À proximité"}</p>
+              <h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{isEn ? "Nearby" : "À proximité"}</h2>
+              <div className="mt-10">
+                <style>{`@media (max-width: 640px) { #owm-frame-0rm62fk { height: 580px !important; min-height: auto !important; } }`}</style>
+                <iframe
+                  id="owm-frame-0rm62fk"
+                  src={`https://oneworldmorocco.com/embed/nearby/${slug}?lang=${language}&bg=F7F1E8&fit=w`}
+                  style={{ width: "100%", display: "block", height: 720, border: 0, borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,0.15)" }}
+                  title={isEn ? "Nearby — Riad Dar Najat" : "À proximité — Riad Dar Najat"}
+                  loading="lazy"
+                  allow="geolocation"
+                />
+              </div>
+            </div>
+          </section>
+
+
           {reviews.length > 0 && <section className="px-6 py-20 md:px-12 md:py-28"><div className="mx-auto max-w-6xl"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Guest book" : "Livre d’or"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{isEn ? "They stayed here" : "Ils ont séjourné ici"}</h2><div className="mt-10 grid gap-8 md:grid-cols-2">{reviews.slice(0, 4).map((review) => { const quote = (isEn ? review.text_en || review.text_fr : review.text_fr) || review.text || ""; return <blockquote key={review.id} className="border-l-2 border-showcase-brass pl-6"><div className="mb-4 flex gap-1 text-showcase-brass">{Array.from({ length: Math.round(review.rating || 5) }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}</div><p className="text-lg leading-relaxed text-showcase-copy">« {quote} »</p><footer className="mt-4 text-xs font-semibold uppercase tracking-widest">{review.author_name}</footer></blockquote>; })}</div></div></section>}
 
           <section id="location" className="scroll-mt-8 grid bg-showcase-night text-primary-foreground lg:grid-cols-2">
