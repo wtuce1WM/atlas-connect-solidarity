@@ -73,6 +73,14 @@ All colors MUST be HSL.
     --map-surface-foreground: 0 0% 20%;
     --searchbar-surface: 0 0% 100%;
 
+    /* Site vitrine hôtelier — Modern Moroccan Minimalist */
+    --showcase-paper: 40 43% 98%;
+    --showcase-ink: 30 8% 10%;
+    --showcase-copy: 30 5% 29%;
+    --showcase-brass: 39 48% 56%;
+    --showcase-line: 35 18% 85%;
+    --showcase-night: 150 8% 9%;
+
     /* Substack embed */
     --substack-card: 33 53% 83%;
     --substack-card-foreground: 0 0% 10%;

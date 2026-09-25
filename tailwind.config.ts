@@ -87,6 +87,14 @@ export default {
           foreground: "hsl(var(--map-surface-foreground))",
         },
         "searchbar-surface": "hsl(var(--searchbar-surface))",
+        showcase: {
+          paper: "hsl(var(--showcase-paper))",
+          ink: "hsl(var(--showcase-ink))",
+          copy: "hsl(var(--showcase-copy))",
+          brass: "hsl(var(--showcase-brass))",
+          line: "hsl(var(--showcase-line))",
+          night: "hsl(var(--showcase-night))",
+        },
 
         "wtuce-blue": {
           DEFAULT: "hsl(var(--wtuce-blue))",
