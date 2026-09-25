@@ -1,12 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowDown, CalendarDays, ChevronRight, Loader2, Mail, MapPin, MessageCircle, Phone, Star } from "lucide-react";
 import { trackBusinessEvent } from "@/lib/businessAnalytics";
-import AvailabilitySearchOverlay from "@/components/overlays/AvailabilitySearchOverlay";
-import { useHotelAvailability } from "@/hooks/useHotelAvailability";
-import type { FallbackPanelData } from "@/components/HotelAvailabilityOverlay";
 import { Button } from "@/components/ui/button";
 import { whatsappUrl } from "@/lib/phoneUtils";
 import EmbedReviewsWidget, {
@@ -55,6 +52,58 @@ interface Highlight {
 
 const scrollToId = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
+const ELLOHA_CONTAINER_ID = "ConstellationCalendarContainerf517f4b0-e6e9-4934-a7c9-696ac7c7532a";
+const ELLOHA_WIDGET_URL = "https://reservation.elloha.com/Widget/BookingCalendar/f517f4b0-e6e9-4934-a7c9-696ac7c7532a?idoi=3e4775b2-b254-46b4-8a5a-ccd687d5178d";
+
+const EllohaBookingCalendar = ({ language }: { language: "fr" | "en" }) => {
+  const initialized = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const initialize = () => {
+      if (cancelled || initialized.current) return;
+      const widgetWindow = window as typeof window & {
+        constellationWidgetUrlf517f4b0e6e94934a7c9696ac7c7532a?: string;
+        constellationTypeModulef517f4b0e6e94934a7c9696ac7c7532a?: number;
+        constellationBookingCalendarLoad?: (id: string) => void;
+      };
+      if (typeof widgetWindow.constellationBookingCalendarLoad !== "function") return;
+      widgetWindow.constellationWidgetUrlf517f4b0e6e94934a7c9696ac7c7532a = ELLOHA_WIDGET_URL;
+      widgetWindow.constellationTypeModulef517f4b0e6e94934a7c9696ac7c7532a = 2;
+      widgetWindow.constellationBookingCalendarLoad(ELLOHA_CONTAINER_ID);
+      initialized.current = true;
+    };
+
+    const existingScript = document.querySelector<HTMLScriptElement>('script[src^="https://reservation.elloha.com/Scripts/widget-loader.min.js"]');
+    if (existingScript) {
+      if ((window as any).constellationBookingCalendarLoad) initialize();
+      else existingScript.addEventListener("load", initialize, { once: true });
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://reservation.elloha.com/Scripts/widget-loader.min.js?v=42";
+      script.async = true;
+      script.addEventListener("load", initialize, { once: true });
+      document.body.appendChild(script);
+    }
+
+    return () => {
+      cancelled = true;
+      existingScript?.removeEventListener("load", initialize);
+    };
+  }, []);
+
+  return (
+    <div
+      id={ELLOHA_CONTAINER_ID}
+      title="Riad Dar Najat"
+      data-id-projet="f517f4b0e6e94934a7c9696ac7c7532a"
+      className="min-h-24 w-full text-center text-primary-foreground"
+    >
+      {language === "en" ? "Loading…" : "Chargement en cours…"}
+    </div>
+  );
+};
+
 const ShowcaseSite = () => {
   const { slug } = useParams<{ slug: string }>();
   const [data, setData] = useState<ShowcaseData | null>(null);
@@ -63,8 +112,6 @@ const ShowcaseSite = () => {
   const [language, setLanguage] = useState<"fr" | "en">("fr");
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
-  const [availability, setAvailability] = useState<FallbackPanelData | null>(null);
   const [assistantOpen, setAssistantOpen] = useState(false);
 
   useEffect(() => {
@@ -160,17 +207,6 @@ const ShowcaseSite = () => {
   }, [assistantOpen]);
 
   const business = data?.business;
-  const handleAvailability = useHotelAvailability({
-    business,
-    businessId: business?.id || "",
-    serpApiMapping: business ? { city: business.city, serp_hotel_name: business.name } : null,
-    hasSerpMapping: Boolean(business),
-    language,
-    setHotelSearchLoading,
-    openFallback: setAvailability,
-    hideCards: () => undefined,
-  });
-
   const openAvailability = useCallback(() => {
     trackBusinessEvent(business?.id, "booking_intent", { subtype: "showcase" });
     scrollToId("availability");
@@ -213,8 +249,6 @@ const ShowcaseSite = () => {
   const whatsapp = data.cta_config?.whatsapp || b.whatsapp || "+212661439221";
   const phone = data.cta_config?.phone || b.phone;
   const email = data.cta_config?.email || b.email;
-  const currentHotel = availability?.hotels.find((hotel) => hotel.isCurrentHotel);
-
   const waLink = whatsapp ? whatsappUrl(whatsapp, isEn
     ? `Hello ${b.name}, I would like to book a stay.`
     : `Bonjour ${b.name}, je souhaite réserver un séjour.`) : null;
@@ -341,8 +375,7 @@ const ShowcaseSite = () => {
             <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
               <div><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-ink/70">{isEn ? "Direct availability" : "Disponibilités directes"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold leading-tight md:text-6xl">{isEn ? "Choose your dates" : "Choisissez vos dates"}</h2><p className="mt-5 max-w-md leading-relaxed text-showcase-ink/75">{isEn ? "Check the riad's availability for your stay, then contact the team directly." : "Vérifiez la disponibilité du riad pour votre séjour, puis contactez directement l’équipe."}</p></div>
               <div className="bg-showcase-night p-3 md:p-6">
-                <AvailabilitySearchOverlay language={language} isSearching={hotelSearchLoading} onSearch={handleAvailability} onClose={() => undefined} inline />
-                {availability && !hotelSearchLoading && <div className="mt-4 border-t border-primary-foreground/15 px-3 py-4 text-sm text-primary-foreground"><p className="font-semibold">{currentHotel ? (isEn ? "Availability found for your dates." : "Disponibilité trouvée pour vos dates.") : (isEn ? "No availability found at Dar Najat for these dates." : "Aucune disponibilité trouvée à Dar Najat pour ces dates.")}</p>{currentHotel?.serpPrice?.amount && <p className="mt-1 text-primary-foreground/70">{isEn ? "Observed from" : "Prix constaté à partir de"} {currentHotel.serpPrice.amount} {currentHotel.serpPrice.currency}</p>}{waLink && <a href={waLink} target="_blank" rel="noreferrer" onClick={() => trackBusinessEvent(data.business_id, "whatsapp_click", { subtype: "showcase_availability" })} className="mt-4 inline-flex items-center gap-2 bg-whatsapp px-5 py-3 font-semibold text-whatsapp-foreground"><MessageCircle className="h-5 w-5" />WhatsApp</a>}</div>}
+                <EllohaBookingCalendar language={language} />
               </div>
             </div>
           </section>
