@@ -374,7 +374,8 @@ const ShowcaseSite = () => {
           <section id="availability" className="scroll-mt-8 bg-showcase-brass px-6 py-20 md:px-12 md:py-28">
             <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
               <div><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-ink/70">{isEn ? "Direct availability" : "Disponibilités directes"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold leading-tight md:text-6xl">{isEn ? "Choose your dates" : "Choisissez vos dates"}</h2><p className="mt-5 max-w-md leading-relaxed text-showcase-ink/75">{isEn ? "Check the riad's availability for your stay, then contact the team directly." : "Vérifiez la disponibilité du riad pour votre séjour, puis contactez directement l’équipe."}</p></div>
-              <div className="bg-showcase-night p-3 md:p-6">
+              <div className="p-3 md:p-6">
+
                 <EllohaBookingCalendar language={language} />
               </div>
             </div>
