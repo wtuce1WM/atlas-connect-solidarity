@@ -280,7 +280,11 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false, mo
             <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
               <button
                 type="button"
-                onClick={() => handleLabelActivate(slot)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleLabelActivate(slot);
+                }}
                 className="px-2.5 py-1 rounded-md bg-white text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-white/90 transition-colors"
               >
                 {tr(it.label)}
