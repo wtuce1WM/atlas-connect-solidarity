@@ -9,6 +9,10 @@ import { useHotelAvailability } from "@/hooks/useHotelAvailability";
 import type { FallbackPanelData } from "@/components/HotelAvailabilityOverlay";
 import { Button } from "@/components/ui/button";
 import { whatsappUrl } from "@/lib/phoneUtils";
+import EmbedReviewsWidget, {
+  type EmbedReviewItem,
+  type EmbedReviewsBusiness,
+} from "@/components/embed/EmbedReviewsWidget";
 
 interface ShowcaseData {
   id: string;
@@ -49,20 +53,13 @@ interface Highlight {
   sort_order: number;
 }
 
-interface Review {
-  id: string;
-  author_name: string | null;
-  rating: number | null;
-  quote: string;
-}
-
 const scrollToId = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
 const ShowcaseSite = () => {
   const { slug } = useParams<{ slug: string }>();
   const [data, setData] = useState<ShowcaseData | null>(null);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<EmbedReviewItem[]>([]);
   const [language, setLanguage] = useState<"fr" | "en">("fr");
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -74,7 +71,7 @@ const ShowcaseSite = () => {
       if (!slug) return;
       const { data: biz } = await supabase
         .from("businesses")
-        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta")
+        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta")
         .eq("slug", slug)
         .maybeSingle();
       if (!biz) { setNotFound(true); setLoading(false); return; }
@@ -96,12 +93,12 @@ const ShowcaseSite = () => {
           .order("sort_order"),
         supabase
           .from("reviews")
-          .select("id,author_name,rating,text,text_fr,highlight,is_default,is_hidden,created_at")
+          .select("id,source,author_name,rating,text,text_fr,text_en,text_ar,highlight,is_default,is_hidden,created_at")
           .eq("business_id", biz.id)
           .eq("is_hidden", false)
           .order("is_default", { ascending: false })
           .order("created_at", { ascending: false })
-          .limit(4),
+          .limit(200),
       ]);
 
       setData({ ...showcase, business: biz });
@@ -110,10 +107,15 @@ const ShowcaseSite = () => {
       ));
       setReviews((reviewResult.data || []).map((review: any) => ({
         id: review.id,
+        source: review.source,
         author_name: review.author_name,
         rating: review.rating,
-        quote: review.highlight || review.text_fr || review.text || "",
-      })).filter((review) => review.quote));
+        text: review.highlight || review.text || null,
+        text_fr: review.highlight || review.text_fr || review.text || null,
+        text_en: review.text_en,
+        text_ar: review.text_ar,
+        is_default: review.is_default,
+      })).filter((review) => review.text_fr || review.text_en || review.text));
       setLoading(false);
       trackBusinessEvent(biz.id, "view", { subtype: "showcase" });
     };
@@ -174,8 +176,6 @@ const ShowcaseSite = () => {
   const whatsapp = data.cta_config?.whatsapp || b.whatsapp || "+212661439221";
   const phone = data.cta_config?.phone || b.phone;
   const email = data.cta_config?.email || b.email;
-  const rating = Number(b.google_rating || (b.computed_rating ? b.computed_rating / 4 : 0));
-  const reviewCount = Number(b.google_review_count || b.total_review_count || 0);
   const currentHotel = availability?.hotels.find((hotel) => hotel.isCurrentHotel);
 
   const waLink = whatsapp ? whatsappUrl(whatsapp, isEn
@@ -241,10 +241,19 @@ const ShowcaseSite = () => {
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "A house in the Medina" : "Une maison dans la Médina"}</p>
                 <h2 className="mt-4 font-josefin text-4xl font-semibold leading-tight md:text-6xl">{isEn ? "Calm behind the ochre walls" : "Le calme derrière les murs ocre"}</h2>
-                <div className="mt-8 flex gap-8 border-t border-showcase-line pt-6">
-                  {rating > 0 && <div><p className="text-2xl font-semibold">{rating.toFixed(1)}</p><p className="text-xs uppercase tracking-widest text-showcase-copy">Google</p></div>}
-                  {reviewCount > 0 && <div><p className="text-2xl font-semibold">{reviewCount}</p><p className="text-xs uppercase tracking-widest text-showcase-copy">{isEn ? "Reviews" : "Avis"}</p></div>}
-                  {b.min_price && <div><p className="text-2xl font-semibold">{b.min_price} €</p><p className="text-xs uppercase tracking-widest text-showcase-copy">{isEn ? "From" : "Dès"}</p></div>}
+                <div className="mt-8 border-t border-showcase-line pt-6">
+                  <EmbedReviewsWidget
+                    business={b as EmbedReviewsBusiness}
+                    reviews={reviews}
+                    platform="all"
+                    lang={language}
+                    ratio="vertical"
+                    size="sm"
+                    fullWidth
+                    surface=""
+                    ink="dark"
+                    frameless
+                  />
                 </div>
               </div>
               {story && <div className="prose prose-lg max-w-none text-showcase-copy prose-headings:font-josefin prose-headings:text-showcase-ink prose-p:leading-relaxed prose-strong:text-showcase-ink" dangerouslySetInnerHTML={{ __html: story }} />}
@@ -301,7 +310,7 @@ const ShowcaseSite = () => {
             </div>
           </section>
 
-          {reviews.length > 0 && <section className="px-6 py-20 md:px-12 md:py-28"><div className="mx-auto max-w-6xl"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Guest book" : "Livre d’or"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{isEn ? "They stayed here" : "Ils ont séjourné ici"}</h2><div className="mt-10 grid gap-8 md:grid-cols-2">{reviews.map((review) => <blockquote key={review.id} className="border-l-2 border-showcase-brass pl-6"><div className="mb-4 flex gap-1 text-showcase-brass">{Array.from({ length: Math.round(review.rating || 5) }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}</div><p className="text-lg leading-relaxed text-showcase-copy">« {review.quote} »</p><footer className="mt-4 text-xs font-semibold uppercase tracking-widest">{review.author_name}</footer></blockquote>)}</div></div></section>}
+          {reviews.length > 0 && <section className="px-6 py-20 md:px-12 md:py-28"><div className="mx-auto max-w-6xl"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Guest book" : "Livre d’or"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{isEn ? "They stayed here" : "Ils ont séjourné ici"}</h2><div className="mt-10 grid gap-8 md:grid-cols-2">{reviews.slice(0, 4).map((review) => { const quote = (isEn ? review.text_en || review.text_fr : review.text_fr) || review.text || ""; return <blockquote key={review.id} className="border-l-2 border-showcase-brass pl-6"><div className="mb-4 flex gap-1 text-showcase-brass">{Array.from({ length: Math.round(review.rating || 5) }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}</div><p className="text-lg leading-relaxed text-showcase-copy">« {quote} »</p><footer className="mt-4 text-xs font-semibold uppercase tracking-widest">{review.author_name}</footer></blockquote>; })}</div></div></section>}
 
           <section id="location" className="scroll-mt-8 grid bg-showcase-night text-primary-foreground lg:grid-cols-2">
             <div className="flex flex-col justify-center px-6 py-16 md:px-12 lg:px-20"><MapPin className="h-7 w-7 text-showcase-brass"/><h2 className="mt-5 font-josefin text-4xl font-semibold md:text-5xl">{isEn ? "In the heart of the Medina" : "Au cœur de la Médina"}</h2><p className="mt-5 text-primary-foreground/70">{b.address}<br/>{b.city}, {b.country}</p><div className="mt-8 flex flex-wrap gap-4">{phone && <a href={`tel:${phone}`} onClick={() => trackBusinessEvent(data.business_id, "phone_click", { subtype: "showcase" })} className="inline-flex items-center gap-2 border border-primary-foreground/30 px-5 py-3"><Phone className="h-4 w-4"/>{isEn ? "Call" : "Appeler"}</a>}{email && <a href={`mailto:${email}`} onClick={() => trackBusinessEvent(data.business_id, "email_click", { subtype: "showcase" })} className="inline-flex items-center gap-2 border border-primary-foreground/30 px-5 py-3"><Mail className="h-4 w-4"/>Email</a>}</div></div>
