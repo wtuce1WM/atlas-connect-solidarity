@@ -350,7 +350,7 @@ const ShowcaseSite = () => {
                             <h3 className="font-josefin text-2xl font-semibold md:text-3xl">{title}</h3>
                             {(metricTitle || metricValue) && <p className="shrink-0 text-right text-xs uppercase tracking-wider text-showcase-brass">{metricTitle}<br/><span className="text-sm font-semibold text-primary-foreground">{metricValue}</span></p>}
                           </div>
-                          <div className="mt-4 line-clamp-5 text-sm leading-relaxed text-primary-foreground/70" dangerouslySetInnerHTML={{ __html: description }} />
+                          <div className="mt-4 text-sm leading-relaxed text-primary-foreground/70" dangerouslySetInnerHTML={{ __html: description }} />
                         </div>
                       </article>
                     );
