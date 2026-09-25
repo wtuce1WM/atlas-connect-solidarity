@@ -990,6 +990,10 @@ const Front = () => {
         className="z-[300]"
         elevatedMenu={youtubeOpen}
         hideMenuButton={youtubePanelOpen}
+        onMenuToggle={(open) => {
+          // Ouvrir le menu hamburger referme l'écran 2 (cartes du JSON Homepage).
+          if (open) setScreen2Open(false);
+        }}
         onLogoClick={() => {
           // Même action pour toutes les suggestions : retour à l'accueil IA fermé.
           // Écran 2 (cartes du JSON Homepage) refermé aussi.
