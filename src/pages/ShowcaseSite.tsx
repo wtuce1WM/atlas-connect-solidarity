@@ -23,6 +23,7 @@ interface ShowcaseData {
   story_fr: string | null;
   story_en: string | null;
   story_ar: string | null;
+  gallery_image_ids: unknown;
   testimonials: Array<{ author: string; quote: string; location?: string }>;
   cta_config: {
     whatsapp?: string;
@@ -54,9 +55,6 @@ interface Review {
   rating: number | null;
   quote: string;
 }
-
-const stripHtml = (html?: string | null) =>
-  (html || "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 
 const scrollToId = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -139,9 +137,11 @@ const ShowcaseSite = () => {
     scrollToId("availability");
   }, [business?.id]);
 
-  const gallery = useMemo(() => {
+  const gallery = useMemo<string[]>(() => {
     const configured = Array.isArray(data?.gallery_image_ids) ? data.gallery_image_ids.filter((value): value is string => typeof value === "string") : [];
-    const source = configured.length > 0 ? configured : (Array.isArray(business?.images) ? business.images : []);
+    const source: string[] = configured.length > 0
+      ? configured
+      : (Array.isArray(business?.images) ? business.images.filter((value: unknown): value is string => typeof value === "string") : []);
     return [...new Set(source.filter(Boolean))];
   }, [business?.images, data?.gallery_image_ids]);
 
