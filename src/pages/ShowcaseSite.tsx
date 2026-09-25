@@ -385,7 +385,7 @@ const ShowcaseSite = () => {
             <div className="mx-auto max-w-6xl">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Around you" : "À proximité"}</p>
               <h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{isEn ? "Nearby" : "À proximité"}</h2>
-              <div className="mt-10">
+              <div className="mt-10 w-screen relative left-1/2 -translate-x-1/2">
                 <style>{`@media (max-width: 640px) { #owm-frame-0rm62fk { height: 580px !important; min-height: auto !important; } }`}</style>
                 <iframe
                   id="owm-frame-0rm62fk"
