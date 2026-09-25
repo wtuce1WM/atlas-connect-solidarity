@@ -259,7 +259,14 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false, mo
 
     if (!it.videoId) {
       return (
-        <div className="relative aspect-[9/16] rounded-lg bg-muted overflow-hidden flex items-center justify-center text-xs text-muted-foreground text-center px-2 group" style={cvStyle}>
+        <div
+          className="relative aspect-[9/16] rounded-lg bg-muted overflow-hidden flex items-center justify-center text-xs text-muted-foreground text-center px-2 group cursor-pointer"
+          style={cvStyle}
+          role="button"
+          tabIndex={0}
+          onClick={() => handleLabelActivate(slot)}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleLabelActivate(slot); } }}
+        >
           {it.thumbnail ? (
             <>
               <img src={optimizedThumb || it.thumbnail} srcSet={thumbSrcSet} alt={it.businessName || it.label || ""} className="absolute inset-0 w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
