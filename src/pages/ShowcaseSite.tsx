@@ -65,6 +65,7 @@ const ShowcaseSite = () => {
   const [notFound, setNotFound] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [availability, setAvailability] = useState<FallbackPanelData | null>(null);
+  const [assistantOpen, setAssistantOpen] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -121,6 +122,42 @@ const ShowcaseSite = () => {
     };
     load();
   }, [slug]);
+
+  useEffect(() => {
+    const closeAssistant = () => setAssistantOpen(false);
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "owm-embed-close") closeAssistant();
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeAssistant();
+    };
+
+    window.addEventListener("message", handleMessage);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!assistantOpen) return;
+
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousBodyPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.body.style.paddingRight = scrollbarWidth > 0 ? `${scrollbarWidth}px` : previousBodyPaddingRight;
+
+    return () => {
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      document.body.style.paddingRight = previousBodyPaddingRight;
+    };
+  }, [assistantOpen]);
 
   const business = data?.business;
   const handleAvailability = useHotelAvailability({
@@ -324,6 +361,36 @@ const ShowcaseSite = () => {
           <Button onClick={openAvailability} className="rounded-none"><CalendarDays className="h-4 w-4" />{isEn ? "Book" : "Réserver"}</Button>
           {waLink && <a href={waLink} target="_blank" rel="noreferrer" onClick={() => trackBusinessEvent(data.business_id, "whatsapp_click", { subtype: "showcase_sticky" })} className="flex h-10 items-center justify-center gap-2 bg-whatsapp px-3 text-sm font-semibold text-whatsapp-foreground"><MessageCircle className="h-4 w-4" />WhatsApp</a>}
         </div>
+
+        <Button
+          type="button"
+          onClick={() => setAssistantOpen(true)}
+          aria-label={isEn ? "Open Zitoun AI" : "Ouvrir Zitoun IA"}
+          className="fixed right-4 top-1/4 z-[80] h-auto origin-right -translate-y-1/2 -rotate-90 rounded-b-none rounded-t-lg px-5 py-3 font-josefin text-xs font-semibold uppercase shadow-xl md:px-6"
+        >
+          Zitoun IA
+        </Button>
+
+        <div
+          aria-hidden={!assistantOpen}
+          onClick={() => setAssistantOpen(false)}
+          className={`fixed inset-0 z-[81] bg-showcase-night/55 transition-opacity duration-300 ${assistantOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
+        />
+        <aside
+          role="dialog"
+          aria-modal="true"
+          aria-label={isEn ? "Zitoun AI assistant" : "Assistant IA Zitoun"}
+          aria-hidden={!assistantOpen}
+          className={`fixed inset-y-0 right-0 z-[82] flex w-full flex-col bg-showcase-paper shadow-2xl transition-transform duration-300 ease-out md:w-[70vw] ${assistantOpen ? "translate-x-0" : "translate-x-full"}`}
+        >
+          <iframe
+            src={`/embed/ask/${slug}?theme=light&lang=${language}&bg=transparent&card=F7F1E8&panel=1&name=Zitoun%20IA`}
+            title={isEn ? "Zitoun AI — Riad Dar Najat" : "Assistant IA Zitoun — Riad Dar Najat"}
+            allow="clipboard-write; geolocation; microphone"
+            loading="lazy"
+            className="h-full w-full flex-1 border-0 bg-showcase-paper"
+          />
+        </aside>
       </div>
     </>
   );
