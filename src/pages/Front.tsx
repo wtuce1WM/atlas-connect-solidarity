@@ -992,6 +992,8 @@ const Front = () => {
         hideMenuButton={youtubePanelOpen}
         onLogoClick={() => {
           // Même action pour toutes les suggestions : retour à l'accueil IA fermé.
+          // Écran 2 (cartes du JSON Homepage) refermé aussi.
+          setScreen2Open(false);
           try {
             window.postMessage({ type: "owm-host:reset-conversation" }, window.location.origin);
           } catch { /* noop */ }
