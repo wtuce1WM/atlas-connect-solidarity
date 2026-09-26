@@ -52,7 +52,6 @@ interface Highlight {
 
 const scrollToId = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
-const PWA_SLUGS = new Set(["riad-dar-najat"]);
 
 const ELLOHA_CONTAINER_ID = "ConstellationCalendarContainerf517f4b0-e6e9-4934-a7c9-696ac7c7532a";
 const ELLOHA_WIDGET_URL = "https://reservation.elloha.com/Widget/BookingCalendar/f517f4b0-e6e9-4934-a7c9-696ac7c7532a?idoi=3e4775b2-b254-46b4-8a5a-ccd687d5178d";
