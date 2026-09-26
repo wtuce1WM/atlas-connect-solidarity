@@ -116,7 +116,8 @@ const ShowcaseSite = () => {
     const icon = slug === "riad-dar-najat"
       ? "/pwa/riad-dar-najat/icon-180.png"
       : data.hero_image_url || data.business.images?.[0];
-    const pairs: [string, string, string][] = [['meta[name="apple-mobile-web-app-title"]', "content", data.business.name]];
+    const appTitle = slug === "riad-dar-najat" ? "Dar Najat" : data.business.name;
+    const pairs: [string, string, string][] = [['meta[name="apple-mobile-web-app-title"]', "content", appTitle]];
     if (icon) pairs.push(['link[rel="apple-touch-icon"]', "href", icon]);
     const restores = pairs.map(([sel, attr, val]) => {
       const el = document.head.querySelector(sel);
