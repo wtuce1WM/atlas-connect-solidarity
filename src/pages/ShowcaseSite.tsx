@@ -267,9 +267,12 @@ const ShowcaseSite = () => {
   const isVideo = !!data.hero_video_url;
   const canonicalUrl = data.canonical_url || `https://oneworldmorocco.com/site/${slug}`;
   const primaryCta = data.cta_config?.primary_label || (isEn ? "Book your stay" : "Réserver votre séjour");
-  const whatsapp = data.cta_config?.whatsapp || b.whatsapp || "+212661439221";
+  const whatsapp = data.cta_config?.whatsapp || b.whatsapp;
   const phone = data.cta_config?.phone || b.phone;
   const email = data.cta_config?.email || b.email;
+  const reserveUrl = data.cta_config?.reserve_url;
+  const hasElloha = slug === "riad-dar-najat";
+  const hasBooking = hasElloha || Boolean(reserveUrl);
   const waLink = whatsapp ? whatsappUrl(whatsapp, isEn
     ? `Hello ${b.name}, I would like to book a stay.`
     : `Bonjour ${b.name}, je souhaite réserver un séjour.`) : null;
