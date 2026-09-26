@@ -16,6 +16,18 @@
          et le mode plein cadre (.owm-fullbleed) l'annule → média/carte jusqu'en haut de l'écran. -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="OneWorld" />
+    <script>
+      // PWA business : définir le manifeste AVANT que le navigateur le lise.
+      (function () {
+        var p = location.pathname;
+        if (p.indexOf("/site/riad-dar-najat") !== 0) return;
+        var s = "/pwa/riad-dar-najat/";
+        document.querySelector('link[rel="manifest"]').href = s + "manifest.webmanifest";
+        document.querySelector('link[rel="apple-touch-icon"]').href = s + "icon-180.png";
+        document.querySelector('meta[name="theme-color"]').content = "#C04F17";
+        document.querySelector('meta[name="apple-mobile-web-app-title"]').content = "Dar Najat";
+      })();
+    </script>
     <meta name="google-site-verification" content="Iwacaf2KeMCQhYFDoOvqpNq4ANQ6ik4g86vRi7NOc4o" />
     <link rel="canonical" href="https://oneworldmorocco.com/" />
     <title>One World Morocco — Local × Digital × Solidaire</title>
