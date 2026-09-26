@@ -52,6 +52,8 @@ interface Highlight {
 
 const scrollToId = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
+const PWA_SLUGS = new Set(["riad-dar-najat"]);
+
 const ELLOHA_CONTAINER_ID = "ConstellationCalendarContainerf517f4b0-e6e9-4934-a7c9-696ac7c7532a";
 const ELLOHA_WIDGET_URL = "https://reservation.elloha.com/Widget/BookingCalendar/f517f4b0-e6e9-4934-a7c9-696ac7c7532a?idoi=3e4775b2-b254-46b4-8a5a-ccd687d5178d";
 
@@ -106,6 +108,25 @@ const EllohaBookingCalendar = ({ language }: { language: "fr" | "en" }) => {
 
 const ShowcaseSite = () => {
   const { slug } = useParams<{ slug: string }>();
+
+  // PWA dédiée au business : remplace le manifeste 1WM tant que la page est affichée.
+  useEffect(() => {
+    if (!slug || !PWA_SLUGS.has(slug)) return;
+    const set = (sel: string, attr: string, value: string, create: () => HTMLElement) => {
+      const el = (document.head.querySelector(sel) as HTMLElement) || document.head.appendChild(create());
+      const prev = el.getAttribute(attr);
+      el.setAttribute(attr, value);
+      return () => { if (prev === null) el.remove(); else el.setAttribute(attr, prev); };
+    };
+    const mk = (tag: string, attrs: Record<string, string>) => () => Object.assign(document.createElement(tag), attrs);
+    const restores = [
+      set('link[rel="manifest"]', "href", `/pwa/${slug}/manifest.webmanifest`, mk("link", { rel: "manifest" })),
+      set('link[rel="apple-touch-icon"]', "href", `/pwa/${slug}/icon-180.png`, mk("link", { rel: "apple-touch-icon" })),
+      set('meta[name="theme-color"]', "content", "#C04F17", mk("meta", { name: "theme-color" })),
+      set('meta[name="apple-mobile-web-app-title"]', "content", "Dar Najat", mk("meta", { name: "apple-mobile-web-app-title" })),
+    ];
+    return () => restores.forEach((r) => r());
+  }, [slug]);
   const [data, setData] = useState<ShowcaseData | null>(null);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [reviews, setReviews] = useState<EmbedReviewItem[]>([]);
