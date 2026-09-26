@@ -358,7 +358,7 @@ const ShowcaseSite = () => {
           {highlights.length > 0 && (
             <section id="rooms" className="scroll-mt-8 bg-showcase-night px-6 py-20 text-primary-foreground md:px-12 md:py-28">
               <div className="mx-auto max-w-7xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Sleep at Dar Najat" : "Dormir à Dar Najat"}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? `Sleep at ${b.name}` : `Dormir à ${b.name}`}</p>
                 <h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{isEn ? "Our rooms" : "Nos chambres"}</h2>
                 <div className="mt-12 grid gap-8 md:grid-cols-2">
                   {highlights.map((room, index) => {
@@ -395,15 +395,24 @@ const ShowcaseSite = () => {
             </section>
           )}
 
-          <section id="availability" className="scroll-mt-8 bg-showcase-brass px-6 py-20 md:px-12 md:py-28">
-            <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-               <div><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-ink/70">{isEn ? "Direct availability" : "Disponibilités directes"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold leading-tight md:text-6xl">{isEn ? "Choose your dates" : "Choisissez vos dates"}</h2><p className="mt-5 max-w-md leading-relaxed text-showcase-ink/75">{isEn ? "Check the riad's availability for your stay." : "Vérifiez la disponibilité du riad pour votre séjour."}</p></div>
-              <div className="p-3 md:p-6">
-
-                <EllohaBookingCalendar language={language} />
+          {hasBooking && (
+            <section id="availability" className="scroll-mt-8 bg-showcase-brass px-6 py-20 md:px-12 md:py-28">
+              <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+                 <div><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-ink/70">{isEn ? "Direct availability" : "Disponibilités directes"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold leading-tight md:text-6xl">{isEn ? "Choose your dates" : "Choisissez vos dates"}</h2><p className="mt-5 max-w-md leading-relaxed text-showcase-ink/75">{isEn ? "Check availability for your stay." : "Vérifiez la disponibilité pour votre séjour."}</p></div>
+                <div className="p-3 md:p-6">
+                  {hasElloha ? (
+                    <EllohaBookingCalendar language={language} />
+                  ) : (
+                    <Button asChild size="lg">
+                      <a href={reserveUrl} target="_blank" rel="noreferrer" onClick={() => trackBusinessEvent(data.business_id, "booking_intent", { subtype: "showcase_reserve_url" })}>
+                        <CalendarDays className="h-5 w-5" />{primaryCta}
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           <section className="px-6 py-20 md:px-12 md:py-28">
             <div className="mx-auto max-w-6xl">
