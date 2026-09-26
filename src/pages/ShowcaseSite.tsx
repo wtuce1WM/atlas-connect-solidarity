@@ -255,6 +255,14 @@ const ShowcaseSite = () => {
 
   return (
     <>
+      <BusinessPwaHead slug={slug} name={b.name} />
+      {renderPage()}
+    </>
+  );
+
+  function renderPage() {
+  return (
+    <>
       <Helmet>
         <title>{b.name} — {b.city || "Maroc"}</title>
         <meta name="description" content={tagline || `${b.name} — site officiel`} />
