@@ -303,7 +303,7 @@ const ShowcaseSite = () => {
             <Button variant="ghost" size="sm" onClick={() => setLanguage(isEn ? "fr" : "en")} className="h-9 border border-primary-foreground/40 px-3 text-xs text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
               {isEn ? "FR" : "EN"}
             </Button>
-            <Button onClick={openAvailability} size="sm" className="hidden md:inline-flex">{isEn ? "Book" : "Réserver"}</Button>
+            {hasBooking && <Button onClick={openAvailability} size="sm" className="hidden md:inline-flex">{isEn ? "Book" : "Réserver"}</Button>}
           </div>
         </header>
 
@@ -320,7 +320,7 @@ const ShowcaseSite = () => {
               <h1 className="max-w-4xl font-josefin text-5xl font-semibold leading-[1.03] text-primary-foreground md:text-7xl lg:text-8xl">{b.name}</h1>
               {tagline && <p className="mt-5 max-w-2xl text-lg leading-relaxed text-primary-foreground/85 md:text-2xl">{tagline}</p>}
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button onClick={openAvailability} size="lg"><CalendarDays className="h-5 w-5" />{primaryCta}</Button>
+                {hasBooking && <Button onClick={openAvailability} size="lg"><CalendarDays className="h-5 w-5" />{primaryCta}</Button>}
                 <Button onClick={() => scrollToId("story")} variant="outline" size="lg" className="border-primary-foreground/50 bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-showcase-ink">
                   {isEn ? "Discover the riad" : "Découvrir le riad"}<ChevronRight className="h-5 w-5" />
                 </Button>
@@ -424,7 +424,7 @@ const ShowcaseSite = () => {
                   id="owm-frame-0rm62fk"
                   src={`https://oneworldmorocco.com/embed/nearby/${slug}?lang=${language}&bg=F7F1E8&fit=w`}
                   style={{ width: "100%", display: "block", height: 720, border: 0, borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,0.15)" }}
-                  title={isEn ? "Nearby — Riad Dar Najat" : "À proximité — Riad Dar Najat"}
+                  title={isEn ? `Nearby — ${b.name}` : `À proximité — ${b.name}`}
                   loading="lazy"
                   allow="geolocation"
                 />
@@ -444,7 +444,11 @@ const ShowcaseSite = () => {
         <footer className="bg-showcase-night px-6 py-8 text-center text-xs text-primary-foreground/50"><Link to={`/fiche/${slug}`} className="hover:text-primary-foreground">Powered by <span className="font-semibold">One World Morocco</span></Link></footer>
 
         <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 border-t border-showcase-line bg-showcase-paper p-2 md:hidden">
-          <Button onClick={openAvailability} className="rounded-none"><CalendarDays className="h-4 w-4" />{isEn ? "Book" : "Réserver"}</Button>
+          {hasBooking ? (
+            <Button onClick={openAvailability} className="rounded-none"><CalendarDays className="h-4 w-4" />{isEn ? "Book" : "Réserver"}</Button>
+          ) : (
+            <Button onClick={() => scrollToId("location")} className="rounded-none"><Phone className="h-4 w-4" />{isEn ? "Contact" : "Contact"}</Button>
+          )}
           {waLink && <a href={waLink} target="_blank" rel="noreferrer" onClick={() => trackBusinessEvent(data.business_id, "whatsapp_click", { subtype: "showcase_sticky" })} className="flex h-10 items-center justify-center gap-2 bg-whatsapp px-3 text-sm font-semibold text-whatsapp-foreground"><MessageCircle className="h-4 w-4" />WhatsApp</a>}
         </div>
 
@@ -471,7 +475,7 @@ const ShowcaseSite = () => {
         >
           <iframe
             src={`/embed/ask/${slug}?theme=light&lang=${language}&bg=transparent&card=F7F1E8&panel=1&name=Zitoun%20IA`}
-            title={isEn ? "Zitoun AI — Riad Dar Najat" : "Assistant IA Zitoun — Riad Dar Najat"}
+            title={isEn ? `Zitoun AI — ${b.name}` : `Assistant IA Zitoun — ${b.name}`}
             allow="clipboard-write; geolocation; microphone"
             loading="lazy"
             className="h-full w-full flex-1 border-0 bg-showcase-paper"
