@@ -267,9 +267,12 @@ const ShowcaseSite = () => {
   const isVideo = !!data.hero_video_url;
   const canonicalUrl = data.canonical_url || `https://oneworldmorocco.com/site/${slug}`;
   const primaryCta = data.cta_config?.primary_label || (isEn ? "Book your stay" : "Réserver votre séjour");
-  const whatsapp = data.cta_config?.whatsapp || b.whatsapp || "+212661439221";
+  const whatsapp = data.cta_config?.whatsapp || b.whatsapp;
   const phone = data.cta_config?.phone || b.phone;
   const email = data.cta_config?.email || b.email;
+  const reserveUrl = data.cta_config?.reserve_url;
+  const hasElloha = slug === "riad-dar-najat";
+  const hasBooking = hasElloha || Boolean(reserveUrl);
   const waLink = whatsapp ? whatsappUrl(whatsapp, isEn
     ? `Hello ${b.name}, I would like to book a stay.`
     : `Bonjour ${b.name}, je souhaite réserver un séjour.`) : null;
@@ -300,7 +303,7 @@ const ShowcaseSite = () => {
             <Button variant="ghost" size="sm" onClick={() => setLanguage(isEn ? "fr" : "en")} className="h-9 border border-primary-foreground/40 px-3 text-xs text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
               {isEn ? "FR" : "EN"}
             </Button>
-            <Button onClick={openAvailability} size="sm" className="hidden md:inline-flex">{isEn ? "Book" : "Réserver"}</Button>
+            {hasBooking && <Button onClick={openAvailability} size="sm" className="hidden md:inline-flex">{isEn ? "Book" : "Réserver"}</Button>}
           </div>
         </header>
 
@@ -317,7 +320,7 @@ const ShowcaseSite = () => {
               <h1 className="max-w-4xl font-josefin text-5xl font-semibold leading-[1.03] text-primary-foreground md:text-7xl lg:text-8xl">{b.name}</h1>
               {tagline && <p className="mt-5 max-w-2xl text-lg leading-relaxed text-primary-foreground/85 md:text-2xl">{tagline}</p>}
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button onClick={openAvailability} size="lg"><CalendarDays className="h-5 w-5" />{primaryCta}</Button>
+                {hasBooking && <Button onClick={openAvailability} size="lg"><CalendarDays className="h-5 w-5" />{primaryCta}</Button>}
                 <Button onClick={() => scrollToId("story")} variant="outline" size="lg" className="border-primary-foreground/50 bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-showcase-ink">
                   {isEn ? "Discover the riad" : "Découvrir le riad"}<ChevronRight className="h-5 w-5" />
                 </Button>
@@ -355,7 +358,7 @@ const ShowcaseSite = () => {
           {highlights.length > 0 && (
             <section id="rooms" className="scroll-mt-8 bg-showcase-night px-6 py-20 text-primary-foreground md:px-12 md:py-28">
               <div className="mx-auto max-w-7xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Sleep at Dar Najat" : "Dormir à Dar Najat"}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? `Sleep at ${b.name}` : `Dormir à ${b.name}`}</p>
                 <h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{isEn ? "Our rooms" : "Nos chambres"}</h2>
                 <div className="mt-12 grid gap-8 md:grid-cols-2">
                   {highlights.map((room, index) => {
@@ -392,15 +395,24 @@ const ShowcaseSite = () => {
             </section>
           )}
 
-          <section id="availability" className="scroll-mt-8 bg-showcase-brass px-6 py-20 md:px-12 md:py-28">
-            <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-               <div><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-ink/70">{isEn ? "Direct availability" : "Disponibilités directes"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold leading-tight md:text-6xl">{isEn ? "Choose your dates" : "Choisissez vos dates"}</h2><p className="mt-5 max-w-md leading-relaxed text-showcase-ink/75">{isEn ? "Check the riad's availability for your stay." : "Vérifiez la disponibilité du riad pour votre séjour."}</p></div>
-              <div className="p-3 md:p-6">
-
-                <EllohaBookingCalendar language={language} />
+          {hasBooking && (
+            <section id="availability" className="scroll-mt-8 bg-showcase-brass px-6 py-20 md:px-12 md:py-28">
+              <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+                 <div><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-ink/70">{isEn ? "Direct availability" : "Disponibilités directes"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold leading-tight md:text-6xl">{isEn ? "Choose your dates" : "Choisissez vos dates"}</h2><p className="mt-5 max-w-md leading-relaxed text-showcase-ink/75">{isEn ? "Check availability for your stay." : "Vérifiez la disponibilité pour votre séjour."}</p></div>
+                <div className="p-3 md:p-6">
+                  {hasElloha ? (
+                    <EllohaBookingCalendar language={language} />
+                  ) : (
+                    <Button asChild size="lg">
+                      <a href={reserveUrl} target="_blank" rel="noreferrer" onClick={() => trackBusinessEvent(data.business_id, "booking_intent", { subtype: "showcase_reserve_url" })}>
+                        <CalendarDays className="h-5 w-5" />{primaryCta}
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           <section className="px-6 py-20 md:px-12 md:py-28">
             <div className="mx-auto max-w-6xl">
@@ -412,7 +424,7 @@ const ShowcaseSite = () => {
                   id="owm-frame-0rm62fk"
                   src={`https://oneworldmorocco.com/embed/nearby/${slug}?lang=${language}&bg=F7F1E8&fit=w`}
                   style={{ width: "100%", display: "block", height: 720, border: 0, borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,0.15)" }}
-                  title={isEn ? "Nearby — Riad Dar Najat" : "À proximité — Riad Dar Najat"}
+                  title={isEn ? `Nearby — ${b.name}` : `À proximité — ${b.name}`}
                   loading="lazy"
                   allow="geolocation"
                 />
@@ -432,7 +444,11 @@ const ShowcaseSite = () => {
         <footer className="bg-showcase-night px-6 py-8 text-center text-xs text-primary-foreground/50"><Link to={`/fiche/${slug}`} className="hover:text-primary-foreground">Powered by <span className="font-semibold">One World Morocco</span></Link></footer>
 
         <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 border-t border-showcase-line bg-showcase-paper p-2 md:hidden">
-          <Button onClick={openAvailability} className="rounded-none"><CalendarDays className="h-4 w-4" />{isEn ? "Book" : "Réserver"}</Button>
+          {hasBooking ? (
+            <Button onClick={openAvailability} className="rounded-none"><CalendarDays className="h-4 w-4" />{isEn ? "Book" : "Réserver"}</Button>
+          ) : (
+            <Button onClick={() => scrollToId("location")} className="rounded-none"><Phone className="h-4 w-4" />{isEn ? "Contact" : "Contact"}</Button>
+          )}
           {waLink && <a href={waLink} target="_blank" rel="noreferrer" onClick={() => trackBusinessEvent(data.business_id, "whatsapp_click", { subtype: "showcase_sticky" })} className="flex h-10 items-center justify-center gap-2 bg-whatsapp px-3 text-sm font-semibold text-whatsapp-foreground"><MessageCircle className="h-4 w-4" />WhatsApp</a>}
         </div>
 
@@ -459,7 +475,7 @@ const ShowcaseSite = () => {
         >
           <iframe
             src={`/embed/ask/${slug}?theme=light&lang=${language}&bg=transparent&card=F7F1E8&panel=1&name=Zitoun%20IA`}
-            title={isEn ? "Zitoun AI — Riad Dar Najat" : "Assistant IA Zitoun — Riad Dar Najat"}
+            title={isEn ? `Zitoun AI — ${b.name}` : `Assistant IA Zitoun — ${b.name}`}
             allow="clipboard-write; geolocation; microphone"
             loading="lazy"
             className="h-full w-full flex-1 border-0 bg-showcase-paper"
