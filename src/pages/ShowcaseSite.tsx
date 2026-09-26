@@ -128,6 +128,22 @@ const ShowcaseSite = () => {
     return () => restores.forEach((r) => r());
   }, [slug]);
   const [data, setData] = useState<ShowcaseData | null>(null);
+
+  // PWA dynamique pour les autres sites vitrines : nom + photo de l'établissement.
+  useEffect(() => {
+    if (!slug || PWA_SLUGS.has(slug) || !data) return;
+    const icon = data.hero_image_url || data.business.images?.[0];
+    const pairs: [string, string, string][] = [['meta[name="apple-mobile-web-app-title"]', "content", data.business.name]];
+    if (icon) pairs.push(['link[rel="apple-touch-icon"]', "href", icon]);
+    const restores = pairs.map(([sel, attr, val]) => {
+      const el = document.head.querySelector(sel);
+      if (!el) return () => {};
+      const prev = el.getAttribute(attr);
+      el.setAttribute(attr, val);
+      return () => { if (prev !== null) el.setAttribute(attr, prev); };
+    });
+    return () => restores.forEach((r) => r());
+  }, [slug, data]);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [reviews, setReviews] = useState<EmbedReviewItem[]>([]);
   const [language, setLanguage] = useState<"fr" | "en">("fr");
