@@ -18,20 +18,15 @@
     <meta name="apple-mobile-web-app-title" content="OneWorld" />
     <script>
       // PWA business : définir le manifeste AVANT que le navigateur le lise.
+      // Tout site vitrine /site/:slug obtient un manifeste généré à la volée
+      // (nom + photo de l'établissement) par la fonction pwa-manifest.
       (function () {
-        var m = location.pathname.match(/^\/site\/([^\/]+)/);
+        var m = location.pathname.match(/^\/site\/([a-z0-9-]+)/);
         if (!m) return;
         var link = document.querySelector('link[rel="manifest"]');
-        if (m[1] === "riad-dar-najat") {
-          var s = "/pwa/riad-dar-najat/";
-          link.href = s + "manifest.webmanifest";
-          document.querySelector('link[rel="apple-touch-icon"]').href = s + "icon-180.png";
-          document.querySelector('meta[name="theme-color"]').content = "#C04F17";
-          document.querySelector('meta[name="apple-mobile-web-app-title"]').content = "Dar Najat";
-          return;
-        }
-        // Autres sites vitrines : pas de manifeste 1WM -> l'icône ouvre la page courante.
-        link.remove();
+        link.href = "https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/pwa-manifest?slug=" + m[1];
+        link.setAttribute("crossorigin", "anonymous");
+        document.querySelector('meta[name="theme-color"]').content = "#C04F17";
       })();
     </script>
     <meta name="google-site-verification" content="Iwacaf2KeMCQhYFDoOvqpNq4ANQ6ik4g86vRi7NOc4o" />

@@ -52,7 +52,6 @@ interface Highlight {
 
 const scrollToId = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
-const PWA_SLUGS = new Set(["riad-dar-najat"]);
 
 const ELLOHA_CONTAINER_ID = "ConstellationCalendarContainerf517f4b0-e6e9-4934-a7c9-696ac7c7532a";
 const ELLOHA_WIDGET_URL = "https://reservation.elloha.com/Widget/BookingCalendar/f517f4b0-e6e9-4934-a7c9-696ac7c7532a?idoi=3e4775b2-b254-46b4-8a5a-ccd687d5178d";
@@ -109,31 +108,16 @@ const EllohaBookingCalendar = ({ language }: { language: "fr" | "en" }) => {
 const ShowcaseSite = () => {
   const { slug } = useParams<{ slug: string }>();
 
-  // PWA dédiée au business : remplace le manifeste 1WM tant que la page est affichée.
-  useEffect(() => {
-    if (!slug || !PWA_SLUGS.has(slug)) return;
-    const set = (sel: string, attr: string, value: string, create: () => HTMLElement) => {
-      const el = (document.head.querySelector(sel) as HTMLElement) || document.head.appendChild(create());
-      const prev = el.getAttribute(attr);
-      el.setAttribute(attr, value);
-      return () => { if (prev === null) el.remove(); else el.setAttribute(attr, prev); };
-    };
-    const mk = (tag: string, attrs: Record<string, string>) => () => Object.assign(document.createElement(tag), attrs);
-    const restores = [
-      set('link[rel="manifest"]', "href", `/pwa/${slug}/manifest.webmanifest`, mk("link", { rel: "manifest" })),
-      set('link[rel="apple-touch-icon"]', "href", `/pwa/${slug}/icon-180.png`, mk("link", { rel: "apple-touch-icon" })),
-      set('meta[name="theme-color"]', "content", "#C04F17", mk("meta", { name: "theme-color" })),
-      set('meta[name="apple-mobile-web-app-title"]', "content", "Dar Najat", mk("meta", { name: "apple-mobile-web-app-title" })),
-    ];
-    return () => restores.forEach((r) => r());
-  }, [slug]);
+  // PWA dédiée au business : manifeste généré à la volée (cf. script dans index.html),
+  // icône et titre d'accueil propres à l'établissement tant que la page est affichée.
   const [data, setData] = useState<ShowcaseData | null>(null);
-
-  // PWA dynamique pour les autres sites vitrines : nom + photo de l'établissement.
   useEffect(() => {
-    if (!slug || PWA_SLUGS.has(slug) || !data) return;
-    const icon = data.hero_image_url || data.business.images?.[0];
-    const pairs: [string, string, string][] = [['meta[name="apple-mobile-web-app-title"]', "content", data.business.name]];
+    if (!slug || !data) return;
+    const icon = slug === "riad-dar-najat"
+      ? "/pwa/riad-dar-najat/icon-180.png"
+      : data.hero_image_url || data.business.images?.[0];
+    const appTitle = slug === "riad-dar-najat" ? "Dar Najat" : data.business.name;
+    const pairs: [string, string, string][] = [['meta[name="apple-mobile-web-app-title"]', "content", appTitle]];
     if (icon) pairs.push(['link[rel="apple-touch-icon"]', "href", icon]);
     const restores = pairs.map(([sel, attr, val]) => {
       const el = document.head.querySelector(sel);
