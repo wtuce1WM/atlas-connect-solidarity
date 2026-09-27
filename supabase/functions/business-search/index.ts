@@ -1214,6 +1214,7 @@ serve(async (req) => {
     // ── Check for exact business name match (for pinning, but don't skip subcategory detection) ──
     let nameMatchedBusinessIds: string[] = [];
     const keywordPinnedIds = new Set<string>(); // IDs matched via keywords — exempt from relevance filtering
+    const fullQueryPinnedIds = new Set<string>(); // IDs whose keyword matches the FULL query — ranked above partial keyword pins
     let nameSearchQueryForDetection = "";
     // Gate élargi à 10 mots : les noms propres longs ("Le Chalet de la Plage - Chez Jeannot")
     // étaient exclus du pinning par nom et se faisaient écraser par la détection de sous-catégorie.
@@ -1260,16 +1261,30 @@ serve(async (req) => {
         // when the synonym "artisanat" bypasses FTS and filters by service only
         if (nameSearchQuery.length >= 3) {
           const kwQuery = stripAccentsGlobal(nameSearchQuery.toLowerCase().trim());
-          // Search for businesses that have a keyword matching the full query string
+          // Search for businesses that have a keyword matching the full query string.
+          // Pre-filter in SQL on query words (raw + accent-stripped): fetching ALL
+          // businesses with keywords and limiting to 500 silently ignored any business
+          // beyond the first 500 rows (e.g. "vélo atlas" never saw Atlas Bike Trails).
+          const kwTerms = new Set<string>();
+          for (const w of nameSearchQuery.toLowerCase().split(/\s+/).filter(w => w.length > 1)) {
+            kwTerms.add(w);
+            kwTerms.add(stripAccentsGlobal(w));
+          }
+          kwTerms.add(nameSearchQuery.toLowerCase().trim());
+          kwTerms.add(kwQuery);
+          const kwOrClause = [...kwTerms]
+            .map(t => `keywords.cs.{"${t.replace(/"/g, "")}"}`)
+            .join(",");
           let kwBuilder = supabase
             .from("businesses")
             .select("id, name, keywords")
             .eq("is_active", true)
-            .not("keywords", "is", null);
+            .not("keywords", "is", null)
+            .or(kwOrClause);
           if (effectiveCity) {
             kwBuilder = applyCityFilter(kwBuilder);
           }
-          const { data: kwMatches } = await kwBuilder.limit(500);
+          const { data: kwMatches } = await kwBuilder.limit(200);
           if (kwMatches && kwMatches.length > 0) {
             const kwPinned: string[] = [];
             const kwPinnedNames: string[] = [];
@@ -1279,14 +1294,15 @@ serve(async (req) => {
               // Check if any keyword matches the full query as a whole word (not substring)
               // e.g. "velo" must NOT match keyword "velours" — only exact word boundaries
               const kwQueryWords = kwQuery.split(/\s+/).filter(w => w.length > 0);
+              let fullQueryMatch = false;
               const hasMatch = bKeywords.some((kw: string) => {
                 const kwNorm = stripAccentsGlobal(kw.toLowerCase().trim());
                 if (!kwNorm) return false;
-                if (kwNorm === kwQuery) return true;
+                if (kwNorm === kwQuery) { fullQueryMatch = true; return true; }
                 // Check if the full query appears as whole word(s) inside the keyword
                 // Use word-boundary regex to prevent "velo" matching "velours"
                 const queryRegex = new RegExp(`(?:^|\\s)${kwQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|$)`);
-                if (queryRegex.test(kwNorm)) return true;
+                if (queryRegex.test(kwNorm)) { fullQueryMatch = true; return true; }
                 // Also check if a keyword appears as whole word(s) in the query
                 const kwWords = kwNorm.split(/\s+/).filter(w => w.length > 0);
                 if (kwWords.length > 0 && kwWords.length <= kwQueryWords.length) {
@@ -1298,6 +1314,7 @@ serve(async (req) => {
               if (hasMatch) {
                 kwPinned.push(b.id);
                 kwPinnedNames.push(b.name);
+                if (fullQueryMatch) fullQueryPinnedIds.add(b.id);
               }
             }
             if (kwPinned.length > 0) {
@@ -5591,7 +5608,21 @@ serve(async (req) => {
     // 1. Verified first, sorted by priority_score DESC
     // 2. Non-verified: priority_score DESC, then computed_rating DESC (ignore rating if < 10 reviews)
     if (!exactNameMatchIsolation) {
+      // Name/keyword-pinned businesses keep their lead: the pin step above runs before
+      // this sort, so without this guard the global ranking policy would silently
+      // undo it (e.g. "vélo atlas" burying Atlas Bike Trails under better-rated venues).
+      const pinnedSet = new Set(nameMatchedBusinessIds);
       businesses.sort((a, b) => {
+        const aPin = pinnedSet.has(a.id) ? 0 : 1;
+        const bPin = pinnedSet.has(b.id) ? 0 : 1;
+        if (aPin !== bPin) return aPin - bPin;
+        // Among pinned: a keyword matching the FULL query ("vélo atlas") outranks
+        // a single-word keyword pin ("atlas" on an unrelated business).
+        if (aPin === 0) {
+          const aFull = fullQueryPinnedIds.has(a.id) ? 0 : 1;
+          const bFull = fullQueryPinnedIds.has(b.id) ? 0 : 1;
+          if (aFull !== bFull) return aFull - bFull;
+        }
         const aV = a.wtuce_status === "verified" ? 0 : 1;
         const bV = b.wtuce_status === "verified" ? 0 : 1;
         if (aV !== bV) return aV - bV;
