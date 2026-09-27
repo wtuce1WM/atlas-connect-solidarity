@@ -7,33 +7,28 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <link rel="icon" href="/__l5e/assets-v1/de8297d3-876e-4846-8601-bf4a4f1a9d05/app-icon-hamsa-250-rounded.webp" type="image/webp" />
     <link rel="apple-touch-icon" sizes="180x180" href="/__l5e/assets-v1/69f58cf9-23e4-42a7-a36c-aff6abc4dbdf/apple-touch-icon.png" />
-    <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#3B3B3B" />
     <meta name="color-scheme" content="dark" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <!-- black-translucent : en PWA standalone, la webview s'étend SOUS la barre d'état.
-         Les pages normales gardent leur marge via body { padding-top: env(safe-area-inset-top) },
-         et le mode plein cadre (.owm-fullbleed) l'annule → média/carte jusqu'en haut de l'écran. -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="OneWorld" />
     <script>
-      // PWA business : définir le manifeste AVANT que le navigateur le lise.
-      // Tout site vitrine /site/:slug obtient un manifeste généré à la volée
-      // (nom + photo de l'établissement) par la fonction pwa-manifest.
+      // Manifeste injecté par script uniquement : sur /site/:slug, iOS ne doit
+      // jamais voir le manifeste 1WM (start_url "/"), sinon l'app ouvre l'accueil.
       (function () {
         var m = location.pathname.match(/^\/site\/([a-z0-9-]+)/);
-        if (!m) return;
-        var link = document.querySelector('link[rel="manifest"]');
-        // iOS n'accepte pas un manifeste hébergé sur un autre domaine et retombait
-        // sur l'accueil : sans manifeste, iOS démarre sur la page courante (/site/slug).
-        if (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
-          link.parentNode.removeChild(link);
-          document.querySelector('meta[name="theme-color"]').content = "#C04F17";
-          return;
+        var ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        if (m) document.querySelector('meta[name="theme-color"]').content = "#C04F17";
+        if (m && ios) return; // sans manifeste, iOS démarre sur la page courante
+        var link = document.createElement("link");
+        link.rel = "manifest";
+        if (m) {
+          link.href = "https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/pwa-manifest?slug=" + m[1];
+          link.setAttribute("crossorigin", "anonymous");
+        } else {
+          link.href = "/manifest.json";
         }
-        link.href = "https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/pwa-manifest?slug=" + m[1];
-        link.setAttribute("crossorigin", "anonymous");
-        document.querySelector('meta[name="theme-color"]').content = "#C04F17";
+        document.head.appendChild(link);
       })();
     </script>
     <meta name="google-site-verification" content="Iwacaf2KeMCQhYFDoOvqpNq4ANQ6ik4g86vRi7NOc4o" />
