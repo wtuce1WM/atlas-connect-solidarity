@@ -1314,6 +1314,7 @@ serve(async (req) => {
               if (hasMatch) {
                 kwPinned.push(b.id);
                 kwPinnedNames.push(b.name);
+                if (fullQueryMatch) fullQueryPinnedIds.add(b.id);
               }
             }
             if (kwPinned.length > 0) {
@@ -5615,6 +5616,13 @@ serve(async (req) => {
         const aPin = pinnedSet.has(a.id) ? 0 : 1;
         const bPin = pinnedSet.has(b.id) ? 0 : 1;
         if (aPin !== bPin) return aPin - bPin;
+        // Among pinned: a keyword matching the FULL query ("vélo atlas") outranks
+        // a single-word keyword pin ("atlas" on an unrelated business).
+        if (aPin === 0) {
+          const aFull = fullQueryPinnedIds.has(a.id) ? 0 : 1;
+          const bFull = fullQueryPinnedIds.has(b.id) ? 0 : 1;
+          if (aFull !== bFull) return aFull - bFull;
+        }
         const aV = a.wtuce_status === "verified" ? 0 : 1;
         const bV = b.wtuce_status === "verified" ? 0 : 1;
         if (aV !== bV) return aV - bV;
