@@ -113,9 +113,10 @@ const ShowcaseSite = () => {
   const [data, setData] = useState<ShowcaseData | null>(null);
   useEffect(() => {
     if (!slug || !data) return;
-    const icon = slug === "riad-dar-najat"
-      ? "/pwa/riad-dar-najat/icon-180.png"
-      : data.hero_image_url || data.business.images?.[0];
+    const icon = data.business.logo_url
+      || (slug === "riad-dar-najat" ? "/pwa/riad-dar-najat/icon-180.png" : null)
+      || data.hero_image_url
+      || data.business.images?.[0];
     const appTitle = slug === "riad-dar-najat" ? "Dar Najat" : data.business.name;
     const pairs: [string, string, string][] = [['meta[name="apple-mobile-web-app-title"]', "content", appTitle]];
     if (icon) pairs.push(['link[rel="apple-touch-icon"]', "href", icon]);
@@ -140,7 +141,7 @@ const ShowcaseSite = () => {
       if (!slug) return;
       const { data: biz } = await supabase
         .from("businesses")
-        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta")
+        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, logo_url, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta")
         .eq("slug", slug)
         .maybeSingle();
       if (!biz) { setNotFound(true); setLoading(false); return; }

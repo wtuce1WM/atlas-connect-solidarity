@@ -10,7 +10,7 @@ const corsHeaders = {
 const SITE_ORIGIN = "https://oneworldmorocco.com";
 
 // Sert le manifeste PWA d'un site vitrine /site/:slug, généré depuis les
-// données de l'établissement (nom, photo principale). 404 si le site vitrine
+// données de l'établissement (nom, logo ou photo principale). 404 si le site vitrine
 // n'est pas activé : le navigateur retombe alors sur un simple raccourci.
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -30,7 +30,7 @@ serve(async (req) => {
 
   const { data: biz } = await supabase
     .from("businesses")
-    .select("id, name, images")
+    .select("id, name, logo_url, images")
     .eq("slug", slug)
     .maybeSingle();
   if (!biz) return notFound();
@@ -43,7 +43,7 @@ serve(async (req) => {
   if (!showcase?.enabled) return notFound();
 
   const pageUrl = `${SITE_ORIGIN}/site/${slug}`;
-  const hero = showcase.hero_image_url || biz.images?.[0] || null;
+  const icon = biz.logo_url || showcase.hero_image_url || biz.images?.[0] || null;
 
   // Dar Najat garde ses icônes carrées dédiées et son nom court.
   const isDarNajat = slug === "riad-dar-najat";
@@ -53,8 +53,8 @@ serve(async (req) => {
         sizes: `${s}x${s}`,
         type: "image/png",
       }))
-    : hero
-      ? [{ src: hero, sizes: "any", type: hero.endsWith(".webp") ? "image/webp" : "image/jpeg" }]
+    : icon
+      ? [{ src: icon, sizes: "any", type: icon.endsWith(".webp") ? "image/webp" : "image/jpeg" }]
       : [];
 
   const manifest = {
