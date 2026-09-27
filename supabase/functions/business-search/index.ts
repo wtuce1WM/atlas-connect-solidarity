@@ -5605,7 +5605,14 @@ serve(async (req) => {
     // 1. Verified first, sorted by priority_score DESC
     // 2. Non-verified: priority_score DESC, then computed_rating DESC (ignore rating if < 10 reviews)
     if (!exactNameMatchIsolation) {
+      // Name/keyword-pinned businesses keep their lead: the pin step above runs before
+      // this sort, so without this guard the global ranking policy would silently
+      // undo it (e.g. "vélo atlas" burying Atlas Bike Trails under better-rated venues).
+      const pinnedSet = new Set(nameMatchedBusinessIds);
       businesses.sort((a, b) => {
+        const aPin = pinnedSet.has(a.id) ? 0 : 1;
+        const bPin = pinnedSet.has(b.id) ? 0 : 1;
+        if (aPin !== bPin) return aPin - bPin;
         const aV = a.wtuce_status === "verified" ? 0 : 1;
         const bV = b.wtuce_status === "verified" ? 0 : 1;
         if (aV !== bV) return aV - bV;
