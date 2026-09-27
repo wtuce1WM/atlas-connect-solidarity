@@ -5,3 +5,4 @@
 - [x] Valider la direction visuelle Modern Moroccan Minimalist.
 - [x] Construire le template premium sur la page vitrine existante, avec les données de l'espace affilié.
 - [x] Vérifier la page sur iPhone et ordinateur, le calendrier, WhatsApp et le référencement.
+- [x] Utiliser le logo de l'établissement comme icône PWA lorsqu'il existe, avec fallback image.
