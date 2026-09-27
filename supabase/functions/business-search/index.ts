@@ -1260,16 +1260,30 @@ serve(async (req) => {
         // when the synonym "artisanat" bypasses FTS and filters by service only
         if (nameSearchQuery.length >= 3) {
           const kwQuery = stripAccentsGlobal(nameSearchQuery.toLowerCase().trim());
-          // Search for businesses that have a keyword matching the full query string
+          // Search for businesses that have a keyword matching the full query string.
+          // Pre-filter in SQL on query words (raw + accent-stripped): fetching ALL
+          // businesses with keywords and limiting to 500 silently ignored any business
+          // beyond the first 500 rows (e.g. "vélo atlas" never saw Atlas Bike Trails).
+          const kwTerms = new Set<string>();
+          for (const w of nameSearchQuery.toLowerCase().split(/\s+/).filter(w => w.length > 1)) {
+            kwTerms.add(w);
+            kwTerms.add(stripAccentsGlobal(w));
+          }
+          kwTerms.add(nameSearchQuery.toLowerCase().trim());
+          kwTerms.add(kwQuery);
+          const kwOrClause = [...kwTerms]
+            .map(t => `keywords.cs.{"${t.replace(/"/g, "")}"}`)
+            .join(",");
           let kwBuilder = supabase
             .from("businesses")
             .select("id, name, keywords")
             .eq("is_active", true)
-            .not("keywords", "is", null);
+            .not("keywords", "is", null)
+            .or(kwOrClause);
           if (effectiveCity) {
             kwBuilder = applyCityFilter(kwBuilder);
           }
-          const { data: kwMatches } = await kwBuilder.limit(500);
+          const { data: kwMatches } = await kwBuilder.limit(200);
           if (kwMatches && kwMatches.length > 0) {
             const kwPinned: string[] = [];
             const kwPinnedNames: string[] = [];
