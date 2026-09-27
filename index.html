@@ -24,6 +24,12 @@
         var m = location.pathname.match(/^\/site\/([a-z0-9-]+)/);
         if (!m) return;
         var link = document.querySelector('link[rel="manifest"]');
+        // iOS n'accepte pas un manifeste hébergé sur un autre domaine et retombait
+        // sur l'accueil : sans manifeste, iOS démarre sur la page courante (/site/slug).
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
+          link.parentNode.removeChild(link);
+          return;
+        }
         link.href = "https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/pwa-manifest?slug=" + m[1];
         link.setAttribute("crossorigin", "anonymous");
         document.querySelector('meta[name="theme-color"]').content = "#C04F17";
