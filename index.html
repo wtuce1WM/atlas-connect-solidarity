@@ -28,6 +28,7 @@
         // sur l'accueil : sans manifeste, iOS démarre sur la page courante (/site/slug).
         if (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
           link.parentNode.removeChild(link);
+          document.querySelector('meta[name="theme-color"]').content = "#C04F17";
           return;
         }
         link.href = "https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/pwa-manifest?slug=" + m[1];
