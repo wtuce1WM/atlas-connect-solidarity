@@ -1214,6 +1214,7 @@ serve(async (req) => {
     // ── Check for exact business name match (for pinning, but don't skip subcategory detection) ──
     let nameMatchedBusinessIds: string[] = [];
     const keywordPinnedIds = new Set<string>(); // IDs matched via keywords — exempt from relevance filtering
+    const fullQueryPinnedIds = new Set<string>(); // IDs whose keyword matches the FULL query — ranked above partial keyword pins
     let nameSearchQueryForDetection = "";
     // Gate élargi à 10 mots : les noms propres longs ("Le Chalet de la Plage - Chez Jeannot")
     // étaient exclus du pinning par nom et se faisaient écraser par la détection de sous-catégorie.
@@ -1293,14 +1294,15 @@ serve(async (req) => {
               // Check if any keyword matches the full query as a whole word (not substring)
               // e.g. "velo" must NOT match keyword "velours" — only exact word boundaries
               const kwQueryWords = kwQuery.split(/\s+/).filter(w => w.length > 0);
+              let fullQueryMatch = false;
               const hasMatch = bKeywords.some((kw: string) => {
                 const kwNorm = stripAccentsGlobal(kw.toLowerCase().trim());
                 if (!kwNorm) return false;
-                if (kwNorm === kwQuery) return true;
+                if (kwNorm === kwQuery) { fullQueryMatch = true; return true; }
                 // Check if the full query appears as whole word(s) inside the keyword
                 // Use word-boundary regex to prevent "velo" matching "velours"
                 const queryRegex = new RegExp(`(?:^|\\s)${kwQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|$)`);
-                if (queryRegex.test(kwNorm)) return true;
+                if (queryRegex.test(kwNorm)) { fullQueryMatch = true; return true; }
                 // Also check if a keyword appears as whole word(s) in the query
                 const kwWords = kwNorm.split(/\s+/).filter(w => w.length > 0);
                 if (kwWords.length > 0 && kwWords.length <= kwQueryWords.length) {
