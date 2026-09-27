@@ -112,6 +112,12 @@ const ShowcaseSite = () => {
   // icône et titre d'accueil propres à l'établissement tant que la page est affichée.
   const [data, setData] = useState<ShowcaseData | null>(null);
   useEffect(() => {
+    // PWA : le hero passe sous la barre d'état iOS (annule le padding
+    // safe-area du body) ; le header gère son propre retrait ci-dessous.
+    document.body.classList.add("owm-showcase");
+    return () => document.body.classList.remove("owm-showcase");
+  }, []);
+  useEffect(() => {
     if (!slug || !data) return;
     const icon = data.business.logo_url
       || (slug === "riad-dar-najat" ? "/pwa/riad-dar-najat/icon-180.png" : null)
@@ -292,7 +298,7 @@ const ShowcaseSite = () => {
       </Helmet>
 
       <div className="min-h-screen bg-showcase-paper text-showcase-ink font-roboto pb-20 md:pb-0">
-        <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-5 py-5 md:px-12 md:py-7 text-primary-foreground">
+        <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-5 pb-5 pt-[calc(env(safe-area-inset-top)+1.25rem)] text-primary-foreground md:px-12 md:pb-7 md:pt-[calc(env(safe-area-inset-top)+1.75rem)]">
           <button onClick={() => scrollToId("top")} className="font-josefin text-sm font-semibold uppercase tracking-widest">{b.name}</button>
           <nav className="hidden items-center gap-7 text-xs font-semibold uppercase tracking-widest md:flex">
             <button onClick={() => scrollToId("story")}>{isEn ? "The riad" : "Le riad"}</button>

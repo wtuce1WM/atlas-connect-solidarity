@@ -671,6 +671,13 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     padding-right: env(safe-area-inset-right);
   }
 
+  /* Site vitrine (/site/:slug) : le hero passe sous la barre d'état iOS
+     (plus de bande beige en haut) ; le header gère lui-même son retrait
+     safe-area via pt-[calc(env(safe-area-inset-top)+…)]. */
+  body.owm-showcase {
+    padding-top: 0 !important;
+  }
+
   /* Mode plein cadre (slidepanel vidéo, overlay POI/Google Map) :
      on annule les paddings safe-area du body pour que le média occupe
      toute la hauteur de l'écran, sans bandes en haut ni en bas.
