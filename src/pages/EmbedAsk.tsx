@@ -4481,7 +4481,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     ? (heroZone1H ? { flex: "0 0 auto", height: heroZone1H, overflow: "visible" } : { flex: "0 0 auto", minHeight: 0 })
                     : { flex: "2 1 0%", minHeight: 0 }) : undefined}
                 >
-                  <div className="flex flex-col items-center gap-3 text-center pb-2 w-full" style={heroReveal(120)}>
+                  <div className={cn("flex flex-col items-center gap-3 text-center pb-2 w-full", heroLayout && "pt-6 md:pt-0")} style={heroReveal(120)}>
                     <p className={`text-base md:text-lg leading-relaxed w-full max-w-[52ch] md:max-w-[64ch] whitespace-pre-line ${whiteInk || "opacity-80"}`} style={{ opacity: 0.85 }}>
                       {(isClubScope ? CLUB_OPENER : L.platformOpener()).replace(/\*\*/g, "")}
                     </p>
