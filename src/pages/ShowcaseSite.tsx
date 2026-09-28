@@ -143,6 +143,14 @@ const ShowcaseSite = () => {
   const [notFound, setNotFound] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
+  const [heroVideoIds, setHeroVideoIds] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
+  const [isPortrait, setIsPortrait] = useState(() => typeof window !== "undefined" && window.innerHeight > window.innerWidth);
+  useEffect(() => {
+    const mq = window.matchMedia("(orientation: portrait)");
+    const onChange = () => setIsPortrait(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -187,15 +195,19 @@ const ShowcaseSite = () => {
       if (heroIds.length > 0) {
         const { data: vids } = await (supabase as any)
           .from("business_youtube_videos")
-          .select("id,thumbnail,custom_thumbnail_url")
+          .select("id,video_id,thumbnail,custom_thumbnail_url")
           .in("id", heroIds);
-        const byId = new Map<string, string | null>(
-          ((vids || []) as Array<{ id: string; thumbnail: string | null; custom_thumbnail_url: string | null }>)
-            .map((v) => [v.id, v.custom_thumbnail_url || v.thumbnail])
+        const byId = new Map<string, { thumb: string | null; yt: string | null }>(
+          ((vids || []) as Array<{ id: string; video_id: string; thumbnail: string | null; custom_thumbnail_url: string | null }>)
+            .map((v) => [v.id, { thumb: v.custom_thumbnail_url || v.thumbnail, yt: v.video_id || null }])
         );
         setHeroThumbs({
-          landscape: showcase.hero_landscape_video_id ? byId.get(showcase.hero_landscape_video_id) || null : null,
-          portrait: showcase.hero_portrait_video_id ? byId.get(showcase.hero_portrait_video_id) || null : null,
+          landscape: showcase.hero_landscape_video_id ? byId.get(showcase.hero_landscape_video_id)?.thumb || null : null,
+          portrait: showcase.hero_portrait_video_id ? byId.get(showcase.hero_portrait_video_id)?.thumb || null : null,
+        });
+        setHeroVideoIds({
+          landscape: showcase.hero_landscape_video_id ? byId.get(showcase.hero_landscape_video_id)?.yt || null : null,
+          portrait: showcase.hero_portrait_video_id ? byId.get(showcase.hero_portrait_video_id)?.yt || null : null,
         });
       }
       setHighlights((((highlightResult.data || []) as unknown) as Highlight[]).filter((item) =>
