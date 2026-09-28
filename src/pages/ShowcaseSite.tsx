@@ -20,7 +20,8 @@ interface ShowcaseData {
   tagline_en: string | null;
   tagline_ar: string | null;
   hero_image_url: string | null;
-  hero_video_url: string | null;
+  hero_landscape_video_id: string | null;
+  hero_portrait_video_id: string | null;
   story_fr: string | null;
   story_en: string | null;
   story_ar: string | null;
@@ -270,8 +271,10 @@ const ShowcaseSite = () => {
   const isEn = language === "en";
   const tagline = (isEn ? data.tagline_en || b.hook_en : data.tagline_fr || b.hook_fr) || "";
   const story = (isEn ? data.story_en || b.description_en : data.story_fr || b.description_fr) || "";
-  const heroMedia = data.hero_video_url || data.hero_image_url || gallery[0];
-  const isVideo = !!data.hero_video_url;
+  const ytThumb = (id: string) => `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
+  const heroLandscape = data.hero_landscape_video_id ? ytThumb(data.hero_landscape_video_id) : null;
+  const heroPortrait = data.hero_portrait_video_id ? ytThumb(data.hero_portrait_video_id) : null;
+  const heroMedia = heroLandscape || data.hero_image_url || gallery[0];
   const canonicalUrl = data.canonical_url || `https://oneworldmorocco.com/site/${slug}`;
   const primaryCta = data.cta_config?.primary_label || (isEn ? "Book your stay" : "Réserver votre séjour");
   const whatsapp = data.cta_config?.whatsapp || b.whatsapp;
