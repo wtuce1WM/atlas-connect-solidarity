@@ -18,7 +18,8 @@ type Row = {
   tagline_fr: string | null;
   tagline_en: string | null;
   hero_image_url: string | null;
-  hero_video_url: string | null;
+  hero_landscape_video_id: string | null;
+  hero_portrait_video_id: string | null;
   story_fr: string | null;
   story_en: string | null;
   cta_config: Record<string, string> | null;
@@ -49,7 +50,8 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
         tagline_fr: r.tagline_fr || null,
         tagline_en: r.tagline_en || null,
         hero_image_url: r.hero_image_url || null,
-        hero_video_url: r.hero_video_url || null,
+        hero_landscape_video_id: r.hero_landscape_video_id || null,
+        hero_portrait_video_id: r.hero_portrait_video_id || null,
         story_fr: r.story_fr || null,
         story_en: r.story_en || null,
         cta_config: cta,
@@ -82,7 +84,16 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
         <div><Label>Accroche FR</Label><Input value={r.tagline_fr || ""} onChange={(e) => set("tagline_fr", e.target.value)} /></div>
         <div><Label>Accroche EN</Label><Input value={r.tagline_en || ""} onChange={(e) => set("tagline_en", e.target.value)} /></div>
         <div><Label>Image hero (URL)</Label><Input value={r.hero_image_url || ""} onChange={(e) => set("hero_image_url", e.target.value)} /></div>
-        <div><Label>Vidéo hero (URL)</Label><Input value={r.hero_video_url || ""} onChange={(e) => set("hero_video_url", e.target.value)} /></div>
+        <div>
+          <Label>Image landscape (ID vidéo)</Label>
+          <Input value={r.hero_landscape_video_id || ""} onChange={(e) => set("hero_landscape_video_id", e.target.value)} placeholder="ex. dQw4w9WgXcQ" />
+          <p className="text-xs text-muted-foreground mt-1">ID YouTube — la miniature de la vidéo est utilisée (format paysage).</p>
+        </div>
+        <div>
+          <Label>Image portrait (ID vidéo)</Label>
+          <Input value={r.hero_portrait_video_id || ""} onChange={(e) => set("hero_portrait_video_id", e.target.value)} placeholder="ex. dQw4w9WgXcQ" />
+          <p className="text-xs text-muted-foreground mt-1">ID YouTube — la miniature de la vidéo est utilisée (format portrait / mobile).</p>
+        </div>
         <div><Label>Histoire FR</Label><Textarea rows={4} value={r.story_fr || ""} onChange={(e) => set("story_fr", e.target.value)} /></div>
         <div><Label>Histoire EN</Label><Textarea rows={4} value={r.story_en || ""} onChange={(e) => set("story_en", e.target.value)} /></div>
         {CTA_FIELDS.map(([k, l]) => (
@@ -109,7 +120,7 @@ const StaffShowcase = () => {
       if (!session) { navigate("/staff/login"); return; }
       const { data, error } = await supabase
         .from("business_showcase_site")
-        .select("id,business_id,enabled,tagline_fr,tagline_en,hero_image_url,hero_video_url,story_fr,story_en,cta_config,business:businesses(name,slug,logo_url)")
+        .select("id,business_id,enabled,tagline_fr,tagline_en,hero_image_url,hero_landscape_video_id,hero_portrait_video_id,story_fr,story_en,cta_config,business:businesses(name,slug,logo_url)")
         .order("created_at");
       if (error) toast.error(error.message);
       setRows((data as any) || []);

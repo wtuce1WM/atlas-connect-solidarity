@@ -2371,6 +2371,8 @@ export type Database = {
           enabled: boolean
           gallery_image_ids: Json
           hero_image_url: string | null
+          hero_landscape_video_id: string | null
+          hero_portrait_video_id: string | null
           hero_video_url: string | null
           id: string
           story_ar: string | null
@@ -2392,6 +2394,8 @@ export type Database = {
           enabled?: boolean
           gallery_image_ids?: Json
           hero_image_url?: string | null
+          hero_landscape_video_id?: string | null
+          hero_portrait_video_id?: string | null
           hero_video_url?: string | null
           id?: string
           story_ar?: string | null
@@ -2413,6 +2417,8 @@ export type Database = {
           enabled?: boolean
           gallery_image_ids?: Json
           hero_image_url?: string | null
+          hero_landscape_video_id?: string | null
+          hero_portrait_video_id?: string | null
           hero_video_url?: string | null
           id?: string
           story_ar?: string | null
