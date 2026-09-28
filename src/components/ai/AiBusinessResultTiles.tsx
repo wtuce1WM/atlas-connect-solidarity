@@ -211,7 +211,7 @@ const AiBusinessResultTiles = ({
                   ) : null}
                   {priceBadges?.[b.id] ? (
                     <span
-                      className="pointer-events-none absolute left-1/2 top-1/2 z-[5] -translate-x-1/2 -translate-y-1/2 inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-extrabold leading-none text-white shadow-lg"
+                      className="pointer-events-none absolute left-1/2 top-[44%] z-[5] -translate-x-1/2 -translate-y-1/2 inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-extrabold leading-none text-white shadow-lg"
                       style={{ background: "#C04F17", ...AI_NAME_FONT }}
                     >
                       {priceBadges[b.id]}
