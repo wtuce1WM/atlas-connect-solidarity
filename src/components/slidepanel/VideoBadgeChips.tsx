@@ -145,6 +145,20 @@ const VideoBadgeChips = ({
 }: VideoBadgeChipsProps) => {
   const chipsBadges = badges;
   const setChipsExpanded = onExpandedChange;
+  const en = useLanguage().language === "en";
+  const [enNames, setEnNames] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (!en) return;
+    let cancelled = false;
+    supabase.from("badges").select("id,name_en").then(({ data }) => {
+      if (cancelled || !data) return;
+      const m: Record<string, string> = {};
+      for (const r of data as any[]) if (r.name_en) m[r.id] = r.name_en;
+      setEnNames(m);
+    });
+    return () => { cancelled = true; };
+  }, [en]);
+  const tr = (id: string, fr: string) => (en && enNames[id]) || fr;
   const [pinnedBadge, setPinnedBadge] = useState<{ id: string; name: string; color?: string | null; textColor?: string | null } | null>(null);
   /** Couleurs des badges du menu fixe, lues en back-office (aucune couleur codée en dur). */
   const [menuBadgeColors, setMenuBadgeColors] = useState<Record<string, { color: string | null; textColor: string | null }>>({});
