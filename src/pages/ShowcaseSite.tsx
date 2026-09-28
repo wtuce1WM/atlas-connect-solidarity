@@ -304,6 +304,9 @@ const ShowcaseSite = () => {
   const story = (isEn ? data.story_en || b.description_en : data.story_fr || b.description_fr) || "";
   const heroLandscape = heroThumbs.landscape;
   const heroPortrait = heroThumbs.portrait;
+  const heroVideo = isPortrait
+    ? heroVideoIds.portrait || heroVideoIds.landscape
+    : heroVideoIds.landscape || heroVideoIds.portrait;
   const heroMedia = heroLandscape || data.hero_image_url || gallery[0];
   const canonicalUrl = data.canonical_url || `https://oneworldmorocco.com/site/${slug}`;
   const primaryCta = data.cta_config?.primary_label || (isEn ? "Book your stay" : "Réserver votre séjour");
@@ -354,6 +357,16 @@ const ShowcaseSite = () => {
                 {heroPortrait && <source media="(orientation: portrait)" srcSet={heroPortrait} />}
                 <img src={heroMedia} alt={b.name} className="absolute inset-0 h-full w-full object-cover" />
               </picture>
+            )}
+            {heroVideo && (
+              <iframe
+                src={`https://www.youtube.com/embed/${heroVideo}?autoplay=1&mute=1&loop=1&playlist=${heroVideo}&controls=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&disablekb=1`}
+                title={b.name}
+                className="pointer-events-none absolute inset-0 h-full w-full"
+                style={{ border: 0, transform: "scale(1.4)" }}
+                allow="autoplay; encrypted-media; picture-in-picture"
+                tabIndex={-1}
+              />
             )}
             <div className="absolute inset-0 bg-gradient-to-b from-showcase-night/45 via-showcase-night/10 to-showcase-night/80" />
             <div className="relative z-10 flex min-h-[92dvh] max-w-7xl flex-col justify-end px-6 pb-16 pt-28 md:px-12 md:pb-20 lg:px-20">
