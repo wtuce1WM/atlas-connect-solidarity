@@ -32,6 +32,19 @@ function pickLangLabel(pair: { fr: string; en: string; ar: string }, language: s
   return pair.fr;
 }
 
+/** Traductions EN des libellés CTA libres saisis en back-office (clé en minuscules). */
+const FREE_CTA_EN: Record<string, string> = {
+  "acheter en ligne": "Buy online", "en savoir +": "Learn more", "réservez": "Book now",
+  "réserver en ligne": "Book online", "plus d'informations": "More information",
+  "contactez nous": "Contact us", "consulter notre offre": "See our offer", "menu": "Menu",
+  "la carte": "Menu", "billetterie": "Tickets", "day pass": "Day Pass", "achetez": "Buy",
+  "notre offre": "Our offer", "programme": "Programme", "carte des soins": "Treatment menu",
+  "réserver une table": "Book a table", "les boissons": "Drinks", "hotel": "Hotel",
+  "accréditations": "Accreditations", "contactez-moi": "Contact me", "nos services": "Our services",
+  "réserver une chambre": "Book a room", "forfaits": "Packages", "boissons": "Drinks",
+  "cocktails": "Cocktails", "site web": "Website",
+};
+
 export function resolveCtaLabel(
   preferredValue: string | null | undefined,
   fallbackValue: string | null | undefined,
@@ -48,7 +61,9 @@ export function resolveCtaLabel(
 
   if (preferredValue) {
     const match = translate(preferredValue);
-    return match ? pickLangLabel(match, language) : preferredValue;
+    if (match) return pickLangLabel(match, language);
+    if (language === "en") return FREE_CTA_EN[preferredValue.trim().toLowerCase()] || preferredValue;
+    return preferredValue;
   }
 
   const fallbackMatch = translate(fallbackValue);
