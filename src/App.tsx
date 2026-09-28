@@ -80,6 +80,7 @@ const StaffMaster = lazy(() => import("./pages/StaffMaster"));
 const StaffIA = lazy(() => import("./pages/StaffIA"));
 const StaffVideos = lazy(() => import("./pages/StaffVideos"));
 const StaffWidgets = lazy(() => import("./pages/StaffWidgets"));
+const StaffShowcase = lazy(() => import("./pages/StaffShowcase"));
 const StaffBlog = lazy(() => import("./pages/StaffBlog"));
 const StaffB2B = lazy(() => import("./pages/StaffB2B"));
 const StaffTranslations = lazy(() => import("./pages/StaffTranslations"));
@@ -247,6 +248,7 @@ const LocalizedRoutes = () => {
               <Route path="/ar/widgets" element={renderLazyRoute(<Widgets />)} />
               <Route path="/staff/backoffice/videos" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<StaffVideos />)}</StaffRouteGuard></Suspense>} />
               <Route path="/staff/backoffice/api" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<StaffApi />)}</StaffRouteGuard></Suspense>} />
+              <Route path="/staff/backoffice/sites" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<StaffShowcase />)}</StaffRouteGuard></Suspense>} />
               <Route path="/staff/backoffice/widgets" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<StaffWidgets />)}</StaffRouteGuard></Suspense>} />
 
               {/* Custom-layout blog articles (kept as React components — fetch dynamic data) */}

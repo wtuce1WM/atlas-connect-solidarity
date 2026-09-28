@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, BadgeCheck, MapPin, LayoutGrid, Save, StickyNote, Presentation, Newspaper, Blocks, Stethoscope, Clapperboard, Plug } from "lucide-react";
+import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, BadgeCheck, MapPin, LayoutGrid, Save, StickyNote, Presentation, Newspaper, Blocks, Stethoscope, Clapperboard, Plug, Smartphone } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import RichTextEditor from "@/components/staff/RichTextEditor";
 import { toast } from "sonner";
@@ -208,6 +208,15 @@ const StaffHub = () => {
       color: "from-sky-500/20 to-indigo-500/10",
       iconColor: "text-sky-600",
       adminOnly: true,
+    },
+    {
+      title: "Sites vitrines & PWAs",
+      description: "Paramétrer les sites vitrines et apps installables : activation, textes, réservation, contacts, icône.",
+      icon: Smartphone,
+      href: "/staff/backoffice/sites",
+      color: "from-orange-500/20 to-amber-500/10",
+      iconColor: "text-orange-600",
+      adminOnly: false,
     },
     {
       title: "Diagnostic preview",
