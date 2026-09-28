@@ -142,6 +142,7 @@ const ShowcaseSite = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
 
   useEffect(() => {
     const load = async () => {
@@ -179,6 +180,24 @@ const ShowcaseSite = () => {
       ]);
 
       setData({ ...showcase, business: biz });
+
+      // Hero : les IDs renseignés sont des IDs internes (business_youtube_videos.id) —
+      // on résout leur miniature (custom_thumbnail_url prioritaire, sinon thumbnail).
+      const heroIds = [showcase.hero_landscape_video_id, showcase.hero_portrait_video_id].filter(Boolean) as string[];
+      if (heroIds.length > 0) {
+        const { data: vids } = await (supabase as any)
+          .from("business_youtube_videos")
+          .select("id,thumbnail,custom_thumbnail_url")
+          .in("id", heroIds);
+        const byId = new Map<string, string | null>(
+          ((vids || []) as Array<{ id: string; thumbnail: string | null; custom_thumbnail_url: string | null }>)
+            .map((v) => [v.id, v.custom_thumbnail_url || v.thumbnail])
+        );
+        setHeroThumbs({
+          landscape: showcase.hero_landscape_video_id ? byId.get(showcase.hero_landscape_video_id) || null : null,
+          portrait: showcase.hero_portrait_video_id ? byId.get(showcase.hero_portrait_video_id) || null : null,
+        });
+      }
       setHighlights((((highlightResult.data || []) as unknown) as Highlight[]).filter((item) =>
         Boolean(item.title?.trim() || item.description?.trim() || item.image_url)
       ));
@@ -271,9 +290,8 @@ const ShowcaseSite = () => {
   const isEn = language === "en";
   const tagline = (isEn ? data.tagline_en || b.hook_en : data.tagline_fr || b.hook_fr) || "";
   const story = (isEn ? data.story_en || b.description_en : data.story_fr || b.description_fr) || "";
-  const ytThumb = (id: string) => `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
-  const heroLandscape = data.hero_landscape_video_id ? ytThumb(data.hero_landscape_video_id) : null;
-  const heroPortrait = data.hero_portrait_video_id ? ytThumb(data.hero_portrait_video_id) : null;
+  const heroLandscape = heroThumbs.landscape;
+  const heroPortrait = heroThumbs.portrait;
   const heroMedia = heroLandscape || data.hero_image_url || gallery[0];
   const canonicalUrl = data.canonical_url || `https://oneworldmorocco.com/site/${slug}`;
   const primaryCta = data.cta_config?.primary_label || (isEn ? "Book your stay" : "Réserver votre séjour");
