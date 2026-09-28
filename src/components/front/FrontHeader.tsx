@@ -3,6 +3,12 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+const CTA_EN: Record<string, string> = {
+  "Installer l'App": "Install the App",
+  "MON COMPTE": "MY ACCOUNT",
+  "CONCEPT LOCAL & SOLIDAIRE": "LOCAL & SOLIDARITY CONCEPT",
+  "VOTRE ENTREPRISE": "YOUR BUSINESS",
+};
 const CTAS: { label: string; to: string }[] = [
   { label: "Installer l'App", to: "/install" },
   { label: "MON COMPTE", to: "/club" },
@@ -205,7 +211,7 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
                 />
                 <ArrowUpRight className="absolute right-4 top-3.5 h-4 w-4 text-[rgba(244,238,228,0.6)] transition-colors group-hover:text-gold" />
                 <span className="block pr-8 font-roboto text-base font-bold text-[#F4EEE4] md:text-lg">
-                  {cta.label}
+                  {(!links && language === "en" && CTA_EN[cta.label]) || cta.label}
                 </span>
               </>
             );

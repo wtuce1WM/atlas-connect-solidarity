@@ -1092,7 +1092,7 @@ const Front = () => {
           className="absolute bottom-2 left-1/2 z-[60] flex -translate-x-1/2 flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
         >
           <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
-          <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">Catégories</span>
+          <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">{language === "en" ? "Categories" : "Catégories"}</span>
         </button>
       )}
 
@@ -1155,7 +1155,7 @@ const Front = () => {
           className="flex flex-col items-center gap-1 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-2 text-[rgba(244,238,228,0.85)] hover:text-gold"
         >
           <ChevronUp className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
-          <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">Retour</span>
+          <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">{language === "en" ? "Back" : "Retour"}</span>
         </button>
       </div>
 
