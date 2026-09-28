@@ -211,7 +211,7 @@ const VideoBadgeChips = ({
               }}
               title="Voir tous les badges"
             >
-              {capFirstBadgeLabel(pick?.name || "Badges")}
+              {pick ? capFirstBadgeLabel(tr(pick.id, pick.name)) : "Badges"}
               <ChevronDown className="h-3.5 w-3.5 shrink-0" />
             </button>
           </div>
@@ -249,7 +249,7 @@ const VideoBadgeChips = ({
                   }}
                   title={onFeedBadgeSelect ? `Voir les vidéos ${b.label}` : b.label}
                 >
-                  <ChipLabel text={capFirstBadgeLabel(b.label)} />
+                  <ChipLabel text={capFirstBadgeLabel(tr(b.id, b.label))} />
                 </button>
               );
             })}
@@ -283,7 +283,7 @@ const VideoBadgeChips = ({
                       }}
                       title={onFeedBadgeSelect ? `Voir les vidéos ${firstVideoBadge.name}` : firstVideoBadge.name}
                     >
-                      <ChipLabel text={capFirstBadgeLabel(firstVideoBadge.name)} />
+                      <ChipLabel text={capFirstBadgeLabel(tr(firstVideoBadge.id, firstVideoBadge.name))} />
                     </button>
                   )}
                   {dynamicBadges.map((b) => {
@@ -312,7 +312,7 @@ const VideoBadgeChips = ({
                         }}
                         title={onFeedBadgeSelect ? `Voir les vidéos ${b.name}` : b.name}
                       >
-                        <ChipLabel text={capFirstBadgeLabel(b.name)} />
+                        <ChipLabel text={capFirstBadgeLabel(tr(b.id, b.name))} />
                       </button>
                     );
                   })}
@@ -351,14 +351,14 @@ const VideoBadgeChips = ({
             onClick={() => setChipsExpanded(false)}
             className="pointer-events-auto inline-flex items-center gap-1 rounded-full border border-white/25 bg-black/70 px-3 py-1 text-[11px] md:text-xs font-semibold text-white shadow-lg backdrop-blur-md transition-transform active:scale-95"
             style={{ fontFamily: "'Montserrat',system-ui,sans-serif" }}
-            title="Masquer les badges"
+            title={en ? "Hide badges" : "Masquer les badges"}
           >
             <ChevronUp className="h-3.5 w-3.5 shrink-0" />
-            Masquer
+            {en ? "Hide" : "Masquer"}
           </button>
           <div
             role="button"
-            aria-label="Masquer les badges"
+            aria-label={en ? "Hide badges" : "Masquer les badges"}
             onClick={(e) => { e.stopPropagation(); setChipsExpanded(false); }}
             onTouchEnd={(e) => { e.stopPropagation(); setChipsExpanded(false); }}
             className="pointer-events-auto h-[55vh] w-full"
