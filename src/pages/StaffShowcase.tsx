@@ -85,14 +85,14 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
         <div><Label>Accroche EN</Label><Input value={r.tagline_en || ""} onChange={(e) => set("tagline_en", e.target.value)} /></div>
         <div><Label>Image hero (URL)</Label><Input value={r.hero_image_url || ""} onChange={(e) => set("hero_image_url", e.target.value)} /></div>
         <div>
-          <Label>Image landscape (ID vidéo)</Label>
-          <Input value={r.hero_landscape_video_id || ""} onChange={(e) => set("hero_landscape_video_id", e.target.value)} placeholder="ex. dQw4w9WgXcQ" />
-          <p className="text-xs text-muted-foreground mt-1">ID YouTube — la miniature de la vidéo est utilisée (format paysage).</p>
+          <Label>Image landscape (ID vidéo interne)</Label>
+          <Input value={r.hero_landscape_video_id || ""} onChange={(e) => set("hero_landscape_video_id", e.target.value)} placeholder="UUID de la vidéo (business_youtube_videos)" />
+          <p className="text-xs text-muted-foreground mt-1">ID interne de la vidéo — sa miniature est utilisée (format paysage).</p>
         </div>
         <div>
-          <Label>Image portrait (ID vidéo)</Label>
-          <Input value={r.hero_portrait_video_id || ""} onChange={(e) => set("hero_portrait_video_id", e.target.value)} placeholder="ex. dQw4w9WgXcQ" />
-          <p className="text-xs text-muted-foreground mt-1">ID YouTube — la miniature de la vidéo est utilisée (format portrait / mobile).</p>
+          <Label>Image portrait (ID vidéo interne)</Label>
+          <Input value={r.hero_portrait_video_id || ""} onChange={(e) => set("hero_portrait_video_id", e.target.value)} placeholder="UUID de la vidéo (business_youtube_videos)" />
+          <p className="text-xs text-muted-foreground mt-1">ID interne de la vidéo — sa miniature est utilisée (format portrait / mobile).</p>
         </div>
         <div><Label>Histoire FR</Label><Textarea rows={4} value={r.story_fr || ""} onChange={(e) => set("story_fr", e.target.value)} /></div>
         <div><Label>Histoire EN</Label><Textarea rows={4} value={r.story_en || ""} onChange={(e) => set("story_en", e.target.value)} /></div>
