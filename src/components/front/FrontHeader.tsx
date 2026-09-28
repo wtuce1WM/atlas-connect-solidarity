@@ -230,10 +230,12 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
                 </button>
               );
             }
+            // Liens du menu par défaut : préfixe /en quand la langue est l'anglais
+            const to = !links && language === "en" ? `/en${cta.to}` : cta.to;
             return (
               <Link
-                key={`${cta.label}-${cta.to}`}
-                to={cta.to}
+                key={`${cta.label}-${to}`}
+                to={to}
                 onPointerEnter={() => preloadRoute(cta.to!)}
                 onFocus={() => preloadRoute(cta.to!)}
                 onClick={() => {

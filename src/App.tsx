@@ -244,8 +244,11 @@ const LocalizedRoutes = () => {
               <Route path="/blog" element={renderLazyRoute(<Blog />)} />
               <Route path="/widgets" element={renderLazyRoute(<Widgets />)} />
               <Route path="/staff/backoffice/diagnostic" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<PreviewDiagnostic />)}</StaffRouteGuard></Suspense>} />
-              <Route path="/en/widgets" element={renderLazyRoute(<Widgets />)} />
-              <Route path="/ar/widgets" element={renderLazyRoute(<Widgets />)} />
+               <Route path="/en/widgets" element={renderLazyRoute(<Widgets />)} />
+               <Route path="/ar/widgets" element={renderLazyRoute(<Widgets />)} />
+               <Route path="/en/contact" element={renderLazyRoute(<Contact />)} />
+               <Route path="/en/blog" element={renderLazyRoute(<Blog />)} />
+               <Route path="/en/blog/:slug" element={renderLazyRoute(<BlogPost />)} />
               <Route path="/staff/backoffice/videos" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<StaffVideos />)}</StaffRouteGuard></Suspense>} />
               <Route path="/staff/backoffice/api" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<StaffApi />)}</StaffRouteGuard></Suspense>} />
               <Route path="/staff/backoffice/sites" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<StaffShowcase />)}</StaffRouteGuard></Suspense>} />
