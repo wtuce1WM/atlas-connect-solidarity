@@ -4078,7 +4078,7 @@ const BookOnlineSlidePanelInner = ({
                     );
                   })()}
 
-                  {/* Vidéos — grille 3x3 desktop / 2x2 mobile (propriétaires + YouTube/externes) — masquée quand les vidéos Location/Vente sont présentes */}
+                  {/* Vidéos — carousel horizontal, miniatures verticales 9:16 (propriétaires + YouTube/externes) — masquée quand les vidéos Location/Vente sont présentes */}
                   {!descOverlayContent && !hasRentalSaleVideos && (nonExternalVideoDocs.length + externalVideoDocs.length) > 0 && (() => {
                     const urlOrder = new Map(allVideoUrls.map((u, i) => [u, i]));
                     const seen = new Set<string>();
@@ -4087,20 +4087,19 @@ const BookOnlineSlidePanelInner = ({
                       seen.add(d.url);
                       return true;
                     });
-                    const sorted = combined.sort(
+                    const items = combined.sort(
                       (a, b) => (urlOrder.get(a.url) ?? 999) - (urlOrder.get(b.url) ?? 999)
                     );
-                    const items = sorted.slice(0, 9);
                     return (
                       <div className="mt-8 pt-6 border-t border-white/10">
                         <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">
                           {language === "en" ? "Videos" : language === "ar" ? "فيديوهات" : "Vidéos"}
                         </h2>
-                        <HScroll className="flex md:grid md:grid-cols-3 gap-1.5 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory md:snap-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden cursor-grab md:cursor-auto">
+                        <HScroll className="flex gap-2 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden cursor-grab pb-1">
                           {items.map((vid, i) => (
                             <div
                               key={`desc-vid-${i}`}
-                              className="relative aspect-square rounded-lg overflow-hidden cursor-pointer shrink-0 w-[46%] snap-start md:w-auto md:shrink bg-black"
+                              className="relative aspect-[9/16] rounded-lg overflow-hidden cursor-pointer shrink-0 w-[38%] sm:w-[30%] md:w-[22%] snap-start bg-black"
                               onClick={() => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description })}
                             >
                               <VideoDocPreview url={vid.url} title={vid.name || undefined} inert thumbnailUrl={resolveVideoDocThumbnail(vid) || vid.thumbnail_url || null} />
