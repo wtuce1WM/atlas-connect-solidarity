@@ -143,6 +143,14 @@ const ShowcaseSite = () => {
   const [notFound, setNotFound] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
+  const [heroVideoIds, setHeroVideoIds] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
+  const [isPortrait, setIsPortrait] = useState(() => typeof window !== "undefined" && window.innerHeight > window.innerWidth);
+  useEffect(() => {
+    const mq = window.matchMedia("(orientation: portrait)");
+    const onChange = () => setIsPortrait(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -187,15 +195,19 @@ const ShowcaseSite = () => {
       if (heroIds.length > 0) {
         const { data: vids } = await (supabase as any)
           .from("business_youtube_videos")
-          .select("id,thumbnail,custom_thumbnail_url")
+          .select("id,video_id,thumbnail,custom_thumbnail_url")
           .in("id", heroIds);
-        const byId = new Map<string, string | null>(
-          ((vids || []) as Array<{ id: string; thumbnail: string | null; custom_thumbnail_url: string | null }>)
-            .map((v) => [v.id, v.custom_thumbnail_url || v.thumbnail])
+        const byId = new Map<string, { thumb: string | null; yt: string | null }>(
+          ((vids || []) as Array<{ id: string; video_id: string; thumbnail: string | null; custom_thumbnail_url: string | null }>)
+            .map((v) => [v.id, { thumb: v.custom_thumbnail_url || v.thumbnail, yt: v.video_id || null }])
         );
         setHeroThumbs({
-          landscape: showcase.hero_landscape_video_id ? byId.get(showcase.hero_landscape_video_id) || null : null,
-          portrait: showcase.hero_portrait_video_id ? byId.get(showcase.hero_portrait_video_id) || null : null,
+          landscape: showcase.hero_landscape_video_id ? byId.get(showcase.hero_landscape_video_id)?.thumb || null : null,
+          portrait: showcase.hero_portrait_video_id ? byId.get(showcase.hero_portrait_video_id)?.thumb || null : null,
+        });
+        setHeroVideoIds({
+          landscape: showcase.hero_landscape_video_id ? byId.get(showcase.hero_landscape_video_id)?.yt || null : null,
+          portrait: showcase.hero_portrait_video_id ? byId.get(showcase.hero_portrait_video_id)?.yt || null : null,
         });
       }
       setHighlights((((highlightResult.data || []) as unknown) as Highlight[]).filter((item) =>
@@ -292,6 +304,9 @@ const ShowcaseSite = () => {
   const story = (isEn ? data.story_en || b.description_en : data.story_fr || b.description_fr) || "";
   const heroLandscape = heroThumbs.landscape;
   const heroPortrait = heroThumbs.portrait;
+  const heroVideo = isPortrait
+    ? heroVideoIds.portrait || heroVideoIds.landscape
+    : heroVideoIds.landscape || heroVideoIds.portrait;
   const heroMedia = heroLandscape || data.hero_image_url || gallery[0];
   const canonicalUrl = data.canonical_url || `https://oneworldmorocco.com/site/${slug}`;
   const primaryCta = data.cta_config?.primary_label || (isEn ? "Book your stay" : "Réserver votre séjour");
@@ -342,6 +357,16 @@ const ShowcaseSite = () => {
                 {heroPortrait && <source media="(orientation: portrait)" srcSet={heroPortrait} />}
                 <img src={heroMedia} alt={b.name} className="absolute inset-0 h-full w-full object-cover" />
               </picture>
+            )}
+            {heroVideo && (
+              <iframe
+                src={`https://www.youtube.com/embed/${heroVideo}?autoplay=1&mute=1&loop=1&playlist=${heroVideo}&controls=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&disablekb=1`}
+                title={b.name}
+                className="pointer-events-none absolute left-1/2 top-1/2 h-[56.25vw] min-h-full w-[177.78vh] min-w-full -translate-x-1/2 -translate-y-1/2"
+                style={{ border: 0 }}
+                allow="autoplay; encrypted-media; picture-in-picture"
+                tabIndex={-1}
+              />
             )}
             <div className="absolute inset-0 bg-gradient-to-b from-showcase-night/45 via-showcase-night/10 to-showcase-night/80" />
             <div className="relative z-10 flex min-h-[92dvh] max-w-7xl flex-col justify-end px-6 pb-16 pt-28 md:px-12 md:pb-20 lg:px-20">
