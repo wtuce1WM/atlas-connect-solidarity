@@ -4124,7 +4124,7 @@ const BookOnlineSlidePanelInner = ({
                   })()}
 
                   {/* Images — galerie masonry cinématique bord-à-bord */}
-                  {!descOverlayContent && images.length > 0 && (
+                  {!descOverlayContent && images.length > 1 && (
                     <ImageGallerySection
                       images={images}
                       language={language as "fr" | "en" | "ar"}
