@@ -197,6 +197,8 @@ interface BookOnlineSlidePanelProps {
   toolbarPortalPrefix?: string;
   /** If provided, auto-opens the video overlay for the matching URL once videoDocs loaded */
   initialVideoUrl?: string;
+  /** Panneau ouvert comme feed vidéo (assistant IA) : démarrer sur la vidéo, jamais sur l'image 1. */
+  preferVideoFirst?: boolean;
   /** Navigate to previous/next business in the result list (Search page) */
   onPrevBusiness?: () => void;
   onNextBusiness?: () => void;
@@ -304,7 +306,7 @@ const BookOnlineSlidePanelInner = ({
   businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef,
   showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch,
   initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, autoCheckAvailability,
-  onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl,
+  onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl, preferVideoFirst = false,
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext, prioritizeBusinessSwipe = false, internalWheelNav = false,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
@@ -484,20 +486,25 @@ const BookOnlineSlidePanelInner = ({
   // UI state
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
-  // Seed the initial media index from a pinned video (initialVideoUrl) without
-  // mutating the grid order. Runs once per (businessId, initialVideoUrl).
+  // Seed the initial media index from a pinned video (initialVideoUrl), or from
+  // the first available video when the panel opens as a video feed
+  // (preferVideoFirst). Done DURING RENDER (not in an effect): the state
+  // adjustment happens before paint, so image 1 is never flashed before the video.
   const seededPinRef = useRef<string | null>(null);
-  useEffect(() => {
-    if (!initialVideoUrl) return;
-    const key = `${businessId || ""}::${initialVideoUrl}`;
-    if (seededPinRef.current === key) return;
-    if (!mediaItems || mediaItems.length === 0) return;
-    const idx = mediaItems.findIndex((m) => m.kind === "video" && m.url === initialVideoUrl);
-    if (idx >= 0) {
-      setCurrentMediaIndex(idx);
-      seededPinRef.current = key;
+  const seedKey = `${businessId || ""}::${initialVideoUrl || ""}::${preferVideoFirst ? "v" : ""}`;
+  if (!isLoading && mediaItems.length > 0 && seededPinRef.current !== seedKey) {
+    let seedIdx = -1;
+    if (initialVideoUrl) {
+      seedIdx = mediaItems.findIndex((m) => m.kind === "video" && m.url === initialVideoUrl);
     }
-  }, [initialVideoUrl, businessId, mediaItems]);
+    if (seedIdx < 0 && preferVideoFirst) {
+      seedIdx = mediaItems.findIndex((m) => m.kind === "video");
+    }
+    if (seedIdx >= 0) {
+      setCurrentMediaIndex(seedIdx);
+      seededPinRef.current = seedKey;
+    }
+  }
 
   const [matterportPinnedInHiddenMode, setMatterportPinnedInHiddenMode] = useState(true);
   const [descExpanded, setDescExpanded] = useState(true);

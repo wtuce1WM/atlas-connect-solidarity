@@ -187,6 +187,7 @@ const EmbedBookPanelWrapper = ({
             embedMode
             initialOverlay={initialOverlay}
             initialVideoUrl={initialVideoUrl}
+            preferVideoFirst
             initialAvailabilityCheckIn={initialAvailabilityCheckIn}
             initialAvailabilityCheckOut={initialAvailabilityCheckOut}
             initialAvailabilityAdults={initialAvailabilityAdults}
