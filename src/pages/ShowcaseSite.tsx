@@ -319,11 +319,12 @@ const ShowcaseSite = () => {
 
         <main id="top">
           <section className="relative min-h-[92dvh] overflow-hidden bg-showcase-night">
-            {heroMedia && isVideo ? (
-              <video src={data.hero_video_url || ""} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" />
-            ) : heroMedia ? (
-              <img src={heroMedia} alt={b.name} className="absolute inset-0 h-full w-full object-cover" />
-            ) : null}
+            {heroMedia && (
+              <picture>
+                {heroPortrait && <source media="(orientation: portrait)" srcSet={heroPortrait} />}
+                <img src={heroMedia} alt={b.name} className="absolute inset-0 h-full w-full object-cover" />
+              </picture>
+            )}
             <div className="absolute inset-0 bg-gradient-to-b from-showcase-night/45 via-showcase-night/10 to-showcase-night/80" />
             <div className="relative z-10 flex min-h-[92dvh] max-w-7xl flex-col justify-end px-6 pb-16 pt-28 md:px-12 md:pb-20 lg:px-20">
               <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{b.city} · {isEn ? "Moroccan hospitality" : "Hospitalité marocaine"}</p>
