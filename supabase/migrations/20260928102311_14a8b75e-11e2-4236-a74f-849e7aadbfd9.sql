@@ -1,0 +1,1 @@
+ALTER TABLE public.business_showcase_site ADD COLUMN hero_landscape_video_id text, ADD COLUMN hero_portrait_video_id text;
