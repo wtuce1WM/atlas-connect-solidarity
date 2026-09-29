@@ -292,7 +292,7 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
       `Hi 👋 I'm the assistant for **${n}**. Nearby and distance searches are calculated within a **${r}** radius around **${n}** — you can change this radius below or by voice. How can I help?`,
     platformTitle: "One World Morocco AI Assistant",
     platformOpener: () =>
-      `Hi 👋\nI'm the One World Morocco assistant. I draw on the whole 1WM database — restaurants, riads, going out, activities, events, authentic addresses — in Marrakech, Essaouira and soon across Morocco. How can I help?`,
+      `Hi 👋\n\nI'm the One World Morocco assistant. I draw on the whole 1WM database — restaurants, riads, going out, activities, events, authentic addresses — in Marrakech, Essaouira and soon across Morocco.\n\nHow can I help?`,
 
     radiusLabel: "Proximity radius",
     radiusChanged: (r) => `Got it 👍 Proximity radius set to **${r}**. Nearby and distance searches will use this perimeter.`,
