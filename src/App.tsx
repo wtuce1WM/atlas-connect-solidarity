@@ -121,6 +121,7 @@ const PublicBusinessProfile = lazy(() => import("./pages/PublicBusinessProfile")
 const Card = lazy(() => import("./pages/Card"));
 const ShowcaseSite = lazy(() => import("./pages/ShowcaseSite"));
 const Widgets = lazy(() => import("./pages/Widgets"));
+const WidgetPage = lazy(() => import("./pages/WidgetPage"));
 const PreviewDiagnostic = lazy(() => import("./pages/PreviewDiagnostic"));
 
 const queryClient = new QueryClient();
@@ -144,7 +145,7 @@ const GlobalRouteFallback = () => {
     p === "/devenir-affilie" ||
     p === "/affiliates" ||
     p === "/affiliates/login" ||
-    p === "/widgets" ||
+    p === "/widgets" || p.startsWith("/widgets/") ||
     p === "/contact" ||
 
     p.startsWith("/blog");
@@ -243,6 +244,8 @@ const LocalizedRoutes = () => {
               <Route path="/contact" element={renderLazyRoute(<Contact />)} />
               <Route path="/blog" element={renderLazyRoute(<Blog />)} />
               <Route path="/widgets" element={renderLazyRoute(<Widgets />)} />
+              <Route path="/widgets/:widgetId" element={renderLazyRoute(<WidgetPage />)} />
+              <Route path="/en/widgets/:widgetId" element={renderLazyRoute(<WidgetPage />)} />
               <Route path="/staff/backoffice/diagnostic" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<PreviewDiagnostic />)}</StaffRouteGuard></Suspense>} />
                <Route path="/en/widgets" element={renderLazyRoute(<Widgets />)} />
                <Route path="/ar/widgets" element={renderLazyRoute(<Widgets />)} />
