@@ -32,7 +32,7 @@ const DEMO_SLUG = "riad-dar-najat";
 const toPreview = (url: string) => url.replace(SITE, "");
 
 
-const SCREENS = 5;
+const SCREENS = 6;
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 /* ---------------- Widgets secondaires (03 → 07) ---------------- */
@@ -176,7 +176,8 @@ const Widgets = () => {
   const touchYRef = useRef<number | null>(null);
   const wheelLockedRef = useRef(false);
   const wheelUnlockRef = useRef<number | null>(null);
-  const carouselRef = useDragScroll<HTMLDivElement>();
+  const servicesCarouselRef = useDragScroll<HTMLDivElement>();
+  const weatherCarouselRef = useDragScroll<HTMLDivElement>();
   const preWheelLeftRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -255,7 +256,11 @@ const Widgets = () => {
     };
 
     const onWheelCapture = (e: WheelEvent) => {
-      const car = carouselRef.current;
+      const car = servicesCarouselRef.current?.contains(e.target as Node)
+        ? servicesCarouselRef.current
+        : weatherCarouselRef.current?.contains(e.target as Node)
+          ? weatherCarouselRef.current
+          : null;
       preWheelLeftRef.current = car ? car.scrollLeft : null;
       void e;
     };
@@ -263,7 +268,11 @@ const Widgets = () => {
     const onWheel = (e: WheelEvent) => {
       const scroller = insideScrollable(e.target, "y");
       if (scroller) return; // laisser défiler le contenu interne
-      const car = carouselRef.current;
+      const car = servicesCarouselRef.current?.contains(e.target as Node)
+        ? servicesCarouselRef.current
+        : weatherCarouselRef.current?.contains(e.target as Node)
+          ? weatherCarouselRef.current
+          : null;
       if (car && car.contains(e.target as Node)) {
         const before = preWheelLeftRef.current;
         const max = car.scrollWidth - car.clientWidth;
@@ -285,7 +294,11 @@ const Widgets = () => {
     };
 
     const onTouchStart = (e: TouchEvent) => {
-      const car = carouselRef.current;
+      const car = servicesCarouselRef.current?.contains(e.target as Node)
+        ? servicesCarouselRef.current
+        : weatherCarouselRef.current?.contains(e.target as Node)
+          ? weatherCarouselRef.current
+          : null;
       if (car && car.contains(e.target as Node)) {
         touchYRef.current = null;
         return;
@@ -342,7 +355,7 @@ const Widgets = () => {
     };
   };
 
-  const s = [0, 1, 2, 3, 4].map(layer);
+  const s = [0, 1, 2, 3, 4, 5].map(layer);
   const current = Math.round(progress);
 
   const askUrl = `${SITE}/embed/ask/${DEMO_SLUG}?lang=fr&bg=transparent`;
@@ -532,7 +545,7 @@ const Widgets = () => {
           </div>
         </div>
 
-        {/* ============ Écran 4 — Widgets 03 → 07 (carrousel horizontal) ============ */}
+        {/* ============ Écran 4 — Widgets Avis clients et ID numérique ============ */}
         <div
           className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pt-24 pb-24 md:px-10"
           style={{ opacity: s[3].opacity, transform: s[3].transform, pointerEvents: s[3].pointerEvents }}
@@ -543,23 +556,23 @@ const Widgets = () => {
               className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#C6A046]"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              Widgets 03 → 07
+               Widgets 05 → 07
 
             </span>
             <h2
               className="mt-2 text-[clamp(22px,3.4vw,38px)] leading-[1.12] text-[#F4ECDF]"
               style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
             >
-              Toute la plateforme, <span className="font-bold text-[#C6A046]">brique par brique</span>
+               Avis clients &amp; <span className="font-bold text-[#C6A046]">présence numérique</span>
             </h2>
           </div>
 
           <div
-            ref={carouselRef}
+            ref={servicesCarouselRef}
             className="flex w-full max-w-6xl snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide pb-2"
             style={{ touchAction: "pan-x" }}
           >
-            {SMALL_WIDGETS.map((w) => (
+            {SMALL_WIDGETS.filter((w) => w.n >= 5).map((w) => (
               <article
                 key={w.n}
                 className={`${glass} w-[calc(100vw-40px)] shrink-0 snap-start p-4 sm:w-[380px] md:w-[400px]`}
@@ -610,11 +623,84 @@ const Widgets = () => {
           </p>
         </div>
 
-        {/* ============ Écran 5 — Compatibilité des plateformes ============ */}
+        {/* ============ Écran 5 — Widgets Météo et Marées ============ */}
         <div
           className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pt-24 pb-24 md:px-10"
           style={{ opacity: s[4].opacity, transform: s[4].transform, pointerEvents: s[4].pointerEvents }}
           aria-hidden={s[4].ariaHidden}
+        >
+          <div className="mb-4 text-center">
+            <span
+              className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#C6A046]"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              Widgets 03 → 04
+            </span>
+            <h2
+              className="mt-2 text-[clamp(22px,3.4vw,38px)] leading-[1.12] text-[#F4ECDF]"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
+            >
+              Météo, marées &amp; <span className="font-bold text-[#C6A046]">conditions en direct</span>
+            </h2>
+          </div>
+
+          <div
+            ref={weatherCarouselRef}
+            className="flex w-full max-w-6xl snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide pb-2 md:justify-center"
+            style={{ touchAction: "pan-x" }}
+          >
+            {SMALL_WIDGETS.filter((w) => w.n <= 4).map((w) => (
+              <article
+                key={w.n}
+                className={`${glass} w-[calc(100vw-40px)] shrink-0 snap-start p-4 sm:w-[380px] md:w-[400px]`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C6A046]/15 text-[#E4C877]">
+                    {w.icon}
+                  </span>
+                  <span
+                    className="text-[10.5px] font-semibold uppercase tracking-[0.28em] text-[#C6A046]"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
+                    Widget {String(w.n).padStart(2, "0")}
+                  </span>
+                </div>
+                <h3
+                  className="mt-3 text-[19px] leading-tight text-[#F4ECDF]"
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600 }}
+                >
+                  {w.title}
+                </h3>
+                <div className="mt-2">
+                  <PriceTag price={w.price} />
+                </div>
+                <p className="mt-3 font-roboto text-[14.5px] leading-relaxed text-white/85">{w.tagline}</p>
+
+                <div className="mt-4 overflow-hidden">
+                  <WidgetFrame src={w.url} title={w.title} height={Math.min(w.height, 340)} />
+                </div>
+
+                <a
+                  href={toPreview(w.url)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1.5 font-roboto text-[13px] text-[#E4C877] hover:underline"
+                >
+                  Ouvrir en plein écran <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </article>
+            ))}
+          </div>
+          <p className="mt-3 font-roboto text-[12px] uppercase tracking-[0.18em] text-white/55 md:hidden">
+            Faites défiler horizontalement
+          </p>
+        </div>
+
+        {/* ============ Écran 6 — Compatibilité des plateformes ============ */}
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pt-24 pb-24 md:px-10"
+          style={{ opacity: s[5].opacity, transform: s[5].transform, pointerEvents: s[5].pointerEvents }}
+          aria-hidden={s[5].ariaHidden}
         >
           <div className="w-full max-w-6xl">
             <h2
