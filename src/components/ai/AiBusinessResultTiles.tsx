@@ -8,6 +8,7 @@ import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } 
 import { haversineKm } from "@/lib/haversine";
 import { formatDayHours, getMoroccoNow, isCurrentlyOpen, type DayHoursData } from "@/lib/formatOpeningHours";
 import type { AiResultBusiness } from "@/components/ai/AiBusinessResultCards";
+import { resolveCtaLabel } from "@/hooks/useCtaConfig";
 
 /**
  * Grille de miniatures carrées des résultats IA — même mécanique que la grille
@@ -152,7 +153,8 @@ const AiBusinessResultTiles = ({
               )
             : null;
           const bookingUrl = b.booking_url || b.website || null;
-          const bookingLabel = (b.booking_label || "").trim() || (b.website_cta || "").trim() || t.book;
+          const rawBookingLabel = (b.booking_label || "").trim() || (b.website_cta || "").trim();
+          const bookingLabel = resolveCtaLabel(rawBookingLabel, null, "reserver_en_ligne", lang);
           // Même règle que la fiche : un lien marqué « Lien externe »
           // (force_external, ex. URL 1 de Nobu) s'ouvre dans un nouvel onglet,
           // jamais dans l'overlay de réservation intégré. Le flag retenu est

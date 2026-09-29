@@ -7,6 +7,7 @@ import { AI_NAME_FONT } from "@/lib/aiTypography";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { haversineKm } from "@/lib/haversine";
 import { formatDayHours, getMoroccoNow, isCurrentlyOpen, type DayHoursData } from "@/lib/formatOpeningHours";
+import { resolveCtaLabel } from "@/hooks/useCtaConfig";
 
 /**
  * Carte résultat unique des réponses IA — source de vérité unique de la présentation
@@ -160,7 +161,7 @@ const AiBusinessResultCards = ({
           : null;
         const bookingUrl = b.booking_url || null;
         const glovoUrl = typeof b.glovo_url === "string" && b.glovo_url.trim() ? b.glovo_url.trim() : null;
-        const bookingLabel = (b.booking_label || "").trim() || t.book;
+        const bookingLabel = resolveCtaLabel(b.booking_label, null, "reserver_en_ligne", lang);
         const statusLabel = b.is_open_24h ? t.open24 : hours.isOpen == null ? null : hours.isOpen ? t.open : t.closed;
 
         return (
