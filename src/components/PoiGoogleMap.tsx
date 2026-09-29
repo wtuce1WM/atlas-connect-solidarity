@@ -516,6 +516,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   const transitLayerRef = useRef<google.maps.TransitLayer | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const infoWindowHoveredRef = useRef(false);
+  const preloadedThumbsRef = useRef<Set<string>>(new Set());
   // Calque de la miniature (hors carte Google, au-dessus des Pills).
   const thumbLayerRef = useRef<HTMLDivElement | null>(null);
   const thumbTokenRef = useRef(0);
