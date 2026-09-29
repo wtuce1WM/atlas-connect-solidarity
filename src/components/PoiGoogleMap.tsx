@@ -516,6 +516,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   const transitLayerRef = useRef<google.maps.TransitLayer | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const infoWindowHoveredRef = useRef(false);
+  const preloadedThumbsRef = useRef<Set<string>>(new Set());
   // Calque de la miniature (hors carte Google, au-dessus des Pills).
   const thumbLayerRef = useRef<HTMLDivElement | null>(null);
   const thumbTokenRef = useRef(0);
@@ -1084,6 +1085,18 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     const bounds = new gmaps.LatLngBounds();
     let hasPoints = false;
     let firstMarkerDone = false;
+
+    // Préchargement des images des miniatures : au survol/tap, la photo est
+    // déjà en cache et la miniature s'affiche immédiatement.
+    pois.slice(0, 80).forEach((p) => {
+      const src = p.images?.[0];
+      if (src && !preloadedThumbsRef.current.has(src)) {
+        preloadedThumbsRef.current.add(src);
+        const im = new Image();
+        im.decoding = "async";
+        im.src = src;
+      }
+    });
 
     pois.forEach((poi) => {
       if (!poi.latitude || !poi.longitude) return;
