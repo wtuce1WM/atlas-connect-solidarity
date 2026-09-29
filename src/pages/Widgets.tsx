@@ -5,9 +5,9 @@ import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.j
 import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
 import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
+import { useRef } from "react";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useSEO } from "@/hooks/useSEO";
-import { useDragScroll } from "@/hooks/useDragScroll";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export const SITE = "https://oneworldmorocco.com";
@@ -213,7 +213,7 @@ const Widgets = () => {
     ogImage: `${SITE}/og/widgets.jpg`,
   });
 
-  const bgVideoRef = useDragScroll<HTMLVideoElement>() as React.RefObject<HTMLVideoElement | null>;
+  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
 
   const cards = WIDGET_ENTRIES.map((entry) => {
     const smallN = SMALL_BY_ID[entry.id];
