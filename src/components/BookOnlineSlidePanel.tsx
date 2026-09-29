@@ -3186,7 +3186,7 @@ const BookOnlineSlidePanelInner = ({
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription || hasHighlights || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
-          <div className="slidepanel-center-short relative flex flex-col items-center justify-center pointer-events-auto gap-6 md:gap-8 flex-1">
+          <div className="slidepanel-center-short relative flex flex-col items-center justify-center pointer-events-none gap-6 md:gap-8 flex-1">
 
 
             {/* Bouton « + » retiré : l'ouverture de la Full Description se fait
