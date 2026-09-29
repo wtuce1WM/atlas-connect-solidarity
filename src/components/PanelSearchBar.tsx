@@ -3,6 +3,7 @@ import { Search, Sparkles, MapPin, User, Play, Pause, Volume2, VolumeX } from "l
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
