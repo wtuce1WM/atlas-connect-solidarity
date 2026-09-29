@@ -1054,7 +1054,9 @@ const Front = () => {
           <div className="h-full w-full flex-1 bg-transparent">
             {askMounted && (
               <Suspense fallback={<div className="h-full w-full bg-transparent" />}>
-                <EmbedAskInline key={language} paramsOverride={`scope=platform&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light&persist=1&hero=1&lang=${language === "en" ? "en" : "fr"}`} />
+                {/* Ne pas indexer le composant sur la langue : le démontage fermait
+                    la conversation et la fiche lors d'un basculement FR/EN. */}
+                <EmbedAskInline paramsOverride={`scope=platform&theme=dark&chrome=0&bg=transparent&canvas=transparent&ink=light&persist=1&hero=1&lang=${language === "en" ? "en" : "fr"}`} />
               </Suspense>
             )}
 
