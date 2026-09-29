@@ -100,7 +100,7 @@ export function toMapMarker(
     computed_rating: p.computed_rating ?? null,
     total_review_count: p.total_review_count ?? null,
     hook_fr: phrase ?? p.hook_fr ?? null,
-    hook_en: phrase ?? p.hook_en ?? null,
+    hook_en: p.hook_en ?? phrase ?? null,
     hook_ar: phrase ?? p.hook_ar ?? null,
     opening_hours: p.opening_hours ?? null,
     is_open_24h: p.is_open_24h ?? null,

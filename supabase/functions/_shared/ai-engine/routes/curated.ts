@@ -355,7 +355,7 @@ function mapBusinessesOf(list: any[], phrases?: Map<string, string>, badgeVideoU
     computed_rating: b.computed_rating ?? null, total_review_count: b.total_review_count ?? null,
     // Champs de la carte résultat IA (hook, horaires) — présentation unifiée côté client.
     hook_fr: phrase ?? b.hook_fr ?? null,
-    hook_en: phrase ?? b.hook_en ?? null,
+    hook_en: b.hook_en ?? phrase ?? null,
     hook_ar: phrase ?? b.hook_ar ?? null,
     opening_hours: b.opening_hours ?? null,
     is_open_24h: b.is_open_24h ?? null,
