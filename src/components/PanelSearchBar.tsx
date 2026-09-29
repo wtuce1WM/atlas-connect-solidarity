@@ -138,6 +138,9 @@ const Cell = ({ icon, label, onClick, ariaLabel, active, soundToggle = false, ho
 const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiButtonActive = false, profileToClub = false, profileToTimelineClub = false, profileClubEvent, aiAnswerText, aiBusinesses, dockGroups = false, dockMobileCluster = false }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
   const navigate = useLocalizedNavigate();
+  const { language } = useLanguage();
+  const locationLabel = language === "en" ? "Location" : "Lieu";
+  const geoLabel = language === "en" ? "Geolocation" : "Géolocalisation";
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -345,8 +348,8 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             <div className="flex items-center gap-0.5 rounded-[28px] border border-white/20 bg-black/40 px-2 py-1">
               <Cell
                 icon={<MapPin className="h-5 w-5" />}
-                label="Lieu"
-                ariaLabel="Géolocalisation"
+                label={locationLabel}
+                ariaLabel={geoLabel}
                 active={geo.isEnabled && (!!geo.detectedCity || !!geo.detectedNeighborhood || !!geo.confirmedAddress)}
                 onClick={() => window.dispatchEvent(new Event("open-location-picker"))}
               />
@@ -380,8 +383,8 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             )}
             <Cell
               icon={<MapPin className="h-5 w-5" />}
-              label="Lieu"
-              ariaLabel="Géolocalisation"
+              label={locationLabel}
+              ariaLabel={geoLabel}
               active={geo.isEnabled && (!!geo.detectedCity || !!geo.detectedNeighborhood || !!geo.confirmedAddress)}
               onClick={() => window.dispatchEvent(new Event("open-location-picker"))}
             />
