@@ -1218,28 +1218,38 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         infoWindowRef.current?.open(map);
         // Make infowindow clickable + hoverable
         gmaps.event.addListenerOnce(infoWindowRef.current!, "domready", () => {
-          const el = document.querySelector(`[data-poi-id="${poi.id}"]`);
-          if (el) {
-            (el as HTMLElement).addEventListener("click", () => {
+          // La miniature est affichée dans NOTRE calque (fixe, au-dessus des Pills
+          // du haut et du bas des Overlays Maps). La bulle Google reste invisible
+          // et sert uniquement d'ancre de position, suivie à chaque frame.
+          const src = document.querySelector(`[data-poi-id="${poi.id}"]`) as HTMLElement | null;
+          const iwContainer = (src?.closest(".gm-style-iw-a") || src?.closest(".gm-style-iw")?.parentElement) as HTMLElement | null;
+          if (!src) return;
+          if (iwContainer) iwContainer.style.visibility = "hidden";
+
+          let mirror = thumbLayerRef.current;
+          if (!mirror) {
+            mirror = document.createElement("div");
+            mirror.style.cssText = "position:fixed;z-index:9000;display:none;pointer-events:auto;box-shadow:0 4px 16px rgba(0,0,0,0.35);border-radius:10px;";
+            document.body.appendChild(mirror);
+            thumbLayerRef.current = mirror;
+          }
+          const layer = mirror;
+          layer.innerHTML = html;
+          const card = layer.firstElementChild as HTMLElement | null;
+          if (card) {
+            card.addEventListener("click", () => {
               overlaysRef.current.get(openInfoPoiIdRef.current ?? "")?.setPinBelow(false);
               openInfoPoiIdRef.current = null;
               infoWindowRef.current?.close();
+              layer.style.display = "none";
               onPoiClickRef.current?.(poi.id);
             });
-          }
-
-          // Keep infowindow open while mouse is over it
-          const iwContainer = document.querySelector(".gm-style-iw")?.closest(".gm-style-iw-a")
-            || document.querySelector(".gm-style-iw")?.parentElement;
-          if (iwContainer) {
-            (iwContainer as HTMLElement).addEventListener("mouseenter", () => {
+            card.addEventListener("mouseenter", () => {
               infoWindowHoveredRef.current = true;
               if (closeTimerRef.current) { clearTimeout(closeTimerRef.current); closeTimerRef.current = null; }
-              // Le marqueur + pin restent en statut sélectionné (fond noir)
-              // tant que le curseur est dans la miniature.
               overlaysRef.current.get(poi.id)?.setHighlighted(true);
             });
-            (iwContainer as HTMLElement).addEventListener("mouseleave", () => {
+            card.addEventListener("mouseleave", () => {
               infoWindowHoveredRef.current = false;
               closeTimerRef.current = setTimeout(() => {
                 const ov = overlaysRef.current.get(openInfoPoiIdRef.current ?? "");
@@ -1248,8 +1258,19 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
                 infoWindowRef.current?.close();
               }, 320);
             });
-
           }
+
+          const token = ++thumbTokenRef.current;
+          const track = () => {
+            if (token !== thumbTokenRef.current) return;
+            const r = src.getBoundingClientRect();
+            if (!src.isConnected || r.width === 0) { layer.style.display = "none"; return; }
+            layer.style.display = "block";
+            layer.style.left = `${r.left}px`;
+            layer.style.top = `${r.top}px`;
+            requestAnimationFrame(track);
+          };
+          track();
         });
       };
 
