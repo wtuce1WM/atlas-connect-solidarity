@@ -166,7 +166,7 @@ const Blog = () => {
       text: "Nos guides de Marrakech et Essaouira, nos rencontres avec les artisans, les riads et les maisons d'hôtes, et les coulisses de One World Morocco — écrits sur place, au fil des saisons.",
     },
     en: {
-      eyebrow: "The Journal",
+      eyebrow: "BLOG",
       title: "Stories, addresses and behind the scenes of Morocco",
       text: "Our Marrakech and Essaouira guides, encounters with artisans, riads and guesthouses, and the making of One World Morocco — written on the ground, season after season.",
     },
