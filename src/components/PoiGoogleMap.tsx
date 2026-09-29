@@ -1231,6 +1231,16 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           // Keep infowindow open while mouse is over it
           const iwContainer = document.querySelector(".gm-style-iw")?.closest(".gm-style-iw-a")
             || document.querySelector(".gm-style-iw")?.parentElement;
+          // La miniature doit passer AU-DESSUS des Pills du haut et du bas des
+          // Overlays Maps : le pane Google qui la contient (transform → contexte
+          // d'empilement) est remonté au-dessus des z-index des Pills (max 15).
+          try {
+            let node: HTMLElement | null = (iwContainer as HTMLElement | null) ?? null;
+            while (node && !node.parentElement?.classList.contains("gm-style")) {
+              node = node.parentElement;
+            }
+            if (node) node.style.zIndex = "400";
+          } catch { /* noop */ }
           if (iwContainer) {
             (iwContainer as HTMLElement).addEventListener("mouseenter", () => {
               infoWindowHoveredRef.current = true;
