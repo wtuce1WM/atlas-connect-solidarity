@@ -177,6 +177,8 @@ const WidgetPage = () => {
 
   return (
     <div className="min-h-[100dvh] bg-[hsl(0_0%_4%)]">
+      {/* Bande opaque sous le header : le contenu disparaît plus tôt au scroll. */}
+      <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 z-30 h-32 bg-gradient-to-b from-[hsl(0_0%_4%)] from-70% to-transparent md:h-36" />
       <FrontHeader fixed visible onLogoClick={() => navigate("/")} />
       <WidgetsMenu />
       <main className="mx-auto w-full max-w-6xl px-5 pb-16 pt-36 md:px-10 md:pt-40">
