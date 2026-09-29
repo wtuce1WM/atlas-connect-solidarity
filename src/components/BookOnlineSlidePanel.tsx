@@ -2957,7 +2957,7 @@ const BookOnlineSlidePanelInner = ({
 
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
       {!cardsHidden && !chromeHidden && !availabilityConfirmationShown && !showPoiMapOverlay && !showDirections && !(embedMode && initialOverlay === "poi") && (
-        <div data-owm-video-rail="true" dir="ltr" className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
+        <div data-owm-video-rail="true" dir="ltr" className="absolute left-0 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1.5 items-start pointer-events-auto">
           {/* CTA changement de langue (FR / EN uniquement) */}
           {(() => {
             const LANG_OPTIONS = [
@@ -2990,8 +2990,8 @@ const BookOnlineSlidePanelInner = ({
                         data-cta-tap
                         onClick={(e) => {
                           e.stopPropagation();
-                          const prefix = opt.code === "en" ? "/en" : "";
-                          navigate(businessId ? `${prefix}/search?openBusiness=${businessId}` : `${prefix}/`);
+                          // Bascule la langue en conservant l'URL courante (le panneau / l'assistant reste ouvert)
+                          setLanguage(opt.code);
                           import("@/lib/analytics").then(({ trackEvent }) =>
                             trackEvent("language_switch", { from: language, to: opt.code, source: "slidepanel_cta" })
                           ).catch(() => {});
@@ -3178,7 +3178,7 @@ const BookOnlineSlidePanelInner = ({
 
 
         <div
-          className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
+          className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100 pointer-events-none'}`}
         >
 
         {/* Hook desktop retiré : il est désormais dans la zone d'information (MediaViewerInfo) */}
@@ -3186,7 +3186,7 @@ const BookOnlineSlidePanelInner = ({
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription || hasHighlights || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
-          <div className="slidepanel-center-short relative flex flex-col items-center justify-center pointer-events-auto gap-6 md:gap-8 flex-1">
+          <div className="slidepanel-center-short relative flex flex-col items-center justify-center pointer-events-none gap-6 md:gap-8 flex-1">
 
 
             {/* Bouton « + » retiré : l'ouverture de la Full Description se fait

@@ -1731,8 +1731,8 @@ const VideoSlidePanel = ({
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            const prefix = opt.code === "en" ? "/en" : "";
-                            rawNavigate(ctaBusiness?.id ? `${prefix}/search?openBusiness=${ctaBusiness.id}` : `${prefix}/`);
+                            // Bascule la langue en conservant l'URL courante (le panneau / l'assistant reste ouvert)
+                            setLanguage(opt.code);
                           }}
                           aria-label={`Switch to ${opt.label}`}
                           title={opt.label}
