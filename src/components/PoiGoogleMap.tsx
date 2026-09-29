@@ -1085,6 +1085,18 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     let hasPoints = false;
     let firstMarkerDone = false;
 
+    // Préchargement des images des miniatures : au survol/tap, la photo est
+    // déjà en cache et la miniature s'affiche immédiatement.
+    pois.slice(0, 80).forEach((p) => {
+      const src = p.images?.[0];
+      if (src && !preloadedThumbsRef.current.has(src)) {
+        preloadedThumbsRef.current.add(src);
+        const im = new Image();
+        im.decoding = "async";
+        im.src = src;
+      }
+    });
+
     pois.forEach((poi) => {
       if (!poi.latitude || !poi.longitude) return;
       hasPoints = true;
