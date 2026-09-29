@@ -634,7 +634,7 @@ const Widgets = () => {
               className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#C6A046]"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              Widgets 03 → 04
+              WIDGETS 06 → 07
             </span>
             <h2
               className="mt-2 text-[clamp(22px,3.4vw,38px)] leading-[1.12] text-[#F4ECDF]"
@@ -662,7 +662,7 @@ const Widgets = () => {
                     className="text-[10.5px] font-semibold uppercase tracking-[0.28em] text-[#C6A046]"
                     style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
-                    Widget {String(w.n).padStart(2, "0")}
+                    WIDGET {String(w.n + 3).padStart(2, "0")}
                   </span>
                 </div>
                 <h3
