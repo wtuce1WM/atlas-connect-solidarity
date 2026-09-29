@@ -553,7 +553,10 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       for (const b of (m.businesses || []) as any[]) {
         const up = hookUpgrades[String(b?.id)];
         if (!up) continue;
-        b.hook_fr = up; b.hook_en = up; b.hook_ar = up;
+        // HOOKS_UPGRADE est une réécriture éditoriale française. Ne jamais la
+        // recopier dans hook_en : pendant le streaming, cela remplaçait
+        // tardivement l'accroche anglaise déjà affichée par le texte français.
+        b.hook_fr = up;
       }
     }
   }
