@@ -2990,8 +2990,8 @@ const BookOnlineSlidePanelInner = ({
                         data-cta-tap
                         onClick={(e) => {
                           e.stopPropagation();
-                          const prefix = opt.code === "en" ? "/en" : "";
-                          navigate(businessId ? `${prefix}/search?openBusiness=${businessId}` : `${prefix}/`);
+                          // Bascule la langue en conservant l'URL courante (le panneau / l'assistant reste ouvert)
+                          setLanguage(opt.code);
                           import("@/lib/analytics").then(({ trackEvent }) =>
                             trackEvent("language_switch", { from: language, to: opt.code, source: "slidepanel_cta" })
                           ).catch(() => {});
