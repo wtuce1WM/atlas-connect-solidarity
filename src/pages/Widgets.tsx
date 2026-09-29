@@ -13,6 +13,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import FrontHeader from "@/components/front/FrontHeader";
+import WidgetsMenu from "@/components/widgets/WidgetsMenu";
 import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
 import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
@@ -22,15 +23,15 @@ import { useSEO } from "@/hooks/useSEO";
 import { useDragScroll } from "@/hooks/useDragScroll";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const SITE = "https://oneworldmorocco.com";
-const DEMO_SLUG = "riad-dar-najat";
+export const SITE = "https://oneworldmorocco.com";
+export const DEMO_SLUG = "riad-dar-najat";
 
 /**
  * Les aperçus in-page sont chargés en URL RELATIVE : ils sont donc toujours
  * résolus sur le document courant (preview comme prod), sans dépendre du
  * domaine public ni d'une éventuelle restriction d'iframe cross-origin.
  */
-const toPreview = (url: string) => url.replace(SITE, "");
+export const toPreview = (url: string) => url.replace(SITE, "");
 
 
 const SCREENS = 6;
@@ -38,7 +39,7 @@ const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 /* ---------------- Widgets secondaires (03 → 07) ---------------- */
 
-type SmallWidget = {
+export type SmallWidget = {
   n: number;
   icon: React.ReactNode;
   title: string;
@@ -48,7 +49,7 @@ type SmallWidget = {
   height: number;
 };
 
-const SMALL_WIDGETS: SmallWidget[] = [
+export const SMALL_WIDGETS: SmallWidget[] = [
   {
     n: 3,
     icon: <CloudSun className="h-5 w-5" />,
@@ -96,7 +97,7 @@ const SMALL_WIDGETS: SmallWidget[] = [
   },
 ];
 
-const COMPATIBLE: [string, string][] = [
+export const COMPATIBLE: [string, string][] = [
   ["WordPress", "Bloc « HTML personnalisé » ou plugin iframe"],
   ["Wix / Wix Studio", "Élément « Intégrer un code » / HTML iframe"],
   ["Squarespace", "Bloc Code (plans Business et supérieurs)"],
@@ -112,7 +113,7 @@ const COMPATIBLE: [string, string][] = [
   ["Site sur-mesure (React, Vue, HTML statique…)", "Balise iframe classique"],
 ];
 
-const INCOMPATIBLE: [string, string][] = [
+export const INCOMPATIBLE: [string, string][] = [
   ["Claude Artifacts / sandbox IA", "CSP du bac à sable qui bloque tout iframe tiers"],
   ["Wix Free (ADI sans code)", "Bloc HTML indisponible sans plan payant"],
   ["Squarespace Personal", "Bloc Code réservé aux plans supérieurs"],
@@ -125,7 +126,7 @@ const INCOMPATIBLE: [string, string][] = [
   ["Sites en CSP stricte sans frame-src", "L'administrateur doit autoriser oneworldmorocco.com"],
 ];
 
-const SMALL_WIDGETS_EN: Record<number, Pick<SmallWidget, "title" | "tagline" | "price">> = {
+export const SMALL_WIDGETS_EN: Record<number, Pick<SmallWidget, "title" | "tagline" | "price">> = {
   3: { title: "Weather", tagline: "Live weather for any Moroccan city, with no API key required.", price: "Free" },
   4: { title: "Tides, Wind & Weather", tagline: "Tides, wind, forecasts and alerts for Morocco's 19 coastal cities.", price: "Free" },
   5: { title: "Customer reviews", tagline: "Your Google, TripAdvisor and RestaurantGuru ratings combined in one elegant block.", price: "Price: on request" },
@@ -133,7 +134,7 @@ const SMALL_WIDGETS_EN: Record<number, Pick<SmallWidget, "title" | "tagline" | "
   7: { title: "Your digital ID (Linktree-style)", tagline: "All your digital channels brought together in one place.", price: "Price: on request" },
 };
 
-const COMPATIBLE_EN: [string, string][] = [
+export const COMPATIBLE_EN: [string, string][] = [
   ["WordPress", "Custom HTML block or iframe plugin"],
   ["Wix / Wix Studio", "Embed Code element / HTML iframe"],
   ["Squarespace", "Code block (Business plans and above)"],
@@ -149,7 +150,7 @@ const COMPATIBLE_EN: [string, string][] = [
   ["Custom website (React, Vue, static HTML…)", "Standard iframe tag"],
 ];
 
-const INCOMPATIBLE_EN: [string, string][] = [
+export const INCOMPATIBLE_EN: [string, string][] = [
   ["Claude Artifacts / AI sandbox", "The sandbox CSP blocks all third-party iframes"],
   ["Wix Free (ADI without code)", "HTML blocks are unavailable without a paid plan"],
   ["Squarespace Personal", "Code blocks are reserved for higher-tier plans"],
@@ -162,10 +163,10 @@ const INCOMPATIBLE_EN: [string, string][] = [
   ["Sites with a strict CSP and no frame-src", "The administrator must allow oneworldmorocco.com"],
 ];
 
-const glass =
+export const glass =
   "rounded-3xl border border-white/15 bg-white/[0.06] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,.45)]";
 
-const PriceTag = ({ price }: { price: string }) =>
+export const PriceTag = ({ price }: { price: string }) =>
   price === "Gratuit" || price === "Free" ? (
     <span className="rounded-full bg-[#25D366] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-black">
       {price}
@@ -177,7 +178,7 @@ const PriceTag = ({ price }: { price: string }) =>
   );
 
 /** Aperçu de widget sur fond transparent, sans cadre opaque. */
-const WidgetFrame = ({ src, title, height }: { src: string; title: string; height: number }) => (
+export const WidgetFrame = ({ src, title, height }: { src: string; title: string; height: number }) => (
   <div className="overflow-hidden rounded-2xl border border-white/12 bg-transparent">
     <iframe
       src={toPreview(src)}
@@ -413,6 +414,7 @@ const Widgets = () => {
   return (
     <>
       <FrontHeader fixed visible onLogoClick={() => navigate("/")} />
+      <WidgetsMenu />
       <section
         ref={sectionRef}
         className="relative h-[100dvh] min-h-[560px] w-full overflow-hidden bg-[hsl(0_0%_4%)]"
