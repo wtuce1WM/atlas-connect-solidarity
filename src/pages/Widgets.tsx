@@ -1,26 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Bot,
-  MapPin,
-  CloudSun,
-  Waves,
-  Star,
-  ThumbsUp,
-  LayoutPanelTop,
-  Check,
-  ChevronDown,
-  ChevronUp,
-  ExternalLink,
-} from "lucide-react";
+import { Bot, MapPin, CloudSun, Waves, Star, ThumbsUp, LayoutPanelTop, Check, ArrowRight } from "lucide-react";
 import FrontHeader from "@/components/front/FrontHeader";
-import WidgetsMenu from "@/components/widgets/WidgetsMenu";
+import WidgetsMenu, { WIDGET_ENTRIES } from "@/components/widgets/WidgetsMenu";
 import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
 import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
 import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
+import { useRef } from "react";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useSEO } from "@/hooks/useSEO";
-import { useDragScroll } from "@/hooks/useDragScroll";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export const SITE = "https://oneworldmorocco.com";
@@ -32,10 +19,6 @@ export const DEMO_SLUG = "riad-dar-najat";
  * domaine public ni d'une éventuelle restriction d'iframe cross-origin.
  */
 export const toPreview = (url: string) => url.replace(SITE, "");
-
-
-const SCREENS = 6;
-const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 /* ---------------- Widgets secondaires (03 → 07) ---------------- */
 
@@ -189,6 +172,34 @@ export const WidgetFrame = ({ src, title, height }: { src: string; title: string
   </div>
 );
 
+/** Correspondance id de page → numéro interne SMALL_WIDGETS. */
+const SMALL_BY_ID: Record<string, number> = {
+  "avis-clients": 5,
+  "laisser-un-avis": 6,
+  "id-numerique": 7,
+  meteo: 3,
+  marees: 4,
+};
+
+/** Cartes des widgets principaux (01, 02) et de la compatibilité. */
+const MAIN_CARDS: Record<string, { icon: React.ReactNode; taglineFr: string; taglineEn: string }> = {
+  "assistant-ia": {
+    icon: <Bot className="h-5 w-5" />,
+    taglineFr: "Un conseiller local intelligent, greffé à votre page : réponses au clavier ou au micro, vidéos immersives, carte et réservation.",
+    taglineEn: "A smart local advisor on your page: text or voice answers, immersive videos, map and booking.",
+  },
+  carte: {
+    icon: <MapPin className="h-5 w-5" />,
+    taglineFr: "Les meilleures adresses autour d'un point, sur une carte Google Maps native, synchronisée en temps réel.",
+    taglineEn: "The best places around any location on a native Google Maps map, synced in real time.",
+  },
+  compatibilite: {
+    icon: <Check className="h-5 w-5" />,
+    taglineFr: "La règle est simple : si la plateforme permet d'insérer un code HTML libre, les widgets fonctionnent.",
+    taglineEn: "The rule is simple: if the platform allows custom HTML code, the widgets will work.",
+  },
+};
+
 const Widgets = () => {
   const navigate = useLocalizedNavigate();
   const { language } = useLanguage();
@@ -202,252 +213,55 @@ const Widgets = () => {
     ogImage: `${SITE}/og/widgets.jpg`,
   });
 
-  const [progress, setProgress] = useState(0);
-  const [isPortrait, setIsPortrait] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches,
-  );
-  const [reduced, setReduced] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
-
-  const sectionRef = useRef<HTMLElement | null>(null);
   const bgVideoRef = useRef<HTMLVideoElement | null>(null);
-  const targetRef = useRef(0);
-  const currentRef = useRef(0);
-  const rafRef = useRef<number | null>(null);
-  const touchYRef = useRef<number | null>(null);
-  const wheelLockedRef = useRef(false);
-  const wheelUnlockRef = useRef<number | null>(null);
-  const servicesCarouselRef = useDragScroll<HTMLDivElement>();
-  const weatherCarouselRef = useDragScroll<HTMLDivElement>();
-  const preWheelLeftRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    const mqO = window.matchMedia("(max-aspect-ratio: 1/1)");
-    const mqM = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onO = () => setIsPortrait(mqO.matches);
-    const onM = () => setReduced(mqM.matches);
-    mqO.addEventListener("change", onO);
-    mqM.addEventListener("change", onM);
-    return () => {
-      mqO.removeEventListener("change", onO);
-      mqM.removeEventListener("change", onM);
-    };
-  }, []);
-
-  // Safari iOS peut différer l'autoplay malgré muted + playsInline.
-  useEffect(() => {
-    const retry = () => {
-      const v = bgVideoRef.current;
-      if (v?.paused) void v.play().catch(() => undefined);
-    };
-    retry();
-    document.addEventListener("touchstart", retry, { passive: true, once: true });
-    document.addEventListener("click", retry, { once: true });
-    return () => {
-      document.removeEventListener("touchstart", retry);
-      document.removeEventListener("click", retry);
-    };
-  }, [isPortrait]);
-
-  const setTarget = useCallback(
-    (v: number) => {
-      targetRef.current = clamp(v, 0, SCREENS - 1);
-      if (reduced) {
-        currentRef.current = targetRef.current;
-        setProgress(targetRef.current);
-        return;
-      }
-      if (rafRef.current !== null) return;
-      const tick = () => {
-        currentRef.current += (targetRef.current - currentRef.current) * 0.035;
-        if (Math.abs(targetRef.current - currentRef.current) < 0.002) {
-          currentRef.current = targetRef.current;
-          setProgress(currentRef.current);
-          rafRef.current = null;
-          return;
-        }
-        setProgress(currentRef.current);
-        rafRef.current = requestAnimationFrame(tick);
-      };
-      rafRef.current = requestAnimationFrame(tick);
-    },
-    [reduced],
-  );
-
-  useEffect(
-    () => () => {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-    },
-    [],
-  );
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-
-    /** Un geste initié dans une zone scrollable (aperçu, carrousel) lui appartient. */
-    const insideScrollable = (target: EventTarget | null, axis: "x" | "y") => {
-      let n = target as HTMLElement | null;
-      while (n && n !== el) {
-        if (axis === "x" && n.scrollWidth - n.clientWidth > 4) return n;
-        if (axis === "y" && n.scrollHeight - n.clientHeight > 4) return n;
-        n = n.parentElement;
-      }
-      return null;
-    };
-
-    const onWheelCapture = (e: WheelEvent) => {
-      const car = servicesCarouselRef.current?.contains(e.target as Node)
-        ? servicesCarouselRef.current
-        : weatherCarouselRef.current?.contains(e.target as Node)
-          ? weatherCarouselRef.current
-          : null;
-      preWheelLeftRef.current = car ? car.scrollLeft : null;
-      void e;
-    };
-
-    const onWheel = (e: WheelEvent) => {
-      const scroller = insideScrollable(e.target, "y");
-      if (scroller) return; // laisser défiler le contenu interne
-      const car = servicesCarouselRef.current?.contains(e.target as Node)
-        ? servicesCarouselRef.current
-        : weatherCarouselRef.current?.contains(e.target as Node)
-          ? weatherCarouselRef.current
-          : null;
-      if (car && car.contains(e.target as Node)) {
-        const before = preWheelLeftRef.current;
-        const max = car.scrollWidth - car.clientWidth;
-        const atEdge = before !== null && (e.deltaY > 0 ? before >= max - 2 : before <= 2);
-        if (!atEdge) {
-          e.preventDefault();
-          car.scrollLeft = clamp(car.scrollLeft + e.deltaY, 0, max);
-          return;
-        }
-      }
-      e.preventDefault();
-      if (wheelLockedRef.current || Math.abs(e.deltaY) < 8) return;
-      wheelLockedRef.current = true;
-      setTarget(Math.round(targetRef.current) + (e.deltaY > 0 ? 1 : -1));
-      wheelUnlockRef.current = window.setTimeout(() => {
-        wheelLockedRef.current = false;
-        wheelUnlockRef.current = null;
-      }, 1400);
-    };
-
-    const onTouchStart = (e: TouchEvent) => {
-      const car = servicesCarouselRef.current?.contains(e.target as Node)
-        ? servicesCarouselRef.current
-        : weatherCarouselRef.current?.contains(e.target as Node)
-          ? weatherCarouselRef.current
-          : null;
-      if (car && car.contains(e.target as Node)) {
-        touchYRef.current = null;
-        return;
-      }
-      if (insideScrollable(e.target, "y")) {
-        touchYRef.current = null;
-        return;
-      }
-      touchYRef.current = e.touches[0]?.clientY ?? null;
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      const y = e.touches[0]?.clientY ?? null;
-      if (y === null || touchYRef.current === null) return;
-      e.preventDefault();
-      setTarget(targetRef.current + (touchYRef.current - y) / 320);
-      touchYRef.current = y;
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown" || e.key === "PageDown") {
-        e.preventDefault();
-        setTarget(Math.round(targetRef.current) + 1);
-      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
-        e.preventDefault();
-        setTarget(Math.round(targetRef.current) - 1);
-      }
-    };
-    el.addEventListener("wheel", onWheelCapture, { capture: true, passive: true });
-    el.addEventListener("wheel", onWheel, { passive: false });
-    el.addEventListener("touchstart", onTouchStart, { passive: true });
-    el.addEventListener("touchmove", onTouchMove, { passive: false });
-    window.addEventListener("keydown", onKey);
-    return () => {
-      el.removeEventListener("wheel", onWheelCapture, { capture: true } as any);
-      el.removeEventListener("wheel", onWheel);
-      el.removeEventListener("touchstart", onTouchStart);
-      el.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("keydown", onKey);
-      if (wheelUnlockRef.current !== null) {
-        window.clearTimeout(wheelUnlockRef.current);
-        wheelUnlockRef.current = null;
-      }
-    };
-  }, [setTarget]);
-
-  const layer = (index: number) => {
-    const d = progress - index;
-    const opacity = clamp(1 - Math.abs(d) * 1.6, 0, 1);
-    const active = Math.abs(d) < 0.45;
+  const cards = WIDGET_ENTRIES.map((entry) => {
+    const smallN = SMALL_BY_ID[entry.id];
+    const small = smallN ? SMALL_WIDGETS.find((w) => w.n === smallN) : undefined;
+    const main = MAIN_CARDS[entry.id];
     return {
-      opacity,
-      transform: reduced ? undefined : `translateY(${d * -48}px)`,
-      pointerEvents: active ? ("auto" as const) : ("none" as const),
-      ariaHidden: !active,
+      id: entry.id,
+      n: entry.n,
+      title: isEnglish ? entry.en : entry.fr,
+      tagline: main ? (isEnglish ? main.taglineEn : main.taglineFr) : (isEnglish ? SMALL_WIDGETS_EN[small!.n].tagline : small!.tagline),
+      price: main
+        ? entry.id === "compatibilite"
+          ? null
+          : isEnglish ? "Price: on request" : "Prix : sur devis"
+        : isEnglish ? SMALL_WIDGETS_EN[small!.n].price : small!.price,
+      icon: main ? main.icon : small!.icon,
     };
-  };
-
-  const s = [0, 1, 2, 3, 4, 5].map(layer);
-  const current = Math.round(progress);
-
-  const pageLanguage = isEnglish ? "en" : "fr";
-  const smallWidgets = SMALL_WIDGETS.map((widget) => ({
-    ...widget,
-    ...(isEnglish ? SMALL_WIDGETS_EN[widget.n] : {}),
-    url: widget.url.replace("lang=fr", `lang=${pageLanguage}`),
-  }));
-  const compatible = isEnglish ? COMPATIBLE_EN : COMPATIBLE;
-  const incompatible = isEnglish ? INCOMPATIBLE_EN : INCOMPATIBLE;
-  const askUrl = `${SITE}/embed/ask/${DEMO_SLUG}?lang=${pageLanguage}&bg=transparent`;
-  const nearbyUrl = `${SITE}/embed/nearby/${DEMO_SLUG}?lang=${pageLanguage}&bg=ECD6B8`;
+  });
 
   return (
-    <>
+    <div className="min-h-[100dvh] bg-[hsl(0_0%_4%)]">
       <FrontHeader fixed visible onLogoClick={() => navigate("/")} />
       <WidgetsMenu />
-      <section
-        ref={sectionRef}
-        className="relative h-[100dvh] min-h-[560px] w-full overflow-hidden bg-[hsl(0_0%_4%)]"
-      >
+
+      {/* ============ Hero ============ */}
+      <section className="relative flex min-h-[70dvh] flex-col items-center justify-center overflow-hidden px-5 pb-16 pt-40 text-center md:px-12 md:pt-48">
         <video
           ref={bgVideoRef}
-          key={isPortrait ? "portrait" : "landscape"}
           className="absolute inset-0 h-full w-full object-cover"
-          src={isPortrait ? portraitVideoAsset.url : landscapeVideoAsset.url}
-          poster={isPortrait ? portraitVideoPoster.url : landscapeVideoPoster.url}
+          src={landscapeVideoAsset.url}
+          poster={landscapeVideoPoster.url}
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
           aria-hidden="true"
-          style={{ filter: `brightness(${1 - clamp(progress / (SCREENS - 1), 0, 1) * 0.45})` }}
+          style={{ filter: "brightness(0.6)" }}
         />
         <div
           className="absolute inset-0"
           aria-hidden="true"
           style={{
             background:
-              "linear-gradient(to bottom, rgba(6,5,4,.66) 0%, rgba(6,5,4,.5) 35%, rgba(6,5,4,.76) 75%, rgba(6,5,4,.93) 100%)",
+              "linear-gradient(to bottom, rgba(6,5,4,.66) 0%, rgba(6,5,4,.5) 35%, rgba(6,5,4,.86) 75%, hsl(0_0%_4%) 100%)",
           }}
         />
-
-        {/* ============ Écran 1 — Hero ============ */}
-        <div
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-5 pt-24 pb-24 text-center md:px-12"
-          style={{ opacity: s[0].opacity, transform: s[0].transform, pointerEvents: s[0].pointerEvents }}
-          aria-hidden={s[0].ariaHidden}
-        >
+        <div className="relative z-10">
           <p
             className="mb-6 text-[12px] font-medium uppercase tracking-[0.32em] text-[#C6A046] md:text-[14px]"
             style={{ fontFamily: "'Montserrat', sans-serif" }}
@@ -458,381 +272,70 @@ const Widgets = () => {
             className="max-w-4xl text-[28px] leading-[1.15] text-[#F4ECDF] sm:text-[2.4rem] md:text-[3.2rem]"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
           >
-            {isEnglish ? "The " : "Les widgets "}<span className="font-bold text-[#C6A046]">One World Morocco</span>{isEnglish ? " widgets" : ""}
+            {isEnglish ? "The " : "Les widgets "}
+            <span className="font-bold text-[#C6A046]">One World Morocco</span>
+            {isEnglish ? " widgets" : ""}
           </h1>
-          <p className="mt-5 max-w-2xl font-roboto text-[15px] leading-relaxed text-white/90 md:text-[1.06rem]">
+          <p className="mx-auto mt-5 max-w-2xl font-roboto text-[15px] leading-relaxed text-white/90 md:text-[1.06rem]">
             {isEnglish
               ? "Voice AI assistant, nearby places map, weather, tides, customer reviews and digital ID: every part of the platform can be embedded on your website through a public URL. No installation, API key or maintenance — data stays synced in real time."
               : "Assistant IA vocal, carte des adresses à proximité, météo, marées, avis clients, ID numérique : chaque brique de la plateforme s'intègre à votre site depuis une URL publique. Aucune installation, aucune clé API, aucune maintenance — les données restent synchronisées en temps réel."}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <button
-              type="button"
-              onClick={() => setTarget(1)}
+            <a
+              href="#widgets-list"
               className="inline-flex items-center gap-3 rounded-full bg-[#C04F17] px-8 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
               {isEnglish ? "View widgets" : "Voir les widgets"}
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/contact")}
-
+            </a>
+            <a
+              href={isEnglish ? "/en/contact" : "/contact"}
               className="inline-flex items-center gap-3 rounded-full border border-[#C6A046]/70 bg-[#C6A046]/10 px-8 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-[#E4C877] backdrop-blur-md transition-transform hover:-translate-y-0.5"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
               {isEnglish ? "Custom integration" : "Intégration sur mesure"}
-            </button>
+            </a>
           </div>
-        </div>
-
-        {/* ============ Écran 2 — Widget 01 Assistant IA & Vocal ============ */}
-        <div
-          className="absolute inset-0 z-10 flex items-center justify-center px-4 pt-24 pb-24 md:px-10"
-          style={{ opacity: s[1].opacity, transform: s[1].transform, pointerEvents: s[1].pointerEvents }}
-          aria-hidden={s[1].ariaHidden}
-        >
-          <div className="grid max-h-full w-full max-w-6xl gap-6 overflow-y-auto scrollbar-hide md:grid-cols-[1fr_minmax(300px,420px)] md:items-center md:gap-10">
-            <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#C6A046]/15 text-[#E4C877]">
-                  <Bot className="h-5 w-5" />
-                </span>
-                <span
-                  className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#C6A046]"
-                  style={{ fontFamily: "'Montserrat', sans-serif" }}
-                >
-                  Widget 01
-                </span>
-                <PriceTag price={isEnglish ? "Price: on request" : "Prix : sur devis"} />
-              </div>
-              <h2
-                className="mt-4 text-[clamp(24px,3.6vw,42px)] leading-[1.12] text-[#F4ECDF]"
-                style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
-              >
-                {isEnglish ? "Voice & " : "Assistant "}<span className="font-bold text-[#C6A046]">{isEnglish ? "AI Assistant" : "IA & Vocal"}</span>
-              </h2>
-              <p className="mt-3 font-roboto text-[15px] leading-relaxed text-white/90 md:text-[17px]">
-                {isEnglish
-                  ? "A smart local advisor embedded in your page. It answers by text or voice, illustrates every featured place with immersive vertical video, and retains all app functions: map, directions and booking."
-                  : "Un conseiller local intelligent, greffé à votre page. Il répond au clavier comme au micro, illustre chaque adresse citée en vidéo verticale immersive, et garde toutes les fonctions de l'App : carte, itinéraires, réservation."}
-              </p>
-              <ul className="mt-5 grid gap-2 sm:grid-cols-2">
-                {[
-                  isEnglish ? ["Grounded answers", "Answers grounded in our real data"] : ["Réponses ancrées", "Réponses ancrées sur nos données réelles"],
-                  isEnglish ? ["Integration", "One-line iframe integration"] : ["Intégration", "Intégration iframe en 1 ligne de code"],
-                ].map(([k, v]) => (
-
-                  <li key={k} className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 backdrop-blur-md">
-                    <div className="text-[13px] font-bold text-[#E4C877]">{k}</div>
-                    <div className="mt-0.5 font-roboto text-[12.5px] leading-snug text-white/80">{v}</div>
-                  </li>
-                ))}
-              </ul>
-              <a
-                href={toPreview(askUrl)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-5 inline-flex items-center gap-1.5 font-roboto text-sm text-[#E4C877] hover:underline"
-              >
-                {isEnglish ? "Open full screen" : "Ouvrir en plein écran"} <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-            </div>
-            <div className={`${glass} p-3`}>
-              <WidgetFrame src={askUrl} title={isEnglish ? "One World Morocco Voice & AI Assistant" : "Assistant IA & Vocal One World Morocco"} height={560} />
-            </div>
-          </div>
-        </div>
-
-        {/* ============ Écran 3 — Widget 02 Map & App (plein écran, sans marges) ============ */}
-        <div
-          className="absolute inset-0 z-10 flex flex-col px-0 pt-20 pb-2 md:pt-24 md:pb-3"
-          style={{ opacity: s[2].opacity, transform: s[2].transform, pointerEvents: s[2].pointerEvents }}
-          aria-hidden={s[2].ariaHidden}
-        >
-          <div className="mx-auto w-full max-w-6xl shrink-0 px-5 md:px-10">
-            <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#C6A046]/15 text-[#E4C877]">
-                <MapPin className="h-5 w-5" />
-              </span>
-              <span
-                className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#C6A046]"
-                style={{ fontFamily: "'Montserrat', sans-serif" }}
-              >
-                Widget 02
-              </span>
-              <PriceTag price={isEnglish ? "Price: on request" : "Prix : sur devis"} />
-            </div>
-            <h2
-              className="mt-3 text-[clamp(22px,3.2vw,36px)] leading-[1.12] text-[#F4ECDF]"
-              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
-            >
-              Map & App — <span className="font-bold text-[#C6A046]">{isEnglish ? "nearby places" : "adresses à proximité"}</span>
-            </h2>
-            <p className="mt-2 max-w-3xl font-roboto text-[14px] leading-relaxed text-white/85 md:text-[15px]">
-              {isEnglish
-                ? "The best places around any location, displayed on a native Google Maps map with immersive videos — updated automatically from the One World Morocco database."
-                : "Les meilleures adresses autour d'un point, sur une carte Google Maps native, en mode vidéos immersives — mis à jour automatiquement depuis la base One World Morocco."}
-            </p>
-            <ul className="mt-3 flex flex-wrap gap-2">
-              {[
-                isEnglish ? "Automatically updated from the One World Morocco database" : "Mise à jour automatique depuis la base One World Morocco",
-                isEnglish ? "One-line iframe integration" : "Intégration iframe en 1 ligne de code",
-              ].map((v) => (
-                <li key={v} className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2 backdrop-blur-md">
-                  <span className="font-roboto text-[12.5px] leading-snug text-white/80">{v}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          {/* Widget plein écran, bord à bord — comme le CTA Map de Home */}
-          <div className="mt-4 min-h-0 w-full flex-1">
-            <iframe
-              src={toPreview(nearbyUrl)}
-              title={isEnglish ? "Nearby places — Riad Dar Najat" : "Adresses à proximité — Riad Dar Najat"}
-              loading="lazy"
-              className="h-full w-full"
-              style={{ border: 0, background: "transparent" }}
-            />
-          </div>
-        </div>
-
-        {/* ============ Écran 4 — Widgets Avis clients et ID numérique ============ */}
-        <div
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pt-24 pb-24 md:px-10"
-          style={{ opacity: s[3].opacity, transform: s[3].transform, pointerEvents: s[3].pointerEvents }}
-          aria-hidden={s[3].ariaHidden}
-        >
-          <div className="mb-4 text-center">
-            <span
-              className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#C6A046]"
-              style={{ fontFamily: "'Montserrat', sans-serif" }}
-            >
-               WIDGETS 03 → 05
-
-            </span>
-            <h2
-              className="mt-2 text-[clamp(22px,3.4vw,38px)] leading-[1.12] text-[#F4ECDF]"
-              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
-            >
-               {isEnglish ? "Customer reviews & " : "Avis clients & "}<span className="font-bold text-[#C6A046]">{isEnglish ? "digital presence" : "présence numérique"}</span>
-            </h2>
-          </div>
-
-          <div
-            ref={servicesCarouselRef}
-            className="flex w-full max-w-6xl snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide pb-2"
-            style={{ touchAction: "pan-x" }}
-          >
-            {smallWidgets.filter((w) => w.n >= 5).map((w) => (
-              <article
-                key={w.n}
-                className={`${glass} w-[calc(100vw-40px)] shrink-0 snap-start p-4 sm:w-[380px] md:w-[400px]`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C6A046]/15 text-[#E4C877]">
-                    {w.icon}
-                  </span>
-                  <span
-                    className="text-[10.5px] font-semibold uppercase tracking-[0.28em] text-[#C6A046]"
-                    style={{ fontFamily: "'Montserrat', sans-serif" }}
-                  >
-                    WIDGET {String(w.n - 2).padStart(2, "0")}
-                  </span>
-                </div>
-                <h3
-                  className="mt-3 text-[19px] leading-tight text-[#F4ECDF]"
-                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600 }}
-                >
-                  {w.title}
-                </h3>
-                <div className="mt-2">
-                  <PriceTag price={w.price} />
-                </div>
-                <p className="mt-3 font-roboto text-[14.5px] leading-relaxed text-white/85">{w.tagline}</p>
-
-                {/* Aucun scroll vertical interne : l'aperçu s'adapte à la hauteur disponible. */}
-                <div className="mt-4 overflow-hidden">
-                  <WidgetFrame src={w.url} title={w.title} height={Math.min(w.height, 340)} />
-                </div>
-
-
-                {w.url && (
-                  <a
-                    href={toPreview(w.url)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 inline-flex items-center gap-1.5 font-roboto text-[13px] text-[#E4C877] hover:underline"
-                  >
-                    {isEnglish ? "Open full screen" : "Ouvrir en plein écran"} <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                )}
-              </article>
-            ))}
-          </div>
-          <p className="mt-3 font-roboto text-[12px] uppercase tracking-[0.18em] text-white/55">
-            {isEnglish ? "Swipe horizontally" : "Faites défiler horizontalement"}
-          </p>
-        </div>
-
-        {/* ============ Écran 5 — Widgets Météo et Marées ============ */}
-        <div
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pt-24 pb-24 md:px-10"
-          style={{ opacity: s[4].opacity, transform: s[4].transform, pointerEvents: s[4].pointerEvents }}
-          aria-hidden={s[4].ariaHidden}
-        >
-          <div className="mb-4 text-center">
-            <span
-              className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#C6A046]"
-              style={{ fontFamily: "'Montserrat', sans-serif" }}
-            >
-              WIDGETS 06 → 07
-            </span>
-            <h2
-              className="mt-2 text-[clamp(22px,3.4vw,38px)] leading-[1.12] text-[#F4ECDF]"
-              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
-            >
-              {isEnglish ? "Weather, tides & " : "Météo, marées & "}<span className="font-bold text-[#C6A046]">{isEnglish ? "live conditions" : "conditions en direct"}</span>
-            </h2>
-          </div>
-
-          <div
-            ref={weatherCarouselRef}
-            className="flex w-full max-w-6xl snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide pb-2 md:justify-center"
-            style={{ touchAction: "pan-x" }}
-          >
-            {smallWidgets.filter((w) => w.n <= 4).map((w) => (
-              <article
-                key={w.n}
-                className={`${glass} w-[calc(100vw-40px)] shrink-0 snap-start p-4 sm:w-[380px] md:w-[400px]`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C6A046]/15 text-[#E4C877]">
-                    {w.icon}
-                  </span>
-                  <span
-                    className="text-[10.5px] font-semibold uppercase tracking-[0.28em] text-[#C6A046]"
-                    style={{ fontFamily: "'Montserrat', sans-serif" }}
-                  >
-                    WIDGET {String(w.n + 3).padStart(2, "0")}
-                  </span>
-                </div>
-                <h3
-                  className="mt-3 text-[19px] leading-tight text-[#F4ECDF]"
-                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600 }}
-                >
-                  {w.title}
-                </h3>
-                <div className="mt-2">
-                  <PriceTag price={w.price} />
-                </div>
-                <p className="mt-3 font-roboto text-[14.5px] leading-relaxed text-white/85">{w.tagline}</p>
-
-                <div className="mt-4 overflow-hidden">
-                  <WidgetFrame src={w.url} title={w.title} height={Math.min(w.height, 340)} />
-                </div>
-
-                <a
-                  href={toPreview(w.url)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 inline-flex items-center gap-1.5 font-roboto text-[13px] text-[#E4C877] hover:underline"
-                >
-                  {isEnglish ? "Open full screen" : "Ouvrir en plein écran"} <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              </article>
-            ))}
-          </div>
-          <p className="mt-3 font-roboto text-[12px] uppercase tracking-[0.18em] text-white/55 md:hidden">
-            {isEnglish ? "Swipe horizontally" : "Faites défiler horizontalement"}
-          </p>
-        </div>
-
-        {/* ============ Écran 6 — Compatibilité des plateformes ============ */}
-        <div
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pt-24 pb-24 md:px-10"
-          style={{ opacity: s[5].opacity, transform: s[5].transform, pointerEvents: s[5].pointerEvents }}
-          aria-hidden={s[5].ariaHidden}
-        >
-          <div className="w-full max-w-6xl">
-            <h2
-              className="text-center text-[clamp(22px,3.4vw,38px)] leading-[1.12] text-[#F4ECDF]"
-              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
-            >
-              {isEnglish ? "Platform " : "Compatibilité des "}<span className="font-bold text-[#C6A046]">{isEnglish ? "compatibility" : "plateformes"}</span>
-            </h2>
-            <p className="mx-auto mt-3 max-w-3xl text-center font-roboto text-[14.5px] leading-relaxed text-white/85">
-              {isEnglish
-                ? "The rule is simple: if the platform allows custom HTML code, the widgets will work."
-                : "La règle est simple : si la plateforme permet d'insérer un code HTML libre, les widgets fonctionnent."}
-            </p>
-
-            <div className="mt-6 grid max-h-[58vh] gap-4 overflow-y-auto scrollbar-hide md:grid-cols-2">
-              <div className={`${glass} p-5`}>
-                <h3 className="mb-4 flex items-center gap-2 text-[16px] font-semibold text-[#F4ECDF]">
-                  <Check className="h-5 w-5 text-[#25D366]" /> {isEnglish ? "Compatible platforms" : "Plateformes compatibles"}
-                </h3>
-                <ul className="space-y-3">
-                  {compatible.map(([name, how]) => (
-                    <li key={name}>
-                      <p className="font-roboto text-[13.5px] font-semibold text-white">{name}</p>
-                      <p className="font-roboto text-[13px] text-white/70">{how}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className={`${glass} p-5`}>
-                <h3 className="mb-4 flex items-center gap-2 text-[16px] font-semibold text-[#F4ECDF]">
-                  <span className="text-lg leading-none text-[#C04F17]">×</span> {isEnglish ? "Incompatible platforms" : "Plateformes non compatibles"}
-                </h3>
-                <ul className="space-y-3">
-                  {incompatible.map(([name, why]) => (
-                    <li key={name}>
-                      <p className="font-roboto text-[13.5px] font-semibold text-white">{name}</p>
-                      <p className="font-roboto text-[13px] text-white/70">{why}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-
-
-        {/* ============ CTA Revenir / Découvrir ============ */}
-        <div className="absolute inset-x-0 bottom-5 z-20 flex items-end justify-center gap-10">
-          <button
-            type="button"
-            onClick={() => setTarget(Math.round(progress) - 1)}
-            className="flex flex-col items-center gap-1 rounded-2xl bg-black/45 px-4 py-1.5 text-[rgba(244,238,228,0.85)] backdrop-blur-sm hover:text-gold"
-            style={{ opacity: current > 0 ? 1 : 0, pointerEvents: current > 0 ? "auto" : "none" }}
-            tabIndex={current > 0 ? 0 : -1}
-            aria-hidden={current === 0}
-          >
-            <ChevronUp className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
-            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">{isEnglish ? "Back" : "Revenir"}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setTarget(Math.round(progress) + 1)}
-            className="flex flex-col items-center gap-1 rounded-2xl bg-black/45 px-4 py-1.5 text-[rgba(244,238,228,0.85)] backdrop-blur-sm hover:text-gold"
-            style={{
-              opacity: current < SCREENS - 1 ? 1 : 0,
-              pointerEvents: current < SCREENS - 1 ? "auto" : "none",
-            }}
-            tabIndex={current < SCREENS - 1 ? 0 : -1}
-            aria-hidden={current === SCREENS - 1}
-          >
-            <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
-            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">{isEnglish ? "Discover" : "Découvrir"}</span>
-          </button>
         </div>
       </section>
-    </>
+
+      {/* ============ Cartes — 1 carte = 1 widget = 1 page ============ */}
+      <section id="widgets-list" className="mx-auto w-full max-w-6xl scroll-mt-28 px-5 pb-20 md:px-10">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {cards.map((card) => (
+            <button
+              key={card.id}
+              type="button"
+              onClick={() => navigate(`/widgets/${card.id}`)}
+              className={`${glass} group flex flex-col items-start p-6 text-left transition-transform hover:-translate-y-1`}
+            >
+              <div className="flex w-full items-center gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#C6A046]/15 text-[#E4C877]">
+                  {card.icon}
+                </span>
+                {card.n && (
+                  <span
+                    className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#C6A046]"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
+                    WIDGET {card.n}
+                  </span>
+                )}
+              </div>
+              <h2 className="mt-4 text-[18px] font-semibold leading-snug text-[#F4ECDF]" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                {card.title}
+              </h2>
+              <p className="mt-2 flex-1 font-roboto text-[13.5px] leading-relaxed text-white/75">{card.tagline}</p>
+              <div className="mt-4 flex w-full items-center justify-between gap-2">
+                {card.price ? <PriceTag price={card.price} /> : <span />}
+                <ArrowRight className="h-4 w-4 text-[#C6A046] transition-transform group-hover:translate-x-1" />
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+    </div>
   );
 };
 
