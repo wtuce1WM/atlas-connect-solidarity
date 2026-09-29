@@ -2958,14 +2958,13 @@ const BookOnlineSlidePanelInner = ({
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
       {!cardsHidden && !chromeHidden && !availabilityConfirmationShown && !showPoiMapOverlay && !showDirections && !(embedMode && initialOverlay === "poi") && (
         <div data-owm-video-rail="true" dir="ltr" className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
-          {/* CTA changement de langues — désactivé sur le rail de gauche */}
-          {/*
+          {/* CTA changement de langue (FR / EN uniquement) */}
           {(() => {
             const LANG_OPTIONS = [
               { code: "fr" as const, flag: "🇫🇷", label: "Français" },
               { code: "en" as const, flag: "🇬🇧", label: "English" },
             ];
-            const ctaLabel = language === "en" ? "Language" : language === "ar" ? "اللغة" : "Langue";
+            const ctaLabel = language === "en" ? "Language" : "Langue";
             const currentLang = LANG_OPTIONS.find((opt) => opt.code === language) || LANG_OPTIONS[0];
             const otherLangs = LANG_OPTIONS.filter((opt) => opt.code !== language);
             return (
@@ -3008,7 +3007,6 @@ const BookOnlineSlidePanelInner = ({
               </div>
             );
           })()}
-          */}
           {isHotelWithPrice ? (
             <div data-cta-tap onClick={handleCtaTap('dispo', () => setShowAvailabilitySearch(true))} className={`group cta-peek ${tappedCta === 'dispo' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
