@@ -5,6 +5,7 @@ import { whatsappUrl } from "@/lib/phoneUtils";
 import type { FallbackPanelData } from "@/components/HotelAvailabilityOverlay";
 import { CTA_MODE_LABELS } from "./CtaBar";
 import { parseSerpAmount, formatEuro } from "@/lib/parseSerpAmount";
+import { resolveCtaLabel } from "@/hooks/useCtaConfig";
 
 interface HotelAvailabilityResultProps {
   business: any;
@@ -94,11 +95,15 @@ export function HotelAvailabilityResult({
             const isExternal =
               (!!nb && nb === normUrl((business as any).website) && (business as any).website_force_external === true) ||
               (!!nb && nb === normUrl(business.reserve_now_url) && business.reserve_now_force_external === true);
-            const bookLabel =
+            const rawBookLabel =
               (business.reserve_now_cta || "").trim() ||
-              ((business as any).website_cta || "").trim() ||
-              CTA_MODE_LABELS[business.presentation_mode]?.[language === "en" ? "en" : "fr"] ||
-              (language === "en" ? "Book" : "Réservez");
+              ((business as any).website_cta || "").trim();
+            const bookLabel = resolveCtaLabel(
+              rawBookLabel,
+              business.presentation_mode,
+              "reserver_en_ligne",
+              language,
+            );
             actionCards.push({
               icon: <CalendarCheck className="h-5 w-5" />,
               label: bookLabel,
