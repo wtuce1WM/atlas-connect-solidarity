@@ -5,7 +5,7 @@ import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.j
 import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
 import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useSEO } from "@/hooks/useSEO";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -215,6 +215,24 @@ const Widgets = () => {
 
   const bgVideoRef = useRef<HTMLVideoElement | null>(null);
 
+  /* Le contenu du hero disparaît rapidement sous le header au scroll. */
+  const [heroOpacity, setHeroOpacity] = useState(1);
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        setHeroOpacity(Math.max(0, 1 - window.scrollY / 200));
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   const cards = WIDGET_ENTRIES.map((entry) => {
     const smallN = SMALL_BY_ID[entry.id];
     const small = smallN ? SMALL_WIDGETS.find((w) => w.n === smallN) : undefined;
@@ -261,7 +279,7 @@ const Widgets = () => {
               "linear-gradient(to bottom, rgba(6,5,4,.66) 0%, rgba(6,5,4,.5) 35%, rgba(6,5,4,.86) 75%, hsl(0_0%_4%) 100%)",
           }}
         />
-        <div className="relative z-10">
+        <div className="relative z-10 transition-opacity duration-75 will-change-[opacity]" style={{ opacity: heroOpacity }}>
           <p
             className="mb-6 text-[12px] font-medium uppercase tracking-[0.32em] text-[#C6A046] md:text-[14px]"
             style={{ fontFamily: "'Montserrat', sans-serif" }}
