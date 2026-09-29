@@ -22,7 +22,8 @@ const fieldClass =
  * un seul écran immersif (vidéo de fond + carte "glass"), pas de second écran.
  */
 const Contact = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEn = language === "en";
   const navigate = useLocalizedNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -35,9 +36,10 @@ const Contact = () => {
   );
 
   useSEO({
-    title: "Contact",
-    description:
-      "Contactez ONE WORLD MOROCCO pour toute question sur nos services, adresses ou partenariats au Maroc.",
+    title: isEn ? "Contact" : "Contact",
+    description: isEn
+      ? "Contact ONE WORLD MOROCCO for any question about our services, addresses or partnerships in Morocco."
+      : "Contactez ONE WORLD MOROCCO pour toute question sur nos services, adresses ou partenariats au Maroc.",
     canonical: "/contact",
   });
 
@@ -66,7 +68,7 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !message.trim()) {
-      toast.error("Veuillez remplir tous les champs.");
+      toast.error(isEn ? "Please fill in all fields." : "Veuillez remplir tous les champs.");
       return;
     }
     setSending(true);
@@ -81,13 +83,17 @@ const Contact = () => {
         },
       });
       if (error) throw error;
-      toast.success("Votre message a bien été envoyé !");
+      toast.success(isEn ? "Your message has been sent!" : "Votre message a bien été envoyé !");
       setName("");
       setEmail("");
       setMessage("");
     } catch (err) {
       console.error("Contact form error:", err);
-      toast.error("Erreur lors de l'envoi du message. Veuillez réessayer.");
+      toast.error(
+        isEn
+          ? "Error sending the message. Please try again."
+          : "Erreur lors de l'envoi du message. Veuillez réessayer.",
+      );
     } finally {
       setSending(false);
     }
@@ -124,11 +130,21 @@ const Contact = () => {
             className="max-w-3xl text-[28px] leading-[1.15] text-[#F4ECDF] sm:text-[2.2rem] md:text-[2.9rem]"
             style={{ ...MONT, fontWeight: 500 }}
           >
-            Parlons de votre <span className="font-bold text-[#C6A046]">projet</span>
+            {isEn ? (
+              <>
+                Let's talk about your{" "}
+                <span className="font-bold text-[#C6A046]">project</span>
+              </>
+            ) : (
+              <>
+                Parlons de votre <span className="font-bold text-[#C6A046]">projet</span>
+              </>
+            )}
           </h1>
           <p className="mt-4 max-w-2xl font-roboto text-[15px] leading-relaxed text-white md:text-[1.0625rem]">
-            Une question sur la plateforme, une adresse à référencer, une intégration sur mesure ou un
-            partenariat : écrivez-nous, nous répondons rapidement.
+            {isEn
+              ? "A question about the platform, an address to list, a custom integration or a partnership: write to us, we reply quickly."
+              : "Une question sur la plateforme, une adresse à référencer, une intégration sur mesure ou un partenariat : écrivez-nous, nous répondons rapidement."}
           </p>
 
           <div className="mt-8 grid gap-5 md:grid-cols-2">
@@ -140,7 +156,7 @@ const Contact = () => {
                     <MapPin className="h-6 w-6 text-[#E4C877]" />
                   </div>
                   <div>
-                    <h2 className="font-roboto text-[15px] font-bold text-[#F4ECDF]">Adresse</h2>
+                    <h2 className="font-roboto text-[15px] font-bold text-[#F4ECDF]">{isEn ? "Address" : "Adresse"}</h2>
                     <p className="font-roboto text-[15px] text-white/75">{t("footer.location")}</p>
                   </div>
                 </div>
@@ -149,7 +165,7 @@ const Contact = () => {
                     <Phone className="h-6 w-6 text-[#E4C877]" />
                   </div>
                   <div>
-                    <h2 className="font-roboto text-[15px] font-bold text-[#F4ECDF]">Téléphone</h2>
+                    <h2 className="font-roboto text-[15px] font-bold text-[#F4ECDF]">{isEn ? "Phone" : "Téléphone"}</h2>
                     <a href="tel:+212661439221" className="font-roboto text-[15px] text-white/75 hover:text-[#E4C877]">
                       +212 661-439221
                     </a>
@@ -189,12 +205,12 @@ const Contact = () => {
                 className="text-[18px] text-[#F4ECDF] md:text-[20px]"
                 style={{ ...MONT, fontWeight: 600 }}
               >
-                Envoyez-nous un message
+                {isEn ? "Send us a message" : "Envoyez-nous un message"}
               </h2>
               <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
                 <div>
                   <label className="mb-1 block font-roboto text-[13px] font-bold uppercase tracking-[0.12em] text-white/70">
-                    Nom
+                    {isEn ? "Name" : "Nom"}
                   </label>
                   <input
                     type="text"
@@ -220,7 +236,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <label className="mb-1 block font-roboto text-[13px] font-bold uppercase tracking-[0.12em] text-white/70">
-                    Message
+                    {isEn ? "Message" : "Message"}
                   </label>
                   <textarea
                     rows={5}
@@ -237,7 +253,7 @@ const Contact = () => {
                   className="w-full rounded-full bg-[#C04F17] px-8 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5 disabled:opacity-50"
                   style={MONT}
                 >
-                  {sending ? "Envoi en cours..." : "Envoyer"}
+                  {sending ? (isEn ? "Sending..." : "Envoi en cours...") : isEn ? "Send" : "Envoyer"}
                 </button>
               </form>
             </div>
