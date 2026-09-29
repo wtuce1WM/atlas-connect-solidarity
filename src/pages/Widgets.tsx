@@ -20,6 +20,7 @@ import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.j
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useSEO } from "@/hooks/useSEO";
 import { useDragScroll } from "@/hooks/useDragScroll";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const SITE = "https://oneworldmorocco.com";
 const DEMO_SLUG = "riad-dar-najat";
@@ -124,13 +125,50 @@ const INCOMPATIBLE: [string, string][] = [
   ["Sites en CSP stricte sans frame-src", "L'administrateur doit autoriser oneworldmorocco.com"],
 ];
 
+const SMALL_WIDGETS_EN: Record<number, Pick<SmallWidget, "title" | "tagline" | "price">> = {
+  3: { title: "Weather", tagline: "Live weather for any Moroccan city, with no API key required.", price: "Free" },
+  4: { title: "Tides, Wind & Weather", tagline: "Tides, wind, forecasts and alerts for Morocco's 19 coastal cities.", price: "Free" },
+  5: { title: "Customer reviews", tagline: "Your Google, TripAdvisor and RestaurantGuru ratings combined in one elegant block.", price: "Price: on request" },
+  6: { title: "Leave a review", tagline: "A block that turns a satisfied customer into a public review.", price: "Price: on request" },
+  7: { title: "Your digital ID (Linktree-style)", tagline: "All your digital channels brought together in one place.", price: "Price: on request" },
+};
+
+const COMPATIBLE_EN: [string, string][] = [
+  ["WordPress", "Custom HTML block or iframe plugin"],
+  ["Wix / Wix Studio", "Embed Code element / HTML iframe"],
+  ["Squarespace", "Code block (Business plans and above)"],
+  ["Webflow", "Embed component"],
+  ["Shopify", "Custom HTML section or page"],
+  ["Framer", "Embed component (iframe)"],
+  ["Duda, Jimdo, Site123", "HTML / iframe widget"],
+  ["Ghost", "HTML card"],
+  ["Drupal, Joomla, PrestaShop", "Custom HTML block"],
+  ["HubSpot CMS", "Rich HTML module"],
+  ["Notion (published pages)", "Embed block via URL"],
+  ["Google Sites", "Insert > Embed > By URL"],
+  ["Custom website (React, Vue, static HTML…)", "Standard iframe tag"],
+];
+
+const INCOMPATIBLE_EN: [string, string][] = [
+  ["Claude Artifacts / AI sandbox", "The sandbox CSP blocks all third-party iframes"],
+  ["Wix Free (ADI without code)", "HTML blocks are unavailable without a paid plan"],
+  ["Squarespace Personal", "Code blocks are reserved for higher-tier plans"],
+  ["WordPress.com Free / Personal", "Custom HTML is disabled"],
+  ["Facebook, Instagram, TikTok, LinkedIn", "Posts do not support HTML"],
+  ["Google Docs, Slides, Gmail, newsletters", "Email clients ignore iframes"],
+  ["Medium, Substack (article body)", "Embeds are limited to an allowlist"],
+  ["Amazon, marketplaces, Airbnb, Booking", "Third-party HTML is prohibited by their terms"],
+  ["Native mobile apps", "Requires a WebView rather than an iframe"],
+  ["Sites with a strict CSP and no frame-src", "The administrator must allow oneworldmorocco.com"],
+];
+
 const glass =
   "rounded-3xl border border-white/15 bg-white/[0.06] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,.45)]";
 
 const PriceTag = ({ price }: { price: string }) =>
-  price === "Gratuit" ? (
+  price === "Gratuit" || price === "Free" ? (
     <span className="rounded-full bg-[#25D366] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-black">
-      Gratuit
+      {price}
     </span>
   ) : (
     <span className="rounded-full border border-[#C6A046]/60 bg-[#C6A046]/15 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#E4C877]">
@@ -152,10 +190,13 @@ const WidgetFrame = ({ src, title, height }: { src: string; title: string; heigh
 
 const Widgets = () => {
   const navigate = useLocalizedNavigate();
+  const { language } = useLanguage();
+  const isEnglish = language === "en";
   useSEO({
-    title: "Widgets & iframes One World Morocco à intégrer",
-    description:
-      "Assistant IA vocal, carte des adresses à proximité, météo, marées, avis clients : intégrez les widgets One World Morocco sur votre site.",
+    title: isEnglish ? "One World Morocco widgets & iframes to embed" : "Widgets & iframes One World Morocco à intégrer",
+    description: isEnglish
+      ? "Voice AI assistant, nearby places map, weather, tides and customer reviews: embed One World Morocco widgets on your website."
+      : "Assistant IA vocal, carte des adresses à proximité, météo, marées, avis clients : intégrez les widgets One World Morocco sur votre site.",
     canonical: "/widgets",
     ogImage: `${SITE}/og/widgets.jpg`,
   });
@@ -358,8 +399,16 @@ const Widgets = () => {
   const s = [0, 1, 2, 3, 4, 5].map(layer);
   const current = Math.round(progress);
 
-  const askUrl = `${SITE}/embed/ask/${DEMO_SLUG}?lang=fr&bg=transparent`;
-  const nearbyUrl = `${SITE}/embed/nearby/${DEMO_SLUG}?lang=fr&bg=ECD6B8`;
+  const pageLanguage = isEnglish ? "en" : "fr";
+  const smallWidgets = SMALL_WIDGETS.map((widget) => ({
+    ...widget,
+    ...(isEnglish ? SMALL_WIDGETS_EN[widget.n] : {}),
+    url: widget.url.replace("lang=fr", `lang=${pageLanguage}`),
+  }));
+  const compatible = isEnglish ? COMPATIBLE_EN : COMPATIBLE;
+  const incompatible = isEnglish ? INCOMPATIBLE_EN : INCOMPATIBLE;
+  const askUrl = `${SITE}/embed/ask/${DEMO_SLUG}?lang=${pageLanguage}&bg=transparent`;
+  const nearbyUrl = `${SITE}/embed/nearby/${DEMO_SLUG}?lang=${pageLanguage}&bg=ECD6B8`;
 
   return (
     <>
@@ -401,18 +450,18 @@ const Widgets = () => {
             className="mb-6 text-[12px] font-medium uppercase tracking-[0.32em] text-[#C6A046] md:text-[14px]"
             style={{ fontFamily: "'Montserrat', sans-serif" }}
           >
-            Écosystème ouvert
+            {isEnglish ? "Open ecosystem" : "Écosystème ouvert"}
           </p>
           <h1
             className="max-w-4xl text-[28px] leading-[1.15] text-[#F4ECDF] sm:text-[2.4rem] md:text-[3.2rem]"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
           >
-            Les widgets <span className="font-bold text-[#C6A046]">One World Morocco</span>
+            {isEnglish ? "The " : "Les widgets "}<span className="font-bold text-[#C6A046]">One World Morocco</span>{isEnglish ? " widgets" : ""}
           </h1>
           <p className="mt-5 max-w-2xl font-roboto text-[15px] leading-relaxed text-white/90 md:text-[1.06rem]">
-            Assistant IA vocal, carte des adresses à proximité, météo, marées, avis clients, ID numérique :
-            chaque brique de la plateforme s'intègre à votre site depuis une URL publique. Aucune installation,
-            aucune clé API, aucune maintenance — les données restent synchronisées en temps réel.
+            {isEnglish
+              ? "Voice AI assistant, nearby places map, weather, tides, customer reviews and digital ID: every part of the platform can be embedded on your website through a public URL. No installation, API key or maintenance — data stays synced in real time."
+              : "Assistant IA vocal, carte des adresses à proximité, météo, marées, avis clients, ID numérique : chaque brique de la plateforme s'intègre à votre site depuis une URL publique. Aucune installation, aucune clé API, aucune maintenance — les données restent synchronisées en temps réel."}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <button
@@ -421,7 +470,7 @@ const Widgets = () => {
               className="inline-flex items-center gap-3 rounded-full bg-[#C04F17] px-8 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-white shadow-lg transition-transform hover:-translate-y-0.5"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              Voir les widgets
+              {isEnglish ? "View widgets" : "Voir les widgets"}
             </button>
             <button
               type="button"
@@ -430,7 +479,7 @@ const Widgets = () => {
               className="inline-flex items-center gap-3 rounded-full border border-[#C6A046]/70 bg-[#C6A046]/10 px-8 py-4 text-[12.5px] font-bold uppercase tracking-[0.16em] text-[#E4C877] backdrop-blur-md transition-transform hover:-translate-y-0.5"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              Intégration sur mesure
+              {isEnglish ? "Custom integration" : "Intégration sur mesure"}
             </button>
           </div>
         </div>
@@ -453,23 +502,23 @@ const Widgets = () => {
                 >
                   Widget 01
                 </span>
-                <PriceTag price="Prix : sur devis" />
+                <PriceTag price={isEnglish ? "Price: on request" : "Prix : sur devis"} />
               </div>
               <h2
                 className="mt-4 text-[clamp(24px,3.6vw,42px)] leading-[1.12] text-[#F4ECDF]"
                 style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
               >
-                Assistant <span className="font-bold text-[#C6A046]">IA & Vocal</span>
+                {isEnglish ? "Voice & " : "Assistant "}<span className="font-bold text-[#C6A046]">{isEnglish ? "AI Assistant" : "IA & Vocal"}</span>
               </h2>
               <p className="mt-3 font-roboto text-[15px] leading-relaxed text-white/90 md:text-[17px]">
-                Un conseiller local intelligent, greffé à votre page. Il répond au clavier comme au micro,
-                illustre chaque adresse citée en vidéo verticale immersive, et garde toutes les fonctions de
-                l'App : carte, itinéraires, réservation.
+                {isEnglish
+                  ? "A smart local advisor embedded in your page. It answers by text or voice, illustrates every featured place with immersive vertical video, and retains all app functions: map, directions and booking."
+                  : "Un conseiller local intelligent, greffé à votre page. Il répond au clavier comme au micro, illustre chaque adresse citée en vidéo verticale immersive, et garde toutes les fonctions de l'App : carte, itinéraires, réservation."}
               </p>
               <ul className="mt-5 grid gap-2 sm:grid-cols-2">
                 {[
-                  ["Réponses ancrées", "Réponses ancrées sur nos données réelles"],
-                  ["Intégration", "Intégration iframe en 1 ligne de code"],
+                  isEnglish ? ["Grounded answers", "Answers grounded in our real data"] : ["Réponses ancrées", "Réponses ancrées sur nos données réelles"],
+                  isEnglish ? ["Integration", "One-line iframe integration"] : ["Intégration", "Intégration iframe en 1 ligne de code"],
                 ].map(([k, v]) => (
 
                   <li key={k} className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 backdrop-blur-md">
@@ -484,11 +533,11 @@ const Widgets = () => {
                 rel="noopener noreferrer"
                 className="mt-5 inline-flex items-center gap-1.5 font-roboto text-sm text-[#E4C877] hover:underline"
               >
-                Ouvrir en plein écran <ExternalLink className="h-3.5 w-3.5" />
+                {isEnglish ? "Open full screen" : "Ouvrir en plein écran"} <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </div>
             <div className={`${glass} p-3`}>
-              <WidgetFrame src={askUrl} title="Assistant IA & Vocal One World Morocco" height={560} />
+              <WidgetFrame src={askUrl} title={isEnglish ? "One World Morocco Voice & AI Assistant" : "Assistant IA & Vocal One World Morocco"} height={560} />
             </div>
           </div>
         </div>
@@ -510,22 +559,23 @@ const Widgets = () => {
               >
                 Widget 02
               </span>
-              <PriceTag price="Prix : sur devis" />
+              <PriceTag price={isEnglish ? "Price: on request" : "Prix : sur devis"} />
             </div>
             <h2
               className="mt-3 text-[clamp(22px,3.2vw,36px)] leading-[1.12] text-[#F4ECDF]"
               style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
             >
-              Map & App — <span className="font-bold text-[#C6A046]">adresses à proximité</span>
+              Map & App — <span className="font-bold text-[#C6A046]">{isEnglish ? "nearby places" : "adresses à proximité"}</span>
             </h2>
             <p className="mt-2 max-w-3xl font-roboto text-[14px] leading-relaxed text-white/85 md:text-[15px]">
-              Les meilleures adresses autour d'un point, sur une carte Google Maps native, en mode vidéos
-              immersives — mis à jour automatiquement depuis la base One World Morocco.
+              {isEnglish
+                ? "The best places around any location, displayed on a native Google Maps map with immersive videos — updated automatically from the One World Morocco database."
+                : "Les meilleures adresses autour d'un point, sur une carte Google Maps native, en mode vidéos immersives — mis à jour automatiquement depuis la base One World Morocco."}
             </p>
             <ul className="mt-3 flex flex-wrap gap-2">
               {[
-                "Mise à jour automatique depuis la base One World Morocco",
-                "Intégration iframe en 1 ligne de code",
+                isEnglish ? "Automatically updated from the One World Morocco database" : "Mise à jour automatique depuis la base One World Morocco",
+                isEnglish ? "One-line iframe integration" : "Intégration iframe en 1 ligne de code",
               ].map((v) => (
                 <li key={v} className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2 backdrop-blur-md">
                   <span className="font-roboto text-[12.5px] leading-snug text-white/80">{v}</span>
@@ -537,7 +587,7 @@ const Widgets = () => {
           <div className="mt-4 min-h-0 w-full flex-1">
             <iframe
               src={toPreview(nearbyUrl)}
-              title="Adresses à proximité — Riad Dar Najat"
+              title={isEnglish ? "Nearby places — Riad Dar Najat" : "Adresses à proximité — Riad Dar Najat"}
               loading="lazy"
               className="h-full w-full"
               style={{ border: 0, background: "transparent" }}
@@ -563,7 +613,7 @@ const Widgets = () => {
               className="mt-2 text-[clamp(22px,3.4vw,38px)] leading-[1.12] text-[#F4ECDF]"
               style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
             >
-               Avis clients &amp; <span className="font-bold text-[#C6A046]">présence numérique</span>
+               {isEnglish ? "Customer reviews & " : "Avis clients & "}<span className="font-bold text-[#C6A046]">{isEnglish ? "digital presence" : "présence numérique"}</span>
             </h2>
           </div>
 
@@ -572,7 +622,7 @@ const Widgets = () => {
             className="flex w-full max-w-6xl snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide pb-2"
             style={{ touchAction: "pan-x" }}
           >
-            {SMALL_WIDGETS.filter((w) => w.n >= 5).map((w) => (
+            {smallWidgets.filter((w) => w.n >= 5).map((w) => (
               <article
                 key={w.n}
                 className={`${glass} w-[calc(100vw-40px)] shrink-0 snap-start p-4 sm:w-[380px] md:w-[400px]`}
@@ -612,14 +662,14 @@ const Widgets = () => {
                     rel="noopener noreferrer"
                     className="mt-3 inline-flex items-center gap-1.5 font-roboto text-[13px] text-[#E4C877] hover:underline"
                   >
-                    Ouvrir en plein écran <ExternalLink className="h-3.5 w-3.5" />
+                    {isEnglish ? "Open full screen" : "Ouvrir en plein écran"} <ExternalLink className="h-3.5 w-3.5" />
                   </a>
                 )}
               </article>
             ))}
           </div>
           <p className="mt-3 font-roboto text-[12px] uppercase tracking-[0.18em] text-white/55">
-            Faites défiler horizontalement
+            {isEnglish ? "Swipe horizontally" : "Faites défiler horizontalement"}
           </p>
         </div>
 
@@ -640,7 +690,7 @@ const Widgets = () => {
               className="mt-2 text-[clamp(22px,3.4vw,38px)] leading-[1.12] text-[#F4ECDF]"
               style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
             >
-              Météo, marées &amp; <span className="font-bold text-[#C6A046]">conditions en direct</span>
+              {isEnglish ? "Weather, tides & " : "Météo, marées & "}<span className="font-bold text-[#C6A046]">{isEnglish ? "live conditions" : "conditions en direct"}</span>
             </h2>
           </div>
 
@@ -649,7 +699,7 @@ const Widgets = () => {
             className="flex w-full max-w-6xl snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide pb-2 md:justify-center"
             style={{ touchAction: "pan-x" }}
           >
-            {SMALL_WIDGETS.filter((w) => w.n <= 4).map((w) => (
+            {smallWidgets.filter((w) => w.n <= 4).map((w) => (
               <article
                 key={w.n}
                 className={`${glass} w-[calc(100vw-40px)] shrink-0 snap-start p-4 sm:w-[380px] md:w-[400px]`}
@@ -686,13 +736,13 @@ const Widgets = () => {
                   rel="noopener noreferrer"
                   className="mt-3 inline-flex items-center gap-1.5 font-roboto text-[13px] text-[#E4C877] hover:underline"
                 >
-                  Ouvrir en plein écran <ExternalLink className="h-3.5 w-3.5" />
+                  {isEnglish ? "Open full screen" : "Ouvrir en plein écran"} <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               </article>
             ))}
           </div>
           <p className="mt-3 font-roboto text-[12px] uppercase tracking-[0.18em] text-white/55 md:hidden">
-            Faites défiler horizontalement
+            {isEnglish ? "Swipe horizontally" : "Faites défiler horizontalement"}
           </p>
         </div>
 
@@ -707,20 +757,21 @@ const Widgets = () => {
               className="text-center text-[clamp(22px,3.4vw,38px)] leading-[1.12] text-[#F4ECDF]"
               style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
             >
-              Compatibilité des <span className="font-bold text-[#C6A046]">plateformes</span>
+              {isEnglish ? "Platform " : "Compatibilité des "}<span className="font-bold text-[#C6A046]">{isEnglish ? "compatibility" : "plateformes"}</span>
             </h2>
             <p className="mx-auto mt-3 max-w-3xl text-center font-roboto text-[14.5px] leading-relaxed text-white/85">
-              La règle est simple : si la plateforme permet d'insérer un code HTML libre, les widgets
-              fonctionnent.
+              {isEnglish
+                ? "The rule is simple: if the platform allows custom HTML code, the widgets will work."
+                : "La règle est simple : si la plateforme permet d'insérer un code HTML libre, les widgets fonctionnent."}
             </p>
 
             <div className="mt-6 grid max-h-[58vh] gap-4 overflow-y-auto scrollbar-hide md:grid-cols-2">
               <div className={`${glass} p-5`}>
                 <h3 className="mb-4 flex items-center gap-2 text-[16px] font-semibold text-[#F4ECDF]">
-                  <Check className="h-5 w-5 text-[#25D366]" /> Plateformes compatibles
+                  <Check className="h-5 w-5 text-[#25D366]" /> {isEnglish ? "Compatible platforms" : "Plateformes compatibles"}
                 </h3>
                 <ul className="space-y-3">
-                  {COMPATIBLE.map(([name, how]) => (
+                  {compatible.map(([name, how]) => (
                     <li key={name}>
                       <p className="font-roboto text-[13.5px] font-semibold text-white">{name}</p>
                       <p className="font-roboto text-[13px] text-white/70">{how}</p>
@@ -731,10 +782,10 @@ const Widgets = () => {
 
               <div className={`${glass} p-5`}>
                 <h3 className="mb-4 flex items-center gap-2 text-[16px] font-semibold text-[#F4ECDF]">
-                  <span className="text-lg leading-none text-[#C04F17]">×</span> Plateformes non compatibles
+                  <span className="text-lg leading-none text-[#C04F17]">×</span> {isEnglish ? "Incompatible platforms" : "Plateformes non compatibles"}
                 </h3>
                 <ul className="space-y-3">
-                  {INCOMPATIBLE.map(([name, why]) => (
+                  {incompatible.map(([name, why]) => (
                     <li key={name}>
                       <p className="font-roboto text-[13.5px] font-semibold text-white">{name}</p>
                       <p className="font-roboto text-[13px] text-white/70">{why}</p>
@@ -760,7 +811,7 @@ const Widgets = () => {
             aria-hidden={current === 0}
           >
             <ChevronUp className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
-            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">Revenir</span>
+            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">{isEnglish ? "Back" : "Revenir"}</span>
           </button>
 
           <button
@@ -775,7 +826,7 @@ const Widgets = () => {
             aria-hidden={current === SCREENS - 1}
           >
             <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
-            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">Découvrir</span>
+            <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">{isEnglish ? "Discover" : "Découvrir"}</span>
           </button>
         </div>
       </section>
