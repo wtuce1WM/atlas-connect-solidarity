@@ -1702,14 +1702,13 @@ const VideoSlidePanel = ({
         {((feedLayout && !!ctaBusiness) || (!hideLeftCtas && !!ctaBusiness?.youtube_url))
           && !chromeHidden && !chipsExpanded && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !descBusinessId && !showYoutubeOverlay && (
           <div dir="ltr" className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
-            {/* CTA changement de langues — désactivé sur le rail de gauche */}
-            {/* {feedLayout && (() => {
+            {/* CTA changement de langue (FR / EN uniquement) — renvoie vers la fiche de l'établissement dans la langue choisie */}
+            {feedLayout && (() => {
               const LANG_OPTIONS = [
                 { code: "fr" as const, flag: "🇫🇷", label: "Français" },
                 { code: "en" as const, flag: "🇬🇧", label: "English" },
-                { code: "ar" as const, flag: "🇲🇦", label: "العربية" },
               ];
-              const ctaLabel = language === "en" ? "Language" : language === "ar" ? "اللغة" : "Langue";
+              const ctaLabel = language === "en" ? "Language" : "Langue";
               const currentLang = LANG_OPTIONS.find((opt) => opt.code === language) || LANG_OPTIONS[0];
               const otherLangs = LANG_OPTIONS.filter((opt) => opt.code !== language);
               return (
@@ -1730,7 +1729,11 @@ const VideoSlidePanel = ({
                         <button
                           key={opt.code}
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); setLanguage(opt.code); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const prefix = opt.code === "en" ? "/en" : "";
+                            rawNavigate(ctaBusiness?.id ? `${prefix}/search?openBusiness=${ctaBusiness.id}` : `${prefix}/`);
+                          }}
                           aria-label={`Switch to ${opt.label}`}
                           title={opt.label}
                           className="relative inline-flex items-center justify-center text-[22px] leading-none shrink-0 opacity-60 hover:opacity-100 hover:scale-110 transition-all duration-200"
@@ -1742,7 +1745,7 @@ const VideoSlidePanel = ({
                   </span>
                 </div>
               );
-            })()} */}
+            })()}
             {feedLayout && ctaBusiness?.id && ctaBusiness.latitude && ctaBusiness.longitude && (
               <div
                 onClick={() => { setNestedOverlayKind("poi"); setDescBusinessId(String(ctaBusiness.id)); }}
