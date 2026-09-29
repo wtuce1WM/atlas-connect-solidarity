@@ -585,7 +585,7 @@ const Widgets = () => {
                     className="text-[10.5px] font-semibold uppercase tracking-[0.28em] text-[#C6A046]"
                     style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
-                    Widget {String(w.n).padStart(2, "0")}
+                    WIDGET {String(w.n - 2).padStart(2, "0")}
                   </span>
                 </div>
                 <h3
