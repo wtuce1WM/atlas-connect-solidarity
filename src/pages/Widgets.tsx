@@ -70,7 +70,7 @@ const SMALL_WIDGETS: SmallWidget[] = [
     n: 5,
     icon: <Star className="h-5 w-5" />,
     title: "Avis clients",
-    tagline: "Vos notes Google, TripAdvisor et Booking réunies dans un bloc élégant.",
+    tagline: "Vos notes Google, TripAdvisor et RestaurantGuru réunies dans un bloc élégant.",
     price: "Prix : sur devis",
     url: `${SITE}/embed/reviews/${DEMO_SLUG}?platform=all&lang=fr&bg=transparent`,
     height: 520,
