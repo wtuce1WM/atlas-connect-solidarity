@@ -556,7 +556,7 @@ const Widgets = () => {
               className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#C6A046]"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-               Widgets 05 → 07
+               WIDGETS 03 → 05
 
             </span>
             <h2
