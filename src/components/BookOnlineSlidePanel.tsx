@@ -3178,7 +3178,7 @@ const BookOnlineSlidePanelInner = ({
 
 
         <div
-          className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
+          className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100 pointer-events-none'}`}
         >
 
         {/* Hook desktop retiré : il est désormais dans la zone d'information (MediaViewerInfo) */}
