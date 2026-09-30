@@ -179,7 +179,7 @@ const ShowcaseSite = () => {
           .order("sort_order"),
         supabase
           .from("reviews")
-          .select("id,source,author_name,rating,text,text_fr,text_en,text_ar,highlight,is_default,is_hidden,created_at")
+          .select("id,source,author_name,rating,text,text_fr,text_en,text_ar,highlight,highlight_en,is_default,is_hidden,created_at")
           .eq("business_id", biz.id)
           .eq("is_hidden", false)
           .order("is_default", { ascending: false })
@@ -223,6 +223,7 @@ const ShowcaseSite = () => {
         text_en: review.text_en,
         text_ar: review.text_ar,
         highlight: review.highlight || null,
+        highlight_en: review.highlight_en || null,
         is_default: review.is_default,
       })).filter((review) => review.text_fr || review.text_en || review.text));
       setLoading(false);
