@@ -372,7 +372,10 @@ const Join = () => {
   const targetRef = useRef(0);
   const currentRef = useRef(0);
   const rafRef = useRef<number | null>(null);
+  const touchXRef = useRef<number | null>(null);
   const touchYRef = useRef<number | null>(null);
+  const touchAxisRef = useRef<"x" | "y" | null>(null);
+  const touchHorizontalScrollRef = useRef<HTMLElement | null>(null);
   const touchScrollRef = useRef<HTMLElement | null>(null);
   const wheelLockedRef = useRef(false);
   const wheelUnlockRef = useRef<number | null>(null);
@@ -543,22 +546,36 @@ const Join = () => {
       }, 1400);
     };
     const onTouchStart = (e: TouchEvent) => {
+      touchHorizontalScrollRef.current = getScrollable(e.target);
       touchScrollRef.current = getVScrollable(e.target);
+      touchXRef.current = e.touches[0]?.clientX ?? null;
       touchYRef.current = e.touches[0]?.clientY ?? null;
+      touchAxisRef.current = null;
     };
     const onTouchMove = (e: TouchEvent) => {
+      const x = e.touches[0]?.clientX ?? null;
       const y = e.touches[0]?.clientY ?? null;
-      if (y === null || touchYRef.current === null) return;
+      if (x === null || y === null || touchXRef.current === null || touchYRef.current === null) return;
+      const dx = x - touchXRef.current;
+      const dy = y - touchYRef.current;
+      if (touchAxisRef.current === null && Math.max(Math.abs(dx), Math.abs(dy)) >= 6) {
+        touchAxisRef.current = touchHorizontalScrollRef.current && Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+      }
+      // Sur iPhone, laisser Safari gérer nativement le glissement horizontal du
+      // tableau. Le gestionnaire vertical de la page ne doit jamais l'annuler.
+      if (touchAxisRef.current === "x") return;
+      if (touchAxisRef.current === null) return;
       const verticalScroller = touchScrollRef.current;
       if (verticalScroller) {
         e.preventDefault();
-        verticalScroller.scrollTop += touchYRef.current - y;
+        verticalScroller.scrollTop -= dy;
+        touchXRef.current = x;
         touchYRef.current = y;
         return;
       }
-      if (getScrollable(e.target)) return;
       e.preventDefault();
-      setTarget(targetRef.current + (touchYRef.current - y) / 320);
+      setTarget(targetRef.current - dy / 320);
+      touchXRef.current = x;
       touchYRef.current = y;
     };
     const onKey = (e: KeyboardEvent) => {
