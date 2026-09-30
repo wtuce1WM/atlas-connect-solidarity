@@ -34,6 +34,7 @@ const SMALL_BY_ID: Record<string, number> = {
 const HEIGHT_MSG: Record<string, string> = {
   meteo: "owm-weather-height",
   marees: "owm-tides-height",
+  "avis-clients": "owm-reviews-height",
 };
 
 const WidgetPage = () => {
