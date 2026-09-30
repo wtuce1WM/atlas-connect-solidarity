@@ -92,7 +92,7 @@ const WidgetPage = () => {
             : "Copiez-collez ce code dans votre site (bloc HTML personnalisé). Ajustez la hauteur selon votre mise en page."}
         </p>
         <div className="mt-3 flex items-start gap-2">
-          <pre className="flex-1 overflow-x-auto rounded-2xl border border-white/12 bg-black/40 p-4 font-mono text-[12px] leading-relaxed text-white/85">
+          <pre className="flex-1 whitespace-pre-wrap break-all rounded-2xl border border-white/12 bg-black/40 p-4 font-mono text-[12px] leading-relaxed text-white/85">
             {code}
           </pre>
           <button
