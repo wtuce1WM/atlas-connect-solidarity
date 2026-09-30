@@ -487,24 +487,25 @@ const BookOnlineSlidePanelInner = ({
   // UI state
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
-  // Seed the initial media index from a pinned video (initialVideoUrl), or from
-  // the first available video when the panel opens as a video feed
-  // (preferVideoFirst). Done DURING RENDER (not in an effect): the state
-  // adjustment happens before paint, so image 1 is never flashed before the video.
+  // Reset synchronously to the first ordered media whenever the business changes,
+  // then honor an optional pinned video. This keeps nested map navigation on the
+  // exact same first media as a freshly opened BookOnline/Video panel.
   const seededPinRef = useRef<string | null>(null);
   const seedKey = `${businessId || ""}::${initialVideoUrl || ""}::${preferVideoFirst ? "v" : ""}`;
   if (!isLoading && mediaItems.length > 0 && seededPinRef.current !== seedKey) {
-    let seedIdx = -1;
+    let seedIdx = 0;
     if (initialVideoUrl) {
-      seedIdx = mediaItems.findIndex((m) => m.kind === "video" && m.url === initialVideoUrl);
+      const pinnedIdx = mediaItems.findIndex((m) => m.kind === "video" && m.url === initialVideoUrl);
+      if (pinnedIdx >= 0) seedIdx = pinnedIdx;
     }
-    if (seedIdx < 0 && preferVideoFirst) {
-      seedIdx = mediaItems.findIndex((m) => m.kind === "video");
+    if (!initialVideoUrl && preferVideoFirst) {
+      const firstVideoIdx = mediaItems.findIndex((m) => m.kind === "video");
+      if (firstVideoIdx >= 0) seedIdx = firstVideoIdx;
     }
-    if (seedIdx >= 0) {
+    if (currentMediaIndex !== seedIdx) {
       setCurrentMediaIndex(seedIdx);
-      seededPinRef.current = seedKey;
     }
+    seededPinRef.current = seedKey;
   }
 
   const [matterportPinnedInHiddenMode, setMatterportPinnedInHiddenMode] = useState(true);
