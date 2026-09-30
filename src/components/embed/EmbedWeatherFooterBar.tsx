@@ -16,6 +16,7 @@ export default function EmbedWeatherFooterBar({
   lang = "fr",
   days = 3,
   ink = "light",
+  compact = false,
 }: {
   data: WeatherPayload;
   lang?: Lang;
@@ -23,6 +24,8 @@ export default function EmbedWeatherFooterBar({
   days?: number;
   /** Encre du bandeau : "light" = texte clair sur dégradé (défaut). */
   ink?: "light" | "dark";
+  /** Version mobile simplifiée : ville, icône, température, min/max du jour. */
+  compact?: boolean;
 }) {
   const main = iconToEmoji(data.icon);
   const gradient = bgFor(data.icon);
@@ -34,6 +37,27 @@ export default function EmbedWeatherFooterBar({
     en: { feels: "feels like", wind: "Wind" },
     ar: { feels: "محسوسة", wind: "الرياح" },
   }[lang];
+
+  if (compact) {
+    const today = forecast[0];
+    return (
+      <div className={`w-full bg-gradient-to-r ${gradient} px-4 py-2.5`} style={{ color: text }}>
+        <div className="flex items-center gap-3">
+          <span className={`text-3xl leading-none select-none ${main.anim}`} aria-hidden>{main.emoji}</span>
+          <div className="min-w-0 flex-1">
+            <div className="text-[10px] uppercase tracking-wider opacity-80 truncate">{data.city_name}</div>
+            <div className="text-[11px] opacity-85 capitalize truncate">{data.description}</div>
+          </div>
+          <span className="text-2xl font-bold leading-none">{data.temp}°</span>
+          {today && (
+            <span className="text-xs font-semibold whitespace-nowrap">
+              {today.temp_max}° <span className="opacity-60 font-normal">/ {today.temp_min}°</span>
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

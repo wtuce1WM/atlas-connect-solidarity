@@ -213,6 +213,28 @@ const WidgetPage = () => {
           </div>
         </div>
         {(widgetId === "meteo" || widgetId === "marees") && <EmbedCode code={embedSnippet} />}
+        {widgetId === "meteo" && (() => {
+          const bar = `${SITE}/embed/weather?city=Marrakech&lang=${lang}&layout=footer`;
+          const barMobile = `${bar}&compact=1`;
+          const snip = (u: string, h: number) => `<iframe src="${u}" width="100%" height="${h}" style="border:0;display:block" loading="lazy" title="${w.title}"></iframe>`;
+          return (
+            <div className="mt-12">
+              <h2 className="text-[20px] text-[#F4ECDF]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}>
+                {en ? "Footer banner version" : "Version bandeau (au-dessus du footer)"}
+              </h2>
+              <p className="mt-2 font-roboto text-[14px] text-white/75">{en ? "Desktop" : "Ordinateur"}</p>
+              <div className="mt-2 overflow-hidden rounded-xl border border-white/12">
+                <WidgetFrame src={bar} title={w.title} height={80} heightMessage="owm-weather-height" />
+              </div>
+              <EmbedCode code={snip(bar, 80)} />
+              <p className="mt-8 font-roboto text-[14px] text-white/75">{en ? "Mobile (simplified)" : "Mobile (simplifiée)"}</p>
+              <div className="mt-2 w-[375px] max-w-full overflow-hidden rounded-xl border border-white/12">
+                <WidgetFrame src={barMobile} title={w.title} height={64} heightMessage="owm-weather-height" />
+              </div>
+              <EmbedCode code={snip(barMobile, 64)} />
+            </div>
+          );
+        })()}
       </div>
     );
   }
