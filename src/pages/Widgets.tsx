@@ -48,7 +48,7 @@ export const SMALL_WIDGETS: SmallWidget[] = [
     title: "Marées, Vents & Météo",
     tagline: "Marées, vents, prévisions et alertes pour les 19 villes côtières du Maroc.",
     price: "Gratuit",
-    url: `${SITE}/embed/tides?city=essaouira&lang=fr&picker=1&bg=transparent`,
+    url: `${SITE}/embed/tides?city=essaouira&lang=fr&picker=1&bg=transparent&canvas=transparent`,
     height: 730,
   },
   {
