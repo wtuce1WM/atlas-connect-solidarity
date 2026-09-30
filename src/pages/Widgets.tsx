@@ -12,6 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export const SITE = "https://oneworldmorocco.com";
 export const DEMO_SLUG = "riad-dar-najat";
+export const REVIEWS_DEMO_SLUG = "comptoir-darna";
 
 /**
  * Les aperçus in-page sont chargés en URL RELATIVE : ils sont donc toujours
@@ -57,7 +58,7 @@ export const SMALL_WIDGETS: SmallWidget[] = [
     title: "Avis clients",
     tagline: "Vos notes Google, TripAdvisor et RestaurantGuru réunies dans un bloc élégant.",
     price: "Prix : sur devis",
-    url: `${SITE}/embed/reviews/${DEMO_SLUG}?platform=all&lang=fr&bg=transparent`,
+    url: `${SITE}/embed/reviews/${REVIEWS_DEMO_SLUG}?platform=all&lang=fr&bg=transparent`,
     height: 520,
   },
   {
