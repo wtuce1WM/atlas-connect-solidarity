@@ -1,0 +1,1 @@
+UPDATE public.reviews SET text_en = text WHERE id IN ('510d4df6-403e-4ab1-8c40-9eeadbb2c552','aac06fe4-8a20-44f5-8cc8-c5b22be545cc') AND (text_en IS NULL OR btrim(text_en) = '');
