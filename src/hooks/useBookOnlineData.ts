@@ -158,6 +158,10 @@ export interface PoiBusiness {
   default_service?: string | null;
   computed_rating?: number | null;
   total_review_count?: number | null;
+  prioritize_images?: boolean;
+  video_1_url?: string | null;
+  /** Miniature de la 1ère vidéo (ordre identique aux fiches : vidéo d'abord sauf prioritize_images). */
+  video_thumb?: string | null;
 }
 
 export interface VideoDoc {
@@ -551,7 +555,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
 
         const { data: poiData } = await db
           .from("businesses")
-          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, computed_rating, total_review_count")
+          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, computed_rating, total_review_count, prioritize_images, video_1_url")
           .eq("is_active", true)
           .eq("is_poi", true)
           .neq("id", businessId)
