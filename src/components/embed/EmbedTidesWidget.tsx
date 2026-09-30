@@ -373,7 +373,9 @@ export default function EmbedTidesWidget({
       {view === "weather" ? (
 
         weather ? (
-          <EmbedWeatherWidget data={weather} lang={lang} embedded ink="light" />
+          // Même rendu que le widget 06 Météo seul : voile sombre + encre claire.
+          <EmbedWeatherWidget data={weather} lang={lang} embedded ink="light" surface="rgba(23,23,23,0.55)" />
+
         ) : (
           <div className="px-4 py-10 text-center text-xs text-neutral-500 dark:text-neutral-400">
             {weatherError
