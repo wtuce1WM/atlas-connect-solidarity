@@ -56,7 +56,9 @@ export default function EmbedWeather() {
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
-  const asFooter = footerLayout && wide;
+  const asFooter = footerLayout;
+  // Mobile (< 768 px) ou ?compact=1 : bandeau simplifié.
+  const compactBar = params.get("compact") === "1" || !wide;
 
 
   const [data, setData] = useState<WeatherPayload | null>(null);
@@ -130,7 +132,7 @@ export default function EmbedWeather() {
           <div className="w-full py-5 text-center text-sm text-muted-foreground">{L.error}</div>
         )}
         {!loading && !error && data && (
-          <EmbedWeatherFooterBar data={data} lang={lang} days={footerDays} />
+          <EmbedWeatherFooterBar data={data} lang={lang} days={footerDays} compact={compactBar} />
         )}
       </div>
     );
