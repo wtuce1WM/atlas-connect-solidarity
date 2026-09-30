@@ -11,6 +11,8 @@ export interface PoiMapItem {
   latitude: number | null;
   longitude: number | null;
   images?: string[] | null;
+  /** Miniature de la 1ère vidéo (même ordre d'affichage que les fiches : vidéo d'abord). Prioritaire sur images[0] dans la vignette. */
+  video_thumb?: string | null;
   city?: string | null;
   neighborhood?: string | null;
   rating?: number | null;
@@ -1089,7 +1091,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     // Préchargement des images des miniatures : au survol/tap, la photo est
     // déjà en cache et la miniature s'affiche immédiatement.
     pois.slice(0, 80).forEach((p) => {
-      const src = p.images?.[0];
+      const src = p.video_thumb || p.images?.[0];
       if (src && !preloadedThumbsRef.current.has(src)) {
         preloadedThumbsRef.current.add(src);
         const im = new Image();
@@ -1137,7 +1139,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         overlaysRef.current.get(poi.id)?.setHighlighted(true);
 
 
-        const img = poi.images?.[0];
+        const img = poi.video_thumb || poi.images?.[0];
         const loc = `${poi.city || ""}${poi.neighborhood ? ` · ${poi.neighborhood}` : ""}`;
         const ratingHtml = poi.avgOn20
           ? `<div style="display:flex;align-items:center;gap:4px;font-size:13px;">
