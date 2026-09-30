@@ -23,7 +23,7 @@ const MESSAGES: Record<Lang, { loading: string; error: string }> = {
 };
 
 const BUSINESS_FIELDS =
-  "id,name,slug,computed_rating,total_review_count,google_rating,google_review_count,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,highlight_en";
+  "id,name,slug,computed_rating,total_review_count,google_rating,google_review_count,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url";
 
 export default function EmbedReviews() {
   const { slug = "" } = useParams();
@@ -95,7 +95,7 @@ export default function EmbedReviews() {
         setBusiness(biz as any);
         const { data: revs } = await supabase
           .from("reviews")
-          .select("id,source,author_name,rating,text,text_fr,text_en,text_ar,highlight,is_default")
+          .select("id,source,author_name,rating,text,text_fr,text_en,text_ar,highlight,highlight_en,is_default")
           .eq("business_id", (biz as any).id)
           .eq("is_hidden", false)
           .order("is_default", { ascending: false })
