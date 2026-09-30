@@ -4628,11 +4628,12 @@ const BookOnlineSlidePanelInner = ({
           />
           <div className="flex-1 min-h-0">
             <BookOnlineSlidePanel
+              key={selectedPoiBusinessId}
               businessId={selectedPoiBusinessId}
               onClose={() => { setSelectedPoiBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
-              showSearchBar={showSearchBar}
-              onSearch={onSearch}
-              onSearchBusinessSelect={onSearchBusinessSelect}
+              showSearchBar={showSearchBar || isEmbedMapWidget}
+              onSearch={onSearch ?? (isEmbedMapWidget ? () => { /* widget carte : barre utilisée pour ses CTA liquid glass */ } : undefined)}
+              onSearchBusinessSelect={onSearchBusinessSelect ?? (isEmbedMapWidget ? () => { /* no-op widget carte */ } : undefined)}
               onHotelSearch={onHotelSearch}
               onMosaicStateChange={onMosaicStateChange}
               propagateMosaicState
