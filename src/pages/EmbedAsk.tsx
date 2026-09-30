@@ -5110,18 +5110,21 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                           const nightlyAmount = parseSerpAmount(h.serpPrice) ?? parseSerpAmount(h.dbBusiness?.min_price);
                           if (nightlyAmount) priceBadges[h.businessId] = `${formatEuro(nightlyAmount)} €`;
                         }
-                        const list = visible.map((h: any) => ({
-                          ...(h.dbBusiness || {}),
-                          id: h.businessId,
-                          name: h.name,
-                          images: h.dbBusiness?.images?.length ? h.dbBusiness.images : (h.mainImage ? [h.mainImage] : []),
-                          booking_url:
-                            h.reserveNowUrl || h.dbBusiness?.reserve_now_url || h.dbBusiness?.website || null,
-                          booking_label:
-                            (h.dbBusiness?.reserve_now_cta || "").trim() ||
-                            (h.dbBusiness?.website_cta || "").trim() ||
-                            null,
-                        }));
+                        const list = visible.map((h: any) => {
+                          const url2 = String(h.reserveNowUrl || h.dbBusiness?.reserve_now_url || "").trim();
+                          const url1 = String(h.dbBusiness?.website || "").trim();
+                          const usesUrl2 = url2.length > 0;
+                          return {
+                            ...(h.dbBusiness || {}),
+                            id: h.businessId,
+                            name: h.name,
+                            images: h.dbBusiness?.images?.length ? h.dbBusiness.images : (h.mainImage ? [h.mainImage] : []),
+                            booking_url: usesUrl2 ? url2 : url1 || null,
+                            booking_label: usesUrl2
+                              ? (h.dbBusiness?.reserve_now_cta || "").trim() || null
+                              : (h.dbBusiness?.website_cta || "").trim() || null,
+                          };
+                        });
                         // Le feed vidéo ne s'arrête pas aux hôtels retournés par
                         // SerpAPI : il continue avec les autres hôtels/riads
                         // actifs de la ville, en affichage normal.
