@@ -4,6 +4,7 @@ import { getEmbedAnonClient } from "@/lib/embedBusinessQuery";
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { haversineKm } from "@/lib/haversine";
+import { getYouTubeId } from "@/lib/videoThumbnail";
 import { useBrokenLinks } from "@/hooks/useBrokenLinks";
 import type { ReviewText } from "@/lib/reviewHtmlBuilder";
 import type { ExternalLinkItem } from "@/components/cards/ExternalLinksFlipCard";
