@@ -29,6 +29,12 @@ const SMALL_BY_ID: Record<string, number> = {
   marees: 4,
 };
 
+/** postMessage de hauteur émis par l'embed → iframe auto-ajustée (pas de scroll interne). */
+const HEIGHT_MSG: Record<string, string> = {
+  meteo: "owm-weather-height",
+  marees: "owm-tides-height",
+};
+
 const WidgetPage = () => {
   const { widgetId = "" } = useParams();
   const navigate = useLocalizedNavigate();
@@ -156,7 +162,7 @@ const WidgetPage = () => {
           {openLink(w.url)}
         </div>
         <div className={`${glass} p-3`}>
-          <WidgetFrame src={w.url} title={w.title} height={w.height} />
+          <WidgetFrame src={w.url} title={w.title} height={w.height} heightMessage={HEIGHT_MSG[widgetId]} />
         </div>
       </div>
     );

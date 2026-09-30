@@ -39,8 +39,8 @@ export const SMALL_WIDGETS: SmallWidget[] = [
     title: "Météo",
     tagline: "La météo d'une ville marocaine, en direct et sans clé API.",
     price: "Gratuit",
-    url: `${SITE}/embed/weather?city=Marrakech&lang=fr&bg=transparent`,
-    height: 420,
+    url: `${SITE}/embed/weather?city=Marrakech&lang=fr&bg=transparent&canvas=transparent`,
+    height: 540,
   },
   {
     n: 4,
@@ -48,8 +48,8 @@ export const SMALL_WIDGETS: SmallWidget[] = [
     title: "Marées, Vents & Météo",
     tagline: "Marées, vents, prévisions et alertes pour les 19 villes côtières du Maroc.",
     price: "Gratuit",
-    url: `${SITE}/embed/tides?city=essaouira&lang=fr&picker=1&bg=transparent`,
-    height: 560,
+    url: `${SITE}/embed/tides?city=essaouira&lang=fr&picker=1&bg=transparent&canvas=transparent`,
+    height: 730,
   },
   {
     n: 5,
@@ -160,17 +160,36 @@ export const PriceTag = ({ price }: { price: string }) =>
     </span>
   );
 
-/** Aperçu de widget sur fond transparent, sans cadre opaque. */
-export const WidgetFrame = ({ src, title, height }: { src: string; title: string; height: number }) => (
-  <div className="overflow-hidden rounded-2xl border border-white/12 bg-transparent">
-    <iframe
-      src={toPreview(src)}
-      title={title}
-      loading="lazy"
-      style={{ width: "100%", height, border: 0, background: "transparent" }}
-    />
-  </div>
-);
+/** Aperçu de widget sur fond transparent, sans cadre opaque.
+ *  heightMessage : type de postMessage émis par l'embed pour ajuster
+ *  automatiquement la hauteur de l'iframe (aucun scroll interne coupé). */
+export const WidgetFrame = ({ src, title, height, heightMessage }: { src: string; title: string; height: number; heightMessage?: string }) => {
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const [h, setH] = useState(height);
+  useEffect(() => {
+    if (!heightMessage) return;
+    const onMsg = (e: MessageEvent) => {
+      if (e.source !== iframeRef.current?.contentWindow) return;
+      const d = e.data as { type?: string; height?: number };
+      if (d?.type === heightMessage && typeof d.height === "number" && d.height > 40) {
+        setH(Math.ceil(d.height));
+      }
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, [heightMessage]);
+  return (
+    <div className="overflow-hidden rounded-2xl border border-white/12 bg-transparent">
+      <iframe
+        ref={iframeRef}
+        src={toPreview(src)}
+        title={title}
+        loading="lazy"
+        style={{ width: "100%", height: h, border: 0, background: "transparent" }}
+      />
+    </div>
+  );
+};
 
 /** Correspondance id de page → numéro interne SMALL_WIDGETS. */
 const SMALL_BY_ID: Record<string, number> = {

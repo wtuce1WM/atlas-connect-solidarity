@@ -43,7 +43,8 @@ export default function EmbedWeather() {
   // hôte clair comme sur hôte sombre. Les textes noirs sur fond sombre disparaissent.
   const autoPanel = !bgColor && !params.get("ink");
   const ink = autoPanel ? "light" : resolveEmbedInk(params.get("ink"), bgColor);
-  const panelSurface = autoPanel ? "rgba(23,23,23,0.55)" : bgColor;
+  // bg=transparent explicite : aucun voile — le widget flotte sur le fond hôte.
+  const panelSurface = params.get("bg") === "transparent" ? "transparent" : autoPanel ? "rgba(23,23,23,0.55)" : bgColor;
 
   // ?layout=footer : bandeau fin full-width réservé au desktop (>= 768px de large).
   // En dessous, on retombe sur la carte verticale, seule lisible sur mobile.
