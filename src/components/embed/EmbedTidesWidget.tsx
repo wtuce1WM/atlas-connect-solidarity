@@ -262,6 +262,7 @@ export default function EmbedTidesWidget({
   lang = "fr",
   compact = false,
   fullWidth = false,
+  transparent = false,
   onCityChange,
 }: {
   data: TidesPayload;
@@ -269,6 +270,8 @@ export default function EmbedTidesWidget({
   compact?: boolean;
   /** Étire le widget sur toute la largeur disponible (pas de cap 520px). */
   fullWidth?: boolean;
+  /** Fond de carte transparent (le widget prend le fond du site hôte). */
+  transparent?: boolean;
   onCityChange?: (slug: string) => void;
 }) {
   const L = T[lang];
@@ -316,7 +319,7 @@ export default function EmbedTidesWidget({
         : "from-sky-600 via-slate-700 to-slate-950";
 
   return (
-    <div className={`w-full ${fullWidth ? "" : "max-w-[520px]"} overflow-hidden rounded-3xl shadow-2xl bg-white dark:bg-neutral-900`} dir={lang === "ar" ? "rtl" : "ltr"}>
+    <div className={`w-full ${fullWidth ? "" : "max-w-[520px]"} overflow-hidden rounded-3xl ${transparent ? "bg-transparent shadow-none" : "shadow-2xl bg-white dark:bg-neutral-900"}`} dir={lang === "ar" ? "rtl" : "ltr"}>
       <style>{`
         @keyframes tdWave { 0%,100% { transform: translateX(0) } 50% { transform: translateX(-18px) } }
         @keyframes tdPulse { 0%,100% { opacity: .55; transform: scale(1) } 50% { opacity: 1; transform: scale(1.08) } }

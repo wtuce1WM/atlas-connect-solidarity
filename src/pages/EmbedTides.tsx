@@ -142,7 +142,7 @@ export default function EmbedTides() {
           className="w-full flex justify-center [&>div]:max-w-full"
           style={fitStyle}
         >
-          <EmbedTidesWidget data={data} lang={lang} compact={compact} fullWidth={fullWidth} onCityChange={setCity} />
+          <EmbedTidesWidget data={data} lang={lang} compact={compact} fullWidth={fullWidth} onCityChange={setCity} transparent={params.get("bg") === "transparent"} />
         </div>
       )}
     </div>
