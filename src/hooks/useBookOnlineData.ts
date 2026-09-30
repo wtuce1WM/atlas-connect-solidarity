@@ -570,6 +570,62 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           return haversineKm(lat, lng, Number(p.latitude), Number(p.longitude)) <= POOL_RADIUS_KM;
         });
 
+        // Miniature de la vignette carte : même ordre d'affichage que les fiches
+        // (vidéo d'abord, sauf prioritize_images). On résout la 1ère vidéo de
+        // chaque établissement en 2 requêtes groupées (documents + vidéos YouTube).
+        const thumbIds = nearby.slice(0, 300).map((p) => p.id);
+        if (thumbIds.length > 0) {
+          const [docRes, ytRes] = await Promise.all([
+            db
+              .from("business_documents")
+              .select("business_id, url, thumbnail_url, sort_order")
+              .eq("type", "video")
+              .in("business_id", thumbIds)
+              .order("sort_order"),
+            db
+              .from("business_youtube_videos")
+              .select("business_id, video_id, published_at, is_short")
+              .in("business_id", thumbIds)
+              .eq("is_visible", true)
+              .eq("business_is_active", true),
+          ]);
+          if (!isCancelled) {
+            const firstDocByBiz = new Map<string, any>();
+            (docRes.data || []).forEach((d: any) => {
+              if (d.business_id && !firstDocByBiz.has(d.business_id)) firstDocByBiz.set(d.business_id, d);
+            });
+            const ytByBiz = new Map<string, any[]>();
+            (ytRes.data || []).forEach((v: any) => {
+              if (!v.business_id) return;
+              const arr = ytByBiz.get(v.business_id) || [];
+              arr.push(v);
+              ytByBiz.set(v.business_id, arr);
+            });
+            const ytThumb = (id: string) => `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+            nearby.forEach((p) => {
+              if (p.prioritize_images) { p.video_thumb = null; return; }
+              const doc = firstDocByBiz.get(p.id);
+              if (doc) {
+                const ytId = getYouTubeId(doc.url || "");
+                p.video_thumb = doc.thumbnail_url || (ytId ? ytThumb(ytId) : null);
+                if (p.video_thumb) return;
+              }
+              const legacyYt = p.video_1_url ? getYouTubeId(p.video_1_url) : null;
+              if (legacyYt) { p.video_thumb = ytThumb(legacyYt); return; }
+              const yts = ytByBiz.get(p.id);
+              if (yts && yts.length > 0) {
+                const sorted = [...yts].sort((a, b) => {
+                  const da = a.published_at ? new Date(a.published_at).getTime() : 0;
+                  const db2 = b.published_at ? new Date(b.published_at).getTime() : 0;
+                  return db2 - da;
+                });
+                const shortIdx = sorted.findIndex((v) => v.is_short);
+                if (shortIdx > 0) sorted.unshift(...sorted.splice(shortIdx, 1));
+                p.video_thumb = ytThumb(sorted[0].video_id);
+              }
+            });
+          }
+        }
 
         if (!isCancelled) setPoiBusinesses(nearby);
       };
