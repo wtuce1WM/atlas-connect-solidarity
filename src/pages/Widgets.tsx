@@ -40,7 +40,7 @@ export const SMALL_WIDGETS: SmallWidget[] = [
     tagline: "La météo d'une ville marocaine, en direct et sans clé API.",
     price: "Gratuit",
     url: `${SITE}/embed/weather?city=Marrakech&lang=fr&bg=transparent`,
-    height: 420,
+    height: 540,
   },
   {
     n: 4,
@@ -49,7 +49,7 @@ export const SMALL_WIDGETS: SmallWidget[] = [
     tagline: "Marées, vents, prévisions et alertes pour les 19 villes côtières du Maroc.",
     price: "Gratuit",
     url: `${SITE}/embed/tides?city=essaouira&lang=fr&picker=1&bg=transparent`,
-    height: 560,
+    height: 730,
   },
   {
     n: 5,
