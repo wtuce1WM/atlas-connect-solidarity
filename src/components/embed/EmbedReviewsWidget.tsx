@@ -17,6 +17,7 @@ export interface EmbedReviewItem {
   text_en?: string | null;
   text_ar?: string | null;
   highlight?: string | null;
+  highlight_en?: string | null;
   is_default?: boolean | null;
 }
 
@@ -384,7 +385,9 @@ export default function EmbedReviewsWidget({
             className={`${large ? "text-[15px]" : "text-sm"} leading-relaxed ${cBody} flex-1 pr-1`}
           >
             {(() => {
-              const hl = (current.highlight || "").trim();
+              // Extrait selon la langue affichée : version anglaise dédiée en EN
+              // (l'extrait français ne se retrouve pas dans le texte traduit).
+              const hl = ((lang === "en" ? current.highlight_en || current.highlight : current.highlight) || "").trim();
               if (!hl) return text;
               const idx = text.toLowerCase().indexOf(hl.toLowerCase());
               if (idx === -1) return text;

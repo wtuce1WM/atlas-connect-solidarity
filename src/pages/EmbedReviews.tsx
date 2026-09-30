@@ -23,7 +23,7 @@ const MESSAGES: Record<Lang, { loading: string; error: string }> = {
 };
 
 const BUSINESS_FIELDS =
-  "id,name,slug,computed_rating,total_review_count,google_rating,google_review_count,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url";
+  "id,name,slug,computed_rating,total_review_count,google_rating,google_review_count,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,highlight_en";
 
 export default function EmbedReviews() {
   const { slug = "" } = useParams();
