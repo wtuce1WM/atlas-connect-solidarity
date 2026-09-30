@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { Bot, MapPin, Check, ExternalLink } from "lucide-react";
+import { Bot, MapPin, Check, ExternalLink, Copy, ClipboardCheck } from "lucide-react";
 import FrontHeader from "@/components/front/FrontHeader";
 import WidgetsMenu, { WIDGET_ENTRIES } from "@/components/widgets/WidgetsMenu";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
@@ -62,6 +63,50 @@ const WidgetPage = () => {
       {en ? "Open full screen" : "Ouvrir en plein écran"} <ExternalLink className="h-3.5 w-3.5" />
     </a>
   );
+
+  /** Bloc code à copier/coller pour intégration sur site externe. */
+  const EmbedCode = ({ code }: { code: string }) => {
+    const [copied, setCopied] = useState(false);
+    const copy = async () => {
+      try {
+        await navigator.clipboard.writeText(code);
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = code;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+    return (
+      <div className="mt-8">
+        <h2 className="text-[16px] font-semibold text-[#F4ECDF]" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          {en ? "Embed code" : "Code d'intégration"}
+        </h2>
+        <p className="mt-2 font-roboto text-[13.5px] text-white/70">
+          {en
+            ? "Copy and paste this code into your website (custom HTML block). Adjust the height to fit your layout."
+            : "Copiez-collez ce code dans votre site (bloc HTML personnalisé). Ajustez la hauteur selon votre mise en page."}
+        </p>
+        <div className="mt-3 flex items-start gap-2">
+          <pre className="flex-1 overflow-x-auto rounded-2xl border border-white/12 bg-black/40 p-4 font-mono text-[12px] leading-relaxed text-white/85">
+            {code}
+          </pre>
+          <button
+            type="button"
+            onClick={copy}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-[#C6A046]/60 bg-[#C6A046]/10 px-4 py-2.5 font-roboto text-[12.5px] text-[#E4C877] hover:bg-[#C6A046]/20"
+          >
+            {copied ? <ClipboardCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? (en ? "Copied" : "Copié") : en ? "Copy" : "Copier"}
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   const header = (icon: React.ReactNode, price?: string) => (
     <div className="flex items-center gap-3">
