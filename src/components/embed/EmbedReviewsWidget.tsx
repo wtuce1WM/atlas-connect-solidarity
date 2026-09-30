@@ -378,14 +378,24 @@ export default function EmbedReviewsWidget({
               {Math.min(index + 1, list.length)}/{list.length}
             </span>
           </div>
+          {/* Texte intégral de l'avis (aucun scroll interne) ; l'extrait `highlight`
+              est mis en évidence en jaune quand il est présent dans le texte. */}
           <blockquote
-            className={`${large ? "text-[15px]" : "text-sm"} leading-relaxed ${cBody} flex-1 overflow-y-auto overscroll-contain pr-1`}
-            style={{
-              maxHeight: large ? 260 : shape === "square" ? 120 : 180,
-              scrollbarWidth: "thin",
-            }}
+            className={`${large ? "text-[15px]" : "text-sm"} leading-relaxed ${cBody} flex-1 pr-1`}
           >
-            {text}
+            {(() => {
+              const hl = (current.highlight || "").trim();
+              if (!hl) return text;
+              const idx = text.toLowerCase().indexOf(hl.toLowerCase());
+              if (idx === -1) return text;
+              return (
+                <>
+                  {text.slice(0, idx)}
+                  <span className="font-bold italic text-yellow-300">{text.slice(idx, idx + hl.length)}</span>
+                  {text.slice(idx + hl.length)}
+                </>
+              );
+            })()}
           </blockquote>
 
           {list.length > 1 && (
