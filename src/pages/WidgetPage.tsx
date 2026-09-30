@@ -198,17 +198,21 @@ const WidgetPage = () => {
   } else {
     const base = SMALL_WIDGETS.find((w) => w.n === SMALL_BY_ID[widgetId])!;
     const w = { ...base, ...(en ? SMALL_WIDGETS_EN[base.n] : {}), url: base.url.replace("lang=fr", `lang=${lang}`) };
+    const embedSnippet = `<iframe src="${w.url}" width="100%" height="${w.height}" style="border:0;background:transparent" loading="lazy" title="${w.title}"></iframe>`;
     body = (
-      <div className="grid gap-8 md:grid-cols-[1fr_minmax(320px,480px)] md:items-start">
-        <div>
-          {header(w.icon, w.price)}
-          {title(w.title)}
-          <p className="mt-3 font-roboto text-[16px] leading-relaxed text-white/90">{w.tagline}</p>
-          {openLink(w.url)}
+      <div>
+        <div className="grid gap-8 md:grid-cols-[1fr_minmax(320px,480px)] md:items-start">
+          <div>
+            {header(w.icon, w.price)}
+            {title(w.title)}
+            <p className="mt-3 font-roboto text-[16px] leading-relaxed text-white/90">{w.tagline}</p>
+            {openLink(w.url)}
+          </div>
+          <div className={`${glass} p-3`}>
+            <WidgetFrame src={w.url} title={w.title} height={w.height} heightMessage={HEIGHT_MSG[widgetId]} />
+          </div>
         </div>
-        <div className={`${glass} p-3`}>
-          <WidgetFrame src={w.url} title={w.title} height={w.height} heightMessage={HEIGHT_MSG[widgetId]} />
-        </div>
+        {(widgetId === "meteo" || widgetId === "marees") && <EmbedCode code={embedSnippet} />}
       </div>
     );
   }
