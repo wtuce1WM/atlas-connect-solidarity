@@ -35,6 +35,7 @@ const HEIGHT_MSG: Record<string, string> = {
   meteo: "owm-weather-height",
   marees: "owm-tides-height",
   "avis-clients": "owm-reviews-height",
+  "laisser-un-avis": "owm-rate-height",
 };
 
 const WidgetPage = () => {
