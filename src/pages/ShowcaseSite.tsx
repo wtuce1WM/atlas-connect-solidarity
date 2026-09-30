@@ -218,10 +218,11 @@ const ShowcaseSite = () => {
         source: review.source,
         author_name: review.author_name,
         rating: review.rating,
-        text: review.highlight || review.text || null,
-        text_fr: review.highlight || review.text_fr || review.text || null,
+        text: review.text || null,
+        text_fr: review.text_fr || review.text || null,
         text_en: review.text_en,
         text_ar: review.text_ar,
+        highlight: review.highlight || null,
         is_default: review.is_default,
       })).filter((review) => review.text_fr || review.text_en || review.text));
       setLoading(false);
