@@ -16,6 +16,7 @@ export interface EmbedReviewItem {
   text_fr?: string | null;
   text_en?: string | null;
   text_ar?: string | null;
+  highlight?: string | null;
   is_default?: boolean | null;
 }
 
