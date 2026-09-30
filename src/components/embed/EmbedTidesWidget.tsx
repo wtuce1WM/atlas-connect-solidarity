@@ -373,8 +373,7 @@ export default function EmbedTidesWidget({
       {view === "weather" ? (
 
         weather ? (
-          {/* Même rendu que le widget 06 Météo seul : voile sombre + encre claire,
-              sinon le texte blanc du bloc prévisions restait sur fond transparent/blanc. */}
+          // Même rendu que le widget 06 Météo seul : voile sombre + encre claire.
           <EmbedWeatherWidget data={weather} lang={lang} embedded ink="light" surface="rgba(23,23,23,0.55)" />
 
         ) : (
