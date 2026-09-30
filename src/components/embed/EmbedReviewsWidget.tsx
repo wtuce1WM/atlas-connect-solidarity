@@ -391,7 +391,7 @@ export default function EmbedReviewsWidget({
               return (
                 <>
                   {text.slice(0, idx)}
-                  <span className="font-bold italic text-yellow-300">{text.slice(idx, idx + hl.length)}</span>
+                  <span className="font-bold italic text-orange-500 dark:text-yellow-300">{text.slice(idx, idx + hl.length)}</span>
                   {text.slice(idx + hl.length)}
                 </>
               );
