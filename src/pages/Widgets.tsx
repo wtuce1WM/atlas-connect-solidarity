@@ -39,7 +39,7 @@ export const SMALL_WIDGETS: SmallWidget[] = [
     title: "Météo",
     tagline: "La météo d'une ville marocaine, en direct et sans clé API.",
     price: "Gratuit",
-    url: `${SITE}/embed/weather?city=Marrakech&lang=fr&bg=transparent`,
+    url: `${SITE}/embed/weather?city=Marrakech&lang=fr&bg=transparent&canvas=transparent`,
     height: 540,
   },
   {
