@@ -128,12 +128,44 @@ const BULLET_STEPS: { title: React.ReactNode; text: React.ReactNode }[] = [
   },
 ];
 
+const BULLET_STEPS_EN: { title: React.ReactNode; text: React.ReactNode }[] = [
+  {
+    title: "Our app does what...",
+    text: <>TikTok/Instagram/YouTube + Google + ChatGPT + Booking + Google Maps + Tripadvisor + CapCut + a professional website...</>,
+  },
+  {
+    title: "Where?",
+    text: <>on a single interface...</>,
+  },
+  {
+    title: "Personalised AI agent",
+    text: <>with a personalised AI agent...</>,
+  },
+  {
+    title: "How?",
+    text: <>across 3 surfaces: customer-facing / host business / 1WM platform...</>,
+  },
+  {
+    title: "From digital to local",
+    text: <>with a direct-to-local, commission-free and solidarity-based business model:</>,
+  },
+  {
+    title: "From digital to solidarity",
+    text: <><b>20%</b> of affiliate subscriptions go to humanitarian causes in Morocco...</>,
+  },
+  {
+    title: "Our philosophy",
+    text: <>Because creating value should not only benefit those who create it.</>,
+  },
+];
+
 const SCREENS = 4;
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 const Corporate = () => {
   const { language } = useLanguage();
   const L = (LABELS as any)[language] ?? LABELS.fr;
+  const bulletSteps = language === "en" ? BULLET_STEPS_EN : BULLET_STEPS;
   const navigate = useLocalizedNavigate();
 
   useSEO({
@@ -276,10 +308,10 @@ const Corporate = () => {
   const [bulletStep, setBulletStep] = useState(0);
   useEffect(() => {
     const t = window.setInterval(() => {
-      setBulletStep((s) => (s + 1) % BULLET_STEPS.length);
+      setBulletStep((s) => (s + 1) % bulletSteps.length);
     }, 3400);
     return () => window.clearInterval(t);
-  }, []);
+  }, [bulletSteps.length]);
   const [modelPlaying, setModelPlaying] = useState(true);
   const [modelMuted, setModelMuted] = useState(true);
   useEffect(() => {
@@ -516,7 +548,7 @@ const Corporate = () => {
                 className="font-roboto text-xl font-bold leading-snug text-[#F4EEE4] md:text-2xl"
                 style={{ animation: "owmSlideDown 420ms ease-out both" }}
               >
-                {BULLET_STEPS[bulletStep].title}
+                 {bulletSteps[bulletStep].title}
               </p>
             </div>
 
@@ -528,11 +560,11 @@ const Corporate = () => {
                   className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
                   loading="eager"
                 />
-                <p>{BULLET_STEPS[bulletStep].text}</p>
+                 <p>{bulletSteps[bulletStep].text}</p>
               </div>
 
               <div className="mt-4 flex gap-1.5">
-                {BULLET_STEPS.map((_, i) => (
+                 {bulletSteps.map((_, i) => (
                   <span
                     key={i}
                     aria-hidden
@@ -551,7 +583,7 @@ const Corporate = () => {
           >
             <span className="block">LOCAL</span>
             <span className="block">DIGITAL</span>
-            <span className="block">SOLIDAIRE</span>
+             <span className="block">{language === "en" ? "SOLIDARITY" : "SOLIDAIRE"}</span>
           </p>
         </div>
         {/* ============ CTA Découvrir / Revenir — chevron Gold, tous devices ============ */}
