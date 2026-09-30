@@ -59,6 +59,7 @@ import VideoDocumentOverlay from "@/components/overlays/VideoDocumentOverlay";
 import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
 import ExternalVideosOverlay from "@/components/overlays/ExternalVideosOverlay";
 import { isExternalVideoUrl } from "@/lib/videoSourceFilter";
+import { getYouTubeId } from "@/lib/videoThumbnail";
 import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import OverlayShell from "@/components/overlays/OverlayShell";
@@ -1955,19 +1956,29 @@ const BookOnlineSlidePanelInner = ({
   const poiMasterItem = useMemo(() => {
     const src = poiMasterOverride ?? business;
     if (!src?.latitude || !src?.longitude) return null;
+    // Vignette du marqueur master : même ordre que la fiche (vidéo d'abord,
+    // sauf prioritize_images) — miniature de la 1ère vidéo si disponible.
+    let videoThumb: string | null = null;
+    if (!poiMasterOverride && !(business as any)?.prioritize_images && orderedVideoUrls.length > 0) {
+      const firstUrl = orderedVideoUrls[0];
+      const doc = (videoDocs || []).find((d: any) => d.url === firstUrl);
+      const ytId = getYouTubeId(firstUrl);
+      videoThumb = doc?.thumbnail_url || (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null);
+    }
     return {
       id: `self-${src.id}`,
       name: src.name,
       latitude: Number(src.latitude),
       longitude: Number(src.longitude),
       images: src.images,
+      video_thumb: videoThumb,
       city: src.city ?? null,
       neighborhood: src.neighborhood ?? null,
       avgOn20: poiMasterOverride ? (poiMasterOverride.computed_rating ?? null) : avgOn20,
       totalReviews: poiMasterOverride ? (poiMasterOverride.total_review_count ?? 0) : totalReviewCount,
       markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
     } as PoiMapItem;
-  }, [poiMasterOverride, business, avgOn20, totalReviewCount]);
+  }, [poiMasterOverride, business, avgOn20, totalReviewCount, orderedVideoUrls, videoDocs]);
 
   // Centre de la carte. `PoiGoogleMap` n'initialise la carte qu'une fois `center`
   // défini (centerAtBottomRatio) : en mode plateforme, attendre la fiche complète
@@ -5189,7 +5200,8 @@ const BookOnlineSlidePanelInner = ({
                       .filter(p => p.id !== poiMasterOverride?.id)
                       .map(p => ({
                         id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
-                        images: p.images, city: p.city, neighborhood: p.neighborhood,
+                        images: p.images, video_thumb: (p as any).video_thumb ?? null,
+                        city: p.city, neighborhood: p.neighborhood,
                         avgOn20: (p as any).computed_rating ?? null,
                         totalReviews: (p as any).total_review_count ?? 0,
                       } as PoiMapItem))),
