@@ -258,6 +258,8 @@ const Corporate = () => {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
+    const closestScrollable = (t: EventTarget | null) =>
+      t instanceof HTMLElement ? t.closest<HTMLElement>("[data-scrollable]") : null;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       if (wheelLockedRef.current || Math.abs(e.deltaY) < 8) return;
@@ -568,6 +570,7 @@ const Corporate = () => {
             <span className="block">DIGITAL</span>
              <span className="block">{language === "en" ? "SOLIDARITY" : "SOLIDAIRE"}</span>
           </p>
+          </div>
         </div>
         {/* ============ CTA Découvrir / Revenir — chevron Gold, tous devices ============ */}
         <div
