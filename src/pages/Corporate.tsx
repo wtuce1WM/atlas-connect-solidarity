@@ -192,6 +192,7 @@ const Corporate = () => {
   const currentRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const touchYRef = useRef<number | null>(null);
+  const touchScrollRef = useRef<HTMLElement | null>(null);
   const wheelLockedRef = useRef(false);
   const wheelUnlockRef = useRef<number | null>(null);
 
@@ -258,7 +259,10 @@ const Corporate = () => {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
+    const closestScrollable = (t: EventTarget | null) =>
+      t instanceof HTMLElement ? t.closest<HTMLElement>("[data-scrollable]") : null;
     const onWheel = (e: WheelEvent) => {
+      if (closestScrollable(e.target)) return;
       e.preventDefault();
       if (wheelLockedRef.current || Math.abs(e.deltaY) < 8) return;
       wheelLockedRef.current = true;
@@ -270,13 +274,15 @@ const Corporate = () => {
     };
     const onTouchStart = (e: TouchEvent) => {
       touchYRef.current = e.touches[0]?.clientY ?? null;
+      touchScrollRef.current = closestScrollable(e.target);
     };
     const onTouchMove = (e: TouchEvent) => {
       const y = e.touches[0]?.clientY ?? null;
       if (y === null || touchYRef.current === null) return;
+      touchYRef.current = y;
+      if (touchScrollRef.current) return;
       e.preventDefault();
       setTarget(targetRef.current + (touchYRef.current - y) / 320);
-      touchYRef.current = y;
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown" || e.key === "PageDown") {
@@ -523,10 +529,12 @@ const Corporate = () => {
 
         {/* ============ Écran 4 — App (carousel bullets, modèle homepage) ============ */}
         <div
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 px-5 pt-20 pb-24 md:px-12"
+          className="absolute inset-0 z-10 flex flex-col items-center overflow-y-auto overscroll-contain px-5 pt-20 pb-24 md:px-12"
+          data-scrollable
           style={{ opacity: s4.opacity, transform: s4.transform, pointerEvents: s4.pointerEvents }}
           aria-hidden={s4.ariaHidden}
- >
+        >
+          <div className="my-auto flex w-full flex-col items-center gap-4">
           <p
             className="text-center text-[clamp(1.75rem,min(8.5vw,5.5vh),3.8rem)] uppercase leading-[1.12] tracking-tight"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900, color: "transparent", WebkitTextStrokeWidth: "2px", WebkitTextStrokeColor: "#FFFFFF" }}
@@ -566,6 +574,7 @@ const Corporate = () => {
             <span className="block">DIGITAL</span>
              <span className="block">{language === "en" ? "SOLIDARITY" : "SOLIDAIRE"}</span>
           </p>
+          </div>
         </div>
         {/* ============ CTA Découvrir / Revenir — chevron Gold, tous devices ============ */}
         <div
