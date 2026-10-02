@@ -304,14 +304,7 @@ const Corporate = () => {
   }, [setTarget]);
 
   // Vidéo du modèle (écran 2) : lecture uniquement quand l'écran est visible.
-  // Carousel bullets (écran 4) — rotation automatique des étapes.
-  const [bulletStep, setBulletStep] = useState(0);
-  useEffect(() => {
-    const t = window.setInterval(() => {
-      setBulletStep((s) => (s + 1) % bulletSteps.length);
-    }, 3400);
-    return () => window.clearInterval(t);
-  }, [bulletSteps.length]);
+  // Carousel bullets (écran 4) — les 7 étapes sont affichées empilées, sans rotation.
   const [modelPlaying, setModelPlaying] = useState(true);
   const [modelMuted, setModelMuted] = useState(true);
   useEffect(() => {
@@ -541,40 +534,28 @@ const Corporate = () => {
             One World Morocco
           </p>
 
-          <div className="flex w-full max-w-2xl flex-col items-center gap-2 md:gap-3">
-            <div className="min-h-[1.75rem] md:min-h-[2.25rem]">
-              <p
-                key={'bul-step'}
-                className="font-roboto text-xl font-bold leading-snug text-[#F4EEE4] md:text-2xl"
-                style={{ animation: "owmSlideDown 420ms ease-out both" }}
+          <div className="flex w-full max-w-2xl flex-col items-stretch gap-2 md:gap-3">
+            {bulletSteps.map((step, i) => (
+              <div
+                key={i}
+                className="relative w-full"
               >
-                 {bulletSteps[bulletStep].title}
-              </p>
-            </div>
-
-            <div className="relative w-full">
-              <div className="flex items-start gap-3 font-roboto text-base leading-[1.3] text-[#F4EEE4] md:text-lg md:leading-snug">
-                <img
-                  src={hamsaIcon.url}
-                  alt=""
-                  className="mt-0.5 h-5 w-5 shrink-0 rounded-full md:h-6 md:w-6"
-                  loading="eager"
-                />
-                 <p>{bulletSteps[bulletStep].text}</p>
-              </div>
-
-              <div className="mt-4 flex gap-1.5">
-                 {bulletSteps.map((_, i) => (
-                  <span
-                    key={i}
-                    aria-hidden
-                    className={ i === bulletStep
- ? "h-1.5 flex-1 rounded-full bg-gold"
- : "h-1.5 flex-1 rounded-full bg-[rgba(244,238,228,0.2)]" }
+                <p
+                  className="font-roboto text-sm font-bold leading-snug text-[#F4EEE4] md:text-lg"
+                >
+                  {step.title}
+                </p>
+                <div className="mt-1 flex items-start gap-2 font-roboto text-xs leading-[1.3] text-[#F4EEE4]/90 md:text-sm">
+                  <img
+                    src={hamsaIcon.url}
+                    alt=""
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded-full md:h-5 md:w-5"
+                    loading="eager"
                   />
-                ))}
+                  <p>{step.text}</p>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
 
           <p
