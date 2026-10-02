@@ -523,10 +523,12 @@ const Corporate = () => {
 
         {/* ============ Écran 4 — App (carousel bullets, modèle homepage) ============ */}
         <div
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 px-5 pt-20 pb-24 md:px-12"
+          className="absolute inset-0 z-10 flex flex-col items-center overflow-y-auto overscroll-contain px-5 pt-20 pb-24 md:px-12"
+          data-scrollable
           style={{ opacity: s4.opacity, transform: s4.transform, pointerEvents: s4.pointerEvents }}
           aria-hidden={s4.ariaHidden}
- >
+        >
+          <div className="my-auto flex w-full flex-col items-center gap-4">
           <p
             className="text-center text-[clamp(1.75rem,min(8.5vw,5.5vh),3.8rem)] uppercase leading-[1.12] tracking-tight"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900, color: "transparent", WebkitTextStrokeWidth: "2px", WebkitTextStrokeColor: "#FFFFFF" }}
