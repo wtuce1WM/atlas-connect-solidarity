@@ -192,6 +192,7 @@ const Corporate = () => {
   const currentRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const touchYRef = useRef<number | null>(null);
+  const touchScrollRef = useRef<HTMLElement | null>(null);
   const wheelLockedRef = useRef(false);
   const wheelUnlockRef = useRef<number | null>(null);
 
@@ -282,7 +283,6 @@ const Corporate = () => {
       if (touchScrollRef.current) return;
       e.preventDefault();
       setTarget(targetRef.current + (touchYRef.current - y) / 320);
-      touchYRef.current = y;
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown" || e.key === "PageDown") {
