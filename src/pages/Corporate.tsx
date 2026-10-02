@@ -261,6 +261,7 @@ const Corporate = () => {
     const closestScrollable = (t: EventTarget | null) =>
       t instanceof HTMLElement ? t.closest<HTMLElement>("[data-scrollable]") : null;
     const onWheel = (e: WheelEvent) => {
+      if (closestScrollable(e.target)) return;
       e.preventDefault();
       if (wheelLockedRef.current || Math.abs(e.deltaY) < 8) return;
       wheelLockedRef.current = true;
@@ -272,10 +273,13 @@ const Corporate = () => {
     };
     const onTouchStart = (e: TouchEvent) => {
       touchYRef.current = e.touches[0]?.clientY ?? null;
+      touchScrollRef.current = closestScrollable(e.target);
     };
     const onTouchMove = (e: TouchEvent) => {
       const y = e.touches[0]?.clientY ?? null;
       if (y === null || touchYRef.current === null) return;
+      touchYRef.current = y;
+      if (touchScrollRef.current) return;
       e.preventDefault();
       setTarget(targetRef.current + (touchYRef.current - y) / 320);
       touchYRef.current = y;
