@@ -2397,6 +2397,23 @@ Deno.serve(async (req) => {
               }));
             }
 
+            // ── Filtre dur sur badge d'intention (« investir » ⇢ Vente) ──────
+            // Le badge résolu par synonyme n'entre pas dans la requête : il
+            // s'applique ici, sur le corpus rendu par business-search, via
+            // business_badges. Pas de repli silencieux : zéro adresse badgée
+            // reste zéro. Recherche nominative exclue.
+            if (!nameHit && intentBadgeIds.length && kept.length) {
+              const { data: bb } = await admin
+                .from("business_badges").select("business_id")
+                .in("badge_id", intentBadgeIds).limit(5000);
+              const okIds = new Set((bb || []).map((r: any) => String(r.business_id)));
+              const beforeBadge = kept.length;
+              kept = kept.filter((b: any) => okIds.has(String(b.id)));
+              console.log("[embed-ai-chat-v2] intent_badge_filter", JSON.stringify({
+                badges: intentBadgeIds, before: beforeBadge, after: kept.length,
+              }));
+            }
+
             // ── Quartier nommé dans la demande = filtre dur (recherche neuve) ──
             // Le mot quartier n'entre jamais dans la requête (ce n'est pas une catégorie) :
             // il s'applique ici, sur le corpus rendu par business-search. Pas de repli
