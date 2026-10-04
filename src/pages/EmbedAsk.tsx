@@ -1185,6 +1185,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // pour suivre le passage FR/EN sans remonter l'assistant.
   const langRef = useRef(lang);
   langRef.current = lang;
+  const platformCityRef = useRef(platformCity);
+  platformCityRef.current = platformCity;
   const transport = useMemo(() => new DefaultChatTransport({
     api: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat-v2`,
     headers: () => ({
@@ -1222,7 +1224,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         // Surface club : suggestions/relances propres à /club (le flag
         // `is_platform_visible` ne pilote que la surface embed/plateforme).
         surface: isClubScope ? "club" : undefined,
-        activeCity: isPlatform ? platformCity : undefined,
+        activeCity: isPlatform ? platformCityRef.current : undefined,
         language: langRef.current,
         sessionId: sessionIdRef.current,
         messageIndex: messageIndexRef.current,
@@ -3228,8 +3230,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             businessSlug: slug,
             platform: isPlatform || undefined,
             surface: isClubScope ? "club" : undefined,
-            activeCity: isPlatform ? platformCity : undefined,
-            language: lang,
+            activeCity: isPlatform ? platformCityRef.current : undefined,
+            language: langRef.current,
           }),
         },
       );
