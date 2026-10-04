@@ -3230,8 +3230,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             businessSlug: slug,
             platform: isPlatform || undefined,
             surface: isClubScope ? "club" : undefined,
-            activeCity: isPlatform ? platformCity : undefined,
-            language: lang,
+            activeCity: isPlatform ? platformCityRef.current : undefined,
+            language: langRef.current,
           }),
         },
       );
