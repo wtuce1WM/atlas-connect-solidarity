@@ -2316,6 +2316,11 @@ Deno.serve(async (req) => {
          */
         let searchNeighborhood: NeighborhoodMatch | null = null;
 
+        // Badges d'INTENTION résolus par synonyme (« investir » ⇢ Vente) : ids de
+        // badges remplis après la résolution taxonomique, lus par `runSearch` au
+        // moment de l'appel pour filtrer le corpus sur business_badges.
+        let intentBadgeIds: string[] = [];
+
 
         // Recherche déterministe partagée : appelée avec les champs structurés du
         // classifieur, ou en secours avec le message brut quand il n'est pas confiant.
