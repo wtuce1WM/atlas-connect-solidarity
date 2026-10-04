@@ -2433,7 +2433,7 @@ Deno.serve(async (req) => {
                     .from("badges").select("id,name").in("id", intentBadgeIds);
                   const names = (badgeRows || []).map((r: any) => String(r.name || "")).filter(Boolean);
                   emit(videoFeedMarker({
-                    title: names.join(" · ") || undefined,
+                    title: names.join(" · ") || null,
                     videos: strictVideos,
                     total: strictVideos.length,
                     badgeIds: intentBadgeIds,
