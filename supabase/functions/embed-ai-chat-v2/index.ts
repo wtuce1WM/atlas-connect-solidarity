@@ -2316,6 +2316,11 @@ Deno.serve(async (req) => {
          */
         let searchNeighborhood: NeighborhoodMatch | null = null;
 
+        // Badges d'INTENTION résolus par synonyme (« investir » ⇢ Vente) : ids de
+        // badges remplis après la résolution taxonomique, lus par `runSearch` au
+        // moment de l'appel pour filtrer le corpus sur business_badges.
+        let intentBadgeIds: string[] = [];
+
 
         // Recherche déterministe partagée : appelée avec les champs structurés du
         // classifieur, ou en secours avec le message brut quand il n'est pas confiant.
@@ -2389,6 +2394,23 @@ Deno.serve(async (req) => {
               if (inTaxo.length) kept = inTaxo;
               console.log("[embed-ai-chat-v2] taxonomy_guard", JSON.stringify({
                 terms, before: beforeTaxo, after: kept.length,
+              }));
+            }
+
+            // ── Filtre dur sur badge d'intention (« investir » ⇢ Vente) ──────
+            // Le badge résolu par synonyme n'entre pas dans la requête : il
+            // s'applique ici, sur le corpus rendu par business-search, via
+            // business_badges. Pas de repli silencieux : zéro adresse badgée
+            // reste zéro. Recherche nominative exclue.
+            if (!nameHit && intentBadgeIds.length && kept.length) {
+              const { data: bb } = await admin
+                .from("business_badges").select("business_id")
+                .in("badge_id", intentBadgeIds).limit(5000);
+              const okIds = new Set((bb || []).map((r: any) => String(r.business_id)));
+              const beforeBadge = kept.length;
+              kept = kept.filter((b: any) => okIds.has(String(b.id)));
+              console.log("[embed-ai-chat-v2] intent_badge_filter", JSON.stringify({
+                badges: intentBadgeIds, before: beforeBadge, after: kept.length,
               }));
             }
 
@@ -2700,6 +2722,18 @@ Deno.serve(async (req) => {
         let strongTerms = [
           ...new Set(strongTargets.filter((t) => lexicalRank(t) === bestRank).map((t) => t.value)),
         ].slice(0, 2);
+        // Badges d'intention résolus (synonyme curé, ex. « investir » ⇢ Vente) :
+        // hors vocabulaire de recherche (ce ne sont ni catégories ni services),
+        // ils deviennent un filtre dur sur business_badges dans runSearch.
+        intentBadgeIds = resolution
+          ? [
+              ...new Set(
+                resolution.targets
+                  .filter((t) => t.type === "badge" && t.strength !== "expansion" && !isExcluded(t.value))
+                  .map((t) => String(t.value)),
+              ),
+            ]
+          : [];
         // ── Le mot tapé nomme une CATÉGORIE : elle prime sur ses sous-catégories ──
         // « Shopping » est le nom anglais de la catégorie « Commerce » : le classement
         // par type sortait « Boutique » (sous-catégorie) et amputait le corpus (54 fiches
