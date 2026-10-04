@@ -261,8 +261,19 @@ const Corporate = () => {
     if (!el) return;
     const closestScrollable = (t: EventTarget | null) =>
       t instanceof HTMLElement ? t.closest<HTMLElement>("[data-scrollable]") : null;
+    // Un panneau [data-scrollable] ne détourne le geste que s'il peut
+    // réellement défiler dans la direction demandée (sinon on navigue).
+    const canScrollIn = (node: HTMLElement | null, dy: number) => {
+      if (!node) return false;
+      if (node.scrollHeight <= node.clientHeight) return false;
+      const overflowY = getComputedStyle(node).overflowY;
+      if (overflowY !== "auto" && overflowY !== "scroll") return false;
+      return dy > 0
+        ? node.scrollTop + node.clientHeight < node.scrollHeight - 1
+        : node.scrollTop > 1;
+    };
     const onWheel = (e: WheelEvent) => {
-      if (closestScrollable(e.target)) return;
+      if (canScrollIn(closestScrollable(e.target), e.deltaY)) return;
       e.preventDefault();
       if (wheelLockedRef.current || Math.abs(e.deltaY) < 8) return;
       wheelLockedRef.current = true;
