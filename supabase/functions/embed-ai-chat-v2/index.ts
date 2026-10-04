@@ -2705,6 +2705,18 @@ Deno.serve(async (req) => {
         let strongTerms = [
           ...new Set(strongTargets.filter((t) => lexicalRank(t) === bestRank).map((t) => t.value)),
         ].slice(0, 2);
+        // Badges d'intention résolus (synonyme curé, ex. « investir » ⇢ Vente) :
+        // hors vocabulaire de recherche (ce ne sont ni catégories ni services),
+        // ils deviennent un filtre dur sur business_badges dans runSearch.
+        intentBadgeIds = resolution
+          ? [
+              ...new Set(
+                resolution.targets
+                  .filter((t) => t.type === "badge" && t.strength !== "expansion" && !isExcluded(t.value))
+                  .map((t) => String(t.value)),
+              ),
+            ]
+          : [];
         // ── Le mot tapé nomme une CATÉGORIE : elle prime sur ses sous-catégories ──
         // « Shopping » est le nom anglais de la catégorie « Commerce » : le classement
         // par type sortait « Boutique » (sous-catégorie) et amputait le corpus (54 fiches
