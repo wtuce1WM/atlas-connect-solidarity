@@ -2412,6 +2412,37 @@ Deno.serve(async (req) => {
               console.log("[embed-ai-chat-v2] intent_badge_filter", JSON.stringify({
                 badges: intentBadgeIds, before: beforeBadge, after: kept.length,
               }));
+
+              // ── Flux vidéo du badge d'intention (« investir » ⇢ Vente) ──────
+              // Le badge résolu par synonyme ouvre aussi le lecteur vidéo avec
+              // les vidéos portant ce badge dans la ville active, en
+              // intersection STRICTE quand plusieurs badges sont résolus.
+              // Intersection vide ⇒ aucun feed (jamais de résultats relâchés).
+              try {
+                const pool = await loadBadgeVideoFeedPool(admin, {
+                  badgeIds: intentBadgeIds, city: city || null,
+                }).catch(() => null);
+                const strictVideos = pool
+                  ? strictBadgeIntersection(pool.videos, intentBadgeIds).slice(0, 60)
+                  : [];
+                console.log("[embed-ai-chat-v2] intent_badge_feed", JSON.stringify({
+                  badges: intentBadgeIds, pool: pool?.videos.length ?? 0, emitted: strictVideos.length,
+                }));
+                if (strictVideos.length) {
+                  const { data: badgeRows } = await admin
+                    .from("badges").select("id,name_fr,name_en").in("id", intentBadgeIds);
+                  const names = (badgeRows || []).map((r: any) => String((lang === "en" ? r.name_en : r.name_fr) || r.name_fr || "")).filter(Boolean);
+                  emit(videoFeedMarker({
+                    title: names.join(" · ") || null,
+                    videos: strictVideos,
+                    total: strictVideos.length,
+                    badgeIds: intentBadgeIds,
+                    seed: pool?.seed,
+                  }));
+                }
+              } catch (e) {
+                console.error("[embed-ai-chat-v2] intent_badge_feed_failed", String(e));
+              }
             }
 
             // ── Quartier nommé dans la demande = filtre dur (recherche neuve) ──
