@@ -290,10 +290,11 @@ const Corporate = () => {
     const onTouchMove = (e: TouchEvent) => {
       const y = e.touches[0]?.clientY ?? null;
       if (y === null || touchYRef.current === null) return;
+      const delta = touchYRef.current - y;
       touchYRef.current = y;
-      if (touchScrollRef.current) return;
+      if (canScrollIn(touchScrollRef.current, delta)) return;
       e.preventDefault();
-      setTarget(targetRef.current + (touchYRef.current - y) / 320);
+      setTarget(targetRef.current + delta / 320);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown" || e.key === "PageDown") {
