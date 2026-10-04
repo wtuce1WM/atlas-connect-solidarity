@@ -2430,8 +2430,8 @@ Deno.serve(async (req) => {
                 }));
                 if (strictVideos.length) {
                   const { data: badgeRows } = await admin
-                    .from("badges").select("id,name").in("id", intentBadgeIds);
-                  const names = (badgeRows || []).map((r: any) => String(r.name || "")).filter(Boolean);
+                    .from("badges").select("id,name_fr,name_en").in("id", intentBadgeIds);
+                  const names = (badgeRows || []).map((r: any) => String((lang === "en" ? r.name_en : r.name_fr) || r.name_fr || "")).filter(Boolean);
                   emit(videoFeedMarker({
                     title: names.join(" · ") || null,
                     videos: strictVideos,
