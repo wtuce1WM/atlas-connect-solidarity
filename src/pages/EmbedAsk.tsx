@@ -1181,6 +1181,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
 
   // --- AI SDK useChat wiring ---
+  // useChat garde le transport de son premier rendu : la langue est lue via ref
+  // pour suivre le passage FR/EN sans remonter l'assistant.
+  const langRef = useRef(lang);
+  langRef.current = lang;
   const transport = useMemo(() => new DefaultChatTransport({
     api: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat-v2`,
     headers: () => ({
@@ -1219,7 +1223,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         // `is_platform_visible` ne pilote que la surface embed/plateforme).
         surface: isClubScope ? "club" : undefined,
         activeCity: isPlatform ? platformCity : undefined,
-        language: lang,
+        language: langRef.current,
         sessionId: sessionIdRef.current,
         messageIndex: messageIndexRef.current,
         suggestionId: (body as any)?.suggestionId ?? null,
