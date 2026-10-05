@@ -2764,7 +2764,7 @@ Deno.serve(async (req) => {
         // service…) : « acheter un tapis » / « louer une voiture » restent des
         // recherches de tapis / voitures, pas d'immobilier.
         const hasOtherTarget = !!resolution?.targets.some(
-          (t) => t.type !== "badge" && t.strength !== "expansion",
+          (t) => !["badge", "city", "neighborhood"].includes(t.type) && t.strength !== "expansion",
         );
         intentBadgeIds = resolution && !hasOtherTarget
           ? [
