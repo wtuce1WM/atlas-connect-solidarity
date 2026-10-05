@@ -260,7 +260,8 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
       if (k) push(entries, k, { type: "service", value, source: "services.keywords" });
     }
     // Index par mot : « quad » doit atteindre `Quad` et `Excursions en quad`.
-    for (const w of contentWords(value)) {
+    // « côte » seul ne doit pas atteindre « Côte de bœuf » (côte atlantique, côte méditerranéenne).
+    for (const w of contentWords(value).filter((x) => x !== "cote" && x !== "cotes")) {
       const key = stemKey(w);
       const set = wordToServices.get(key) ?? new Set<string>();
       set.add(value);
