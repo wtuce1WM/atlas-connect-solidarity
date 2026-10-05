@@ -2422,7 +2422,7 @@ Deno.serve(async (req) => {
               // les vidéos portant ce badge dans la ville active, en
               // intersection STRICTE quand plusieurs badges sont résolus.
               // Intersection vide ⇒ aucun feed (jamais de résultats relâchés).
-              try {
+              if (intentBadgeIds.length) try {
                 const pool = await loadBadgeVideoFeedPool(admin, {
                   badgeIds: intentBadgeIds, city: city || null,
                 }).catch(() => null);
