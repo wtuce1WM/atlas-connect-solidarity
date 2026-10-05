@@ -2408,11 +2408,7 @@ Deno.serve(async (req) => {
                 .in("badge_id", intentBadgeIds).limit(5000);
               const okIds = new Set((bb || []).map((r: any) => String(r.business_id)));
               const beforeBadge = kept.length;
-              const badged = kept.filter((b: any) => okIds.has(String(b.id)));
-              // Aucune adresse badgée : l'intention ne correspond pas au corpus
-              // (« louer une voiture »), on garde les résultats et on n'ouvre pas de flux.
-              if (!badged.length) intentBadgeIds = [];
-              else kept = badged;
+              kept = kept.filter((b: any) => okIds.has(String(b.id)));
               console.log("[embed-ai-chat-v2] intent_badge_filter", JSON.stringify({
                 badges: intentBadgeIds, before: beforeBadge, after: kept.length,
               }));
