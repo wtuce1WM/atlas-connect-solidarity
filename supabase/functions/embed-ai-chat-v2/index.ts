@@ -2756,11 +2756,17 @@ Deno.serve(async (req) => {
         // Badges d'intention résolus (synonyme curé, ex. « investir » ⇢ Vente) :
         // hors vocabulaire de recherche (ce ne sont ni catégories ni services),
         // ils deviennent un filtre dur sur business_badges dans runSearch.
-        intentBadgeIds = resolution
+        // Appliqué seulement si la requête ne nomme AUCUNE autre cible (catégorie,
+        // service…) : « acheter un tapis » / « louer une voiture » restent des
+        // recherches de tapis / voitures, pas d'immobilier.
+        const hasOtherTarget = !!resolution?.targets.some(
+          (t) => t.type !== "badge" && t.strength !== "expansion",
+        );
+        intentBadgeIds = resolution && !hasOtherTarget
           ? [
               ...new Set(
                 resolution.targets
-                  .filter((t) => t.type === "badge" && t.strength !== "expansion" && !isExcluded(t.value))
+                  .filter((t) => t.type === "badge" && t.strength !== "expansion")
                   .map((t) => String(t.value)),
               ),
             ]
