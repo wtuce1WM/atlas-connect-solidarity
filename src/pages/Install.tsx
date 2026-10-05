@@ -370,6 +370,17 @@ const hardRefresh = async () => {
   window.location.reload();
 };
 
+const UPDATES_CHECKED_KEY = "1wm_install_updates_checked";
+
+// Le clic recharge la page : on consigne la marque avant le rechargement pour
+// pouvoir afficher la confirmation une fois l'app revenue à l'écran.
+const handleCheckUpdates = () => {
+  try {
+    sessionStorage.setItem(UPDATES_CHECKED_KEY, "1");
+  } catch {}
+  void hardRefresh();
+};
+
 const Install = () => {
   const [platform, setPlatform] = useState<Platform>("ios");
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
@@ -379,6 +390,20 @@ const Install = () => {
   const navigate = useLocalizedNavigate();
   const lang: Lang = (["fr", "en", "ar"].includes(language) ? language : "fr") as Lang;
   const t = I18N[lang];
+
+  const [updatesChecked, setUpdatesChecked] = useState(false);
+
+  useEffect(() => {
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem(UPDATES_CHECKED_KEY) === "1";
+      if (seen) sessionStorage.removeItem(UPDATES_CHECKED_KEY);
+    } catch {}
+    if (!seen) return;
+    setUpdatesChecked(true);
+    const timer = window.setTimeout(() => setUpdatesChecked(false), 8000);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   // ---------- Défilement écran par écran (modèle /corporate) ----------
   const [progress, setProgress] = useState(0);
@@ -760,7 +785,7 @@ const Install = () => {
 
           <button
             type="button"
-            onClick={hardRefresh}
+            onClick={handleCheckUpdates}
             className="mt-4 inline-flex items-center gap-2 rounded-full border border-[rgba(198,160,70,.5)] bg-black/45 px-7 py-3 font-roboto text-sm font-medium text-white backdrop-blur transition hover:bg-black/60"
           >
             <Download className="h-4 w-4" />
@@ -941,7 +966,7 @@ const Install = () => {
 
           <button
             type="button"
-            onClick={hardRefresh}
+            onClick={handleCheckUpdates}
             className="inline-flex items-center gap-2 rounded-full border border-[rgba(198,160,70,.5)] bg-black/45 px-6 py-3 font-roboto text-sm font-medium text-white backdrop-blur transition hover:bg-black/60"
           >
             <Download className="h-4 w-4" />
@@ -996,6 +1021,18 @@ const Install = () => {
             </span>
           </button>
         </div>
+        {updatesChecked && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="pointer-events-none fixed inset-x-4 bottom-24 z-[9500] flex justify-center"
+          >
+            <div className="flex max-w-md items-center gap-3 rounded-full border border-[rgba(198,160,70,.5)] bg-black/75 px-5 py-3 text-center backdrop-blur">
+              <Check className="h-4 w-4 shrink-0 text-[#C6A046]" />
+              <p className="font-roboto text-sm leading-snug text-white/90">{t.checkUpdatesDone}</p>
+            </div>
+          </div>
+        )}
       </section>
     </>
   );
