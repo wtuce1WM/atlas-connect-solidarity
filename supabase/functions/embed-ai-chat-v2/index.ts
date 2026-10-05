@@ -2408,7 +2408,11 @@ Deno.serve(async (req) => {
                 .in("badge_id", intentBadgeIds).limit(5000);
               const okIds = new Set((bb || []).map((r: any) => String(r.business_id)));
               const beforeBadge = kept.length;
-              kept = kept.filter((b: any) => okIds.has(String(b.id)));
+              const badged = kept.filter((b: any) => okIds.has(String(b.id)));
+              // Aucune adresse badgée : l'intention ne correspond pas au corpus
+              // (« louer une voiture »), on garde les résultats et on n'ouvre pas de flux.
+              if (!badged.length) intentBadgeIds = [];
+              else kept = badged;
               console.log("[embed-ai-chat-v2] intent_badge_filter", JSON.stringify({
                 badges: intentBadgeIds, before: beforeBadge, after: kept.length,
               }));
@@ -2418,7 +2422,7 @@ Deno.serve(async (req) => {
               // les vidéos portant ce badge dans la ville active, en
               // intersection STRICTE quand plusieurs badges sont résolus.
               // Intersection vide ⇒ aucun feed (jamais de résultats relâchés).
-              try {
+              if (intentBadgeIds.length) try {
                 const pool = await loadBadgeVideoFeedPool(admin, {
                   badgeIds: intentBadgeIds, city: city || null,
                 }).catch(() => null);
@@ -2756,11 +2760,17 @@ Deno.serve(async (req) => {
         // Badges d'intention résolus (synonyme curé, ex. « investir » ⇢ Vente) :
         // hors vocabulaire de recherche (ce ne sont ni catégories ni services),
         // ils deviennent un filtre dur sur business_badges dans runSearch.
-        intentBadgeIds = resolution
+        // Appliqué seulement si la requête ne nomme AUCUNE autre cible (catégorie,
+        // service…) : « acheter un tapis » / « louer une voiture » restent des
+        // recherches de tapis / voitures, pas d'immobilier.
+        const hasOtherTarget = !!resolution?.targets.some(
+          (t) => t.type !== "badge" && t.strength !== "expansion",
+        );
+        intentBadgeIds = resolution && !hasOtherTarget
           ? [
               ...new Set(
                 resolution.targets
-                  .filter((t) => t.type === "badge" && t.strength !== "expansion" && !isExcluded(t.value))
+                  .filter((t) => t.type === "badge" && t.strength !== "expansion")
                   .map((t) => String(t.value)),
               ),
             ]
