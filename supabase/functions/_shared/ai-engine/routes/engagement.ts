@@ -185,7 +185,7 @@ export async function buildCityEngagementSearch(
     return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "Une adresse One World Morocco."}`;
   }).join("\n\n");
 
-  const disclosure = buildDisclosureFromCounts(shown.length, total, city);
+  const disclosure = buildDisclosureFromCounts(shown.length, total, city, 60, lang);
   const closing = lang === "en"
     ? `Want me to narrow this by neighborhood, vibe, or proximity to **${host.name}**?`
     : lang === "ar"

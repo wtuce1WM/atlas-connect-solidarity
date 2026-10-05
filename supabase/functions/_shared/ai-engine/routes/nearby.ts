@@ -478,7 +478,24 @@ export function buildDisclosureFromCounts(
   found: number,
   city: string,
   poolCap = 60,
+  lang: "fr" | "en" | "ar" = "fr",
 ): string {
+  if (lang === "en") {
+    if (shown <= 0) return `📍 No results found in ${city} for this search — tell me if you'd like me to rephrase or widen the search around ${city}.`;
+    if (found >= poolCap) return `📍 I found more than ${poolCap} results; here are the ${poolCap} most relevant. Refine your search to see others.`;
+    const tail = found > shown
+      ? "want me to show the next ones?"
+      : "tell me if you'd like me to narrow it down by neighborhood, atmosphere, or preference.";
+    return `📍 ${shown} of ${found} matching address${found > 1 ? "es" : ""} — ${tail}`;
+  }
+  if (lang === "ar") {
+    if (shown <= 0) return `📍 لم يتم العثور على نتائج في ${city} لهذا البحث — أخبرني إذا أردت إعادة صياغته أو توسيع البحث حول ${city}.`;
+    if (found >= poolCap) return `📍 وجدت أكثر من ${poolCap} نتيجة؛ إليك أكثر ${poolCap} نتيجة صلة. حدّد بحثك لرؤية المزيد.`;
+    const tail = found > shown
+      ? "هل أعرض النتائج التالية؟"
+      : "أخبرني إذا أردت تضييقها حسب الحي أو الأجواء أو التفضيلات.";
+    return `📍 ${shown} من ${found} عنوانًا مطابقًا — ${tail}`;
+  }
   if (shown <= 0) return `📍 Aucun résultat trouvé à ${city} pour cette recherche — dis-moi si tu veux que je reformule ou que j'élargisse autour de ${city}.`;
   if (found >= poolCap) {
     return `📍 J'ai trouvé plus de ${poolCap} résultats, voici les ${poolCap} plus pertinents. Affinez votre recherche pour en voir d'autres.`;
