@@ -3894,21 +3894,21 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const { maps, known: k, destinations: ds, events: es } = extractPayloads(raw);
       for (const p of maps) {
         for (const b of p.businesses || []) {
-          if (b?.name) rich.set(String(b.name).toLowerCase().trim(), b);
+          if (b?.name) rich.set(String(b.name).toLowerCase().replace(/[‘’ʼ`]/g, "'").trim(), b);
         }
       }
       for (const b of k) {
-        if (b?.name) known.set(String(b.name).toLowerCase().trim(), b);
+        if (b?.name) known.set(String(b.name).toLowerCase().replace(/[‘’ʼ`]/g, "'").trim(), b);
       }
       for (const ep of es) {
         (ep.events || []).forEach((ev, idx) => {
-          if (ev?.name) evs.set(String(ev.name).toLowerCase().trim(), { list: ep.events, index: idx });
+          if (ev?.name) evs.set(String(ev.name).toLowerCase().replace(/[‘’ʼ`]/g, "'").trim(), { list: ep.events, index: idx });
         });
       }
       for (const dp of ds) {
         for (const d of dp.destinations || []) {
-          if (d?.name && !dests.has(String(d.name).toLowerCase().trim())) {
-            dests.set(String(d.name).toLowerCase().trim(), d);
+          if (d?.name && !dests.has(String(d.name).toLowerCase().replace(/[‘’ʼ`]/g, "'").trim())) {
+            dests.set(String(d.name).toLowerCase().replace(/[‘’ʼ`]/g, "'").trim(), d);
             destList.push(d);
           }
         }
@@ -4143,7 +4143,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Custom <strong> renderer: bold + clickable when the label matches a cited business.
   const StrongCited = ({ children }: { children?: React.ReactNode }) => {
     const text = String(Array.isArray(children) ? children.join("") : children ?? "").trim();
-    const key = text.toLowerCase();
+    const key = text.toLowerCase().replace(/[‘’ʼ`]/g, "'");
     const evHit = eventsByName.get(key);
     if (evHit) {
       return (
