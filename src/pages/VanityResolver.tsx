@@ -97,7 +97,11 @@ const VanityResolver = () => {
 
   if (resolved.kind === "business") {
     // Lien de partage : Home avec le slidepanel de la fiche ouvert.
-    return <Suspense fallback={null}><Front /></Suspense>;
+    return (
+      <Suspense fallback={<div className="fixed inset-0 bg-foreground" aria-hidden="true" />}>
+        <Front />
+      </Suspense>
+    );
   }
   // Destination: render DestinationPage directly under the vanity URL.
   // DestinationPage reads :destinationName from params; provide via a wrapper.
