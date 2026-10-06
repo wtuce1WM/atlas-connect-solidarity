@@ -107,7 +107,8 @@ const EllohaBookingCalendar = ({ language }: { language: "fr" | "en" }) => {
 };
 
 const ShowcaseSite = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug: rawSlug } = useParams<{ slug: string }>();
+  const slug = rawSlug?.toLowerCase();
 
   // PWA dédiée au business : manifeste généré à la volée (cf. script dans index.html),
   // icône et titre d'accueil propres à l'établissement tant que la page est affichée.
