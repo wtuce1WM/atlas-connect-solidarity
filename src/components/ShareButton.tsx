@@ -208,10 +208,10 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
           aria-label="Partager"
         >
           <div
-            className="relative w-[98%] sm:w-[90%] max-w-lg rounded-3xl text-foreground shadow-2xl p-6 animate-in zoom-in-95 fade-in-0"
-            style={{ backgroundColor: "#ECD6B8" }}
+            className="relative w-[98%] sm:w-[90%] max-w-lg rounded-3xl bg-white text-black shadow-2xl p-6 animate-in zoom-in-95 fade-in-0"
             onClick={(e) => e.stopPropagation()}
           >
+
             {/* Close Button */}
             <button
               onClick={() => setIsOpen(false)}
@@ -223,7 +223,7 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
 
             {/* Header */}
             <div className="flex items-center justify-between mb-4 pr-12">
-              <h2 className="text-lg font-semibold">Partager</h2>
+              <h2 className="text-lg font-semibold text-black">Partager</h2>
             </div>
 
             {/* Preview card */}
@@ -352,7 +352,7 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
                 <span className="h-12 w-12 rounded-full bg-muted text-foreground flex items-center justify-center group-hover:bg-muted/80 transition-colors">
                   {copied ? <Check className="h-5 w-5 text-green-600" /> : <LinkIcon className="h-5 w-5" />}
                 </span>
-                <span className="text-[11px] text-foreground/70">{copied ? "Copié" : "Copier"}</span>
+                <span className="text-[11px] text-black">{copied ? "Copié" : "Copier"}</span>
               </button>
 
               <button
@@ -363,7 +363,7 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
                 <span className="h-12 w-12 rounded-full bg-muted text-foreground flex items-center justify-center group-hover:bg-muted/80 transition-colors">
                   <QrCode className="h-5 w-5" />
                 </span>
-                <span className="text-[11px] text-foreground/70">QR Code</span>
+                <span className="text-[11px] text-black">QR Code</span>
               </button>
 
               {shareLinks.map((link) => (
@@ -386,7 +386,7 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
                   <span className={`h-12 w-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 ${link.bg}`}>
                     {link.icon}
                   </span>
-                  <span className="text-[11px] text-foreground/70">{link.name}</span>
+                  <span className="text-[11px] text-black">{link.name}</span>
                 </a>
               ))}
             </div>
