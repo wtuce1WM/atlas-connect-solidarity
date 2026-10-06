@@ -91,7 +91,9 @@ const VanityResolver = () => {
   }, [vanitySlug]);
 
   if (notFound) return <NotFound />;
-  if (!resolved) return null;
+  // Le lien court attend sa résolution sur le fond sombre de Home, plutôt que
+  // de laisser apparaître le fond beige global avant le montage de la fiche.
+  if (!resolved) return <div className="fixed inset-0 bg-foreground" aria-hidden="true" />;
 
   if (resolved.kind === "business") {
     // Lien de partage : Home avec le slidepanel de la fiche ouvert.

@@ -714,6 +714,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // `ctx` = slug du business d'origine (vidéo/fiche) : ne sert qu'à filtrer
   // les suggestions par ville/catégorie côté client — jamais envoyé au moteur.
   const isPlatform = !slug && /^(1|true|platform|club)$/i.test(params.get("scope") || "");
+  // Un lien court business arrive déjà avec openBusiness dans l'URL. Dans ce
+  // parcours, Home et sa fiche doivent être prêts au premier paint, sans faire
+  // passer l'utilisateur par les états d'introduction de l'assistant.
+  const sharedBusinessId = isPlatform ? (params.get("openBusiness") || "").trim() : "";
   // Surface Club (/club) : mêmes mécanismes que la surface plateforme (aucun business
   // hôte), mais suggestions et relances lues sur la surface `club` en base.
   const isClubScope = !slug && /^club$/i.test((params.get("scope") || "").trim());
@@ -871,7 +875,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
      On révèle ensuite en cascade (opacity + translateY + blur), donc aucun
      reflow n'est visible → plus de saut brutal au chargement. */
   const [heroFontsReady, setHeroFontsReady] = useState(false);
-  const [heroReady, setHeroReady] = useState(false);
+  const [heroReady, setHeroReady] = useState(() => !!sharedBusinessId);
   const heroReduced = useRef(false);
   if (typeof window !== "undefined" && !heroReduced.current) {
     heroReduced.current = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
@@ -1447,7 +1451,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return () => { ro.disconnect(); window.removeEventListener("resize", report); window.clearTimeout(t2); };
   }, [homeState, visibleSuggestions.length, showAllSuggestions, lang]);
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
-  const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  const [openBusinessId, setOpenBusinessId] = useState<string | null>(() => sharedBusinessId || null);
   /** Dates du widget Disponibilité de l'assistant, reprises dans la fiche ouverte. */
   const [openBusinessStay, setOpenBusinessStay] = useState<{ checkIn: string; checkOut: string; adults: number } | null>(null);
   /** Établissements ayant une disponibilité SerpAPI : seuls ceux-là démarrent
@@ -1505,7 +1509,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     panelTransitionRef.current = false;
   }, [pendingBusinessOpen, openBusinessId, activeFeedVideoId]);
   // Lien de partage (/:slug → ?openBusiness=ID) : ouvre la fiche une fois.
-  const sharedBusinessOpenedRef = useRef(false);
+  const sharedBusinessOpenedRef = useRef(!!sharedBusinessId);
   useEffect(() => {
     if (sharedBusinessOpenedRef.current) return;
     const id = new URLSearchParams(window.location.search).get("openBusiness");
