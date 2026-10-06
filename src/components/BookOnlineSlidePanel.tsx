@@ -5487,6 +5487,16 @@ const BookOnlineSlidePanelInner = ({
               profileClubEvent="open-panel-club-popup"
               aiButtonActive={isAiOriginFiche && isDesktopSplit}
               onAiClick={() => {
+                // Parcours Home / Assistant IA : la fiche se ferme et l'assistant
+                // déjà monté derrière revient à son accueil. Ne jamais ouvrir ici
+                // l'overlay IA autonome, qui dupliquerait le header natif de Home.
+                if (aiCtaReturnsToAssistant) {
+                  onClose?.();
+                  try {
+                    window.postMessage({ type: "owm-host:reset-conversation" }, window.location.origin);
+                  } catch { /* noop */ }
+                  return;
+                }
                 // Fiche ouverte depuis l'assistant IA : on revient à l'assistant 1WM
                 // (conversation intacte) sur tous les formats d'écran.
                 if (isAiOriginFiche) {
