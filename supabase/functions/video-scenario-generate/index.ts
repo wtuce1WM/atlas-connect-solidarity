@@ -725,7 +725,9 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
 
       if (hasManualSelection) {
         template_props.videos = Array.from(new Set(selVideos)).slice(0, 8);
-        template_props.images = Array.from(new Set(selImages)).slice(0, 8);
+        // Une sélection manuelle d'images doit rester fidèle au choix du Studio.
+        // La limite précédente à 8 supprimait silencieusement les suivantes.
+        template_props.images = Array.from(new Set(selImages)).slice(0, 24);
       } else {
         const medias = Array.isArray(businessContext?.medias) ? businessContext.medias : [];
         const realVideos = medias
