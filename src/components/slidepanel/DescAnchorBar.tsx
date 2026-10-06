@@ -91,15 +91,17 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
   const scan = useCallback(() => {
     const root = document.getElementById(containerId);
     if (!root) return;
-    const heads = Array.from(root.querySelectorAll("h2")) as HTMLElement[];
+    const heads = Array.from(root.querySelectorAll("[data-owm-anchor-label], h2")) as HTMLElement[];
     const next: Anchor[] = [];
     let descDone = false;
     heads.forEach((h, i) => {
       if (h.closest("[data-owm-no-anchor]")) return;
+      const explicitLabel = h.getAttribute("data-owm-anchor-label")?.trim();
+      if (!explicitLabel && h.parentElement?.closest("[data-owm-anchor-label]")) return;
       const raw = (h.textContent || "").replace(/\s+/g, " ").trim();
-      if (!raw) return;
+      if (!raw && !explicitLabel) return;
       // Les H2 issus du corps de la Description ne produisent qu'un seul badge « À propos ».
-      const inDescBody = !!h.closest("[data-owm-desc-body]");
+      const inDescBody = h.hasAttribute("data-owm-desc-body") || !!h.closest("[data-owm-desc-body]");
       if (inDescBody) {
         if (descDone) return;
         descDone = true;
@@ -108,7 +110,9 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
         return;
       }
       if (!h.id) h.id = `owm-anchor-${i}`;
-      const label = raw.length > MAX_LABEL ? `${raw.slice(0, MAX_LABEL - 1)}…` : raw;
+      const sourceLabel = explicitLabel || raw;
+      const label = sourceLabel.length > MAX_LABEL ? `${sourceLabel.slice(0, MAX_LABEL - 1)}…` : sourceLabel;
+      if (next.some((anchor) => anchor.id === h.id || anchor.label === label)) return;
       next.push({ id: h.id, label });
     });
     // Fallback : description sans aucun H2 → on ancre sur le corps de la description.
