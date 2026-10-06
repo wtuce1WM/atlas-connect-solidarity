@@ -2529,7 +2529,10 @@ const SceneDigitalId: React.FC<{
 const BAD_HOSTS = ["example.com", "example.org", "placeholder", "test.com", "localhost"];
 const sanitizeUrls = (arr: string[]): string[] =>
   (arr || []).filter((u) => {
-    if (typeof u !== "string") return false;
+    if (typeof u !== "string" || !u.trim()) return false;
+    // Le worker télécharge les médias distants dans public/dl avant le rendu.
+    // Ces chemins locaux sont sûrs et resolveDl les convertit via staticFile.
+    if (u.startsWith("dl/")) return true;
     if (!/^https?:\/\//i.test(u)) return false;
     const lower = u.toLowerCase();
     return !BAD_HOSTS.some((h) => lower.includes(h));
