@@ -798,9 +798,10 @@ const BookOnlineSlidePanelInner = ({
 
   const geo = useGeolocation();
   const { coords: userCoords } = geo;
-  // Marqueur "Vous êtes ici" : jamais dans le widget embed (site tiers), et
-  // uniquement si la géoloc est réellement active (pas de coords résiduelles).
-  const showUserMarker = !embedMode && geo.isEnabled;
+  // Marqueur "Vous êtes ici" : uniquement si la géoloc est active et que la
+  // position réelle est au Maroc (userMarkerCoords est null sinon — les coords
+  // clampées sur la Koutoubia ne doivent jamais afficher le marqueur).
+  const showUserMarker = geo.isEnabled && !!geo.userMarkerCoords;
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
   // La ville du Master est l'unique référence du parcours business-centric.
   // Dans l'assistant IA, le hook charge seulement la taxonomie : les compteurs
@@ -5281,7 +5282,7 @@ const BookOnlineSlidePanelInner = ({
               baseColor={mapBaseColor || undefined}
               onReady={onMapReady}
               mapTheme={mapTheme}
-              userLocation={showUserMarker && userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
+              userLocation={showUserMarker && geo.userMarkerCoords ? { lat: geo.userMarkerCoords.lat, lng: geo.userMarkerCoords.lng } : null}
             />
               );
             })()}

@@ -6200,7 +6200,7 @@ const SearchPage = () => {
               center={mapCenterForResults}
               fitToMarkers
               subcategoryIconMap={undefined}
-              userLocation={geo.isEnabled && geo.coords ? geo.coords : null}
+              userLocation={geo.isEnabled && geo.userMarkerCoords ? geo.userMarkerCoords : null}
               userMarkerLabel={mapLabel("youAreHere", language)}
             />
 
