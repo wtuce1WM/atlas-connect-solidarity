@@ -1297,7 +1297,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         if (!Array.isArray(out) || out.length !== refs.length || translatedLangRef.current !== target) return;
         setMessages((prev) => prev.map((m: any, mi) => {
           const mine = refs.map((r, i) => ({ ...r, t: out[i] })).filter((r) => r.mi === mi);
-          if (!mine.length || prev[mi] !== messages[mi]) return m;
+          if (!mine.length || m?.id !== (messages[mi] as any)?.id) return m;
           const parts = [...m.parts];
           mine.forEach((r) => { parts[r.pi] = { ...parts[r.pi], text: r.markers ? `${r.t}\n\n${r.markers}` : r.t }; });
           return { ...m, parts };
