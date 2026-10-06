@@ -4052,7 +4052,10 @@ const BookOnlineSlidePanelInner = ({
                   {/* Vidéos annonces Location / Vente — sous Avis Clients, pleine largeur */}
                   {!descOverlayContent && hasRentalSaleVideos && (() => {
                     return (
-                      <div className="mt-8 flex flex-col gap-6">
+                      <div
+                        data-owm-anchor-label={language === "en" ? "Videos" : language === "ar" ? "فيديوهات" : "Vidéos"}
+                        className="mt-8 flex flex-col gap-6"
+                      >
                         {rentalSaleVideos.map((d: any) => {
                           const pt = (d.price_type || "").toString().toLowerCase();
                           const ptLabel = pt === "location"
