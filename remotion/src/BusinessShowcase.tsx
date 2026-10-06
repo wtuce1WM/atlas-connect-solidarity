@@ -2,9 +2,9 @@ import React from "react";
 import {
   AbsoluteFill,
   Sequence,
-  Img,
-  OffthreadVideo,
-  Audio,
+  Img as RImg,
+  OffthreadVideo as ROffthreadVideo,
+  Audio as RAudio,
   Loop,
   Easing,
   interpolate,
@@ -15,6 +15,13 @@ import {
   staticFile,
 } from "remotion";
 import { palette as COLORS, alpha, elevation, shadowOn, shadowOf, glowOf, stack, dropShadow, sp, display, body } from "./tokens";
+
+// Médias internalisés par le worker en chemin relatif `dl/…` : sans staticFile,
+// Remotion les cherche à la racine (404) et le rendu plante.
+const resolveDl = (src: any) => (typeof src === "string" && src.startsWith("dl/") ? staticFile(src) : src);
+const Img = (p: React.ComponentProps<typeof RImg>) => <RImg {...p} src={resolveDl(p.src)} />;
+const OffthreadVideo = (p: React.ComponentProps<typeof ROffthreadVideo>) => <ROffthreadVideo {...p} src={resolveDl(p.src)} />;
+const Audio = (p: React.ComponentProps<typeof RAudio>) => <RAudio {...p} src={resolveDl(p.src)} />;
 
 // Base 22s @ 30fps — étendu dynamiquement par les options
 export const SHOWCASE_TOTAL_FRAMES = 660;
