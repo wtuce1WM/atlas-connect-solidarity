@@ -3800,6 +3800,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     setError(null);
     if (!keepPanels) {
       setOpenMap(null);
+      setOpenGenericPoi(false);
       setOpenEvents(null);
       setOpenBusinessId(null);
       setYoutubeOpen(false);
@@ -5804,6 +5805,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               eagerPoiCategories
               poiAnchorCity={businessId ? (businessCity || null) : (genericPoiAnchorId === POI_ESSAOUIRA_PORT_ID ? "Essaouira" : "Marrakech")}
               onClose={() => setOpenGenericPoi(false)}
+              aiCtaReturnsToAssistant
             />
           </Suspense>
         </div>
