@@ -236,6 +236,7 @@ export function useGeolocation(): GeolocationState {
       try {
         const parsed = manualCoordsStr ? JSON.parse(manualCoordsStr) : null;
         setCoords(parsed);
+        setUserMarkerCoords(parsed && isInMorocco(parsed.lat, parsed.lng) ? parsed : null);
         setConfirmedAddress(manualAddr || null);
         setIsManual(true);
         setIsEnabled(true);
@@ -295,6 +296,7 @@ export function useGeolocation(): GeolocationState {
         setDetectedCity(null);
         setDetectedNeighborhood(null);
         setCoords(null);
+        setUserMarkerCoords(null);
         setConfirmedAddress(null);
       }
       return;
