@@ -800,7 +800,7 @@ const BookOnlineSlidePanelInner = ({
   const { coords: userCoords } = geo;
   // Marqueur "Vous êtes ici" : jamais dans le widget embed (site tiers), et
   // uniquement si la géoloc est réellement active (pas de coords résiduelles).
-  const showUserMarker = !embedMode && geo.isEnabled;
+  const showUserMarker = !embedMode && geo.isEnabled && !!geo.userMarkerCoords;
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
   // La ville du Master est l'unique référence du parcours business-centric.
   // Dans l'assistant IA, le hook charge seulement la taxonomie : les compteurs
@@ -5281,7 +5281,7 @@ const BookOnlineSlidePanelInner = ({
               baseColor={mapBaseColor || undefined}
               onReady={onMapReady}
               mapTheme={mapTheme}
-              userLocation={showUserMarker && userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
+              userLocation={showUserMarker && geo.userMarkerCoords ? { lat: geo.userMarkerCoords.lat, lng: geo.userMarkerCoords.lng } : null}
             />
               );
             })()}
