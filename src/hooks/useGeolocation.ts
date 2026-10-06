@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { clampToSupportedRegion } from "@/lib/supportedGeoRegion";
+import { clampToSupportedRegion, isInMorocco } from "@/lib/supportedGeoRegion";
 
 
 interface GeoCity {
@@ -28,6 +28,8 @@ interface GeolocationState {
   isDetecting: boolean;
   /** User's raw coords */
   coords: { lat: number; lng: number } | null;
+  /** Coords du marqueur « Vous êtes ici » : position réelle uniquement si au Maroc, sinon null */
+  userMarkerCoords: { lat: number; lng: number } | null;
   /** The confirmed address label (from manual pick or auto-detect) */
   confirmedAddress: string | null;
   /** Accept geolocation */
