@@ -388,6 +388,7 @@ export function useGeolocation(): GeolocationState {
     localStorage.setItem(MANUAL_COORDS_KEY, JSON.stringify(newCoords));
     localStorage.setItem(MANUAL_ADDRESS_KEY, address);
     setCoords(newCoords);
+    setUserMarkerCoords(isInMorocco(newCoords.lat, newCoords.lng) ? newCoords : null);
     setConfirmedAddress(address);
     setIsManual(true);
     setIsEnabled(true);
@@ -424,10 +425,12 @@ export function useGeolocation(): GeolocationState {
       localStorage.setItem(MANUAL_COORDS_KEY, JSON.stringify(newCoords));
       localStorage.setItem(MANUAL_ADDRESS_KEY, cityName);
       setCoords(newCoords);
+      setUserMarkerCoords(isInMorocco(newCoords.lat, newCoords.lng) ? newCoords : null);
     } else {
       localStorage.removeItem(MANUAL_COORDS_KEY);
       localStorage.setItem(MANUAL_ADDRESS_KEY, cityName);
       setCoords(null);
+      setUserMarkerCoords(null);
     }
     setConfirmedAddress(cityName);
     setDetectedCity(cityName);
@@ -444,6 +447,7 @@ export function useGeolocation(): GeolocationState {
     showBanner,
     isDetecting,
     coords,
+    userMarkerCoords,
     confirmedAddress,
     accept,
     decline,
