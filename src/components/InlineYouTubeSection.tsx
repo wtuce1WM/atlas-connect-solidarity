@@ -152,7 +152,7 @@ const InlineYouTubeSection = ({ businessId, language, className }: Props) => {
   if (videos.length === 0) return null;
 
   return (
-    <div className={`mt-8 pt-6 border-t border-white/10 ${className || ""}`}>
+    <div data-owm-anchor-label="YouTube" className={`mt-8 pt-6 border-t border-white/10 ${className || ""}`}>
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <h2 className="text-lg md:text-xl font-bold uppercase text-white font-['Montserrat',sans-serif] flex items-center gap-2">
           <YouTubeIcon className="h-5 w-5" />
