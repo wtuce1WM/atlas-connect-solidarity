@@ -313,7 +313,7 @@ const BookOnlineSlidePanelInner = ({
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext, prioritizeBusinessSwipe = false, internalWheelNav = false,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
-  poiOverrideIds, poiCityCorpus, poiOverrideTitle, eagerPoiCategories = false, poiAnchorCity, feedLayout, loadingSurface, aiMode, onPoiBusinessOpen,
+  poiOverrideIds, poiCityCorpus, poiOverrideTitle, eagerPoiCategories = false, poiAnchorCity, feedLayout, loadingSurface, aiMode, aiCtaReturnsToAssistant, onPoiBusinessOpen,
   onFeedBadgeSelect, onFeedCitySelect, onFeedYouTubeSelect,
 
 }: BookOnlineSlidePanelProps) => {
@@ -5487,6 +5487,16 @@ const BookOnlineSlidePanelInner = ({
               profileClubEvent="open-panel-club-popup"
               aiButtonActive={isAiOriginFiche && isDesktopSplit}
               onAiClick={() => {
+                // Parcours Home / Assistant IA : la fiche se ferme et l'assistant
+                // déjà monté derrière revient à son accueil. Ne jamais ouvrir ici
+                // l'overlay IA autonome, qui dupliquerait le header natif de Home.
+                if (aiCtaReturnsToAssistant) {
+                  onClose?.();
+                  try {
+                    window.postMessage({ type: "owm-host:reset-conversation" }, window.location.origin);
+                  } catch { /* noop */ }
+                  return;
+                }
                 // Fiche ouverte depuis l'assistant IA : on revient à l'assistant 1WM
                 // (conversation intacte) sur tous les formats d'écran.
                 if (isAiOriginFiche) {
