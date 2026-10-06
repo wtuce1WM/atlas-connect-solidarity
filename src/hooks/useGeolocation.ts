@@ -196,7 +196,7 @@ export function useGeolocation(): GeolocationState {
   // fiables au premier rendu (les coords auto stockées sont déjà clampées
   // sur la Koutoubia, impossible de savoir si l'utilisateur était au Maroc).
   const [userMarkerCoords, setUserMarkerCoords] = useState<{ lat: number; lng: number } | null>(
-    initial.isManual && initial.coords && isInMorocco(initial.coords.lat, initial.coords.lng) ? initial.coords : null
+    initial.isManual && initial.coords && isInMoroccoBounds(initial.coords.lat, initial.coords.lng) ? initial.coords : null
   );
   const [confirmedAddress, setConfirmedAddress] = useState<string | null>(initial.confirmedAddress);
   const [cities, setCities] = useState<GeoCity[]>([]);
@@ -237,7 +237,7 @@ export function useGeolocation(): GeolocationState {
       try {
         const parsed = manualCoordsStr ? JSON.parse(manualCoordsStr) : null;
         setCoords(parsed);
-        setUserMarkerCoords(parsed && isInMorocco(parsed.lat, parsed.lng) ? parsed : null);
+        setUserMarkerCoords(parsed && isInMoroccoBounds(parsed.lat, parsed.lng) ? parsed : null);
         setConfirmedAddress(manualAddr || null);
         setIsManual(true);
         setIsEnabled(true);
@@ -318,7 +318,7 @@ export function useGeolocation(): GeolocationState {
         localStorage.setItem(AUTO_COORDS_KEY, JSON.stringify({ lat: latitude, lng: longitude }));
         setCoords({ lat: latitude, lng: longitude });
         // Marqueur « Vous êtes ici » : position réelle, uniquement au Maroc.
-        setUserMarkerCoords(isInMorocco(rawLat, rawLng) ? { lat: rawLat, lng: rawLng } : null);
+        setUserMarkerCoords(isInMoroccoBounds(rawLat, rawLng) ? { lat: rawLat, lng: rawLng } : null);
 
         setDetectedCity(findNearestCity(latitude, longitude, cities));
 
@@ -389,7 +389,7 @@ export function useGeolocation(): GeolocationState {
     localStorage.setItem(MANUAL_COORDS_KEY, JSON.stringify(newCoords));
     localStorage.setItem(MANUAL_ADDRESS_KEY, address);
     setCoords(newCoords);
-    setUserMarkerCoords(isInMorocco(newCoords.lat, newCoords.lng) ? newCoords : null);
+    setUserMarkerCoords(isInMoroccoBounds(newCoords.lat, newCoords.lng) ? newCoords : null);
     setConfirmedAddress(address);
     setIsManual(true);
     setIsEnabled(true);
@@ -426,7 +426,7 @@ export function useGeolocation(): GeolocationState {
       localStorage.setItem(MANUAL_COORDS_KEY, JSON.stringify(newCoords));
       localStorage.setItem(MANUAL_ADDRESS_KEY, cityName);
       setCoords(newCoords);
-      setUserMarkerCoords(isInMorocco(newCoords.lat, newCoords.lng) ? newCoords : null);
+      setUserMarkerCoords(isInMoroccoBounds(newCoords.lat, newCoords.lng) ? newCoords : null);
     } else {
       localStorage.removeItem(MANUAL_COORDS_KEY);
       localStorage.setItem(MANUAL_ADDRESS_KEY, cityName);
