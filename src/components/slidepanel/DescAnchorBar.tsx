@@ -132,11 +132,18 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
   useEffect(() => {
     const t = window.setTimeout(scan, 250);
     const t2 = window.setTimeout(scan, 1200);
+    // Contenu chargé tardivement (documents, avis, médias) : re-scan à chaque changement.
+    let raf = 0;
+    const root = document.getElementById(containerId);
+    const mo = root ? new MutationObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(scan); }) : null;
+    if (root && mo) mo.observe(root, { childList: true, subtree: true });
     return () => {
       window.clearTimeout(t);
       window.clearTimeout(t2);
+      cancelAnimationFrame(raf);
+      mo?.disconnect();
     };
-  }, [scan, deps]);
+  }, [scan, deps, containerId]);
 
   // Scroll-spy
   useEffect(() => {
