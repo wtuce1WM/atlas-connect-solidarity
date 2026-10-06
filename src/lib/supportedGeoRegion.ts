@@ -23,24 +23,6 @@ export function isInMarrakechSafi(lat: number, lng: number): boolean {
   );
 }
 
-/** Limites approximatives du Maroc (pour le marqueur « Vous êtes ici »). */
-export const MOROCCO_BOUNDS = {
-  minLat: 27.5,
-  maxLat: 36.0,
-  minLng: -13.5,
-  maxLng: -0.9,
-} as const;
-
-export function isInMorocco(lat: number, lng: number): boolean {
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
-  return (
-    lat >= MOROCCO_BOUNDS.minLat &&
-    lat <= MOROCCO_BOUNDS.maxLat &&
-    lng >= MOROCCO_BOUNDS.minLng &&
-    lng <= MOROCCO_BOUNDS.maxLng
-  );
-}
-
 /** Position réelle si dans Marrakech-Safi, sinon Koutoubia. */
 export function clampToSupportedRegion(coords: { lat: number; lng: number }): { lat: number; lng: number } {
   return isInMarrakechSafi(coords.lat, coords.lng) ? coords : { ...KOUTOUBIA_COORDS };

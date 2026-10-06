@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { clampToSupportedRegion, isInMorocco } from "@/lib/supportedGeoRegion";
+import { clampToSupportedRegion } from "@/lib/supportedGeoRegion";
+import { isInMoroccoBounds } from "@/lib/geoBounds";
 
 
 interface GeoCity {
