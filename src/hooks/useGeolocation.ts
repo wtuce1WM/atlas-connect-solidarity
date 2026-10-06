@@ -308,12 +308,16 @@ export function useGeolocation(): GeolocationState {
       (position) => {
         // Le catalogue ne couvre que la région Marrakech-Safi : en dehors, on
         // utilise le point GPS de la Koutoubia plutôt que la position réelle.
+        const rawLat = position.coords.latitude;
+        const rawLng = position.coords.longitude;
         const { lat: latitude, lng: longitude } = clampToSupportedRegion({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
+          lat: rawLat,
+          lng: rawLng,
         });
         localStorage.setItem(AUTO_COORDS_KEY, JSON.stringify({ lat: latitude, lng: longitude }));
         setCoords({ lat: latitude, lng: longitude });
+        // Marqueur « Vous êtes ici » : position réelle, uniquement au Maroc.
+        setUserMarkerCoords(isInMorocco(rawLat, rawLng) ? { lat: rawLat, lng: rawLng } : null);
 
         setDetectedCity(findNearestCity(latitude, longitude, cities));
 
@@ -362,6 +366,7 @@ export function useGeolocation(): GeolocationState {
       localStorage.setItem(STORAGE_KEY, "disabled");
       localStorage.removeItem(AUTO_COORDS_KEY);
       setIsEnabled(false);
+      setUserMarkerCoords(null);
     } else {
       localStorage.setItem(STORAGE_KEY, "enabled");
       localStorage.removeItem(MANUAL_COORDS_KEY);
