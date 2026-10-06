@@ -1271,6 +1271,36 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   });
 
   const streaming = status === "submitted" || status === "streaming";
+  // Changement de langue : les réponses IA déjà affichées sont traduites
+  // dans la nouvelle langue (texte uniquement, résultats inchangés).
+  const translatedLangRef = useRef(lang);
+  useEffect(() => {
+    if (translatedLangRef.current === lang || streaming) return;
+    translatedLangRef.current = lang;
+    const refs: { mi: number; pi: number; text: string }[] = [];
+    messages.forEach((m: any, mi) => {
+      if (m?.role !== "assistant") return;
+      (m.parts || []).forEach((p: any, pi: number) => {
+        if (p?.type === "text" && typeof p.text === "string" && p.text.trim()) refs.push({ mi, pi, text: p.text });
+      });
+    });
+    if (!refs.length) return;
+    const target = lang;
+    supabase.functions
+      .invoke("translate-chat-text", { body: { texts: refs.map((r) => r.text), target } })
+      .then(({ data }) => {
+        const out: string[] | undefined = data?.texts;
+        if (!Array.isArray(out) || out.length !== refs.length || translatedLangRef.current !== target) return;
+        setMessages((prev) => prev.map((m: any, mi) => {
+          const mine = refs.map((r, i) => ({ ...r, t: out[i] })).filter((r) => r.mi === mi);
+          if (!mine.length || prev[mi] !== messages[mi]) return m;
+          const parts = [...m.parts];
+          mine.forEach((r) => { parts[r.pi] = { ...parts[r.pi], text: r.t }; });
+          return { ...m, parts };
+        }) as any);
+      })
+      .catch(() => {});
+  }, [lang, streaming, messages, setMessages]);
   // Rattachement du widget de disponibilité au message assistant du moteur.
   useEffect(() => {
     const city = pendingBookingCityRef.current;
