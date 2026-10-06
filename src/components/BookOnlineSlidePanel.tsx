@@ -4903,7 +4903,7 @@ const BookOnlineSlidePanelInner = ({
                 );
               })()}
             </div>
-            {(business?.name || activeFrontTab || poiMasterOverride?.name || (overridePool && poiOverrideTitle)) && (
+            {(business?.name || activeFrontTab || poiOverrideTitle || poiMasterOverride?.name || (overridePool && poiOverrideTitle)) && (
               <div data-map-pill-row className="absolute top-[calc(3.3rem+0.75rem)] left-14 right-3 z-[10] pointer-events-none flex justify-center">
                 <div className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   {poiOverrideTitle ? (
