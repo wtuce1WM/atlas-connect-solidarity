@@ -191,6 +191,12 @@ export function useGeolocation(): GeolocationState {
   const [showBanner, setShowBanner] = useState(initial.showBanner);
   const [isDetecting, setIsDetecting] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(initial.coords);
+  // Marqueur « Vous êtes ici » : seules les coords manuelles stockées sont
+  // fiables au premier rendu (les coords auto stockées sont déjà clampées
+  // sur la Koutoubia, impossible de savoir si l'utilisateur était au Maroc).
+  const [userMarkerCoords, setUserMarkerCoords] = useState<{ lat: number; lng: number } | null>(
+    initial.isManual && initial.coords && isInMorocco(initial.coords.lat, initial.coords.lng) ? initial.coords : null
+  );
   const [confirmedAddress, setConfirmedAddress] = useState<string | null>(initial.confirmedAddress);
   const [cities, setCities] = useState<GeoCity[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<GeoNeighborhood[]>([]);
