@@ -275,6 +275,8 @@ interface BookOnlineSlidePanelProps {
   aiCtaDisabled?: boolean;
   /** Le CTA IA ramène vers l'assistant IA déjà ouvert (ferme le panneau). */
   aiCtaReturnsToAssistant?: boolean;
+  /** Clic marqueur business de l'overlay Map : délégué à l'hôte (même fiche que les résultats IA). */
+  onPoiBusinessOpen?: (id: string, navIds: string[]) => void;
   /** Auto-opens an overlay as soon as the data is ready (embed usage) */
   initialOverlay?: "poi" | "reviews" | "description";
   /** Fond du squelette de chargement : "dark" pour les contextes sombres (viewer vidéo /front) */
@@ -311,7 +313,7 @@ const BookOnlineSlidePanelInner = ({
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext, prioritizeBusinessSwipe = false, internalWheelNav = false,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
-  poiOverrideIds, poiCityCorpus, poiOverrideTitle, eagerPoiCategories = false, poiAnchorCity, feedLayout, loadingSurface, aiMode,
+  poiOverrideIds, poiCityCorpus, poiOverrideTitle, eagerPoiCategories = false, poiAnchorCity, feedLayout, loadingSurface, aiMode, onPoiBusinessOpen,
   onFeedBadgeSelect, onFeedCitySelect, onFeedYouTubeSelect,
 
 }: BookOnlineSlidePanelProps) => {
@@ -5242,10 +5244,10 @@ const BookOnlineSlidePanelInner = ({
                   // (feed vidéo du pool de la Map), avec le master en tête.
                   const realId = poiId.slice(5);
                   if (overridePois || !realId) return;
+                  const navIds = mapNavIds.includes(realId) ? mapNavIds : [realId, ...mapNavIds];
+                  if (onPoiBusinessOpen) { onPoiBusinessOpen(realId, navIds); return; }
                   poiOpenedFromMapRef.current = true;
-                  setPoiNavIds(
-                    mapNavIds.includes(realId) ? mapNavIds : [realId, ...mapNavIds]
-                  );
+                  setPoiNavIds(navIds);
                   setSelectedPoiBusinessId(realId);
                   return;
                 }
@@ -5255,8 +5257,10 @@ const BookOnlineSlidePanelInner = ({
                 } else if (poiMapMode === "destinations") {
                   setSelectedDestinationId(poiId);
                 } else if (poiBusinesses.length > 0 || poiOverrideRows.length > 0) {
+                  const navIds = mapNavIds.includes(poiId) ? mapNavIds : [poiId];
+                  if (onPoiBusinessOpen) { onPoiBusinessOpen(poiId, navIds); return; }
                   poiOpenedFromMapRef.current = true;
-                  setPoiNavIds(mapNavIds.includes(poiId) ? mapNavIds : [poiId]);
+                  setPoiNavIds(navIds);
                   setSelectedPoiBusinessId(poiId);
 
                 } else {
