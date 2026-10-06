@@ -3,7 +3,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import NotFound from "@/pages/NotFound";
 
-const SearchPage = lazy(() => import("@/pages/SearchPage"));
+const Front = lazy(() => import("@/pages/Front"));
 const DestinationPage = lazy(() => import("@/pages/DestinationPage"));
 
 // Routes already used at root — never treat as a vanity slug.
@@ -94,7 +94,8 @@ const VanityResolver = () => {
   if (!resolved) return null;
 
   if (resolved.kind === "business") {
-    return <Suspense fallback={null}><SearchPage /></Suspense>;
+    // Lien de partage : Home avec le slidepanel de la fiche ouvert.
+    return <Suspense fallback={null}><Front /></Suspense>;
   }
   // Destination: render DestinationPage directly under the vanity URL.
   // DestinationPage reads :destinationName from params; provide via a wrapper.

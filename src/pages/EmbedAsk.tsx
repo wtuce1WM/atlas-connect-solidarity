@@ -1504,6 +1504,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     setOpenBusinessId(id);
     panelTransitionRef.current = false;
   }, [pendingBusinessOpen, openBusinessId, activeFeedVideoId]);
+  // Lien de partage (/:slug → ?openBusiness=ID) : ouvre la fiche une fois.
+  const sharedBusinessOpenedRef = useRef(false);
+  useEffect(() => {
+    if (sharedBusinessOpenedRef.current) return;
+    const id = new URLSearchParams(window.location.search).get("openBusiness");
+    if (!id) return;
+    sharedBusinessOpenedRef.current = true;
+    setPendingBusinessOpen({ id, overlay: null });
+  }, []);
   // Source unique de vérité pour tous les overlays Map. Un second effet dédié à
   // `openMap` envoyait parfois « map-closed » pendant l'ouverture du POI générique.
   useEffect(() => {
