@@ -5836,6 +5836,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               poiOverrideIds={openMapPoiIds}
               poiOverrideTitle={openMap.title || (lang === "en" ? "Results on the map" : lang === "ar" ? "النتائج على الخريطة" : "Résultats sur la carte")}
               onClose={() => setOpenMap(null)}
+              aiCtaReturnsToAssistant
               // Marqueur → même fiche que les résultats IA (vidéo interne 1, CTA IA → accueil).
               onPoiBusinessOpen={(id, navIds) => {
                 setOpenMap(null);
