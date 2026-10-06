@@ -3800,6 +3800,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     setError(null);
     if (!keepPanels) {
       setOpenMap(null);
+      setOpenGenericPoi(false);
       setOpenEvents(null);
       setOpenBusinessId(null);
       setYoutubeOpen(false);
@@ -5804,6 +5805,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               eagerPoiCategories
               poiAnchorCity={businessId ? (businessCity || null) : (genericPoiAnchorId === POI_ESSAOUIRA_PORT_ID ? "Essaouira" : "Marrakech")}
               onClose={() => setOpenGenericPoi(false)}
+              aiCtaReturnsToAssistant
             />
           </Suspense>
         </div>
@@ -5836,6 +5838,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               poiOverrideIds={openMapPoiIds}
               poiOverrideTitle={openMap.title || (lang === "en" ? "Results on the map" : lang === "ar" ? "النتائج على الخريطة" : "Résultats sur la carte")}
               onClose={() => setOpenMap(null)}
+              aiCtaReturnsToAssistant
               // Marqueur → même fiche que les résultats IA (vidéo interne 1, CTA IA → accueil).
               onPoiBusinessOpen={(id, navIds) => {
                 setOpenMap(null);
