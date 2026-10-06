@@ -1277,11 +1277,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   useEffect(() => {
     if (translatedLangRef.current === lang || streaming) return;
     translatedLangRef.current = lang;
-    const refs: { mi: number; pi: number; text: string }[] = [];
+    const refs: { mi: number; pi: number; text: string; markers: string }[] = [];
     messages.forEach((m: any, mi) => {
       if (m?.role !== "assistant") return;
       (m.parts || []).forEach((p: any, pi: number) => {
-        if (p?.type === "text" && typeof p.text === "string" && p.text.trim()) refs.push({ mi, pi, text: p.text });
+        if (p?.type !== "text" || typeof p.text !== "string") return;
+        // Les marqueurs techniques (<!--SHOW_ON_MAP:…-->) ne passent pas par la traduction.
+        const markers = (p.text.match(/<!--[\s\S]*?-->/g) || []).join("\n");
+        const visible = p.text.replace(/<!--[\s\S]*?-->/g, "").replace(/\s+$/, "");
+        if (visible.trim()) refs.push({ mi, pi, text: visible, markers });
       });
     });
     if (!refs.length) return;
@@ -1293,9 +1297,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         if (!Array.isArray(out) || out.length !== refs.length || translatedLangRef.current !== target) return;
         setMessages((prev) => prev.map((m: any, mi) => {
           const mine = refs.map((r, i) => ({ ...r, t: out[i] })).filter((r) => r.mi === mi);
-          if (!mine.length || prev[mi] !== messages[mi]) return m;
+          if (!mine.length || m?.id !== (messages[mi] as any)?.id) return m;
           const parts = [...m.parts];
-          mine.forEach((r) => { parts[r.pi] = { ...parts[r.pi], text: r.t }; });
+          mine.forEach((r) => { parts[r.pi] = { ...parts[r.pi], text: r.markers ? `${r.t}\n\n${r.markers}` : r.t }; });
           return { ...m, parts };
         }) as any);
       })

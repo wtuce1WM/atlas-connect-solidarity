@@ -21,29 +21,32 @@ Deno.serve(async (req) => {
     const items = texts.slice(0, 30).map((t: unknown) => String(t ?? "").slice(0, 6000));
     if (items.reduce((n, t) => n + t.length, 0) > 40000) return json({ error: "too large" }, 413);
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          {
-            role: "system",
-            content:
-              `Translate each string of the JSON array into ${LANGS[target]}. Keep markdown, emojis, line breaks, URLs, numbers and any bracketed/tag markup exactly. Never translate proper names of businesses, places or people. If a string is already in ${LANGS[target]}, return it unchanged. Reply ONLY with a JSON object {"texts": [...]} with the same number of items, same order.`,
-          },
-          { role: "user", content: JSON.stringify(items) },
-        ],
-      }),
-    });
-    if (!res.ok) return json({ error: `gateway ${res.status}` }, res.status === 429 || res.status === 402 ? res.status : 502);
-    const data = await res.json();
-    let content = String(data?.choices?.[0]?.message?.content || "").trim();
-    content = content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
-    const s = content.indexOf("{"), e = content.lastIndexOf("}");
-    const out = JSON.parse(content.slice(s, e + 1))?.texts;
-    if (!Array.isArray(out) || out.length !== items.length) return json({ error: "bad output" }, 502);
-    return json({ texts: out.map(String) });
+    // Une requête par texte, réponse en texte brut : pas de JSON à reparser
+    // (les longues réponses cassaient l'enveloppe JSON du modèle).
+    const translateOne = async (text: string) => {
+      if (!text.trim()) return text;
+      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            {
+              role: "system",
+              content:
+                `You are a translator. Translate the user's text into ${LANGS[target]}. Keep markdown, emojis, line breaks, URLs, numbers and any bracketed/tag markup exactly. Never translate proper names of businesses, places or people. Output ONLY the translated text, nothing else.`,
+            },
+            { role: "user", content: text },
+          ],
+        }),
+      });
+      if (!res.ok) throw new Error(`gateway ${res.status}`);
+      const data = await res.json();
+      const out = String(data?.choices?.[0]?.message?.content || "").trim();
+      return out || text;
+    };
+    const out = await Promise.all(items.map(translateOne));
+    return json({ texts: out });
   } catch (err) {
     return json({ error: String((err as Error)?.message || err) }, 500);
   }
