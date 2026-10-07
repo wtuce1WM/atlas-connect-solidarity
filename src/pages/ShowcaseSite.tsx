@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowDown, CalendarDays, ChevronRight, Loader2, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { ArrowDown, CalendarDays, ChevronRight, Loader2, Mail, MapPin, MessageCircle, Phone, X } from "lucide-react";
 import { trackBusinessEvent } from "@/lib/businessAnalytics";
 import { Button } from "@/components/ui/button";
 import HScroll from "@/components/HScroll";
@@ -609,6 +609,23 @@ const ShowcaseSite = () => {
           />
         </aside>
       </div>
+
+      {reserveOverlayOpen && reserveUrl && (
+        <div className="fixed inset-0 z-[90] flex flex-col bg-showcase-night">
+          <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+            <p className="truncate font-josefin text-lg text-showcase-paper">{primaryCta}</p>
+            <button
+              type="button"
+              onClick={() => setReserveOverlayOpen(false)}
+              aria-label={isEn ? "Close" : "Fermer"}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-showcase-paper transition hover:bg-white/10"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <iframe src={reserveUrl} title={primaryCta} className="h-full w-full flex-1 border-0 bg-white" />
+        </div>
+      )}
     </>
   );
 };
