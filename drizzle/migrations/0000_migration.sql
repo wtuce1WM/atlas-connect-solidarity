@@ -1,0 +1,1 @@
+insert into public.business_showcase_site (business_id, enabled) values ('550b8636-8024-4261-95d8-9e19a5ab82da', true) on conflict do nothing;
