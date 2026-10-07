@@ -498,6 +498,15 @@ const ShowcaseSite = () => {
           </section>
         </main>
 
+        <section aria-label={isEn ? "Weather" : "Météo"} className="bg-showcase-night px-4 pb-6 pt-2 md:px-12">
+          <WidgetFrame
+            src={`https://oneworldmorocco.com/embed/weather?city=${encodeURIComponent(b.city || "Marrakech")}&lang=${language}&layout=footer`}
+            title={isEn ? "Weather" : "Météo"}
+            height={80}
+            heightMessage="owm-weather-height"
+          />
+        </section>
+
         <footer className="bg-showcase-night px-6 py-8 text-center text-xs text-primary-foreground/50"><Link to={`/fiche/${slug}`} className="hover:text-primary-foreground">Powered by <span className="font-semibold">One World Morocco</span></Link></footer>
 
         <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 border-t border-showcase-line bg-showcase-paper p-2 md:hidden">
