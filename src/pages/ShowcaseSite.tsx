@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowDown, CalendarDays, ChevronRight, Loader2, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { trackBusinessEvent } from "@/lib/businessAnalytics";
 import { Button } from "@/components/ui/button";
+import HScroll from "@/components/HScroll";
+import FullscreenLightbox from "@/components/FullscreenLightbox";
 import { whatsappUrl } from "@/lib/phoneUtils";
 import { WidgetFrame } from "@/pages/Widgets";
 import EmbedReviewsWidget, {
@@ -144,6 +146,7 @@ const ShowcaseSite = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroVideoIds, setHeroVideoIds] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [isPortrait, setIsPortrait] = useState(() => typeof window !== "undefined" && window.innerHeight > window.innerWidth);
@@ -284,6 +287,26 @@ const ShowcaseSite = () => {
     return [...new Set(source.filter(Boolean))];
   }, [business?.images, data?.gallery_image_ids]);
 
+  const galleryOpen = galleryIndex !== null;
+  useEffect(() => {
+    if (!galleryOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setGalleryIndex(null);
+      if (gallery.length > 1 && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
+        event.preventDefault();
+        const direction = event.key === "ArrowLeft" ? -1 : 1;
+        setGalleryIndex((index) => index === null ? null : (index + direction + gallery.length) % gallery.length);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [galleryOpen, gallery.length]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-showcase-night text-primary-foreground">
@@ -336,6 +359,15 @@ const ShowcaseSite = () => {
         <meta property="og:type" content="website" />
         {data.hero_image_url && <meta property="og:image" content={data.hero_image_url} />}
       </Helmet>
+
+      {galleryIndex !== null && (
+        <FullscreenLightbox
+          items={gallery.map((src, index) => ({ type: "image", src, alt: `${b.name} — ${index + 1}` }))}
+          currentIndex={galleryIndex}
+          onIndexChange={setGalleryIndex}
+          onClose={() => setGalleryIndex(null)}
+        />
+      )}
 
       <div className="min-h-screen bg-showcase-paper text-showcase-ink font-roboto pb-20 md:pb-0">
         <header className="fixed inset-x-0 top-0 z-30 flex items-center justify-between bg-showcase-night/80 px-5 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] backdrop-blur-md text-primary-foreground shadow-md md:px-12 md:pb-5 md:pt-[calc(env(safe-area-inset-top)+1.25rem)]">
@@ -446,9 +478,19 @@ const ShowcaseSite = () => {
             <section id="gallery" className="scroll-mt-8 px-4 py-20 md:px-8 md:py-28">
               <div className="mx-auto max-w-7xl">
                 <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Life at the riad" : "La vie au riad"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">Galerie</h2></div>
-                <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
-                  {gallery.slice(0, 8).map((image: string, index: number) => <img key={image} src={image} alt={`${b.name} — ${index + 1}`} loading="lazy" className={`w-full object-cover ${index === 0 || index === 5 ? "col-span-2 aspect-[16/10]" : "aspect-square"}`} />)}
-                </div>
+                <HScroll className="mt-10 flex gap-3 overflow-x-auto pb-3 cursor-grab md:gap-5" aria-label={isEn ? "Photo gallery" : "Galerie photos"}>
+                  {gallery.map((image: string, index: number) => (
+                    <Button
+                      key={image}
+                      variant="ghost"
+                      className="h-40 w-52 shrink-0 overflow-hidden rounded-lg p-0 cursor-zoom-in md:h-52 md:w-72"
+                      aria-label={isEn ? `Open photo ${index + 1}` : `Ouvrir la photo ${index + 1}`}
+                      onClick={() => setGalleryIndex(index)}
+                    >
+                      <img src={image} alt={`${b.name} — ${index + 1}`} loading="lazy" draggable={false} className="h-full w-full object-cover" />
+                    </Button>
+                  ))}
+                </HScroll>
               </div>
             </section>
           )}
