@@ -444,7 +444,7 @@ const ShowcaseSite = () => {
           {gallery.length > 0 && (
             <section id="gallery" className="scroll-mt-8 px-4 py-20 md:px-8 md:py-28">
               <div className="mx-auto max-w-7xl">
-                <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Life at the riad" : "La vie au riad"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{isEn ? "Patio, table & rooftop" : "Patio, table & rooftop"}</h2></div>
+                <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Life at the riad" : "La vie au riad"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">Galerie</h2></div>
                 <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
                   {gallery.slice(0, 8).map((image: string, index: number) => <img key={image} src={image} alt={`${b.name} — ${index + 1}`} loading="lazy" className={`w-full object-cover ${index === 0 || index === 5 ? "col-span-2 aspect-[16/10]" : "aspect-square"}`} />)}
                 </div>
