@@ -337,7 +337,7 @@ const ShowcaseSite = () => {
       </Helmet>
 
       <div className="min-h-screen bg-showcase-paper text-showcase-ink font-roboto pb-20 md:pb-0">
-        <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-5 pb-5 pt-[calc(env(safe-area-inset-top)+1.25rem)] text-primary-foreground md:px-12 md:pb-7 md:pt-[calc(env(safe-area-inset-top)+1.75rem)]">
+        <header className="fixed inset-x-0 top-0 z-30 flex items-center justify-between bg-showcase-night/80 px-5 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] backdrop-blur-md text-primary-foreground shadow-md md:px-12 md:pb-5 md:pt-[calc(env(safe-area-inset-top)+1.25rem)]">
           <button onClick={() => scrollToId("top")} className="font-josefin text-sm font-semibold uppercase tracking-widest">{b.name}</button>
           <nav className="hidden items-center gap-7 text-xs font-semibold uppercase tracking-widest md:flex">
             <button onClick={() => scrollToId("story")}>{isEn ? "The riad" : "Le riad"}</button>
