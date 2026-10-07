@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowDown, CalendarDays, ChevronRight, Loader2, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { ArrowDown, CalendarDays, ChevronRight, Loader2, Mail, MapPin, MessageCircle, Phone, X } from "lucide-react";
 import { trackBusinessEvent } from "@/lib/businessAnalytics";
 import { Button } from "@/components/ui/button";
 import HScroll from "@/components/HScroll";
@@ -147,6 +147,7 @@ const ShowcaseSite = () => {
   const [notFound, setNotFound] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
+  const [reserveOverlayOpen, setReserveOverlayOpen] = useState(false);
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroVideoIds, setHeroVideoIds] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [isPortrait, setIsPortrait] = useState(() => typeof window !== "undefined" && window.innerHeight > window.innerWidth);
@@ -162,7 +163,7 @@ const ShowcaseSite = () => {
       if (!slug) return;
       const { data: biz } = await supabase
         .from("businesses")
-        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, logo_url, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta")
+        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, logo_url, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta, reserve_now_url, reserve_now_force_external, online_shop_url, online_shop_force_external, url_4, url_4_force_external, url_5, url_5_force_external")
         .eq("slug", slug)
         .maybeSingle();
       if (!biz) { setNotFound(true); setLoading(false); return; }
@@ -341,6 +342,20 @@ const ShowcaseSite = () => {
   const phone = data.cta_config?.phone || b.phone;
   const email = data.cta_config?.email || b.email;
   const reserveUrl = data.cta_config?.reserve_url;
+  // Même règle que l'overlay FullDescription de BookOnlineSlidePanel : seul le flag
+  // « Lien externe » (force_external) de l'URL 1 à 5 correspondante impose un nouvel onglet.
+  const reserveForceExternal = (() => {
+    if (!reserveUrl) return false;
+    const pairs: Array<[string | null, boolean | null]> = [
+      [b.reserve_now_url, b.reserve_now_force_external],
+      [b.online_shop_url, b.online_shop_force_external],
+      [b.url_4, b.url_4_force_external],
+      [b.url_5, b.url_5_force_external],
+    ];
+    const match = pairs.find(([u]) => u && u === reserveUrl);
+    // Pas d'URL 1-5 correspondante (ou flag non coché) → ouverture intégrée.
+    return match ? Boolean(match[1]) : false;
+  })();
   const hasElloha = slug === "riad-dar-najat";
   const hasBooking = hasElloha || Boolean(reserveUrl);
   const waLink = whatsapp ? whatsappUrl(whatsapp, isEn
@@ -502,11 +517,15 @@ const ShowcaseSite = () => {
                 <div className="p-3 md:p-6">
                   {hasElloha ? (
                     <EllohaBookingCalendar language={language} />
-                  ) : (
+                  ) : reserveForceExternal ? (
                     <Button asChild size="lg">
                       <a href={reserveUrl} target="_blank" rel="noreferrer" onClick={() => trackBusinessEvent(data.business_id, "booking_intent", { subtype: "showcase_reserve_url" })}>
                         <CalendarDays className="h-5 w-5" />{primaryCta}
                       </a>
+                    </Button>
+                  ) : (
+                    <Button size="lg" onClick={() => { trackBusinessEvent(data.business_id, "booking_intent", { subtype: "showcase_reserve_url" }); setReserveOverlayOpen(true); }}>
+                      <CalendarDays className="h-5 w-5" />{primaryCta}
                     </Button>
                   )}
                 </div>
@@ -591,6 +610,23 @@ const ShowcaseSite = () => {
           />
         </aside>
       </div>
+
+      {reserveOverlayOpen && reserveUrl && (
+        <div className="fixed inset-0 z-[90] flex flex-col bg-showcase-night">
+          <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+            <p className="truncate font-josefin text-lg text-showcase-paper">{primaryCta}</p>
+            <button
+              type="button"
+              onClick={() => setReserveOverlayOpen(false)}
+              aria-label={isEn ? "Close" : "Fermer"}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-showcase-paper transition hover:bg-white/10"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <iframe src={reserveUrl} title={primaryCta} className="h-full w-full flex-1 border-0 bg-white" />
+        </div>
+      )}
     </>
   );
 };
