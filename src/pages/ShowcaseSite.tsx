@@ -147,6 +147,7 @@ const ShowcaseSite = () => {
   const [notFound, setNotFound] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
+  const [reserveOverlayOpen, setReserveOverlayOpen] = useState(false);
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroVideoIds, setHeroVideoIds] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [isPortrait, setIsPortrait] = useState(() => typeof window !== "undefined" && window.innerHeight > window.innerWidth);
@@ -341,6 +342,19 @@ const ShowcaseSite = () => {
   const phone = data.cta_config?.phone || b.phone;
   const email = data.cta_config?.email || b.email;
   const reserveUrl = data.cta_config?.reserve_url;
+  // Même règle que l'overlay FullDescription de BookOnlineSlidePanel : seul le flag
+  // « Lien externe » (force_external) de l'URL 1 à 5 correspondante impose un nouvel onglet.
+  const reserveForceExternal = useMemo(() => {
+    if (!reserveUrl) return false;
+    const pairs: Array<[string | null, boolean | null]> = [
+      [b.reserve_now_url, b.reserve_now_force_external],
+      [b.online_shop_url, b.online_shop_force_external],
+      [b.url_4, b.url_4_force_external],
+      [b.url_5, b.url_5_force_external],
+    ];
+    const match = pairs.find(([u]) => u && u === reserveUrl);
+    return match ? Boolean(match[1]) : true;
+  }, [b, reserveUrl]);
   const hasElloha = slug === "riad-dar-najat";
   const hasBooking = hasElloha || Boolean(reserveUrl);
   const waLink = whatsapp ? whatsappUrl(whatsapp, isEn
