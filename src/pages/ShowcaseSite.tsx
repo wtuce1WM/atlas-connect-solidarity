@@ -353,7 +353,8 @@ const ShowcaseSite = () => {
       [b.url_5, b.url_5_force_external],
     ];
     const match = pairs.find(([u]) => u && u === reserveUrl);
-    return match ? Boolean(match[1]) : true;
+    // Pas d'URL 1-5 correspondante (ou flag non coché) → ouverture intégrée.
+    return match ? Boolean(match[1]) : false;
   }, [b, reserveUrl]);
   const hasElloha = slug === "riad-dar-najat";
   const hasBooking = hasElloha || Boolean(reserveUrl);
