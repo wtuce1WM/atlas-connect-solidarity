@@ -6,6 +6,7 @@ import { ArrowDown, CalendarDays, ChevronRight, Loader2, Mail, MapPin, MessageCi
 import { trackBusinessEvent } from "@/lib/businessAnalytics";
 import { Button } from "@/components/ui/button";
 import { whatsappUrl } from "@/lib/phoneUtils";
+import { WidgetFrame } from "@/pages/Widgets";
 import EmbedReviewsWidget, {
   type EmbedReviewItem,
   type EmbedReviewsBusiness,
