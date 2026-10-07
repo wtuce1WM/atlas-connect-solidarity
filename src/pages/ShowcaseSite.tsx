@@ -516,11 +516,15 @@ const ShowcaseSite = () => {
                 <div className="p-3 md:p-6">
                   {hasElloha ? (
                     <EllohaBookingCalendar language={language} />
-                  ) : (
+                  ) : reserveForceExternal ? (
                     <Button asChild size="lg">
                       <a href={reserveUrl} target="_blank" rel="noreferrer" onClick={() => trackBusinessEvent(data.business_id, "booking_intent", { subtype: "showcase_reserve_url" })}>
                         <CalendarDays className="h-5 w-5" />{primaryCta}
                       </a>
+                    </Button>
+                  ) : (
+                    <Button size="lg" onClick={() => { trackBusinessEvent(data.business_id, "booking_intent", { subtype: "showcase_reserve_url" }); setReserveOverlayOpen(true); }}>
+                      <CalendarDays className="h-5 w-5" />{primaryCta}
                     </Button>
                   )}
                 </div>
