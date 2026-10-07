@@ -6,6 +6,7 @@ import { ArrowDown, CalendarDays, ChevronRight, Loader2, Mail, MapPin, MessageCi
 import { trackBusinessEvent } from "@/lib/businessAnalytics";
 import { Button } from "@/components/ui/button";
 import { whatsappUrl } from "@/lib/phoneUtils";
+import { WidgetFrame } from "@/pages/Widgets";
 import EmbedReviewsWidget, {
   type EmbedReviewItem,
   type EmbedReviewsBusiness,
@@ -496,6 +497,15 @@ const ShowcaseSite = () => {
             {b.latitude && b.longitude && <iframe title={isEn ? "Location map" : "Carte d’accès"} src={`https://www.google.com/maps?q=${b.latitude},${b.longitude}&z=16&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="h-[420px] w-full border-0 lg:h-full lg:min-h-[560px]" />}
           </section>
         </main>
+
+        <section aria-label={isEn ? "Weather" : "Météo"} className="bg-showcase-night px-4 pb-6 pt-2 md:px-12">
+          <WidgetFrame
+            src={`https://oneworldmorocco.com/embed/weather?city=${encodeURIComponent(b.city || "Marrakech")}&lang=${language}&layout=footer`}
+            title={isEn ? "Weather" : "Météo"}
+            height={80}
+            heightMessage="owm-weather-height"
+          />
+        </section>
 
         <footer className="bg-showcase-night px-6 py-8 text-center text-xs text-primary-foreground/50"><Link to={`/fiche/${slug}`} className="hover:text-primary-foreground">Powered by <span className="font-semibold">One World Morocco</span></Link></footer>
 
