@@ -479,7 +479,7 @@ const ShowcaseSite = () => {
                             <h3 className="font-josefin text-2xl font-semibold md:text-3xl">{title}</h3>
                             {(metricTitle || metricValue) && <p className="shrink-0 text-right text-xs uppercase tracking-wider text-showcase-brass">{metricTitle}<br/><span className="text-sm font-semibold text-primary-foreground">{metricValue}</span></p>}
                           </div>
-                          <div className="mt-4 text-sm leading-relaxed text-primary-foreground/70" dangerouslySetInnerHTML={{ __html: description }} />
+                          <div className="prose prose-sm prose-invert mt-4 max-w-none leading-relaxed text-primary-foreground/70 prose-headings:font-josefin prose-headings:text-primary-foreground prose-p:my-3 prose-strong:text-primary-foreground prose-ul:list-disc prose-ul:pl-5 prose-ol:list-decimal prose-ol:pl-5 prose-li:my-1 prose-a:text-showcase-brass" dangerouslySetInnerHTML={{ __html: description }} />
                         </div>
                       </article>
                     );
