@@ -478,7 +478,7 @@ const ShowcaseSite = () => {
             <section id="gallery" className="scroll-mt-8 px-4 py-20 md:px-8 md:py-28">
               <div className="mx-auto max-w-7xl">
                 <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Life at the riad" : "La vie au riad"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">Galerie</h2></div>
-                <HScroll className="mt-10 flex gap-3 overflow-x-auto pb-3 cursor-grab md:gap-5" aria-label={isEn ? "Photo gallery" : "Galerie photos"}>
+                <HScroll className="scrollbar-hide mt-10 flex gap-3 overflow-x-auto pb-3 cursor-grab md:gap-5" aria-label={isEn ? "Photo gallery" : "Galerie photos"}>
                   {gallery.map((image: string, index: number) => (
                     <Button
                       key={image}
