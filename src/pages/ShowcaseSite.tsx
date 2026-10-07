@@ -344,7 +344,7 @@ const ShowcaseSite = () => {
   const reserveUrl = data.cta_config?.reserve_url;
   // Même règle que l'overlay FullDescription de BookOnlineSlidePanel : seul le flag
   // « Lien externe » (force_external) de l'URL 1 à 5 correspondante impose un nouvel onglet.
-  const reserveForceExternal = useMemo(() => {
+  const reserveForceExternal = (() => {
     if (!reserveUrl) return false;
     const pairs: Array<[string | null, boolean | null]> = [
       [b.reserve_now_url, b.reserve_now_force_external],
@@ -355,7 +355,7 @@ const ShowcaseSite = () => {
     const match = pairs.find(([u]) => u && u === reserveUrl);
     // Pas d'URL 1-5 correspondante (ou flag non coché) → ouverture intégrée.
     return match ? Boolean(match[1]) : false;
-  }, [b, reserveUrl]);
+  })();
   const hasElloha = slug === "riad-dar-najat";
   const hasBooking = hasElloha || Boolean(reserveUrl);
   const waLink = whatsapp ? whatsappUrl(whatsapp, isEn
