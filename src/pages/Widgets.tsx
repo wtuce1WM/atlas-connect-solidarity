@@ -164,7 +164,7 @@ export const PriceTag = ({ price }: { price: string }) =>
 /** Aperçu de widget sur fond transparent, sans cadre opaque.
  *  heightMessage : type de postMessage émis par l'embed pour ajuster
  *  automatiquement la hauteur de l'iframe (aucun scroll interne coupé). */
-export const WidgetFrame = ({ src, title, height, heightMessage }: { src: string; title: string; height: number; heightMessage?: string }) => {
+export const WidgetFrame = ({ src, title, height, heightMessage, className = "overflow-hidden rounded-2xl border border-white/12 bg-transparent" }: { src: string; title: string; height: number; heightMessage?: string; className?: string }) => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [h, setH] = useState(height);
   useEffect(() => {
@@ -180,7 +180,7 @@ export const WidgetFrame = ({ src, title, height, heightMessage }: { src: string
     return () => window.removeEventListener("message", onMsg);
   }, [heightMessage]);
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/12 bg-transparent">
+    <div className={className}>
       <iframe
         ref={iframeRef}
         src={toPreview(src)}

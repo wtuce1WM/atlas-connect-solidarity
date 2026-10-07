@@ -498,12 +498,13 @@ const ShowcaseSite = () => {
           </section>
         </main>
 
-        <section aria-label={isEn ? "Weather" : "Météo"} className="bg-showcase-night px-4 pb-6 pt-2 md:px-12">
+        <section aria-label={isEn ? "Weather" : "Météo"} className="bg-showcase-night pb-6 pt-2">
           <WidgetFrame
             src={`https://oneworldmorocco.com/embed/weather?city=${encodeURIComponent(b.city || "Marrakech")}&lang=${language}&layout=footer`}
             title={isEn ? "Weather" : "Météo"}
             height={80}
             heightMessage="owm-weather-height"
+            className="w-full bg-transparent"
           />
         </section>
 
