@@ -124,7 +124,7 @@ export function ToolbarPortals({
 
       {/* Center portal: WhatsApp or Phone */}
       {toolbarCenterPortal && !shouldHide && createPortal(
-        <div className="flex items-center gap-6 relative z-[90] md:z-auto">
+        <div className="video-header-contact flex items-center gap-6 relative z-[90] md:z-auto">
           {business.whatsapp ? (
             <a href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer" className="relative flex items-center justify-center hover:opacity-90 transition-opacity">
               {!anyOverlay && (

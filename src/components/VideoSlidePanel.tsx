@@ -1337,7 +1337,7 @@ const VideoSlidePanel = ({
         )}
         {/* Center header CTA : Tel / WhatsApp (identique à BookOnlineSlidePanel) */}
         {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !compactBusinessHeader && toolbarCenterEl && ctaBusiness && (ctaBusiness.whatsapp || ctaBusiness.phone) && createPortal(
-          <div className="flex items-center gap-6 relative z-[90] md:z-auto">
+          <div className="video-header-contact flex items-center gap-6 relative z-[90] md:z-auto">
             {ctaBusiness.whatsapp ? (
               <a href={whatsappUrl(ctaBusiness.whatsapp)} target="_blank" rel="noopener noreferrer" className="relative flex items-center justify-center hover:opacity-90 transition-opacity">
                 <span
@@ -1945,7 +1945,7 @@ const VideoSlidePanel = ({
                 donc `inset-x-0` ne vaut plus la largeur du viewport et la barre info
                 débordait vers la droite en bas. `absolute` s'appuie sur le parent
                 `absolute inset-0` du viewer → largeur toujours correcte. */}
-            <div className="absolute inset-x-0 max-w-full bottom-[calc(96px+env(safe-area-inset-bottom))] lg:bottom-[5.5rem] z-30 flex flex-col items-center justify-end gap-3 pointer-events-none">
+            <div className="video-viewer-info-anchor absolute inset-x-0 max-w-full bottom-[calc(96px+env(safe-area-inset-bottom))] lg:bottom-[5.5rem] z-30 flex flex-col items-center justify-end gap-3 pointer-events-none">
 
               {compactBusinessHeader && !chromeHidden && (
                 <YouTubeIcon className="h-16 w-16 text-red-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />
