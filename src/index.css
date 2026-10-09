@@ -725,8 +725,20 @@ html.hide-scrollbar-search::-webkit-scrollbar {
      zone réellement visible. On neutralise le double retrait inférieur des
      viewers, tout en conservant le retrait supérieur sous la barre d'état. */
   @media (display-mode: standalone) and (max-width: 1023px) {
+    /* Le centre absolu doit reprendre les retraits du header pour aligner
+       WhatsApp sur la même ligne que Fermer / Partager, sans double décalage. */
+    .slidepanel-header-center:has(.video-header-contact) {
+      padding-top: inherit;
+      padding-bottom: inherit;
+    }
+
     .video-header-contact {
-      transform: translateY(env(safe-area-inset-top));
+      transform: none;
+    }
+
+    /* Déplacer ensemble la réponse et ses CTAs, sous le header sécurisé. */
+    .hotel-availability-result {
+      padding-top: calc(1rem + env(safe-area-inset-top) + min(env(safe-area-inset-top), 12px));
     }
 
     .video-badge-chips {

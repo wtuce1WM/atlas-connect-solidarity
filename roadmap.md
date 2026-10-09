@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Aligner WhatsApp sur le header et descendre la réponse de disponibilité avec ses CTAs dans l’App uniquement ; vérifié avec retrait iPhone simulé, sans consommation de recherches hôtels.
+
 - [x] Inventorier les contenus réels de Riad Dar Najat.
 - [x] Choisir le calendrier intégré, le WhatsApp +212661439221 et supprimer les deux blocs vides.
 - [x] Valider la direction visuelle Modern Moroccan Minimalist.

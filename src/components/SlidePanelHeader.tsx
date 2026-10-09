@@ -75,7 +75,7 @@ const SlidePanelHeader = ({
         </>
       ) : (
         <>
-          <div id={toolbarCenterId} className="absolute inset-0 flex items-center justify-center pointer-events-none [&>*]:pointer-events-auto" />
+          <div id={toolbarCenterId} className="slidepanel-header-center absolute inset-0 flex items-center justify-center pointer-events-none [&>*]:pointer-events-auto" />
           <div id={toolbarRightId} className="flex items-center gap-3 shrink-0 relative z-10" />
         </>
       )}
