@@ -188,7 +188,7 @@ const VideoBadgeChips = ({
     : LEFT_COLUMN_BADGES;
 
   return (
-    <div className="absolute top-16 left-1.5 right-1.5 md:left-3 md:right-3 z-[100] pointer-events-none">
+    <div className="video-badge-chips absolute top-16 left-1.5 right-1.5 md:left-3 md:right-3 z-[100] pointer-events-none">
       {!expanded && (() => {
         // Badge « vitrine » : en priorité un badge avec une couleur spécifique
         // (back-office), sinon n'importe lequel.

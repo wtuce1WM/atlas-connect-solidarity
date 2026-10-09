@@ -721,6 +721,36 @@ html.hide-scrollbar-search::-webkit-scrollbar {
   .top-safe { top: env(safe-area-inset-top); }
   .bottom-safe { bottom: env(safe-area-inset-bottom); }
 
+  /* App iOS installée : iOS expose un viewport de mise en page plus haut que la
+     zone réellement visible. On neutralise le double retrait inférieur des
+     viewers, tout en conservant le retrait supérieur sous la barre d'état. */
+  @media (display-mode: standalone) and (max-width: 1023px) {
+    .video-header-contact {
+      transform: translateY(env(safe-area-inset-top));
+    }
+
+    .video-badge-chips {
+      top: calc(4rem + env(safe-area-inset-top));
+    }
+
+    .video-viewer-info-anchor {
+      bottom: 96px;
+    }
+
+    .book-viewer-bottom-anchor {
+      bottom: 72px;
+    }
+
+    .viewer-info-bar {
+      padding-bottom: 96px;
+      margin-bottom: -96px;
+    }
+
+    .owm-panel-searchbar {
+      bottom: 1.25rem !important;
+    }
+  }
+
   /* Flash shimmer hover effect from Corporate page CTA */
   .btn-flash {
     position: relative;
