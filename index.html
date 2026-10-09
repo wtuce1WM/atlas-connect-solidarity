@@ -31,6 +31,30 @@
         document.head.appendChild(link);
       })();
     </script>
+    <script>
+      // App installée 1WM uniquement (hors /site/:slug et /~oauth) :
+      // - vrai redémarrage (nouvelle session) → accueil, assistant fermé ;
+      // - retour après plus de 30 min d'absence → accueil, assistant fermé.
+      (function () {
+        try {
+          var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+          if (!standalone) return;
+          var excluded = function () { return /^\/(site\/|~oauth)/.test(location.pathname); };
+          if (excluded()) return;
+          var KEY = "owm:app-session";
+          if (!sessionStorage.getItem(KEY)) {
+            sessionStorage.setItem(KEY, "1");
+            if (location.pathname !== "/" || location.search || location.hash) { location.replace("/"); return; }
+          }
+          var hiddenAt = 0;
+          document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === "hidden") { hiddenAt = Date.now(); return; }
+            if (hiddenAt && Date.now() - hiddenAt > 30 * 60 * 1000 && !excluded()) location.replace("/");
+            hiddenAt = 0;
+          });
+        } catch (e) {}
+      })();
+    </script>
     <meta name="google-site-verification" content="Iwacaf2KeMCQhYFDoOvqpNq4ANQ6ik4g86vRi7NOc4o" />
     <link rel="canonical" href="https://oneworldmorocco.com/" />
     <title>One World Morocco — Local × Digital × Solidaire</title>
