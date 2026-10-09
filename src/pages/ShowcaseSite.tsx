@@ -340,6 +340,8 @@ const ShowcaseSite = () => {
   const b = data.business;
   if (!b) return null;
   const isEn = language === "en";
+  const isRiad = /\briy?ad\b/i.test(String(data?.business?.name ?? ""));
+  const venueEn = isRiad ? "riad" : "property";
   const tagline = (isEn ? data.tagline_en || b.hook_en : data.tagline_fr || b.hook_fr) || "";
   const story = (isEn ? data.story_en || b.description_en : data.story_fr || b.description_fr) || "";
   const heroLandscape = heroThumbs.landscape;
