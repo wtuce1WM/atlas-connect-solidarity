@@ -5,3 +5,4 @@
 - Business vanity links initialize Home and its `EmbedAsk` panel from `openBusiness` on the first render to avoid transitional screens.
 - Remotion media validation must accept worker-internalized `dl/` paths because render jobs download remote assets before composition.
 - Showcase galleries reuse HScroll and FullscreenLightbox with a shared image index so thumbnails open their exact image without duplicating media viewers.
+- Standalone viewer positioning uses shared CSS hooks: center header contacts inherit header padding, and availability results move with their actions, keeping both viewer paths aligned without changing browser layouts.
