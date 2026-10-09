@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Protéger la croix FullDescription dans les deux viewers de l’App uniquement ; vérifier le retrait simulé et la fermeture.
+
 - [x] Aligner WhatsApp sur le header et descendre la réponse de disponibilité avec ses CTAs dans l’App uniquement ; vérifié avec retrait iPhone simulé, sans consommation de recherches hôtels.
 
 - [x] Inventorier les contenus réels de Riad Dar Najat.

@@ -725,6 +725,11 @@ html.hide-scrollbar-search::-webkit-scrollbar {
      zone réellement visible. On neutralise le double retrait inférieur des
      viewers, tout en conservant le retrait supérieur sous la barre d'état. */
   @media (display-mode: standalone) and (max-width: 1023px) {
+    /* Les descriptions plein écran protègent leur fermeture de la barre iOS. */
+    .full-description-header {
+      padding-top: calc(0.75rem + env(safe-area-inset-top));
+    }
+
     /* Le centre absolu doit reprendre les retraits du header pour aligner
        WhatsApp sur la même ligne que Fermer / Partager, sans double décalage. */
     .slidepanel-header-center:has(.video-header-contact) {

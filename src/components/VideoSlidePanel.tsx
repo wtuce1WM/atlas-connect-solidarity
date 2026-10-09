@@ -2322,7 +2322,7 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange, morph
     >
 
       <div className="absolute inset-0 bg-black/70" />
-      <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
+      <div className="full-description-header relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); e.preventDefault(); setOpen(false); }}
