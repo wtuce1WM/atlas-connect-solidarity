@@ -4864,13 +4864,13 @@ const BookOnlineSlidePanelInner = ({
               <button
                 onClick={() => { if (embedMode || initialOverlay === "poi") { onClose?.(); return; } setShowPoiMapOverlay(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
                 data-map-pill
-                className="absolute top-[calc(3.3rem+0.75rem)] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-opacity"
+                className="absolute top-[calc(3.3rem+0.75rem+env(safe-area-inset-top,0px))] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-opacity"
                 aria-label="Fermer"
               >
                 <X className="h-5 w-5" strokeWidth={2.5} />
               </button>
             )}
-            <div data-map-pill-row className="absolute top-[calc(3.3rem+0.75rem)] right-3 z-[15] flex items-center gap-2">
+            <div data-map-pill-row className="absolute top-[calc(3.3rem+0.75rem+env(safe-area-inset-top,0px))] right-3 z-[15] flex items-center gap-2">
               {!embedMode && (
                 <button
                   type="button"
@@ -4905,7 +4905,7 @@ const BookOnlineSlidePanelInner = ({
               })()}
             </div>
             {(business?.name || activeFrontTab || poiOverrideTitle || poiMasterOverride?.name || (overridePool && poiOverrideTitle)) && (
-              <div data-map-pill-row className="absolute top-[calc(3.3rem+0.75rem)] left-14 right-3 z-[10] pointer-events-none flex justify-center">
+              <div data-map-pill-row className="absolute top-[calc(3.3rem+0.75rem+env(safe-area-inset-top,0px))] left-14 right-3 z-[10] pointer-events-none flex justify-center">
                 <div className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   {poiOverrideTitle ? (
                     // Carte des résultats IA : jamais « À proximité de <ancre> »,
