@@ -146,6 +146,18 @@ const ShowcaseSite = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const assistantFrameRef = useRef<HTMLIFrameElement>(null);
+  // Fermeture de Zitoun IA : couper toute vidéo/son encore actif dans le panneau.
+  useEffect(() => {
+    if (assistantOpen) return;
+    try {
+      const doc = assistantFrameRef.current?.contentDocument;
+      doc?.querySelectorAll("video, audio").forEach((m) => (m as HTMLMediaElement).pause());
+      doc?.querySelectorAll("iframe").forEach((f) => {
+        f.contentWindow?.postMessage(JSON.stringify({ event: "command", func: "pauseVideo", args: [] }), "*");
+      });
+    } catch { /* iframe non accessible */ }
+  }, [assistantOpen]);
   const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
   const [reserveOverlayOpen, setReserveOverlayOpen] = useState(false);
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
@@ -328,6 +340,8 @@ const ShowcaseSite = () => {
   const b = data.business;
   if (!b) return null;
   const isEn = language === "en";
+  const isRiad = /\briy?ad\b/i.test(String(data?.business?.name ?? ""));
+  const venueEn = isRiad ? "riad" : "property";
   const tagline = (isEn ? data.tagline_en || b.hook_en : data.tagline_fr || b.hook_fr) || "";
   const story = (isEn ? data.story_en || b.description_en : data.story_fr || b.description_fr) || "";
   const heroLandscape = heroThumbs.landscape;
@@ -388,7 +402,7 @@ const ShowcaseSite = () => {
         <header className="fixed inset-x-0 top-0 z-30 flex items-center justify-between bg-showcase-night/80 px-5 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] backdrop-blur-md text-primary-foreground shadow-md md:px-12 md:pb-5 md:pt-[calc(env(safe-area-inset-top)+1.25rem)]">
           <button onClick={() => scrollToId("top")} className="font-josefin text-sm font-semibold uppercase tracking-widest">{b.name}</button>
           <nav className="hidden items-center gap-7 text-xs font-semibold uppercase tracking-widest md:flex">
-            <button onClick={() => scrollToId("story")}>{isEn ? "The riad" : "Le riad"}</button>
+            <button onClick={() => scrollToId("story")}>{isEn ? `The ${venueEn}` : (isRiad ? "Le riad" : "L’établissement")}</button>
             <button onClick={() => scrollToId("rooms")}>{isEn ? "Rooms" : "Chambres"}</button>
             <button onClick={() => scrollToId("gallery")}>{isEn ? "Gallery" : "Galerie"}</button>
             <button onClick={() => scrollToId("location")}>{isEn ? "Location" : "Accès"}</button>
@@ -427,7 +441,7 @@ const ShowcaseSite = () => {
               <div className="mt-8 flex flex-wrap gap-3">
                 {hasBooking && <Button onClick={openAvailability} size="lg"><CalendarDays className="h-5 w-5" />{primaryCta}</Button>}
                 <Button onClick={() => scrollToId("story")} variant="outline" size="lg" className="border-primary-foreground/50 bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-showcase-ink">
-                  {isEn ? "Discover the riad" : "Découvrir le riad"}<ChevronRight className="h-5 w-5" />
+                  {isEn ? `Discover the ${venueEn}` : (isRiad ? "Découvrir le riad" : "Découvrir l’établissement")}<ChevronRight className="h-5 w-5" />
                 </Button>
               </div>
               <button onClick={() => scrollToId("story")} aria-label={isEn ? "Continue" : "Continuer"} className="absolute bottom-5 right-6 flex h-11 w-11 items-center justify-center rounded-full border border-primary-foreground/40 text-primary-foreground md:right-12">
@@ -492,7 +506,7 @@ const ShowcaseSite = () => {
           {gallery.length > 0 && (
             <section id="gallery" className="scroll-mt-8 px-4 py-20 md:px-8 md:py-28">
               <div className="mx-auto max-w-7xl">
-                <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Life at the riad" : "La vie au riad"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">Galerie</h2></div>
+                <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? `Life at the ${venueEn}` : (isRiad ? "La vie au riad" : "La vie à l’établissement")}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">Galerie</h2></div>
                 <HScroll className="scrollbar-hide mt-10 flex gap-3 overflow-x-auto pb-3 cursor-grab md:gap-5" aria-label={isEn ? "Photo gallery" : "Galerie photos"}>
                   {gallery.map((image: string, index: number) => (
                     <Button
@@ -602,6 +616,7 @@ const ShowcaseSite = () => {
           className={`fixed inset-y-0 right-0 z-[82] flex w-full flex-col bg-showcase-paper shadow-2xl transition-transform duration-300 ease-out md:w-[70vw] ${assistantOpen ? "translate-x-0" : "translate-x-full"}`}
         >
           <iframe
+            ref={assistantFrameRef}
             src={`/embed/ask/${slug}?theme=light&lang=${language}&bg=transparent&card=F7F1E8&panel=1&name=Zitoun%20IA`}
             title={isEn ? `Zitoun AI — ${b.name}` : `Assistant IA Zitoun — ${b.name}`}
             allow="clipboard-write; geolocation; microphone"
