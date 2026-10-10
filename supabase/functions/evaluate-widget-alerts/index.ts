@@ -239,7 +239,7 @@ Deno.serve(async (req) => {
       }
       if (!toSend.length) continue;
 
-      report.push({ email: sub.email, city: sub.city_slug, date: city.date, alerts: toSend.map((a) => a.type) });
+      report.push({ city: sub.city_slug, date: city.date, alerts: toSend.map((a) => a.type) });
       if (dryRun) continue;
 
       try {

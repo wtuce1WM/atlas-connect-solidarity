@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
       .update({ welcome_email_sent_at: new Date().toISOString() })
       .eq("id", member.id);
 
-    return json({ success: true, email });
+    return json({ success: true });
   } catch (error) {
     console.error("send-club-welcome error:", error);
     return json({ error: error instanceof Error ? error.message : "Erreur inconnue" }, 400);
