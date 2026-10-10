@@ -4194,33 +4194,6 @@ const BookOnlineSlidePanelInner = ({
                     </div>
                   )}
 
-                  {/* Widget Adresses à proximité — full width.
-                      Masqué si l'établissement n'a pas de coordonnées GPS, SAUF si sa Map
-                      est ancrée sur un POI master (ex. Tarik Belasri → Koutoubia). */}
-                  {!descOverlayContent && business?.slug
-                    && ((business?.latitude != null && business?.longitude != null) || !!poiMasterOverride) && (
-                    <div className="mt-8 pt-6 border-t border-white/10">
-                      <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">
-                        {language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité"}
-                      </h2>
-
-                      <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
-                        <LazyMount minHeight={420} rootMargin="300px">
-                          <iframe
-                            key={`nearby-widget-${business.slug}`}
-                            src={`/embed/nearby/${business.slug}?preset=overlay&lang=${language}`}
-                            title={language === "en" ? "Nearby" : "À proximité"}
-                            allow="geolocation; fullscreen"
-                            className="w-full block border-0"
-                            style={{ height: "min(640px, 55dvh)" }}
-                            loading="lazy"
-                          />
-                        </LazyMount>
-
-                      </div>
-
-                    </div>
-                  )}
 
 
 
