@@ -730,6 +730,11 @@ html.hide-scrollbar-search::-webkit-scrollbar {
       padding-top: calc(0.75rem + env(safe-area-inset-top));
     }
 
+    /* Popup de géolocalisation : croix de fermeture sous la barre d'état iOS. */
+    .geo-dialog-close {
+      top: calc(1rem + env(safe-area-inset-top));
+    }
+
     /* Le centre absolu doit reprendre les retraits du header pour aligner
        WhatsApp sur la même ligne que Fermer / Partager, sans double décalage. */
     .slidepanel-header-center:has(.video-header-contact) {
