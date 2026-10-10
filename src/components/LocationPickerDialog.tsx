@@ -435,7 +435,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
   const body = (
     <>
           {!inline && (
-            <DialogPrimitive.Close className={cn("absolute left-4 top-4 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none disabled:pointer-events-none z-10", themed.closeBtn)}>
+            <DialogPrimitive.Close className={cn("geo-dialog-close absolute left-4 top-4 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none disabled:pointer-events-none z-10", themed.closeBtn)}>
               <X className="h-4 w-4" />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
