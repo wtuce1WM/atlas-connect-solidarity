@@ -16,10 +16,14 @@ Deno.serve(async (req) => {
       if (jobId) {
         const supa = createClient(
           Deno.env.get('SUPABASE_URL')!,
-          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? Deno.env.get('SUPABASE_ANON_KEY')!,
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
         );
-        const { data } = await supa.from('video_jobs').select('id,status').eq('id', jobId).maybeSingle();
-        if (data && (data.status === 'pending' || data.status === 'rendering')) internalAllowed = true;
+        const provided = req.headers.get('x-internal-token') || '';
+        const { data: tokRow } = await supa.from('internal_service_tokens').select('token').eq('name', 'render_trigger').maybeSingle();
+        if (provided && tokRow?.token && provided === tokRow.token) {
+          const { data } = await supa.from('video_jobs').select('id,status').eq('id', jobId).maybeSingle();
+          if (data && (data.status === 'pending' || data.status === 'rendering')) internalAllowed = true;
+        }
       }
     } catch (_) { /* fallthrough to staff check */ }
   }
