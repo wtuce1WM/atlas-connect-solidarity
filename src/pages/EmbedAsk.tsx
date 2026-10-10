@@ -4607,6 +4607,38 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     </div>
                   </form>
 
+                  {/* Badge géolocalisation — même style que les badges bleus de l'overlay
+                      Full Description. Affiche « Géolocalisé » quand une position est
+                      active (GPS accepté ou adresse choisie) ; sinon ouvre le popup
+                      de géolocalisation (sélecteur d'adresse). */}
+                  {(() => {
+                    const geolocated = !!geo.coords;
+                    const geoLabel = geolocated
+                      ? (lang === "en" ? "Geolocated" : lang === "ar" ? "تم تحديد موقعك" : "Géolocalisé")
+                      : (lang === "en" ? "Locate me" : lang === "ar" ? "حدّد موقعي" : "Vous géolocaliser");
+                    if (geolocated) {
+                      return (
+                        <span
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs md:text-sm font-medium backdrop-blur-sm w-fit bg-blue-500/30 text-blue-200"
+                        >
+                          <MapPin className="h-3.5 w-3.5 shrink-0" />
+                          {geoLabel}
+                        </span>
+                      );
+                    }
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => setLocationOpen(true)}
+                        aria-label={geoLabel}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs md:text-sm font-medium backdrop-blur-sm w-fit bg-blue-500/30 text-blue-200 hover:bg-blue-500/40 transition-colors"
+                      >
+                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                        {geoLabel}
+                      </button>
+                    );
+                  })()}
+
                   {renderGeoInlinePicker()}
 
 
