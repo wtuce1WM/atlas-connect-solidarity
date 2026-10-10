@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Remplacer A/B dans Itinéraire par les marqueurs de position et du business utilisés dans Map ; rendu Google à confirmer sur le domaine autorisé.
+- [x] Remplacer A/B dans Itinéraire par les marqueurs de position et du business utilisés dans Map ; rendu Google à confirmer sur le domaine autorisé.
 
 - [x] Protéger la croix FullDescription dans les deux viewers de l’App uniquement ; retrait 54 px simulé, fermeture testée sur la fiche et compilation OK ; iPhone réel non vérifiable ici.
 
