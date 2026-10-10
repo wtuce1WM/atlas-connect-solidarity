@@ -37,6 +37,21 @@ Deno.serve(async (req) => {
       );
     }
 
+    {
+      const authHeader = req.headers.get("Authorization") || "";
+      const { createClient } = await import("npm:@supabase/supabase-js@2");
+      const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { Authorization: authHeader } } });
+      const { data: c } = authHeader.startsWith("Bearer ") ? await sb.auth.getClaims(authHeader.slice(7)) : { data: null };
+      const uid = c?.claims?.sub as string | undefined;
+      let ok = false;
+      if (uid) {
+        for (const r of ["admin", "staff", "video_studio"]) {
+          const { data } = await sb.rpc("has_role", { _user_id: uid, _role: r });
+          if (data) { ok = true; break; }
+        }
+      }
+      if (!ok) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     if (action !== "from_video") {
       return new Response(JSON.stringify({ error: "Action inconnue" }), {
         status: 400,

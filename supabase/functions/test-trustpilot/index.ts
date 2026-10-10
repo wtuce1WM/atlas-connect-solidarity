@@ -21,6 +21,9 @@ Deno.serve(async (req) => {
   }
 
   const { url } = await req.json();
+  try { const __h = new URL(String(url)).hostname.toLowerCase(); if (!["trustpilot.com"].some((d: string) => __h === d || __h.endsWith("." + d))) throw 0; } catch {
+    return new Response(JSON.stringify({ success: false, error: 'URL non autorisée' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  }
 
   try {
     console.log(`Scraping Trustpilot: ${url}`);
