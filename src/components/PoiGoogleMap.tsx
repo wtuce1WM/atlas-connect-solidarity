@@ -467,6 +467,31 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
+/** The same labeled pins are used by the map and directions endpoints. */
+export function createMapUserMarker(
+  gmaps: typeof google.maps,
+  map: google.maps.Map,
+  position: google.maps.LatLngLiteral,
+  label = "Vous êtes ici",
+) {
+  const LabelMarker = createLabelMarkerClass(gmaps);
+  const navIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="#ffffff"/></svg>`;
+  return new LabelMarker(position, map, label, navIcon, false, undefined, undefined, undefined,
+    { bg: "#C04F17", fg: "#ffffff", border: "#C04F17" });
+}
+
+export function createMapMasterMarker(
+  gmaps: typeof google.maps,
+  map: google.maps.Map,
+  position: google.maps.LatLngLiteral,
+  name: string,
+  onClick?: () => void,
+) {
+  const LabelMarker = createLabelMarkerClass(gmaps);
+  return new LabelMarker(position, map, name, "", false, onClick, undefined, undefined,
+    { bg: "#000000", fg: "#ffffff", border: "#000000" });
+}
+
 const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, fitPadding, markerSafeArea, markerSafeSelector, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, onReady, centerAtBottomRatio, mapTypeId, fitRadiusKm, connector, distanceOrigin, onViewportRadiusKm }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
@@ -1530,19 +1555,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       userMarkerRef.current = null;
     }
     if (!userLocation) return;
-    const LabelMarker = createLabelMarkerClass(gmaps);
-    const navIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="#ffffff"/></svg>`;
-    userMarkerRef.current = new LabelMarker(
-      { lat: userLocation.lat, lng: userLocation.lng },
+    userMarkerRef.current = createMapUserMarker(
+      gmaps,
       map,
+      { lat: userLocation.lat, lng: userLocation.lng },
       userMarkerLabel || "Vous êtes ici",
-      navIcon,
-      false,
-      undefined,
-      undefined,
-      undefined,
-      { bg: "#C04F17", fg: "#ffffff", border: "#C04F17" },
-      undefined,
     );
     // fitBounds already includes the user location together with the POIs,
     // so the marker stays visible without overriding the framing.

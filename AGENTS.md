@@ -1,5 +1,7 @@
 # Architecture Rules
 
+- Directions endpoint pins reuse PoiGoogleMap's label-marker factories so user and master markers stay visually consistent with the Map overlay.
+
 - Showcase PWA icons use `businesses.logo_url` first, then the showcase hero and first business image, so every enabled business is branded dynamically without slug-specific additions.
 - Keep the Home `EmbedAsk` instance mounted across FR/EN URL changes so the active AI thread and slidepanel survive language switching.
 - Business vanity links initialize Home and its `EmbedAsk` panel from `openBusiness` on the first render to avoid transitional screens.

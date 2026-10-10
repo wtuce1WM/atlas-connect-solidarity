@@ -4,6 +4,8 @@ import { X, Info, MapPin } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { supabase } from "@/integrations/supabase/client";
+import { createMapMasterMarker, createMapUserMarker } from "@/components/PoiGoogleMap";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const GEO_STORAGE_KEY = "geo_preference";
 const GEO_MANUAL_COORDS_KEY = "geo_manual_coords";
@@ -91,16 +93,6 @@ function loadGoogleMaps(): Promise<void> {
   return gmapsPromise;
 }
 
-const TERRACOTTA = "#C04F17";
-const buildPinIcon = (gmaps: typeof google.maps): google.maps.Icon => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 384 512"><path fill="${TERRACOTTA}" stroke="#ffffff" stroke-width="16" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`;
-  return {
-    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new gmaps.Size(32, 40),
-    anchor: new gmaps.Point(16, 40),
-  };
-};
-
 interface DirectionsOverlayProps {
   business: {
     name: string;
@@ -115,6 +107,8 @@ interface DirectionsOverlayProps {
 }
 
 const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
+  const { language } = useLanguage();
+  const originLabel = language === "en" ? "You are here" : "Vous êtes là";
   const [directionsMode, setDirectionsMode] = useState<DirectionsMode>("walking");
   const [userOrigin, setUserOrigin] = useState<{ lat: number; lng: number } | null>(null);
   const [storedOrigin, setStoredOrigin] = useState<{ lat: number; lng: number } | null>(() => readStoredOrigin());
@@ -134,8 +128,8 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const directionsRenderersRef = useRef<google.maps.DirectionsRenderer[]>([]);
   const routeLabelsRef = useRef<google.maps.OverlayView[]>([]);
   const routeRequestRef = useRef(0);
-  const originMarkerRef = useRef<google.maps.Marker | null>(null);
-  const destMarkerRef = useRef<google.maps.Marker | null>(null);
+  const originMarkerRef = useRef<google.maps.OverlayView | null>(null);
+  const destMarkerRef = useRef<google.maps.OverlayView | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const geo = useGeolocation();
 
@@ -248,7 +242,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     });
   }, [mapsReady, showMap, origin]);
 
-  // Native Google DirectionsService + DirectionsRenderer (route, markers A/B, time & distance natives)
+  // Route rendering keeps its native geometry; endpoints reuse the Map overlay pins.
   useEffect(() => {
     if (!mapsReady || !showMap || !mapRef.current || !origin || !destLatLng) return;
     const gmaps = window.google.maps;
@@ -258,7 +252,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     setRouteError(null);
     setRouteInfo(null);
 
-    // Clear our custom markers + polyline + info window — DirectionsRenderer handles all of this natively
+    // Clear the previous route and its endpoint markers.
     if (originMarkerRef.current) { originMarkerRef.current.setMap(null); originMarkerRef.current = null; }
     if (destMarkerRef.current) { destMarkerRef.current.setMap(null); destMarkerRef.current = null; }
     if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
@@ -269,6 +263,9 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     routeLabelsRef.current = [];
     polylinesRef.current.forEach((p) => p.setMap(null));
     polylinesRef.current = [];
+
+    originMarkerRef.current = createMapUserMarker(gmaps, map, origin, originLabel);
+    destMarkerRef.current = createMapMasterMarker(gmaps, map, destLatLng, business.name, () => setShowInfoCard(true));
 
     if (!directionsServiceRef.current) directionsServiceRef.current = new gmaps.DirectionsService();
 
@@ -299,7 +296,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
             map,
             directions: result,
             routeIndex: idx,
-            suppressMarkers: !isPrimary,
+            suppressMarkers: true,
             preserveViewport: true,
             suppressPolylines: directionsMode === "walking",
           });
@@ -355,7 +352,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
                 <div style="position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid #fff;"></div>
               `;
               this.div = wrap;
-              this.getPanes()!.floatPane.appendChild(wrap);
+               this.getPanes()?.floatPane.appendChild(wrap);
             }
             draw() {
               if (!this.div) return;
@@ -386,8 +383,14 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       }
     );
 
-    return () => { cancelled = true; };
-  }, [mapsReady, showMap, origin, destLatLng, directionsMode, business.name]);
+    return () => {
+      cancelled = true;
+      originMarkerRef.current?.setMap(null);
+      destMarkerRef.current?.setMap(null);
+      originMarkerRef.current = null;
+      destMarkerRef.current = null;
+    };
+  }, [mapsReady, showMap, origin, destLatLng, directionsMode, business.name, originLabel]);
 
   const formatDistance = (m: number | null) => {
     if (m == null) return null;
