@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Trop de tentatives. Réessayez dans quelques minutes." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const code = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
     const codeHash = await sha256(code);
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
