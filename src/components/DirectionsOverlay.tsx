@@ -1,6 +1,7 @@
 /// <reference types="@types/google.maps" />
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { X, Info, MapPin } from "lucide-react";
+import { FaWaze } from "react-icons/fa";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { supabase } from "@/integrations/supabase/client";
@@ -446,7 +447,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
             <img src="https://www.gstatic.com/images/branding/product/1x/maps_48dp.png" alt="Google Maps" className="h-6 w-6 object-contain" />
           </a>
           <a href={business.latitude && business.longitude ? `https://waze.com/ul?ll=${business.latitude},${business.longitude}&navigate=yes` : `https://waze.com/ul?q=${encodeURIComponent(destRaw)}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Waze">
-            <img src="https://www.waze.com/favicon.ico" alt="Waze" className="h-6 w-6 object-contain" />
+            <FaWaze aria-label="Waze" role="img" className="h-6 w-6 text-map-surface-foreground" />
           </a>
           <a href={business.latitude && business.longitude ? `https://maps.apple.com/?daddr=${business.latitude},${business.longitude}&dirflg=${appleDirFlag}` : `https://maps.apple.com/?daddr=${encodeURIComponent(destRaw)}&dirflg=${appleDirFlag}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Apple Plans">
             <img src="https://www.apple.com/favicon.ico" alt="Apple Plans" className="h-7 w-7 object-contain" />
