@@ -36,7 +36,8 @@ serve(async (req) => {
     
     const escCsv = (val: string | null | undefined) => {
       if (!val) return "";
-      const s = String(val);
+      let s = String(val);
+      if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
       if (s.includes(",") || s.includes('"') || s.includes("\n")) {
         return `"${s.replace(/"/g, '""')}"`;
       }
