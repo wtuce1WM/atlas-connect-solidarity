@@ -2006,6 +2006,18 @@ const BookOnlineSlidePanelInner = ({
 
   const hasContactCard = !!(hasOpeningHours && !business?.is_open_24h) || !!isHotelWithPrice;
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
+  // Widget « Laisser un avis » : condition = lien d'avis disponible (Google/TripAdvisor), pas la note calculée.
+  const hasRateReviewLink = useMemo(() => {
+    if (!business) return false;
+    const googleUrl =
+      (business as any).google_review_url ||
+      ((business as any).google_place_id
+        ? `https://search.google.com/local/writereview?placeid=${(business as any).google_place_id}`
+        : business.google_maps_url || business.google_reviews_url) ||
+      null;
+    const taUrl = (business as any).tripadvisor_review_url || (business as any).tripadvisor_url || null;
+    return !!googleUrl || !!taUrl;
+  }, [business]);
 
   const handleOpenReviews = useCallback(async () => {
     if (!hasReviewsCard) return;
