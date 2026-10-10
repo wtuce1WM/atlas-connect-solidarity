@@ -735,6 +735,12 @@ html.hide-scrollbar-search::-webkit-scrollbar {
       top: calc(1rem + env(safe-area-inset-top));
     }
 
+    /* Accueil de l'App installée : l'indicateur iOS reprend la place du dégagement
+       bas, pour que le CTA doré des suggestions reste hors de sa zone. */
+    .owm-home-hero {
+      padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+    }
+
     /* Le centre absolu doit reprendre les retraits du header pour aligner
        WhatsApp sur la même ligne que Fermer / Partager, sans double décalage. */
     .slidepanel-header-center:has(.video-header-contact) {
