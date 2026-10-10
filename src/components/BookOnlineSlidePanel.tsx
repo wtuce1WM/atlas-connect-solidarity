@@ -4432,7 +4432,7 @@ const BookOnlineSlidePanelInner = ({
                   {renderInlineDescWidgets("desc-widgets-bottom")}
 
                   {/* Widget « Laisser un avis » (iframe) — tout en bas de l'overlay */}
-                  {!descOverlayContent && business?.slug && hasReviewsCard && (
+                  {!descOverlayContent && business?.slug && hasRateReviewLink && (
                     <div className="mt-8 pt-6 border-t border-white/10">
                       <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-transparent">
                         <LazyMount minHeight={rateIframeHeight} rootMargin="400px">
