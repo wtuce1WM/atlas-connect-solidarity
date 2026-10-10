@@ -2006,6 +2006,18 @@ const BookOnlineSlidePanelInner = ({
 
   const hasContactCard = !!(hasOpeningHours && !business?.is_open_24h) || !!isHotelWithPrice;
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
+  // Widget « Laisser un avis » : condition = lien d'avis disponible (Google/TripAdvisor), pas la note calculée.
+  const hasRateReviewLink = useMemo(() => {
+    if (!business) return false;
+    const googleUrl =
+      (business as any).google_review_url ||
+      ((business as any).google_place_id
+        ? `https://search.google.com/local/writereview?placeid=${(business as any).google_place_id}`
+        : business.google_maps_url || business.google_reviews_url) ||
+      null;
+    const taUrl = (business as any).tripadvisor_review_url || (business as any).tripadvisor_url || null;
+    return !!googleUrl || !!taUrl;
+  }, [business]);
 
   const handleOpenReviews = useCallback(async () => {
     if (!hasReviewsCard) return;
@@ -4420,7 +4432,7 @@ const BookOnlineSlidePanelInner = ({
                   {renderInlineDescWidgets("desc-widgets-bottom")}
 
                   {/* Widget « Laisser un avis » (iframe) — tout en bas de l'overlay */}
-                  {!descOverlayContent && business?.slug && hasReviewsCard && (
+                  {!descOverlayContent && business?.slug && hasRateReviewLink && (
                     <div className="mt-8 pt-6 border-t border-white/10">
                       <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-transparent">
                         <LazyMount minHeight={rateIframeHeight} rootMargin="400px">
