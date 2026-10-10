@@ -4498,7 +4498,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       {/* scrollbar-hide : ascenseur masqué (scroll molette/tactile/clavier conservé). */}
       <div
         ref={scrollRef}
-        className={`${autoHeight ? "flex-none" : "flex-1 overflow-y-auto scrollbar-hide overflow-x-clip"} px-4 ${heroLayout && !homeState ? "pt-16 md:pt-20" : heroLayout && homeState ? "pt-10 md:pt-4" : "pt-4"} pb-8 space-y-3 ${bg} relative`}
+        className={`owm-home-hero ${autoHeight ? "flex-none" : "flex-1 overflow-y-auto scrollbar-hide overflow-x-clip"} px-4 ${heroLayout && !homeState ? "pt-16 md:pt-20" : heroLayout && homeState ? "pt-6 md:pt-4" : "pt-4"} pb-8 space-y-3 ${bg} relative`}
         /* Home (hero=1) en conversation : le header reste transparent, le contenu
            scrollé s'estompe progressivement sous lui (fondu de 0 à 88px). */
         style={heroLayout && !homeState ? {
@@ -4708,9 +4708,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   </div>
                 </div>
 
-                {/* Zone 3 : réservée au CTA « Découvrez l'App » monté par Front.tsx.
-                    Sur mobile la zone est réduite (~9 %) ; desktop inchangé (20 %). */}
-                {heroLayout && <div className="basis-0 grow-[0.4] md:grow-[1]" aria-hidden />}
+                {/* Zone 3 : réservée au CTA « Catégories » monté par Front.tsx.
+                    Sur mobile le CTA tient sur une seule ligne et le padding bas du
+                    conteneur (pb-8) suffit à le dégager : aucune zone réservée, pour
+                    que le champ et les suggestions ne soient plus coupés.
+                    Desktop inchangé (20 %). */}
+                {heroLayout && <div className="basis-0 grow-0 md:grow-[1]" aria-hidden />}
               </div>
             )}
           </>

@@ -14,3 +14,4 @@
 - [x] Utiliser le logo de l'établissement comme icône PWA lorsqu'il existe, avec fallback image.
 
 - [x] Rendre le badge « Géolocalisé » de l’assistant IA Home cliquable : il ouvre le popup « Choisir votre adresse » ; popup vérifié à l’écran, badge « Vous géolocaliser » inchangé, compilation OK.
+- [x] Poser le chevron et le libellé « Catégories » sur une seule ligne sur mobile, et rendre la hauteur réservée au CTA ; contour du champ et CTA doré entièrement visibles à 660 et 805 px (mesures + captures), App préservée via un dégagement bas dédié.
