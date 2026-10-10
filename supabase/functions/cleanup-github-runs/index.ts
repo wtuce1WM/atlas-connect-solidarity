@@ -1,7 +1,10 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { assertStaff } from '../_shared/auth-helpers.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  const guard = await assertStaff(req, corsHeaders);
+  if (guard instanceof Response) return guard;
 
   const pat = Deno.env.get('GITHUB_PAT');
   const repo = Deno.env.get('GITHUB_REPO');
