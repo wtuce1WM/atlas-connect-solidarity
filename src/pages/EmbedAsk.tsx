@@ -4708,9 +4708,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   </div>
                 </div>
 
-                {/* Zone 3 : réservée au CTA « Découvrez l'App » monté par Front.tsx.
-                    Sur mobile la zone est réduite (~9 %) ; desktop inchangé (20 %). */}
-                {heroLayout && <div className="basis-0 grow-[0.4] md:grow-[1]" aria-hidden />}
+                {/* Zone 3 : réservée au CTA « Catégories » monté par Front.tsx.
+                    Sur mobile le CTA tient sur une seule ligne et le padding bas du
+                    conteneur suffit à le dégager : la zone est réduite au strict
+                    minimum (~2 %) pour que le champ et les suggestions ne soient
+                    plus coupés. Desktop inchangé (20 %). */}
+                {heroLayout && <div className="basis-0 grow-[0.1] md:grow-[1]" aria-hidden />}
               </div>
             )}
           </>

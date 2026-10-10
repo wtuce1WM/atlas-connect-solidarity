@@ -1086,14 +1086,16 @@ const Front = () => {
         }
       `}</style>
 
-      {/* CTA « Catégories » en bas de l'écran 1 (modèle /corporate). */}
+      {/* CTA « Catégories » en bas de l'écran 1 (modèle /corporate).
+          Mobile : chevron et libellé sur une seule ligne (hauteur divisée par deux),
+          desktop : empilés comme avant. */}
       {!screen2Open && showHomeChrome && !askLocked && !mapOpen && !demoFeedOpen && !conversationOpen && !youtubeOpen && (
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); setScreen2Open(true); }}
-          className="absolute bottom-2 left-1/2 z-[60] flex -translate-x-1/2 flex-col items-center gap-1 text-[rgba(244,238,228,0.85)] hover:text-gold"
+          className="absolute bottom-2 left-1/2 z-[60] flex -translate-x-1/2 flex-row items-center gap-2 text-[rgba(244,238,228,0.85)] hover:text-gold md:flex-col md:gap-1"
         >
-          <ChevronDown className={`h-6 w-6 text-gold ${reduced ? "" : "animate-bounce"}`} />
+          <ChevronDown className={`h-5 w-5 shrink-0 text-gold md:h-6 md:w-6 ${reduced ? "" : "animate-bounce"}`} />
           <span className="font-roboto text-xs font-bold uppercase tracking-[0.18em]">{language === "en" ? "Categories" : "Catégories"}</span>
         </button>
       )}
