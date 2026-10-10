@@ -12,3 +12,5 @@
 - [x] Construire le template premium sur la page vitrine existante, avec les données de l'espace affilié.
 - [x] Vérifier la page sur iPhone et ordinateur, le calendrier, WhatsApp et le référencement.
 - [x] Utiliser le logo de l'établissement comme icône PWA lorsqu'il existe, avec fallback image.
+
+- [x] Rendre le badge « Géolocalisé » de l’assistant IA Home cliquable : il ouvre le popup « Choisir votre adresse » ; popup vérifié à l’écran, badge « Vous géolocaliser » inchangé, compilation OK.
