@@ -16,10 +16,14 @@ Deno.serve(async (req) => {
       if (jobId) {
         const supa = createClient(
           Deno.env.get('SUPABASE_URL')!,
-          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? Deno.env.get('SUPABASE_ANON_KEY')!,
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
         );
-        const { data } = await supa.from('video_jobs').select('id,status').eq('id', jobId).maybeSingle();
-        if (data && (data.status === 'pending' || data.status === 'rendering')) internalAllowed = true;
+        const provided = req.headers.get('x-internal-token') || '';
+        const { data: tokRow } = await supa.from('internal_service_tokens').select('token').eq('name', 'render_trigger').maybeSingle();
+        if (provided && tokRow?.token && provided === tokRow.token) {
+          const { data } = await supa.from('video_jobs').select('id,status').eq('id', jobId).maybeSingle();
+          if (data && (data.status === 'pending' || data.status === 'rendering')) internalAllowed = true;
+        }
       }
     } catch (_) { /* fallthrough to staff check */ }
   }
@@ -52,7 +56,7 @@ Deno.serve(async (req) => {
     if (!repoRes.ok) {
       const body = await repoRes.text();
       console.error('GitHub repo access failed', repoRes.status, body);
-      return new Response(JSON.stringify({ error: 'Repo access failed', status: repoRes.status, body, repo }), {
+      return new Response(JSON.stringify({ error: 'Repo access failed', status: repoRes.status }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -73,7 +77,7 @@ Deno.serve(async (req) => {
       const listRes = await fetch(`https://api.github.com/repos/${repo}/actions/workflows`, { headers: ghHeaders });
       const listBody = await listRes.text();
       console.error('GitHub dispatch failed', res.status, text, 'ref=', ref, 'workflow=', workflow, 'workflows=', listBody);
-      return new Response(JSON.stringify({ error: 'GitHub dispatch failed', status: res.status, body: text, ref, workflow, workflows_list_status: listRes.status, workflows: listBody }), {
+      return new Response(JSON.stringify({ error: 'GitHub dispatch failed', status: res.status }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -83,7 +87,7 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: String(e) }), {
+    return new Response(JSON.stringify({ error: 'Internal error' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

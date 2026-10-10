@@ -49,13 +49,20 @@ Deno.serve(async (req) => {
     if (!imageBase64) return json({ error: "imageBase64 manquant" }, 400);
 
     const bin = Uint8Array.from(atob(imageBase64), (c) => c.charCodeAt(0));
-    const safeExt = (ext || "jpg").toString().replace(/[^a-z0-9]/gi, "").slice(0, 5) || "jpg";
+    const IMG_TYPES = ["image/jpeg", "image/png", "image/webp"];
+    if (contentType && !IMG_TYPES.includes(String(contentType))) return json({ error: "type d'image non autorisé" }, 400);
+    if (bin.length > 5 * 1024 * 1024) return json({ error: "image trop lourde (max 5 Mo)" }, 400);
+    const isJpg = bin[0] === 0xff && bin[1] === 0xd8;
+    const isPng = bin[0] === 0x89 && bin[1] === 0x50;
+    const isWebp = bin[8] === 0x57 && bin[9] === 0x45 && bin[10] === 0x42 && bin[11] === 0x50;
+    if (!isJpg && !isPng && !isWebp) return json({ error: "fichier non image" }, 400);
+    const safeExt = isPng ? "png" : isWebp ? "webp" : "jpg";
     const path = `thumbs/staff-${source}-${videoId}-${Date.now()}.${safeExt}`;
 
     const { error: upErr } = await admin.storage.from("business-images").upload(path, bin, {
       cacheControl: "31536000",
       upsert: true,
-      contentType: contentType || "image/jpeg",
+      contentType: isPng ? "image/png" : isWebp ? "image/webp" : "image/jpeg",
     });
     if (upErr) return json({ error: `upload: ${upErr.message}` }, 400);
 

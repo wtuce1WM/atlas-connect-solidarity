@@ -1,3 +1,4 @@
+import { isPublicHttpUrl } from "../_shared/url-guard.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -35,6 +36,7 @@ function isIframeBlocked(headers: Headers): { blocked: boolean; reason: string }
 }
 
 async function checkUrl(url: string): Promise<{ blocked: boolean; reason: string; error?: string; httpStatus?: number }> {
+  if (!isPublicHttpUrl(url)) return { blocked: false, reason: "", error: "URL non autorisée" };
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 6000);

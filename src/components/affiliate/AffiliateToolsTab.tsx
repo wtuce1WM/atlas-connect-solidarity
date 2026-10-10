@@ -397,6 +397,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     // La croix de fermeture est dans le widget (à gauche de l'avatar) : il nous
     // prévient par postMessage.
     window.addEventListener('message', function (e) {
+      if (!e || e.source !== frame.contentWindow) return;
       if (e && e.data && e.data.type === 'owm-embed-close') shut();
       if (e && e.data && e.data.type === 'owm-embed-theme' && /^#[0-9A-Fa-f]{6}$/.test(e.data.background || '')) {
         panel.style.background = e.data.background;

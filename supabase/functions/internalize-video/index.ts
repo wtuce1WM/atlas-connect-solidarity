@@ -1,3 +1,4 @@
+import { isPublicHttpUrl } from "../_shared/url-guard.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -99,7 +100,7 @@ Deno.serve(async (req) => {
     }
 
     const videoUrlObj = new URL(videoUrl);
-    if (!["http:", "https:"].includes(videoUrlObj.protocol)) {
+    if (!["http:", "https:"].includes(videoUrlObj.protocol) || !isPublicHttpUrl(videoUrl)) {
       return new Response(JSON.stringify({ error: "Invalid videoUrl protocol" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -120,6 +121,9 @@ Deno.serve(async (req) => {
     });
     clearTimeout(timeout);
 
+    if (sourceResp.url && !isPublicHttpUrl(sourceResp.url)) {
+      return new Response(JSON.stringify({ error: "Redirect target not allowed" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     if (!sourceResp.ok) {
       return new Response(JSON.stringify({ error: `Video fetch failed (${sourceResp.status})` }), {
         status: 400,

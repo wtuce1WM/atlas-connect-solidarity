@@ -353,9 +353,10 @@ var list_blog_articles_default = defineTool6({
     const supabase = createClient6(SUPABASE_URL6, SUPABASE_ANON_KEY6, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
+    const safeQ = String(query ?? "").replace(/[,()*%\\:."]/g, " ").slice(0, 200);
     let q = supabase.from("blog_posts").select("slug, title_fr, title_en, excerpt_fr, published_at, updated_at").eq("is_published", true).order("published_at", { ascending: false, nullsFirst: false }).limit(Math.min(limit ?? 25, 50));
     if (query) {
-      q = q.or(`title_fr.ilike.%${query}%,title_en.ilike.%${query}%,slug.ilike.%${query}%`);
+      q = q.or(`title_fr.ilike.%${safeQ}%,title_en.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`);
     }
     const { data, error } = await q;
     if (error) {
@@ -408,11 +409,12 @@ var get_blog_article_default = defineTool7({
     const supabase = createClient7(SUPABASE_URL7, SUPABASE_ANON_KEY7, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
+    const safeQ = String(query ?? "").replace(/[,()*%\\:."]/g, " ").slice(0, 200);
     let q = supabase.from("blog_posts").select(
       "slug, title_fr, title_en, title_ar, excerpt_fr, excerpt_en, excerpt_ar, tldr_fr, tldr_en, tldr_ar, intro_fr, intro_en, intro_ar, entries_fr, entries_en, entries_ar, faq_fr, faq_en, faq_ar, author_name, published_at, updated_at, cover_image_url"
     ).eq("is_published", true).limit(1);
     q = slug ? q.eq("slug", slug) : q.or(
-      `title_fr.ilike.%${query}%,title_en.ilike.%${query}%,slug.ilike.%${query}%`
+      `title_fr.ilike.%${safeQ}%,title_en.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`
     );
     const { data, error } = await q.maybeSingle();
     if (error) {

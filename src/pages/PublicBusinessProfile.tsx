@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -415,7 +416,7 @@ const PublicBusinessProfile = () => {
                     "overflow-hidden transition-[max-height] duration-500 ease-in-out",
                   ].join(" ")}
                   style={{ maxHeight: descExpanded || !isLong ? "4000px" : "8.5em" }}
-                  dangerouslySetInnerHTML={{ __html: html }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }}
                 />
                 {isLong && !descExpanded && (
                   <div className="-mt-6 h-6 bg-gradient-to-b from-transparent to-[#1a1a1a] pointer-events-none" />
@@ -482,7 +483,7 @@ const PublicBusinessProfile = () => {
                     {pickPromo(p, "promotion_message") && (
                       <div
                         className="mt-1.5 text-[13px] leading-relaxed text-neutral-300 [&_p]:m-0"
-                        dangerouslySetInnerHTML={{ __html: pickPromo(p, "promotion_message") }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(pickPromo(p, "promotion_message") || "") }}
                       />
                     )}
                   </div>

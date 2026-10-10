@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (existing) {
-      return new Response(JSON.stringify({ ok: true, affiliate_id: existing.id, duplicate: true }), {
+      return new Response(JSON.stringify({ ok: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -121,7 +121,7 @@ Deno.serve(async (req) => {
 
     if (noteError) console.error("affiliate note failed", noteError);
 
-    return new Response(JSON.stringify({ ok: true, affiliate_id: inserted.id }), {
+    return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

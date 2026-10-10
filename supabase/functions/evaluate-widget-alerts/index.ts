@@ -1,3 +1,4 @@
+import { assertStaff } from "../_shared/auth-helpers.ts";
 // Daily evaluation of widget alerts (Marées & Vents) for coastal cities.
 // Reads subscribers from `widget_alert_subscribers`, evaluates tomorrow's
 // conditions from Open-Meteo (marine + wind), and sends one grouped email per
@@ -177,6 +178,17 @@ Deno.serve(async (req) => {
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const admin = createClient(supabaseUrl, serviceKey);
 
+  {
+    const provided = req.headers.get("x-internal-token") || "";
+    const { data: tokRow } = await admin.from("internal_service_tokens").select("token").eq("name", "widget_alerts").maybeSingle();
+    let allowed = !!provided && !!tokRow?.token && provided === tokRow.token;
+    if (!allowed) {
+      const g = await assertStaff(req, corsHeaders);
+      if (g instanceof Response) return g;
+      allowed = true;
+    }
+  }
+
   let body: Record<string, unknown> = {};
   try { body = await req.json(); } catch { /* cron sends minimal bodies */ }
   const dryRun = body.dry_run === true;
@@ -239,7 +251,7 @@ Deno.serve(async (req) => {
       }
       if (!toSend.length) continue;
 
-      report.push({ email: sub.email, city: sub.city_slug, date: city.date, alerts: toSend.map((a) => a.type) });
+      report.push({ city: sub.city_slug, date: city.date, alerts: toSend.map((a) => a.type) });
       if (dryRun) continue;
 
       try {
