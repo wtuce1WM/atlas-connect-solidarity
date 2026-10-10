@@ -392,6 +392,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
   window.owmOpenPanel=function(n){open(parseInt(n,10)||0);return false;};
   // Clic sur un marqueur de la carte de l'article (iframe) → ouverture du panneau
   window.addEventListener('message',function(ev){
+    if(ev.origin!==new URL(SITE).origin)return;
     var d=ev.data;
     if(!d||d.type!=='owm-open-fiche'||!d.slug)return;
     open(indexForSlug(String(d.slug)));
