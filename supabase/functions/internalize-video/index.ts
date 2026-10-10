@@ -121,6 +121,9 @@ Deno.serve(async (req) => {
     });
     clearTimeout(timeout);
 
+    if (sourceResp.url && !isPublicHttpUrl(sourceResp.url)) {
+      return new Response(JSON.stringify({ error: "Redirect target not allowed" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     if (!sourceResp.ok) {
       return new Response(JSON.stringify({ error: `Video fetch failed (${sourceResp.status})` }), {
         status: 400,
