@@ -40,6 +40,8 @@ export default defineTool({
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
+    const safeQ = String(query ?? "").replace(/[,()*%\\:."]/g, " ").slice(0, 200);
+
     let q = supabase
       .from("blog_posts")
       .select(
@@ -51,7 +53,7 @@ export default defineTool({
     q = slug
       ? q.eq("slug", slug)
       : q.or(
-          `title_fr.ilike.%${query}%,title_en.ilike.%${query}%,slug.ilike.%${query}%`,
+          `title_fr.ilike.%${safeQ}%,title_en.ilike.%${safeQ}%,slug.ilike.%${safeQ}%`,
         );
 
     const { data, error } = await q.maybeSingle();
