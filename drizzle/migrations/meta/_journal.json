@@ -50,6 +50,13 @@
       "when": 1791730147363,
       "tag": "0006_billing_integrity_constraints",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791730643364,
+      "tag": "0007_fix_save_quote_temp_updates",
+      "breakpoints": true
     }
   ]
 }
