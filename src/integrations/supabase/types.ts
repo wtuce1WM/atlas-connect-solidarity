@@ -9398,6 +9398,10 @@ export type Database = {
         Args: { lat1: number; lat2: number; lon1: number; lon2: number }
         Returns: number
       }
+      convert_quote_to_invoice: {
+        Args: { p_quote_id: string }
+        Returns: string
+      }
       generate_slug: { Args: { input_text: string }; Returns: string }
       get_all_storage_sizes: {
         Args: { bucket_name: string }
@@ -9616,6 +9620,15 @@ export type Database = {
         }[]
       }
       next_billing_number: { Args: { _kind: string }; Returns: string }
+      record_payment: {
+        Args: {
+          p_amount: number
+          p_invoice_id: string
+          p_provider?: string
+          p_reference?: string
+        }
+        Returns: string
+      }
       refresh_business_search_vector_for_ids: {
         Args: { _ids: string[] }
         Returns: undefined
@@ -9629,6 +9642,10 @@ export type Database = {
         Returns: Json
       }
       resolve_affiliate_id: { Args: { _user_id: string }; Returns: string }
+      save_quote: {
+        Args: { p_items: Json; p_note?: string; p_quote: Json }
+        Returns: string
+      }
       search_businesses_with_rank:
         | {
             Args: {
@@ -10047,6 +10064,14 @@ export type Database = {
               isSetofReturn: true
             }
           }
+      set_quote_status: {
+        Args: {
+          p_quote_id: string
+          p_refusal_reason?: string
+          p_status: Database["public"]["Enums"]["quote_status"]
+        }
+        Returns: undefined
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       slugify: { Args: { input: string }; Returns: string }
