@@ -506,7 +506,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
                   onKeyDown={handleKeyDown}
                   placeholder={language === "en" ? "Enter an address…" : language === "ar" ? "أدخل عنوانًا…" : "Saisir une adresse…"}
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
-                  className={cn("flex-1 py-3 px-2 text-sm bg-transparent focus:outline-none", themed.fg, themed.inputPlaceholder)}
+                  className={cn("flex-1 py-3 px-2 text-base sm:text-sm bg-transparent focus:outline-none", themed.fg, themed.inputPlaceholder)}
                 />
                 {addressQuery && (
                   <button

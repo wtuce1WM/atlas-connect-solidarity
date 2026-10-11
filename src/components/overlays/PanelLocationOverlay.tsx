@@ -386,7 +386,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
             onChange={(e) => setAddressQuery(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSearchAddress(); } }}
             placeholder={T.enterAddress}
-            className="flex-1 py-3 px-2 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+            className="flex-1 py-3 px-2 text-base sm:text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           {addressQuery && (
             <button
