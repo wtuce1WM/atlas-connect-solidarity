@@ -66,10 +66,12 @@ const InvoicesPanel = () => {
   };
 
   const markPaid = async (inv: Invoice) => {
-    const { error } = await supabase
-      .from("invoices")
-      .update({ status: "paid", paid_at: new Date().toISOString() })
-      .eq("id", inv.id);
+    // Enregistrement transactionnel côté serveur : ligne de paiement + statut, anti-doublon inclus.
+    const { error } = await supabase.rpc("record_payment", {
+      p_invoice_id: inv.id,
+      p_amount: inv.total_ttc,
+      p_provider: "manual",
+    });
     if (error) return toast.error(error.message);
     toast.success("Facture marquée payée");
     load();
