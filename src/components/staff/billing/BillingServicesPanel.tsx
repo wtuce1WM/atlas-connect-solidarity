@@ -262,15 +262,15 @@ const BillingServicesPanel = () => {
                         <option key={r.v} value={r.v}>{r.l}</option>
                       ))}
                     </select>
-                    <Input
-                      type="date"
+                    <DateField
                       value={g.valid_from}
-                      onChange={(e) => patchGrid(g.id, { valid_from: e.target.value })}
+                      placeholder="Début"
+                      onChange={(v) => patchGrid(g.id, { valid_from: v })}
                     />
-                    <Input
-                      type="date"
+                    <DateField
                       value={g.valid_to ?? ""}
-                      onChange={(e) => patchGrid(g.id, { valid_to: e.target.value })}
+                      placeholder="Sans fin"
+                      onChange={(v) => patchGrid(g.id, { valid_to: v })}
                     />
                     <label className="flex items-center gap-2 text-xs">
                       <Switch
