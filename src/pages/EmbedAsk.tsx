@@ -4622,9 +4622,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         type="button"
                         onClick={() => setLocationOpen(true)}
                         aria-label={geoLabel}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs md:text-sm font-medium backdrop-blur-sm w-fit bg-blue-500/30 text-blue-200 hover:bg-blue-500/40 transition-colors"
+                        className="text-[13px] px-4 py-2 rounded-full inline-flex items-center gap-1.5 font-semibold shadow-md hover:opacity-90 transition-opacity shrink-0 w-fit"
+                        style={{ fontFamily: "'Montserrat', sans-serif", background: "#C04F17", color: "#ffffff", border: "1px solid #C04F17", textTransform: "none", letterSpacing: "normal", ...heroReveal(460) }}
                       >
-                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                        <MapPin className="w-3.5 h-3.5" />
                         {geoLabel}
                       </button>
                     );
