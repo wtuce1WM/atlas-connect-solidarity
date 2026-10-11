@@ -22,6 +22,34 @@
       "when": 1791654163244,
       "tag": "0002_widget_alerts_cron_token",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791730039713,
+      "tag": "0003_billing_revoke_number_grant",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791730113082,
+      "tag": "0004_billing_server_functions",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791730136772,
+      "tag": "0005_billing_rls_hardening",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791730147363,
+      "tag": "0006_billing_integrity_constraints",
+      "breakpoints": true
     }
   ]
 }

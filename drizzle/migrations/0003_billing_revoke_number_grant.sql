@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.next_billing_number(text) FROM anon, authenticated;
