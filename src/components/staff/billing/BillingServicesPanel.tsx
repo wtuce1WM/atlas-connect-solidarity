@@ -1,13 +1,51 @@
 import { useEffect, useState, useCallback } from "react";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Trash2, Save } from "lucide-react";
 import { toast } from "sonner";
+
+const DateField = ({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+}) => {
+  const parsed = value ? new Date(value + "T12:00:00") : undefined;
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className="w-full justify-start font-normal text-left h-10"
+        >
+          <CalendarIcon className="h-4 w-4 mr-1 shrink-0" />
+          {parsed ? format(parsed, "dd/MM/yyyy") : <span className="text-muted-foreground">{placeholder}</span>}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={parsed}
+          onSelect={(d) => onChange(d ? format(d, "yyyy-MM-dd") : "")}
+          initialFocus
+          className="p-3 pointer-events-auto"
+        />
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 type Service = {
   id: string;
