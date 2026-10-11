@@ -221,75 +221,26 @@ const QuotesPanel = () => {
   };
 
   const setStatus = async (q: Quote, status: QuoteStatus) => {
-    const patch: Record<string, unknown> = { status };
-    if (status === "sent") {
-      patch.sent_at = new Date().toISOString();
-      if (!q.number) {
-        const { data, error } = await supabase.rpc("next_billing_number", { _kind: "quote" });
-        if (error) return toast.error(error.message);
-        patch.number = data;
-      }
+    let refusalReason: string | null = null;
+    if (status === "refused") {
+      refusalReason = window.prompt("Motif du refus (obligatoire) :");
+      if (!refusalReason?.trim()) return;
     }
-    if (status === "accepted") patch.accepted_at = new Date().toISOString();
-    if (status === "refused") patch.refused_at = new Date().toISOString();
-    const { error } = await supabase.from("quotes").update(patch).eq("id", q.id);
+    const { error } = await supabase.rpc("set_quote_status", {
+      p_quote_id: q.id,
+      p_status: status,
+      p_refusal_reason: refusalReason,
+    });
     if (error) return toast.error(error.message);
     toast.success(`Devis ${STATUS_LABEL[status].toLowerCase()}`);
     load();
   };
 
   const convertToInvoice = async (q: Quote) => {
-    const { data: items, error: e0 } = await supabase
-      .from("quote_items")
-      .select("*")
-      .eq("quote_id", q.id)
-      .order("sort_order");
-    if (e0) return toast.error(e0.message);
-
-    const { data: number, error: e1 } = await supabase.rpc("next_billing_number", { _kind: "invoice" });
-    if (e1) return toast.error(e1.message);
-
-    const { data: inv, error: e2 } = await supabase
-      .from("invoices")
-      .insert({
-        number,
-        quote_id: q.id,
-        affiliate_id: q.affiliate_id,
-        prospect_email: q.prospect_email,
-        prospect_name: q.prospect_name,
-        currency: q.currency,
-        total_ht: q.subtotal_ht,
-        total_vat: q.total_vat,
-        total_ttc: q.total_ttc,
-      })
-      .select("id")
-      .single();
-    if (e2) return toast.error(e2.message);
-
-    const rows = (items ?? []).map((l: Record<string, unknown>, i: number) => ({
-      invoice_id: inv.id,
-      label: l.label as string,
-      quantity: l.quantity as number,
-      unit_price_ht: l.unit_price_ht as number,
-      vat_rate: l.vat_rate as number,
-      vat_exempt: l.vat_exempt as boolean,
-      vat_exempt_reason: (l.vat_exempt_reason as string) ?? null,
-      line_total_ht: l.line_total_ht as number,
-      line_total_vat: l.line_total_vat as number,
-      line_total_ttc: l.line_total_ttc as number,
-      price_source: l.price_source as "grid" | "manual",
-      manual_reason: (l.manual_reason as string) ?? null,
-      recurrence: l.recurrence as Recurrence,
-      sort_order: i,
-    }));
-    const { error: e3 } = await supabase.from("invoice_items").insert(rows);
-    if (e3) return toast.error(e3.message);
-
-    await supabase
-      .from("quotes")
-      .update({ status: "invoiced", invoiced_at: new Date().toISOString() })
-      .eq("id", q.id);
-    toast.success(`Facture ${number} créée`);
+    // Conversion transactionnelle côté serveur : facture + lignes gelées + statut, anti-doublon inclus.
+    const { error } = await supabase.rpc("convert_quote_to_invoice", { p_quote_id: q.id });
+    if (error) return toast.error(error.message);
+    toast.success("Facture créée");
     load();
   };
 
