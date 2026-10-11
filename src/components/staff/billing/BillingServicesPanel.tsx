@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Plus, Trash2, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, Save } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const DateField = ({
@@ -47,6 +47,21 @@ const DateField = ({
   );
 };
 
+const Field = ({
+  label,
+  children,
+  className,
+}: {
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <div className={className}>
+    <Label className="text-xs text-muted-foreground mb-1.5 block">{label}</Label>
+    {children}
+  </div>
+);
+
 type Service = {
   id: string;
   code: string | null;
@@ -74,6 +89,9 @@ const RECURRENCES: Array<{ v: Grid["recurrence"]; l: string }> = [
   { v: "quarterly", l: "Trimestriel" },
   { v: "yearly", l: "Annuel" },
 ];
+
+const selectClass =
+  "h-10 w-full rounded-md border border-input bg-background px-2 text-sm";
 
 const BillingServicesPanel = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -163,12 +181,12 @@ const BillingServicesPanel = () => {
   if (loading) return <p className="text-sm text-muted-foreground">Chargement…</p>;
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center gap-4">
         <p className="text-sm text-muted-foreground">
           Catalogue des services facturables et grille tarifaire versionnée.
         </p>
-        <Button size="sm" onClick={addService} className="gap-2">
+        <Button size="sm" onClick={addService} className="gap-2 shrink-0">
           <Plus className="h-4 w-4" /> Nouveau service
         </Button>
       </div>
@@ -177,116 +195,153 @@ const BillingServicesPanel = () => {
         const sg = grids.filter((g) => g.service_id === s.id);
         return (
           <Card key={s.id}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                {s.name_fr}
-                {!s.is_active && <Badge variant="secondary">Inactif</Badge>}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-3 md:grid-cols-4">
-                <Input
-                  value={s.code ?? ""}
-                  placeholder="Code (ex: WIDGET_IA)"
-                  onChange={(e) => patchService(s.id, { code: e.target.value })}
-                />
-                <Input
-                  className="md:col-span-2"
-                  value={s.name_fr}
-                  placeholder="Nom du service"
-                  onChange={(e) => patchService(s.id, { name_fr: e.target.value })}
-                />
-                <Input
-                  type="number"
-                  value={s.sort_order}
-                  placeholder="Ordre"
-                  onChange={(e) => patchService(s.id, { sort_order: Number(e.target.value) })}
-                />
-              </div>
-              <Textarea
-                rows={2}
-                value={s.description_fr ?? ""}
-                placeholder="Description (apparaît sur le devis)"
-                onChange={(e) => patchService(s.id, { description_fr: e.target.value })}
-              />
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 text-sm">
-                  <Switch
-                    checked={s.is_active}
-                    onCheckedChange={(v) => patchService(s.id, { is_active: v })}
-                  />
-                  Actif
-                </label>
-                <div className="flex gap-2">
+            <CardHeader className="pb-3 border-b">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <CardTitle className="text-base flex items-center gap-2 flex-wrap">
+                  {s.name_fr}
+                  {s.code && <Badge variant="outline" className="font-mono text-xs">{s.code}</Badge>}
+                  {!s.is_active && <Badge variant="secondary">Inactif</Badge>}
+                </CardTitle>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 text-sm">
+                    <Switch
+                      checked={s.is_active}
+                      onCheckedChange={(v) => patchService(s.id, { is_active: v })}
+                    />
+                    Actif
+                  </label>
                   <Button size="sm" variant="outline" onClick={() => saveService(s)} className="gap-2">
                     <Save className="h-4 w-4" /> Enregistrer
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => deleteService(s.id)}>
+                  <Button size="sm" variant="ghost" onClick={() => deleteService(s.id)} aria-label="Supprimer le service">
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
               </div>
+            </CardHeader>
+            <CardContent className="space-y-5 pt-5">
+              <div className="grid gap-4 md:grid-cols-12">
+                <Field label="Code" className="md:col-span-3">
+                  <Input
+                    value={s.code ?? ""}
+                    placeholder="ex: WIDGET_IA"
+                    onChange={(e) => patchService(s.id, { code: e.target.value })}
+                  />
+                </Field>
+                <Field label="Nom du service" className="md:col-span-7">
+                  <Input
+                    value={s.name_fr}
+                    placeholder="Nom du service"
+                    onChange={(e) => patchService(s.id, { name_fr: e.target.value })}
+                  />
+                </Field>
+                <Field label="Ordre d'affichage" className="md:col-span-2">
+                  <Input
+                    type="number"
+                    value={s.sort_order}
+                    onChange={(e) => patchService(s.id, { sort_order: Number(e.target.value) })}
+                  />
+                </Field>
+              </div>
+              <Field label="Description (apparaît sur le devis)">
+                <Textarea
+                  rows={2}
+                  value={s.description_fr ?? ""}
+                  placeholder="Description du service…"
+                  onChange={(e) => patchService(s.id, { description_fr: e.target.value })}
+                />
+              </Field>
 
-              <div className="border-t pt-3 space-y-2">
+              <div className="border-t pt-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">Tarifs</p>
+                  <p className="text-sm font-medium">
+                    Tarifs {sg.length > 0 && <span className="text-muted-foreground font-normal">({sg.length})</span>}
+                  </p>
                   <Button size="sm" variant="outline" onClick={() => addGrid(s.id)} className="gap-2">
-                    <Plus className="h-3 w-3" /> Tarif
+                    <Plus className="h-3 w-3" /> Ajouter un tarif
                   </Button>
                 </div>
                 {sg.length === 0 && (
                   <p className="text-xs text-muted-foreground">Aucun tarif défini.</p>
                 )}
                 {sg.map((g) => (
-                  <div key={g.id} className="grid gap-2 md:grid-cols-7 items-center">
-                    <Input
-                      type="number"
-                      value={g.unit_price}
-                      onChange={(e) => patchGrid(g.id, { unit_price: Number(e.target.value) })}
-                    />
-                    <select
-                      className="h-10 rounded-md border border-input bg-background px-2 text-sm"
-                      value={g.currency}
-                      onChange={(e) => patchGrid(g.id, { currency: e.target.value as Grid["currency"] })}
-                    >
-                      <option value="MAD">MAD</option>
-                      <option value="EUR">EUR</option>
-                      <option value="USD">USD</option>
-                    </select>
-                    <select
-                      className="h-10 rounded-md border border-input bg-background px-2 text-sm"
-                      value={g.recurrence}
-                      onChange={(e) => patchGrid(g.id, { recurrence: e.target.value as Grid["recurrence"] })}
-                    >
-                      {RECURRENCES.map((r) => (
-                        <option key={r.v} value={r.v}>{r.l}</option>
-                      ))}
-                    </select>
-                    <DateField
-                      value={g.valid_from}
-                      placeholder="Début"
-                      onChange={(v) => patchGrid(g.id, { valid_from: v })}
-                    />
-                    <DateField
-                      value={g.valid_to ?? ""}
-                      placeholder="Sans fin"
-                      onChange={(v) => patchGrid(g.id, { valid_to: v })}
-                    />
-                    <label className="flex items-center gap-2 text-xs">
-                      <Switch
-                        checked={g.is_active}
-                        onCheckedChange={(v) => patchGrid(g.id, { is_active: v })}
-                      />
-                      Actif
-                    </label>
-                    <div className="flex gap-1">
-                      <Button size="sm" variant="outline" onClick={() => saveGrid(g)}>
-                        <Save className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => deleteGrid(g.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                  <div key={g.id} className="rounded-lg border bg-muted/30 p-4 space-y-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-medium">
+                        {g.unit_price.toLocaleString("fr-FR")} {g.currency}
+                        <span className="text-muted-foreground font-normal">
+                          {" "}· {RECURRENCES.find((r) => r.v === g.recurrence)?.l}
+                        </span>
+                        {!g.is_active && <Badge variant="secondary" className="ml-2">Inactif</Badge>}
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <label className="flex items-center gap-2 text-xs">
+                          <Switch
+                            checked={g.is_active}
+                            onCheckedChange={(v) => patchGrid(g.id, { is_active: v })}
+                          />
+                          Actif
+                        </label>
+                        <Button size="sm" variant="outline" onClick={() => saveGrid(g)} className="gap-2">
+                          <Save className="h-4 w-4" /> Enregistrer
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => deleteGrid(g.id)} aria-label="Supprimer le tarif">
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </div>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                      <Field label="Prix unitaire">
+                        <Input
+                          type="number"
+                          value={g.unit_price}
+                          onChange={(e) => patchGrid(g.id, { unit_price: Number(e.target.value) })}
+                        />
+                      </Field>
+                      <Field label="Devise">
+                        <select
+                          className={selectClass}
+                          value={g.currency}
+                          onChange={(e) => patchGrid(g.id, { currency: e.target.value as Grid["currency"] })}
+                        >
+                          <option value="MAD">MAD</option>
+                          <option value="EUR">EUR</option>
+                          <option value="USD">USD</option>
+                        </select>
+                      </Field>
+                      <Field label="Récurrence">
+                        <select
+                          className={selectClass}
+                          value={g.recurrence}
+                          onChange={(e) => patchGrid(g.id, { recurrence: e.target.value as Grid["recurrence"] })}
+                        >
+                          {RECURRENCES.map((r) => (
+                            <option key={r.v} value={r.v}>{r.l}</option>
+                          ))}
+                        </select>
+                      </Field>
+                      <Field label="Valide à partir du">
+                        <DateField
+                          value={g.valid_from}
+                          placeholder="Début"
+                          onChange={(v) => patchGrid(g.id, { valid_from: v })}
+                        />
+                      </Field>
+                      <Field label="Valide jusqu'au">
+                        <DateField
+                          value={g.valid_to ?? ""}
+                          placeholder="Sans fin"
+                          onChange={(v) => patchGrid(g.id, { valid_to: v })}
+                        />
+                      </Field>
+                    </div>
+                    <Field label="Notes (internes)">
+                      <Input
+                        value={g.notes ?? ""}
+                        placeholder="Notes optionnelles…"
+                        onChange={(e) => patchGrid(g.id, { notes: e.target.value })}
+                      />
+                    </Field>
                   </div>
                 ))}
               </div>
