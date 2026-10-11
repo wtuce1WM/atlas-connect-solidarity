@@ -190,62 +190,31 @@ const QuotesPanel = () => {
       return;
     }
     setSaving(true);
-    const payload = {
-      affiliate_id: editing.affiliate_id,
-      prospect_email: editing.prospect_email,
-      prospect_name: editing.prospect_name,
-      currency: editing.currency,
-      expires_at: editing.expires_at || null,
-      subtotal_ht: totals.ht,
-      total_vat: totals.vat,
-      total_ttc: totals.ttc,
-    };
-
-    let quoteId = editing.id;
-    if (!quoteId) {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data, error } = await supabase
-        .from("quotes")
-        .insert({ ...payload, created_by: user?.id ?? null })
-        .select("id")
-        .single();
-      if (error) { setSaving(false); return toast.error(error.message); }
-      quoteId = data.id;
-    } else {
-      const { error } = await supabase.from("quotes").update(payload).eq("id", quoteId);
-      if (error) { setSaving(false); return toast.error(error.message); }
-      await supabase.from("quote_items").delete().eq("quote_id", quoteId);
-    }
-
-    const rows = lines.map((l, i) => {
-      const c = computeLine(l);
-      return {
-        quote_id: quoteId,
+    // Les montants sont recalculés côté serveur (save_quote) ; le client n'envoie que les lignes brutes.
+    const { error } = await supabase.rpc("save_quote", {
+      p_quote: {
+        id: editing.id || null,
+        affiliate_id: editing.affiliate_id,
+        prospect_email: editing.prospect_email,
+        prospect_name: editing.prospect_name,
+        currency: editing.currency,
+        expires_at: editing.expires_at || null,
+      },
+      p_items: lines.map((l) => ({
         label: l.label,
         quantity: l.quantity,
         unit_price_ht: l.unit_price_ht,
         vat_rate: l.vat_rate,
         vat_exempt: l.vat_exempt,
         vat_exempt_reason: l.vat_exempt_reason,
-        line_total_ht: c.ht,
-        line_total_vat: c.vat,
-        line_total_ttc: c.ttc,
         pricing_grid_id: l.pricing_grid_id,
-        price_source: l.price_source,
         manual_reason: l.manual_reason,
         recurrence: l.recurrence,
-        sort_order: i,
-      };
+      })),
+      p_note: internalNote || null,
     });
-    const { error: e2 } = await supabase.from("quote_items").insert(rows);
-    if (!e2) {
-      const { error: e3 } = await supabase
-        .from("quote_internal_notes")
-        .upsert({ quote_id: quoteId, notes: internalNote || null }, { onConflict: "quote_id" });
-      if (e3) toast.error(e3.message);
-    }
     setSaving(false);
-    if (e2) return toast.error(e2.message);
+    if (error) return toast.error(error.message);
     toast.success("Devis enregistré");
     setEditing(null);
     load();
