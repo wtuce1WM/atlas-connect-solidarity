@@ -1036,7 +1036,7 @@ Deno.serve(async (req) => {
               }
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               emit("\n\n" + await poolMarker(admin, poolIds, scopeCity));
-                await emitDestChips(poolIds);
+                await emitCityChips(poolIds);
               await finish(true);
               return;
             }
@@ -1175,7 +1175,7 @@ Deno.serve(async (req) => {
                 emit(`${built.text}${cardsMarker}`);
                 emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
                 emit("\n\n" + await poolMarker(admin, prox.orderedIds, scopeCity));
-                await emitDestChips(prox.orderedIds);
+                await emitCityChips(prox.orderedIds);
                 await finish(true);
                 return;
               }
@@ -1388,7 +1388,7 @@ Deno.serve(async (req) => {
                   }
                   emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
                   emit("\n\n" + await poolMarker(admin, ordered, viewWidened ? null : scopeCity));
-                  await emitDestChips(ordered);
+                  await emitCityChips(ordered);
                   await finish(true);
                   return;
                 }
@@ -1601,7 +1601,7 @@ Deno.serve(async (req) => {
                 }
                 emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(cards.knownBusinesses)}-->`);
                 emit("\n\n" + await poolMarker(admin, ids, scopeCity));
-                await emitDestChips(ids);
+                await emitCityChips(ids);
                 await finish(true);
                 return;
               }
@@ -1657,7 +1657,7 @@ Deno.serve(async (req) => {
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               if (built.poolIds?.length) {
                 emit("\n\n" + await poolMarker(admin, built.poolIds, scopeCity));
-                await emitDestChips(built.poolIds);
+                await emitCityChips(built.poolIds);
               }
 
               await finish(true);
@@ -1721,7 +1721,7 @@ Deno.serve(async (req) => {
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               if (built.poolIds?.length) {
                 emit("\n\n" + await poolMarker(admin, built.poolIds, scopeCity));
-                await emitDestChips(built.poolIds);
+                await emitCityChips(built.poolIds);
               }
 
               await finish(true);
@@ -1771,7 +1771,7 @@ Deno.serve(async (req) => {
             }
             emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(cards.knownBusinesses)}-->`);
             emit("\n\n" + await poolMarker(admin, glovoIds, scopeCity));
-            await emitDestChips(glovoIds);
+            await emitCityChips(glovoIds);
           } else {
             resultsCount = 0;
             emit(glovoEmpty(lang, scopeCity));
@@ -2042,7 +2042,7 @@ Deno.serve(async (req) => {
               emit(built.text);
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.kept.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })))}-->`);
               emit("\n\n" + await poolMarker(admin, poolIds, scopeCity));
-                await emitDestChips(poolIds);
+                await emitCityChips(poolIds);
               await finish(true);
               return;
             }
@@ -2245,7 +2245,7 @@ Deno.serve(async (req) => {
                   emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
                 }
                 emit("\n\n" + await poolMarker(admin, badgeBizIds, scopeCity));
-                await emitDestChips(badgeBizIds);
+                await emitCityChips(badgeBizIds);
                 await finish(true);
                 return;
               }
@@ -3399,7 +3399,7 @@ INTERDIT ABSOLU : aucun tableau, aucune ligne contenant des barres verticales «
           if (bonusTides) {
             emit(`\n\n<!--TIDES_FORECAST:${JSON.stringify({ city: bonusTides.slug, city_name: bonusTides.name })}-->`);
           }
-          await emitDestChips(searchPoolIds.length ? searchPoolIds : results.map((b: any) => String(b.id)));
+          await emitCityChips(searchPoolIds.length ? searchPoolIds : results.map((b: any) => String(b.id)));
         } else if (priorFull.length) {
           // Relance contextuelle : cartes des seules fiches réellement citées, prises
           // dans le corpus complet du tour précédent ; le pool reste mémorisé.
