@@ -1,4 +1,5 @@
 import { isPublicHttpUrl } from "../_shared/url-guard.ts";
+import { assertStaff } from "../_shared/auth-helpers.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -63,6 +64,10 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Outil back-office uniquement : staff connecté obligatoire.
+  const staff = await assertStaff(req, corsHeaders);
+  if (staff instanceof Response) return staff;
 
   // Single-URL test mode: { url: "https://..." }
   try {
