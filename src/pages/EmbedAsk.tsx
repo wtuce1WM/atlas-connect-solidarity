@@ -5424,27 +5424,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     onClick: () => setOpenEvents({ list: eventsPayload.events, index: idx }),
                   };
                 });
-                // Cohérence /embed : pas de carte inline — un CTA texte "Voir sur la carte"
-                // sous la dernière vignette, qui ouvre l'overlay POI du slidepanel avec
-                // les ÉTABLISSEMENTS liés aux événements (coords + nom du business).
-                const eventBiz: MapPanelBusiness[] = [];
-                const seenBiz = new Set<string>();
-                for (const ev of eventsPayload.events as any[]) {
-                  const bid = ev.default_business_id ? String(ev.default_business_id) : null;
-                  if (!bid || seenBiz.has(bid)) continue;
-                  if (ev.latitude == null || ev.longitude == null) continue;
-                  seenBiz.add(bid);
-                  eventBiz.push({
-                    id: bid,
-                    name: ev.business_name || ev.name,
-                    slug: ev.business_slug ?? null,
-                    latitude: Number(ev.latitude),
-                    longitude: Number(ev.longitude),
-                    city: ev.city ?? null,
-                    neighborhood: ev.neighborhood ?? null,
-                    images: [],
-                  } as never);
-                }
                 return (
                   <EmbedCardCarousel
                     items={items}
