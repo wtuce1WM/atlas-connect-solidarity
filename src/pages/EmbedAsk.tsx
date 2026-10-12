@@ -1592,9 +1592,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
 
 
-  // Carte des destinations (distincte de la carte des résultats établissements) :
-  // marqueurs = destinations liées à la suggestion.
-  const [openDestMap, setOpenDestMap] = useState<{ title?: string | null; destinations: DestinationCard[] } | null>(null);
+  // Carte des villes (distincte de la carte des résultats établissements) :
+  // marqueurs = villes liées à la suggestion.
+  const [openCityMap, setOpenCityMap] = useState<{ title?: string | null; cities: CityCard[] } | null>(null);
   // Feed vidéo (mode curaté `video_feed`) : liste active + vidéo ouverte.
   // `videoFeedCtx` porte le contexte de pagination (badges + seed du tirage au
   // sort côté base) pour charger les pages suivantes pendant le swipe.
@@ -2919,10 +2919,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * du catalogue partagé sur le corpus déjà affiché — zéro appel modèle.
    */
   /**
-   * Chip de périmètre destination : envoie l'identifiant de la destination, pas
-   * son libellé — aucune re-interprétation NLP côté moteur.
+   * Chip de périmètre ville : envoie le nom canonique de la ville calculée par le
+   * serveur (`cityScope`) — le moteur l'applique sans re-détection texte.
    */
-  const sendDestinationScope = (chip: { id: string; name: string }) => {
+  const sendCityScope = (chip: CityChip) => {
     if (streaming || !assistantReady) return;
     setError(null);
     lastLocalFilterRef.current = null;
@@ -2930,7 +2930,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     setActiveSuggestionId(null);
     sendMessage(
       { text: lang === "en" ? `In ${chip.name}` : lang === "ar" ? `في ${chip.name}` : `Dans ${chip.name}` },
-      { body: { suggestionId: null, followupId: null, scope: null, destinationId: chip.id } },
+      { body: { suggestionId: null, followupId: null, scope: null, cityScope: chip.name } },
     );
   };
 
@@ -3198,15 +3198,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * pool, ex. 18 rooftops) — jamais des 6 fiches affichées.
    */
   /**
-   * Chips de périmètre destination du dernier tour (marqueur DESTINATION_CHIPS) :
-   * remplacent les propositions géographiques en texte libre du modèle.
+   * Chips de périmètre ville du dernier tour (marqueur CITY_CHIPS) : villes
+   * réellement présentes dans le corpus de la réponse, calculées par le serveur.
    */
-  const destScopeChips = useMemo<ScopeChip[]>(() => {
+  const cityScopeChips = useMemo<CityChip[]>(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
       if (m.role !== "assistant") continue;
-      const { destChips } = extractPayloads(messageText(m));
-      return destChips;
+      const { cityChips } = extractPayloads(messageText(m));
+      return cityChips;
     }
     return [];
   }, [messages]);
@@ -4370,13 +4370,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       ],
     }]),
     {
-      id: "destinations",
-      label: lang === "en" ? "Destinations" : lang === "ar" ? "الوجهات" : "Destinations",
-      items: destScopeChips.map((c) => ({
-        id: `dest-${c.id}`,
+      id: "cities",
+      label: lang === "en" ? "Cities" : lang === "ar" ? "المدن" : "Villes",
+      items: cityScopeChips.map((c) => ({
+        id: `city-${c.name}`,
         label: `${c.name} · ${c.count}`,
         icon: <Compass className="w-3.5 h-3.5" />,
-        onClick: () => sendDestinationScope(c),
+        onClick: () => sendCityScope(c),
         className: pillClass,
       })),
     },
@@ -4789,7 +4789,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides, bookings, cityPick } = extractPayloads(raw);
+          const { clean, maps, events, articles, destinations, cities, pinned, weather, videoFeeds, tides, bookings, cityPick } = extractPayloads(raw);
           const mapPayloadRaw = maps[maps.length - 1] || null;
           // Le filtre de rayon ne s'applique qu'aux réponses issues d'une question
           // locale (« près de moi ») ou d'une relance de rayon : une question
@@ -4840,6 +4840,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
           const destinationsPayload = destinations[destinations.length - 1] || null;
+          const citiesPayload = cities[cities.length - 1] || null;
           const pinnedCards = pinned;
           const weatherPayload = weather[weather.length - 1] || null;
           const videoFeedPayload = videoFeeds[videoFeeds.length - 1] || null;
@@ -5498,7 +5499,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 const priorCount =
                   (mapPayload?.businesses?.length ?? 0) ||
                   citedFallback.length ||
-                  (destinationsPayload?.destinations?.length ?? 0) ||
+                  (citiesPayload?.cities?.length ?? 0) ||
                   pinnedCards.length;
                 const isBestRated = (label: string) =>
                   /(le mieux not|la mieux not|meilleure? note|top not|le mieux class)/i.test(label) ||
