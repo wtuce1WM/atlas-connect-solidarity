@@ -1120,7 +1120,16 @@ Deno.serve(async (req) => {
         // services, commodités) reste la loi — seule la ville bascule. Sans ça, le
         // badge « Rooftop Restaurant & Bars » de la suggestion « Rooftops » était
         // perdu et la ville renvoyait des établissements sans aucun lien.
-        if (!suggestionId && !followupId && contextSuggestionId && explicitCity) {
+        // Suggestion active absente côté écran (ex. « Culture » tapé, reconnu par le
+        // serveur) : on la retrouve depuis le message précédent.
+        let ctxSuggestionId: string | null = contextSuggestionId;
+        if (!ctxSuggestionId && !suggestionId && !followupId && explicitCity && previousUserMessage) {
+          const pm = await matchCuratedByText(admin, { text: previousUserMessage, surface, crossSurface: true, platformOnly: platformMode })
+            .catch(() => null);
+          if (pm) ctxSuggestionId = pm.id;
+        }
+        if (!suggestionId && !followupId && ctxSuggestionId && explicitCity) {
+          const contextSuggestionId = ctxSuggestionId;
           const cityKey = normalize(explicitCity);
           // Le badge ville renvoie « <libellé suggestion> Dans <ville> » : les mots
           // du libellé de la suggestion active ne sont pas une nouvelle demande.
