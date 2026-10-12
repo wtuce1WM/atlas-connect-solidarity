@@ -1137,7 +1137,6 @@ const Club = () => {
         fixed
         visible
         solid
-        hideLanguageSwitch
         links={clubMobileLinks}
         onLogoClick={() => navigate("/")}
       />
