@@ -126,7 +126,13 @@ const LogoBlock = ({
  * Le conteneur parent étant `pointer-events-none`, chaque bouton doit
  * réactiver ses propres clics.
  */
-const LanguageFlags = ({ onClick }: { onClick: (code: "fr" | "en") => void }) => (
+const LanguageFlags = ({
+  language,
+  onSelect,
+}: {
+  language: string;
+  onSelect: (code: "fr" | "en") => void;
+}) => (
   <div className="flex items-center gap-1.5 pointer-events-auto">
     {FRONT_LANGS.map((lang) => (
       <button
@@ -137,7 +143,7 @@ const LanguageFlags = ({ onClick }: { onClick: (code: "fr" | "en") => void }) =>
         onClick={(event) => {
           // Même raison que le logo : ne pas déclencher l'étape suivante du Hero.
           event.stopPropagation();
-          onClick(lang.code);
+          onSelect(lang.code);
         }}
         className={`rounded-full border bg-black/40 p-1.5 text-base leading-none backdrop-blur-sm transition-colors hover:border-gold/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
           language === lang.code
