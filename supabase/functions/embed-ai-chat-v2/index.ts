@@ -42,7 +42,7 @@ import {
 import { buildVideoFeedAnswer, videoFeedMarker, loadBadgeVideoFeedPool, strictBadgeIntersection } from "../_shared/ai-engine/routes/videoFeed.ts";
 import { matchFrontBadgeInMessage, matchFrontBadgesInMessage, resolveBadgeBusinessIds, badgeLabelKey, badgeLabelKeys } from "../_shared/ai-engine/routes/badgeVideoBusinesses.ts";
 
-import { buildDestinationsBlock } from "../_shared/ai-engine/routes/destinations.ts";
+import { buildCitiesBlockFromDestinations } from "../_shared/ai-engine/routes/cities.ts";
 import { buildImmersiveLines, buildImmersiveBlock } from "../_shared/ai-engine/routes/immersive.ts";
 import { buildEventsWeekendAnswer, buildEventsFilteredAnswer, fetchAgendaEvents, weekendWindow, eventsSnapshotMarker, priorEventsSnapshot } from "../_shared/ai-engine/routes/events.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
@@ -62,10 +62,10 @@ import { isOpensFirstIntent, isClosesLastIntent, buildHoursRanking, parseOpenFil
 import { isDescribeIntent, parseDescribeFacet, buildDescribePriors } from "../_shared/ai-engine/routes/describe.ts";
 import { isForcedRouteKey, runForcedRoute, forcedMapMarker } from "../_shared/ai-engine/routes/forced.ts";
 import { buildCompetitorGuard, type CompetitorGuard } from "../_shared/ai-engine/routes/competitors.ts";
-import { resolveCityScope, detectExplicitCity } from "../_shared/ai-engine/city-scope.ts";
+import { resolveCityScope, detectExplicitCity, cityChipsForBusinesses, cityChipsMarker } from "../_shared/ai-engine/city-scope.ts";
 import {
   detectExplicitDestination, fetchDestinationBusinesses, filterDestinationPool,
-  fetchDestinationById, destinationChipsForBusinesses, destinationChipsMarker, destinationIntro,
+  fetchDestinationById, destinationIntro,
   type DestinationScope,
 } from "../_shared/ai-engine/destination-scope.ts";
 import {
@@ -421,6 +421,10 @@ Deno.serve(async (req) => {
   /** Ville active de la surface sans hôte (/search, /club). */
   const activeCity: string | null = typeof body.activeCity === "string" && body.activeCity.trim()
     ? body.activeCity.trim()
+    : null;
+  /** Ville imposée par une CHIP de périmètre : le nom canonique vient du serveur. */
+  const clientCityScope: string | null = typeof body.cityScope === "string" && body.cityScope.trim()
+    ? body.cityScope.trim()
     : null;
   const lang = pickLang(body.language) as Lang;
   const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
@@ -824,7 +828,8 @@ Deno.serve(async (req) => {
         }
         // Périmètre géographique — RÈGLE UNIQUE (`_shared/ai-engine/city-scope.ts`) :
         // ville du business master, sauf ville explicitement nommée dans le message.
-        const explicitCity = await detectExplicitCity(admin, userMessage);
+        // Une chip de ville impose le périmètre sans repasser par la détection texte.
+        const explicitCity = clientCityScope || await detectExplicitCity(admin, userMessage);
         const scopeCity = resolveCityScope({ hostCity: host?.city, activeCity, explicitCity, platformMode }) as string;
         cityDetected = scopeCity;
 
@@ -841,19 +846,19 @@ Deno.serve(async (req) => {
         }
 
         /**
-         * Chips de périmètre déterministes : destinations réellement représentées
-         * dans le corpus du tour. Le client renvoie un `destination_id` — plus
+         * Chips de périmètre déterministes : VILLES réellement représentées dans
+         * le corpus du tour. Le client renvoie le nom canonique de la ville — plus
          * aucune proposition géographique en texte libre à re-interpréter.
          */
-        let destChipsEmitted = false;
-        const emitDestChips = async (ids: string[]) => {
-          if (destChipsEmitted) return;
-          const chips = await destinationChipsForBusinesses(admin, ids, lang, destScope?.id || null)
-            .catch((e) => { console.error("[embed-ai-chat-v2] dest_chips_failed", String(e)); return []; });
-          console.log("[embed-ai-chat-v2] dest_chips", JSON.stringify({ pool: ids.length, chips: chips.length }));
+        let cityChipsEmitted = false;
+        const emitCityChips = async (ids: string[]) => {
+          if (cityChipsEmitted) return;
+          const chips = await cityChipsForBusinesses(admin, ids, scopeCity)
+            .catch((e) => { console.error("[embed-ai-chat-v2] city_chips_failed", String(e)); return []; });
+          console.log("[embed-ai-chat-v2] city_chips", JSON.stringify({ pool: ids.length, chips: chips.length }));
           if (chips.length) {
-            destChipsEmitted = true;
-            emit(`\n\n${destinationChipsMarker(chips)}`);
+            cityChipsEmitted = true;
+            emit(`\n\n${cityChipsMarker(chips)}`);
           }
         };
 
@@ -1031,7 +1036,7 @@ Deno.serve(async (req) => {
               }
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               emit("\n\n" + await poolMarker(admin, poolIds, scopeCity));
-                await emitDestChips(poolIds);
+                await emitCityChips(poolIds);
               await finish(true);
               return;
             }
@@ -1170,7 +1175,7 @@ Deno.serve(async (req) => {
                 emit(`${built.text}${cardsMarker}`);
                 emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
                 emit("\n\n" + await poolMarker(admin, prox.orderedIds, scopeCity));
-                await emitDestChips(prox.orderedIds);
+                await emitCityChips(prox.orderedIds);
                 await finish(true);
                 return;
               }
@@ -1383,7 +1388,7 @@ Deno.serve(async (req) => {
                   }
                   emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
                   emit("\n\n" + await poolMarker(admin, ordered, viewWidened ? null : scopeCity));
-                  await emitDestChips(ordered);
+                  await emitCityChips(ordered);
                   await finish(true);
                   return;
                 }
@@ -1448,13 +1453,14 @@ Deno.serve(async (req) => {
             if (post) articleTeaser = buildArticleTeaser(post, lang) || null;
           }
 
-          // Destinations liées : bloc court + carrousel horizontal émis en fin de
-          // tour (après les cartes établissements), zéro token.
+          // Villes liées : la suggestion est liée à des destinations, le bloc
+          // affiche les VILLES qu'elles couvrent (`destinations.city_ids`) — bloc
+          // court + carrousel horizontal émis en fin de tour, zéro token.
           if (curated && keepCurated && curated.destinationIds.length && !destinationsBlock) {
-            const built = await buildDestinationsBlock(
+            const built = await buildCitiesBlockFromDestinations(
               admin, curated.destinationIds, host, lang, curated.label,
             ).catch((e) => {
-              console.error("[embed-ai-chat-v2] destinations_block_failed", String(e));
+              console.error("[embed-ai-chat-v2] cities_block_failed", String(e));
               return null;
             });
             if (built) destinationsBlock = built.text + built.marker;
@@ -1595,7 +1601,7 @@ Deno.serve(async (req) => {
                 }
                 emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(cards.knownBusinesses)}-->`);
                 emit("\n\n" + await poolMarker(admin, ids, scopeCity));
-                await emitDestChips(ids);
+                await emitCityChips(ids);
                 await finish(true);
                 return;
               }
@@ -1651,7 +1657,7 @@ Deno.serve(async (req) => {
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               if (built.poolIds?.length) {
                 emit("\n\n" + await poolMarker(admin, built.poolIds, scopeCity));
-                await emitDestChips(built.poolIds);
+                await emitCityChips(built.poolIds);
               }
 
               await finish(true);
@@ -1715,7 +1721,7 @@ Deno.serve(async (req) => {
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
               if (built.poolIds?.length) {
                 emit("\n\n" + await poolMarker(admin, built.poolIds, scopeCity));
-                await emitDestChips(built.poolIds);
+                await emitCityChips(built.poolIds);
               }
 
               await finish(true);
@@ -1765,7 +1771,7 @@ Deno.serve(async (req) => {
             }
             emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(cards.knownBusinesses)}-->`);
             emit("\n\n" + await poolMarker(admin, glovoIds, scopeCity));
-            await emitDestChips(glovoIds);
+            await emitCityChips(glovoIds);
           } else {
             resultsCount = 0;
             emit(glovoEmpty(lang, scopeCity));
@@ -2036,7 +2042,7 @@ Deno.serve(async (req) => {
               emit(built.text);
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.kept.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })))}-->`);
               emit("\n\n" + await poolMarker(admin, poolIds, scopeCity));
-                await emitDestChips(poolIds);
+                await emitCityChips(poolIds);
               await finish(true);
               return;
             }
@@ -2239,7 +2245,7 @@ Deno.serve(async (req) => {
                   emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
                 }
                 emit("\n\n" + await poolMarker(admin, badgeBizIds, scopeCity));
-                await emitDestChips(badgeBizIds);
+                await emitCityChips(badgeBizIds);
                 await finish(true);
                 return;
               }
@@ -3393,7 +3399,7 @@ INTERDIT ABSOLU : aucun tableau, aucune ligne contenant des barres verticales «
           if (bonusTides) {
             emit(`\n\n<!--TIDES_FORECAST:${JSON.stringify({ city: bonusTides.slug, city_name: bonusTides.name })}-->`);
           }
-          await emitDestChips(searchPoolIds.length ? searchPoolIds : results.map((b: any) => String(b.id)));
+          await emitCityChips(searchPoolIds.length ? searchPoolIds : results.map((b: any) => String(b.id)));
         } else if (priorFull.length) {
           // Relance contextuelle : cartes des seules fiches réellement citées, prises
           // dans le corpus complet du tour précédent ; le pool reste mémorisé.

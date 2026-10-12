@@ -384,6 +384,10 @@ const warmAiEngineConnection = () => {
   } catch { /* best-effort */ }
 };
 const DEST_CHIPS_RE = /<!--DESTINATION_CHIPS:([\s\S]*?)-->/g;
+/** Chips de périmètre VILLES : le serveur propose des villes, plus des destinations. */
+const CITY_CHIPS_RE = /<!--CITY_CHIPS:([\s\S]*?)-->/g;
+/** Carrousel de cartes VILLES (table `cities`). */
+const CITY_CARDS_RE = /<!--CITY_CARDS:([\s\S]*?)-->/g;
 /** Widget de disponibilité hôtelière (suggestion back-office en mode `booking`). */
 const HOTEL_BOOKING_RE = /<!--HOTEL_BOOKING:([\s\S]*?)-->/g;
 /** Invitation à choisir la ville AVANT d'afficher le widget de disponibilité. */
@@ -397,6 +401,11 @@ type KnownBusiness = { id: string; slug: string | null; name: string };
 type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; hero?: string | null; tldr?: string | null; hook?: string | null; intro?: string | null; inline?: boolean; isOwner?: boolean; kind?: "blog" | "video_feed"; url?: string | null };
 type DestinationCard = { id: string; name: string; hook?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; distKm?: number | null };
 type DestinationsPayload = { title?: string | null; destinations: DestinationCard[] };
+/** Carte VILLE du carrousel déterministe (table `cities`). */
+type CityCard = { id: string; name: string; hook?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; distKm?: number | null };
+type CitiesPayload = { title?: string | null; cities: CityCard[] };
+/** Chip de périmètre ville : porte le nom canonique de la ville, jamais du texte libre. */
+type CityChip = { name: string; count: number };
 /** Chip de périmètre déterministe : porte un destination_id, jamais du texte libre. */
 type ScopeChip = { id: string; name: string; count: number };
 type VideoFeedItem = {
@@ -427,22 +436,23 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: BookingPayload[]; competitorGuard: boolean; destChips: ScopeChip[]; cityPick: boolean } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; cities: CitiesPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: BookingPayload[]; competitorGuard: boolean; cityChips: CityChip[]; cityPick: boolean } {
   const cityPick = text.includes("<!--BOOKING_CITY_PICK-->");
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
   const articles: ArticleCardPayload[] = [];
   const destinations: DestinationsPayload[] = [];
+  const cities: CitiesPayload[] = [];
   const pinned: PinnedBusinessCard[] = [];
   const weather: WeatherPayload[] = [];
   const videoFeeds: VideoFeedPayload[] = [];
   const tides: string[] = [];
   const bookings: BookingPayload[] = [];
-  const destChips: ScopeChip[] = [];
+  const cityChips: CityChip[] = [];
   const hookUpgrades: Record<string, string> = {};
   const competitorGuard = COMPETITOR_GUARD_RE.test(text);
-  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips, cityPick: false };
+  if (!text) return { clean: text, maps, events, known, articles, destinations, cities, pinned, weather, videoFeeds, tides, bookings, competitorGuard, cityChips, cityPick: false };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -473,6 +483,12 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       if (p && Array.isArray(p.destinations) && p.destinations.length) destinations.push({ title: p.title ?? null, destinations: p.destinations });
     } catch { /* */ }
     return "";
+  }).replace(CITY_CARDS_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && Array.isArray(p.cities) && p.cities.length) cities.push({ title: p.title ?? null, cities: p.cities });
+    } catch { /* */ }
+    return "";
   }).replace(PINNED_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -500,10 +516,10 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     } catch { /* */ }
     return "";
   
-  }).replace(DEST_CHIPS_RE, (_m, raw) => {
+  }).replace(CITY_CHIPS_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
-      if (p && Array.isArray(p.chips)) for (const c of p.chips) if (c?.id && c?.name) destChips.push(c as ScopeChip);
+      if (p && Array.isArray(p.chips)) for (const c of p.chips) if (c?.name) cityChips.push({ name: String(c.name), count: Number(c.count) || 0 });
     } catch { /* */ }
     return "";
   }).replace(TIDES_RE, (_m, raw) => {
@@ -544,6 +560,10 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--COMPETITOR_GUARD_ACTIVE-->/g, "")
     .replace(/<!--DESTINATION_CHIPS:[\s\S]*?-->/g, "")
     .replace(/<!--DESTINATION_CHIPS:[\s\S]*$/g, "")
+    .replace(/<!--CITY_CARDS:[\s\S]*?-->/g, "")
+    .replace(/<!--CITY_CARDS:[\s\S]*$/g, "")
+    .replace(/<!--CITY_CHIPS:[\s\S]*?-->/g, "")
+    .replace(/<!--CITY_CHIPS:[\s\S]*$/g, "")
     .replace(/<!--HOOKS_UPGRADE:[\s\S]*?-->/g, "")
     .replace(/<!--HOOKS_UPGRADE:[\s\S]*$/g, "")
     .replace(BOOKING_CITY_PICK_RE, "")
@@ -562,7 +582,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     }
   }
   clean = linkifyPhones(clean);
-  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips, cityPick };
+  return { clean, maps, events, known, articles, destinations, cities, pinned, weather, videoFeeds, tides, bookings, competitorGuard, cityChips, cityPick };
 }
 
 // Convert bare phone / WhatsApp numbers found in AI markdown into clickable links.
@@ -1572,9 +1592,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
 
 
-  // Carte des destinations (distincte de la carte des résultats établissements) :
-  // marqueurs = destinations liées à la suggestion.
-  const [openDestMap, setOpenDestMap] = useState<{ title?: string | null; destinations: DestinationCard[] } | null>(null);
+  // Carte des villes (distincte de la carte des résultats établissements) :
+  // marqueurs = villes liées à la suggestion.
+  const [openCityMap, setOpenCityMap] = useState<{ title?: string | null; cities: CityCard[] } | null>(null);
   // Feed vidéo (mode curaté `video_feed`) : liste active + vidéo ouverte.
   // `videoFeedCtx` porte le contexte de pagination (badges + seed du tirage au
   // sort côté base) pour charger les pages suivantes pendant le swipe.
@@ -2899,10 +2919,10 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * du catalogue partagé sur le corpus déjà affiché — zéro appel modèle.
    */
   /**
-   * Chip de périmètre destination : envoie l'identifiant de la destination, pas
-   * son libellé — aucune re-interprétation NLP côté moteur.
+   * Chip de périmètre ville : envoie le nom canonique de la ville calculée par le
+   * serveur (`cityScope`) — le moteur l'applique sans re-détection texte.
    */
-  const sendDestinationScope = (chip: { id: string; name: string }) => {
+  const sendCityScope = (chip: CityChip) => {
     if (streaming || !assistantReady) return;
     setError(null);
     lastLocalFilterRef.current = null;
@@ -2910,7 +2930,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     setActiveSuggestionId(null);
     sendMessage(
       { text: lang === "en" ? `In ${chip.name}` : lang === "ar" ? `في ${chip.name}` : `Dans ${chip.name}` },
-      { body: { suggestionId: null, followupId: null, scope: null, destinationId: chip.id } },
+      { body: { suggestionId: null, followupId: null, scope: null, cityScope: chip.name } },
     );
   };
 
@@ -3178,15 +3198,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * pool, ex. 18 rooftops) — jamais des 6 fiches affichées.
    */
   /**
-   * Chips de périmètre destination du dernier tour (marqueur DESTINATION_CHIPS) :
-   * remplacent les propositions géographiques en texte libre du modèle.
+   * Chips de périmètre ville du dernier tour (marqueur CITY_CHIPS) : villes
+   * réellement présentes dans le corpus de la réponse, calculées par le serveur.
    */
-  const destScopeChips = useMemo<ScopeChip[]>(() => {
+  const cityScopeChips = useMemo<CityChip[]>(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
       if (m.role !== "assistant") continue;
-      const { destChips } = extractPayloads(messageText(m));
-      return destChips;
+      const { cityChips } = extractPayloads(messageText(m));
+      return cityChips;
     }
     return [];
   }, [messages]);
@@ -4350,13 +4370,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       ],
     }]),
     {
-      id: "destinations",
-      label: lang === "en" ? "Destinations" : lang === "ar" ? "الوجهات" : "Destinations",
-      items: destScopeChips.map((c) => ({
-        id: `dest-${c.id}`,
+      id: "cities",
+      label: lang === "en" ? "Cities" : lang === "ar" ? "المدن" : "Villes",
+      items: cityScopeChips.map((c) => ({
+        id: `city-${c.name}`,
         label: `${c.name} · ${c.count}`,
         icon: <Compass className="w-3.5 h-3.5" />,
-        onClick: () => sendDestinationScope(c),
+        onClick: () => sendCityScope(c),
         className: pillClass,
       })),
     },
@@ -4769,7 +4789,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides, bookings, cityPick } = extractPayloads(raw);
+          const { clean, maps, events, articles, destinations, cities, pinned, weather, videoFeeds, tides, bookings, cityPick } = extractPayloads(raw);
           const mapPayloadRaw = maps[maps.length - 1] || null;
           // Le filtre de rayon ne s'applique qu'aux réponses issues d'une question
           // locale (« près de moi ») ou d'une relance de rayon : une question
@@ -4820,6 +4840,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
           const destinationsPayload = destinations[destinations.length - 1] || null;
+          const citiesPayload = cities[cities.length - 1] || null;
           const pinnedCards = pinned;
           const weatherPayload = weather[weather.length - 1] || null;
           const videoFeedPayload = videoFeeds[videoFeeds.length - 1] || null;
@@ -5247,9 +5268,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 </div>
               )}
 
-              {destinationsPayload && destinationsPayload.destinations.length > 0 && (
+              {citiesPayload && citiesPayload.cities.length > 0 && (
                 <EmbedCardCarousel
-                  items={destinationsPayload.destinations.slice(0, 20).map((d) => {
+                  items={citiesPayload.cities.slice(0, 20).map((d) => {
                     const distStr =
                       d.distKm != null
                         ? d.distKm < 1
@@ -5261,20 +5282,20 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                       image: d.image,
                       title: d.name,
                       badge: distStr,
-                      onClick: () => setOpenDestinationId(d.id),
+                      onClick: () => sendCityScope({ name: d.name, count: 0 }),
                     };
                   })}
                   footer={
-                    destinationsPayload.destinations.some((d) => d.latitude != null && d.longitude != null) ? (
+                    citiesPayload.cities.some((d) => d.latitude != null && d.longitude != null) ? (
                       <div className="mt-1">
                         <button
                           type="button"
-                          onClick={() => setOpenDestMap({ title: destinationsPayload.title || null, destinations: destinationsPayload.destinations })}
+                          onClick={() => setOpenCityMap({ title: citiesPayload.title || null, cities: citiesPayload.cities })}
                           style={AI_NAME_FONT}
                           className={`inline-flex items-center gap-1.5 text-xs font-medium ${linkInkClass} hover:underline`}
                         >
                           <MapPin className="w-3.5 h-3.5" />
-                          {lang === "en" ? "Destinations on the map" : lang === "ar" ? "الوجهات على الخريطة" : "Les destinations sur la carte"}
+                          {lang === "en" ? "Cities on the map" : lang === "ar" ? "المدن على الخريطة" : "Les villes sur la carte"}
                         </button>
                       </div>
                     ) : null
@@ -5478,7 +5499,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 const priorCount =
                   (mapPayload?.businesses?.length ?? 0) ||
                   citedFallback.length ||
-                  (destinationsPayload?.destinations?.length ?? 0) ||
+                  (citiesPayload?.cities?.length ?? 0) ||
                   pinnedCards.length;
                 const isBestRated = (label: string) =>
                   /(le mieux not|la mieux not|meilleure? note|top not|le mieux class)/i.test(label) ||
@@ -5893,13 +5914,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         />
       )}
 
-      {/* Carte des destinations liées : marqueurs = destinations (pas des fiches),
+      {/* Carte des villes liées : marqueurs = villes (pas des fiches),
           ordre conservé (distance depuis l'établissement hôte). */}
       <MapSlidePanel
-        open={!!openDestMap}
-        onClose={() => setOpenDestMap(null)}
-        title={openDestMap?.title || undefined}
-        businesses={(openDestMap?.destinations || [])
+        open={!!openCityMap}
+        onClose={() => setOpenCityMap(null)}
+        title={openCityMap?.title || undefined}
+        businesses={(openCityMap?.cities || [])
           .filter((d) => d.latitude != null && d.longitude != null)
           .map((d) => ({
             id: d.id,
