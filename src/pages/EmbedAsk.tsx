@@ -384,6 +384,10 @@ const warmAiEngineConnection = () => {
   } catch { /* best-effort */ }
 };
 const DEST_CHIPS_RE = /<!--DESTINATION_CHIPS:([\s\S]*?)-->/g;
+/** Chips de périmètre VILLES : le serveur propose des villes, plus des destinations. */
+const CITY_CHIPS_RE = /<!--CITY_CHIPS:([\s\S]*?)-->/g;
+/** Carrousel de cartes VILLES (table `cities`). */
+const CITY_CARDS_RE = /<!--CITY_CARDS:([\s\S]*?)-->/g;
 /** Widget de disponibilité hôtelière (suggestion back-office en mode `booking`). */
 const HOTEL_BOOKING_RE = /<!--HOTEL_BOOKING:([\s\S]*?)-->/g;
 /** Invitation à choisir la ville AVANT d'afficher le widget de disponibilité. */
@@ -397,6 +401,11 @@ type KnownBusiness = { id: string; slug: string | null; name: string };
 type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; hero?: string | null; tldr?: string | null; hook?: string | null; intro?: string | null; inline?: boolean; isOwner?: boolean; kind?: "blog" | "video_feed"; url?: string | null };
 type DestinationCard = { id: string; name: string; hook?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; distKm?: number | null };
 type DestinationsPayload = { title?: string | null; destinations: DestinationCard[] };
+/** Carte VILLE du carrousel déterministe (table `cities`). */
+type CityCard = { id: string; name: string; hook?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; distKm?: number | null };
+type CitiesPayload = { title?: string | null; cities: CityCard[] };
+/** Chip de périmètre ville : porte le nom canonique de la ville, jamais du texte libre. */
+type CityChip = { name: string; count: number };
 /** Chip de périmètre déterministe : porte un destination_id, jamais du texte libre. */
 type ScopeChip = { id: string; name: string; count: number };
 type VideoFeedItem = {
@@ -427,22 +436,23 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: BookingPayload[]; competitorGuard: boolean; destChips: ScopeChip[]; cityPick: boolean } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; cities: CitiesPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[]; bookings: BookingPayload[]; competitorGuard: boolean; cityChips: CityChip[]; cityPick: boolean } {
   const cityPick = text.includes("<!--BOOKING_CITY_PICK-->");
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
   const articles: ArticleCardPayload[] = [];
   const destinations: DestinationsPayload[] = [];
+  const cities: CitiesPayload[] = [];
   const pinned: PinnedBusinessCard[] = [];
   const weather: WeatherPayload[] = [];
   const videoFeeds: VideoFeedPayload[] = [];
   const tides: string[] = [];
   const bookings: BookingPayload[] = [];
-  const destChips: ScopeChip[] = [];
+  const cityChips: CityChip[] = [];
   const hookUpgrades: Record<string, string> = {};
   const competitorGuard = COMPETITOR_GUARD_RE.test(text);
-  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips, cityPick: false };
+  if (!text) return { clean: text, maps, events, known, articles, destinations, cities, pinned, weather, videoFeeds, tides, bookings, competitorGuard, cityChips, cityPick: false };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -473,6 +483,12 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       if (p && Array.isArray(p.destinations) && p.destinations.length) destinations.push({ title: p.title ?? null, destinations: p.destinations });
     } catch { /* */ }
     return "";
+  }).replace(CITY_CARDS_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && Array.isArray(p.cities) && p.cities.length) cities.push({ title: p.title ?? null, cities: p.cities });
+    } catch { /* */ }
+    return "";
   }).replace(PINNED_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -500,10 +516,10 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     } catch { /* */ }
     return "";
   
-  }).replace(DEST_CHIPS_RE, (_m, raw) => {
+  }).replace(CITY_CHIPS_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
-      if (p && Array.isArray(p.chips)) for (const c of p.chips) if (c?.id && c?.name) destChips.push(c as ScopeChip);
+      if (p && Array.isArray(p.chips)) for (const c of p.chips) if (c?.name) cityChips.push({ name: String(c.name), count: Number(c.count) || 0 });
     } catch { /* */ }
     return "";
   }).replace(TIDES_RE, (_m, raw) => {
@@ -544,6 +560,10 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--COMPETITOR_GUARD_ACTIVE-->/g, "")
     .replace(/<!--DESTINATION_CHIPS:[\s\S]*?-->/g, "")
     .replace(/<!--DESTINATION_CHIPS:[\s\S]*$/g, "")
+    .replace(/<!--CITY_CARDS:[\s\S]*?-->/g, "")
+    .replace(/<!--CITY_CARDS:[\s\S]*$/g, "")
+    .replace(/<!--CITY_CHIPS:[\s\S]*?-->/g, "")
+    .replace(/<!--CITY_CHIPS:[\s\S]*$/g, "")
     .replace(/<!--HOOKS_UPGRADE:[\s\S]*?-->/g, "")
     .replace(/<!--HOOKS_UPGRADE:[\s\S]*$/g, "")
     .replace(BOOKING_CITY_PICK_RE, "")
@@ -562,7 +582,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     }
   }
   clean = linkifyPhones(clean);
-  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides, bookings, competitorGuard, destChips, cityPick };
+  return { clean, maps, events, known, articles, destinations, cities, pinned, weather, videoFeeds, tides, bookings, competitorGuard, cityChips, cityPick };
 }
 
 // Convert bare phone / WhatsApp numbers found in AI markdown into clickable links.
