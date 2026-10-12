@@ -5875,8 +5875,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
               onClose={() => setOpenMap(null)}
               aiCtaReturnsToAssistant
               // Marqueur → même fiche que les résultats IA (vidéo interne 1, CTA IA → accueil).
+              // La carte reste ouverte : la fiche (rendue après, même z-index) s'affiche
+              // par-dessus ; la fermer ramène à la carte.
               onPoiBusinessOpen={(id, navIds) => {
-                setOpenMap(null);
                 setOpenSiblings(navIds);
                 setOpenBusinessOverlay(null);
                 setOpenBusinessId(id);
