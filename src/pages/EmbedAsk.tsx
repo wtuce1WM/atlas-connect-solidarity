@@ -1258,6 +1258,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         // Contexte curaté (jamais un clic) : conserve le périmètre badge de la
         // suggestion active quand la relance libre ne change que la ville.
         contextSuggestionId: (body as any)?.contextSuggestionId ?? null,
+        cityScope: (body as any)?.cityScope ?? null,
         scope: (body as any)?.scope ?? null,
         forcedRoute: (body as any)?.forcedRoute ?? null,
         destinationId: (body as any)?.destinationId ?? null,
@@ -2927,10 +2928,14 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     setError(null);
     lastLocalFilterRef.current = null;
     messageIndexRef.current += 1;
-    setActiveSuggestionId(null);
+    // La suggestion active (ex. « Culture ») part en CONTEXTE : le moteur rejoue
+    // son périmètre badges limité à la ville, au lieu d'une recherche texte.
+    const ctxId = activeSuggestionId && !activeSuggestionId.startsWith("default-") && !activeSuggestionId.startsWith("platform-fallback-")
+      ? activeSuggestionId
+      : null;
     sendMessage(
       { text: lang === "en" ? `In ${chip.name}` : lang === "ar" ? `في ${chip.name}` : `Dans ${chip.name}` },
-      { body: { suggestionId: null, followupId: null, scope: null, cityScope: chip.name } },
+      { body: { suggestionId: null, followupId: null, scope: null, cityScope: chip.name, contextSuggestionId: ctxId } },
     );
   };
 
