@@ -15,6 +15,11 @@ import { supabase } from "@/integrations/supabase/client";
 const LS_KEY = "1wm_lang_en";
 
 export function useEnglishFlag(): boolean {
+  // EN opened to the public (SEO/GEO): always enabled.
+  return true;
+}
+
+export function useEnglishFlagLegacy(): boolean {
   const [enabled, setEnabled] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     try {
