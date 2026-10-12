@@ -5706,7 +5706,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   </span>
                 )}
               </button>
-              {mapReplayTarget && poolInfo.hasGeo && (
+              {mapReplayTarget && (poolInfo.hasGeo || lastMessageIsEvents) && (
                 <button
                   type="button"
                   onClick={() => setOpenMap(mapReplayTarget)}
