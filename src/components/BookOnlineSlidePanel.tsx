@@ -4586,6 +4586,7 @@ const BookOnlineSlidePanelInner = ({
         <DirectionsOverlay
           business={business}
           onClose={() => setShowDirections(false)}
+          liveTracking
         />
       )}
 

@@ -215,7 +215,7 @@ const DirectionsOverlay = ({ business, onClose, liveTracking = false }: Directio
     if (!storedOrigin) requestBrowserOrigin();
   }, [geo.coords, geo.isEnabled, storedOrigin, requestBrowserOrigin]);
 
-  const origin = useMemo(() => userOrigin || storedOrigin, [userOrigin, storedOrigin]);
+  const origin = useMemo(() => liveOrigin || userOrigin || storedOrigin, [liveOrigin, userOrigin, storedOrigin]);
   const destLatLng = useMemo(() => (
     business.latitude != null && business.longitude != null
       ? { lat: business.latitude, lng: business.longitude }
