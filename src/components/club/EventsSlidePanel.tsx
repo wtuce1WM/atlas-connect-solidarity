@@ -82,7 +82,7 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
 
   return (
     <div
-      className={`fixed inset-0 z-[220] bg-black flex flex-col ${isMobile ? "" : "lg:left-auto lg:w-1/2 lg:border-l lg:border-white/10"}`}
+      className={`fixed inset-0 z-[340] bg-black flex flex-col ${isMobile ? "" : "lg:left-auto lg:w-1/2 lg:border-l lg:border-white/10"}`}
       onWheel={onWheel}
     >
       <div className="flex items-center justify-between px-4 py-3 bg-black/60 backdrop-blur-md text-white">
