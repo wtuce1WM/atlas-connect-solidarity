@@ -873,6 +873,43 @@ Deno.serve(async (req) => {
         // du tour (`poolIds`, 18 adresses), pas seulement sur les fiches
         // affichées (`priorIds`, 6). Aucun repli silencieux : si la route ne
         // produit rien, on le dit et on s'arrête.
+        // « Les plus proches » juste après un agenda : on reclasse CE corpus
+        // d'événements par distance, jamais une nouvelle recherche d'établissements.
+        if (clientForcedRoute === "distance_ranking_closest") {
+          const lastAsst = [...(uiMessages as any[])].reverse().find((m: any) => m?.role === "assistant");
+          const lastText = (lastAsst?.parts ?? []).filter((p: any) => p?.type === "text").map((p: any) => String(p.text || "")).join("");
+          const priorEvents = lastText.includes("<!--EVENTS_SNAPSHOT:") ? priorEventsSnapshot(uiMessages as any[]) : null;
+          const anchor = userAnchor
+            ?? (host?.latitude != null && host?.longitude != null ? { lat: Number(host.latitude), lng: Number(host.longitude) } : null);
+          if (priorEvents && anchor) {
+            const km = (e: any) => {
+              if (e?.latitude == null || e?.longitude == null) return Infinity;
+              const toRad = (d: number) => (d * Math.PI) / 180;
+              const dLat = toRad(Number(e.latitude) - anchor.lat);
+              const dLng = toRad(Number(e.longitude) - anchor.lng);
+              const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(anchor.lat)) * Math.cos(toRad(Number(e.latitude))) * Math.sin(dLng / 2) ** 2;
+              return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            };
+            const sorted = [...priorEvents.events].sort((a, b) => km(a) - km(b));
+            const fmt = (d: number) => d < 1 ? `${Math.round(d * 1000)} m` : `${d.toFixed(1).replace(".", ",")} km`;
+            const head = lang === "en"
+              ? `The same agenda, sorted from closest to farthest — ${sorted.length} event${sorted.length > 1 ? "s" : ""}.`
+              : lang === "ar"
+                ? `نفس الأجندة مرتبة من الأقرب إلى الأبعد — ${sorted.length} فعالية.`
+                : `Le même agenda, du plus proche au plus éloigné — ${sorted.length} événement${sorted.length > 1 ? "s" : ""}.`;
+            const body = sorted.map((e: any) => {
+              const d = km(e);
+              const where = [e.neighborhood, e.city].filter(Boolean).join(", ");
+              return `**${e.name}**${Number.isFinite(d) ? ` (${fmt(d)})` : ""}${where ? `. ${where}` : ""}`;
+            }).join("\n\n");
+            route = "events";
+            resultsCount = sorted.length;
+            emit(`${head}\n\n${body}`);
+            emit(`\n\n${eventsSnapshotMarker(sorted, priorEvents.city, priorEvents.title)}`);
+            await finish(true);
+            return;
+          }
+        }
         if (clientForcedRoute && poolIds.length) {
           if (clientForcedRoute === "neighborhood_filter") {
             // Le badge envoie le libellé de quartier lu DANS le corpus courant :
