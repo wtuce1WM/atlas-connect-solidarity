@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, ChevronUp, ChevronDown, Calendar as CalendarIcon, MapPin, ExternalLink, Store } from "lucide-react";
+import { X, ChevronUp, ChevronDown, Calendar as CalendarIcon, MapPin, ExternalLink, Store, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import type { EventPanelItem } from "./ClubAiAssistant";
 
 interface Props {
@@ -35,9 +35,31 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
   const [offsetY, setOffsetY] = useState(0);
   const startY = useRef<number | null>(null);
   const handled = useRef(false);
+  // Contrôles vidéo (mêmes CTAs liquid glass que BookOnlineSlidePanel)
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [videoPaused, setVideoPaused] = useState(false);
+  const [videoMuted, setVideoMuted] = useState(true);
 
   useEffect(() => { if (open) setIndex(Math.max(0, Math.min(initialIndex, items.length - 1))); }, [open, initialIndex, items.length]);
   useEffect(() => { setOffsetY(0); }, [index]);
+  // Nouvelle diapo : la vidéo se remonte en autoplay muet (comportement du viewer)
+  useEffect(() => { setVideoPaused(false); setVideoMuted(true); }, [index, open]);
+
+  const toggleVideoPlay = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) { delete v.dataset.owmUserPaused; v.play().catch(() => {}); setVideoPaused(false); }
+    else { v.dataset.owmUserPaused = "1"; v.pause(); setVideoPaused(true); }
+  }, []);
+
+  const toggleVideoMute = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const next = !v.muted;
+    v.muted = next;
+    if (!next && v.volume === 0) v.volume = 1;
+    setVideoMuted(next);
+  }, []);
 
   const next = useCallback(() => setIndex((i) => Math.min(i + 1, items.length - 1)), [items.length]);
   const prev = useCallback(() => setIndex((i) => Math.max(i - 1, 0)), []);
@@ -80,6 +102,8 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
   const media = ev.image || null;
   const videoSrc = ev.video || null;
   const isFileVideo = !!videoSrc && !/youtube\.com|youtu\.be|vimeo\.com/i.test(videoSrc);
+  // Pill Play/Mute affichée uniquement quand une vidéo réelle est lue
+  const hasPill = isFileVideo && !!videoSrc;
 
   return createPortal(
     <div
@@ -108,11 +132,12 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
         >
           {isFileVideo ? (
             <video
+              ref={videoRef}
               key={videoSrc!}
               src={videoSrc!}
               className="absolute inset-0 h-full w-full object-cover"
               autoPlay
-              muted
+              muted={videoMuted}
               loop
               playsInline
               poster={media || undefined}
@@ -155,7 +180,10 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
             )}
           </div>
 
-          <div className="absolute inset-x-0 bottom-6 px-6 flex flex-wrap items-center justify-center gap-2">
+          <div
+            className={`absolute inset-x-0 px-6 flex flex-wrap items-center justify-center gap-2 ${hasPill ? "" : "bottom-6"}`}
+            style={hasPill ? { bottom: "calc(4.5rem + env(safe-area-inset-bottom))" } : undefined}
+          >
             {ev.default_business_id && onOpenBusiness && (
               <button
                 onClick={() => onOpenBusiness(ev.default_business_id!)}
@@ -176,6 +204,31 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
             )}
           </div>
         </div>
+
+        {/* CTAs Play/Mute liquid glass (identiques au bas de BookOnlineSlidePanel) */}
+        {hasPill && (
+          <div
+            className="absolute left-1/2 -translate-x-1/2 z-10"
+            style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+          >
+            <div className="flex items-center gap-0.5 rounded-[28px] border border-white/20 bg-black/40 px-2 py-1 backdrop-blur">
+              <button
+                onClick={toggleVideoPlay}
+                className="h-9 w-9 rounded-full flex items-center justify-center text-white hover:bg-white/10"
+                aria-label={videoPaused ? "Play" : "Pause"}
+              >
+                {videoPaused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
+              </button>
+              <button
+                onClick={toggleVideoMute}
+                className="h-9 w-9 rounded-full flex items-center justify-center text-white hover:bg-white/10"
+                aria-label={videoMuted ? "Activer le son" : "Couper le son"}
+              >
+                {videoMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Prev/Next controls */}
         <button
