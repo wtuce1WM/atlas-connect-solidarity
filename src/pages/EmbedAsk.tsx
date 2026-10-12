@@ -5914,13 +5914,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         />
       )}
 
-      {/* Carte des destinations liées : marqueurs = destinations (pas des fiches),
+      {/* Carte des villes liées : marqueurs = villes (pas des fiches),
           ordre conservé (distance depuis l'établissement hôte). */}
       <MapSlidePanel
-        open={!!openDestMap}
-        onClose={() => setOpenDestMap(null)}
-        title={openDestMap?.title || undefined}
-        businesses={(openDestMap?.destinations || [])
+        open={!!openCityMap}
+        onClose={() => setOpenCityMap(null)}
+        title={openCityMap?.title || undefined}
+        businesses={(openCityMap?.cities || [])
           .filter((d) => d.latitude != null && d.longitude != null)
           .map((d) => ({
             id: d.id,
