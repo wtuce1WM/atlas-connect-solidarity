@@ -2954,6 +2954,13 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     lastLocalFilterRef.current = null;
     messageIndexRef.current += 1;
     setActiveSuggestionId(null);
+    // Carte « Hébergement » (Marrakech / Essaouira) : widget de disponibilité
+    // rattaché à la réponse, comme pour une question libre sur l'hébergement.
+    const cardCity = typeof d.city === "string" ? d.city : null;
+    if (cardCity && BOOKING_CITY_OPTIONS.includes(cardCity) && hasLodgingTerm(text)) {
+      lastLodgingCityRef.current = cardCity;
+      pendingBookingCityRef.current = cardCity;
+    }
     sendMessage(
       { text },
       { body: {
