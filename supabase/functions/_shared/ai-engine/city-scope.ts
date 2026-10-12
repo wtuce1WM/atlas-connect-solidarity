@@ -87,3 +87,53 @@ export async function detectExplicitCity(
   return null;
 }
 
+
+/**
+ * Chip de périmètre VILLE : porte le nom canonique de la ville (`cities.name_fr`),
+ * jamais un libellé libre à re-interpréter par le moteur.
+ */
+export interface CityChip {
+  /** Nom canonique de la ville — c'est la valeur effectivement filtrée. */
+  name: string;
+  count: number;
+}
+
+/**
+ * Villes réellement représentées dans le corpus d'un tour : le moteur compte les
+ * établissements par `businesses.city`. Une ville déjà appliquée comme périmètre
+ * n'est pas proposée (elle est déjà active).
+ */
+export async function cityChipsForBusinesses(
+  admin: any,
+  businessIds: string[],
+  excludeCity?: string | null,
+  limit = 6,
+): Promise<CityChip[]> {
+  const ids = [...new Set((businessIds || []).map(String).filter(Boolean))];
+  if (ids.length < 2) return [];
+  try {
+    const { data } = await admin
+      .from("businesses")
+      .select("id, city")
+      .in("id", ids.slice(0, 200));
+    const counts = new Map<string, number>();
+    for (const b of ((data as any[]) || [])) {
+      const city = String(b?.city || "").trim();
+      if (!city) continue;
+      if (excludeCity && norm(city) === norm(excludeCity)) continue;
+      counts.set(city, (counts.get(city) || 0) + 1);
+    }
+    if (!counts.size) return [];
+    const chips: CityChip[] = [...counts.entries()].map(([name, count]) => ({ name, count }));
+    chips.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    return chips.slice(0, limit);
+  } catch (err) {
+    console.warn("[ai-engine/city-scope] city chips failed", String(err));
+    return [];
+  }
+}
+
+export function cityChipsMarker(chips: CityChip[]) {
+  const safe = JSON.stringify({ chips }).replace(/-->/g, "--&gt;");
+  return `<!--CITY_CHIPS:${safe}-->`;
+}
