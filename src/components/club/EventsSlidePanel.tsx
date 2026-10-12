@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, ChevronUp, ChevronDown, Calendar as CalendarIcon, MapPin, ExternalLink, Store } from "lucide-react";
 import type { EventPanelItem } from "./ClubAiAssistant";
 
@@ -80,7 +81,7 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
   const videoSrc = ev.video || null;
   const isFileVideo = !!videoSrc && !/youtube\.com|youtu\.be|vimeo\.com/i.test(videoSrc);
 
-  return (
+  return createPortal(
     <div
       className={`fixed inset-0 z-[340] bg-black flex flex-col ${isMobile ? "" : "lg:left-auto lg:w-1/2 lg:border-l lg:border-white/10"}`}
       onWheel={onWheel}
@@ -194,7 +195,8 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
           <ChevronDown className="h-5 w-5" />
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
