@@ -1,5 +1,7 @@
 # Architecture Rules
 
+- EventsSlidePanel renders in a document-body portal so Home's transformed assistant container cannot trap Agenda beneath the global header.
+
 - Directions endpoint pins reuse PoiGoogleMap's label-marker factories so user and master markers stay visually consistent with the Map overlay.
 
 - Showcase PWA icons use `businesses.logo_url` first, then the showcase hero and first business image, so every enabled business is branded dynamically without slug-specific additions.
