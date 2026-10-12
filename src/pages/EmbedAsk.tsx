@@ -5268,9 +5268,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                 </div>
               )}
 
-              {destinationsPayload && destinationsPayload.destinations.length > 0 && (
+              {citiesPayload && citiesPayload.cities.length > 0 && (
                 <EmbedCardCarousel
-                  items={destinationsPayload.destinations.slice(0, 20).map((d) => {
+                  items={citiesPayload.cities.slice(0, 20).map((d) => {
                     const distStr =
                       d.distKm != null
                         ? d.distKm < 1
@@ -5282,20 +5282,20 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                       image: d.image,
                       title: d.name,
                       badge: distStr,
-                      onClick: () => setOpenDestinationId(d.id),
+                      onClick: () => sendCityScope({ name: d.name, count: 0 }),
                     };
                   })}
                   footer={
-                    destinationsPayload.destinations.some((d) => d.latitude != null && d.longitude != null) ? (
+                    citiesPayload.cities.some((d) => d.latitude != null && d.longitude != null) ? (
                       <div className="mt-1">
                         <button
                           type="button"
-                          onClick={() => setOpenDestMap({ title: destinationsPayload.title || null, destinations: destinationsPayload.destinations })}
+                          onClick={() => setOpenCityMap({ title: citiesPayload.title || null, cities: citiesPayload.cities })}
                           style={AI_NAME_FONT}
                           className={`inline-flex items-center gap-1.5 text-xs font-medium ${linkInkClass} hover:underline`}
                         >
                           <MapPin className="w-3.5 h-3.5" />
-                          {lang === "en" ? "Destinations on the map" : lang === "ar" ? "الوجهات على الخريطة" : "Les destinations sur la carte"}
+                          {lang === "en" ? "Cities on the map" : lang === "ar" ? "المدن على الخريطة" : "Les villes sur la carte"}
                         </button>
                       </div>
                     ) : null
