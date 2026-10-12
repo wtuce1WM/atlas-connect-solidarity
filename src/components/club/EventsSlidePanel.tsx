@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, ChevronUp, ChevronDown, Calendar as CalendarIcon, MapPin, ExternalLink, Store } from "lucide-react";
+import { X, ChevronUp, ChevronDown, Calendar as CalendarIcon, MapPin, ExternalLink, Store, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import type { EventPanelItem } from "./ClubAiAssistant";
 
 interface Props {
@@ -35,9 +35,31 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
   const [offsetY, setOffsetY] = useState(0);
   const startY = useRef<number | null>(null);
   const handled = useRef(false);
+  // Contrôles vidéo (mêmes CTAs liquid glass que BookOnlineSlidePanel)
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [videoPaused, setVideoPaused] = useState(false);
+  const [videoMuted, setVideoMuted] = useState(true);
 
   useEffect(() => { if (open) setIndex(Math.max(0, Math.min(initialIndex, items.length - 1))); }, [open, initialIndex, items.length]);
   useEffect(() => { setOffsetY(0); }, [index]);
+  // Nouvelle diapo : la vidéo se remonte en autoplay muet (comportement du viewer)
+  useEffect(() => { setVideoPaused(false); setVideoMuted(true); }, [index, open]);
+
+  const toggleVideoPlay = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) { delete v.dataset.owmUserPaused; v.play().catch(() => {}); setVideoPaused(false); }
+    else { v.dataset.owmUserPaused = "1"; v.pause(); setVideoPaused(true); }
+  }, []);
+
+  const toggleVideoMute = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const next = !v.muted;
+    v.muted = next;
+    if (!next && v.volume === 0) v.volume = 1;
+    setVideoMuted(next);
+  }, []);
 
   const next = useCallback(() => setIndex((i) => Math.min(i + 1, items.length - 1)), [items.length]);
   const prev = useCallback(() => setIndex((i) => Math.max(i - 1, 0)), []);
