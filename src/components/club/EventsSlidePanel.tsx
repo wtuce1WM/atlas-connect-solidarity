@@ -102,6 +102,8 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
   const media = ev.image || null;
   const videoSrc = ev.video || null;
   const isFileVideo = !!videoSrc && !/youtube\.com|youtu\.be|vimeo\.com/i.test(videoSrc);
+  // Pill Play/Mute affichée uniquement quand une vidéo réelle est lue
+  const hasPill = isFileVideo && !!videoSrc;
 
   return createPortal(
     <div
