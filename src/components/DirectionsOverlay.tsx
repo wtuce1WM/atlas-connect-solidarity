@@ -204,6 +204,7 @@ const DirectionsOverlay = ({ business, onClose, liveTracking = false }: Directio
   }, [liveTracking, geo.isEnabled]);
 
   useEffect(() => {
+    if (geo.coords) {
       const next = { lat: geo.coords.lat, lng: geo.coords.lng };
       setUserOrigin((current) => sameCoords(current, next) ? current : next);
       setStoredOrigin((current) => sameCoords(current, next) ? current : next);
