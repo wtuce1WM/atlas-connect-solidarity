@@ -3060,6 +3060,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return null;
   }, [messages]);
 
+  /** Dernière réponse = agenda : autorise le CTA Map terracotta même sans marqueur POOL. */
+  const lastMessageIsEvents = useMemo<boolean>(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== "assistant") continue;
+      const { events } = extractPayloads(messageText(m));
+      return events.length > 0 && events[events.length - 1].events.length > 0;
+    }
+    return false;
+  }, [messages]);
+
   /**
    * Dernier marqueur POOL_BUSINESS_IDS : corpus COMPLET du tour (ids + comptes
    * par quartier calculés côté moteur sur la totalité du pool). Source unique
@@ -5413,27 +5424,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                     onClick: () => setOpenEvents({ list: eventsPayload.events, index: idx }),
                   };
                 });
-                // Cohérence /embed : pas de carte inline — un CTA texte "Voir sur la carte"
-                // sous la dernière vignette, qui ouvre l'overlay POI du slidepanel avec
-                // les ÉTABLISSEMENTS liés aux événements (coords + nom du business).
-                const eventBiz: MapPanelBusiness[] = [];
-                const seenBiz = new Set<string>();
-                for (const ev of eventsPayload.events as any[]) {
-                  const bid = ev.default_business_id ? String(ev.default_business_id) : null;
-                  if (!bid || seenBiz.has(bid)) continue;
-                  if (ev.latitude == null || ev.longitude == null) continue;
-                  seenBiz.add(bid);
-                  eventBiz.push({
-                    id: bid,
-                    name: ev.business_name || ev.name,
-                    slug: ev.business_slug ?? null,
-                    latitude: Number(ev.latitude),
-                    longitude: Number(ev.longitude),
-                    city: ev.city ?? null,
-                    neighborhood: ev.neighborhood ?? null,
-                    images: [],
-                  } as never);
-                }
                 return (
                   <EmbedCardCarousel
                     items={items}
@@ -5446,16 +5436,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         >
                           <CalendarIcon className="w-3.5 h-3.5" /> {L.events} · {eventsPayload.events.length}
                         </button>
-                        {eventBiz.length > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => setOpenMap({ title: eventsPayload.title || null, businesses: eventBiz } as MapPayload)}
-                            style={AI_NAME_FONT}
-                            className={`inline-flex items-center gap-1.5 text-xs font-medium ${linkInkClass} hover:underline`}
-                          >
-                            <MapPin className="w-3.5 h-3.5" /> {L.viewMap}
-                          </button>
-                        )}
                       </div>
                     }
                   />
@@ -5726,7 +5706,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   </span>
                 )}
               </button>
-              {mapReplayTarget && poolInfo.hasGeo && (
+              {mapReplayTarget && (poolInfo.hasGeo || lastMessageIsEvents) && (
                 <button
                   type="button"
                   onClick={() => setOpenMap(mapReplayTarget)}
