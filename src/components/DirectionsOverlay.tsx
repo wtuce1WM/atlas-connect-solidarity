@@ -97,7 +97,7 @@ function loadGoogleMaps(): Promise<void> {
 interface DirectionsOverlayProps {
   business: {
     name: string;
-    address: string | null;
+  address: string | null;
     latitude: number | null;
     longitude: number | null;
     phone?: string | null;
@@ -105,14 +105,19 @@ interface DirectionsOverlayProps {
     logo_url?: string | null;
   };
   onClose: () => void;
+  /** Suivi live : le marqueur « Vous êtes là » se met à jour quand l'utilisateur se déplace. */
+  liveTracking?: boolean;
 }
 
-const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
+const DirectionsOverlay = ({ business, onClose, liveTracking = false }: DirectionsOverlayProps) => {
   const { language } = useLanguage();
   const originLabel = language === "en" ? "You are here" : "Vous êtes là";
   const [directionsMode, setDirectionsMode] = useState<DirectionsMode>("walking");
   const [userOrigin, setUserOrigin] = useState<{ lat: number; lng: number } | null>(null);
   const [storedOrigin, setStoredOrigin] = useState<{ lat: number; lng: number } | null>(() => readStoredOrigin());
+  // Position live (watchPosition) : prime sur les origines one-shot pendant que l'overlay est ouvert.
+  const [liveOrigin, setLiveOrigin] = useState<{ lat: number; lng: number } | null>(null);
+  const lastLiveRef = useRef<{ lat: number; lng: number } | null>(null);
   const [originError, setOriginError] = useState<string | null>(null);
   const [routeError, setRouteError] = useState<string | null>(null);
   const [routeInfo, setRouteInfo] = useState<{ distanceMeters: number | null; duration: string | null } | null>(null);
@@ -168,6 +173,36 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     };
   }, []);
 
+  // Suivi live : pendant que l'overlay est ouvert, watchPosition met à jour le
+  // marqueur « Vous êtes là » (et l'itinéraire) dès que l'utilisateur se déplace
+  // de plus de ~15 m. Une adresse choisie manuellement n'est jamais surchargée.
+  useEffect(() => {
+    if (!liveTracking || !navigator.geolocation || !geo.isEnabled) return;
+    if (parseStoredCoords(GEO_MANUAL_COORDS_KEY)) return;
+    let last = lastLiveRef.current;
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        if (last) {
+          const dLat = (next.lat - last.lat) * 111320;
+          const dLng = (next.lng - last.lng) * 111320 * Math.cos((last.lat * Math.PI) / 180);
+          if (Math.sqrt(dLat * dLat + dLng * dLng) < 15) return;
+        }
+        last = next;
+        lastLiveRef.current = next;
+        setLiveOrigin(next);
+        try {
+          window.localStorage.setItem(GEO_AUTO_COORDS_KEY, JSON.stringify(next));
+          window.dispatchEvent(new CustomEvent("geo:changed"));
+        } catch { /* noop */ }
+      },
+      () => { /* une erreur de watch ne remplace pas la dernière position connue */ },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
+    );
+    return () => { navigator.geolocation.clearWatch(watchId); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liveTracking, geo.isEnabled]);
+
   useEffect(() => {
     if (geo.coords) {
       const next = { lat: geo.coords.lat, lng: geo.coords.lng };
@@ -180,7 +215,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     if (!storedOrigin) requestBrowserOrigin();
   }, [geo.coords, geo.isEnabled, storedOrigin, requestBrowserOrigin]);
 
-  const origin = useMemo(() => userOrigin || storedOrigin, [userOrigin, storedOrigin]);
+  const origin = useMemo(() => liveOrigin || userOrigin || storedOrigin, [liveOrigin, userOrigin, storedOrigin]);
   const destLatLng = useMemo(() => (
     business.latitude != null && business.longitude != null
       ? { lat: business.latitude, lng: business.longitude }
