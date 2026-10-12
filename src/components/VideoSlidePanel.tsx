@@ -1094,7 +1094,7 @@ const VideoSlidePanel = ({
 
     const onMessage = (e: MessageEvent) => {
       if (!e.data || typeof e.data !== "string") return;
-      const fromYouTube = e.origin.includes("youtube.com") || e.origin.includes("youtube-nocookie.com");
+      const fromYouTube = /^https:\/\/(www\.)?(youtube\.com|youtube-nocookie\.com)$/.test(e.origin);
       // Le lecteur local /yt-player.html relaie l'état réel du player depuis
       // notre propre origine : sans cette acceptation, les CTA Play/Son du
       // panneau restaient sur leur état optimiste.

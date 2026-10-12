@@ -1411,6 +1411,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       sans recharger la page. */
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
       if (e.data?.type === "owm-host:collapse-suggestions") {
         setShowAllSuggestions(false);
         try { window.postMessage({ type: "owm-ask:suggestions-expanded", expanded: false }, window.location.origin); } catch { /* noop */ }
@@ -2978,6 +2979,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   };
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
       if (e.data?.type === "owm-host:home-card") sendHomeCardRef.current(e.data);
     };
     window.addEventListener("message", onMsg);
@@ -3876,6 +3878,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   startNewConversationRef.current = startNewConversation;
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
       if (e.data?.type !== "owm-host:reset-conversation") return;
       startNewConversationRef.current();
     };
