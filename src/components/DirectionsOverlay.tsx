@@ -115,6 +115,9 @@ const DirectionsOverlay = ({ business, onClose, liveTracking = false }: Directio
   const [directionsMode, setDirectionsMode] = useState<DirectionsMode>("walking");
   const [userOrigin, setUserOrigin] = useState<{ lat: number; lng: number } | null>(null);
   const [storedOrigin, setStoredOrigin] = useState<{ lat: number; lng: number } | null>(() => readStoredOrigin());
+  // Position live (watchPosition) : prime sur les origines one-shot pendant que l'overlay est ouvert.
+  const [liveOrigin, setLiveOrigin] = useState<{ lat: number; lng: number } | null>(null);
+  const lastLiveRef = useRef<{ lat: number; lng: number } | null>(null);
   const [originError, setOriginError] = useState<string | null>(null);
   const [routeError, setRouteError] = useState<string | null>(null);
   const [routeInfo, setRouteInfo] = useState<{ distanceMeters: number | null; duration: string | null } | null>(null);
