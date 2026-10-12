@@ -217,9 +217,11 @@ export const autoHeightSnippet = (o: {
 </div>
 <script>
   window.addEventListener("message", function (e) {
-    if (!e.data || e.data.type !== "${o.msgType}") return;
     var f = document.getElementById("${o.id}");
-    if (f) f.style.height = Math.ceil(e.data.height) + "px";
+    if (!f || e.source !== f.contentWindow) return;
+    if (e.origin !== new URL(f.src, location.href).origin) return;
+    if (!e.data || e.data.type !== "${o.msgType}" || typeof e.data.height !== "number") return;
+    f.style.height = Math.ceil(Math.min(Math.max(e.data.height, 40), 5000)) + "px";
   });
 </script>`;
 };

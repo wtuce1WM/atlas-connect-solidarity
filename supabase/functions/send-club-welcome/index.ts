@@ -37,12 +37,20 @@ Deno.serve(async (req) => {
 
     let query = admin
       .from("club_members")
-      .select("id, email, nickname, first_name, welcome_email_sent_at");
+      .select("id, email, nickname, first_name, welcome_email_sent_at, created_at");
     query = userId ? query.eq("user_id", userId) : query.eq("id", memberId);
 
     const { data: member, error: memberErr } = await query.maybeSingle();
-    if (memberErr) return json({ error: memberErr.message }, 400);
+    if (memberErr) return json({ error: "Requête invalide" }, 400);
     if (!member) return json({ error: "Membre introuvable" }, 404);
+    // Sans session vérifiée, seul un membre tout juste inscrit (≤ 15 min) est
+    // accepté : c'est le cas de l'inscription par e-mail avant confirmation.
+    if (!userId) {
+      const createdAt = member.created_at ? new Date(member.created_at).getTime() : 0;
+      if (!createdAt || Date.now() - createdAt > 15 * 60 * 1000) {
+        return json({ error: "Non autorisé" }, 401);
+      }
+    }
     if (member.welcome_email_sent_at) return json({ success: true, skipped: "already_sent" });
 
     const email = String(member.email || "").toLowerCase().trim();

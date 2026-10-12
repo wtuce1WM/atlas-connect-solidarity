@@ -253,6 +253,7 @@ const ShowcaseSite = () => {
   useEffect(() => {
     const closeAssistant = () => setAssistantOpen(false);
     const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
       if (event.data?.type === "owm-embed-close") closeAssistant();
     };
     const handleKeyDown = (event: KeyboardEvent) => {

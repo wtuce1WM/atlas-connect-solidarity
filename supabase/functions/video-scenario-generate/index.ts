@@ -257,6 +257,12 @@ Deno.serve(async (req) => {
     const authBusinessId = business_id ?? parentJob?.business_id ?? "";
     const auth = await assertStaffOrAffiliateBusiness(req, corsHeaders, authBusinessId);
     if (auth instanceof Response) return auth;
+    // Un job parent d'un autre établissement ne doit jamais être réutilisé.
+    if (parentJob && business_id && parentJob.business_id && parentJob.business_id !== business_id) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const callerUserId = auth.userId;
     const callerContext = await resolveCallerContext(supa, callerUserId);
 
