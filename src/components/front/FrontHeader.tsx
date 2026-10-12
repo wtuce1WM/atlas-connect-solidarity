@@ -173,6 +173,10 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
     onLogoClick?.();
   };
 
+  const handleLangSelect = (code: "fr" | "en") => {
+    if (code !== language) setLanguage(code);
+  };
+
   const wrapperClass = fixed
     ? `fixed inset-x-0 top-0 z-50 ${className}`
     : `absolute left-0 right-0 top-0 z-30 ${className}`;
@@ -193,19 +197,24 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
         <div className={visible && !menuOpen ? "pointer-events-auto" : ""}>
           <LogoBlock onClick={handleLogoClick} />
         </div>
-        <button
-          type="button"
-          aria-label="Ouvrir le menu"
-          aria-expanded={menuOpen}
-          onClick={() => setOpen(true)}
-          className={`mt-2 rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-            visible && !menuOpen && !hideMenuButton ? "pointer-events-auto" : "pointer-events-none opacity-0"
-          }`}
-          aria-hidden={hideMenuButton}
-          tabIndex={hideMenuButton ? -1 : 0}
-        >
-          <Menu className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          {!hideLanguageSwitch && visible && !menuOpen && (
+            <LanguageFlags language={language} onSelect={handleLangSelect} />
+          )}
+          <button
+            type="button"
+            aria-label="Ouvrir le menu"
+            aria-expanded={menuOpen}
+            onClick={() => setOpen(true)}
+            className={`mt-2 rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+              visible && !menuOpen && !hideMenuButton ? "pointer-events-auto" : "pointer-events-none opacity-0"
+            }`}
+            aria-hidden={hideMenuButton}
+            tabIndex={hideMenuButton ? -1 : 0}
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {/* Overlay menu navigation */}
