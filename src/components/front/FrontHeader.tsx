@@ -121,6 +121,36 @@ const LogoBlock = ({
   );
 };
 
+/**
+ * Drapeaux FR / EN : dans la barre du header, à gauche du hamburger.
+ * Le conteneur parent étant `pointer-events-none`, chaque bouton doit
+ * réactiver ses propres clics.
+ */
+const LanguageFlags = ({ onClick }: { onClick: (code: "fr" | "en") => void }) => (
+  <div className="flex items-center gap-1.5 pointer-events-auto">
+    {FRONT_LANGS.map((lang) => (
+      <button
+        key={lang.code}
+        type="button"
+        aria-label={lang.label}
+        aria-current={language === lang.code}
+        onClick={(event) => {
+          // Même raison que le logo : ne pas déclencher l'étape suivante du Hero.
+          event.stopPropagation();
+          onClick(lang.code);
+        }}
+        className={`rounded-full border bg-black/40 p-1.5 text-base leading-none backdrop-blur-sm transition-colors hover:border-gold/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+          language === lang.code
+            ? "border-gold/70"
+            : "border-[rgba(244,238,228,0.2)]"
+        }`}
+      >
+        <span aria-hidden="true">{lang.flag}</span>
+      </button>
+    ))}
+  </div>
+);
+
 const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggle, onLogoClick, links, hideLanguageSwitch = false, hideMenuButton = false, className = "", elevatedMenu = false }: Props) => {
   const { language, setLanguage } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
