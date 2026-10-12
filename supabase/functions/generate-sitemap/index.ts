@@ -97,6 +97,7 @@ Deno.serve(async (req) => {
   // Static pages
   for (const p of staticPages) {
     urls.push(urlEntry(p.loc, p.changefreq, p.priority, today));
+    urls.push(urlEntry(p.loc === "/" ? "/en" : `/en${p.loc}`, p.changefreq, p.priority, today));
   }
 
   // Businesses
@@ -104,6 +105,7 @@ Deno.serve(async (req) => {
     for (const b of businessesRes.data) {
       const lastmod = b.updated_at?.split("T")[0] || today;
       urls.push(urlEntry(`/business/${b.slug}`, "weekly", "0.8", lastmod));
+      urls.push(urlEntry(`/en/business/${b.slug}`, "weekly", "0.8", lastmod));
     }
   }
 
@@ -169,6 +171,7 @@ Deno.serve(async (req) => {
     for (const p of blogPostsRes.data) {
       const lastmod = p.updated_at?.split("T")[0] || today;
       urls.push(urlEntry(`/blog/${p.slug}`, "monthly", "0.6", lastmod));
+      urls.push(urlEntry(`/en/blog/${p.slug}`, "monthly", "0.6", lastmod));
     }
   }
 
