@@ -5436,16 +5436,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         >
                           <CalendarIcon className="w-3.5 h-3.5" /> {L.events} · {eventsPayload.events.length}
                         </button>
-                        {eventBiz.length > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => setOpenMap({ title: eventsPayload.title || null, businesses: eventBiz } as MapPayload)}
-                            style={AI_NAME_FONT}
-                            className={`inline-flex items-center gap-1.5 text-xs font-medium ${linkInkClass} hover:underline`}
-                          >
-                            <MapPin className="w-3.5 h-3.5" /> {L.viewMap}
-                          </button>
-                        )}
                       </div>
                     }
                   />
