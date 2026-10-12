@@ -121,6 +121,42 @@ const LogoBlock = ({
   );
 };
 
+/**
+ * Drapeaux FR / EN : dans la barre du header, à gauche du hamburger.
+ * Le conteneur parent étant `pointer-events-none`, chaque bouton doit
+ * réactiver ses propres clics.
+ */
+const LanguageFlags = ({
+  language,
+  onSelect,
+}: {
+  language: string;
+  onSelect: (code: "fr" | "en") => void;
+}) => (
+  <div className="flex items-center gap-1.5 pointer-events-auto">
+    {FRONT_LANGS.map((lang) => (
+      <button
+        key={lang.code}
+        type="button"
+        aria-label={lang.label}
+        aria-current={language === lang.code}
+        onClick={(event) => {
+          // Même raison que le logo : ne pas déclencher l'étape suivante du Hero.
+          event.stopPropagation();
+          onSelect(lang.code);
+        }}
+        className={`rounded-full border bg-black/40 p-1.5 text-base leading-none backdrop-blur-sm transition-colors hover:border-gold/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+          language === lang.code
+            ? "border-gold/70"
+            : "border-[rgba(244,238,228,0.2)]"
+        }`}
+      >
+        <span aria-hidden="true">{lang.flag}</span>
+      </button>
+    ))}
+  </div>
+);
+
 const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggle, onLogoClick, links, hideLanguageSwitch = false, hideMenuButton = false, className = "", elevatedMenu = false }: Props) => {
   const { language, setLanguage } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -135,6 +171,10 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
   const handleLogoClick = () => {
     if (menuOpen) setOpen(false);
     onLogoClick?.();
+  };
+
+  const handleLangSelect = (code: "fr" | "en") => {
+    if (code !== language) setLanguage(code);
   };
 
   const wrapperClass = fixed
@@ -157,19 +197,24 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
         <div className={visible && !menuOpen ? "pointer-events-auto" : ""}>
           <LogoBlock onClick={handleLogoClick} />
         </div>
-        <button
-          type="button"
-          aria-label="Ouvrir le menu"
-          aria-expanded={menuOpen}
-          onClick={() => setOpen(true)}
-          className={`mt-2 rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-            visible && !menuOpen && !hideMenuButton ? "pointer-events-auto" : "pointer-events-none opacity-0"
-          }`}
-          aria-hidden={hideMenuButton}
-          tabIndex={hideMenuButton ? -1 : 0}
-        >
-          <Menu className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          {!hideLanguageSwitch && visible && !menuOpen && (
+            <LanguageFlags language={language} onSelect={handleLangSelect} />
+          )}
+          <button
+            type="button"
+            aria-label="Ouvrir le menu"
+            aria-expanded={menuOpen}
+            onClick={() => setOpen(true)}
+            className={`mt-2 rounded-full border border-[rgba(244,238,228,0.2)] bg-transparent p-2.5 text-[#F4EEE4] transition-colors hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+              visible && !menuOpen && !hideMenuButton ? "pointer-events-auto" : "pointer-events-none opacity-0"
+            }`}
+            aria-hidden={hideMenuButton}
+            tabIndex={hideMenuButton ? -1 : 0}
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {/* Overlay menu navigation */}
@@ -248,33 +293,6 @@ const FrontHeader = ({ fixed = false, visible = true, solid = false, onMenuToggl
               </Link>
             );
           })}
-
-          {!hideLanguageSwitch && (
-          <div className="mt-2 grid grid-cols-2 gap-3">
-            {FRONT_LANGS.map((lang) => (
-              <button
-                key={lang.code}
-                type="button"
-                aria-label={lang.label}
-                aria-current={language === lang.code}
-                onClick={() => {
-                  setLanguage(lang.code);
-                  setOpen(false);
-                }}
-                className={`flex flex-col items-center justify-center gap-1 rounded-xl border bg-black/35 py-3 md:py-4 backdrop-blur-md transition-all focus-visible:outline-none ${
-                  language === lang.code
-                    ? "border-gold/70"
-                    : "border-[rgba(244,238,228,0.15)] hover:border-gold/60"
-                }`}
-              >
-                <span className="text-2xl leading-none md:text-4xl">{lang.flag}</span>
-                <span className="font-roboto text-[10px] font-bold uppercase tracking-[0.14em] text-[#F4EEE4] md:text-xs">
-                  {lang.code}
-                </span>
-              </button>
-            ))}
-          </div>
-          )}
         </nav>
       </div>
     </>
