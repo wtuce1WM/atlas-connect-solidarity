@@ -1122,11 +1122,24 @@ Deno.serve(async (req) => {
         // perdu et la ville renvoyait des établissements sans aucun lien.
         if (!suggestionId && !followupId && contextSuggestionId && explicitCity) {
           const cityKey = normalize(explicitCity);
+          // Le badge ville renvoie « <libellé suggestion> Dans <ville> » : les mots
+          // du libellé de la suggestion active ne sont pas une nouvelle demande.
+          const { data: ctxSg } = await admin
+            .from("ai_suggestions")
+            .select("label_fr, label_en, label_ar")
+            .eq("id", contextSuggestionId)
+            .maybeSingle();
+          const labelWords = new Set(
+            [ctxSg?.label_fr, ctxSg?.label_en, ctxSg?.label_ar]
+              .filter(Boolean)
+              .flatMap((l: string) => normalize(l).split(/\s+/)),
+          );
           const rest = normalize(userMessage)
             .split(/\s+/)
             .filter((w) => w && !cityKey.split(/\s+/).includes(w))
             .filter((w) => !/^(a|au|aux|à|en|de|du|des|dans|sur|vers|pour|et|the|in|at|to|of|على|في|الى|إلى)$/.test(w))
-            .filter((w) => w.length > 2);
+            .filter((w) => w.length > 2)
+            .filter((w) => !labelWords.has(w));
           if (!rest.length) {
             let allowed = true;
             if (platformMode) {
