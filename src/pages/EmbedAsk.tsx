@@ -3060,6 +3060,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return null;
   }, [messages]);
 
+  /** Dernière réponse = agenda : autorise le CTA Map terracotta même sans marqueur POOL. */
+  const lastMessageIsEvents = useMemo<boolean>(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== "assistant") continue;
+      const { events } = extractPayloads(messageText(m));
+      return events.length > 0 && events[events.length - 1].events.length > 0;
+    }
+    return false;
+  }, [messages]);
+
   /**
    * Dernier marqueur POOL_BUSINESS_IDS : corpus COMPLET du tour (ids + comptes
    * par quartier calculés côté moteur sur la totalité du pool). Source unique
