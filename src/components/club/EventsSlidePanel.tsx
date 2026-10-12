@@ -130,11 +130,12 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
         >
           {isFileVideo ? (
             <video
+              ref={videoRef}
               key={videoSrc!}
               src={videoSrc!}
               className="absolute inset-0 h-full w-full object-cover"
               autoPlay
-              muted
+              muted={videoMuted}
               loop
               playsInline
               poster={media || undefined}
@@ -177,7 +178,10 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
             )}
           </div>
 
-          <div className="absolute inset-x-0 bottom-6 px-6 flex flex-wrap items-center justify-center gap-2">
+          <div
+            className={`absolute inset-x-0 px-6 flex flex-wrap items-center justify-center gap-2 ${hasPill ? "" : "bottom-6"}`}
+            style={hasPill ? { bottom: "calc(4.5rem + env(safe-area-inset-bottom))" } : undefined}
+          >
             {ev.default_business_id && onOpenBusiness && (
               <button
                 onClick={() => onOpenBusiness(ev.default_business_id!)}
@@ -198,6 +202,31 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
             )}
           </div>
         </div>
+
+        {/* CTAs Play/Mute liquid glass (identiques au bas de BookOnlineSlidePanel) */}
+        {hasPill && (
+          <div
+            className="absolute left-1/2 -translate-x-1/2 z-10"
+            style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+          >
+            <div className="flex items-center gap-0.5 rounded-[28px] border border-white/20 bg-black/40 px-2 py-1 backdrop-blur">
+              <button
+                onClick={toggleVideoPlay}
+                className="h-9 w-9 rounded-full flex items-center justify-center text-white hover:bg-white/10"
+                aria-label={videoPaused ? "Play" : "Pause"}
+              >
+                {videoPaused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
+              </button>
+              <button
+                onClick={toggleVideoMute}
+                className="h-9 w-9 rounded-full flex items-center justify-center text-white hover:bg-white/10"
+                aria-label={videoMuted ? "Activer le son" : "Couper le son"}
+              >
+                {videoMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Prev/Next controls */}
         <button
