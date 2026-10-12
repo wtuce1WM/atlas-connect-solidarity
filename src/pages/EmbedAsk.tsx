@@ -1624,7 +1624,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   // Signal « panneau ouvert/fermé » : l'hôte (/front) met sa vidéo de fond en pause.
   // Couvre les DEUX parcours viewer : VideoSlidePanel (feed vidéo) ET
   // BookOnlineSlidePanel (fiche business, carte des résultats, POI générique).
-  const anyPanelOpen = !!activeFeedVideoId || !!openBusinessId || !!openMap || openGenericPoi || youtubePanelOpen;
+  const anyPanelOpen = !!activeFeedVideoId || !!openBusinessId || !!openMap || openGenericPoi || youtubePanelOpen || !!openEvents;
 
   // Dès que l'accueil IA se transforme en conversation, lecteur vidéo ou overlay,
   // on efface le texte d'attente et l'état visuel du chip cliqué.
