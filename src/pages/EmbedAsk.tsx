@@ -1258,6 +1258,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         // Contexte curaté (jamais un clic) : conserve le périmètre badge de la
         // suggestion active quand la relance libre ne change que la ville.
         contextSuggestionId: (body as any)?.contextSuggestionId ?? null,
+        cityScope: (body as any)?.cityScope ?? null,
         scope: (body as any)?.scope ?? null,
         forcedRoute: (body as any)?.forcedRoute ?? null,
         destinationId: (body as any)?.destinationId ?? null,
