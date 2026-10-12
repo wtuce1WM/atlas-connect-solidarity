@@ -97,7 +97,7 @@ function loadGoogleMaps(): Promise<void> {
 interface DirectionsOverlayProps {
   business: {
     name: string;
-    address: string | null;
+  address: string | null;
     latitude: number | null;
     longitude: number | null;
     phone?: string | null;
@@ -105,9 +105,11 @@ interface DirectionsOverlayProps {
     logo_url?: string | null;
   };
   onClose: () => void;
+  /** Suivi live : le marqueur « Vous êtes là » se met à jour quand l'utilisateur se déplace. */
+  liveTracking?: boolean;
 }
 
-const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
+const DirectionsOverlay = ({ business, onClose, liveTracking = false }: DirectionsOverlayProps) => {
   const { language } = useLanguage();
   const originLabel = language === "en" ? "You are here" : "Vous êtes là";
   const [directionsMode, setDirectionsMode] = useState<DirectionsMode>("walking");
