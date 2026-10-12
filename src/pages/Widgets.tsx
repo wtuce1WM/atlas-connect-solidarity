@@ -171,7 +171,9 @@ export const WidgetFrame = ({ src, title, height, heightMessage, className = "ov
     if (!heightMessage) return;
     const onMsg = (e: MessageEvent) => {
       if (e.source !== iframeRef.current?.contentWindow) return;
-      if (e.origin !== window.location.origin) return;
+      let srcOrigin = "";
+      try { srcOrigin = new URL(src, window.location.href).origin; } catch { /* noop */ }
+      if (e.origin !== srcOrigin) return;
       const d = e.data as { type?: string; height?: number };
       if (d?.type === heightMessage && typeof d.height === "number" && d.height > 40) {
         setH(Math.ceil(d.height));
@@ -179,7 +181,7 @@ export const WidgetFrame = ({ src, title, height, heightMessage, className = "ov
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [heightMessage]);
+  }, [heightMessage, src]);
   return (
     <div className={className}>
       <iframe
