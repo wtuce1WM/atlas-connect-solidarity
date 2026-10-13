@@ -70,6 +70,9 @@ interface MapSlidePanelProps {
   panelBg?: string;
   /** Conserve l'ordre fourni (réponse IA issue d'un article de blog) au lieu du tri par note. */
   preserveOrder?: boolean;
+  /** Carte de villes : au clic sur un marqueur-ville, charge les établissements
+      de cette ville et les ajoute en marqueurs sur la carte. */
+  onCitySelect?: (city: { id: string; name: string }) => Promise<MapPanelBusiness[]>;
 }
 
 
@@ -88,7 +91,7 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
 };
 const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
-const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation, hostLocation, hostLabel, mapTheme, showLayerControls, fullWidth, panelBg, preserveOrder }: MapSlidePanelProps) => {
+const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation, hostLocation, hostLabel, mapTheme, showLayerControls, fullWidth, panelBg, preserveOrder, onCitySelect }: MapSlidePanelProps) => {
   const { language } = useLanguage();
   const mt = MT[language as keyof typeof MT] || MT.fr;
   // Plein cadre mobile : chrome navigateur noir + suppression des paddings safe-area
@@ -98,6 +101,8 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
   const geo = useGeolocation();
   const [browserPos, setBrowserPos] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Établissements de la ville cliquée (carte de villes uniquement)
+  const [cityBusinesses, setCityBusinesses] = useState<MapPanelBusiness[]>([]);
   const [showAll, setShowAll] = useState(false);
   const [proximityKm, setProximityKm] = useState<number | null>(null);
   // Animation d'entrée (slide-in depuis la droite) pour la variante pleine largeur
@@ -140,9 +145,14 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
     );
   }, [open, userPos]);
 
+  // Réinitialise les marqueurs de ville à chaque ouverture / changement de liste
+  useEffect(() => { setCityBusinesses([]); }, [open, businesses]);
+
   const mapBusinesses = useMemo(
     () =>
-      businesses
+      // Ville sélectionnée : on n'affiche que ses établissements (zoom local),
+      // sinon la liste initiale (ex. les villes de la suggestion).
+      (cityBusinesses.length > 0 ? cityBusinesses : businesses)
         .filter((b) => b.latitude != null && b.longitude != null)
         .filter((b) => isInMoroccoBounds(b.latitude, b.longitude))
         .filter((b) => {
@@ -264,7 +274,17 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
             key={`map-${mapTheme || "light"}`}
             pois={displayedPois}
             selectedPoiId={selectedId}
-            onPoiClick={(id) => setSelectedId(id)}
+            onPoiClick={(id) => {
+              setSelectedId(id);
+              if (onCitySelect) {
+                const clicked = businesses.find((b) => b.id === id);
+                if (clicked) {
+                  onCitySelect({ id: clicked.id, name: clicked.name })
+                    .then((rows) => setCityBusinesses(rows))
+                    .catch(() => {});
+                }
+              }
+            }}
             center={hostLocation || cityCenter || userPos || undefined}
             fitToMarkers
             userLocation={hostLocation || (disableUserLocation ? null : geo.isEnabled ? geo.userMarkerCoords : (userPos && isInMoroccoBounds(userPos.lat, userPos.lng) ? userPos : null))}
