@@ -5933,6 +5933,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         mapTheme={mapThemeResolved}
         showLayerControls
         preserveOrder
+        onCitySelect={async (city) => {
+          const { data } = await (supabase as any)
+            .from("businesses")
+            .select("id, name, slug, city, neighborhood, latitude, longitude, images, main_category, categories, google_rating, google_review_count, computed_rating, total_review_count")
+            .eq("is_active", true)
+            .ilike("city", city.name)
+            .not("latitude", "is", null)
+            .not("longitude", "is", null)
+            .limit(60);
+          return (data || []) as any[];
+        }}
       />
 
 
