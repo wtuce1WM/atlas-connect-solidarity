@@ -60,6 +60,8 @@ export function subscribeGps(listener: (coords: GpsCoords | null) => void): () =
       if (watchId !== null) navigator.geolocation?.clearWatch(watchId);
       watchId = null;
       latest = null;
+      latestAccuracy = 0;
+      latestAt = 0;
       heading = null;
       lastFix = null;
     }
