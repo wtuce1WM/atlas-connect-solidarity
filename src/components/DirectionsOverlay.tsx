@@ -144,7 +144,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         geo.setManualLocation(next, "", "gps");
       },
       (err) => { setUserOrigin(null); setOriginError(err.message || "Position indisponible"); },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   }, [geo.setManualLocation]);
 

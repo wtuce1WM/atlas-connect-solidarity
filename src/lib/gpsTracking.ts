@@ -5,10 +5,17 @@ export type GpsCoords = { lat: number; lng: number };
 const listeners = new Set<(coords: GpsCoords | null) => void>();
 let watchId: number | null = null;
 let latest: GpsCoords | null = null;
+let latestAccuracy = 0;
+let latestAt = 0;
 let heading: number | null = null;
 
 /** Last known travel direction in degrees (0 = north), or null if unknown. */
 export function getGpsHeading(): number | null { return heading; }
+
+/** Last accepted GPS fix with its accuracy radius in meters. */
+export function getGpsFix(): (GpsCoords & { accuracy: number }) | null {
+  return latest ? { ...latest, accuracy: latestAccuracy } : null;
+}
 
 function bearing(a: GpsCoords, b: GpsCoords): number {
   const r = Math.PI / 180, dl = (b.lng - a.lng) * r;
@@ -24,6 +31,12 @@ export function subscribeGps(listener: (coords: GpsCoords | null) => void): () =
   if (watchId === null && navigator.geolocation) {
     watchId = navigator.geolocation.watchPosition(
       ({ coords }) => {
+        const acc = Number.isFinite(coords.accuracy) ? coords.accuracy : 0;
+        const now = Date.now();
+        // Ignore a coarse fix (Wi-Fi/antenna) when a clearly better one is recent.
+        if (latest && latestAccuracy > 0 && acc > latestAccuracy * 1.5 && acc > 20 && now - latestAt < 15000) return;
+        latestAccuracy = acc;
+        latestAt = now;
         latest = { lat: coords.latitude, lng: coords.longitude };
         if (coords.heading != null && !Number.isNaN(coords.heading) && (coords.speed ?? 1) > 0.5) {
           heading = coords.heading;
@@ -47,6 +60,8 @@ export function subscribeGps(listener: (coords: GpsCoords | null) => void): () =
       if (watchId !== null) navigator.geolocation?.clearWatch(watchId);
       watchId = null;
       latest = null;
+      latestAccuracy = 0;
+      latestAt = 0;
       heading = null;
       lastFix = null;
     }
