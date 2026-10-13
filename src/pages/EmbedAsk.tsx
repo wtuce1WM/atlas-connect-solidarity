@@ -3067,6 +3067,18 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return null;
   }, [messages]);
 
+  /** Dernière réponse = carrousel de villes : le CTA Map terracotta ouvre la carte des villes. */
+  const lastCitiesPayload = useMemo<CitiesPayload | null>(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== "assistant") continue;
+      const { cities } = extractPayloads(messageText(m));
+      const c = cities[cities.length - 1];
+      return c && c.cities.some((d) => d.latitude != null && d.longitude != null) ? c : null;
+    }
+    return null;
+  }, [messages]);
+
   /** Dernière réponse = agenda : autorise le CTA Map terracotta même sans marqueur POOL. */
   const lastMessageIsEvents = useMemo<boolean>(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -5311,21 +5323,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                       onClick: () => sendCityScope({ name: d.name, count: 0 }),
                     };
                   })}
-                  footer={
-                    citiesPayload.cities.some((d) => d.latitude != null && d.longitude != null) ? (
-                      <div className="mt-1">
-                        <button
-                          type="button"
-                          onClick={() => setOpenCityMap({ title: citiesPayload.title || null, cities: citiesPayload.cities })}
-                          style={AI_NAME_FONT}
-                          className={`inline-flex items-center gap-1.5 text-xs font-medium ${linkInkClass} hover:underline`}
-                        >
-                          <MapPin className="w-3.5 h-3.5" />
-                          {lang === "en" ? "Cities on the map" : lang === "ar" ? "المدن على الخريطة" : "Les villes sur la carte"}
-                        </button>
-                      </div>
-                    ) : null
-                  }
                 />
 
               )}
@@ -5714,10 +5711,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   </span>
                 )}
               </button>
-              {mapReplayTarget && (poolInfo.hasGeo || lastMessageIsEvents) && (
+              {(lastCitiesPayload || (mapReplayTarget && (poolInfo.hasGeo || lastMessageIsEvents))) && (
                 <button
                   type="button"
-                  onClick={() => setOpenMap(mapReplayTarget)}
+                  onClick={() => lastCitiesPayload
+                    ? setOpenCityMap({ title: lastCitiesPayload.title || null, cities: lastCitiesPayload.cities })
+                    : setOpenMap(mapReplayTarget)}
                   style={{ ...mapBadgeStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
                   className="text-xs px-3 py-1.5 rounded-full inline-flex items-center justify-center gap-1.5 font-semibold border shadow-sm hover:opacity-90 transition-opacity"
                 >
