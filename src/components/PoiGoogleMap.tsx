@@ -1,3 +1,4 @@
+import { getGpsHeading } from "@/lib/gpsTracking";
 /// <reference types="@types/google.maps" />
 import { useEffect, useRef, useState, useMemo } from "react";
 import { Loader2, Maximize2, Minimize2, Plus, Minus } from "lucide-react";
@@ -475,7 +476,10 @@ export function createMapUserMarker(
   label = "Vous êtes ici",
 ) {
   const LabelMarker = createLabelMarkerClass(gmaps);
-  const navIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="#ffffff"/></svg>`;
+  const h = getGpsHeading();
+  const navIcon = h != null
+    ? `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" style="transform:rotate(${Math.round(h)}deg)"><path fill="#ffffff" d="M12 2l7 19-7-4-7 4z"/></svg>`
+    : `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="#ffffff"/></svg>`;
   return new LabelMarker(position, map, label, navIcon, false, undefined, undefined, undefined,
     { bg: "#C04F17", fg: "#ffffff", border: "#C04F17" });
 }
