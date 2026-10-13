@@ -1,4 +1,4 @@
-import { getGpsHeading } from "@/lib/gpsTracking";
+import { getGpsHeading, getGpsFix } from "@/lib/gpsTracking";
 /// <reference types="@types/google.maps" />
 import { useEffect, useRef, useState, useMemo } from "react";
 import { Loader2, Maximize2, Minimize2, Plus, Minus } from "lucide-react";
@@ -480,8 +480,20 @@ export function createMapUserMarker(
   const navIcon = h != null
     ? `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" style="transform:rotate(${Math.round(h)}deg)"><path fill="#ffffff" d="M12 2l7 19-7-4-7 4z"/></svg>`
     : `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="#ffffff"/></svg>`;
-  return new LabelMarker(position, map, label, navIcon, false, undefined, undefined, undefined,
+  const marker = new LabelMarker(position, map, label, navIcon, false, undefined, undefined, undefined,
     { bg: "#C04F17", fg: "#ffffff", border: "#C04F17" });
+  // Cercle de précision uniquement pour une position GPS réelle (pas une adresse fixe).
+  const fix = getGpsFix();
+  if (fix && fix.accuracy > 0 && fix.lat === position.lat && fix.lng === position.lng) {
+    const circle = new gmaps.Circle({
+      map, center: position, radius: fix.accuracy, clickable: false,
+      strokeColor: "#C04F17", strokeOpacity: 0.4, strokeWeight: 1,
+      fillColor: "#C04F17", fillOpacity: 0.12,
+    });
+    const setMap = marker.setMap.bind(marker);
+    marker.setMap = (m: google.maps.Map | null) => { circle.setMap(m); setMap(m); };
+  }
+  return marker;
 }
 
 export function createMapMasterMarker(
