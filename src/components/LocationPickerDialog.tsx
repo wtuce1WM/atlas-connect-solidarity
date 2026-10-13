@@ -153,6 +153,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
 
   useEffect(() => {
     if (open) {
+      sourceRef.current = localStorage.getItem("geo_preference") === "enabled" && !localStorage.getItem("geo_manual_coords") && !localStorage.getItem("geo_manual_address") ? "gps" : "manual";
       setOpenCount((c) => c + 1);
       loadGoogleMaps()
         .then(() => setMapsLoaded(true))

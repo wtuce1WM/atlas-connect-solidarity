@@ -8,9 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { createMapMasterMarker, createMapUserMarker } from "@/components/PoiGoogleMap";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const GEO_STORAGE_KEY = "geo_preference";
 const GEO_MANUAL_COORDS_KEY = "geo_manual_coords";
-const GEO_MANUAL_ADDRESS_KEY = "geo_manual_address";
 const GEO_AUTO_COORDS_KEY = "geo_auto_coords";
 
 const parseStoredCoords = (key: string): { lat: number; lng: number } | null => {
@@ -105,7 +103,7 @@ interface DirectionsOverlayProps {
     logo_url?: string | null;
   };
   onClose: () => void;
-  /** Suivi live : le marqueur « Vous êtes là » se met à jour quand l'utilisateur se déplace. */
+  /** Legacy compatibility; GPS tracking is now shared and always enabled for GPS sources. */
   liveTracking?: boolean;
 }
 

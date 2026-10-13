@@ -97,6 +97,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
   // Load maps on open
   useEffect(() => {
     if (open) {
+      sourceRef.current = geo.isGpsTracking ? "gps" : "manual";
       setOpenCount((c) => c + 1);
       loadGoogleMaps()
         .then(() => setMapsLoaded(true))
