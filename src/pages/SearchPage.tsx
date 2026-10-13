@@ -4207,8 +4207,8 @@ const SearchPage = () => {
         onUseCurrentPosition={() => {
           if (!geo.isEnabled) geo.accept();
         }}
-        onConfirm={(confirmedCoords, address) => {
-          geo.setManualLocation(confirmedCoords, address);
+        onConfirm={(confirmedCoords, address, source) => {
+          geo.setManualLocation(confirmedCoords, address, source);
           if (citiesWithPriority.length > 0) {
             let nearest: string | null = null;
             let minDist = Infinity;

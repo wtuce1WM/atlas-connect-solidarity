@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { Navigation, Search, X, Loader, Check, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
-import { clampToSupportedRegion } from "@/lib/supportedGeoRegion";
+import { type LocationSource } from "@/lib/gpsTracking";
 
 
 declare global {
@@ -23,7 +23,7 @@ interface LocationPickerDialogProps {
   isEnabled: boolean;
   isDetecting: boolean;
   onUseCurrentPosition: () => void;
-  onConfirm: (coords: { lat: number; lng: number }, address: string) => void;
+  onConfirm: (coords: { lat: number; lng: number }, address: string, source?: LocationSource) => void;
   onDisableGeo?: () => void;
   /** Optional host business (e.g. embed context). When provided, its marker is shown and selectable. */
   hostLocation?: { lat: number; lng: number } | null;
@@ -104,6 +104,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const selectedCoordsRef = useRef<{ lat: number; lng: number } | null>(null);
   const selectedAddressRef = useRef("");
+  const sourceRef = useRef<LocationSource>("manual");
 
   const [addressQuery, setAddressQuery] = useState("");
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -152,6 +153,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
 
   useEffect(() => {
     if (open) {
+      sourceRef.current = localStorage.getItem("geo_preference") === "enabled" && !localStorage.getItem("geo_manual_coords") && !localStorage.getItem("geo_manual_address") ? "gps" : "manual";
       setOpenCount((c) => c + 1);
       loadGoogleMaps()
         .then(() => setMapsLoaded(true))
@@ -209,6 +211,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
 
       map.addListener("click", (e: any) => {
         if (!e.latLng) return;
+        sourceRef.current = "manual";
         const pos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
         selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
@@ -228,6 +231,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
         autocomplete.addListener("place_changed", () => {
           const place = autocomplete.getPlace();
           if (place.geometry?.location) {
+            sourceRef.current = "manual";
             const pos = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
             const addr = place.formatted_address || place.name || "";
             selectedCoordsRef.current = pos;
@@ -264,6 +268,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
 
   useEffect(() => {
     if (!open) {
+      sourceRef.current = "manual";
       selectedCoordsRef.current = null;
       selectedAddressRef.current = "";
       setSelectedCoords(null);
@@ -306,6 +311,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
       });
       markerRef.current.addListener("dragend", (e: any) => {
         if (!e.latLng) return;
+        sourceRef.current = "manual";
         const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
         selectedCoordsRef.current = newPos;
         setSelectedCoords(newPos);
@@ -348,6 +354,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
 
   const selectHostLocation = useCallback(() => {
     if (!hostLocation) return;
+    sourceRef.current = "manual";
     selectedCoordsRef.current = hostLocation;
     setSelectedCoords(hostLocation);
     placeMarker(hostLocation);
@@ -370,6 +377,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
     geocoder.geocode({ address: addressQuery, region: "ma" }, (results: any, status: any) => {
       setIsSearching(false);
       if (status === "OK" && results?.[0]?.geometry?.location) {
+        sourceRef.current = "manual";
         const loc = results[0].geometry.location;
         const pos = { lat: loc.lat(), lng: loc.lng() };
         selectedCoordsRef.current = pos;
@@ -393,8 +401,8 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
     setWaitingForPosition(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        // Hors région Marrakech-Safi (aucun résultat en base) : repli Koutoubia.
-        const pos = clampToSupportedRegion({ lat: position.coords.latitude, lng: position.coords.longitude });
+        const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+        sourceRef.current = "gps";
         selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
         placeMarker(pos);
@@ -408,7 +416,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
             if (!inline) return;
             const address = addr || detectedCity || `${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}`;
             selectedAddressRef.current = address;
-            onConfirm(pos, address);
+            onConfirm(pos, address, "gps");
             onOpenChange(false);
           })
           .finally(() => setWaitingForPosition(false));
@@ -423,7 +431,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
     const coordsToConfirm = selectedCoordsRef.current || activeCoords;
     if (coordsToConfirm) {
       const addressToConfirm = selectedAddressRef.current || await reverseGeocode(coordsToConfirm) || addressQuery || detectedCity || `${coordsToConfirm.lat.toFixed(5)}, ${coordsToConfirm.lng.toFixed(5)}`;
-      onConfirm(coordsToConfirm, addressToConfirm);
+      onConfirm(coordsToConfirm, addressToConfirm, sourceRef.current);
       onOpenChange(false);
     }
   };

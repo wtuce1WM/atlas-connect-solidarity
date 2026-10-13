@@ -1,5 +1,7 @@
 # Architecture Rules
 
+- All maps and directions consume the shared GPS watch in useGeolocation; location pickers preserve GPS/manual source, while catalog coordinates remain region-clamped independently of real user-marker coordinates, to avoid frozen markers and duplicate watches.
+
 - EventsSlidePanel renders in a document-body portal so Home's transformed assistant container cannot trap Agenda beneath the global header.
 
 - Directions endpoint pins reuse PoiGoogleMap's label-marker factories so user and master markers stay visually consistent with the Map overlay.
