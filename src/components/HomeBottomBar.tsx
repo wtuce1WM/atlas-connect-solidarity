@@ -73,8 +73,8 @@ const HomeBottomBar = () => {
         onUseCurrentPosition={() => {
           if (!geo.isEnabled) geo.accept();
         }}
-        onConfirm={(confirmedCoords, address) => {
-          geo.setManualLocation(confirmedCoords, address);
+        onConfirm={(confirmedCoords, address, source) => {
+          geo.setManualLocation(confirmedCoords, address, source);
         }}
         onDisableGeo={() => {
           try {

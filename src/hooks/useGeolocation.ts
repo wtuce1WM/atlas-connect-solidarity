@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { clampToSupportedRegion } from "@/lib/supportedGeoRegion";
 import { isInMoroccoBounds } from "@/lib/geoBounds";
+import { subscribeGps, type LocationSource } from "@/lib/gpsTracking";
 
 
 interface GeoCity {
@@ -42,7 +43,11 @@ interface GeolocationState {
   /** Dismiss the banner without choosing (same as decline) */
   dismiss: () => void;
   /** Manually set coords + address (from location picker) */
-  setManualLocation: (coords: { lat: number; lng: number }, address: string) => void;
+  setManualLocation: (coords: { lat: number; lng: number }, address: string, source?: LocationSource) => void;
+  /** True when GPS, rather than a fixed address, is the selected source. */
+  isGpsTracking: boolean;
+  /** Unclamped GPS fix for directions; catalog coordinates keep their regional fallback. */
+  gpsCoords: { lat: number; lng: number } | null;
   /** Manually set city by name (from city dropdown) */
   setManualCity: (cityName: string) => void;
 }
@@ -51,6 +56,7 @@ const STORAGE_KEY = "geo_preference";
 const MANUAL_COORDS_KEY = "geo_manual_coords";
 const MANUAL_ADDRESS_KEY = "geo_manual_address";
 const AUTO_COORDS_KEY = "geo_auto_coords";
+const RAW_COORDS_KEY = "geo_auto_raw_coords";
 
 interface InitialGeolocationSnapshot {
   isEnabled: boolean;
@@ -199,6 +205,7 @@ export function useGeolocation(): GeolocationState {
     initial.isManual && initial.coords && isInMoroccoBounds(initial.coords.lat, initial.coords.lng) ? initial.coords : null
   );
   const [confirmedAddress, setConfirmedAddress] = useState<string | null>(initial.confirmedAddress);
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [cities, setCities] = useState<GeoCity[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<GeoNeighborhood[]>([]);
   const [isManual, setIsManual] = useState(initial.isManual);
@@ -240,6 +247,7 @@ export function useGeolocation(): GeolocationState {
         setUserMarkerCoords(parsed && isInMoroccoBounds(parsed.lat, parsed.lng) ? parsed : null);
         setConfirmedAddress(manualAddr || null);
         setIsManual(true);
+        setGpsCoords(null);
         setIsEnabled(true);
         setShowBanner(false);
       } catch {
@@ -249,6 +257,20 @@ export function useGeolocation(): GeolocationState {
       // No manual location stored — clear any stale local state
       setIsManual(false);
       setConfirmedAddress(null);
+      if (stored === "enabled") {
+        try {
+          const auto = localStorage.getItem(AUTO_COORDS_KEY);
+          const raw = localStorage.getItem(RAW_COORDS_KEY);
+          setCoords(auto ? JSON.parse(auto) : null);
+          const marker = raw ? JSON.parse(raw) : null;
+          setGpsCoords(marker);
+          setUserMarkerCoords(marker && isInMoroccoBounds(marker.lat, marker.lng) ? marker : null);
+        } catch { /* ignore malformed saved positions */ }
+      } else {
+        setCoords(null);
+        setUserMarkerCoords(null);
+        setGpsCoords(null);
+      }
     }
   }, []);
 
@@ -305,17 +327,19 @@ export function useGeolocation(): GeolocationState {
 
     setIsDetecting(true);
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
+    return subscribeGps((position) => {
+        if (!position) { setIsDetecting(false); return; }
         // Le catalogue ne couvre que la région Marrakech-Safi : en dehors, on
         // utilise le point GPS de la Koutoubia plutôt que la position réelle.
-        const rawLat = position.coords.latitude;
-        const rawLng = position.coords.longitude;
+        const rawLat = position.lat;
+        const rawLng = position.lng;
         const { lat: latitude, lng: longitude } = clampToSupportedRegion({
           lat: rawLat,
           lng: rawLng,
         });
         localStorage.setItem(AUTO_COORDS_KEY, JSON.stringify({ lat: latitude, lng: longitude }));
+        localStorage.setItem(RAW_COORDS_KEY, JSON.stringify(position));
+        setGpsCoords(position);
         setCoords({ lat: latitude, lng: longitude });
         // Marqueur « Vous êtes ici » : position réelle, uniquement au Maroc.
         setUserMarkerCoords(isInMoroccoBounds(rawLat, rawLng) ? { lat: rawLat, lng: rawLng } : null);
@@ -323,20 +347,7 @@ export function useGeolocation(): GeolocationState {
         setDetectedCity(findNearestCity(latitude, longitude, cities));
 
         setIsDetecting(false);
-        import("@/lib/analytics").then(({ trackEvent }) =>
-          trackEvent("geolocation_granted", { source: "browser" })
-        ).catch(() => {});
-      },
-      (err) => {
-        // User denied or error
-        setIsDetecting(false);
-        setDetectedCity(null);
-        import("@/lib/analytics").then(({ trackEvent }) =>
-          trackEvent("geolocation_denied", { code: err?.code, message: err?.message?.slice(0, 120) })
-        ).catch(() => {});
-      },
-      { enableHighAccuracy: false, timeout: 10000 }
-    );
+    });
   }, [isEnabled, cities, isManual]);
 
   const broadcast = () => {
@@ -348,6 +359,7 @@ export function useGeolocation(): GeolocationState {
     localStorage.removeItem(MANUAL_COORDS_KEY);
     localStorage.removeItem(MANUAL_ADDRESS_KEY);
     localStorage.removeItem(AUTO_COORDS_KEY);
+    localStorage.removeItem(RAW_COORDS_KEY);
     setIsManual(false);
     setConfirmedAddress(null);
     setIsEnabled(true);
@@ -375,6 +387,7 @@ export function useGeolocation(): GeolocationState {
       localStorage.removeItem(AUTO_COORDS_KEY);
       setIsManual(false);
       setConfirmedAddress(null);
+      setGpsCoords(null);
       setIsEnabled(true);
     }
     broadcast();
@@ -384,9 +397,25 @@ export function useGeolocation(): GeolocationState {
     decline();
   }, [decline]);
 
-  const setManualLocation = useCallback((newCoords: { lat: number; lng: number }, address: string) => {
+  const setManualLocation = useCallback((newCoords: { lat: number; lng: number }, address: string, source: LocationSource = "manual") => {
     localStorage.setItem(STORAGE_KEY, "enabled");
+    if (source === "gps") {
+      localStorage.removeItem(MANUAL_COORDS_KEY);
+      localStorage.removeItem(MANUAL_ADDRESS_KEY);
+      localStorage.setItem(AUTO_COORDS_KEY, JSON.stringify(clampToSupportedRegion(newCoords)));
+      localStorage.setItem(RAW_COORDS_KEY, JSON.stringify(newCoords));
+      setCoords(clampToSupportedRegion(newCoords));
+      setUserMarkerCoords(isInMoroccoBounds(newCoords.lat, newCoords.lng) ? newCoords : null);
+      setConfirmedAddress(null);
+      setGpsCoords(newCoords);
+      setIsManual(false);
+      setIsEnabled(true);
+      setShowBanner(false);
+      broadcast();
+      return;
+    }
     localStorage.setItem(MANUAL_COORDS_KEY, JSON.stringify(newCoords));
+    setGpsCoords(null);
     localStorage.setItem(MANUAL_ADDRESS_KEY, address);
     setCoords(newCoords);
     setUserMarkerCoords(isInMoroccoBounds(newCoords.lat, newCoords.lng) ? newCoords : null);
@@ -447,6 +476,8 @@ export function useGeolocation(): GeolocationState {
     isEnabled,
     showBanner,
     isDetecting,
+    isGpsTracking: isEnabled && !isManual,
+    gpsCoords,
     coords,
     userMarkerCoords,
     confirmedAddress,

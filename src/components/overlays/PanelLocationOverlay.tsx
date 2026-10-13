@@ -4,6 +4,7 @@ import { X, MapPin, Navigation, Search, Loader, Check } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { supabase } from "@/integrations/supabase/client";
+import { type LocationSource } from "@/lib/gpsTracking";
 
 declare global {
   interface Window {
@@ -72,6 +73,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const selectedCoordsRef = useRef<{ lat: number; lng: number } | null>(null);
   const selectedAddressRef = useRef("");
+  const sourceRef = useRef<LocationSource>("manual");
 
   const [addressQuery, setAddressQuery] = useState("");
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -127,6 +129,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
 
       map.addListener("click", (e: any) => {
         if (!e.latLng) return;
+        sourceRef.current = "manual";
         const pos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
         selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
@@ -146,6 +149,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
         autocomplete.addListener("place_changed", () => {
           const place = autocomplete.getPlace();
           if (place.geometry?.location) {
+            sourceRef.current = "manual";
             const pos = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
             const addr = place.formatted_address || place.name || "";
             selectedCoordsRef.current = pos;
@@ -183,6 +187,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
   // Reset on close
   useEffect(() => {
     if (!open) {
+      sourceRef.current = "manual";
       setSelectedCoords(null);
       setSelectedAddress("");
       setAddressQuery("");
@@ -243,6 +248,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
       });
       markerRef.current.addListener("dragend", (e: any) => {
         if (!e.latLng) return;
+        sourceRef.current = "manual";
         const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
         selectedCoordsRef.current = newPos;
         setSelectedCoords(newPos);
@@ -258,6 +264,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
     geocoder.geocode({ address: addressQuery, region: "ma" }, (results: any, status: any) => {
       setIsSearching(false);
       if (status === "OK" && results?.[0]?.geometry?.location) {
+        sourceRef.current = "manual";
         const loc = results[0].geometry.location;
         const pos = { lat: loc.lat(), lng: loc.lng() };
         selectedCoordsRef.current = pos;
@@ -282,6 +289,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+        sourceRef.current = "gps";
         selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
         placeMarker(pos);
@@ -302,7 +310,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
 
     if (coordsToConfirm) {
       const addressToConfirm = selectedAddressRef.current || await reverseGeocode(coordsToConfirm) || addressQuery || geo.detectedCity || `${coordsToConfirm.lat.toFixed(5)}, ${coordsToConfirm.lng.toFixed(5)}`;
-      geo.setManualLocation(coordsToConfirm, addressToConfirm);
+      geo.setManualLocation(coordsToConfirm, addressToConfirm, sourceRef.current);
       handleClose();
     }
   };

@@ -254,7 +254,7 @@ const HeroSection = () => {
           isEnabled={geo.isEnabled}
           isDetecting={geo.isDetecting}
           onUseCurrentPosition={geo.accept}
-          onConfirm={(coords, address) => geo.setManualLocation(coords, address)}
+          onConfirm={(coords, address, source) => geo.setManualLocation(coords, address, source)}
           onDisableGeo={geo.decline}
         />
       </div>

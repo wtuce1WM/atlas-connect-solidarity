@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Activer le suivi GPS partagé après « Ma position » dans toutes les cartes et itinéraires ; préserver les adresses manuelles et vérifier les déplacements simulés.
+
 - [x] Corriger le confinement de l’Agenda derrière le header Home ; ouverture depuis une vignette réelle et fermeture vérifiées dans l’aperçu, compilation OK.
 
 - [x] Remplacer A/B dans Itinéraire par les marqueurs de position et du business utilisés dans Map ; rendu Google à confirmer sur le domaine autorisé.

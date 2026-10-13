@@ -2830,9 +2830,9 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
    * Adresse confirmée dans le sélecteur inline : la position est enregistrée,
    * puis la question en attente part avec les coordonnées choisies.
    */
-  const handleGeoPickerConfirm = (coords: { lat: number; lng: number }, address: string) => {
+  const handleGeoPickerConfirm = (coords: { lat: number; lng: number }, address: string, source?: "gps" | "manual") => {
     geoJustConfirmedRef.current = true;
-    geo.setManualLocation(coords, address);
+    geo.setManualLocation(coords, address, source);
     const forcedRoute = pendingGeoForcedRouteRef.current;
     pendingGeoForcedRouteRef.current = null;
     // « Les plus proches » recalcule le corpus dans un rayon de 10 km.
@@ -6122,8 +6122,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           onUseCurrentPosition={() => {
             if (!geo.isEnabled) geo.accept();
           }}
-          onConfirm={(confirmedCoords, address) => {
-            geo.setManualLocation(confirmedCoords, address);
+          onConfirm={(confirmedCoords, address, source) => {
+            geo.setManualLocation(confirmedCoords, address, source);
           }}
           onDisableGeo={() => {
             try {

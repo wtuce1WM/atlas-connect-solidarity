@@ -267,7 +267,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
             onPoiClick={(id) => setSelectedId(id)}
             center={hostLocation || cityCenter || userPos || undefined}
             fitToMarkers
-            userLocation={hostLocation || (userPos && isInMoroccoBounds(userPos.lat, userPos.lng) ? userPos : null)}
+            userLocation={hostLocation || (disableUserLocation ? null : geo.isEnabled ? geo.userMarkerCoords : (userPos && isInMoroccoBounds(userPos.lat, userPos.lng) ? userPos : null))}
             userMarkerLabel={hostLocation ? (hostLabel || "") : mapLabel("youAreHere", language)}
             mapTheme={mapTheme}
             showLayerControls={showLayerControls}
