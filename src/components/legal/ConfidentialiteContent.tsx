@@ -20,7 +20,7 @@ export const ConfidentialiteContent = () => (
                 (ci-après « OWM », « nous »).
               </p>
               <p className="mt-2">
-                Contact : <a href="mailto:info@wtuce.org" className="text-primary hover:underline">info@wtuce.org</a>
+                Contact : <a href="mailto:info@oneworldmorocco.com" className="text-primary hover:underline">info@oneworldmorocco.com</a>
               </p>
             </section>
 
@@ -96,7 +96,7 @@ export const ConfidentialiteContent = () => (
               <p>
                 Conformément au RGPD et à la loi marocaine 09-08, vous disposez d'un droit d'accès, de
                 rectification, d'effacement, de portabilité, d'opposition et de limitation. Pour les exercer,
-                écrivez à <a href="mailto:info@wtuce.org" className="text-primary hover:underline">info@wtuce.org</a>.
+                écrivez à <a href="mailto:info@oneworldmorocco.com" className="text-primary hover:underline">info@oneworldmorocco.com</a>.
               </p>
               <p className="mt-2">
                 Vous pouvez également supprimer votre compte directement depuis « Mon espace Club ».
@@ -123,7 +123,7 @@ export const ConfidentialiteContent = () => (
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">10. Contact</h2>
               <p>
-                Pour toute question : <a href="mailto:info@wtuce.org" className="text-primary hover:underline">info@wtuce.org</a><br />
+                Pour toute question : <a href="mailto:info@oneworldmorocco.com" className="text-primary hover:underline">info@oneworldmorocco.com</a><br />
                 Téléphone : <a href="tel:+212661439221" className="text-primary hover:underline">+212 661 439 221</a>
               </p>
             </section>

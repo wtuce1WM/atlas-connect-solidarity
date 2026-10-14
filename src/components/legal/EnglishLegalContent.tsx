@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 const Section = ({ title, children }: { title: string; children: ReactNode }) => <section><h2>{title}</h2>{children}</section>;
-const Contact = () => <a href="mailto:info@wtuce.org">info@wtuce.org</a>;
+const Contact = () => <a href="mailto:info@oneworldmorocco.com">info@oneworldmorocco.com</a>;
 
 export const EnglishTerms = () => <>
   <h1>Terms of use</h1><p>Last updated: 29 June 2026</p>

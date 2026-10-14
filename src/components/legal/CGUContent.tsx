@@ -76,7 +76,7 @@ export const CGUContent = () => (
               <h2 className="text-2xl font-semibold text-foreground mb-3">8. Suppression du compte</h2>
               <p>
                 Vous pouvez supprimer votre compte à tout moment depuis « Mon espace Club » ou en écrivant à{" "}
-                <a href="mailto:info@wtuce.org" className="text-primary hover:underline">info@wtuce.org</a>.
+                <a href="mailto:info@oneworldmorocco.com" className="text-primary hover:underline">info@oneworldmorocco.com</a>.
               </p>
             </section>
 
@@ -91,7 +91,7 @@ export const CGUContent = () => (
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">10. Contact</h2>
               <p>
-                Pour toute question : <a href="mailto:info@wtuce.org" className="text-primary hover:underline">info@wtuce.org</a>
+                Pour toute question : <a href="mailto:info@oneworldmorocco.com" className="text-primary hover:underline">info@oneworldmorocco.com</a>
               </p>
             </section>
           </div>
