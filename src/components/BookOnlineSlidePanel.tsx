@@ -1585,7 +1585,9 @@ const BookOnlineSlidePanelInner = ({
     // visuel pour ne jamais l'associer au nouveau business pendant un rendu.
     setHotelSearchLoading(false);
     setShowDirections(false);
-    setCurrentMediaIndex(0);
+    // Index média : PAS de reset à 0 ici — le seed ci-dessus pose l'index exact
+    // (première vidéo de l'ordre de tri) dès l'arrivée des données ; un reset à 0
+    // afficherait l'image 1 pendant la transition, juste avant la vidéo.
     setDescExpanded(true);
     setSelectedDestinationId(null);
     setSelectedPoiBusinessId(null);
