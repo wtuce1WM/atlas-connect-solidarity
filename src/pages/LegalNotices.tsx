@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ChevronDown, ChevronUp, Download, ArrowUpRight } from "lucide-react";
+import { ChevronDown, ChevronUp, ArrowUpRight } from "lucide-react";
 import FrontHeader from "@/components/front/FrontHeader";
 import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
