@@ -552,7 +552,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
               <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center">
                 <svg
                   width="150" height="150" viewBox="0 0 24 24" aria-hidden="true"
-                  style={{ transform: `rotate(${Math.round(headingDeg)}deg)`, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.35))", opacity: 0.85 }}
+                  style={{ transform: `rotate(${Math.round(rotRef.current ?? headingDeg)}deg)`, transition: "transform 120ms linear", filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.35))", opacity: 0.85 }}
                 >
                   <path d="M12 1.5l7.5 19.5-7.5-4.4L4.5 21z" fill="#C04F17" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
                 </svg>
@@ -566,6 +566,11 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
               >
                 {language === "en" ? "Enable compass" : "Activer la boussole"}
               </button>
+            )}
+            {showMap && compassNeedsCalib && !compassNeedsTap && (
+              <div className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 z-[6] rounded-full bg-primary text-primary-foreground text-xs font-semibold px-4 py-2 shadow-lg whitespace-nowrap">
+                {language === "en" ? "Move your phone in a figure 8 to calibrate" : "Faites un 8 avec le téléphone pour calibrer"}
+              </div>
             )}
             {routeError && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-3 py-1.5 rounded-full">
