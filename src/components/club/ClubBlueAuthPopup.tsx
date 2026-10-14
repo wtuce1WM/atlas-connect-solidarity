@@ -107,7 +107,7 @@ const ClubBlueAuthPopup = ({ onClose, children }: Props) => {
             0% { transform: translateX(-150%) skewX(-20deg); }
             100% { transform: translateX(300%) skewX(-20deg); }
           }
-          .club-popup-body { position: relative; overflow: hidden; background: linear-gradient(to bottom, #194CFF 0%, #6E8FFF 12%, #BED1FF 32%, #BED1FF 100%); }
+          .club-popup-body { position: relative; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; background: linear-gradient(to bottom, #194CFF 0%, #6E8FFF 12%, #BED1FF 32%, #BED1FF 100%); }
           .club-popup-body::before {
             content: "";
             position: absolute;
