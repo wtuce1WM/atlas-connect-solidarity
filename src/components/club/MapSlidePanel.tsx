@@ -146,7 +146,8 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
   }, [open, userPos]);
 
   // Réinitialise les marqueurs de ville à chaque ouverture / changement de liste
-  useEffect(() => { setCityBusinesses([]); }, [open, businesses]);
+  // Reset only on open/close: `businesses` is often a fresh array each parent render.
+  useEffect(() => { setCityBusinesses([]); }, [open]);
 
   const mapBusinesses = useMemo(
     () =>
