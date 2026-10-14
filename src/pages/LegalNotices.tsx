@@ -19,7 +19,7 @@ const LegalNotices = () => {
   const { language } = useLanguage();
   const en = language === "en";
   const navigate = useLocalizedNavigate();
-  const [params, setParams] = useSearchParams();
+  const [params] = useSearchParams();
   const index = Math.max(0, IDS.indexOf(params.get("section") ?? "accueil"));
   const scrollRef = useRef<HTMLDivElement>(null);
   const labels = en
@@ -27,7 +27,7 @@ const LegalNotices = () => {
     : ["Mentions légales", "Conditions générales de fonctionnement", "Politique de confidentialité", "Conditions générales d’utilisation", "Politique de cookies"];
   const go = (next: number) => {
     if (next < 0 || next >= IDS.length) return;
-    setParams(next === 0 ? {} : { section: IDS[next] });
+    navigate(next === 0 ? "/mentions-legales" : `/mentions-legales?section=${IDS[next]}`);
   };
   useEffect(() => { scrollRef.current?.scrollTo(0, 0); }, [index]);
   useSEO({
