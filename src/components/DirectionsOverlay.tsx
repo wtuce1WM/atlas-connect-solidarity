@@ -542,7 +542,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
                 onClick={enableCompass}
                 className="absolute top-3 left-1/2 -translate-x-1/2 z-[6] rounded-full bg-primary text-primary-foreground text-xs font-semibold px-4 py-2 shadow-lg"
               >
-                Activer la boussole
+                {language === "en" ? "Enable compass" : "Activer la boussole"}
               </button>
             )}
             {routeError && (
