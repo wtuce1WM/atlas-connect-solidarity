@@ -1181,6 +1181,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
   // Rayon de proximité : valeur de l'hôte (/affiliates → Tools), modifiable par l'utilisateur.
   const [radiusKm, setRadiusKm] = useState<number>(1);
+  // Le rayon ne filtre les hôtels qu'après un choix explicite de l'utilisateur.
+  const [hotelRadiusOn, setHotelRadiusOn] = useState(false);
   const radiusRef = useRef<number>(1);
   const applyRadius = (km: number) => { radiusRef.current = km; setRadiusKm(km); };
 
@@ -5297,7 +5299,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         // Rayon du tiroir Filtres : filtre les hôtels affichés
                         // par distance (géolocalisation active uniquement),
                         // appliqué avant le tri pour que les deux se combinent.
-                        const inRadius = geo.coords
+                        const inRadius = geo.coords && hotelRadiusOn
                           ? bookingResult.hotels.filter((h: any) => distOf(h) <= radiusKm)
                           : bookingResult.hotels;
                         const ordered = sortMode
@@ -5823,7 +5825,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   <select
                     id="owm-embed-radius"
                     value={String(radiusKm)}
-                    onChange={(e) => applyRadius(Number(e.target.value))}
+                    onChange={(e) => { setHotelRadiusOn(true); applyRadius(Number(e.target.value)); }}
                     className="text-[11px] rounded-full border px-2 py-1 outline-none bg-white text-neutral-800 border-neutral-200"
                   >
                     {RADIUS_OPTIONS.map((r) => (
