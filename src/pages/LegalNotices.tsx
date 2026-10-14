@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ChevronDown, ChevronUp, Download, ArrowUpRight } from "lucide-react";
 import FrontHeader from "@/components/front/FrontHeader";
@@ -12,7 +12,10 @@ import { ConfidentialiteContent } from "@/components/legal/ConfidentialiteConten
 import { CGUContent } from "@/components/legal/CGUContent";
 import { CookiesContent } from "@/components/legal/CookiesContent";
 import { EnglishGeneralConditions, EnglishPrivacy, EnglishTerms, EnglishCookies } from "@/components/legal/EnglishLegalContent";
-import hero from "@/assets/legal-morocco-arch.jpg";
+import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
+import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
+import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
+import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 
 const IDS = ["accueil", "conditions-generales", "confidentialite", "cgu", "cookies"];
 const LegalNotices = () => {
