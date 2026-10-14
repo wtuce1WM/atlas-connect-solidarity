@@ -5294,10 +5294,16 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                           if (!geo.coords || !Number.isFinite(lat) || !Number.isFinite(lng) || (!lat && !lng)) return Infinity;
                           return haversineKm(geo.coords, { lat, lng });
                         };
-                        const ordered = sortMode
-                          ? [...bookingResult.hotels].sort((a: any, b: any) =>
-                              sortMode === "price" ? priceOf(a) - priceOf(b) : distOf(a) - distOf(b))
+                        // Rayon du tiroir Filtres : filtre les hôtels affichés
+                        // par distance (géolocalisation active uniquement),
+                        // appliqué avant le tri pour que les deux se combinent.
+                        const inRadius = geo.coords
+                          ? bookingResult.hotels.filter((h: any) => distOf(h) <= radiusKm)
                           : bookingResult.hotels;
+                        const ordered = sortMode
+                          ? [...inRadius].sort((a: any, b: any) =>
+                              sortMode === "price" ? priceOf(a) - priceOf(b) : distOf(a) - distOf(b))
+                          : inRadius;
                         const visible = ordered.slice(0, shown);
                         const priceBadges: Record<string, string> = {};
                         for (const h of bookingResult.hotels as any[]) {
