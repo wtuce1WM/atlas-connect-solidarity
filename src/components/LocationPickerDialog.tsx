@@ -536,20 +536,20 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
           </div>
 
           <div className={cn(
-            "mt-3 overflow-hidden border flex-1 min-h-[240px] sm:min-h-[400px]",
+            "mt-3 overflow-hidden border flex-1 min-h-[240px] sm:min-h-[min(400px,42vh)]",
             inline ? "mx-0 rounded-none md:mx-5 md:rounded-xl" : "mx-5 rounded-xl",
             themed.border
           )}>
             {!mapsLoaded ? (
-              <div className={cn("w-full h-full min-h-[240px] sm:min-h-[400px] flex items-center justify-center", themed.mapBg)}>
+              <div className={cn("w-full h-full min-h-[240px] sm:min-h-[min(400px,42vh)] flex items-center justify-center", themed.mapBg)}>
                 <Loader className={cn("h-6 w-6 animate-spin", themed.muted)} />
               </div>
             ) : (
-              <div ref={mapContainerRef} className="w-full h-full min-h-[240px] sm:min-h-[400px]" />
+              <div ref={mapContainerRef} className="w-full h-full min-h-[240px] sm:min-h-[min(400px,42vh)]" />
             )}
           </div>
 
-          <div className="p-5 pt-3 shrink-0">
+          <div className="p-5 pt-3 shrink-0 pb-[max(20px,env(safe-area-inset-bottom))]">
             <button
               onClick={handleConfirm}
               disabled={!activeCoords}
@@ -601,7 +601,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
             themed.border,
             "inset-0 rounded-none max-h-full",
             "sm:inset-auto sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg md:max-w-2xl sm:rounded-2xl sm:max-h-[90vh]",
-            "p-0 gap-0 overflow-hidden flex flex-col"
+            "p-0 gap-0 overflow-y-auto flex flex-col"
           )}
         >
           {body}
