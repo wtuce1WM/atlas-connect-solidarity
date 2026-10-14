@@ -141,10 +141,25 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   // Compass: instant phone orientation (iOS needs a tap to grant permission).
   const [compassDeg, setCompassDeg] = useState<number | null>(null);
   const [compassNeedsTap, setCompassNeedsTap] = useState(false);
+  const [compassNeedsCalib, setCompassNeedsCalib] = useState(false);
+  const smoothRef = useRef<number | null>(null);
   const startCompass = useCallback(() => {
-    const onOrient = (e: DeviceOrientationEvent & { webkitCompassHeading?: number }) => {
-      if (typeof e.webkitCompassHeading === "number") setCompassDeg(e.webkitCompassHeading);
-      else if ((e as any).absolute && e.alpha != null) setCompassDeg((360 - e.alpha) % 360);
+    const onOrient = (e: DeviceOrientationEvent & { webkitCompassHeading?: number; webkitCompassAccuracy?: number }) => {
+      let raw: number | null = null;
+      if (typeof e.webkitCompassHeading === "number") raw = e.webkitCompassHeading;
+      else if ((e as any).absolute && e.alpha != null) raw = 360 - e.alpha;
+      if (raw == null) return;
+      // Compensate landscape screen rotation.
+      const screenAngle = (screen.orientation?.angle ?? (window as any).orientation ?? 0) as number;
+      raw = ((raw + screenAngle) % 360 + 360) % 360;
+      // Light smoothing along the shortest angular path (no lag, no jitter).
+      const prev = smoothRef.current;
+      const next = prev == null ? raw : prev + ((((raw - prev) % 360) + 540) % 360 - 180) * 0.3;
+      smoothRef.current = ((next % 360) + 360) % 360;
+      setCompassDeg(smoothRef.current);
+      if (typeof e.webkitCompassAccuracy === "number") {
+        setCompassNeedsCalib(e.webkitCompassAccuracy < 0 || e.webkitCompassAccuracy > 25);
+      }
     };
     window.addEventListener("deviceorientationabsolute" as any, onOrient as any);
     window.addEventListener("deviceorientation", onOrient as any);
@@ -170,6 +185,13 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   }, [startCompass]);
   // Compass on foot/at rest; GPS course when moving fast (vehicle, >~11 km/h).
   const headingDeg = gpsSpeed > 3 && gpsHeading != null ? gpsHeading : (compassDeg ?? gpsHeading);
+  // Unwrapped rotation so the arrow always turns the short way (359° → 0° without a full spin).
+  const rotRef = useRef<number | null>(null);
+  if (headingDeg != null) {
+    rotRef.current = rotRef.current == null
+      ? headingDeg
+      : rotRef.current + ((((headingDeg - rotRef.current) % 360) + 540) % 360 - 180);
+  }
 
   const requestBrowserOrigin = useCallback(() => {
     if (!navigator.geolocation) { setOriginError("Géolocalisation indisponible"); return; }
