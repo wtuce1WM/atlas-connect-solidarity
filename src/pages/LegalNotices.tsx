@@ -80,9 +80,7 @@ const LegalNotices = () => {
     <FrontHeader fixed solid={index > 0} onLogoClick={() => navigate("/")} />
     <main className="relative z-10 flex min-h-0 flex-1 flex-col pt-24 md:pt-28">
       {index === 0 ? <div ref={scrollRef} className="legal-enter flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-5 py-5 text-center md:px-12">
-        <p className="mb-4 text-xs font-semibold uppercase text-gold md:text-sm">{en ? "From the Atlas to the Atlantic" : "De l’Atlas à l’Atlantique"}</p>
-        <h1 className="max-w-3xl font-josefin text-3xl font-semibold leading-tight md:text-5xl">One World Morocco</h1>
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-foreground/90 md:text-lg">{en ? "Take Morocco with you. Inspiring places, local encounters and discoveries, wherever you go." : "Emportez le Maroc avec vous. Des adresses inspirantes, des rencontres locales et des découvertes, où que vous soyez."}</p>
+        <h1 className="max-w-3xl font-josefin text-3xl font-semibold leading-tight md:text-5xl">{en ? "Legal notices" : "Mentions légales"}</h1>
         <Button asChild size="lg" className="mt-7 rounded-full px-7"><LocalizedLink to="/install"><Download />{en ? "Install the App" : "Installer l’App"}</LocalizedLink></Button>
         <div className="mt-8 w-full max-w-3xl border-t border-foreground/25 pt-5">
           <h2 className="mb-3 font-josefin text-sm font-semibold">{labels[0]}</h2>
