@@ -8,6 +8,7 @@ const CTA_EN: Record<string, string> = {
   "MON COMPTE": "MY ACCOUNT",
   "CONCEPT LOCAL & SOLIDAIRE": "LOCAL & SOLIDARITY CONCEPT",
   "VOTRE ENTREPRISE": "YOUR BUSINESS",
+  "Mentions légales": "Legal notices",
 };
 const CTAS: { label: string; to: string }[] = [
   { label: "Installer l'App", to: "/install" },
@@ -17,6 +18,7 @@ const CTAS: { label: string; to: string }[] = [
   { label: "Widgets", to: "/widgets" },
   { label: "Blog", to: "/blog" },
   { label: "Contact", to: "/contact" },
+  { label: "Mentions légales", to: "/mentions-legales" },
 ];
 
 /**
@@ -31,6 +33,7 @@ const ROUTE_PRELOADERS: Record<string, () => Promise<unknown>> = {
   "/join": () => import("@/pages/Join"),
   "/widgets": () => import("@/pages/Widgets"),
   "/blog": () => import("@/pages/Blog"),
+  "/mentions-legales": () => import("@/pages/LegalNotices"),
 };
 
 const preloaded = new Set<string>();

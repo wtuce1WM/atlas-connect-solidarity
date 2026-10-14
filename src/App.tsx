@@ -48,6 +48,7 @@ const Mission = lazy(() => import("./pages/Mission"));
 const Confidentialite = lazy(() => import("./pages/Confidentialite"));
 const CGU = lazy(() => import("./pages/CGU"));
 const CookiesPage = lazy(() => import("./pages/Cookies"));
+const LegalNotices = lazy(() => import("./pages/LegalNotices"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
@@ -139,6 +140,7 @@ const GlobalRouteFallback = () => {
     p === "/front" ||
     p === "/home_v1" ||
     p === "/corporate" ||
+    p === "/mentions-legales" ||
     p === "/club" ||
     p === "/install" ||
     p === "/join" ||
@@ -175,6 +177,7 @@ const GlobalFloatingSearchBar = () => {
 const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "club" | "whatsapp" | null; setActivePanel: (v: "club" | "whatsapp" | null) => void }) => {
   const location = useLocation();
   if (location.pathname.startsWith("/staff/")) return null;
+  if (stripLangPrefix(location.pathname) === "/mentions-legales") return null;
   const isHome = location.pathname === "/";
   const noFloating = ["/corporate", "/club", "/install"].includes(location.pathname);
   const hideWhatsapp = isHome || noFloating;
@@ -241,6 +244,7 @@ const LocalizedRoutes = () => {
               <Route path="/confidentialite" element={renderLazyRoute(<Confidentialite />)} />
               <Route path="/cgu" element={renderLazyRoute(<CGU />)} />
               <Route path="/cookies" element={renderLazyRoute(<CookiesPage />)} />
+              <Route path="/mentions-legales" element={renderLazyRoute(<LegalNotices />)} />
               <Route path="/contact" element={renderLazyRoute(<Contact />)} />
               <Route path="/blog" element={renderLazyRoute(<Blog />)} />
               <Route path="/widgets" element={renderLazyRoute(<Widgets />)} />

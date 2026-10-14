@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Ajouter Mentions légales sous Contact : introduction illustrée, quatre écrans de contenus existants FR/EN ; menu, navigation, défilement, changement de langue et installation vérifiés dans l’aperçu, compilation OK.
+
 - [x] Activer le suivi GPS partagé après « Ma position » dans toutes les cartes et itinéraires ; 4 tests réussis, déplacement du marqueur Map et origine/tracé Itinéraire vérifiés dans l’aperçu avec GPS simulé ; adresses manuelles préservées, compilation OK ; déplacement sur iPhone réel non vérifiable ici.
 
 - [x] Corriger le confinement de l’Agenda derrière le header Home ; ouverture depuis une vignette réelle et fermeture vérifiées dans l’aperçu, compilation OK.

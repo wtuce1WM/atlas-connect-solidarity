@@ -91,6 +91,9 @@ const HeaderMenuContent = ({ onNavigate }: Props) => {
         <Link to="/contact" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={close}>
           {t("footer.contact")}
         </Link>
+        <Link to={withLangPrefix("/mentions-legales", language)} className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={close}>
+          {language === "en" ? "Legal notices" : "Mentions légales"}
+        </Link>
         <a
           href="https://wa.me/212661439221"
           target="_blank"

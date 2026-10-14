@@ -1,5 +1,7 @@
 # Architecture Rules
 
+- Legal pages and the immersive legal viewer share French content components; English translations preserve the same full documents, so the viewer never substitutes summaries for legal text.
+
 - All maps and directions consume the shared GPS watch in useGeolocation; location pickers preserve GPS/manual source, while catalog coordinates remain region-clamped independently of real user-marker coordinates, to avoid frozen markers and duplicate watches.
 
 - EventsSlidePanel renders in a document-body portal so Home's transformed assistant container cannot trap Agenda beneath the global header.
