@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ChevronDown, ChevronUp, Download, ArrowUpRight } from "lucide-react";
+import { ChevronDown, ChevronUp, ArrowUpRight } from "lucide-react";
 import FrontHeader from "@/components/front/FrontHeader";
 import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
@@ -81,7 +81,6 @@ const LegalNotices = () => {
     <main className="relative z-10 flex min-h-0 flex-1 flex-col pt-24 md:pt-28">
       {index === 0 ? <div ref={scrollRef} className="legal-enter flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-5 py-5 text-center md:px-12">
         <h1 className="max-w-3xl font-josefin text-3xl font-semibold leading-tight md:text-5xl">{en ? "Legal notices" : "Mentions légales"}</h1>
-        <Button asChild size="lg" className="mt-7 rounded-full px-7"><LocalizedLink to="/install"><Download />{en ? "Install the App" : "Installer l’App"}</LocalizedLink></Button>
         <div className="mt-8 w-full max-w-3xl border-t border-foreground/25 pt-5">
           <h2 className="mb-3 font-josefin text-sm font-semibold">{labels[0]}</h2>
           <nav aria-label={labels[0]} className="grid grid-cols-2 gap-x-4 gap-y-2 text-left">
