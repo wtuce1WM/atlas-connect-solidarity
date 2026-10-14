@@ -549,7 +549,7 @@ const LocationPickerDialog = forwardRef<HTMLDivElement, LocationPickerDialogProp
             )}
           </div>
 
-          <div className="p-5 pt-3 shrink-0">
+          <div className="p-5 pt-3 shrink-0 pb-[max(20px,env(safe-area-inset-bottom))]">
             <button
               onClick={handleConfirm}
               disabled={!activeCoords}
