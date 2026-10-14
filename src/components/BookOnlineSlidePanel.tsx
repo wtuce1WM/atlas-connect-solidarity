@@ -3292,6 +3292,7 @@ const BookOnlineSlidePanelInner = ({
         {availabilityConfirmationShown && (
           <div
             className="absolute inset-0 z-20 flex p-4 pt-16 md:p-6 md:pt-20 lg:pt-16"
+            data-owm-swipe=""
             style={effectiveHasPrev || effectiveHasNext ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
             onTouchStart={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchStart}
             onTouchMove={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchMove}

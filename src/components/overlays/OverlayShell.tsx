@@ -57,7 +57,7 @@ const OverlayShell = ({
   // When NOT covering toolbar, simple absolute inset-0
   if (!coverToolbar) {
     return (
-      <div ref={outerRef} data-owm-video-overlay={videoCaptureOverlay ? "true" : undefined} className={`absolute inset-0 ${zClass} overflow-hidden ${animClass} ${bg} ${className}`}>
+      <div ref={outerRef} data-owm-overlay="" data-owm-video-overlay={videoCaptureOverlay ? "true" : undefined} className={`absolute inset-0 ${zClass} overflow-hidden ${animClass} ${bg} ${className}`}>
         {children}
       </div>
     );
@@ -72,6 +72,7 @@ const OverlayShell = ({
   return (
     <div
       ref={outerRef}
+      data-owm-overlay=""
       data-owm-video-overlay={videoCaptureOverlay ? "true" : undefined}
       className={`absolute inset-0 ${topOffset} ${zClass} overflow-hidden ${animClass} ${bg} ${className}`}
     >
