@@ -8,6 +8,10 @@ let latest: GpsCoords | null = null;
 let latestAccuracy = 0;
 let latestAt = 0;
 let heading: number | null = null;
+let speed = 0;
+
+/** Last GPS ground speed in m/s (0 if unknown). */
+export function getGpsSpeed(): number { return speed; }
 
 /** Last known travel direction in degrees (0 = north), or null if unknown. */
 export function getGpsHeading(): number | null { return heading; }
@@ -38,6 +42,7 @@ export function subscribeGps(listener: (coords: GpsCoords | null) => void): () =
         latestAccuracy = acc;
         latestAt = now;
         latest = { lat: coords.latitude, lng: coords.longitude };
+        speed = coords.speed != null && Number.isFinite(coords.speed) ? coords.speed : 0;
         if (coords.heading != null && !Number.isNaN(coords.heading) && (coords.speed ?? 1) > 0.5) {
           heading = coords.heading;
           lastFix = latest;
