@@ -151,6 +151,7 @@ const VideoDocumentOverlay = ({
   return (
     <div
       className="absolute inset-0 z-[85] overflow-hidden"
+      data-owm-swipe=""
       style={swipeEnabled ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
       onTouchStart={swipeEnabled ? (e) => {
         if (e.touches.length !== 1) return;

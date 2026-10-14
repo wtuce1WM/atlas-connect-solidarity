@@ -3164,6 +3164,7 @@ const BookOnlineSlidePanelInner = ({
         // masque/affiche les cartes, sans translation du conteneur.
         // Les contrôles (Play/Mute, CTAs) gardent `touch-action: manipulation`
         // pour que le tap reste dissocié du geste de navigation verticale.
+        data-owm-swipe=""
         style={
           !anyOverlayOpen && (effectiveHasPrev || effectiveHasNext)
             ? { touchAction: "none", overscrollBehavior: "contain" }
@@ -3292,6 +3293,7 @@ const BookOnlineSlidePanelInner = ({
         {availabilityConfirmationShown && (
           <div
             className="absolute inset-0 z-20 flex p-4 pt-16 md:p-6 md:pt-20 lg:pt-16"
+            data-owm-swipe=""
             style={effectiveHasPrev || effectiveHasNext ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
             onTouchStart={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchStart}
             onTouchMove={externalVideoInteractiveMode || internalWheelNav ? undefined : handleMediaTouchMove}
