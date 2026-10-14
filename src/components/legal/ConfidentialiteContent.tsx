@@ -1,4 +1,4 @@
-export const ConfidentialiteContent = () => (
+export const ConfidentialiteContent = ({ onCookies }: { onCookies?: () => void } = {}) => (
   <>
 <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
@@ -108,7 +108,23 @@ export const ConfidentialiteContent = () => (
               <p>
                 Nous utilisons des cookies strictement nécessaires (session, sécurité) et, avec votre accord,
                 des cookies de mesure d'audience anonymisée. Voir notre{" "}
-                <a href="/cookies" className="text-primary hover:underline">page Cookies</a>.
+                {onCookies ? (
+                  <a
+                    href="/cookies"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      onCookies();
+                    }}
+                    className="text-primary hover:underline"
+                  >
+                    page Cookies
+                  </a>
+                ) : (
+                  <a href="/cookies" className="text-primary hover:underline">
+                    page Cookies
+                  </a>
+                )}
+                .
               </p>
             </section>
 
