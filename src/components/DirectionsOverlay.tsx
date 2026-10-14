@@ -493,6 +493,16 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         ) : (
           <>
             <div ref={mapDivRef} className="absolute inset-0 w-full h-full" />
+            {showMap && headingDeg != null && (
+              <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center">
+                <svg
+                  width="150" height="150" viewBox="0 0 24 24" aria-hidden="true"
+                  style={{ transform: `rotate(${Math.round(headingDeg)}deg)`, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.35))", opacity: 0.85 }}
+                >
+                  <path d="M12 1.5l7.5 19.5-7.5-4.4L4.5 21z" fill="#C04F17" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
+                </svg>
+              </div>
+            )}
             {routeError && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-3 py-1.5 rounded-full">
                 {routeError}
