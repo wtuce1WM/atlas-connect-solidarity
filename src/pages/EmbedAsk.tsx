@@ -3160,6 +3160,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return null;
   }, [messages, hotelResults, hotelShown]);
 
+  /** Dernier lot de disponibilités non vide : cible des filtres de tri. */
+  const hotelSortTarget = useMemo<string | null>(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const msgKey = String(messages[i]?.id || i);
+      if (hotelResults[msgKey]?.hotels?.length) return msgKey;
+    }
+    return null;
+  }, [messages, hotelResults]);
+
   const moreResultsRemaining = hotelMoreTarget?.remaining ?? poolRemaining;
 
   const showFourMoreResults = () => {
