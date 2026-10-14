@@ -734,6 +734,7 @@ const Club = () => {
         { label: language === "en" ? "Traveler profile" : language === "ar" ? "ملف المسافر" : "Profil de voyageur", to: "/club?tab=profile" },
         { label: language === "en" ? "Notifications" : language === "ar" ? "إشعارات" : "Notifications", to: "/club?tab=notifications" },
         { label: language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous", to: "/club?tab=contact" },
+        { label: language === "en" ? "Legal notices" : "Mentions légales", to: language === "en" ? "/en/mentions-legales" : "/mentions-legales" },
         { label: language === "en" ? "Sign out" : language === "ar" ? "تسجيل الخروج" : "Se déconnecter", onClick: handleLogout, danger: true },
       ]
     : undefined;
