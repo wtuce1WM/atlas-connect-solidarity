@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ChevronDown, ChevronUp, Download, ArrowUpRight } from "lucide-react";
 import FrontHeader from "@/components/front/FrontHeader";
@@ -12,7 +12,10 @@ import { ConfidentialiteContent } from "@/components/legal/ConfidentialiteConten
 import { CGUContent } from "@/components/legal/CGUContent";
 import { CookiesContent } from "@/components/legal/CookiesContent";
 import { EnglishGeneralConditions, EnglishPrivacy, EnglishTerms, EnglishCookies } from "@/components/legal/EnglishLegalContent";
-import hero from "@/assets/legal-morocco-arch.jpg";
+import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
+import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
+import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
+import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 
 const IDS = ["accueil", "conditions-generales", "confidentialite", "cgu", "cookies"];
 const LegalNotices = () => {
@@ -22,6 +25,30 @@ const LegalNotices = () => {
   const [params] = useSearchParams();
   const index = Math.max(0, IDS.indexOf(params.get("section") ?? "accueil"));
   const scrollRef = useRef<HTMLDivElement>(null);
+  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [isPortrait, setIsPortrait] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(max-aspect-ratio: 1/1)");
+    const on = () => setIsPortrait(mq.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  // Safari iOS peut différer l'autoplay malgré muted + playsInline.
+  useEffect(() => {
+    const retry = () => {
+      const v = bgVideoRef.current;
+      if (v?.paused) void v.play().catch(() => undefined);
+    };
+    retry();
+    document.addEventListener("touchstart", retry, { passive: true, once: true });
+    document.addEventListener("click", retry, { once: true });
+    return () => {
+      document.removeEventListener("touchstart", retry);
+      document.removeEventListener("click", retry);
+    };
+  }, [isPortrait]);
   const labels = en
     ? ["Legal notices", "General operating conditions", "Privacy policy", "Terms of use", "Cookie policy"]
     : ["Mentions légales", "Conditions générales de fonctionnement", "Politique de confidentialité", "Conditions générales d’utilisation", "Politique de cookies"];
@@ -36,7 +63,19 @@ const LegalNotices = () => {
     canonical: "/mentions-legales",
   });
   return <div className="legal-experience relative flex h-[100dvh] min-h-[480px] flex-col overflow-hidden bg-background text-foreground">
-    <img src={hero} alt="" aria-hidden="true" width={1536} height={1024} className="absolute inset-0 h-full w-full object-cover" />
+    <video
+      ref={bgVideoRef}
+      key={isPortrait ? "portrait" : "landscape"}
+      className="absolute inset-0 h-full w-full object-cover"
+      src={isPortrait ? portraitVideoAsset.url : landscapeVideoAsset.url}
+      poster={isPortrait ? portraitVideoPoster.url : landscapeVideoPoster.url}
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+      aria-hidden="true"
+    />
     <div className={index === 0 ? "legal-hero-shade absolute inset-0" : "legal-document-shade absolute inset-0"} aria-hidden="true" />
     <FrontHeader fixed solid={index > 0} onLogoClick={() => navigate("/")} />
     <main className="relative z-10 flex min-h-0 flex-1 flex-col pt-24 md:pt-28">
