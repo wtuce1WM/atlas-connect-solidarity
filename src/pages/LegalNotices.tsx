@@ -90,7 +90,7 @@ const LegalNotices = () => {
         <article className="mx-auto max-w-3xl">
           <p className="mb-5 text-xs font-semibold uppercase text-gold">{labels[0]} · {String(index).padStart(2, "0")} / 04</p>
           {index === 1 && (en ? <EnglishGeneralConditions /> : <CGFContent />)}
-          {index === 2 && (en ? <EnglishPrivacy onCookies={() => go(4)} /> : <ConfidentialiteContent />)}
+          {index === 2 && (en ? <EnglishPrivacy onCookies={() => go(4)} /> : <ConfidentialiteContent onCookies={() => go(4)} />)}
           {index === 3 && (en ? <EnglishTerms /> : <CGUContent />)}
           {index === 4 && (en ? <EnglishCookies /> : <CookiesContent />)}
         </article>
