@@ -709,6 +709,8 @@ const VideoSlidePanel = ({
     const onWheel = (e: WheelEvent) => {
       const s = wheelNav.current;
       if (!s.enabled) return;
+      // Popup Club bleu : laisser la molette faire défiler son contenu.
+      if (e.target instanceof Element && e.target.closest(".club-popup-body")) return;
       if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
       e.preventDefault();
       const now = Date.now();
