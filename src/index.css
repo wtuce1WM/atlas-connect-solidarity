@@ -1320,3 +1320,6 @@ body[data-map-overlay="1"] .owm-panel-searchbar {
 /* Android/Chrome applique strictement touch-action:none des ancêtres : une
    surface de swipe ne doit jamais bloquer le scroll d'un overlay ouvert dedans. */
 [data-owm-swipe]:has([data-owm-overlay]) { touch-action: auto !important; }
+
+/* Blocs défilants dans les pages à écrans (touch-none) : geste vertical autorisé. */
+.touch-none .overflow-y-auto { touch-action: pan-y; }

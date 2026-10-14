@@ -12,7 +12,7 @@ const HScroll = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
       <div
         ref={ref}
         {...props}
-        style={{ touchAction: "pan-x", overscrollBehaviorX: "contain", ...style }}
+        style={{ touchAction: "pan-x pan-y", overscrollBehaviorX: "contain", ...style }}
       >
         {children}
       </div>
