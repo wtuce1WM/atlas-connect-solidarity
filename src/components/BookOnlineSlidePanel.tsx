@@ -3164,6 +3164,7 @@ const BookOnlineSlidePanelInner = ({
         // masque/affiche les cartes, sans translation du conteneur.
         // Les contrôles (Play/Mute, CTAs) gardent `touch-action: manipulation`
         // pour que le tap reste dissocié du geste de navigation verticale.
+        data-owm-swipe=""
         style={
           !anyOverlayOpen && (effectiveHasPrev || effectiveHasNext)
             ? { touchAction: "none", overscrollBehavior: "contain" }
