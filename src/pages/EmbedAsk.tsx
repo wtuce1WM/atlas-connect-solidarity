@@ -4318,6 +4318,37 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // désormais uniquement dans la barre fixe du bas — plus de doublon.
 
     {
+      id: "hotel_sort",
+      label: lang === "en" ? "Sort" : lang === "ar" ? "ترتيب" : "Trier",
+      items: hotelSortTarget
+        ? [
+            {
+              id: "hotel_sort_price",
+              label: lang === "en" ? "Lowest price" : lang === "ar" ? "الأقل سعراً" : "Prix le plus bas",
+              icon: <SlidersHorizontal className="w-3.5 h-3.5" />,
+              onClick: () => {
+                setHotelSort((p) => ({ ...p, [hotelSortTarget]: "price" }));
+                setHotelShown((p) => ({ ...p, [hotelSortTarget]: 4 }));
+              },
+              className: pillClass,
+            },
+            ...(geo.coords
+              ? [{
+                  id: "hotel_sort_distance",
+                  label: lang === "en" ? "Nearest" : lang === "ar" ? "الأقرب" : "Les plus proches",
+                  icon: <Navigation className="w-3.5 h-3.5" />,
+                  onClick: () => {
+                    setHotelSort((p) => ({ ...p, [hotelSortTarget]: "distance" }));
+                    setHotelShown((p) => ({ ...p, [hotelSortTarget]: 4 }));
+                  },
+                  className: pillClass,
+                }]
+              : []),
+          ]
+        : [],
+    },
+
+    {
       id: "hours",
       label: lang === "en" ? "Opening hours" : lang === "ar" ? "المواعيد" : "Horaires",
       items: [
