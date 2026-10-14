@@ -474,9 +474,10 @@ export function createMapUserMarker(
   map: google.maps.Map,
   position: google.maps.LatLngLiteral,
   label = "Vous êtes ici",
+  opts?: { hideHeadingArrow?: boolean },
 ) {
   const LabelMarker = createLabelMarkerClass(gmaps);
-  const h = getGpsHeading();
+  const h = opts?.hideHeadingArrow ? null : getGpsHeading();
   const navIcon = h != null
     ? `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" style="transform:rotate(${Math.round(h)}deg)"><path fill="#ffffff" d="M12 2l7 19-7-4-7 4z"/></svg>`
     : `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="#ffffff"/></svg>`;

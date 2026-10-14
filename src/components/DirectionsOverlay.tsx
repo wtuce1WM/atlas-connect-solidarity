@@ -6,6 +6,7 @@ import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { supabase } from "@/integrations/supabase/client";
 import { createMapMasterMarker, createMapUserMarker } from "@/components/PoiGoogleMap";
+import { getGpsHeading, subscribeGps } from "@/lib/gpsTracking";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const GEO_MANUAL_COORDS_KEY = "geo_manual_coords";
