@@ -492,6 +492,8 @@ const BookOnlineSlidePanelInner = ({
   // Reset synchronously to the first ordered media whenever the business changes,
   // then honor an optional pinned video. This keeps nested map navigation on the
   // exact same first media as a freshly opened BookOnline/Video panel.
+  // Au chargement : démarrer sur la première vidéo de l'ordre de tri quand elle
+  // existe (jamais l'image 1 avant une vidéo) ; image 1 sinon.
   const seededPinRef = useRef<string | null>(null);
   const seedKey = `${businessId || ""}::${initialVideoUrl || ""}::${preferVideoFirst ? "v" : ""}`;
   if (!isLoading && mediaItems.length > 0 && seededPinRef.current !== seedKey) {
@@ -500,7 +502,7 @@ const BookOnlineSlidePanelInner = ({
       const pinnedIdx = mediaItems.findIndex((m) => m.kind === "video" && m.url === initialVideoUrl);
       if (pinnedIdx >= 0) seedIdx = pinnedIdx;
     }
-    if (!initialVideoUrl && preferVideoFirst) {
+    if (!initialVideoUrl) {
       const firstVideoIdx = mediaItems.findIndex((m) => m.kind === "video");
       if (firstVideoIdx >= 0) seedIdx = firstVideoIdx;
     }
@@ -1583,7 +1585,9 @@ const BookOnlineSlidePanelInner = ({
     // visuel pour ne jamais l'associer au nouveau business pendant un rendu.
     setHotelSearchLoading(false);
     setShowDirections(false);
-    setCurrentMediaIndex(0);
+    // Index média : PAS de reset à 0 ici — le seed ci-dessus pose l'index exact
+    // (première vidéo de l'ordre de tri) dès l'arrivée des données ; un reset à 0
+    // afficherait l'image 1 pendant la transition, juste avant la vidéo.
     setDescExpanded(true);
     setSelectedDestinationId(null);
     setSelectedPoiBusinessId(null);
