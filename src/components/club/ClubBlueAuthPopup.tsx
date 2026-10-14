@@ -86,7 +86,7 @@ const ClubBlueAuthPopup = ({ onClose, children }: Props) => {
       onClick={onClose}
     >
       <div
-        className="club-popup-body w-full max-w-md max-h-[calc(100dvh-12rem)] md:max-h-[calc(100dvh-14rem)] lg:max-h-none overflow-y-auto rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200"
+        className="club-popup-body w-full max-w-md max-h-[calc(100dvh-12rem)] md:max-h-[calc(100dvh-14rem)] overflow-y-auto rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-3 sm:p-6 text-white relative bg-transparent">
