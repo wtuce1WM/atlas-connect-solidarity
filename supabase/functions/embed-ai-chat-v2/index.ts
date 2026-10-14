@@ -492,6 +492,8 @@ Deno.serve(async (req) => {
   const uuidRe = /^[0-9a-f-]{36}$/i;
   const homeCardEntryId: string | null =
     typeof body.homeCardEntryId === "string" && uuidRe.test(body.homeCardEntryId) ? body.homeCardEntryId : null;
+  const homeCardBadgeId: string | null =
+    typeof body.homeCardBadgeId === "string" && uuidRe.test(body.homeCardBadgeId) ? body.homeCardBadgeId : null;
   const homeCardCity: string | null =
     body.homeCardCity === "Marrakech" || body.homeCardCity === "Essaouira" ? body.homeCardCity : null;
   const homeCardPinnedIds: string[] = Array.isArray(body.homeCardPinnedIds)
@@ -1244,10 +1246,10 @@ Deno.serve(async (req) => {
 
         // Carte Homepage (écran 2 de Home) : cibles = réglages /staff/front → Homepage
         // (badges de la carte pour la ville + sous-catégories/services de la rubrique).
-        if (suggestionId || followupId || homeCardEntryId) {
-          const curated = homeCardEntryId
+        if (suggestionId || followupId || homeCardEntryId || homeCardBadgeId) {
+          const curated = (homeCardEntryId || homeCardBadgeId)
             ? await loadHomeCardTargets(admin, {
-                entryId: homeCardEntryId, city: homeCardCity || scopeCity || "Marrakech",
+                entryId: homeCardEntryId, badgeId: homeCardBadgeId, city: homeCardCity || scopeCity || "Marrakech",
                 label: userMessage, pinnedBusinessIds: homeCardPinnedIds,
               }).catch((e) => {
                 console.error("[embed-ai-chat-v2] home_card_lookup_failed", String(e));
