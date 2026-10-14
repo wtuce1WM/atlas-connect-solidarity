@@ -815,7 +815,7 @@ const Join = () => {
                 ref={s2CardsRef}
                 data-owm-scroll
                 className="scrollbar-hide mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none", touchAction: "pan-x" }}
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none", touchAction: "pan-x pan-y" }}
               >
                 {WAYS.map((w) => (
                   <article
@@ -874,7 +874,7 @@ const Join = () => {
               ref={s3CardsRef}
               data-owm-scroll
               className="scrollbar-hide mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:overflow-visible"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none", touchAction: "pan-x" }}
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none", touchAction: "pan-x pan-y" }}
             >
               {HIW.map((s) => (
                 <article
