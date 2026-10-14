@@ -1267,7 +1267,7 @@ Deno.serve(async (req) => {
           // Le clic initial (message == libellé) ou une relance explicite gardent la cible.
           const norm = (s: string) => normalize(s).replace(/[?!.\s]+$/g, "").trim();
           const isInitialClick = !!(curated?.label && norm(userMessage) === norm(curated.label));
-          const keepCurated = !!curated && (!!homeCardEntryId || !!followupId || isInitialClick || suggestionFromText || !priorIds.length);
+          const keepCurated = !!curated && (!!homeCardEntryId || !!homeCardBadgeId || !!followupId || isInitialClick || suggestionFromText || !priorIds.length);
 
           /**
            * RELANCE = AFFINAGE DU POOL. Quand le tour précédent a mémorisé un
