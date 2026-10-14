@@ -5287,7 +5287,18 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         // Même format que les autres réponses IA : miniatures carrées
                         // affichées 4 par 4, avec badge prix/nuit SerpAPI.
                         const shown = hotelShown[msgKey] ?? 4;
-                        const visible = bookingResult.hotels.slice(0, shown);
+                        const sortMode = hotelSort[msgKey];
+                        const priceOf = (h: any) => parseSerpAmount(h.serpPrice) ?? parseSerpAmount(h.dbBusiness?.min_price) ?? Infinity;
+                        const distOf = (h: any) => {
+                          const lat = Number(h.dbBusiness?.latitude), lng = Number(h.dbBusiness?.longitude);
+                          if (!geo.coords || !Number.isFinite(lat) || !Number.isFinite(lng) || (!lat && !lng)) return Infinity;
+                          return haversineKm(geo.coords, { lat, lng });
+                        };
+                        const ordered = sortMode
+                          ? [...bookingResult.hotels].sort((a: any, b: any) =>
+                              sortMode === "price" ? priceOf(a) - priceOf(b) : distOf(a) - distOf(b))
+                          : bookingResult.hotels;
+                        const visible = ordered.slice(0, shown);
                         const priceBadges: Record<string, string> = {};
                         for (const h of bookingResult.hotels as any[]) {
                           const nightlyAmount = parseSerpAmount(h.serpPrice) ?? parseSerpAmount(h.dbBusiness?.min_price);
