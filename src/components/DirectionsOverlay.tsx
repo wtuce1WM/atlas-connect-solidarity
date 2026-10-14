@@ -134,6 +134,9 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const destMarkerRef = useRef<google.maps.OverlayView | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const geo = useGeolocation();
+  // Grande flèche de direction centrale : cap partagé (GPS ou déplacement).
+  const [headingDeg, setHeadingDeg] = useState<number | null>(() => getGpsHeading());
+  useEffect(() => subscribeGps(() => setHeadingDeg(getGpsHeading())), []);
 
   const requestBrowserOrigin = useCallback(() => {
     if (!navigator.geolocation) { setOriginError("Géolocalisation indisponible"); return; }
@@ -267,7 +270,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     polylinesRef.current.forEach((p) => p.setMap(null));
     polylinesRef.current = [];
 
-    originMarkerRef.current = createMapUserMarker(gmaps, map, origin, originLabel);
+    originMarkerRef.current = createMapUserMarker(gmaps, map, origin, originLabel, { hideHeadingArrow: true });
     destMarkerRef.current = createMapMasterMarker(gmaps, map, destLatLng, business.name, () => setShowInfoCard(true));
 
     if (!directionsServiceRef.current) directionsServiceRef.current = new gmaps.DirectionsService();
