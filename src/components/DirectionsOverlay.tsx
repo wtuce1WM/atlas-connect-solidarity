@@ -6,7 +6,7 @@ import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { supabase } from "@/integrations/supabase/client";
 import { createMapMasterMarker, createMapUserMarker } from "@/components/PoiGoogleMap";
-import { getGpsHeading, subscribeGps } from "@/lib/gpsTracking";
+import { getGpsHeading, getGpsSpeed, subscribeGps } from "@/lib/gpsTracking";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const GEO_MANUAL_COORDS_KEY = "geo_manual_coords";
@@ -135,8 +135,41 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const geo = useGeolocation();
   // Grande flèche de direction centrale : cap partagé (GPS ou déplacement).
-  const [headingDeg, setHeadingDeg] = useState<number | null>(() => getGpsHeading());
-  useEffect(() => subscribeGps(() => setHeadingDeg(getGpsHeading())), []);
+  const [gpsHeading, setGpsHeading] = useState<number | null>(() => getGpsHeading());
+  const [gpsSpeed, setGpsSpeed] = useState(0);
+  useEffect(() => subscribeGps(() => { setGpsHeading(getGpsHeading()); setGpsSpeed(getGpsSpeed()); }), []);
+  // Compass: instant phone orientation (iOS needs a tap to grant permission).
+  const [compassDeg, setCompassDeg] = useState<number | null>(null);
+  const [compassNeedsTap, setCompassNeedsTap] = useState(false);
+  const startCompass = useCallback(() => {
+    const onOrient = (e: DeviceOrientationEvent & { webkitCompassHeading?: number }) => {
+      if (typeof e.webkitCompassHeading === "number") setCompassDeg(e.webkitCompassHeading);
+      else if ((e as any).absolute && e.alpha != null) setCompassDeg((360 - e.alpha) % 360);
+    };
+    window.addEventListener("deviceorientationabsolute" as any, onOrient as any);
+    window.addEventListener("deviceorientation", onOrient as any);
+    return () => {
+      window.removeEventListener("deviceorientationabsolute" as any, onOrient as any);
+      window.removeEventListener("deviceorientation", onOrient as any);
+    };
+  }, []);
+  const compassCleanupRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    const DOE = (window as any).DeviceOrientationEvent;
+    if (!DOE) return;
+    if (typeof DOE.requestPermission === "function") setCompassNeedsTap(true);
+    else compassCleanupRef.current = startCompass();
+    return () => { compassCleanupRef.current?.(); compassCleanupRef.current = null; };
+  }, [startCompass]);
+  const enableCompass = useCallback(async () => {
+    try {
+      const res = await (window as any).DeviceOrientationEvent.requestPermission();
+      if (res === "granted") { compassCleanupRef.current?.(); compassCleanupRef.current = startCompass(); }
+    } catch { /* ignore */ }
+    setCompassNeedsTap(false);
+  }, [startCompass]);
+  // Compass on foot/at rest; GPS course when moving fast (vehicle, >~11 km/h).
+  const headingDeg = gpsSpeed > 3 && gpsHeading != null ? gpsHeading : (compassDeg ?? gpsHeading);
 
   const requestBrowserOrigin = useCallback(() => {
     if (!navigator.geolocation) { setOriginError("Géolocalisation indisponible"); return; }
@@ -502,6 +535,15 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
                   <path d="M12 1.5l7.5 19.5-7.5-4.4L4.5 21z" fill="#C04F17" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
                 </svg>
               </div>
+            )}
+            {showMap && compassNeedsTap && (
+              <button
+                type="button"
+                onClick={enableCompass}
+                className="absolute top-3 left-1/2 -translate-x-1/2 z-[6] rounded-full bg-primary text-primary-foreground text-xs font-semibold px-4 py-2 shadow-lg"
+              >
+                Activer la boussole
+              </button>
             )}
             {routeError && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-3 py-1.5 rounded-full">
