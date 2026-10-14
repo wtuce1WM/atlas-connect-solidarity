@@ -63,7 +63,19 @@ const LegalNotices = () => {
     canonical: "/mentions-legales",
   });
   return <div className="legal-experience relative flex h-[100dvh] min-h-[480px] flex-col overflow-hidden bg-background text-foreground">
-    <img src={hero} alt="" aria-hidden="true" width={1536} height={1024} className="absolute inset-0 h-full w-full object-cover" />
+    <video
+      ref={bgVideoRef}
+      key={isPortrait ? "portrait" : "landscape"}
+      className="absolute inset-0 h-full w-full object-cover"
+      src={isPortrait ? portraitVideoAsset.url : landscapeVideoAsset.url}
+      poster={isPortrait ? portraitVideoPoster.url : landscapeVideoPoster.url}
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+      aria-hidden="true"
+    />
     <div className={index === 0 ? "legal-hero-shade absolute inset-0" : "legal-document-shade absolute inset-0"} aria-hidden="true" />
     <FrontHeader fixed solid={index > 0} onLogoClick={() => navigate("/")} />
     <main className="relative z-10 flex min-h-0 flex-1 flex-col pt-24 md:pt-28">
