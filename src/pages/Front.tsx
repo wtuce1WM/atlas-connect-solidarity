@@ -1143,6 +1143,7 @@ const Front = () => {
                       type: "owm-host:home-card",
                       text,
                       entryId: info.entryId ?? null,
+                      badgeId: info.badgeId ?? null,
                       city: screen2City,
                       pinnedIds: info.pinnedBusinessId ? [info.pinnedBusinessId] : [],
                     }, window.location.origin);

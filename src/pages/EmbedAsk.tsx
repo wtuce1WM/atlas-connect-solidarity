@@ -1267,6 +1267,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
         forcedRoute: (body as any)?.forcedRoute ?? null,
         destinationId: (body as any)?.destinationId ?? null,
         homeCardEntryId: (body as any)?.homeCardEntryId ?? null,
+        homeCardBadgeId: (body as any)?.homeCardBadgeId ?? null,
         homeCardCity: (body as any)?.homeCardCity ?? null,
         homeCardPinnedIds: (body as any)?.homeCardPinnedIds ?? [],
         // Point confirmé par l'utilisateur : le moteur restreint le corpus lui-même,
@@ -2976,6 +2977,7 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       { body: {
         suggestionId: null, followupId: null, scope: null,
         homeCardEntryId: typeof d.entryId === "string" ? d.entryId : null,
+        homeCardBadgeId: typeof d.badgeId === "string" ? d.badgeId : null,
         homeCardCity: typeof d.city === "string" ? d.city : null,
         homeCardPinnedIds: Array.isArray(d.pinnedIds) ? d.pinnedIds : [],
       } },

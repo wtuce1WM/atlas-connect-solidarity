@@ -1104,13 +1104,18 @@ export function applyLabelPlaceholders(label: string | null | undefined, host: a
  */
 export async function loadHomeCardTargets(
   admin: any,
-  opts: { entryId: string; city: string; label: string; pinnedBusinessIds?: string[] },
+  opts: { entryId: string | null; badgeId?: string | null; city: string; label: string; pinnedBusinessIds?: string[] },
 ): Promise<CuratedTargets> {
   const out: CuratedTargets = { ...EMPTY_TARGETS, blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], serviceNames: [], badgeIds: [], destinationIds: [], aiTexts: [] };
   out.mode = "video_feed";
   out.city = opts.city;
   out.label = opts.label;
   out.pinnedBusinessIds = (opts.pinnedBusinessIds || []).filter(Boolean);
+  // Carte manuelle (extra) : pas de rubrique, uniquement le badge de la carte.
+  if (!opts.entryId) {
+    out.badgeIds = opts.badgeId ? [opts.badgeId] : [];
+    return out;
+  }
   const [{ data: cb }, { data: fs }, { data: fsv }] = await Promise.all([
     admin.from("front_structure_homepage_card_badges").select("badge_id, sort_order")
       .eq("item_id", opts.entryId).eq("city", opts.city).order("sort_order"),
