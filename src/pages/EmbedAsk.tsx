@@ -967,6 +967,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [hotelSearchingMsgId, setHotelSearchingMsgId] = useState<string | null>(null);
   /** Résultats de disponibilité affichés 4 par 4, par message assistant. */
   const [hotelShown, setHotelShown] = useState<Record<string, number>>({});
+  // Tri des résultats de disponibilité (filtres du badge bleu), par message.
+  const [hotelSort, setHotelSort] = useState<Record<string, "price" | "distance">>({});
   /** Résultats vidéo affichés en grille, par lots de 4 et par message assistant. */
   // Suggestion `booking` liée à des sous-catégories : la ville du widget est
   // mémorisée au clic, puis rattachée au message assistant du moteur (le widget
