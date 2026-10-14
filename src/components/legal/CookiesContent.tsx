@@ -48,7 +48,7 @@ export const CookiesContent = () => (
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">4. Contact</h2>
               <p>
-                Pour toute question : <a href="mailto:info@wtuce.org" className="text-primary hover:underline">info@wtuce.org</a>
+                Pour toute question : <a href="mailto:info@oneworldmorocco.com" className="text-primary hover:underline">info@oneworldmorocco.com</a>
               </p>
             </section>
           </div>
