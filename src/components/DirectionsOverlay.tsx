@@ -141,10 +141,25 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   // Compass: instant phone orientation (iOS needs a tap to grant permission).
   const [compassDeg, setCompassDeg] = useState<number | null>(null);
   const [compassNeedsTap, setCompassNeedsTap] = useState(false);
+  const [compassNeedsCalib, setCompassNeedsCalib] = useState(false);
+  const smoothRef = useRef<number | null>(null);
   const startCompass = useCallback(() => {
-    const onOrient = (e: DeviceOrientationEvent & { webkitCompassHeading?: number }) => {
-      if (typeof e.webkitCompassHeading === "number") setCompassDeg(e.webkitCompassHeading);
-      else if ((e as any).absolute && e.alpha != null) setCompassDeg((360 - e.alpha) % 360);
+    const onOrient = (e: DeviceOrientationEvent & { webkitCompassHeading?: number; webkitCompassAccuracy?: number }) => {
+      let raw: number | null = null;
+      if (typeof e.webkitCompassHeading === "number") raw = e.webkitCompassHeading;
+      else if ((e as any).absolute && e.alpha != null) raw = 360 - e.alpha;
+      if (raw == null) return;
+      // Compensate landscape screen rotation.
+      const screenAngle = (screen.orientation?.angle ?? (window as any).orientation ?? 0) as number;
+      raw = ((raw + screenAngle) % 360 + 360) % 360;
+      // Light smoothing along the shortest angular path (no lag, no jitter).
+      const prev = smoothRef.current;
+      const next = prev == null ? raw : prev + ((((raw - prev) % 360) + 540) % 360 - 180) * 0.3;
+      smoothRef.current = ((next % 360) + 360) % 360;
+      setCompassDeg(smoothRef.current);
+      if (typeof e.webkitCompassAccuracy === "number") {
+        setCompassNeedsCalib(e.webkitCompassAccuracy < 0 || e.webkitCompassAccuracy > 25);
+      }
     };
     window.addEventListener("deviceorientationabsolute" as any, onOrient as any);
     window.addEventListener("deviceorientation", onOrient as any);
@@ -170,6 +185,13 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   }, [startCompass]);
   // Compass on foot/at rest; GPS course when moving fast (vehicle, >~11 km/h).
   const headingDeg = gpsSpeed > 3 && gpsHeading != null ? gpsHeading : (compassDeg ?? gpsHeading);
+  // Unwrapped rotation so the arrow always turns the short way (359° → 0° without a full spin).
+  const rotRef = useRef<number | null>(null);
+  if (headingDeg != null) {
+    rotRef.current = rotRef.current == null
+      ? headingDeg
+      : rotRef.current + ((((headingDeg - rotRef.current) % 360) + 540) % 360 - 180);
+  }
 
   const requestBrowserOrigin = useCallback(() => {
     if (!navigator.geolocation) { setOriginError("Géolocalisation indisponible"); return; }
@@ -530,7 +552,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
               <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center">
                 <svg
                   width="150" height="150" viewBox="0 0 24 24" aria-hidden="true"
-                  style={{ transform: `rotate(${Math.round(headingDeg)}deg)`, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.35))", opacity: 0.85 }}
+                  style={{ transform: `rotate(${Math.round(rotRef.current ?? headingDeg)}deg)`, transition: "transform 120ms linear", filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.35))", opacity: 0.85 }}
                 >
                   <path d="M12 1.5l7.5 19.5-7.5-4.4L4.5 21z" fill="#C04F17" stroke="#ffffff" strokeWidth="1.2" strokeLinejoin="round" />
                 </svg>
@@ -544,6 +566,11 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
               >
                 {language === "en" ? "Enable compass" : "Activer la boussole"}
               </button>
+            )}
+            {showMap && compassNeedsCalib && !compassNeedsTap && (
+              <div className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 z-[6] rounded-full bg-primary text-primary-foreground text-xs font-semibold px-4 py-2 shadow-lg whitespace-nowrap">
+                {language === "en" ? "Move your phone in a figure 8 to calibrate" : "Faites un 8 avec le téléphone pour calibrer"}
+              </div>
             )}
             {routeError && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-3 py-1.5 rounded-full">
