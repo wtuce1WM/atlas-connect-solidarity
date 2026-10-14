@@ -25,6 +25,30 @@ const LegalNotices = () => {
   const [params] = useSearchParams();
   const index = Math.max(0, IDS.indexOf(params.get("section") ?? "accueil"));
   const scrollRef = useRef<HTMLDivElement>(null);
+  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [isPortrait, setIsPortrait] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-aspect-ratio: 1/1)").matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(max-aspect-ratio: 1/1)");
+    const on = () => setIsPortrait(mq.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  // Safari iOS peut différer l'autoplay malgré muted + playsInline.
+  useEffect(() => {
+    const retry = () => {
+      const v = bgVideoRef.current;
+      if (v?.paused) void v.play().catch(() => undefined);
+    };
+    retry();
+    document.addEventListener("touchstart", retry, { passive: true, once: true });
+    document.addEventListener("click", retry, { once: true });
+    return () => {
+      document.removeEventListener("touchstart", retry);
+      document.removeEventListener("click", retry);
+    };
+  }, [isPortrait]);
   const labels = en
     ? ["Legal notices", "General operating conditions", "Privacy policy", "Terms of use", "Cookie policy"]
     : ["Mentions légales", "Conditions générales de fonctionnement", "Politique de confidentialité", "Conditions générales d’utilisation", "Politique de cookies"];
