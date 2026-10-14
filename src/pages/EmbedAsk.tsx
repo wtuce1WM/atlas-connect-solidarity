@@ -967,6 +967,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [hotelSearchingMsgId, setHotelSearchingMsgId] = useState<string | null>(null);
   /** Résultats de disponibilité affichés 4 par 4, par message assistant. */
   const [hotelShown, setHotelShown] = useState<Record<string, number>>({});
+  // Tri des résultats de disponibilité (filtres du badge bleu), par message.
+  const [hotelSort, setHotelSort] = useState<Record<string, "price" | "distance">>({});
   /** Résultats vidéo affichés en grille, par lots de 4 et par message assistant. */
   // Suggestion `booking` liée à des sous-catégories : la ville du widget est
   // mémorisée au clic, puis rattachée au message assistant du moteur (le widget
@@ -3158,6 +3160,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return null;
   }, [messages, hotelResults, hotelShown]);
 
+  /** Dernier lot de disponibilités non vide : cible des filtres de tri. */
+  const hotelSortTarget = useMemo<string | null>(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const msgKey = String(messages[i]?.id || i);
+      if (hotelResults[msgKey]?.hotels?.length) return msgKey;
+    }
+    return null;
+  }, [messages, hotelResults]);
+
   const moreResultsRemaining = hotelMoreTarget?.remaining ?? poolRemaining;
 
   const showFourMoreResults = () => {
@@ -4307,6 +4318,37 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     // désormais uniquement dans la barre fixe du bas — plus de doublon.
 
     {
+      id: "hotel_sort",
+      label: lang === "en" ? "Sort" : lang === "ar" ? "ترتيب" : "Trier",
+      items: hotelSortTarget
+        ? [
+            {
+              id: "hotel_sort_price",
+              label: lang === "en" ? "Lowest price" : lang === "ar" ? "الأقل سعراً" : "Prix le plus bas",
+              icon: <SlidersHorizontal className="w-3.5 h-3.5" />,
+              onClick: () => {
+                setHotelSort((p) => ({ ...p, [hotelSortTarget]: "price" }));
+                setHotelShown((p) => ({ ...p, [hotelSortTarget]: 4 }));
+              },
+              className: pillClass,
+            },
+            ...(geo.coords
+              ? [{
+                  id: "hotel_sort_distance",
+                  label: lang === "en" ? "Nearest" : lang === "ar" ? "الأقرب" : "Les plus proches",
+                  icon: <Navigation className="w-3.5 h-3.5" />,
+                  onClick: () => {
+                    setHotelSort((p) => ({ ...p, [hotelSortTarget]: "distance" }));
+                    setHotelShown((p) => ({ ...p, [hotelSortTarget]: 4 }));
+                  },
+                  className: pillClass,
+                }]
+              : []),
+          ]
+        : [],
+    },
+
+    {
       id: "hours",
       label: lang === "en" ? "Opening hours" : lang === "ar" ? "المواعيد" : "Horaires",
       items: [
@@ -5245,7 +5287,18 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                         // Même format que les autres réponses IA : miniatures carrées
                         // affichées 4 par 4, avec badge prix/nuit SerpAPI.
                         const shown = hotelShown[msgKey] ?? 4;
-                        const visible = bookingResult.hotels.slice(0, shown);
+                        const sortMode = hotelSort[msgKey];
+                        const priceOf = (h: any) => parseSerpAmount(h.serpPrice) ?? parseSerpAmount(h.dbBusiness?.min_price) ?? Infinity;
+                        const distOf = (h: any) => {
+                          const lat = Number(h.dbBusiness?.latitude), lng = Number(h.dbBusiness?.longitude);
+                          if (!geo.coords || !Number.isFinite(lat) || !Number.isFinite(lng) || (!lat && !lng)) return Infinity;
+                          return haversineKm(geo.coords, { lat, lng });
+                        };
+                        const ordered = sortMode
+                          ? [...bookingResult.hotels].sort((a: any, b: any) =>
+                              sortMode === "price" ? priceOf(a) - priceOf(b) : distOf(a) - distOf(b))
+                          : bookingResult.hotels;
+                        const visible = ordered.slice(0, shown);
                         const priceBadges: Record<string, string> = {};
                         for (const h of bookingResult.hotels as any[]) {
                           const nightlyAmount = parseSerpAmount(h.serpPrice) ?? parseSerpAmount(h.dbBusiness?.min_price);
