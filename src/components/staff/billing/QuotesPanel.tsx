@@ -95,17 +95,21 @@ const QuotesPanel = () => {
   const [lines, setLines] = useState<Line[]>([]);
   const [saving, setSaving] = useState(false);
   const [internalNote, setInternalNote] = useState("");
+  const [sends, setSends] = useState<Array<{ quote_id: string; recipient_email: string; status: string; sent_at: string }>>([]);
+  const [sendingId, setSendingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [{ data: q }, { data: a }, { data: g }] = await Promise.all([
+    const [{ data: q }, { data: a }, { data: g }, { data: s }] = await Promise.all([
       supabase.from("quotes").select("*").order("created_at", { ascending: false }),
       supabase.from("affiliates").select("id, name, contact_email").order("name"),
       supabase
         .from("pricing_grids")
         .select("id, service_id, unit_price, currency, recurrence, is_active, billing_services(name_fr)")
         .eq("is_active", true),
+      supabase.from("quote_email_sends").select("quote_id, recipient_email, status, sent_at").order("sent_at", { ascending: false }),
     ]);
+    setSends((s as typeof sends) ?? []);
     setQuotes((q as unknown as Quote[]) ?? []);
     setAffiliates((a as typeof affiliates) ?? []);
     setGridRows((g as unknown as GridRow[]) ?? []);
@@ -236,6 +240,20 @@ const QuotesPanel = () => {
     load();
   };
 
+  const sendEmail = async (q: Quote) => {
+    setSendingId(q.id);
+    const { data, error } = await supabase.functions.invoke("send-quote-email", { body: { quote_id: q.id } });
+    setSendingId(null);
+    if (error || data?.error) {
+      toast.error(data?.error ?? "Échec de l'envoi de l'email");
+    } else if (data?.status === "suppressed") {
+      toast.warning(`Email bloqué pour ${data.recipient} (désinscrit ou adresse invalide)`);
+    } else {
+      toast.success(`Email envoyé à ${data?.recipient}`);
+    }
+    load();
+  };
+
   const convertToInvoice = async (q: Quote) => {
     // Conversion transactionnelle côté serveur : facture + lignes gelées + statut, anti-doublon inclus.
     const { error } = await supabase.rpc("convert_quote_to_invoice", { p_quote_id: q.id });
@@ -284,14 +302,21 @@ const QuotesPanel = () => {
                   {q.total_ttc} {q.currency} TTC
                   {q.expires_at ? ` · expire le ${q.expires_at}` : ""}
                 </p>
+                {sends.filter((x) => x.quote_id === q.id).map((x, i) => (
+                  <p key={i} className="text-xs text-muted-foreground">
+                    {x.status === "sent" ? "Email envoyé" : x.status === "suppressed" ? "Email bloqué" : "Échec d'envoi"} à {x.recipient_email} le{" "}
+                    {new Date(x.sent_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
+                  </p>
+                ))}
               </div>
               <div className="flex gap-1 flex-wrap">
                 <Button size="sm" variant="outline" onClick={() => openEdit(q)} className="gap-1">
                   <Pencil className="h-3 w-3" /> Éditer
                 </Button>
-                {q.status === "draft" && (
-                  <Button size="sm" variant="outline" onClick={() => setStatus(q, "sent")} className="gap-1">
-                    <Send className="h-3 w-3" /> Envoyer
+                {(q.status === "draft" || q.status === "sent") && (
+                  <Button size="sm" variant="outline" disabled={sendingId === q.id} onClick={() => sendEmail(q)} className="gap-1">
+                    <Send className="h-3 w-3" />
+                    {sendingId === q.id ? "Envoi…" : sends.some((x) => x.quote_id === q.id && x.status === "sent") ? "Renvoyer l'email" : "Envoyer l'email"}
                   </Button>
                 )}
                 {q.status === "sent" && (
