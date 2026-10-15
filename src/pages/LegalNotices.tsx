@@ -7,17 +7,17 @@ import { LocalizedLink } from "@/components/LocalizedLink";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useSEO } from "@/hooks/useSEO";
-import { CGFContent } from "@/components/legal/CGFContent";
 import { LegalNoticeContent } from "@/components/legal/LegalNoticeContent";
 import { CGUContent } from "@/components/legal/CGUContent";
 import { CookiesContent } from "@/components/legal/CookiesContent";
-import { EnglishGeneralConditions, EnglishLegalNotice, EnglishTerms, EnglishCookies } from "@/components/legal/EnglishLegalContent";
+import { EnglishLegalNotice, EnglishTerms, EnglishCookies } from "@/components/legal/EnglishLegalContent";
 import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
 import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
 import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 
-const IDS = ["accueil", "conditions-generales", "confidentialite", "cgu", "cookies"];
+const IDS = ["accueil", "confidentialite", "cgu", "cookies"];
+const DOCS = IDS.length - 1;
 const LegalNotices = () => {
   const { language } = useLanguage();
   const en = language === "en";
@@ -50,8 +50,8 @@ const LegalNotices = () => {
     };
   }, [isPortrait]);
   const labels = en
-    ? ["Legal notices", "General operating conditions", "Privacy policy", "Terms of use", "Cookie policy"]
-    : ["Mentions légales", "Conditions générales de fonctionnement", "Politique de confidentialité", "Conditions générales d’utilisation", "Politique de cookies"];
+    ? ["Legal notices", "Legal notice", "Terms of use", "Cookie policy"]
+    : ["Mentions légales", "Mentions légales", "Conditions générales d’utilisation", "Politique de cookies"];
   const go = (next: number) => {
     if (next < 0 || next >= IDS.length) return;
     navigate(next === 0 ? "/mentions-legales" : `/mentions-legales?section=${IDS[next]}`);
@@ -88,18 +88,17 @@ const LegalNotices = () => {
         </div>
       </div> : <div key={`${index}-${language}`} ref={scrollRef} role="region" aria-label={labels[index]} tabIndex={0} className="legal-enter legal-text min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain px-5 pb-8 md:px-12">
         <article className="mx-auto max-w-3xl">
-          <p className="mb-5 text-xs font-semibold uppercase text-gold">{labels[0]} · {String(index).padStart(2, "0")} / 04</p>
-          {index === 1 && (en ? <EnglishGeneralConditions /> : <CGFContent />)}
-          {index === 2 && (en ? <EnglishLegalNotice /> : <LegalNoticeContent />)}
-          {index === 3 && (en ? <EnglishTerms /> : <CGUContent />)}
-          {index === 4 && (en ? <EnglishCookies /> : <CookiesContent />)}
+          <p className="mb-5 text-xs font-semibold uppercase text-gold">{labels[0]} · {String(index).padStart(2, "0")} / {String(DOCS).padStart(2, "0")}</p>
+          {index === 1 && (en ? <EnglishLegalNotice /> : <LegalNoticeContent />)}
+          {index === 2 && (en ? <EnglishTerms /> : <CGUContent />)}
+          {index === 3 && (en ? <EnglishCookies /> : <CookiesContent />)}
         </article>
       </div>}
     </main>
     <nav aria-label={en ? "Page navigation" : "Navigation des écrans"} className="relative z-10 flex shrink-0 items-center justify-center gap-8 border-t border-foreground/15 px-5 py-3 pb-[max(16px,env(safe-area-inset-bottom))]">
       <Button variant="ghost" disabled={index === 0} onClick={() => go(index - 1)} className="h-auto flex-col gap-1 px-3 hover:bg-foreground/10 hover:text-gold"><ChevronUp className="text-gold" /><span className="text-xs">{en ? "Previous" : "Précédent"}</span></Button>
-      <span className="min-w-10 text-center text-xs text-foreground/65" aria-live="polite">{index + 1} / 5</span>
-      <Button variant="ghost" disabled={index === 4} onClick={() => go(index + 1)} className="h-auto flex-col gap-1 px-3 hover:bg-foreground/10 hover:text-gold"><ChevronDown className="text-gold" /><span className="text-xs">{en ? "Next" : "Suivant"}</span></Button>
+      <span className="min-w-10 text-center text-xs text-foreground/65" aria-live="polite">{index + 1} / {IDS.length}</span>
+      <Button variant="ghost" disabled={index === IDS.length - 1} onClick={() => go(index + 1)} className="h-auto flex-col gap-1 px-3 hover:bg-foreground/10 hover:text-gold"><ChevronDown className="text-gold" /><span className="text-xs">{en ? "Next" : "Suivant"}</span></Button>
     </nav>
   </div>;
 };
