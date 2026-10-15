@@ -463,7 +463,7 @@ const QuotesPanel = () => {
                           type="number"
                           step="0.01"
                           value={l.unit_price_ht}
-                          placeholder="PU HT"
+                          placeholder={l.price_source === "grid" ? "PU TTC" : "PU HT"} title={l.price_source === "grid" ? "Prix du tarif, TVA incluse" : "Prix unitaire HT"}
                           onChange={(e) =>
                             patchLine(i, { unit_price_ht: Number(e.target.value), price_source: "manual" })
                           }
