@@ -11,12 +11,14 @@ import { LegalNoticeContent } from "@/components/legal/LegalNoticeContent";
 import { CGUContent } from "@/components/legal/CGUContent";
 import { CookiesContent } from "@/components/legal/CookiesContent";
 import { EnglishLegalNotice, EnglishTerms, EnglishCookies } from "@/components/legal/EnglishLegalContent";
+import { CGVContent } from "@/components/legal/CGVContent";
+import { EnglishTermsOfSale } from "@/components/legal/EnglishTermsOfSale";
 import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
 import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
 import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 
-const IDS = ["accueil", "confidentialite", "cgu", "cookies"];
+const IDS = ["accueil", "confidentialite", "cgu", "cgv", "cookies"];
 const DOCS = IDS.length - 1;
 const LegalNotices = () => {
   const { language } = useLanguage();
@@ -50,8 +52,8 @@ const LegalNotices = () => {
     };
   }, [isPortrait]);
   const labels = en
-    ? ["Legal notices", "Legal notice", "Terms of use", "Cookie policy"]
-    : ["Mentions légales", "Mentions légales", "Conditions générales d’utilisation", "Politique de cookies"];
+    ? ["Legal notices", "Legal notice", "Terms of use", "Terms of sale", "Cookie policy"]
+    : ["Mentions légales", "Mentions légales", "Conditions générales d’utilisation", "Conditions générales de vente", "Politique de cookies"];
   const go = (next: number) => {
     if (next < 0 || next >= IDS.length) return;
     navigate(next === 0 ? "/mentions-legales" : `/mentions-legales?section=${IDS[next]}`);
@@ -91,7 +93,8 @@ const LegalNotices = () => {
           <p className="mb-5 text-xs font-semibold uppercase text-gold">{labels[0]} · {String(index).padStart(2, "0")} / {String(DOCS).padStart(2, "0")}</p>
           {index === 1 && (en ? <EnglishLegalNotice /> : <LegalNoticeContent />)}
           {index === 2 && (en ? <EnglishTerms /> : <CGUContent />)}
-          {index === 3 && (en ? <EnglishCookies /> : <CookiesContent />)}
+          {index === 3 && (en ? <EnglishTermsOfSale /> : <CGVContent />)}
+          {index === 4 && (en ? <EnglishCookies /> : <CookiesContent />)}
         </article>
       </div>}
     </main>
