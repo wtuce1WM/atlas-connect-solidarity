@@ -1,6 +1,6 @@
 import * as React from 'npm:react@18.3.1'
 import {
-  Body, Container, Head, Heading, Html, Preview, Text, Section, Hr, Row, Column, Img,
+  Body, Container, Head, Heading, Html, Preview, Text, Section, Hr, Row, Column, Img, Button,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
@@ -14,14 +14,14 @@ const LEGAL = [
 interface Item { label: string; quantity: number; line_total_ttc: number; vat_rate?: number; vat_exempt?: boolean }
 interface Props {
   number?: string; recipientName?: string; currency?: string; date?: string
-  totalHt?: number; totalVat?: number; totalTtc?: number; paid?: boolean; items?: Item[]
+  totalHt?: number; totalVat?: number; totalTtc?: number; paid?: boolean; items?: Item[]; pdfUrl?: string | null
 }
 
 const fmt = (n: number | undefined, c: string) => `${Number(n ?? 0).toFixed(2)} ${c}`
 
 const InvoiceEmail = ({
   number = '', recipientName = '', currency = 'MAD', date = '',
-  totalHt = 0, totalVat = 0, totalTtc = 0, paid = false, items = [],
+  totalHt = 0, totalVat = 0, totalTtc = 0, paid = false, items = [], pdfUrl = null,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
@@ -43,6 +43,12 @@ const InvoiceEmail = ({
         <Text style={small}>Total HT : {fmt(totalHt, currency)} · TVA : {fmt(totalVat, currency)}</Text>
         <Text style={total}>Total TTC : {fmt(totalTtc, currency)}</Text>
         <Text style={small}>{paid ? 'Statut : payée. Merci.' : 'Statut : à régler.'}</Text>
+        {pdfUrl ? (
+          <Section style={{ margin: '8px 0 18px' }}>
+            <Button href={pdfUrl} style={btn}>Télécharger la facture PDF</Button>
+            <Text style={small}>Lien valable 30 jours.</Text>
+          </Section>
+        ) : null}
         <Text style={text}>Pour toute question, répondez simplement à cet email.</Text>
         <Hr style={hr} />
         {LEGAL.map((l) => <Text key={l} style={footer}>{l}</Text>)}

@@ -106,7 +106,22 @@ const InvoicesPanel = () => {
 
   const sendEmail = async (inv: Invoice) => {
     setSending(inv.id);
-    const { data, error } = await supabase.functions.invoke("send-invoice-email", { body: { invoice_id: inv.id } });
+    let pdf_base64: string | undefined;
+    try {
+      let list = items[inv.id];
+      if (!list) {
+        const { data } = await supabase.from("invoice_items").select("*").eq("invoice_id", inv.id).order("sort_order");
+        list = (data as unknown as Item[]) ?? [];
+      }
+      let email = inv.prospect_email;
+      if (inv.affiliate_id) {
+        const { data } = await supabase.from("affiliates").select("contact_email").eq("id", inv.affiliate_id).maybeSingle();
+        email = (data as { contact_email: string | null } | null)?.contact_email ?? email;
+      }
+      const doc = await buildInvoicePdf(inv, list, { name: clientOf(inv), email });
+      pdf_base64 = (doc.output("datauristring") as string).split(",")[1];
+    } catch { /* envoi sans lien PDF */ }
+    const { data, error } = await supabase.functions.invoke("send-invoice-email", { body: { invoice_id: inv.id, pdf_base64 } });
     setSending(null);
     if (error || data?.error) return toast.error(data?.error ?? "Échec de l'envoi");
     if (data?.status === "suppressed") return toast.warning(`Envoi bloqué : ${data.recipient} est désinscrit`);
