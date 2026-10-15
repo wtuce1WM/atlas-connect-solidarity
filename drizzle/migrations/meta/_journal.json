@@ -78,6 +78,13 @@
       "when": 1792065623210,
       "tag": "0010_quote_paddle_payment",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792065940494,
+      "tag": "0011_save_quote_grid_price_ttc",
+      "breakpoints": true
     }
   ]
 }
