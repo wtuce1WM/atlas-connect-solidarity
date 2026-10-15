@@ -10,6 +10,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
 import AffiliateAggregateStats from "@/components/affiliate/AffiliateAggregateStats";
+import PartnerSubscriptionCard from "@/components/affiliate/PartnerSubscriptionCard";
 import { trackEvent } from "@/lib/analytics";
 
 
@@ -158,6 +159,8 @@ const AffiliatesDashboard = () => {
             {t.logout}
           </Button>
         </div>
+
+        <PartnerSubscriptionCard />
 
         {/* Aggregated stats + businesses list */}
         <AffiliateAggregateStats />
