@@ -85,6 +85,13 @@
       "when": 1792065940494,
       "tag": "0011_save_quote_grid_price_ttc",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792066232422,
+      "tag": "0012_add_quote_business_id",
+      "breakpoints": true
     }
   ]
 }

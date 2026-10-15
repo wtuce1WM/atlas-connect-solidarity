@@ -6969,6 +6969,7 @@ export type Database = {
         Row: {
           accepted_at: string | null
           affiliate_id: string | null
+          business_id: string | null
           created_at: string
           created_by: string | null
           currency: Database["public"]["Enums"]["billing_currency"]
@@ -6994,6 +6995,7 @@ export type Database = {
         Insert: {
           accepted_at?: string | null
           affiliate_id?: string | null
+          business_id?: string | null
           created_at?: string
           created_by?: string | null
           currency?: Database["public"]["Enums"]["billing_currency"]
@@ -7019,6 +7021,7 @@ export type Database = {
         Update: {
           accepted_at?: string | null
           affiliate_id?: string | null
+          business_id?: string | null
           created_at?: string
           created_by?: string | null
           currency?: Database["public"]["Enums"]["billing_currency"]
@@ -7047,6 +7050,20 @@ export type Database = {
             columns: ["affiliate_id"]
             isOneToOne: false
             referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
