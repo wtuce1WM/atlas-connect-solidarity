@@ -52,6 +52,12 @@ async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
   }).eq('paddle_subscription_id', data.id).eq('environment', env);
 }
 
+async function handleTransactionCompleted(data: any) {
+  const quoteId = data.customData?.quoteId;
+  if (!quoteId) return;
+  await getSupabase().from('quotes').update({ paid_at: new Date().toISOString(), paddle_transaction_id: data.id }).eq('id', quoteId);
+}
+
 Deno.serve(async (req) => {
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
   const env = (new URL(req.url).searchParams.get('env') || 'sandbox') as PaddleEnv;
@@ -61,6 +67,7 @@ Deno.serve(async (req) => {
       case EventName.SubscriptionCreated: await handleSubscriptionCreated(event.data, env); break;
       case EventName.SubscriptionUpdated: await handleSubscriptionUpdated(event.data, env); break;
       case EventName.SubscriptionCanceled: await handleSubscriptionCanceled(event.data, env); break;
+      case EventName.TransactionCompleted: await handleTransactionCompleted(event.data); break;
       default: console.log('Unhandled event:', event.eventType);
     }
     return new Response(JSON.stringify({ received: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });

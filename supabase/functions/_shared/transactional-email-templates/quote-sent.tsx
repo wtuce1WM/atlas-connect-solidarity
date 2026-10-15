@@ -1,6 +1,6 @@
 import * as React from 'npm:react@18.3.1'
 import {
-  Body, Container, Head, Heading, Html, Preview, Text, Section, Hr, Row, Column,
+  Body, Container, Head, Heading, Html, Preview, Text, Section, Hr, Button, Row, Column,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
@@ -16,13 +16,14 @@ interface Props {
   totalTtc?: number
   expiresAt?: string | null
   items?: Item[]
+  payUrl?: string | null
 }
 
 const fmt = (n: number | undefined, c: string) => `${Number(n ?? 0).toFixed(2)} ${c}`
 
 const QuoteSentEmail = ({
   number = '', recipientName = '', currency = 'MAD',
-  subtotalHt = 0, totalVat = 0, totalTtc = 0, expiresAt = null, items = [],
+  subtotalHt = 0, totalVat = 0, totalTtc = 0, expiresAt = null, items = [], payUrl = null,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
@@ -43,6 +44,11 @@ const QuoteSentEmail = ({
         <Text style={small}>Total HT : {fmt(subtotalHt, currency)} · TVA : {fmt(totalVat, currency)}</Text>
         <Text style={total}>Total TTC : {fmt(totalTtc, currency)}</Text>
         {expiresAt ? <Text style={small}>Devis valable jusqu'au {expiresAt}.</Text> : null}
+        {payUrl ? (
+          <Section style={{ margin: '24px 0' }}>
+            <Button href={payUrl} style={button}>Payer {fmt(totalTtc, currency)} en ligne</Button>
+          </Section>
+        ) : null}
         <Text style={text}>Pour toute question, répondez simplement à cet email.</Text>
         <Hr style={hr} />
         <Text style={footer}>{SITE_NAME}</Text>
@@ -58,6 +64,7 @@ export const template = {
   previewData: {
     number: 'DEV-2026-0001', recipientName: 'Julien Fontaine', currency: 'EUR',
     subtotalHt: 195, totalVat: 39, totalTtc: 234, expiresAt: null,
+    payUrl: 'https://oneworldmorocco.com/payer-devis/demo',
     items: [{ label: 'Abonnement partenaire', quantity: 1, unit_price_ht: 195, total_ttc: 234 }],
   },
 } satisfies TemplateEntry
@@ -74,3 +81,4 @@ const total = { fontSize: '16px', fontWeight: 'bold' as const, color: '#C1613C',
 const small = { fontSize: '13px', color: '#666', margin: '0 0 8px', lineHeight: '1.6' }
 const hr = { borderColor: '#e5e5e5', margin: '24px 0 12px' }
 const footer = { fontSize: '12px', color: '#999', margin: '0' }
+const button = { backgroundColor: '#C1613C', color: '#ffffff', fontSize: '15px', fontWeight: '600' as const, padding: '13px 26px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }

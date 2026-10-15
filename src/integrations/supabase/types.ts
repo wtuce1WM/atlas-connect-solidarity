@@ -6977,6 +6977,8 @@ export type Database = {
           id: string
           invoiced_at: string | null
           number: string | null
+          paddle_transaction_id: string | null
+          paid_at: string | null
           prospect_email: string | null
           prospect_name: string | null
           refusal_reason: string | null
@@ -7000,6 +7002,8 @@ export type Database = {
           id?: string
           invoiced_at?: string | null
           number?: string | null
+          paddle_transaction_id?: string | null
+          paid_at?: string | null
           prospect_email?: string | null
           prospect_name?: string | null
           refusal_reason?: string | null
@@ -7023,6 +7027,8 @@ export type Database = {
           id?: string
           invoiced_at?: string | null
           number?: string | null
+          paddle_transaction_id?: string | null
+          paid_at?: string | null
           prospect_email?: string | null
           prospect_name?: string | null
           refusal_reason?: string | null
