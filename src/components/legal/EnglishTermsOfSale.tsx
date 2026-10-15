@@ -1,6 +1,6 @@
 export const EnglishTermsOfSale = () => (
   <>
-    <h2>Terms and Conditions of Sale</h2>
+    <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Terms and Conditions of Sale</h1>
     <p><strong>Last updated: 15 October 2026</strong></p>
 
     <h3>Article 1 — Purpose and scope</h3>

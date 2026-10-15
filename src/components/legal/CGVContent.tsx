@@ -1,6 +1,6 @@
 export const CGVContent = () => (
   <>
-    <h2>Conditions générales de vente</h2>
+    <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Conditions générales de vente</h1>
     <p><strong>Dernière mise à jour : 15 octobre 2026</strong></p>
 
     <h3>Article 1 — Objet et champ d’application</h3>
