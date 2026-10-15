@@ -8,10 +8,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useSEO } from "@/hooks/useSEO";
 import { CGFContent } from "@/components/legal/CGFContent";
-import { ConfidentialiteContent } from "@/components/legal/ConfidentialiteContent";
+import { LegalNoticeContent } from "@/components/legal/LegalNoticeContent";
 import { CGUContent } from "@/components/legal/CGUContent";
 import { CookiesContent } from "@/components/legal/CookiesContent";
-import { EnglishGeneralConditions, EnglishPrivacy, EnglishTerms, EnglishCookies } from "@/components/legal/EnglishLegalContent";
+import { EnglishGeneralConditions, EnglishLegalNotice, EnglishTerms, EnglishCookies } from "@/components/legal/EnglishLegalContent";
 import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
 import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
@@ -90,7 +90,7 @@ const LegalNotices = () => {
         <article className="mx-auto max-w-3xl">
           <p className="mb-5 text-xs font-semibold uppercase text-gold">{labels[0]} · {String(index).padStart(2, "0")} / 04</p>
           {index === 1 && (en ? <EnglishGeneralConditions /> : <CGFContent />)}
-          {index === 2 && (en ? <EnglishPrivacy onCookies={() => go(4)} /> : <ConfidentialiteContent onCookies={() => go(4)} />)}
+          {index === 2 && (en ? <EnglishLegalNotice /> : <LegalNoticeContent />)}
           {index === 3 && (en ? <EnglishTerms /> : <CGUContent />)}
           {index === 4 && (en ? <EnglishCookies /> : <CookiesContent />)}
         </article>
