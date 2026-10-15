@@ -88,18 +88,17 @@ const LegalNotices = () => {
         </div>
       </div> : <div key={`${index}-${language}`} ref={scrollRef} role="region" aria-label={labels[index]} tabIndex={0} className="legal-enter legal-text min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain px-5 pb-8 md:px-12">
         <article className="mx-auto max-w-3xl">
-          <p className="mb-5 text-xs font-semibold uppercase text-gold">{labels[0]} · {String(index).padStart(2, "0")} / 04</p>
-          {index === 1 && (en ? <EnglishGeneralConditions /> : <CGFContent />)}
-          {index === 2 && (en ? <EnglishLegalNotice /> : <LegalNoticeContent />)}
-          {index === 3 && (en ? <EnglishTerms /> : <CGUContent />)}
-          {index === 4 && (en ? <EnglishCookies /> : <CookiesContent />)}
+          <p className="mb-5 text-xs font-semibold uppercase text-gold">{labels[0]} · {String(index).padStart(2, "0")} / {String(DOCS).padStart(2, "0")}</p>
+          {index === 1 && (en ? <EnglishLegalNotice /> : <LegalNoticeContent />)}
+          {index === 2 && (en ? <EnglishTerms /> : <CGUContent />)}
+          {index === 3 && (en ? <EnglishCookies /> : <CookiesContent />)}
         </article>
       </div>}
     </main>
     <nav aria-label={en ? "Page navigation" : "Navigation des écrans"} className="relative z-10 flex shrink-0 items-center justify-center gap-8 border-t border-foreground/15 px-5 py-3 pb-[max(16px,env(safe-area-inset-bottom))]">
       <Button variant="ghost" disabled={index === 0} onClick={() => go(index - 1)} className="h-auto flex-col gap-1 px-3 hover:bg-foreground/10 hover:text-gold"><ChevronUp className="text-gold" /><span className="text-xs">{en ? "Previous" : "Précédent"}</span></Button>
-      <span className="min-w-10 text-center text-xs text-foreground/65" aria-live="polite">{index + 1} / 5</span>
-      <Button variant="ghost" disabled={index === 4} onClick={() => go(index + 1)} className="h-auto flex-col gap-1 px-3 hover:bg-foreground/10 hover:text-gold"><ChevronDown className="text-gold" /><span className="text-xs">{en ? "Next" : "Suivant"}</span></Button>
+      <span className="min-w-10 text-center text-xs text-foreground/65" aria-live="polite">{index + 1} / {IDS.length}</span>
+      <Button variant="ghost" disabled={index === IDS.length - 1} onClick={() => go(index + 1)} className="h-auto flex-col gap-1 px-3 hover:bg-foreground/10 hover:text-gold"><ChevronDown className="text-gold" /><span className="text-xs">{en ? "Next" : "Suivant"}</span></Button>
     </nav>
   </div>;
 };
