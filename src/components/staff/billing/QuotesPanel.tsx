@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,8 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, Send, Check, X, FileText, Pencil } from "lucide-react";
+import { Plus, Trash2, Send, Check, X, FileText, Pencil, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 
 type QuoteStatus = "draft" | "sent" | "accepted" | "refused" | "expired" | "invoiced";
@@ -88,6 +91,37 @@ const emptyLine = (sort: number): Line => ({
   sort_order: sort,
 });
 
+const DateField = ({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+}) => {
+  const parsed = value ? new Date(value + "T12:00:00") : undefined;
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="w-full justify-start font-normal text-left h-10">
+          <CalendarIcon className="h-4 w-4 mr-1 shrink-0" />
+          {parsed ? format(parsed, "dd/MM/yyyy") : <span className="text-muted-foreground">{placeholder}</span>}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0 z-[350]" align="start">
+        <Calendar
+          mode="single"
+          selected={parsed}
+          onSelect={(d) => onChange(d ? format(d, "yyyy-MM-dd") : "")}
+          initialFocus
+          className="p-3 pointer-events-auto"
+        />
+      </PopoverContent>
+    </Popover>
+  );
+};
+
 const QuotesPanel = () => {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [affiliates, setAffiliates] = useState<Array<{ id: string; name: string; contact_email: string | null }>>([]);
@@ -136,7 +170,7 @@ const QuotesPanel = () => {
       subtotal_ht: 0,
       total_vat: 0,
       total_ttc: 0,
-      expires_at: null,
+      expires_at: format(new Date(), "yyyy-MM-dd"),
       refusal_reason: null,
       created_at: new Date().toISOString(),
     });
@@ -432,10 +466,10 @@ const QuotesPanel = () => {
                 )}
                 <div className="space-y-1">
                   <label className="text-xs text-muted-foreground">Date de validité</label>
-                  <Input
-                    type="date"
+                  <DateField
                     value={editing.expires_at ?? ""}
-                    onChange={(e) => setEditing({ ...editing, expires_at: e.target.value })}
+                    onChange={(v) => setEditing({ ...editing, expires_at: v })}
+                    placeholder="Choisir une date"
                   />
                 </div>
               </div>
