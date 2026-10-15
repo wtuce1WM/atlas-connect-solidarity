@@ -6823,6 +6823,44 @@ export type Database = {
         }
         Relationships: []
       }
+      quote_email_sends: {
+        Row: {
+          error_message: string | null
+          id: string
+          quote_id: string
+          recipient_email: string
+          sent_at: string
+          sent_by: string | null
+          status: string
+        }
+        Insert: {
+          error_message?: string | null
+          id?: string
+          quote_id: string
+          recipient_email: string
+          sent_at?: string
+          sent_by?: string | null
+          status: string
+        }
+        Update: {
+          error_message?: string | null
+          id?: string
+          quote_id?: string
+          recipient_email?: string
+          sent_at?: string
+          sent_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_email_sends_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_internal_notes: {
         Row: {
           created_at: string
