@@ -18,6 +18,7 @@ import { template as videoReady } from './video-ready.tsx'
 import { template as affiliateWelcome } from './affiliate-welcome.tsx'
 import { template as widgetAlert } from './widget-alert.tsx'
 import { template as clubWelcome } from './club-welcome.tsx'
+import { template as quoteSent } from './quote-sent.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'hotel-price-report': hotelPriceReport,
@@ -29,6 +30,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'affiliate-welcome': affiliateWelcome,
   'widget-alert': widgetAlert,
   'club-welcome': clubWelcome,
+  'quote-sent': quoteSent,
 }
 
 

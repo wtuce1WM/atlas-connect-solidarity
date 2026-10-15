@@ -86,3 +86,5 @@ project_id = "plnphgdrawpsnumnejzc"
     verify_jwt = false
   [functions.pwa-manifest]
     verify_jwt = false
+  [functions.send-quote-email]
+    verify_jwt = false
