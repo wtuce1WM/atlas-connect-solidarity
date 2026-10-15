@@ -19,6 +19,7 @@ import { template as affiliateWelcome } from './affiliate-welcome.tsx'
 import { template as widgetAlert } from './widget-alert.tsx'
 import { template as clubWelcome } from './club-welcome.tsx'
 import { template as quoteSent } from './quote-sent.tsx'
+import { template as invoiceSent } from './invoice-sent.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'hotel-price-report': hotelPriceReport,
@@ -31,6 +32,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'widget-alert': widgetAlert,
   'club-welcome': clubWelcome,
   'quote-sent': quoteSent,
+  'invoice-sent': invoiceSent,
 }
 
 
