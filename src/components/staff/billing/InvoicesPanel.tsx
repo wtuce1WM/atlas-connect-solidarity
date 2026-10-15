@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronRight, Check } from "lucide-react";
+import { ChevronDown, ChevronRight, Check, FileText, Mail } from "lucide-react";
+import { buildInvoicePdf } from "@/lib/invoicePdf";
 import { toast } from "sonner";
 
 type Invoice = {
@@ -83,6 +84,35 @@ const InvoicesPanel = () => {
     inv.prospect_email ??
     "—";
 
+  const [sending, setSending] = useState<string | null>(null);
+
+  const viewPdf = async (inv: Invoice) => {
+    const win = window.open("", "_blank");
+    let list = items[inv.id];
+    if (!list) {
+      const { data } = await supabase.from("invoice_items").select("*").eq("invoice_id", inv.id).order("sort_order");
+      list = (data as unknown as Item[]) ?? [];
+      setItems((p) => ({ ...p, [inv.id]: list! }));
+    }
+    let email = inv.prospect_email;
+    if (inv.affiliate_id) {
+      const { data } = await supabase.from("affiliates").select("contact_email").eq("id", inv.affiliate_id).maybeSingle();
+      email = (data as { contact_email: string | null } | null)?.contact_email ?? email;
+    }
+    const doc = await buildInvoicePdf(inv, list, { name: clientOf(inv), email });
+    const url = URL.createObjectURL(doc.output("blob"));
+    if (win) win.location.href = url; else window.open(url, "_blank");
+  };
+
+  const sendEmail = async (inv: Invoice) => {
+    setSending(inv.id);
+    const { data, error } = await supabase.functions.invoke("send-invoice-email", { body: { invoice_id: inv.id } });
+    setSending(null);
+    if (error || data?.error) return toast.error(data?.error ?? "Échec de l'envoi");
+    if (data?.status === "suppressed") return toast.warning(`Envoi bloqué : ${data.recipient} est désinscrit`);
+    toast.success(`Facture envoyée à ${data.recipient}`);
+  };
+
   if (loading) return <p className="text-sm text-muted-foreground">Chargement…</p>;
 
   return (
@@ -112,11 +142,19 @@ const InvoicesPanel = () => {
                   </p>
                 </div>
               </button>
-              {inv.status === "unpaid" && (
-                <Button size="sm" variant="outline" onClick={() => markPaid(inv)} className="gap-1">
-                  <Check className="h-3 w-3" /> Marquer payée
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => viewPdf(inv)} className="gap-1">
+                  <FileText className="h-3 w-3" /> Voir PDF
                 </Button>
-              )}
+                <Button size="sm" variant="outline" disabled={sending === inv.id} onClick={() => sendEmail(inv)} className="gap-1">
+                  <Mail className="h-3 w-3" /> {sending === inv.id ? "Envoi…" : "Envoyer l'email"}
+                </Button>
+                {inv.status === "unpaid" && (
+                  <Button size="sm" variant="outline" onClick={() => markPaid(inv)} className="gap-1">
+                    <Check className="h-3 w-3" /> Marquer payée
+                  </Button>
+                )}
+              </div>
             </div>
 
             {open === inv.id && (
