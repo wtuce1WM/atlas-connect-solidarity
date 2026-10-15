@@ -19,6 +19,7 @@ type Quote = {
   number: string | null;
   status: QuoteStatus;
   affiliate_id: string | null;
+  business_id: string | null;
   prospect_email: string | null;
   prospect_name: string | null;
   currency: Currency;
@@ -95,6 +96,7 @@ const emptyLine = (sort: number): Line => ({
 const QuotesPanel = () => {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [affiliates, setAffiliates] = useState<Array<{ id: string; name: string; contact_email: string | null }>>([]);
+  const [businesses, setBusinesses] = useState<Array<{ id: string; name: string; affiliate_id: string | null }>>([]);
   const [gridRows, setGridRows] = useState<GridRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Quote | null>(null);
@@ -106,9 +108,10 @@ const QuotesPanel = () => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [{ data: q }, { data: a }, { data: g }, { data: s }] = await Promise.all([
+    const [{ data: q }, { data: a }, { data: b }, { data: g }, { data: s }] = await Promise.all([
       supabase.from("quotes").select("*").order("created_at", { ascending: false }),
       supabase.from("affiliates").select("id, name, contact_email").order("name"),
+      supabase.from("businesses").select("id, name, affiliate_id").not("affiliate_id", "is", null).order("name"),
       supabase
         .from("pricing_grids")
         .select("id, service_id, unit_price, currency, recurrence, is_active, billing_services(name_fr)")
@@ -118,6 +121,7 @@ const QuotesPanel = () => {
     setSends((s as typeof sends) ?? []);
     setQuotes((q as unknown as Quote[]) ?? []);
     setAffiliates((a as typeof affiliates) ?? []);
+    setBusinesses((b as typeof businesses) ?? []);
     setGridRows((g as unknown as GridRow[]) ?? []);
     setLoading(false);
   }, []);
@@ -130,6 +134,7 @@ const QuotesPanel = () => {
       number: null,
       status: "draft",
       affiliate_id: null,
+      business_id: null,
       prospect_email: null,
       prospect_name: null,
       currency: "MAD",
@@ -207,6 +212,7 @@ const QuotesPanel = () => {
       p_quote: {
         id: editing.id || null,
         affiliate_id: editing.affiliate_id,
+        business_id: editing.business_id,
         prospect_email: editing.prospect_email,
         prospect_name: editing.prospect_name,
         currency: editing.currency,
@@ -277,6 +283,11 @@ const QuotesPanel = () => {
   };
 
   const affiliateName = (id: string | null) => affiliates.find((a) => a.id === id)?.name ?? null;
+  const businessName = (id: string | null) => businesses.find((b) => b.id === id)?.name ?? null;
+  const affiliateBusinesses = useMemo(
+    () => businesses.filter((b) => b.affiliate_id === editing?.affiliate_id),
+    [businesses, editing?.affiliate_id],
+  );
 
   if (loading) return <p className="text-sm text-muted-foreground">Chargement…</p>;
 
@@ -306,6 +317,7 @@ const QuotesPanel = () => {
                 </div>
                 <p className="text-sm text-muted-foreground truncate">
                   {affiliateName(q.affiliate_id) ?? q.prospect_name ?? q.prospect_email ?? "—"}
+                  {q.business_id ? ` · ${businessName(q.business_id) ?? "entreprise supprimée"}` : ""}
                   {" · "}
                   {q.total_ttc} {q.currency} TTC
                   {q.expires_at ? ` · expire le ${q.expires_at}` : ""}
@@ -369,12 +381,30 @@ const QuotesPanel = () => {
                     className="w-full h-10 rounded-md border border-input bg-background px-2 text-sm"
                     value={editing.affiliate_id ?? ""}
                     onChange={(e) =>
-                      setEditing({ ...editing, affiliate_id: e.target.value || null })
+                      setEditing({ ...editing, affiliate_id: e.target.value || null, business_id: null })
                     }
                   >
                     <option value="">— Prospect (sans compte) —</option>
                     {affiliates.map((a) => (
                       <option key={a.id} value={a.id}>{a.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">Entreprise</label>
+                  <select
+                    className="w-full h-10 rounded-md border border-input bg-background px-2 text-sm disabled:opacity-50"
+                    value={editing.business_id ?? ""}
+                    disabled={!editing.affiliate_id}
+                    onChange={(e) => setEditing({ ...editing, business_id: e.target.value || null })}
+                  >
+                    <option value="">
+                      {editing.affiliate_id
+                        ? "— Aucune (toutes les entreprises) —"
+                        : "— Choisir d'abord un affilié —"}
+                    </option>
+                    {affiliateBusinesses.map((b) => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
                     ))}
                   </select>
                 </div>
