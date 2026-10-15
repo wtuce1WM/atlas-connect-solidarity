@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
     }
     const { data: fresh } = await admin.from('quotes').select('*').eq('id', quoteId).single()
     const { data: items } = await admin.from('quote_items')
-      .select('label, quantity, unit_price_ht, total_ttc').eq('quote_id', quoteId).order('sort_order')
+      .select('label, quantity, unit_price_ht, line_total_ttc').eq('quote_id', quoteId).order('sort_order')
 
     let status: 'sent' | 'suppressed' | 'failed' = 'sent'
     let errMsg: string | null = null
@@ -57,7 +57,9 @@ Deno.serve(async (req) => {
         templateData: {
           number: fresh.number, recipientName: name, currency: fresh.currency,
           subtotalHt: fresh.subtotal_ht, totalVat: fresh.total_vat, totalTtc: fresh.total_ttc,
-          expiresAt: fresh.expires_at, items: items ?? [],
+          expiresAt: fresh.expires_at,
+          items: (items ?? []).map((i: any) => ({ ...i, total_ttc: i.line_total_ttc })),
+          payUrl: fresh.currency === 'MAD' || fresh.paid_at ? null : `https://oneworldmorocco.com/payer-devis/${quoteId}`,
         },
         idempotencyKey: `quote-sent-${quoteId}-${Date.now()}`,
         replyTo: 'info@oneworldmorocco.com',
