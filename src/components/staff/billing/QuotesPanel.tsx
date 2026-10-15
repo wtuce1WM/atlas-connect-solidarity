@@ -68,15 +68,10 @@ const STATUS_LABEL: Record<QuoteStatus, string> = {
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 const computeLine = (l: Line) => {
-  // Tarif : prix TTC (TVA incluse) → HT déduit. Manuel : prix saisi HT.
-  if (l.price_source === "grid") {
-    const ttc = round2(l.quantity * l.unit_price_ht);
-    const ht = l.vat_exempt ? ttc : round2(ttc / (1 + l.vat_rate / 100));
-    return { ht, vat: round2(ttc - ht), ttc };
-  }
-  const ht = round2(l.quantity * l.unit_price_ht);
-  const vat = l.vat_exempt ? 0 : round2(ht * (l.vat_rate / 100));
-  return { ht, vat, ttc: round2(ht + vat) };
+  // Tous les prix saisis (tarif ou manuel) sont TTC (TVA incluse) → HT déduit.
+  const ttc = round2(l.quantity * l.unit_price_ht);
+  const ht = l.vat_exempt ? ttc : round2(ttc / (1 + l.vat_rate / 100));
+  return { ht, vat: round2(ttc - ht), ttc };
 };
 
 const emptyLine = (sort: number): Line => ({
@@ -163,7 +158,7 @@ const QuotesPanel = () => {
     setInternalNote((noteRow as { notes: string | null } | null)?.notes ?? "");
     setEditing(q);
     setLines(((data as unknown as Array<Line & { line_total_ttc: number }>) ?? []).map(({ line_total_ttc, ...l }) =>
-      l.price_source === "grid" ? { ...l, unit_price_ht: round2(Number(line_total_ttc) / l.quantity) } : { ...l },
+      ({ ...l, unit_price_ht: round2(Number(line_total_ttc) / l.quantity) }),
     ));
   };
 
@@ -493,7 +488,7 @@ const QuotesPanel = () => {
                           type="number"
                           step="0.01"
                           value={l.unit_price_ht}
-                          placeholder={l.price_source === "grid" ? "PU TTC" : "PU HT"} title={l.price_source === "grid" ? "Prix du tarif, TVA incluse" : "Prix unitaire HT"}
+                          placeholder="PU TTC" title="Prix unitaire, TVA incluse"
                           onChange={(e) =>
                             patchLine(i, { unit_price_ht: Number(e.target.value), price_source: "manual" })
                           }
