@@ -71,6 +71,13 @@
       "when": 1792065275471,
       "tag": "0009_quote_email_sends",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792065623210,
+      "tag": "0010_quote_paddle_payment",
+      "breakpoints": true
     }
   ]
 }
