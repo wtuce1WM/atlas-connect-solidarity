@@ -7,17 +7,17 @@ import { LocalizedLink } from "@/components/LocalizedLink";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useSEO } from "@/hooks/useSEO";
-import { CGFContent } from "@/components/legal/CGFContent";
 import { LegalNoticeContent } from "@/components/legal/LegalNoticeContent";
 import { CGUContent } from "@/components/legal/CGUContent";
 import { CookiesContent } from "@/components/legal/CookiesContent";
-import { EnglishGeneralConditions, EnglishLegalNotice, EnglishTerms, EnglishCookies } from "@/components/legal/EnglishLegalContent";
+import { EnglishLegalNotice, EnglishTerms, EnglishCookies } from "@/components/legal/EnglishLegalContent";
 import portraitVideoAsset from "@/assets/hero-home-portrait-20260830.mp4.asset.json";
 import landscapeVideoAsset from "@/assets/hero-home-landscape-20260830.mp4.asset.json";
 import portraitVideoPoster from "@/assets/hero-home-portrait-poster-20260830.jpg.asset.json";
 import landscapeVideoPoster from "@/assets/hero-home-landscape-poster-20260830.jpg.asset.json";
 
-const IDS = ["accueil", "conditions-generales", "confidentialite", "cgu", "cookies"];
+const IDS = ["accueil", "confidentialite", "cgu", "cookies"];
+const DOCS = IDS.length - 1;
 const LegalNotices = () => {
   const { language } = useLanguage();
   const en = language === "en";
@@ -50,8 +50,8 @@ const LegalNotices = () => {
     };
   }, [isPortrait]);
   const labels = en
-    ? ["Legal notices", "General operating conditions", "Privacy policy", "Terms of use", "Cookie policy"]
-    : ["Mentions légales", "Conditions générales de fonctionnement", "Politique de confidentialité", "Conditions générales d’utilisation", "Politique de cookies"];
+    ? ["Legal notices", "Legal notice", "Terms of use", "Cookie policy"]
+    : ["Mentions légales", "Mentions légales", "Conditions générales d’utilisation", "Politique de cookies"];
   const go = (next: number) => {
     if (next < 0 || next >= IDS.length) return;
     navigate(next === 0 ? "/mentions-legales" : `/mentions-legales?section=${IDS[next]}`);
