@@ -49,6 +49,7 @@ const Confidentialite = lazy(() => import("./pages/Confidentialite"));
 const CGU = lazy(() => import("./pages/CGU"));
 const CookiesPage = lazy(() => import("./pages/Cookies"));
 const LegalNotices = lazy(() => import("./pages/LegalNotices"));
+const PayQuote = lazy(() => import("./pages/PayQuote"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
@@ -245,6 +246,7 @@ const LocalizedRoutes = () => {
               <Route path="/cgu" element={renderLazyRoute(<CGU />)} />
               <Route path="/cookies" element={renderLazyRoute(<CookiesPage />)} />
               <Route path="/mentions-legales" element={renderLazyRoute(<LegalNotices />)} />
+              <Route path="/payer-devis/:id" element={renderLazyRoute(<PayQuote />)} />
               <Route path="/contact" element={renderLazyRoute(<Contact />)} />
               <Route path="/blog" element={renderLazyRoute(<Blog />)} />
               <Route path="/widgets" element={renderLazyRoute(<Widgets />)} />

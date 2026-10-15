@@ -301,6 +301,7 @@ const QuotesPanel = () => {
                   {" · "}
                   {q.total_ttc} {q.currency} TTC
                   {q.expires_at ? ` · expire le ${q.expires_at}` : ""}
+                  {(q as Quote & { paid_at?: string | null }).paid_at ? ` · payé en ligne le ${new Date((q as Quote & { paid_at: string }).paid_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}` : ""}
                 </p>
                 {sends.filter((x) => x.quote_id === q.id).map((x, i) => (
                   <p key={i} className="text-xs text-muted-foreground">
