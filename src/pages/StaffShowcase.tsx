@@ -34,6 +34,7 @@ type Row = {
 };
 
 const CTA_FIELDS: Array<[string, string]> = [
+  ["assistant_name", "Nom de l'assistant IA (ex. Zitoun IA)"],
   ["primary_label", "Libellé bouton principal"],
   ["reserve_url", "URL de réservation"],
   ["whatsapp", "WhatsApp"],
@@ -170,10 +171,10 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
         <Label>Groupes affichés sur la vitrine</Label>
         {!r.business?.kp_regroupement && !r.business?.kp_regroupement_2 && <p className="text-xs text-muted-foreground">Aucun Groupe KP1/KP2 pour cet établissement.</p>}
         {r.business?.kp_regroupement && (
-          <div className="flex items-center gap-2"><Switch checked={r.show_kp1} onCheckedChange={(v) => set("show_kp1", v)} /><span className="text-sm">Groupe KP1 : <b>{r.business.kp_regroupement}</b> — {r.show_kp1 ? "Oui" : "Non"}</span></div>
+          <div className="flex items-center gap-2"><Switch checked={r.show_kp1} onCheckedChange={(v) => set("show_kp1", v)} /><span className="text-sm">Groupe KP1 : <b>{r.business.kp_regroupement}</b> — {r.show_kp1 ? "Oui" : "Non"}</span><select className="ml-auto h-8 rounded-md border bg-background px-2 text-sm" value={r.cta_config?.kp1_display || "pages"} onChange={(e) => setCta("kp1_display", e.target.value)}><option value="pages">1 page par business</option><option value="map">Map</option></select></div>
         )}
         {r.business?.kp_regroupement_2 && (
-          <div className="flex items-center gap-2"><Switch checked={r.show_kp2} onCheckedChange={(v) => set("show_kp2", v)} /><span className="text-sm">Groupe KP2 : <b>{r.business.kp_regroupement_2}</b> — {r.show_kp2 ? "Oui" : "Non"}</span></div>
+          <div className="flex items-center gap-2"><Switch checked={r.show_kp2} onCheckedChange={(v) => set("show_kp2", v)} /><span className="text-sm">Groupe KP2 : <b>{r.business.kp_regroupement_2}</b> — {r.show_kp2 ? "Oui" : "Non"}</span><select className="ml-auto h-8 rounded-md border bg-background px-2 text-sm" value={r.cta_config?.kp2_display || "pages"} onChange={(e) => setCta("kp2_display", e.target.value)}><option value="pages">1 page par business</option><option value="map">Map</option></select></div>
         )}
       </div>
       <Dialog open={!!picker} onOpenChange={(o) => !o && setPicker(null)}>
