@@ -198,6 +198,7 @@ const ShowcaseSite = () => {
   const [reserveOverlayOpen, setReserveOverlayOpen] = useState(false);
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroVideoIds, setHeroVideoIds] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
+  const [heroFiles, setHeroFiles] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [isPortrait, setIsPortrait] = useState(() => typeof window !== "undefined" && window.innerHeight > window.innerWidth);
   useEffect(() => {
     const mq = window.matchMedia("(orientation: portrait)");
@@ -263,6 +264,18 @@ const ShowcaseSite = () => {
           landscape: showcase.hero_landscape_video_id ? byId.get(showcase.hero_landscape_video_id)?.yt || null : null,
           portrait: showcase.hero_portrait_video_id ? byId.get(showcase.hero_portrait_video_id)?.yt || null : null,
         });
+        // Vidéos importées (business_documents) : lecture directe du fichier.
+        const { data: docs } = await (supabase as any)
+          .from("business_documents")
+          .select("id,url,thumbnail_url")
+          .in("id", heroIds);
+        const docById = new Map<string, { url: string; thumb: string | null }>(
+          ((docs || []) as Array<{ id: string; url: string; thumbnail_url: string | null }>).map((d) => [d.id, { url: d.url, thumb: d.thumbnail_url }])
+        );
+        const lf = showcase.hero_landscape_video_id ? docById.get(showcase.hero_landscape_video_id) : undefined;
+        const pf = showcase.hero_portrait_video_id ? docById.get(showcase.hero_portrait_video_id) : undefined;
+        setHeroFiles({ landscape: lf?.url || null, portrait: pf?.url || null });
+        if (lf?.thumb || pf?.thumb) setHeroThumbs((p) => ({ landscape: p.landscape || lf?.thumb || null, portrait: p.portrait || pf?.thumb || null }));
       }
       setHighlights((((highlightResult.data || []) as unknown) as Highlight[]).filter((item) =>
         Boolean(item.title?.trim() || item.description?.trim() || item.image_url)
