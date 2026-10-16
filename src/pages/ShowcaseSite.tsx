@@ -399,6 +399,7 @@ const ShowcaseSite = () => {
   const heroVideo = isPortrait
     ? heroVideoIds.portrait || heroVideoIds.landscape
     : heroVideoIds.landscape || heroVideoIds.portrait;
+  const heroFile = isPortrait ? heroFiles.portrait || heroFiles.landscape : heroFiles.landscape || heroFiles.portrait;
   const heroMedia = heroLandscape || data.hero_image_url || gallery[0];
   const canonicalUrl = data.canonical_url || `https://oneworldmorocco.com/site/${slug}`;
   const primaryCta = data.cta_config?.primary_label || (isEn ? "Book your stay" : "Réserver votre séjour");
@@ -474,7 +475,11 @@ const ShowcaseSite = () => {
                 <img src={heroMedia} alt={b.name} className="absolute inset-0 h-full w-full object-cover" />
               </picture>
             )}
-            {template === "hero_video" && heroVideo && (
+            {template === "hero_video" && heroFile && (
+              <video key={heroFile} src={heroFile} autoPlay muted loop playsInline preload="auto" aria-hidden="true"
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
+            )}
+            {template === "hero_video" && !heroFile && heroVideo && (
               <iframe
                 src={`https://www.youtube.com/embed/${heroVideo}?autoplay=1&mute=1&loop=1&playlist=${heroVideo}&controls=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&disablekb=1`}
                 title={b.name}
