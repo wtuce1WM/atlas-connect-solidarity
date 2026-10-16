@@ -566,20 +566,6 @@ const ShowcaseSite = () => {
                 </button>
               </>
             )}
-            {false && template === "hero_video" && heroFile && (
-              <video key={heroFile} src={heroFile} autoPlay muted loop playsInline preload="auto" aria-hidden="true"
-                className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
-            )}
-            {false && template === "hero_video" && !heroFile && heroVideo && (
-              <iframe
-                src={`https://www.youtube.com/embed/${heroVideo}?autoplay=1&mute=1&loop=1&playlist=${heroVideo}&controls=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&disablekb=1`}
-                title={b.name}
-                className="pointer-events-none absolute left-1/2 top-1/2 h-[56.25vw] min-h-full w-[177.78vh] min-w-full -translate-x-1/2 -translate-y-1/2"
-                style={{ border: 0 }}
-                allow="autoplay; encrypted-media; picture-in-picture"
-                tabIndex={-1}
-              />
-            )}
             <div className="absolute inset-0 bg-gradient-to-b from-showcase-night/45 via-showcase-night/10 to-showcase-night/80" />
             <div className="relative z-10 flex min-h-[92dvh] max-w-7xl flex-col justify-end px-6 pb-16 pt-28 md:px-12 md:pb-20 lg:px-20">
               <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{b.city} · {isEn ? "Moroccan hospitality" : "Hospitalité marocaine"}</p>
@@ -705,7 +691,7 @@ const ShowcaseSite = () => {
             <section id="gallery" className="scroll-mt-8 px-4 py-20 md:px-8 md:py-28">
               <div className="mx-auto max-w-7xl">
                 <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? `Life at the ${venueEn}` : (isRiad ? "La vie au riad" : "La vie à l’établissement")}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">Galerie</h2></div>
-                <HScroll className="scrollbar-hide mt-10 flex gap-3 overflow-x-auto pb-3 cursor-grab md:gap-5" aria-label={isEn ? "Photo gallery" : "Galerie photos"}>
+                <HScroll className="scrollbar-hide mt-10 flex gap-3 overflow-x-auto pb-3 cursor-grab md:gap-5" aria-label={isEn ? "Video gallery" : "Galerie vidéos"}>
                   {galleryItems.map((item, index) => (
                     <Button
                       key={item.src}
