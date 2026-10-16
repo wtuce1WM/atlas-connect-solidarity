@@ -566,7 +566,7 @@ const ShowcaseSite = () => {
                 <img src={heroMedia} alt={b.name} className="absolute inset-0 h-full w-full object-cover" />
               </picture>
             )}
-            {gallery.length > 1 && (
+            {template === "premium" && gallery.length > 1 && (
               <>
                 <button type="button" aria-label={isEn ? "Previous image" : "Image précédente"} onClick={() => setHeroIndex((i) => (i - 1 + gallery.length) % gallery.length)}
                   className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-showcase-night/40 p-2 text-primary-foreground backdrop-blur-md transition hover:bg-showcase-night/60 md:left-6">
