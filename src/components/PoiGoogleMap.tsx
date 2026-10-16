@@ -835,6 +835,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     return () => {
       container.removeEventListener("wheel", handleWheel);
       container.removeEventListener("dblclick", handleDblClick);
+      container.removeEventListener("pointerdown", markTouch, true);
+      container.removeEventListener("touchstart", markTouch, true);
       if (idleTimer) clearTimeout(idleTimer);
       dragListener?.remove?.();
       zoomListener?.remove?.();
