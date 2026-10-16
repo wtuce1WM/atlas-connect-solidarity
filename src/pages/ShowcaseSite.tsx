@@ -553,7 +553,7 @@ const ShowcaseSite = () => {
                   {promos.map((p) => {
                     const title = isEn ? p.title_en : p.title;
                     const message = isEn ? p.message_en : p.message;
-                    const badge = p.ptype === "percentage" && p.pvalue ? `-${p.pvalue}%` : p.savings ? `${p.savings} ${p.currency || ""}`.trim() : null;
+                    const badge = p.ptype === "percentage" && p.pvalue != null ? `-${p.pvalue}%` : p.ptype === "fixed" && p.pvalue != null ? `-${p.pvalue} ${p.currency || "MAD"}` : p.savings != null ? `-${p.savings} ${p.currency || "MAD"}` : null;
                     const link = whatsapp ? whatsappUrl(whatsapp, isEn ? `Hello ${b.name}, I am interested in the offer: ${title}` : `Bonjour ${b.name}, je suis intéressé(e) par l'offre : ${title}`) : null;
                     const inner = (
                       <>
