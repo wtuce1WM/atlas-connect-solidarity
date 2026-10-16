@@ -2375,6 +2375,8 @@ export type Database = {
           hero_portrait_video_id: string | null
           hero_video_url: string | null
           id: string
+          show_kp1: boolean
+          show_kp2: boolean
           story_ar: string | null
           story_en: string | null
           story_fr: string | null
@@ -2399,6 +2401,8 @@ export type Database = {
           hero_portrait_video_id?: string | null
           hero_video_url?: string | null
           id?: string
+          show_kp1?: boolean
+          show_kp2?: boolean
           story_ar?: string | null
           story_en?: string | null
           story_fr?: string | null
@@ -2423,6 +2427,8 @@ export type Database = {
           hero_portrait_video_id?: string | null
           hero_video_url?: string | null
           id?: string
+          show_kp1?: boolean
+          show_kp2?: boolean
           story_ar?: string | null
           story_en?: string | null
           story_fr?: string | null

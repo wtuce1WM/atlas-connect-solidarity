@@ -1,0 +1,1 @@
+ALTER TABLE public.business_showcase_site ADD COLUMN IF NOT EXISTS show_kp1 boolean NOT NULL DEFAULT false, ADD COLUMN IF NOT EXISTS show_kp2 boolean NOT NULL DEFAULT false;
