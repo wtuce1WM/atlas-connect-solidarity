@@ -591,7 +591,7 @@ const ShowcaseSite = () => {
             <div className="absolute inset-0 bg-gradient-to-b from-showcase-night/45 via-showcase-night/10 to-showcase-night/80" />
             <div className="relative z-10 flex min-h-[92dvh] max-w-7xl flex-col justify-end px-6 pb-16 pt-28 md:px-12 md:pb-20 lg:px-20">
               <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{b.city} · {isEn ? "Moroccan hospitality" : "Hospitalité marocaine"}</p>
-              <h1 className="max-w-4xl font-josefin text-5xl font-semibold leading-[1.03] text-primary-foreground md:text-7xl lg:text-8xl">{b.name}</h1>
+              <h1 className="max-w-4xl text-center font-josefin text-5xl font-semibold leading-[1.03] text-primary-foreground md:text-7xl md:text-left lg:text-8xl">{b.name}</h1>
               {tagline && <p className="mt-5 max-w-2xl text-lg leading-relaxed text-primary-foreground/85 md:text-2xl">{tagline}</p>}
               <div className="mt-8 flex flex-wrap gap-3">
                 {hasBooking && <Button onClick={openAvailability} size="lg"><CalendarDays className="h-5 w-5" />{primaryCta}</Button>}
