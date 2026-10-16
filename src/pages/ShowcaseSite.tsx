@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveShowcaseTemplate } from "@/components/showcase/templates";
-import { ArrowDown, CalendarDays, ExternalLink, ChevronLeft, ChevronRight, Loader2, Mail, MapPin, MessageCircle, Phone, X } from "lucide-react";
+import { ArrowDown, CalendarDays, ExternalLink, ChevronLeft, ChevronRight, Volume2, VolumeX, Loader2, Mail, MapPin, MessageCircle, Phone, X } from "lucide-react";
 import { trackBusinessEvent } from "@/lib/businessAnalytics";
 import { Button } from "@/components/ui/button";
 import HScroll from "@/components/HScroll";
@@ -27,6 +27,7 @@ interface ShowcaseData {
   hero_image_url: string | null;
   hero_landscape_video_id: string | null;
   hero_portrait_video_id: string | null;
+  hero_sound?: boolean;
   story_fr: string | null;
   story_en: string | null;
   story_ar: string | null;
@@ -269,7 +270,7 @@ const ShowcaseSite = () => {
       // Offres (même source que la Full Description) et vidéos de la galerie (modèle Hero video).
       const [{ data: promoRows }, { data: docVids }, { data: ytVids }, { data: menuDocRows }] = await Promise.all([
         (supabase as any).from("affiliate_business_promotions").select("id,title,title_fr,title_en,promotion_message,promotion_message_fr,promotion_message_en,savings_amount,promotion_currency,promotion_type,promotion_value").eq("business_id", biz.id).order("sort_order", { ascending: true }),
-        (supabase as any).from("business_documents").select("id,url,thumbnail_url").eq("business_id", biz.id).eq("type", "video"),
+        (supabase as any).from("business_documents").select("id,url,thumbnail_url,sort_order").eq("business_id", biz.id).eq("type", "video").order("sort_order", { ascending: true }),
         (supabase as any).from("business_youtube_videos").select("id,video_id,thumbnail,custom_thumbnail_url,sort_order").eq("business_id", biz.id).eq("is_visible", true).order("sort_order", { ascending: true }),
         (supabase as any).from("business_documents").select("id,url,name,type").eq("business_id", biz.id).in("type", ["pdf", "flipbook"]),
       ]);
@@ -402,6 +403,17 @@ const ShowcaseSite = () => {
     return [...new Set(source.filter(Boolean))];
   }, [business?.images]);
   const [heroIndex, setHeroIndex] = useState(0);
+  // Hero video : vidéo interne n°1 (sort_order), hors liens YouTube.
+  const heroVideoFile = useMemo(() => galleryVideos.find((v) => !/youtu\.?be/i.test(v.src))?.src || null, [galleryVideos]);
+  const [heroMuted, setHeroMuted] = useState(true);
+  const heroVideoRef = useRef<HTMLVideoElement | null>(null);
+  useEffect(() => {
+    // Son activé : tentative de lecture avec son ; si le navigateur refuse, on reste muet (bouton visible).
+    const el = heroVideoRef.current;
+    if (!el || !data?.hero_sound) return;
+    el.muted = false;
+    el.play().then(() => setHeroMuted(false)).catch(() => { el.muted = true; setHeroMuted(true); el.play().catch(() => {}); });
+  }, [heroVideoFile, data?.hero_sound]);
 
   // Galerie (les deux modèles) : vidéos du business uniquement (internes + liens YouTube), les images sont dans le Hero.
   const galleryItems = useMemo<Array<{ type: "image" | "video"; src: string; thumb: string | null }>>(
@@ -565,6 +577,16 @@ const ShowcaseSite = () => {
                   <ChevronRight className="h-7 w-7" />
                 </button>
               </>
+            )}
+            {template === "hero_video" && heroVideoFile && (
+              <video key={heroVideoFile} ref={heroVideoRef} src={heroVideoFile} autoPlay muted={heroMuted} loop playsInline preload="auto" aria-hidden="true"
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
+            )}
+            {template === "hero_video" && heroVideoFile && data.hero_sound && (
+              <button type="button" onClick={() => setHeroMuted((m) => !m)} aria-label={heroMuted ? (isEn ? "Sound on" : "Activer le son") : (isEn ? "Sound off" : "Couper le son")}
+                className="absolute bottom-6 right-20 z-20 rounded-full bg-showcase-night/40 p-3 text-primary-foreground backdrop-blur-md transition hover:bg-showcase-night/60 md:right-24">
+                {heroMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+              </button>
             )}
             <div className="absolute inset-0 bg-gradient-to-b from-showcase-night/45 via-showcase-night/10 to-showcase-night/80" />
             <div className="relative z-10 flex min-h-[92dvh] max-w-7xl flex-col justify-end px-6 pb-16 pt-28 md:px-12 md:pb-20 lg:px-20">

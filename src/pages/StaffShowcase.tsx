@@ -24,6 +24,7 @@ type Row = {
   hero_image_url: string | null;
   hero_landscape_video_id: string | null;
   hero_portrait_video_id: string | null;
+  hero_sound?: boolean;
   story_fr: string | null;
   story_en: string | null;
   cta_config: Record<string, string> | null;
@@ -90,6 +91,7 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
         hero_image_url: r.hero_image_url || null,
         hero_landscape_video_id: r.hero_landscape_video_id || null,
         hero_portrait_video_id: r.hero_portrait_video_id || null,
+        hero_sound: !!r.hero_sound,
         story_fr: r.story_fr || null,
         story_en: r.story_en || null,
         cta_config: cta,
@@ -147,7 +149,12 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
         <MediaField label="Image hero" hint="Image fixe du haut de page." kind="image" value={r.hero_image_url} onPick={() => setPicker("hero")} onClear={() => set("hero_image_url", null)} />
         <MediaField label="Vidéo / image paysage (écrans larges)" hint="Vidéo du business ; sa miniature sert d'image." kind="video" value={r.hero_landscape_video_id ? (videoThumbs[r.hero_landscape_video_id] ?? "") : null} onPick={() => setPicker("landscape")} onClear={() => set("hero_landscape_video_id", null)} />
         <MediaField label="Vidéo / image portrait (mobile)" hint="Vidéo du business ; sa miniature sert d'image." kind="video" value={r.hero_portrait_video_id ? (videoThumbs[r.hero_portrait_video_id] ?? "") : null} onPick={() => setPicker("portrait")} onClear={() => set("hero_portrait_video_id", null)} />
-        <div />
+        {resolveShowcaseTemplate(r.template) === "hero_video" ? (
+          <label className="flex items-center justify-between gap-3 rounded-md border p-3">
+            <span><span className="block text-sm font-medium">Son de la vidéo du haut de page</span><span className="block text-xs text-muted-foreground">Le navigateur peut démarrer sans son : un bouton permet alors au visiteur d'activer le son.</span></span>
+            <Switch checked={!!r.hero_sound} onCheckedChange={(v) => set("hero_sound", v)} />
+          </label>
+        ) : <div />}
         <div><Label>Histoire FR</Label><Textarea rows={4} value={r.story_fr || ""} onChange={(e) => set("story_fr", e.target.value)} /></div>
         <div><Label>Histoire EN</Label><Textarea rows={4} value={r.story_en || ""} onChange={(e) => set("story_en", e.target.value)} /></div>
         {CTA_FIELDS.map(([k, l]) => (
@@ -231,7 +238,7 @@ const StaffShowcase = () => {
       if (!session) { navigate("/staff/login"); return; }
       const { data, error } = await supabase
         .from("business_showcase_site")
-        .select("id,business_id,enabled,template,tagline_fr,tagline_en,hero_image_url,hero_landscape_video_id,hero_portrait_video_id,story_fr,story_en,cta_config,show_kp1,show_kp2,business:businesses(name,slug,logo_url,images,kp_regroupement,kp_regroupement_2)")
+        .select("id,business_id,enabled,template,tagline_fr,tagline_en,hero_image_url,hero_landscape_video_id,hero_portrait_video_id,hero_sound,story_fr,story_en,cta_config,show_kp1,show_kp2,business:businesses(name,slug,logo_url,images,kp_regroupement,kp_regroupement_2)")
         .order("created_at");
       if (error) toast.error(error.message);
       setRows((data as any) || []);
