@@ -198,6 +198,7 @@ const ShowcaseSite = () => {
   const [reserveOverlayOpen, setReserveOverlayOpen] = useState(false);
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroVideoIds, setHeroVideoIds] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
+  const [heroFiles, setHeroFiles] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [isPortrait, setIsPortrait] = useState(() => typeof window !== "undefined" && window.innerHeight > window.innerWidth);
   useEffect(() => {
     const mq = window.matchMedia("(orientation: portrait)");
@@ -263,6 +264,18 @@ const ShowcaseSite = () => {
           landscape: showcase.hero_landscape_video_id ? byId.get(showcase.hero_landscape_video_id)?.yt || null : null,
           portrait: showcase.hero_portrait_video_id ? byId.get(showcase.hero_portrait_video_id)?.yt || null : null,
         });
+        // Vidéos importées (business_documents) : lecture directe du fichier.
+        const { data: docs } = await (supabase as any)
+          .from("business_documents")
+          .select("id,url,thumbnail_url")
+          .in("id", heroIds);
+        const docById = new Map<string, { url: string; thumb: string | null }>(
+          ((docs || []) as Array<{ id: string; url: string; thumbnail_url: string | null }>).map((d) => [d.id, { url: d.url, thumb: d.thumbnail_url }])
+        );
+        const lf = showcase.hero_landscape_video_id ? docById.get(showcase.hero_landscape_video_id) : undefined;
+        const pf = showcase.hero_portrait_video_id ? docById.get(showcase.hero_portrait_video_id) : undefined;
+        setHeroFiles({ landscape: lf?.url || null, portrait: pf?.url || null });
+        if (lf?.thumb || pf?.thumb) setHeroThumbs((p) => ({ landscape: p.landscape || lf?.thumb || null, portrait: p.portrait || pf?.thumb || null }));
       }
       setHighlights((((highlightResult.data || []) as unknown) as Highlight[]).filter((item) =>
         Boolean(item.title?.trim() || item.description?.trim() || item.image_url)
@@ -386,6 +399,7 @@ const ShowcaseSite = () => {
   const heroVideo = isPortrait
     ? heroVideoIds.portrait || heroVideoIds.landscape
     : heroVideoIds.landscape || heroVideoIds.portrait;
+  const heroFile = isPortrait ? heroFiles.portrait || heroFiles.landscape : heroFiles.landscape || heroFiles.portrait;
   const heroMedia = heroLandscape || data.hero_image_url || gallery[0];
   const canonicalUrl = data.canonical_url || `https://oneworldmorocco.com/site/${slug}`;
   const primaryCta = data.cta_config?.primary_label || (isEn ? "Book your stay" : "Réserver votre séjour");
@@ -461,7 +475,11 @@ const ShowcaseSite = () => {
                 <img src={heroMedia} alt={b.name} className="absolute inset-0 h-full w-full object-cover" />
               </picture>
             )}
-            {template === "hero_video" && heroVideo && (
+            {template === "hero_video" && heroFile && (
+              <video key={heroFile} src={heroFile} autoPlay muted loop playsInline preload="auto" aria-hidden="true"
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
+            )}
+            {template === "hero_video" && !heroFile && heroVideo && (
               <iframe
                 src={`https://www.youtube.com/embed/${heroVideo}?autoplay=1&mute=1&loop=1&playlist=${heroVideo}&controls=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&disablekb=1`}
                 title={b.name}
