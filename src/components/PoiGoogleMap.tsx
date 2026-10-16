@@ -789,7 +789,13 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     // les zooms programmatiques du cadrage initial ne doivent pas élargir le Rayon.
     const markUserMoved = () => { userMovedRef.current = true; };
     let lastTouchAt = 0;
-    const markTouch = () => { lastTouchAt = Date.now(); };
+    // Un clic sur un Pill (ex. Rayon) n'est pas un geste carte : le zoom programmatique
+    // qui suit ne doit pas être pris pour un dézoom utilisateur (sinon cascade d'échelles).
+    const markTouch = (e: Event) => {
+      const t = e.target as Element | null;
+      if (t?.closest?.("[data-map-pill-row],[data-map-pill]")) return;
+      lastTouchAt = Date.now();
+    };
     containerRef.current.addEventListener("pointerdown", markTouch, true);
     containerRef.current.addEventListener("touchstart", markTouch, { capture: true, passive: true });
     const dragListener = mapRef.current.addListener("dragstart", markUserMoved);
