@@ -8,6 +8,7 @@ import { trackBusinessEvent } from "@/lib/businessAnalytics";
 import { Button } from "@/components/ui/button";
 import HScroll from "@/components/HScroll";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
+import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import { whatsappUrl } from "@/lib/phoneUtils";
 import { WidgetFrame } from "@/pages/Widgets";
 import EmbedReviewsWidget, {
@@ -203,6 +204,8 @@ const ShowcaseSite = () => {
   const [galleryVideos, setGalleryVideos] = useState<Array<{ src: string; thumb: string | null }>>([]);
   const [ytVideos, setYtVideos] = useState<Array<{ src: string; thumb: string | null }>>([]);
   const [ytIndex, setYtIndex] = useState<number | null>(null);
+  const [menuDocs, setMenuDocs] = useState<Array<{ url: string; name: string; type: "pdf" | "flipbook" }>>([]);
+  const [openDoc, setOpenDoc] = useState<{ url: string; name: string; type: "pdf" | "flipbook"; ts: number } | null>(null);
   const [kpSections, setKpSections] = useState<Array<{ key: string; title: string; members: Array<{ id: string; name: string; slug: string; images: string[] | null; logo_url: string | null }> }>>([]);
   const [isPortrait, setIsPortrait] = useState(() => typeof window !== "undefined" && window.innerHeight > window.innerWidth);
   useEffect(() => {
@@ -217,7 +220,7 @@ const ShowcaseSite = () => {
       if (!slug) return;
       const { data: biz } = await supabase
         .from("businesses")
-        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, logo_url, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta, reserve_now_url, reserve_now_force_external, online_shop_url, online_shop_force_external, url_4, url_4_force_external, url_5, url_5_force_external, opening_hours, show_opening_hours, is_open_24h, show_youtube_tab")
+        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, logo_url, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta, reserve_now_url, reserve_now_force_external, online_shop_url, online_shop_force_external, url_4, url_4_force_external, url_5, url_5_force_external, opening_hours, show_opening_hours, is_open_24h, show_youtube_tab, website, website_cta, menu_url, menu_name, flipbook_url, flipbook_name, pdf_url")
         .eq("slug", slug)
         .maybeSingle();
       if (!biz) { setNotFound(true); setLoading(false); return; }
@@ -264,11 +267,23 @@ const ShowcaseSite = () => {
       setKpSections(kpLoaded.filter((s) => s.members.length > 0));
 
       // Offres (même source que la Full Description) et vidéos de la galerie (modèle Hero video).
-      const [{ data: promoRows }, { data: docVids }, { data: ytVids }] = await Promise.all([
+      const [{ data: promoRows }, { data: docVids }, { data: ytVids }, { data: menuDocRows }] = await Promise.all([
         (supabase as any).from("affiliate_business_promotions").select("id,title,title_fr,title_en,promotion_message,promotion_message_fr,promotion_message_en,savings_amount,promotion_currency,promotion_type,promotion_value").eq("business_id", biz.id).order("sort_order", { ascending: true }),
         (supabase as any).from("business_documents").select("id,url,thumbnail_url").eq("business_id", biz.id).eq("type", "video"),
         (supabase as any).from("business_youtube_videos").select("id,video_id,thumbnail,custom_thumbnail_url,sort_order").eq("business_id", biz.id).eq("is_visible", true).order("sort_order", { ascending: true }),
+        (supabase as any).from("business_documents").select("id,url,name,type").eq("business_id", biz.id).in("type", ["pdf", "flipbook"]),
       ]);
+      // Section « La carte » : flipbooks + PDF (champs fiche + documents), un même lien une seule fois.
+      const menuList: Array<{ url: string; name: string; type: "pdf" | "flipbook" }> = [];
+      const pushMenu = (url: any, name: any, type: "pdf" | "flipbook") => {
+        if (typeof url === "string" && url && !menuList.some((m) => m.url === url)) menuList.push({ url, name: name || "", type });
+      };
+      const isPdf = (u: any) => typeof u === "string" && /\.pdf($|\?)/i.test(u);
+      pushMenu((biz as any).flipbook_url, (biz as any).flipbook_name, "flipbook");
+      pushMenu((biz as any).menu_url, (biz as any).menu_name, isPdf((biz as any).menu_url) ? "pdf" : "flipbook");
+      ((menuDocRows || []) as any[]).forEach((d) => pushMenu(d.url, d.name, d.type === "pdf" ? "pdf" : "flipbook"));
+      pushMenu((biz as any).pdf_url, null, "pdf");
+      setMenuDocs(menuList);
       setPromos(((promoRows || []) as any[]).map((p) => {
         const fr = p.title_fr || p.title || "";
         const mfr = p.promotion_message_fr || p.promotion_message || "";
@@ -440,6 +455,7 @@ const ShowcaseSite = () => {
   const roomsLabel = isLodging ? (isEn ? "Rooms" : "Chambres") : isRestaurant ? (isEn ? "Menu" : "La carte") : (isEn ? "Services" : "Prestations");
   const roomsTitle = isLodging ? (isEn ? "Our rooms" : "Nos chambres") : isRestaurant ? (isEn ? "Our menu" : "Notre carte") : (isEn ? "Our services" : "Nos prestations");
   const roomsEyebrow = isLodging ? (isEn ? `Sleep at ${data?.business?.name ?? ""}` : `Dormir à ${data?.business?.name ?? ""}`) : (isEn ? `At ${data?.business?.name ?? ""}` : `Chez ${data?.business?.name ?? ""}`);
+  const menuLabel = highlights.length > 0 && isRestaurant ? (isEn ? "Menus" : "Menus") : (isEn ? "Menu" : "La carte");
   const tagline = (isEn ? data.tagline_en || b.hook_en : data.tagline_fr || b.hook_fr) || "";
   const story = (isEn ? data.story_en || b.description_en : data.story_fr || b.description_fr) || "";
   const heroLandscape = heroThumbs.landscape;
@@ -454,7 +470,8 @@ const ShowcaseSite = () => {
   const whatsapp = data.cta_config?.whatsapp || b.whatsapp;
   const phone = data.cta_config?.phone || b.phone;
   const email = data.cta_config?.email || b.email;
-  const reserveUrl = data.cta_config?.reserve_url;
+  // Bouton Réserver toujours affiché dès qu'un lien existe (back-office vitrine, sinon lien de réservation de la fiche).
+  const reserveUrl = data.cta_config?.reserve_url || b.reserve_now_url || null;
   // Même règle que l'overlay FullDescription de BookOnlineSlidePanel : seul le flag
   // « Lien externe » (force_external) de l'URL 1 à 5 correspondante impose un nouvel onglet.
   const reserveForceExternal = (() => {
@@ -512,6 +529,7 @@ const ShowcaseSite = () => {
             <button onClick={() => scrollToId("story")}>{isEn ? `The ${venueEn}` : (isRiad ? "Le riad" : "L’établissement")}</button>
             {highlights.length > 0 && <button onClick={() => scrollToId("rooms")}>{roomsLabel}</button>}
             {promos.length > 0 && <button onClick={() => scrollToId("offers")}>{isEn ? "Offers" : "Offres"}</button>}
+            {menuDocs.length > 0 && <button onClick={() => scrollToId("menu")}>{menuLabel}</button>}
             {galleryItems.length > 0 && <button onClick={() => scrollToId("gallery")}>{isEn ? "Gallery" : "Galerie"}</button>}
             {ytVideos.length > 0 && <button onClick={() => scrollToId("youtube")}>{isEn ? "Videos" : "Vidéos"}</button>}
             {blogPosts.length > 0 && <button onClick={() => scrollToId("blog")}>Blog</button>}
@@ -640,6 +658,22 @@ const ShowcaseSite = () => {
                       </article>
                     );
                   })}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {menuDocs.length > 0 && (
+            <section id="menu" className="scroll-mt-8 px-6 py-20 md:px-12 md:py-28">
+              <div className="mx-auto max-w-6xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? `At ${b.name}` : `Chez ${b.name}`}</p>
+                <h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{menuLabel}</h2>
+                <div className="mt-10 flex flex-wrap gap-4">
+                  {menuDocs.map((m) => (
+                    <Button key={m.url} size="lg" variant={m.type === "flipbook" ? "default" : "outline"} onClick={() => setOpenDoc({ ...m, ts: Date.now() })}>
+                      {m.type === "flipbook" ? (isEn ? "Browse the menu" : "Feuilleter la carte") : (isEn ? "PDF menu" : "Menu PDF")}
+                    </Button>
+                  ))}
                 </div>
               </div>
             </section>
@@ -860,6 +894,11 @@ const ShowcaseSite = () => {
         </aside>
       </div>
 
+      {openDoc && (
+        <div className="fixed inset-0 z-[90]">
+          <DocumentOverlay url={openDoc.url} name={openDoc.name || menuLabel} type={openDoc.type} ts={openDoc.ts} onClose={() => setOpenDoc(null)} />
+        </div>
+      )}
       {reserveOverlayOpen && reserveUrl && (
         <div className="fixed inset-0 z-[90] flex flex-col bg-showcase-night">
           <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
