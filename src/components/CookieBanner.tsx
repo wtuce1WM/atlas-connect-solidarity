@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getStoredConsent, setConsent } from "@/lib/analytics";
+import { getStoredConsent, setConsent, OPEN_COOKIE_SETTINGS_EVENT } from "@/lib/analytics";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
@@ -28,7 +28,9 @@ const CookieBanner = () => {
     const id = window.setTimeout(() => {
       if (!getStoredConsent()) setVisible(true);
     }, 1200);
-    return () => window.clearTimeout(id);
+    const reopen = () => setVisible(true);
+    window.addEventListener(OPEN_COOKIE_SETTINGS_EVENT, reopen);
+    return () => { window.clearTimeout(id); window.removeEventListener(OPEN_COOKIE_SETTINGS_EVENT, reopen); };
   }, [isEmbed]);
 
   if (isEmbed || !visible) return null;
@@ -67,7 +69,7 @@ const CookieBanner = () => {
             <button
               type="button"
               onClick={() => decide("denied")}
-              className="flex-1 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20 sm:flex-none"
+              className="flex-1 rounded-full bg-[#C04F17] px-4 py-2 text-sm font-bold text-white transition hover:brightness-110 sm:flex-none"
             >
               {en ? "Decline" : "Refuser"}
             </button>

@@ -10,6 +10,23 @@ declare global {
 
 const GA_ID = "G-6Z7316E9Q5";
 const CONSENT_KEY = "cookie-consent-v1";
+const CONSENT_MAX_AGE_MS = 182 * 24 * 3600 * 1000;
+export const OPEN_COOKIE_SETTINGS_EVENT = "owm:open-cookie-settings";
+
+/** Rouvre la bannière cookies (lien « Gérer mes cookies »). */
+export function openCookieSettings() {
+  window.dispatchEvent(new Event(OPEN_COOKIE_SETTINGS_EVENT));
+}
+
+/** Charge gtag.js une seule fois, uniquement après consentement. */
+function loadGaScript() {
+  if (typeof document === "undefined" || document.getElementById("ga-gtag")) return;
+  const s = document.createElement("script");
+  s.async = true;
+  s.id = "ga-gtag";
+  s.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+  document.head.appendChild(s);
+}
 
 export type ConsentChoice = "granted" | "denied";
 
@@ -21,7 +38,10 @@ export interface ConsentState {
 export function getStoredConsent(): ConsentState | null {
   try {
     const raw = localStorage.getItem(CONSENT_KEY);
-    return raw ? (JSON.parse(raw) as ConsentState) : null;
+    const state = raw ? (JSON.parse(raw) as ConsentState) : null;
+    // Choix valable 6 mois : au-delà, la bannière est réaffichée.
+    if (!state || !state.decidedAt || Date.now() - state.decidedAt > CONSENT_MAX_AGE_MS) return null;
+    return state;
   } catch {
     return null;
   }
@@ -40,6 +60,14 @@ export function setConsent(analytics: ConsentChoice) {
       ad_storage: "denied",
       ad_user_data: "denied",
       ad_personalization: "denied",
+    });
+  }
+  if (analytics === "granted") loadGaScript();
+  else if (typeof document !== "undefined") {
+    // Retrait du consentement : suppression des cookies GA posés sur ce domaine.
+    document.cookie.split(";").map((c) => c.split("=")[0].trim()).filter((n) => n === "_ga" || n.startsWith("_ga_")).forEach((n) => {
+      const host = window.location.hostname.replace(/^www\./, "");
+      [host, `.${host}`, ""].forEach((d) => { document.cookie = `${n}=; Max-Age=0; path=/${d ? `; domain=${d}` : ""}`; });
     });
   }
 }

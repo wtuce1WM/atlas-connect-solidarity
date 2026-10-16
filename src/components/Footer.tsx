@@ -1,3 +1,4 @@
+import { openCookieSettings } from "@/lib/analytics";
 import { useEffect, useState } from "react";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -212,6 +213,7 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
             <a href="/confidentialite" className="transition-colors hover:text-terracotta">{t("footer.privacy")}</a>
             <a href="/cgu" className="transition-colors hover:text-terracotta">{t("footer.terms")}</a>
             <a href="/cookies" className="transition-colors hover:text-terracotta">{t("footer.cookies")}</a>
+            <button type="button" onClick={openCookieSettings} className="transition-colors hover:text-terracotta">{language === "en" ? "Manage cookies" : language === "ar" ? "إدارة ملفات تعريف الارتباط" : "Gérer mes cookies"}</button>
           </div>
         </div>
       </div>
