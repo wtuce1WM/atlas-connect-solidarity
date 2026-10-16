@@ -82,6 +82,24 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
         </div>
       </div>
 
+      <div>
+        <Label>Modèle</Label>
+        <div className="grid sm:grid-cols-3 gap-3 mt-2">
+          {SHOWCASE_TEMPLATES.map((t) => {
+            const active = resolveShowcaseTemplate(r.template) === t.id;
+            return (
+              <div key={t.id} className={`rounded-lg border p-3 ${active ? "border-primary ring-1 ring-primary" : ""}`}>
+                <button type="button" onClick={() => set("template", t.id)} className="text-left w-full">
+                  <div className="font-semibold text-sm">{t.label}{active && " ✓"}</div>
+                  <p className="text-xs text-muted-foreground mt-1">{t.description}</p>
+                </button>
+                <a href={`/site/${slug}?template=${t.id}`} target="_blank" rel="noreferrer" className="text-xs underline inline-flex items-center gap-1 mt-2">Prévisualiser <ExternalLink className="h-3 w-3" /></a>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid md:grid-cols-2 gap-4">
         <div><Label>Accroche FR</Label><Input value={r.tagline_fr || ""} onChange={(e) => set("tagline_fr", e.target.value)} /></div>
         <div><Label>Accroche EN</Label><Input value={r.tagline_en || ""} onChange={(e) => set("tagline_en", e.target.value)} /></div>
