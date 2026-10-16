@@ -159,6 +159,24 @@ const ShowcaseSite = () => {
     } catch { /* iframe non accessible */ }
   }, [assistantOpen]);
   const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
+  // Blog vitrine : articles rattachés (propriétaires d'abord, puis génériques), lus dans un overlay.
+  const [blogPosts, setBlogPosts] = useState<{ slug: string; title_fr: string; title_en: string | null; cover: string | null; kind: string | null }[]>([]);
+  const [articleSlug, setArticleSlug] = useState<string | null>(null);
+  const showcaseBusinessId = data?.business_id;
+  useEffect(() => {
+    if (!showcaseBusinessId) return;
+    supabase
+      .from("blog_posts")
+      .select("slug, title_fr, title_en, cover_image_url, custom_hero_image_url, anchor_kind, sort_order")
+      .eq("anchor_business_id", showcaseBusinessId)
+      .eq("is_published", true)
+      .order("sort_order", { ascending: true })
+      .then(({ data: rows }) => {
+        const list = (rows ?? []).map((r: any) => ({ slug: r.slug, title_fr: r.title_fr, title_en: r.title_en, cover: r.custom_hero_image_url || r.cover_image_url, kind: r.anchor_kind }));
+        list.sort((a, b) => (a.kind === "owner" ? 0 : 1) - (b.kind === "owner" ? 0 : 1));
+        setBlogPosts(list);
+      });
+  }, [showcaseBusinessId]);
   const [reserveOverlayOpen, setReserveOverlayOpen] = useState(false);
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroVideoIds, setHeroVideoIds] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
@@ -406,6 +424,7 @@ const ShowcaseSite = () => {
             <button onClick={() => scrollToId("story")}>{isEn ? `The ${venueEn}` : (isRiad ? "Le riad" : "L’établissement")}</button>
             <button onClick={() => scrollToId("rooms")}>{isEn ? "Rooms" : "Chambres"}</button>
             <button onClick={() => scrollToId("gallery")}>{isEn ? "Gallery" : "Galerie"}</button>
+            {blogPosts.length > 0 && <button onClick={() => scrollToId("blog")}>Blog</button>}
             <button onClick={() => scrollToId("location")}>{isEn ? "Location" : "Accès"}</button>
           </nav>
           <div className="flex items-center gap-3">
@@ -523,6 +542,36 @@ const ShowcaseSite = () => {
                 </HScroll>
               </div>
             </section>
+          )}
+
+          {blogPosts.length > 0 && (
+            <section id="blog" className="scroll-mt-8 px-4 pb-20 md:px-8 md:pb-28">
+              <div className="mx-auto max-w-7xl">
+                <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Our recommendations" : "Nos recommandations"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">Blog</h2></div>
+                <HScroll className="scrollbar-hide mt-10 flex gap-4 overflow-x-auto pb-3 cursor-grab md:gap-6" aria-label="Blog">
+                  {blogPosts.map((p) => {
+                    const title = (isEn && p.title_en) || p.title_fr;
+                    return (
+                      <button key={p.slug} onClick={() => setArticleSlug(p.slug)} className="w-64 shrink-0 text-left md:w-80">
+                        <div className="h-40 overflow-hidden rounded-lg bg-showcase-night md:h-48">
+                          {p.cover && <img src={p.cover} alt={title} loading="lazy" draggable={false} className="h-full w-full object-cover" />}
+                        </div>
+                        <p className="mt-3 font-josefin text-lg font-semibold leading-snug line-clamp-2">{title}</p>
+                      </button>
+                    );
+                  })}
+                </HScroll>
+              </div>
+            </section>
+          )}
+
+          {articleSlug && (
+            <div className="fixed inset-0 z-[90] bg-showcase-night">
+              <iframe title="Article" src={`/embed/ask/article/${articleSlug}?showcase=1`} className="h-full w-full border-0" />
+              <Button size="icon" variant="secondary" onClick={() => setArticleSlug(null)} aria-label={isEn ? "Close article" : "Fermer l'article"} className="absolute left-4 top-[calc(env(safe-area-inset-top)+1rem)] rounded-full">
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
           )}
 
           {hasBooking && (
