@@ -1,0 +1,1 @@
+ALTER TABLE public.business_showcase_site ADD COLUMN IF NOT EXISTS hero_sound boolean NOT NULL DEFAULT false;
