@@ -603,7 +603,7 @@ const BlogArticleTemplate = ({
 
 
         <div className="absolute inset-0 bg-gradient-to-t from-[#3B3B3B] via-[#3B3B3B]/50 to-[#3B3B3B]/30" />
-        {embedBackSlug && (
+        {embedBackSlug && !(typeof window !== "undefined" && new URLSearchParams(window.location.search).has("showcase")) && (
           <button
             onClick={() => navigate(embedBackSlug.startsWith("/") ? embedBackSlug : `/embed/ask/${embedBackSlug}`)}
             className="fixed top-[calc(1rem+env(safe-area-inset-top))] left-[calc(1rem+env(safe-area-inset-left))] z-40 h-10 w-10 flex items-center justify-center rounded-full bg-black text-white shadow-2xl hover:opacity-90 transition-opacity"
