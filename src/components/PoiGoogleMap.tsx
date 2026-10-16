@@ -656,7 +656,17 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     // En mode décalé, ne jamais construire la carte sur un centre de secours :
     // attendre les coordonnées du Master garantit la bonne position dès la 1re frame.
     if (centerAtBottomRatio != null && !center) return;
-    const initZoom = 13;
+    let initZoom = 13;
+    {
+      const h = containerRef.current.clientHeight || 0;
+      const w = containerRef.current.clientWidth || 0;
+      if (center && fitRadiusKm && fitRadiusKm > 0 && centerAtBottomRatio != null && h > 0 && w > 0) {
+        const availablePx = Math.max(40, Math.min(w / 2, h * Math.max(centerAtBottomRatio, 0.15)) - 24);
+        const mpp = 156543.03392 * Math.cos((center.lat * Math.PI) / 180);
+        const t = Math.log2((mpp * availablePx) / (fitRadiusKm * 1000));
+        initZoom = Math.max(4, Math.min(18, Math.round(t * 2) / 2));
+      }
+    }
     let initCenter = center || { lat: 31.63, lng: -7.98 };
     if (center && centerAtBottomRatio != null && centerAtBottomRatio >= 0 && centerAtBottomRatio <= 1) {
       const height = containerRef.current.clientHeight || 0;
@@ -1426,7 +1436,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         return s[Math.min(s.length - 1, Math.floor(s.length * 0.9))];
       };
 
-      if (center && pts.length && height > 0 && width > 0) {
+      // Rayon défini : l'échelle vient directement du rayon (pas des marqueurs),
+      // donc aucune succession d'échelles pendant le chargement des lieux.
+      if (center && pts.length && height > 0 && width > 0 && !(fitRadiusKm && fitRadiusKm > 0)) {
         const cLat = pts.reduce((s, p) => s + p.lat, 0) / pts.length;
         const cLng = pts.reduce((s, p) => s + p.lng, 0) / pts.length;
         const spreadFromMaster = pct90(pts.map((p) => haversineKm(center.lat, center.lng, p.lat, p.lng)));
