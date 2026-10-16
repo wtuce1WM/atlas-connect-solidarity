@@ -742,7 +742,7 @@ const ShowcaseSite = () => {
 
 
           <section id="location" className="scroll-mt-8 grid bg-showcase-night text-primary-foreground lg:grid-cols-2">
-            <div className="flex flex-col justify-center px-6 py-16 md:px-12 lg:px-20"><MapPin className="h-7 w-7 text-showcase-brass"/><h2 className="mt-5 font-josefin text-4xl font-semibold md:text-5xl">{isEn ? "In the heart of the Medina" : "Au cœur de la Médina"}</h2><p className="mt-5 text-primary-foreground/70">{b.address}<br/>{b.city}, {b.country}</p>{(() => {
+            <div className="flex flex-col justify-center px-6 py-16 md:px-12 lg:px-20"><MapPin className="h-7 w-7 text-showcase-brass"/><h2 className="mt-5 font-josefin text-4xl font-semibold md:text-5xl">{isEn ? "Getting here" : "Nous trouver"}</h2><p className="mt-5 text-primary-foreground/70">{b.address}<br/>{b.city}, {b.country}</p>{(() => {
               if (b.is_open_24h) return <p className="mt-6 text-sm font-semibold text-showcase-brass">{isEn ? "Open 24/7" : "Ouvert 24h/24"}</p>;
               const hours = b.show_opening_hours !== false ? (b.opening_hours as Record<string, any> | null) : null;
               const days: Array<[string, string, string]> = [["monday","Lundi","Monday"],["tuesday","Mardi","Tuesday"],["wednesday","Mercredi","Wednesday"],["thursday","Jeudi","Thursday"],["friday","Vendredi","Friday"],["saturday","Samedi","Saturday"],["sunday","Dimanche","Sunday"]];
