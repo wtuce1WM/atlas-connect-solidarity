@@ -461,7 +461,7 @@ const ShowcaseSite = () => {
                 <img src={heroMedia} alt={b.name} className="absolute inset-0 h-full w-full object-cover" />
               </picture>
             )}
-            {heroVideo && (
+            {template === "hero_video" && heroVideo && (
               <iframe
                 src={`https://www.youtube.com/embed/${heroVideo}?autoplay=1&mute=1&loop=1&playlist=${heroVideo}&controls=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&disablekb=1`}
                 title={b.name}

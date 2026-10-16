@@ -1,0 +1,3 @@
+ALTER TABLE public.business_showcase_site DROP CONSTRAINT business_showcase_site_template_check;
+ALTER TABLE public.business_showcase_site ADD CONSTRAINT business_showcase_site_template_check CHECK (template IN ('premium','hero_video'));
+UPDATE public.business_showcase_site SET template = 'hero_video' WHERE template = 'premium' AND (hero_landscape_video_id IS NOT NULL OR hero_portrait_video_id IS NOT NULL);

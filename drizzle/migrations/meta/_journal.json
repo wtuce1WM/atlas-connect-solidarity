@@ -106,6 +106,13 @@
       "when": 1792147224549,
       "tag": "0014_showcase_template",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1792147992909,
+      "tag": "0015_showcase_template_hero_video",
+      "breakpoints": true
     }
   ]
 }
