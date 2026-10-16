@@ -484,6 +484,7 @@ const ShowcaseSite = () => {
   const phone = data.cta_config?.phone || b.phone;
   const email = data.cta_config?.email || b.email;
   // Bouton Réserver toujours affiché dès qu'un lien existe (back-office vitrine, sinon lien de réservation de la fiche).
+  const assistantName = (data.cta_config as any)?.assistant_name || "Zitoun IA";
   const reserveUrl = data.cta_config?.reserve_url || b.reserve_now_url || null;
   // Même règle que l'overlay FullDescription de BookOnlineSlidePanel : seul le flag
   // « Lien externe » (force_external) de l'URL 1 à 5 correspondante impose un nouvel onglet.
@@ -895,10 +896,10 @@ const ShowcaseSite = () => {
         <Button
           type="button"
           onClick={() => setAssistantOpen(true)}
-          aria-label={isEn ? "Open Zitoun AI" : "Ouvrir Zitoun IA"}
+          aria-label={isEn ? `Open ${assistantName}` : `Ouvrir ${assistantName}`}
           className="fixed right-4 top-1/4 z-[80] h-auto origin-right -translate-y-1/2 -rotate-90 rounded-b-none rounded-t-lg px-5 py-3 font-josefin text-xs font-semibold uppercase shadow-xl md:px-6"
         >
-          Zitoun IA
+          {assistantName}
         </Button>
 
         <div
@@ -909,14 +910,14 @@ const ShowcaseSite = () => {
         <aside
           role="dialog"
           aria-modal="true"
-          aria-label={isEn ? "Zitoun AI assistant" : "Assistant IA Zitoun"}
+          aria-label={assistantName}
           aria-hidden={!assistantOpen}
           className={`fixed inset-y-0 right-0 z-[82] flex w-full flex-col bg-showcase-paper shadow-2xl transition-transform duration-300 ease-out md:w-[70vw] ${assistantOpen ? "translate-x-0" : "translate-x-full"}`}
         >
           <iframe
             ref={assistantFrameRef}
-            src={`/embed/ask/${slug}?theme=light&lang=${language}&bg=transparent&card=F7F1E8&panel=1&name=Zitoun%20IA`}
-            title={isEn ? `Zitoun AI — ${b.name}` : `Assistant IA Zitoun — ${b.name}`}
+            src={`/embed/ask/${slug}?theme=light&lang=${language}&bg=transparent&card=F7F1E8&panel=1&name=${encodeURIComponent(assistantName)}`}
+            title={`${assistantName} — ${b.name}`}
             allow="clipboard-write; geolocation; microphone"
             loading="lazy"
             className="h-full w-full flex-1 border-0 bg-showcase-paper"
