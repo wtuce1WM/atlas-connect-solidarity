@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveShowcaseTemplate } from "@/components/showcase/templates";
-import { ArrowDown, CalendarDays, ExternalLink, ChevronRight, Loader2, Mail, MapPin, MessageCircle, Phone, X } from "lucide-react";
+import { ArrowDown, CalendarDays, ExternalLink, ChevronLeft, ChevronRight, Loader2, Mail, MapPin, MessageCircle, Phone, X } from "lucide-react";
 import { trackBusinessEvent } from "@/lib/businessAnalytics";
 import { Button } from "@/components/ui/button";
 import HScroll from "@/components/HScroll";
@@ -289,7 +289,10 @@ const ShowcaseSite = () => {
         const mfr = p.promotion_message_fr || p.promotion_message || "";
         return { id: p.id, title: fr, message: mfr, title_en: p.title_en || fr, message_en: p.promotion_message_en || mfr, savings: p.savings_amount, currency: p.promotion_currency, ptype: p.promotion_type, pvalue: p.promotion_value };
       }).filter((p) => p.title));
-      setGalleryVideos(((docVids || []) as any[]).filter((d) => d.url).map((d) => ({ src: d.url as string, thumb: (d.thumbnail_url as string) || null })));
+      setGalleryVideos(((docVids || []) as any[]).filter((d) => d.url).map((d) => {
+        const yt = String(d.url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
+        return { src: d.url as string, thumb: (d.thumbnail_url as string) || (yt ? `https://i.ytimg.com/vi/${yt}/hqdefault.jpg` : null) };
+      }));
       // Section « Vidéos YouTube » : vidéos actives, uniquement si l'onglet YouTube est activé.
       setYtVideos(!(biz as any).show_youtube_tab ? [] : [
         ...((ytVids || []) as any[]).filter((v) => v.video_id).map((v) => ({ src: `https://www.youtube.com/watch?v=${v.video_id}`, thumb: (v.custom_thumbnail_url || v.thumbnail || `https://i.ytimg.com/vi/${v.video_id}/hqdefault.jpg`) as string })),
@@ -394,18 +397,16 @@ const ShowcaseSite = () => {
   }, [business?.id]);
 
   const gallery = useMemo<string[]>(() => {
-    const configured = Array.isArray(data?.gallery_image_ids) ? data.gallery_image_ids.filter((value): value is string => typeof value === "string") : [];
-    const source: string[] = configured.length > 0
-      ? configured
-      : (Array.isArray(business?.images) ? business.images.filter((value: unknown): value is string => typeof value === "string") : []);
+    // Hero : toutes les images du business dans leur ordre (sort-order), sans l'image Hero du back-office.
+    const source: string[] = Array.isArray(business?.images) ? business.images.filter((value: unknown): value is string => typeof value === "string") : [];
     return [...new Set(source.filter(Boolean))];
-  }, [business?.images, data?.gallery_image_ids]);
+  }, [business?.images]);
+  const [heroIndex, setHeroIndex] = useState(0);
 
-  // Galerie : Hero video → vidéos uniquement ; Images only → masquée s'il n'y a qu'une image.
-  const galleryItems = useMemo<Array<{ type: "image" | "video"; src: string; thumb: string | null }>>(() => {
-    if (template === "hero_video") return galleryVideos.map((v) => ({ type: "video" as const, src: v.src, thumb: v.thumb }));
-    return gallery.length > 1 ? gallery.map((src) => ({ type: "image" as const, src, thumb: src })) : [];
-  }, [template, galleryVideos, gallery]);
+  // Galerie (les deux modèles) : vidéos du business uniquement (internes + liens YouTube), les images sont dans le Hero.
+  const galleryItems = useMemo<Array<{ type: "image" | "video"; src: string; thumb: string | null }>>(
+    () => galleryVideos.map((v) => ({ type: "video" as const, src: v.src, thumb: v.thumb })),
+    [galleryVideos]);
   const galleryOpen = galleryIndex !== null;
   useEffect(() => {
     if (!galleryOpen) return;
@@ -545,25 +546,25 @@ const ShowcaseSite = () => {
 
         <main id="top">
           <section className="relative min-h-[92dvh] overflow-hidden bg-showcase-night">
-            {heroMedia && (
+            {gallery.length > 0 ? (
+              <img key={gallery[heroIndex % gallery.length]} src={gallery[heroIndex % gallery.length]} alt={`${b.name} — ${(heroIndex % gallery.length) + 1}`} className="absolute inset-0 h-full w-full object-cover animate-fade-in" />
+            ) : heroMedia && (
               <picture>
                 {heroPortrait && <source media="(orientation: portrait)" srcSet={heroPortrait} />}
                 <img src={heroMedia} alt={b.name} className="absolute inset-0 h-full w-full object-cover" />
               </picture>
             )}
-            {template === "hero_video" && heroFile && (
-              <video key={heroFile} src={heroFile} autoPlay muted loop playsInline preload="auto" aria-hidden="true"
-                className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
-            )}
-            {template === "hero_video" && !heroFile && heroVideo && (
-              <iframe
-                src={`https://www.youtube.com/embed/${heroVideo}?autoplay=1&mute=1&loop=1&playlist=${heroVideo}&controls=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&disablekb=1`}
-                title={b.name}
-                className="pointer-events-none absolute left-1/2 top-1/2 h-[56.25vw] min-h-full w-[177.78vh] min-w-full -translate-x-1/2 -translate-y-1/2"
-                style={{ border: 0 }}
-                allow="autoplay; encrypted-media; picture-in-picture"
-                tabIndex={-1}
-              />
+            {gallery.length > 1 && (
+              <>
+                <button type="button" aria-label={isEn ? "Previous image" : "Image précédente"} onClick={() => setHeroIndex((i) => (i - 1 + gallery.length) % gallery.length)}
+                  className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-showcase-night/40 p-2 text-primary-foreground backdrop-blur-md transition hover:bg-showcase-night/60 md:left-6">
+                  <ChevronLeft className="h-7 w-7" />
+                </button>
+                <button type="button" aria-label={isEn ? "Next image" : "Image suivante"} onClick={() => setHeroIndex((i) => (i + 1) % gallery.length)}
+                  className="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-showcase-night/40 p-2 text-primary-foreground backdrop-blur-md transition hover:bg-showcase-night/60 md:right-6">
+                  <ChevronRight className="h-7 w-7" />
+                </button>
+              </>
             )}
             <div className="absolute inset-0 bg-gradient-to-b from-showcase-night/45 via-showcase-night/10 to-showcase-night/80" />
             <div className="relative z-10 flex min-h-[92dvh] max-w-7xl flex-col justify-end px-6 pb-16 pt-28 md:px-12 md:pb-20 lg:px-20">
@@ -690,7 +691,7 @@ const ShowcaseSite = () => {
             <section id="gallery" className="scroll-mt-8 px-4 py-20 md:px-8 md:py-28">
               <div className="mx-auto max-w-7xl">
                 <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? `Life at the ${venueEn}` : (isRiad ? "La vie au riad" : "La vie à l’établissement")}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">Galerie</h2></div>
-                <HScroll className="scrollbar-hide mt-10 flex gap-3 overflow-x-auto pb-3 cursor-grab md:gap-5" aria-label={isEn ? "Photo gallery" : "Galerie photos"}>
+                <HScroll className="scrollbar-hide mt-10 flex gap-3 overflow-x-auto pb-3 cursor-grab md:gap-5" aria-label={isEn ? "Video gallery" : "Galerie vidéos"}>
                   {galleryItems.map((item, index) => (
                     <Button
                       key={item.src}
