@@ -201,6 +201,8 @@ const ShowcaseSite = () => {
   const [heroFiles, setHeroFiles] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [promos, setPromos] = useState<Array<{ id: string; title: string; message: string; title_en: string; message_en: string; savings: number | null; currency: string | null; ptype: string | null; pvalue: number | null }>>([]);
   const [galleryVideos, setGalleryVideos] = useState<Array<{ src: string; thumb: string | null }>>([]);
+  const [ytVideos, setYtVideos] = useState<Array<{ src: string; thumb: string | null }>>([]);
+  const [ytIndex, setYtIndex] = useState<number | null>(null);
   const [kpSections, setKpSections] = useState<Array<{ key: string; title: string; members: Array<{ id: string; name: string; slug: string; images: string[] | null; logo_url: string | null }> }>>([]);
   const [isPortrait, setIsPortrait] = useState(() => typeof window !== "undefined" && window.innerHeight > window.innerWidth);
   useEffect(() => {
@@ -215,7 +217,7 @@ const ShowcaseSite = () => {
       if (!slug) return;
       const { data: biz } = await supabase
         .from("businesses")
-        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, logo_url, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta, reserve_now_url, reserve_now_force_external, online_shop_url, online_shop_force_external, url_4, url_4_force_external, url_5, url_5_force_external, opening_hours, show_opening_hours, is_open_24h")
+        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, logo_url, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta, reserve_now_url, reserve_now_force_external, online_shop_url, online_shop_force_external, url_4, url_4_force_external, url_5, url_5_force_external, opening_hours, show_opening_hours, is_open_24h, show_youtube_tab")
         .eq("slug", slug)
         .maybeSingle();
       if (!biz) { setNotFound(true); setLoading(false); return; }
@@ -265,15 +267,16 @@ const ShowcaseSite = () => {
       const [{ data: promoRows }, { data: docVids }, { data: ytVids }] = await Promise.all([
         (supabase as any).from("affiliate_business_promotions").select("id,title,title_fr,title_en,promotion_message,promotion_message_fr,promotion_message_en,savings_amount,promotion_currency,promotion_type,promotion_value").eq("business_id", biz.id).order("sort_order", { ascending: true }),
         (supabase as any).from("business_documents").select("id,url,thumbnail_url").eq("business_id", biz.id).eq("type", "video"),
-        (supabase as any).from("business_youtube_videos").select("id,video_id,thumbnail,custom_thumbnail_url,sort_order").eq("business_id", biz.id).order("sort_order", { ascending: true }),
+        (supabase as any).from("business_youtube_videos").select("id,video_id,thumbnail,custom_thumbnail_url,sort_order").eq("business_id", biz.id).eq("is_visible", true).order("sort_order", { ascending: true }),
       ]);
       setPromos(((promoRows || []) as any[]).map((p) => {
         const fr = p.title_fr || p.title || "";
         const mfr = p.promotion_message_fr || p.promotion_message || "";
         return { id: p.id, title: fr, message: mfr, title_en: p.title_en || fr, message_en: p.promotion_message_en || mfr, savings: p.savings_amount, currency: p.promotion_currency, ptype: p.promotion_type, pvalue: p.promotion_value };
       }).filter((p) => p.title));
-      setGalleryVideos([
-        ...((docVids || []) as any[]).filter((d) => d.url).map((d) => ({ src: d.url as string, thumb: (d.thumbnail_url as string) || null })),
+      setGalleryVideos(((docVids || []) as any[]).filter((d) => d.url).map((d) => ({ src: d.url as string, thumb: (d.thumbnail_url as string) || null })));
+      // Section « Vidéos YouTube » : vidéos actives, uniquement si l'onglet YouTube est activé.
+      setYtVideos(!(biz as any).show_youtube_tab ? [] : [
         ...((ytVids || []) as any[]).filter((v) => v.video_id).map((v) => ({ src: `https://www.youtube.com/watch?v=${v.video_id}`, thumb: (v.custom_thumbnail_url || v.thumbnail || `https://i.ytimg.com/vi/${v.video_id}/hqdefault.jpg`) as string })),
       ]);
 
@@ -430,6 +433,13 @@ const ShowcaseSite = () => {
   const isEn = language === "en";
   const isRiad = /\briy?ad\b/i.test(String(data?.business?.name ?? ""));
   const venueEn = isRiad ? "riad" : "property";
+  // Libellé de la section « highlights » selon le type d'établissement (services de la fiche).
+  const svc = (Array.isArray(data?.business?.services) ? data.business.services : []).join(" ").toLowerCase();
+  const isLodging = isRiad || /room service|maison d.h[oô]tes|palace|petit-d[ée]jeuner|h[oô]tel|chambre/.test(svc);
+  const isRestaurant = !isLodging && /d[îi]ner|d[ée]jeuner|cuisine|menu|restaurant|brunch/.test(svc);
+  const roomsLabel = isLodging ? (isEn ? "Rooms" : "Chambres") : isRestaurant ? (isEn ? "Menu" : "La carte") : (isEn ? "Services" : "Prestations");
+  const roomsTitle = isLodging ? (isEn ? "Our rooms" : "Nos chambres") : isRestaurant ? (isEn ? "Our menu" : "Notre carte") : (isEn ? "Our services" : "Nos prestations");
+  const roomsEyebrow = isLodging ? (isEn ? `Sleep at ${data?.business?.name ?? ""}` : `Dormir à ${data?.business?.name ?? ""}`) : (isEn ? `At ${data?.business?.name ?? ""}` : `Chez ${data?.business?.name ?? ""}`);
   const tagline = (isEn ? data.tagline_en || b.hook_en : data.tagline_fr || b.hook_fr) || "";
   const story = (isEn ? data.story_en || b.description_en : data.story_fr || b.description_fr) || "";
   const heroLandscape = heroThumbs.landscape;
@@ -486,15 +496,24 @@ const ShowcaseSite = () => {
           onClose={() => setGalleryIndex(null)}
         />
       )}
+      {ytIndex !== null && (
+        <FullscreenLightbox
+          items={ytVideos.map((v, index) => ({ type: "video" as const, src: v.src, alt: `${b.name} — YouTube ${index + 1}` }))}
+          currentIndex={ytIndex}
+          onIndexChange={setYtIndex}
+          onClose={() => setYtIndex(null)}
+        />
+      )}
 
       <div className="min-h-screen bg-showcase-paper text-showcase-ink font-roboto pb-20 md:pb-0">
         <header className="fixed inset-x-0 top-0 z-30 flex items-center justify-between bg-showcase-night/80 px-5 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] backdrop-blur-md text-primary-foreground shadow-md md:px-12 md:pb-5 md:pt-[calc(env(safe-area-inset-top)+1.25rem)]">
           <button onClick={() => scrollToId("top")} className="font-josefin text-sm font-semibold uppercase tracking-widest">{b.name}</button>
           <nav className="hidden items-center gap-7 text-xs font-semibold uppercase tracking-widest md:flex">
             <button onClick={() => scrollToId("story")}>{isEn ? `The ${venueEn}` : (isRiad ? "Le riad" : "L’établissement")}</button>
-            <button onClick={() => scrollToId("rooms")}>{isEn ? "Rooms" : "Chambres"}</button>
+            {highlights.length > 0 && <button onClick={() => scrollToId("rooms")}>{roomsLabel}</button>}
             {promos.length > 0 && <button onClick={() => scrollToId("offers")}>{isEn ? "Offers" : "Offres"}</button>}
             {galleryItems.length > 0 && <button onClick={() => scrollToId("gallery")}>{isEn ? "Gallery" : "Galerie"}</button>}
+            {ytVideos.length > 0 && <button onClick={() => scrollToId("youtube")}>{isEn ? "Videos" : "Vidéos"}</button>}
             {blogPosts.length > 0 && <button onClick={() => scrollToId("blog")}>Blog</button>}
             <button onClick={() => scrollToId("location")}>{isEn ? "Location" : "Accès"}</button>
           </nav>
@@ -600,8 +619,8 @@ const ShowcaseSite = () => {
           {highlights.length > 0 && (
             <section id="rooms" className="scroll-mt-8 bg-showcase-night px-6 py-20 text-primary-foreground md:px-12 md:py-28">
               <div className="mx-auto max-w-7xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? `Sleep at ${b.name}` : `Dormir à ${b.name}`}</p>
-                <h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{isEn ? "Our rooms" : "Nos chambres"}</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{roomsEyebrow}</p>
+                <h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{roomsTitle}</h2>
                 <div className="mt-12 grid gap-8 md:grid-cols-2">
                   {highlights.map((room, index) => {
                     const title = (isEn ? room.title_en : room.title) || room.title || "";
@@ -640,6 +659,27 @@ const ShowcaseSite = () => {
                       onClick={() => setGalleryIndex(index)}
                     >
                       {item.thumb ? <img src={item.thumb} alt={`${b.name} — ${index + 1}`} loading="lazy" draggable={false} className="h-full w-full object-cover" /> : <video src={`${item.src}#t=0.1`} muted playsInline preload="metadata" className="pointer-events-none h-full w-full object-cover" />}
+                    </Button>
+                  ))}
+                </HScroll>
+              </div>
+            </section>
+          )}
+
+          {ytVideos.length > 0 && (
+            <section id="youtube" className="scroll-mt-8 px-4 py-20 md:px-8 md:py-28">
+              <div className="mx-auto max-w-7xl">
+                <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">YouTube</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{isEn ? "YouTube videos" : "Vidéos YouTube"}</h2></div>
+                <HScroll className="scrollbar-hide mt-10 flex gap-3 overflow-x-auto pb-3 cursor-grab md:gap-5" aria-label={isEn ? "YouTube videos" : "Vidéos YouTube"}>
+                  {ytVideos.map((v, index) => (
+                    <Button
+                      key={v.src}
+                      variant="ghost"
+                      className="h-40 w-52 shrink-0 overflow-hidden rounded-lg p-0 cursor-zoom-in md:h-52 md:w-72"
+                      aria-label={isEn ? `Play video ${index + 1}` : `Lire la vidéo ${index + 1}`}
+                      onClick={() => setYtIndex(index)}
+                    >
+                      {v.thumb && <img src={v.thumb} alt={`${b.name} — YouTube ${index + 1}`} loading="lazy" draggable={false} className="h-full w-full object-cover" />}
                     </Button>
                   ))}
                 </HScroll>
