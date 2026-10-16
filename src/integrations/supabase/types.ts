@@ -2381,6 +2381,7 @@ export type Database = {
           tagline_ar: string | null
           tagline_en: string | null
           tagline_fr: string | null
+          template: string
           testimonials: Json
           theme: Json
           updated_at: string
@@ -2404,6 +2405,7 @@ export type Database = {
           tagline_ar?: string | null
           tagline_en?: string | null
           tagline_fr?: string | null
+          template?: string
           testimonials?: Json
           theme?: Json
           updated_at?: string
@@ -2427,6 +2429,7 @@ export type Database = {
           tagline_ar?: string | null
           tagline_en?: string | null
           tagline_fr?: string | null
+          template?: string
           testimonials?: Json
           theme?: Json
           updated_at?: string

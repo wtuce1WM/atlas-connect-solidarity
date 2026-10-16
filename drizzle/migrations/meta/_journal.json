@@ -99,6 +99,13 @@
       "when": 1792070186742,
       "tag": "0013_save_quote_manual_price_ttc",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1792147224549,
+      "tag": "0014_showcase_template",
+      "breakpoints": true
     }
   ]
 }

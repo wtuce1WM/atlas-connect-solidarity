@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, ExternalLink, Save } from "lucide-react";
 import { toast } from "sonner";
+import { SHOWCASE_TEMPLATES, resolveShowcaseTemplate } from "@/components/showcase/templates";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
@@ -15,6 +16,7 @@ type Row = {
   id: string;
   business_id: string;
   enabled: boolean;
+  template: string | null;
   tagline_fr: string | null;
   tagline_en: string | null;
   hero_image_url: string | null;
@@ -47,6 +49,7 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
     const [a, b] = await Promise.all([
       supabase.from("business_showcase_site").update({
         enabled: r.enabled,
+        template: r.template || "premium",
         tagline_fr: r.tagline_fr || null,
         tagline_en: r.tagline_en || null,
         hero_image_url: r.hero_image_url || null,
@@ -77,6 +80,24 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
           </div>
           <a href={`/site/${slug}`} target="_blank" rel="noreferrer" className="text-sm underline inline-flex items-center gap-1">Site <ExternalLink className="h-3 w-3" /></a>
           <a href={`${SUPABASE_URL}/functions/v1/pwa-manifest?slug=${slug}`} target="_blank" rel="noreferrer" className="text-sm underline inline-flex items-center gap-1">Manifeste PWA <ExternalLink className="h-3 w-3" /></a>
+        </div>
+      </div>
+
+      <div>
+        <Label>Modèle</Label>
+        <div className="grid sm:grid-cols-3 gap-3 mt-2">
+          {SHOWCASE_TEMPLATES.map((t) => {
+            const active = resolveShowcaseTemplate(r.template) === t.id;
+            return (
+              <div key={t.id} className={`rounded-lg border p-3 ${active ? "border-primary ring-1 ring-primary" : ""}`}>
+                <button type="button" onClick={() => set("template", t.id)} className="text-left w-full">
+                  <div className="font-semibold text-sm">{t.label}{active && " ✓"}</div>
+                  <p className="text-xs text-muted-foreground mt-1">{t.description}</p>
+                </button>
+                <a href={`/site/${slug}?template=${t.id}`} target="_blank" rel="noreferrer" className="text-xs underline inline-flex items-center gap-1 mt-2">Prévisualiser <ExternalLink className="h-3 w-3" /></a>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -120,7 +141,7 @@ const StaffShowcase = () => {
       if (!session) { navigate("/staff/login"); return; }
       const { data, error } = await supabase
         .from("business_showcase_site")
-        .select("id,business_id,enabled,tagline_fr,tagline_en,hero_image_url,hero_landscape_video_id,hero_portrait_video_id,story_fr,story_en,cta_config,business:businesses(name,slug,logo_url)")
+        .select("id,business_id,enabled,template,tagline_fr,tagline_en,hero_image_url,hero_landscape_video_id,hero_portrait_video_id,story_fr,story_en,cta_config,business:businesses(name,slug,logo_url)")
         .order("created_at");
       if (error) toast.error(error.message);
       setRows((data as any) || []);
