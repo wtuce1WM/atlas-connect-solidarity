@@ -198,6 +198,7 @@ const ShowcaseSite = () => {
       });
   }, [showcaseBusinessId]);
   const [reserveOverlayOpen, setReserveOverlayOpen] = useState(false);
+  const [inlineLink, setInlineLink] = useState<{ url: string; label: string } | null>(null);
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroVideoIds, setHeroVideoIds] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroFiles, setHeroFiles] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
@@ -485,21 +486,23 @@ const ShowcaseSite = () => {
   const email = data.cta_config?.email || b.email;
   // Bouton Réserver toujours affiché dès qu'un lien existe (back-office vitrine, sinon lien de réservation de la fiche).
   const assistantName = (data.cta_config as any)?.assistant_name || "Zitoun IA";
-  const reserveUrl = data.cta_config?.reserve_url || b.reserve_now_url || null;
-  // Même règle que l'overlay FullDescription de BookOnlineSlidePanel : seul le flag
-  // « Lien externe » (force_external) de l'URL 1 à 5 correspondante impose un nouvel onglet.
-  const reserveForceExternal = (() => {
-    if (!reserveUrl) return false;
-    const pairs: Array<[string | null, boolean | null]> = [
-      [b.reserve_now_url, b.reserve_now_force_external],
-      [b.online_shop_url, b.online_shop_force_external],
-      [b.url_4, b.url_4_force_external],
-      [b.url_5, b.url_5_force_external],
-    ];
-    const match = pairs.find(([u]) => u && u === reserveUrl);
-    // Pas d'URL 1-5 correspondante (ou flag non coché) → ouverture intégrée.
-    return match ? Boolean(match[1]) : false;
-  })();
+  // Même logique que l'overlay FullDescription de BookOnlineSlidePanel : les liens URL 1 à 5
+  // portent leur propre CTA ; seuls les CTA de réservation (Réservez, Réserver en ligne…) activent
+  // le bouton Réserver et « Choisissez vos dates ». « Lien externe » coché → nouvel onglet, sinon iframe.
+  const normCta = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  const isBookingLabel = (label?: string | null) => ["reservez", "reserver en ligne", "day pass", "reserver une table", "reserver une chambre"].includes(normCta(label || ""));
+  const urlCtas = ([
+    [b.reserve_now_url, b.reserve_now_cta, b.reserve_now_force_external],
+    [b.online_shop_url, b.online_shop_cta, b.online_shop_force_external],
+    [b.url_4, b.url_4_cta, b.url_4_force_external],
+    [b.url_5, b.url_5_cta, b.url_5_force_external],
+  ] as Array<[string | null, string | null, boolean | null]>)
+    .filter(([u, l]) => u && l)
+    .map(([url, label, ext]) => ({ url: url as string, label: label as string, external: Boolean(ext) }));
+  const bookingCta = urlCtas.find((c) => isBookingLabel(c.label)) || null;
+  const otherCtas = urlCtas.filter((c) => !isBookingLabel(c.label) && c.url !== bookingCta?.url);
+  const reserveUrl = data.cta_config?.reserve_url || bookingCta?.url || null;
+  const reserveForceExternal = data.cta_config?.reserve_url ? false : Boolean(bookingCta?.external);
   const hasElloha = slug === "riad-dar-najat";
   const hasBooking = hasElloha || Boolean(reserveUrl);
   const waLink = whatsapp ? whatsappUrl(whatsapp, isEn
@@ -596,6 +599,11 @@ const ShowcaseSite = () => {
               {tagline && <p className="mt-5 max-w-2xl text-lg leading-relaxed text-primary-foreground/85 md:text-2xl">{tagline}</p>}
               <div className="mt-8 flex flex-wrap gap-3">
                 {hasBooking && <Button onClick={openAvailability} size="lg"><CalendarDays className="h-5 w-5" />{primaryCta}</Button>}
+                {otherCtas.map((c) => c.external ? (
+                  <Button key={c.url} asChild size="lg"><a href={c.url} target="_blank" rel="noreferrer">{c.label}<ExternalLink className="h-4 w-4" /></a></Button>
+                ) : (
+                  <Button key={c.url} size="lg" onClick={() => setInlineLink({ url: c.url, label: c.label })}>{c.label}</Button>
+                ))}
                 <Button onClick={() => scrollToId("story")} variant="outline" size="lg" className="border-primary-foreground/50 bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-showcase-ink">
                   {isEn ? `Discover the ${venueEn}` : (isRiad ? "Découvrir le riad" : "Découvrir l’établissement")}<ChevronRight className="h-5 w-5" />
                 </Button>
@@ -928,6 +936,17 @@ const ShowcaseSite = () => {
       {openDoc && (
         <div className="fixed inset-0 z-[90]">
           <DocumentOverlay url={openDoc.url} name={openDoc.name || menuLabel} type={openDoc.type} ts={openDoc.ts} onClose={() => setOpenDoc(null)} />
+        </div>
+      )}
+      {inlineLink && (
+        <div className="fixed inset-0 z-[90] flex flex-col bg-showcase-night">
+          <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+            <p className="truncate font-josefin text-lg text-showcase-paper">{inlineLink.label}</p>
+            <button type="button" onClick={() => setInlineLink(null)} aria-label={isEn ? "Close" : "Fermer"} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-showcase-paper transition hover:bg-white/10">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <iframe src={inlineLink.url} title={inlineLink.label} className="h-full w-full flex-1 border-0 bg-white" />
         </div>
       )}
       {reserveOverlayOpen && reserveUrl && (
