@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ExternalLink, Save, Plus, ImageIcon, Film, X, Copy } from "lucide-react";
+import { ArrowLeft, ExternalLink, Save, Plus, ImageIcon, Film, X, Copy, HelpCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { SHOWCASE_TEMPLATES, resolveShowcaseTemplate } from "@/components/showcase/templates";
 
@@ -261,10 +262,10 @@ const StaffShowcase = () => {
         {rows && rows.length > 0 && (() => {
           const list = rows.map((r) => {
             const slug = r.business?.slug || "";
-            return { name: r.business?.name || "", enabled: r.enabled, template: SHOWCASE_TEMPLATES.find((t) => t.id === resolveShowcaseTemplate(r.template))?.label || "", site: `https://oneworldmorocco.com/site/${slug}`, manifest: `${SUPABASE_URL}/functions/v1/pwa-manifest?slug=${slug}` };
+            return { name: r.business?.name || "", enabled: r.enabled, template: SHOWCASE_TEMPLATES.find((t) => t.id === resolveShowcaseTemplate(r.template))?.label || "", site: `https://oneworldmorocco.com/site/${slug}` };
           });
           const copy = (text: string) => navigator.clipboard.writeText(text).then(() => toast.success("Copié"));
-          const tsv = ["Établissement\tStatut\tModèle\tSite vitrine\tManifeste PWA", ...list.map((l) => [l.name, l.enabled ? "Activé" : "Désactivé", l.template, l.site, l.manifest].join("\t"))].join("\n");
+          const tsv = ["Établissement\tStatut\tModèle\tSite vitrine", ...list.map((l) => [l.name, l.enabled ? "Activé" : "Désactivé", l.template, l.site].join("\t"))].join("\n");
           return (
             <div className="border rounded-xl p-5 bg-card space-y-3">
               <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -273,21 +274,33 @@ const StaffShowcase = () => {
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead><tr className="text-left text-muted-foreground border-b"><th className="py-2 pr-3">Établissement</th><th className="py-2 pr-3">Statut</th><th className="py-2 pr-3">Modèle</th><th className="py-2 pr-3">Site vitrine</th><th className="py-2">Manifeste PWA</th></tr></thead>
+                  <thead><tr className="text-left text-muted-foreground border-b"><th className="py-2 pr-3">Établissement</th><th className="py-2 pr-3">Statut</th><th className="py-2 pr-3">Modèle</th><th className="py-2 pr-3">Site vitrine</th><th className="py-2">Installer l'app</th></tr></thead>
                   <tbody>
                     {list.map((l) => (
                       <tr key={l.site} className="border-b align-top">
                         <td className="py-2 pr-3 font-medium">{l.name}</td>
                         <td className="py-2 pr-3">{l.enabled ? "Activé" : "Désactivé"}</td>
                         <td className="py-2 pr-3">{l.template}</td>
-                        {[l.site, l.manifest].map((u) => (
-                          <td key={u} className="py-2 pr-3">
-                            <div className="flex items-center gap-1">
-                              <a href={u} target="_blank" rel="noreferrer" className="underline break-all">{u.replace(/^https:\/\//, "")}</a>
-                              <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" aria-label="Copier" onClick={() => copy(u)}><Copy className="h-3.5 w-3.5" /></Button>
-                            </div>
-                          </td>
-                        ))}
+                        <td className="py-2 pr-3">
+                          <div className="flex items-center gap-1">
+                            <a href={l.site} target="_blank" rel="noreferrer" className="underline break-all">{l.site.replace(/^https:\/\//, "")}</a>
+                            <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" aria-label="Copier" onClick={() => copy(l.site)}><Copy className="h-3.5 w-3.5" /></Button>
+                          </div>
+                        </td>
+                        <td className="py-2">
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button size="sm" variant="outline"><HelpCircle className="h-4 w-4 mr-1" />Installer l'app</Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80 text-sm space-y-1">
+                              <p className="font-medium">Installer l'app sur iPhone</p>
+                              <p>1. Ouvrez le lien du site dans Safari sur l'iPhone.</p>
+                              <p>2. Touchez le bouton Partager en bas de l'écran.</p>
+                              <p>3. Choisissez « Sur l'écran d'accueil ».</p>
+                              <p className="text-muted-foreground">L'icône du business apparaît alors sur l'écran d'accueil, et l'app s'ouvre en plein écran. Sur Android, Chrome propose l'installation directement depuis le menu du navigateur.</p>
+                            </PopoverContent>
+                          </Popover>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
