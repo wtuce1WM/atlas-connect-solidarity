@@ -607,7 +607,7 @@ const ShowcaseSite = () => {
                         <div className="h-40 overflow-hidden rounded-lg bg-showcase-night md:h-48">
                           {p.cover && <img src={p.cover} alt={title} loading="lazy" draggable={false} className="h-full w-full object-cover" />}
                         </div>
-                        <p className="mt-3 font-josefin text-lg font-semibold leading-snug line-clamp-2">{title}</p>
+                        <p className="mt-3 font-josefin text-lg font-semibold leading-snug">{title}</p>
                       </button>
                     );
                   })}
