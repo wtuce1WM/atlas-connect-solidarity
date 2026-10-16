@@ -129,7 +129,7 @@ const ShowcaseSite = () => {
       if (roles?.some((x: any) => x.role === "admin" || x.role === "staff")) setPreviewTemplate(requested);
     })();
   }, []);
-  const template = resolveShowcaseTemplate(previewTemplate ?? (data as any)?.showcase?.template);
+  const template = resolveShowcaseTemplate(previewTemplate ?? (data as any)?.template);
   useEffect(() => {
     document.body.dataset.showcaseTemplate = template;
     return () => { delete document.body.dataset.showcaseTemplate; };
