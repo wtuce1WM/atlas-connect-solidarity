@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveShowcaseTemplate } from "@/components/showcase/templates";
-import { ArrowDown, CalendarDays, ChevronRight, Loader2, Mail, MapPin, MessageCircle, Phone, X } from "lucide-react";
+import { ArrowDown, CalendarDays, ExternalLink, ChevronRight, Loader2, Mail, MapPin, MessageCircle, Phone, X } from "lucide-react";
 import { trackBusinessEvent } from "@/lib/businessAnalytics";
 import { Button } from "@/components/ui/button";
 import HScroll from "@/components/HScroll";
@@ -631,6 +631,13 @@ const ShowcaseSite = () => {
                 </div>
               </div>
               {story && <div className="prose prose-lg max-w-none text-showcase-copy prose-headings:font-josefin prose-headings:text-showcase-ink prose-p:leading-relaxed prose-strong:text-showcase-ink" dangerouslySetInnerHTML={{ __html: story }} />}
+              {b.website && (
+                <div className="lg:col-start-2">
+                  <Button asChild size="lg" variant="outline">
+                    <a href={b.website} target="_blank" rel="noreferrer"><ExternalLink className="h-5 w-5" />{b.website_cta || (isEn ? "Learn more" : "En savoir +")}</a>
+                  </Button>
+                </div>
+              )}
             </div>
           </section>
 
