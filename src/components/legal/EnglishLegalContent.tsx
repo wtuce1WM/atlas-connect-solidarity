@@ -56,7 +56,7 @@ export const EnglishCookies = () => <>
   <h1>Cookie policy</h1><p>Last updated: 29 June 2026</p>
   <Section title="1. What is a cookie?"><p>A cookie is a small file stored on your device by your browser when you visit a website. It can be used to remember a session or your preferences, or to measure audience traffic.</p></Section>
   <Section title="2. Cookies used"><ul><li><strong>Strictly necessary cookies:</strong> authentication session (Lovable Cloud), language preferences. These cookies do not require your consent.</li><li><strong>Functional cookies:</strong> remembering the last city viewed and video audio settings.</li><li><strong>Third-party cookies:</strong> Google (OAuth authentication, Maps), YouTube (embedded video playback). These services may store their own cookies, subject to their respective policies.</li></ul></Section>
-  <Section title="3. Managing cookies"><p>You can configure your browser at any time to block or delete cookies. Please note: disabling strictly necessary cookies prevents the website from operating normally (you will be unable to sign in to the Club).</p></Section>
+  <Section title="3. Managing cookies"><p>Your choice (accepting or declining audience measurement cookies) is kept for <strong>6 months</strong>. After that period, the banner is shown to you again. You can change your choice at any time via the “Manage cookies” link at the bottom of the page or in the menu.</p><p>You can configure your browser at any time to block or delete cookies. Please note: disabling strictly necessary cookies prevents the website from operating normally (you will be unable to sign in to the Club).</p></Section>
   <Section title="4. Contact"><p>For any questions: <Contact /></p></Section>
 </>;
 

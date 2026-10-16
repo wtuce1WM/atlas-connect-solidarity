@@ -38,6 +38,12 @@ export const CookiesContent = () => (
 
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">3. Gérer les cookies</h2>
+              <p className="mb-3">
+                Votre choix (acceptation ou refus des cookies de mesure d'audience) est conservé
+                <strong> 6 mois</strong>. À l'issue de ce délai, la bannière vous est de nouveau proposée.
+                Vous pouvez modifier votre choix à tout moment via le lien « Gérer mes cookies » en bas de page
+                ou dans le menu.
+              </p>
               <p>
                 Vous pouvez à tout moment configurer votre navigateur pour bloquer ou supprimer les cookies.
                 Attention : la désactivation des cookies strictement nécessaires empêche le fonctionnement
