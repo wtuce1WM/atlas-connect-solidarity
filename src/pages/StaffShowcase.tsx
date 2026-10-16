@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ExternalLink, Save, Plus, ImageIcon, Film, X } from "lucide-react";
+import { ArrowLeft, ExternalLink, Save, Plus, ImageIcon, Film, X, Copy } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { SHOWCASE_TEMPLATES, resolveShowcaseTemplate } from "@/components/showcase/templates";
@@ -119,6 +119,9 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
         </div>
       </div>
 
+      <details className="group">
+        <summary className="cursor-pointer select-none text-sm font-semibold text-muted-foreground">Détail du modèle ({SHOWCASE_TEMPLATES.find((t) => t.id === resolveShowcaseTemplate(r.template))?.label})</summary>
+        <div className="space-y-4 pt-4">
       <div>
         <Label>Modèle</Label>
         <div className="grid sm:grid-cols-3 gap-3 mt-2">
@@ -194,6 +197,8 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
         </DialogContent>
       </Dialog>
       <Button onClick={save} disabled={saving}><Save className="h-4 w-4 mr-2" />{saving ? "Enregistrement…" : "Enregistrer"}</Button>
+        </div>
+      </details>
     </div>
   );
 };
@@ -253,6 +258,44 @@ const StaffShowcase = () => {
           )}
         </div>
         {!rows ? <p>Chargement…</p> : rows.map((r) => <ShowcaseCard key={r.id} initial={r} />)}
+        {rows && rows.length > 0 && (() => {
+          const list = rows.map((r) => {
+            const slug = r.business?.slug || "";
+            return { name: r.business?.name || "", enabled: r.enabled, template: SHOWCASE_TEMPLATES.find((t) => t.id === resolveShowcaseTemplate(r.template))?.label || "", site: `https://oneworldmorocco.com/site/${slug}`, manifest: `${SUPABASE_URL}/functions/v1/pwa-manifest?slug=${slug}` };
+          });
+          const copy = (text: string) => navigator.clipboard.writeText(text).then(() => toast.success("Copié"));
+          const tsv = ["Établissement\tStatut\tModèle\tSite vitrine\tManifeste PWA", ...list.map((l) => [l.name, l.enabled ? "Activé" : "Désactivé", l.template, l.site, l.manifest].join("\t"))].join("\n");
+          return (
+            <div className="border rounded-xl p-5 bg-card space-y-3">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <h2 className="text-lg font-bold">Récapitulatif</h2>
+                <Button size="sm" variant="outline" onClick={() => copy(tsv)}><Copy className="h-4 w-4 mr-2" />Copier le tableau</Button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead><tr className="text-left text-muted-foreground border-b"><th className="py-2 pr-3">Établissement</th><th className="py-2 pr-3">Statut</th><th className="py-2 pr-3">Modèle</th><th className="py-2 pr-3">Site vitrine</th><th className="py-2">Manifeste PWA</th></tr></thead>
+                  <tbody>
+                    {list.map((l) => (
+                      <tr key={l.site} className="border-b align-top">
+                        <td className="py-2 pr-3 font-medium">{l.name}</td>
+                        <td className="py-2 pr-3">{l.enabled ? "Activé" : "Désactivé"}</td>
+                        <td className="py-2 pr-3">{l.template}</td>
+                        {[l.site, l.manifest].map((u) => (
+                          <td key={u} className="py-2 pr-3">
+                            <div className="flex items-center gap-1">
+                              <a href={u} target="_blank" rel="noreferrer" className="underline break-all">{u.replace(/^https:\/\//, "")}</a>
+                              <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" aria-label="Copier" onClick={() => copy(u)}><Copy className="h-3.5 w-3.5" /></Button>
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
