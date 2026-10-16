@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ExternalLink, Save, Plus, ImageIcon, Film, X, Copy } from "lucide-react";
+import { ArrowLeft, ExternalLink, Save, Plus, ImageIcon, Film, X, Copy, HelpCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { SHOWCASE_TEMPLATES, resolveShowcaseTemplate } from "@/components/showcase/templates";
 
