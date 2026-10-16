@@ -116,6 +116,23 @@ const ShowcaseSite = () => {
   // PWA dédiée au business : manifeste généré à la volée (cf. script dans index.html),
   // icône et titre d'accueil propres à l'établissement tant que la page est affichée.
   const [data, setData] = useState<ShowcaseData | null>(null);
+  // Modèle de vitrine : valeur enregistrée, ou ?template= pour la prévisualisation staff.
+  const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get("template");
+    if (!requested) return;
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id);
+      if (roles?.some((x: any) => x.role === "admin" || x.role === "staff")) setPreviewTemplate(requested);
+    })();
+  }, []);
+  const template = resolveShowcaseTemplate(previewTemplate ?? (data as any)?.showcase?.template);
+  useEffect(() => {
+    document.body.dataset.showcaseTemplate = template;
+    return () => { delete document.body.dataset.showcaseTemplate; };
+  }, [template]);
   useEffect(() => {
     // PWA : le hero passe sous la barre d'état iOS (annule le padding
     // safe-area du body) ; le header gère son propre retrait ci-dessous.
