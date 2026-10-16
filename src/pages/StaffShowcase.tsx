@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, ExternalLink, Save } from "lucide-react";
 import { toast } from "sonner";
+import { SHOWCASE_TEMPLATES, resolveShowcaseTemplate } from "@/components/showcase/templates";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
