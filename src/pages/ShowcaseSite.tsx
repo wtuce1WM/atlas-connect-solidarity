@@ -199,6 +199,9 @@ const ShowcaseSite = () => {
   }, [showcaseBusinessId]);
   const [reserveOverlayOpen, setReserveOverlayOpen] = useState(false);
   const [inlineLink, setInlineLink] = useState<{ url: string; label: string } | null>(null);
+  // Popup d'accueil (image popup + titre/texte riche), même source que BookOnlineSlidePanel.
+  const [welcomePopup, setWelcomePopup] = useState<{ url: string; title: string | null; html: string | null } | null>(null);
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroVideoIds, setHeroVideoIds] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroFiles, setHeroFiles] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
@@ -222,7 +225,7 @@ const ShowcaseSite = () => {
       if (!slug) return;
       const { data: biz } = await supabase
         .from("businesses")
-        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, logo_url, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta, reserve_now_url, reserve_now_force_external, online_shop_url, online_shop_force_external, url_4, url_4_force_external, url_5, url_5_force_external, opening_hours, show_opening_hours, is_open_24h, show_youtube_tab, website, website_cta, menu_url, menu_name, flipbook_url, flipbook_name, pdf_url")
+        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, logo_url, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta, reserve_now_url, reserve_now_force_external, online_shop_cta, url_4_cta, url_5_cta, popup_image_url, online_shop_url, online_shop_force_external, url_4, url_4_force_external, url_5, url_5_force_external, opening_hours, show_opening_hours, is_open_24h, show_youtube_tab, website, website_cta, menu_url, menu_name, flipbook_url, flipbook_name, pdf_url")
         .eq("slug", slug)
         .maybeSingle();
       if (!biz) { setNotFound(true); setLoading(false); return; }
@@ -253,6 +256,16 @@ const ShowcaseSite = () => {
       ]);
 
       setData({ ...showcase, business: biz });
+      const popupUrl = (biz as any).popup_image_url as string | null;
+      if (popupUrl && Array.isArray(biz.images) && biz.images.includes(popupUrl)) {
+        (supabase as any).from("business_image_titles")
+          .select("title, description, title_fr, title_en, description_fr, description_en")
+          .eq("business_id", biz.id).eq("image_url", popupUrl).maybeSingle()
+          .then(({ data: d }: any) => {
+            setWelcomePopup({ url: popupUrl, title: d ? { fr: d.title_fr || d.title, en: d.title_en || d.title_fr || d.title }[language === "en" ? "en" : "fr"] ?? null : null, html: d ? (language === "en" ? d.description_en || d.description_fr || d.description : d.description_fr || d.description) ?? null : null });
+            setTimeout(() => setWelcomeOpen(true), 1000);
+          });
+      }
 
       // Groupes KP1/KP2 : membres actifs affichés si le staff a activé le toggle.
       const { data: kpBiz } = await (supabase as any).from("businesses").select("kp_regroupement,kp_regroupement_2").eq("id", biz.id).maybeSingle();
@@ -936,6 +949,26 @@ const ShowcaseSite = () => {
       {openDoc && (
         <div className="fixed inset-0 z-[90]">
           <DocumentOverlay url={openDoc.url} name={openDoc.name || menuLabel} type={openDoc.type} ts={openDoc.ts} onClose={() => setOpenDoc(null)} />
+        </div>
+      )}
+      {welcomeOpen && welcomePopup && (
+        <div className="fixed inset-0 z-[95] flex items-center justify-center bg-showcase-night/75 p-3 backdrop-blur-sm sm:p-6" onClick={() => setWelcomeOpen(false)}>
+          <div className="relative flex max-h-[calc(100dvh-1.5rem)] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-cover bg-center shadow-2xl md:max-w-xl" style={{ backgroundImage: `url(${welcomePopup.url})` }} onClick={(e) => e.stopPropagation()}>
+            <button type="button" onClick={() => setWelcomeOpen(false)} aria-label={isEn ? "Close" : "Fermer"} className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-showcase-night/60 text-showcase-paper hover:bg-showcase-night/80">
+              <X className="h-5 w-5" />
+            </button>
+            {(welcomePopup.title || welcomePopup.html) ? (
+              <>
+                <div className="pointer-events-none absolute inset-0 bg-showcase-night/55" />
+                <div className="relative min-h-0 flex-1 overflow-y-auto px-6 pb-6 pt-14 text-showcase-paper">
+                  {welcomePopup.title && <h2 className="mb-4 pr-10 font-josefin text-3xl font-semibold leading-tight md:text-4xl">{welcomePopup.title}</h2>}
+                  {welcomePopup.html && <div className="prose prose-invert max-w-none text-base leading-relaxed [&_*]:!text-showcase-paper [&_a]:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold" dangerouslySetInnerHTML={{ __html: welcomePopup.html }} />}
+                </div>
+              </>
+            ) : (
+              <img src={welcomePopup.url} alt={b.name} className="block max-h-[calc(100dvh-1.5rem)] w-full object-contain" />
+            )}
+          </div>
         </div>
       )}
       {inlineLink && (
