@@ -155,6 +155,13 @@ export const CGUContent = () => (
                 exploiter les éléments protégés de la plateforme sans autorisation, sauf dans les limites
                 autorisées par la loi.
               </p>
+              <p className="mt-2">
+                Sont notamment interdites, sans accord écrit préalable, l'extraction ou la réutilisation
+                systématique de tout ou partie substantielle de la base de données de la plateforme (fiches
+                d'établissements, avis, médias, coordonnées), y compris au moyen de robots, scripts, aspirateurs
+                de sites ou appels automatisés aux interfaces techniques. One World Morocco se réserve le droit
+                de bloquer tout accès abusif et d'engager toute action utile.
+              </p>
             </section>
 
             <section>
