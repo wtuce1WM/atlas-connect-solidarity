@@ -199,6 +199,7 @@ const ShowcaseSite = () => {
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroVideoIds, setHeroVideoIds] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroFiles, setHeroFiles] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
+  const [kpSections, setKpSections] = useState<Array<{ key: string; title: string; members: Array<{ id: string; name: string; slug: string; images: string[] | null; logo_url: string | null }> }>>([]);
   const [isPortrait, setIsPortrait] = useState(() => typeof window !== "undefined" && window.innerHeight > window.innerWidth);
   useEffect(() => {
     const mq = window.matchMedia("(orientation: portrait)");
@@ -243,6 +244,20 @@ const ShowcaseSite = () => {
       ]);
 
       setData({ ...showcase, business: biz });
+
+      // Groupes KP1/KP2 : membres actifs affichés si le staff a activé le toggle.
+      const { data: kpBiz } = await (supabase as any).from("businesses").select("kp_regroupement,kp_regroupement_2").eq("id", biz.id).maybeSingle();
+      const kpGroups: Array<{ key: string; code: string; col: string; type: string }> = [];
+      if (showcase.show_kp1 && kpBiz?.kp_regroupement) kpGroups.push({ key: "kp1", code: kpBiz.kp_regroupement, col: "kp_regroupement", type: "kp1" });
+      if (showcase.show_kp2 && kpBiz?.kp_regroupement_2) kpGroups.push({ key: "kp2", code: kpBiz.kp_regroupement_2, col: "kp_regroupement_2", type: "kp2" });
+      const kpLoaded = await Promise.all(kpGroups.map(async (g) => {
+        const [{ data: members }, { data: t }] = await Promise.all([
+          (supabase as any).from("businesses").select("id,name,slug,images,logo_url").eq(g.col, g.code).eq("is_active", true).neq("id", biz.id).limit(40),
+          (supabase as any).from("kp_group_titles").select("title").eq("kp_code", g.code).eq("kp_type", g.type).maybeSingle(),
+        ]);
+        return { key: g.key, title: t?.title || g.code, members: (members || []) as Array<{ id: string; name: string; slug: string; images: string[] | null; logo_url: string | null }> };
+      }));
+      setKpSections(kpLoaded.filter((s) => s.members.length > 0));
 
       // Hero : les IDs renseignés sont des IDs internes (business_youtube_videos.id) —
       // on résout leur miniature (custom_thumbnail_url prioritaire, sinon thumbnail).
@@ -600,6 +615,27 @@ const ShowcaseSite = () => {
               </div>
             </section>
           )}
+
+          {kpSections.map((s) => (
+            <section key={s.key} className="scroll-mt-8 px-4 pb-20 md:px-8 md:pb-28">
+              <div className="mx-auto max-w-7xl">
+                <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Same group" : "Même groupe"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{s.title}</h2></div>
+                <HScroll className="scrollbar-hide mt-10 flex gap-4 overflow-x-auto pb-3 cursor-grab md:gap-6" aria-label={s.title}>
+                  {s.members.map((m) => {
+                    const img = m.images?.[0] || m.logo_url;
+                    return (
+                      <a key={m.id} href={`/fiche/${m.slug}`} target="_blank" rel="noreferrer" className="w-64 shrink-0 text-left md:w-80">
+                        <div className="h-40 overflow-hidden rounded-lg bg-showcase-night md:h-48">
+                          {img && <img src={img} alt={m.name} loading="lazy" draggable={false} className="h-full w-full object-cover" />}
+                        </div>
+                        <p className="mt-3 font-josefin text-lg font-semibold leading-snug line-clamp-2">{m.name}</p>
+                      </a>
+                    );
+                  })}
+                </HScroll>
+              </div>
+            </section>
+          ))}
 
           {articleSlug && (
             <div className="fixed inset-0 z-[90] bg-showcase-night">
