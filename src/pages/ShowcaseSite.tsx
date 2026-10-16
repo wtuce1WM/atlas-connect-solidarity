@@ -200,7 +200,7 @@ const ShowcaseSite = () => {
   const [reserveOverlayOpen, setReserveOverlayOpen] = useState(false);
   const [inlineLink, setInlineLink] = useState<{ url: string; label: string } | null>(null);
   // Popup d'accueil (image popup + titre/texte riche), même source que BookOnlineSlidePanel.
-  const [welcomePopup, setWelcomePopup] = useState<{ url: string; title: string | null; html: string | null } | null>(null);
+  const [welcomePopup, setWelcomePopup] = useState<{ url: string; d: any } | null>(null);
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroVideoIds, setHeroVideoIds] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
@@ -262,7 +262,7 @@ const ShowcaseSite = () => {
           .select("title, description, title_fr, title_en, description_fr, description_en")
           .eq("business_id", biz.id).eq("image_url", popupUrl).maybeSingle()
           .then(({ data: d }: any) => {
-            setWelcomePopup({ url: popupUrl, title: d ? { fr: d.title_fr || d.title, en: d.title_en || d.title_fr || d.title }[language === "en" ? "en" : "fr"] ?? null : null, html: d ? (language === "en" ? d.description_en || d.description_fr || d.description : d.description_fr || d.description) ?? null : null });
+            setWelcomePopup({ url: popupUrl, d: d || {} });
             setTimeout(() => setWelcomeOpen(true), 1000);
           });
       }
@@ -951,26 +951,26 @@ const ShowcaseSite = () => {
           <DocumentOverlay url={openDoc.url} name={openDoc.name || menuLabel} type={openDoc.type} ts={openDoc.ts} onClose={() => setOpenDoc(null)} />
         </div>
       )}
-      {welcomeOpen && welcomePopup && (
+      {welcomeOpen && welcomePopup && (() => { const d = welcomePopup.d; const wp = { url: welcomePopup.url, title: (isEn ? d.title_en || d.title_fr || d.title : d.title_fr || d.title) || null, html: (isEn ? d.description_en || d.description_fr || d.description : d.description_fr || d.description) || null }; return (
         <div className="fixed inset-0 z-[95] flex items-center justify-center bg-showcase-night/75 p-3 backdrop-blur-sm sm:p-6" onClick={() => setWelcomeOpen(false)}>
-          <div className="relative flex max-h-[calc(100dvh-1.5rem)] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-cover bg-center shadow-2xl md:max-w-xl" style={{ backgroundImage: `url(${welcomePopup.url})` }} onClick={(e) => e.stopPropagation()}>
+          <div className="relative flex max-h-[calc(100dvh-1.5rem)] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-cover bg-center shadow-2xl md:max-w-xl" style={{ backgroundImage: `url(${wp.url})` }} onClick={(e) => e.stopPropagation()}>
             <button type="button" onClick={() => setWelcomeOpen(false)} aria-label={isEn ? "Close" : "Fermer"} className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-showcase-night/60 text-showcase-paper hover:bg-showcase-night/80">
               <X className="h-5 w-5" />
             </button>
-            {(welcomePopup.title || welcomePopup.html) ? (
+            {(wp.title || wp.html) ? (
               <>
                 <div className="pointer-events-none absolute inset-0 bg-showcase-night/55" />
                 <div className="relative min-h-0 flex-1 overflow-y-auto px-6 pb-6 pt-14 text-showcase-paper">
-                  {welcomePopup.title && <h2 className="mb-4 pr-10 font-josefin text-3xl font-semibold leading-tight md:text-4xl">{welcomePopup.title}</h2>}
-                  {welcomePopup.html && <div className="prose prose-invert max-w-none text-base leading-relaxed [&_*]:!text-showcase-paper [&_a]:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold" dangerouslySetInnerHTML={{ __html: welcomePopup.html }} />}
+                  {wp.title && <h2 className="mb-4 pr-10 font-josefin text-3xl font-semibold leading-tight md:text-4xl">{wp.title}</h2>}
+                  {wp.html && <div className="prose prose-invert max-w-none text-base leading-relaxed [&_*]:!text-showcase-paper [&_a]:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold" dangerouslySetInnerHTML={{ __html: wp.html }} />}
                 </div>
               </>
             ) : (
-              <img src={welcomePopup.url} alt={b.name} className="block max-h-[calc(100dvh-1.5rem)] w-full object-contain" />
+              <img src={wp.url} alt={b.name} className="block max-h-[calc(100dvh-1.5rem)] w-full object-contain" />
             )}
           </div>
         </div>
-      )}
+      ); })()}
       {inlineLink && (
         <div className="fixed inset-0 z-[90] flex flex-col bg-showcase-night">
           <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
