@@ -552,7 +552,7 @@ const ShowcaseSite = () => {
                 <HScroll className="scrollbar-hide mt-10 flex gap-4 overflow-x-auto pb-3 cursor-grab md:gap-6" aria-label={isEn ? "Offers" : "Offres"}>
                   {promos.map((p) => {
                     const title = isEn ? p.title_en : p.title;
-                    const message = isEn ? p.message_en : p.message;
+                    const message = (isEn ? p.message_en : p.message).replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").trim();
                     const badge = p.ptype === "percentage" && p.pvalue != null ? `-${p.pvalue}%` : p.ptype === "fixed" && p.pvalue != null ? `-${p.pvalue} ${p.currency || "MAD"}` : p.savings != null ? `-${p.savings} ${p.currency || "MAD"}` : null;
                     const link = whatsapp ? whatsappUrl(whatsapp, isEn ? `Hello ${b.name}, I am interested in the offer: ${title}` : `Bonjour ${b.name}, je suis intéressé(e) par l'offre : ${title}`) : null;
                     const inner = (
