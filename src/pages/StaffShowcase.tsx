@@ -122,7 +122,7 @@ const StaffShowcase = () => {
       if (!session) { navigate("/staff/login"); return; }
       const { data, error } = await supabase
         .from("business_showcase_site")
-        .select("id,business_id,enabled,tagline_fr,tagline_en,hero_image_url,hero_landscape_video_id,hero_portrait_video_id,story_fr,story_en,cta_config,business:businesses(name,slug,logo_url)")
+        .select("id,business_id,enabled,template,tagline_fr,tagline_en,hero_image_url,hero_landscape_video_id,hero_portrait_video_id,story_fr,story_en,cta_config,business:businesses(name,slug,logo_url)")
         .order("created_at");
       if (error) toast.error(error.message);
       setRows((data as any) || []);
