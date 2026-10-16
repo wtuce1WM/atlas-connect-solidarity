@@ -15,6 +15,7 @@ type Row = {
   id: string;
   business_id: string;
   enabled: boolean;
+  template: string | null;
   tagline_fr: string | null;
   tagline_en: string | null;
   hero_image_url: string | null;
@@ -47,6 +48,7 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
     const [a, b] = await Promise.all([
       supabase.from("business_showcase_site").update({
         enabled: r.enabled,
+        template: r.template || "premium",
         tagline_fr: r.tagline_fr || null,
         tagline_en: r.tagline_en || null,
         hero_image_url: r.hero_image_url || null,
