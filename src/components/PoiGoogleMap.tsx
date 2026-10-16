@@ -749,7 +749,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
 
     // Wheel / trackpad pinch zoom — anchored on the Master marker
     const handleWheel = (e: WheelEvent) => {
-      const isZoomGesture = e.ctrlKey || e.metaKey || Math.abs(e.deltaY) > Math.abs(e.deltaX);
+      // Molette seule = défilement de la page ; zoom uniquement avec Ctrl/⌘ (ou pinch trackpad).
+      const isZoomGesture = e.ctrlKey || e.metaKey;
       if (!isZoomGesture) return;
       e.preventDefault();
       const map = mapRef.current;
@@ -774,9 +775,17 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     };
 
     // Dès que l'utilisateur déplace la carte, on abandonne le recentrage automatique.
+    // Un zoom ne compte comme geste que s'il suit un vrai contact (pinch, boutons +/−) :
+    // les zooms programmatiques du cadrage initial ne doivent pas élargir le Rayon.
     const markUserMoved = () => { userMovedRef.current = true; };
+    let lastTouchAt = 0;
+    const markTouch = () => { lastTouchAt = Date.now(); };
+    containerRef.current.addEventListener("pointerdown", markTouch, true);
+    containerRef.current.addEventListener("touchstart", markTouch, { capture: true, passive: true });
     const dragListener = mapRef.current.addListener("dragstart", markUserMoved);
-    const zoomListener = mapRef.current.addListener("zoom_changed", markUserMoved);
+    const zoomListener = mapRef.current.addListener("zoom_changed", () => {
+      if (Date.now() - lastTouchAt < 1500) markUserMoved();
+    });
 
     // Déplacement/dézoom utilisateur : on remonte le rayon nécessaire pour couvrir
     // le viewport visible (debounce), afin que le corpus suive la zone regardée.
