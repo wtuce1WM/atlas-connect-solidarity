@@ -1,3 +1,4 @@
+import { openCookieSettings } from "@/lib/analytics";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -94,6 +95,9 @@ const HeaderMenuContent = ({ onNavigate }: Props) => {
         <Link to={withLangPrefix("/mentions-legales", language)} className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={close}>
           {language === "en" ? "Legal notices" : "Mentions légales"}
         </Link>
+        <button type="button" onClick={() => { close(); openCookieSettings(); }} className="text-left text-foreground text-sm font-semibold transition-colors hover:text-gold">
+          {language === "en" ? "Manage cookies" : language === "ar" ? "إدارة ملفات تعريف الارتباط" : "Gérer mes cookies"}
+        </button>
         <a
           href="https://wa.me/212661439221"
           target="_blank"

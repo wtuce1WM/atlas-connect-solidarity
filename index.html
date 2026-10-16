@@ -191,7 +191,7 @@
     }
     </script>
     <!-- Google Analytics — chargé immédiatement en async (non-bloquant) pour ne pas perdre les sessions mobiles -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6Z7316E9Q5"></script>
+    <!-- Google Analytics : script chargé uniquement après « Accepter » (choix valable 6 mois). -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -210,8 +210,14 @@
         security_storage: 'granted',
         wait_for_update: 500
       };
-      if (savedConsent && savedConsent.analytics === 'granted') {
+      var consentValid = savedConsent && savedConsent.decidedAt && (Date.now() - savedConsent.decidedAt) < 182 * 24 * 3600 * 1000;
+      if (consentValid && savedConsent.analytics === 'granted') {
         defaults.analytics_storage = 'granted';
+        var gaScript = document.createElement('script');
+        gaScript.async = true;
+        gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-6Z7316E9Q5';
+        gaScript.id = 'ga-gtag';
+        document.head.appendChild(gaScript);
       }
       gtag('consent', 'default', defaults);
 
