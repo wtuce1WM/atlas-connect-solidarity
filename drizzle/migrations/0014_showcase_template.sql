@@ -1,0 +1,2 @@
+ALTER TABLE public.business_showcase_site ADD COLUMN IF NOT EXISTS template text NOT NULL DEFAULT 'premium';
+ALTER TABLE public.business_showcase_site ADD CONSTRAINT business_showcase_site_template_check CHECK (template IN ('premium'));
