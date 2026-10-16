@@ -199,6 +199,8 @@ const ShowcaseSite = () => {
   const [heroThumbs, setHeroThumbs] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroVideoIds, setHeroVideoIds] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
   const [heroFiles, setHeroFiles] = useState<{ landscape: string | null; portrait: string | null }>({ landscape: null, portrait: null });
+  const [promos, setPromos] = useState<Array<{ id: string; title: string; message: string; title_en: string; message_en: string; savings: number | null; currency: string | null; ptype: string | null; pvalue: number | null }>>([]);
+  const [galleryVideos, setGalleryVideos] = useState<Array<{ src: string; thumb: string | null }>>([]);
   const [kpSections, setKpSections] = useState<Array<{ key: string; title: string; members: Array<{ id: string; name: string; slug: string; images: string[] | null; logo_url: string | null }> }>>([]);
   const [isPortrait, setIsPortrait] = useState(() => typeof window !== "undefined" && window.innerHeight > window.innerWidth);
   useEffect(() => {
@@ -213,7 +215,7 @@ const ShowcaseSite = () => {
       if (!slug) return;
       const { data: biz } = await supabase
         .from("businesses")
-        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, logo_url, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta, reserve_now_url, reserve_now_force_external, online_shop_url, online_shop_force_external, url_4, url_4_force_external, url_5, url_5_force_external")
+        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, logo_url, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta, reserve_now_url, reserve_now_force_external, online_shop_url, online_shop_force_external, url_4, url_4_force_external, url_5, url_5_force_external, opening_hours, show_opening_hours, is_open_24h")
         .eq("slug", slug)
         .maybeSingle();
       if (!biz) { setNotFound(true); setLoading(false); return; }
@@ -258,6 +260,22 @@ const ShowcaseSite = () => {
         return { key: g.key, title: t?.title || g.code, members: (members || []) as Array<{ id: string; name: string; slug: string; images: string[] | null; logo_url: string | null }> };
       }));
       setKpSections(kpLoaded.filter((s) => s.members.length > 0));
+
+      // Offres (même source que la Full Description) et vidéos de la galerie (modèle Hero video).
+      const [{ data: promoRows }, { data: docVids }, { data: ytVids }] = await Promise.all([
+        (supabase as any).from("affiliate_business_promotions").select("id,title,title_fr,title_en,promotion_message,promotion_message_fr,promotion_message_en,savings_amount,promotion_currency,promotion_type,promotion_value").eq("business_id", biz.id).order("sort_order", { ascending: true }),
+        (supabase as any).from("business_documents").select("id,url,thumbnail_url").eq("business_id", biz.id).eq("type", "video"),
+        (supabase as any).from("business_youtube_videos").select("id,video_id,thumbnail,custom_thumbnail_url,sort_order").eq("business_id", biz.id).order("sort_order", { ascending: true }),
+      ]);
+      setPromos(((promoRows || []) as any[]).map((p) => {
+        const fr = p.title_fr || p.title || "";
+        const mfr = p.promotion_message_fr || p.promotion_message || "";
+        return { id: p.id, title: fr, message: mfr, title_en: p.title_en || fr, message_en: p.promotion_message_en || mfr, savings: p.savings_amount, currency: p.promotion_currency, ptype: p.promotion_type, pvalue: p.promotion_value };
+      }).filter((p) => p.title));
+      setGalleryVideos([
+        ...((docVids || []) as any[]).filter((d) => d.url).map((d) => ({ src: d.url as string, thumb: (d.thumbnail_url as string) || null })),
+        ...((ytVids || []) as any[]).filter((v) => v.video_id).map((v) => ({ src: `https://www.youtube.com/watch?v=${v.video_id}`, thumb: (v.custom_thumbnail_url || v.thumbnail || `https://i.ytimg.com/vi/${v.video_id}/hqdefault.jpg`) as string })),
+      ]);
 
       // Hero : les IDs renseignés sont des IDs internes (business_youtube_videos.id) —
       // on résout leur miniature (custom_thumbnail_url prioritaire, sinon thumbnail).
@@ -365,6 +383,11 @@ const ShowcaseSite = () => {
     return [...new Set(source.filter(Boolean))];
   }, [business?.images, data?.gallery_image_ids]);
 
+  // Galerie : Hero video → vidéos uniquement ; Images only → masquée s'il n'y a qu'une image.
+  const galleryItems = useMemo<Array<{ type: "image" | "video"; src: string; thumb: string | null }>>(() => {
+    if (template === "hero_video") return galleryVideos.map((v) => ({ type: "video" as const, src: v.src, thumb: v.thumb }));
+    return gallery.length > 1 ? gallery.map((src) => ({ type: "image" as const, src, thumb: src })) : [];
+  }, [template, galleryVideos, gallery]);
   const galleryOpen = galleryIndex !== null;
   useEffect(() => {
     if (!galleryOpen) return;
@@ -372,10 +395,10 @@ const ShowcaseSite = () => {
     document.body.style.overflow = "hidden";
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setGalleryIndex(null);
-      if (gallery.length > 1 && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
+      if (galleryItems.length > 1 && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
         event.preventDefault();
         const direction = event.key === "ArrowLeft" ? -1 : 1;
-        setGalleryIndex((index) => index === null ? null : (index + direction + gallery.length) % gallery.length);
+        setGalleryIndex((index) => index === null ? null : (index + direction + galleryItems.length) % galleryItems.length);
       }
     };
     document.addEventListener("keydown", handleKeyDown);
@@ -383,7 +406,7 @@ const ShowcaseSite = () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [galleryOpen, gallery.length]);
+  }, [galleryOpen, galleryItems.length]);
 
   if (loading) {
     return (
@@ -457,7 +480,7 @@ const ShowcaseSite = () => {
 
       {galleryIndex !== null && (
         <FullscreenLightbox
-          items={gallery.map((src, index) => ({ type: "image", src, alt: `${b.name} — ${index + 1}` }))}
+          items={galleryItems.map((item, index) => ({ type: item.type, src: item.src, alt: `${b.name} — ${index + 1}` }))}
           currentIndex={galleryIndex}
           onIndexChange={setGalleryIndex}
           onClose={() => setGalleryIndex(null)}
@@ -470,7 +493,8 @@ const ShowcaseSite = () => {
           <nav className="hidden items-center gap-7 text-xs font-semibold uppercase tracking-widest md:flex">
             <button onClick={() => scrollToId("story")}>{isEn ? `The ${venueEn}` : (isRiad ? "Le riad" : "L’établissement")}</button>
             <button onClick={() => scrollToId("rooms")}>{isEn ? "Rooms" : "Chambres"}</button>
-            <button onClick={() => scrollToId("gallery")}>{isEn ? "Gallery" : "Galerie"}</button>
+            {promos.length > 0 && <button onClick={() => scrollToId("offers")}>{isEn ? "Offers" : "Offres"}</button>}
+            {galleryItems.length > 0 && <button onClick={() => scrollToId("gallery")}>{isEn ? "Gallery" : "Galerie"}</button>}
             {blogPosts.length > 0 && <button onClick={() => scrollToId("blog")}>Blog</button>}
             <button onClick={() => scrollToId("location")}>{isEn ? "Location" : "Accès"}</button>
           </nav>
@@ -520,6 +544,34 @@ const ShowcaseSite = () => {
               </button>
             </div>
           </section>
+
+          {promos.length > 0 && (
+            <section id="offers" className="scroll-mt-8 bg-showcase-night px-4 py-16 text-primary-foreground md:px-8 md:py-24">
+              <div className="mx-auto max-w-7xl">
+                <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Current offers" : "En ce moment"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{isEn ? "Offers" : "Offres"}</h2></div>
+                <HScroll className="scrollbar-hide mt-10 flex gap-4 overflow-x-auto pb-3 cursor-grab md:gap-6" aria-label={isEn ? "Offers" : "Offres"}>
+                  {promos.map((p) => {
+                    const title = isEn ? p.title_en : p.title;
+                    const message = isEn ? p.message_en : p.message;
+                    const badge = p.ptype === "percentage" && p.pvalue ? `-${p.pvalue}%` : p.savings ? `${p.savings} ${p.currency || ""}`.trim() : null;
+                    const link = whatsapp ? whatsappUrl(whatsapp, isEn ? `Hello ${b.name}, I am interested in the offer: ${title}` : `Bonjour ${b.name}, je suis intéressé(e) par l'offre : ${title}`) : null;
+                    const inner = (
+                      <>
+                        {badge && <p className="inline-flex items-baseline gap-2 rounded-md bg-showcase-ink/40 px-3 py-1.5 text-xs uppercase tracking-widest">{isEn ? "Save" : "Économisez"} <span className="font-josefin text-xl font-bold text-showcase-brass">{badge}</span></p>}
+                        <h3 className="mt-5 font-josefin text-2xl font-bold leading-tight md:text-3xl">{title}</h3>
+                        {message && message !== title && <p className="mt-3 text-sm text-primary-foreground/70">{message}</p>}
+                        {link && <p className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-whatsapp"><MessageCircle className="h-4 w-4" />WhatsApp</p>}
+                      </>
+                    );
+                    const cls = "flex w-72 shrink-0 flex-col rounded-2xl border border-primary-foreground/20 bg-primary-foreground/5 p-6 text-left md:w-96";
+                    return link
+                      ? <a key={p.id} href={link} target="_blank" rel="noreferrer" draggable={false} onClick={() => trackBusinessEvent(data.business_id, "whatsapp_click", { subtype: "showcase_offer" })} className={cls}>{inner}</a>
+                      : <div key={p.id} className={cls}>{inner}</div>;
+                  })}
+                </HScroll>
+              </div>
+            </section>
+          )}
 
           <section id="story" className="scroll-mt-8 px-6 py-20 md:px-12 md:py-28">
             <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
@@ -574,20 +626,20 @@ const ShowcaseSite = () => {
             </section>
           )}
 
-          {gallery.length > 0 && (
+          {galleryItems.length > 0 && (
             <section id="gallery" className="scroll-mt-8 px-4 py-20 md:px-8 md:py-28">
               <div className="mx-auto max-w-7xl">
                 <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? `Life at the ${venueEn}` : (isRiad ? "La vie au riad" : "La vie à l’établissement")}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">Galerie</h2></div>
                 <HScroll className="scrollbar-hide mt-10 flex gap-3 overflow-x-auto pb-3 cursor-grab md:gap-5" aria-label={isEn ? "Photo gallery" : "Galerie photos"}>
-                  {gallery.map((image: string, index: number) => (
+                  {galleryItems.map((item, index) => (
                     <Button
-                      key={image}
+                      key={item.src}
                       variant="ghost"
                       className="h-40 w-52 shrink-0 overflow-hidden rounded-lg p-0 cursor-zoom-in md:h-52 md:w-72"
                       aria-label={isEn ? `Open photo ${index + 1}` : `Ouvrir la photo ${index + 1}`}
                       onClick={() => setGalleryIndex(index)}
                     >
-                      <img src={image} alt={`${b.name} — ${index + 1}`} loading="lazy" draggable={false} className="h-full w-full object-cover" />
+                      {item.thumb ? <img src={item.thumb} alt={`${b.name} — ${index + 1}`} loading="lazy" draggable={false} className="h-full w-full object-cover" /> : <video src={`${item.src}#t=0.1`} muted playsInline preload="metadata" className="pointer-events-none h-full w-full object-cover" />}
                     </Button>
                   ))}
                 </HScroll>
@@ -690,7 +742,27 @@ const ShowcaseSite = () => {
 
 
           <section id="location" className="scroll-mt-8 grid bg-showcase-night text-primary-foreground lg:grid-cols-2">
-            <div className="flex flex-col justify-center px-6 py-16 md:px-12 lg:px-20"><MapPin className="h-7 w-7 text-showcase-brass"/><h2 className="mt-5 font-josefin text-4xl font-semibold md:text-5xl">{isEn ? "In the heart of the Medina" : "Au cœur de la Médina"}</h2><p className="mt-5 text-primary-foreground/70">{b.address}<br/>{b.city}, {b.country}</p><div className="mt-8 flex flex-wrap gap-4">{phone && <a href={`tel:${phone}`} onClick={() => trackBusinessEvent(data.business_id, "phone_click", { subtype: "showcase" })} className="inline-flex items-center gap-2 border border-primary-foreground/30 px-5 py-3"><Phone className="h-4 w-4"/>{isEn ? "Call" : "Appeler"}</a>}{email && <a href={`mailto:${email}`} onClick={() => trackBusinessEvent(data.business_id, "email_click", { subtype: "showcase" })} className="inline-flex items-center gap-2 border border-primary-foreground/30 px-5 py-3"><Mail className="h-4 w-4"/>Email</a>}</div></div>
+            <div className="flex flex-col justify-center px-6 py-16 md:px-12 lg:px-20"><MapPin className="h-7 w-7 text-showcase-brass"/><h2 className="mt-5 font-josefin text-4xl font-semibold md:text-5xl">{isEn ? "In the heart of the Medina" : "Au cœur de la Médina"}</h2><p className="mt-5 text-primary-foreground/70">{b.address}<br/>{b.city}, {b.country}</p>{(() => {
+              if (b.is_open_24h) return <p className="mt-6 text-sm font-semibold text-showcase-brass">{isEn ? "Open 24/7" : "Ouvert 24h/24"}</p>;
+              const hours = b.show_opening_hours !== false ? (b.opening_hours as Record<string, any> | null) : null;
+              const days: Array<[string, string, string]> = [["monday","Lundi","Monday"],["tuesday","Mardi","Tuesday"],["wednesday","Mercredi","Wednesday"],["thursday","Jeudi","Thursday"],["friday","Vendredi","Friday"],["saturday","Samedi","Saturday"],["sunday","Dimanche","Sunday"]];
+              if (!hours || !days.some(([k]) => hours[k])) return null;
+              const todayKey = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][new Date().getDay()];
+              const fmt = (h: any) => !h || h.closed ? (isEn ? "Closed" : "Fermé") : [h.open && h.close ? `${h.open} – ${h.close}` : "", h.open2 && h.close2 ? `${h.open2} – ${h.close2}` : ""].filter(Boolean).join(" · ") || "—";
+              const now = new Date(); const mins = now.getHours() * 60 + now.getMinutes();
+              const toM = (t: string) => { const [hh, mm] = t.split(":").map(Number); return hh * 60 + (mm || 0); };
+              const inRange = (o?: string, c?: string) => { if (!o || !c) return false; const a = toM(o); let z = toM(c); if (z <= a) z += 1440; return (mins >= a && mins < z) || (mins + 1440 >= a && mins + 1440 < z); };
+              const t = hours[todayKey];
+              const open = t && !t.closed && (inRange(t.open, t.close) || inRange(t.open2, t.close2));
+              return (
+                <div className="mt-8 max-w-sm">
+                  <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Opening hours" : "Horaires"}<span className={open ? "text-whatsapp" : "text-primary-foreground/50"}>{open ? (isEn ? "Open" : "Ouvert") : (isEn ? "Closed" : "Fermé")}</span></p>
+                  <ul className="mt-3 space-y-1 text-sm">
+                    {days.map(([k, fr, en]) => <li key={k} className={`flex justify-between gap-6 ${k === todayKey ? "font-semibold text-primary-foreground" : "text-primary-foreground/70"}`}><span>{isEn ? en : fr}</span><span>{fmt(hours[k])}</span></li>)}
+                  </ul>
+                </div>
+              );
+            })()}<div className="mt-8 flex flex-wrap gap-4">{phone && <a href={`tel:${phone}`} onClick={() => trackBusinessEvent(data.business_id, "phone_click", { subtype: "showcase" })} className="inline-flex items-center gap-2 border border-primary-foreground/30 px-5 py-3"><Phone className="h-4 w-4"/>{isEn ? "Call" : "Appeler"}</a>}{email && <a href={`mailto:${email}`} onClick={() => trackBusinessEvent(data.business_id, "email_click", { subtype: "showcase" })} className="inline-flex items-center gap-2 border border-primary-foreground/30 px-5 py-3"><Mail className="h-4 w-4"/>Email</a>}</div></div>
             {b.latitude && b.longitude && <iframe title={isEn ? "Location map" : "Carte d’accès"} src={`https://www.google.com/maps?q=${b.latitude},${b.longitude}&z=16&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="h-[420px] w-full border-0 lg:h-full lg:min-h-[560px]" />}
           </section>
         </main>
