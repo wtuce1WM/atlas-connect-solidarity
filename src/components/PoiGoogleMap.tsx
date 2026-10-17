@@ -759,8 +759,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
 
     // Wheel / trackpad pinch zoom — anchored on the Master marker
     const handleWheel = (e: WheelEvent) => {
-      // Molette seule = défilement de la page ; zoom uniquement avec Ctrl/⌘ (ou pinch trackpad).
-      const isZoomGesture = e.ctrlKey || e.metaKey;
+      // Molette verticale et pinch trackpad zooment ; le défilement horizontal reste libre.
+      const isZoomGesture = e.ctrlKey || e.metaKey || Math.abs(e.deltaY) > Math.abs(e.deltaX);
       if (!isZoomGesture) return;
       e.preventDefault();
       const map = mapRef.current;

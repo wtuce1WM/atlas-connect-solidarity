@@ -1,5 +1,9 @@
 # Roadmap
 
+- [x] Rétablir le zoom molette des cartes ; zoom avant/arrière vérifié sur la carte La Mamounia, protection des Pills préservée.
+- [x] Synchroniser filtrage hôtelier, compteur et pagination ; rayon isolé par recherche, 5 tests réussis ; résultats réels Marrakech : 19 au total, 6 à 1 km, 3 à 500 m, bouton absent après épuisement.
+- Anomalie hors périmètre signalée : le tiroir Filtres ouvert recouvre parfois son bouton de fermeture ; non modifié.
+
 - [x] Ajouter Mentions légales sous Contact : introduction illustrée, quatre écrans de contenus existants FR/EN ; menu, navigation, défilement, changement de langue et installation vérifiés dans l’aperçu, compilation OK.
 
 - [x] Activer le suivi GPS partagé après « Ma position » dans toutes les cartes et itinéraires ; 4 tests réussis, déplacement du marqueur Map et origine/tracé Itinéraire vérifiés dans l’aperçu avec GPS simulé ; adresses manuelles préservées, compilation OK ; déplacement sur iPhone réel non vérifiable ici.
