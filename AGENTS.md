@@ -1,5 +1,7 @@
 # Architecture Rules
 
+- EmbedAsk hotel counts, tiles and pagination use the same hotelResultView collection; explicit radii are scoped by message and cleared on a new availability search, preventing stale filtering and empty pagination.
+
 - Both `build` and `build:dev` in package.json must keep `NODE_OPTIONS=--max-old-space-size=4096`; the Vite build OOMs (~3 GB heap) during minification without it.
 
 - Legal pages and the immersive legal viewer share French content components; English translations preserve the same full documents, so the viewer never substitutes summaries for legal text.

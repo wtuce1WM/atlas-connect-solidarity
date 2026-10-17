@@ -49,6 +49,7 @@ import AiTidesWidget from "@/components/embed/AiTidesWidget";
 import AvailabilitySearchOverlay from "@/components/overlays/AvailabilitySearchOverlay";
 import { searchCityHotels, ALL_CITIES, type CityHotelSearchResult } from "@/lib/cityHotelSearch";
 import { formatEuro, parseSerpAmount } from "@/lib/parseSerpAmount";
+import { getHotelResultView } from "@/lib/hotelResultView";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { applyEmbedBg, parseBg, resolveEmbedInk, parseFit, fitFlags } from "@/lib/embedFit";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
@@ -969,6 +970,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
   const [hotelShown, setHotelShown] = useState<Record<string, number>>({});
   // Tri des résultats de disponibilité (filtres du badge bleu), par message.
   const [hotelSort, setHotelSort] = useState<Record<string, "price" | "distance">>({});
+  /** Un rayon choisi appartient uniquement à cette recherche de disponibilité. */
+  const [hotelRadiusByMsg, setHotelRadiusByMsg] = useState<Record<string, number>>({});
   /** Résultats vidéo affichés en grille, par lots de 4 et par message assistant. */
   // Suggestion `booking` liée à des sous-catégories : la ville du widget est
   // mémorisée au clic, puis rattachée au message assistant du moteur (le widget
@@ -1045,6 +1048,12 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     lastBookingRef.current = { city, checkIn, checkOut, adults };
     lastLodgingCityRef.current = city;
     setHotelSearchingMsgId(msgId);
+    setHotelRadiusByMsg((prev) => {
+      const next = { ...prev };
+      delete next[msgId];
+      return next;
+    });
+    setHotelShown((prev) => ({ ...prev, [msgId]: 4 }));
     try {
       // Corpus du tour en cours (POOL_BUSINESS_IDS) : la vérification SerpAPI
       // se limite à ces établissements, jamais à toute la ville.
@@ -1181,8 +1190,6 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
 
   // Rayon de proximité : valeur de l'hôte (/affiliates → Tools), modifiable par l'utilisateur.
   const [radiusKm, setRadiusKm] = useState<number>(1);
-  // Le rayon ne filtre les hôtels qu'après un choix explicite de l'utilisateur.
-  const [hotelRadiusOn, setHotelRadiusOn] = useState(false);
   const radiusRef = useRef<number>(1);
   const applyRadius = (km: number) => { radiusRef.current = km; setRadiusKm(km); };
 
@@ -3148,8 +3155,17 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
     return poolInfo.ids.filter((id) => !shown.has(id)).length;
   }, [messages, poolInfo]);
 
+  const hotelViews = useMemo(() => Object.fromEntries(
+    Object.entries(hotelResults).map(([msgKey, result]) => [msgKey, getHotelResultView(result.hotels, {
+      coords: geo.coords,
+      radiusKm: hotelRadiusByMsg[msgKey],
+      sort: hotelSort[msgKey],
+      shown: hotelShown[msgKey] ?? 4,
+    })]),
+  ), [hotelResults, geo.coords, hotelRadiusByMsg, hotelSort, hotelShown]);
+
   /**
-   * Dernier lot de disponibilités encore extensible. Il utilise le CTA Gold
+   * Dernier lot de disponibilités. Il utilise le CTA Gold
    * commun au-dessus du champ, plutôt qu'un second bouton sous les vignettes.
    */
   const hotelMoreTarget = useMemo<{ msgKey: string; remaining: number } | null>(() => {
@@ -3157,12 +3173,11 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
       const msgKey = String(messages[i]?.id || i);
       const result = hotelResults[msgKey];
       if (!result?.hotels?.length) continue;
-      const shown = hotelShown[msgKey] ?? 4;
-      const remaining = Math.max(0, result.hotels.length - shown);
-      return remaining > 0 ? { msgKey, remaining } : null;
+      const remaining = hotelViews[msgKey]?.remaining ?? 0;
+      return { msgKey, remaining };
     }
     return null;
-  }, [messages, hotelResults, hotelShown]);
+  }, [messages, hotelResults, hotelViews]);
 
   /** Dernier lot de disponibilités non vide : cible des filtres de tri. */
   const hotelSortTarget = useMemo<string | null>(() => {
@@ -4941,6 +4956,8 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
           const bookingCity = bookingPayload?.city || bookingWidgetByMsg[msgKey] || null;
           const showCityPick = cityPick || !!cityPickByMsg[msgKey];
           const bookingResult = hotelResults[msgKey] || null;
+          const bookingView = hotelViews[msgKey];
+          const bookingCount = bookingView?.total ?? 0;
           const isLast = i === messages.length - 1;
           const hideAssistantText =
             isLast &&
@@ -5275,40 +5292,28 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                       className="flex flex-col gap-3"
                     >
                       <div className={`text-xs font-semibold ${theme === "dark" ? "text-white/70" : "text-neutral-700"}`}>
-                        {bookingResult.hotels.length > 0
+                        {bookingCount > 0
                           ? (lang === "en"
-                              ? `${bookingResult.hotels.length} available stays in ${bookingResult.city}`
+                              ? `${bookingCount} available stays in ${bookingResult.city}`
                               : lang === "ar"
-                              ? `${bookingResult.hotels.length} إقامة متوفرة في ${bookingResult.city}`
-                              : `${bookingResult.hotels.length} établissements disponibles à ${bookingResult.city}`)
-                          : (lang === "en"
+                              ? `${bookingCount} إقامة متوفرة في ${bookingResult.city}`
+                              : `${bookingCount} établissements disponibles à ${bookingResult.city}`)
+                          : (geo.coords && hotelRadiusByMsg[msgKey] !== undefined && bookingResult.hotels.length > 0
+                              ? (lang === "en"
+                                  ? "No available stays within the selected radius."
+                                  : lang === "ar"
+                                  ? "لا توجد إقامات متوفرة ضمن النطاق المحدد."
+                                  : "Aucun établissement disponible dans le rayon sélectionné.")
+                              : lang === "en"
                               ? "No availability found for these dates."
                               : lang === "ar"
                               ? "لا يوجد توفر لهذه التواريخ."
                               : "Aucune disponibilité trouvée pour ces dates.")}
                       </div>
-                      {bookingResult.hotels.length > 0 && (() => {
+                      {bookingCount > 0 && bookingView && (() => {
                         // Même format que les autres réponses IA : miniatures carrées
                         // affichées 4 par 4, avec badge prix/nuit SerpAPI.
-                        const shown = hotelShown[msgKey] ?? 4;
-                        const sortMode = hotelSort[msgKey];
-                        const priceOf = (h: any) => parseSerpAmount(h.serpPrice) ?? parseSerpAmount(h.dbBusiness?.min_price) ?? Infinity;
-                        const distOf = (h: any) => {
-                          const lat = Number(h.dbBusiness?.latitude), lng = Number(h.dbBusiness?.longitude);
-                          if (!geo.coords || !Number.isFinite(lat) || !Number.isFinite(lng) || (!lat && !lng)) return Infinity;
-                          return haversineKm(geo.coords, { lat, lng });
-                        };
-                        // Rayon du tiroir Filtres : filtre les hôtels affichés
-                        // par distance (géolocalisation active uniquement),
-                        // appliqué avant le tri pour que les deux se combinent.
-                        const inRadius = geo.coords && hotelRadiusOn
-                          ? bookingResult.hotels.filter((h: any) => distOf(h) <= radiusKm)
-                          : bookingResult.hotels;
-                        const ordered = sortMode
-                          ? [...inRadius].sort((a: any, b: any) =>
-                              sortMode === "price" ? priceOf(a) - priceOf(b) : distOf(a) - distOf(b))
-                          : inRadius;
-                        const visible = ordered.slice(0, shown);
+                        const visible = bookingView.visible;
                         const priceBadges: Record<string, string> = {};
                         for (const h of bookingResult.hotels as any[]) {
                           const nightlyAmount = parseSerpAmount(h.serpPrice) ?? parseSerpAmount(h.dbBusiness?.min_price);
@@ -5826,8 +5831,15 @@ const EmbedAsk = ({ paramsOverride }: { paramsOverride?: string } = {}) => {
                   </label>
                   <select
                     id="owm-embed-radius"
-                    value={String(radiusKm)}
-                    onChange={(e) => { setHotelRadiusOn(true); applyRadius(Number(e.target.value)); }}
+                    value={String(hotelSortTarget ? hotelRadiusByMsg[hotelSortTarget] ?? radiusKm : radiusKm)}
+                    onChange={(e) => {
+                      const km = Number(e.target.value);
+                      applyRadius(km);
+                      if (hotelSortTarget) {
+                        setHotelRadiusByMsg((prev) => ({ ...prev, [hotelSortTarget]: km }));
+                        setHotelShown((prev) => ({ ...prev, [hotelSortTarget]: 4 }));
+                      }
+                    }}
                     className="text-[11px] rounded-full border px-2 py-1 outline-none bg-white text-neutral-800 border-neutral-200"
                   >
                     {RADIUS_OPTIONS.map((r) => (
