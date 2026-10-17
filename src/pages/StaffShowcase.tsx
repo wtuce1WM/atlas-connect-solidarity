@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { SHOWCASE_TEMPLATES, resolveShowcaseTemplate } from "@/components/showcase/templates";
+import { resolveShowcaseGroupLayout } from "@/components/showcase/groupLayout";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
@@ -168,7 +170,18 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
         </div>
       </div>
       <div className="space-y-2">
-        <Label>Groupes affichés sur la vitrine</Label>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Label>Groupes affichés sur la vitrine</Label>
+          <Select value={resolveShowcaseGroupLayout(r.cta_config?.groups_layout)} onValueChange={(value) => setCta("groups_layout", value)}>
+            <SelectTrigger className="w-52 normal-case tracking-normal" aria-label="Affichage des groupes">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="carousel">carousel</SelectItem>
+              <SelectItem value="stacking_cards">stacking cards</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         {!r.business?.kp_regroupement && !r.business?.kp_regroupement_2 && <p className="text-xs text-muted-foreground">Aucun Groupe KP1/KP2 pour cet établissement.</p>}
         {r.business?.kp_regroupement && (
           <div className="flex items-center gap-2"><Switch checked={r.show_kp1} onCheckedChange={(v) => set("show_kp1", v)} /><span className="text-sm">Groupe KP1 : <b>{r.business.kp_regroupement}</b> — {r.show_kp1 ? "Oui" : "Non"}</span><select className="ml-auto h-8 rounded-md border bg-background px-2 text-sm" value={r.cta_config?.kp1_display || "pages"} onChange={(e) => setCta("kp1_display", e.target.value)}><option value="pages">1 page par business</option><option value="map">Map</option></select></div>
