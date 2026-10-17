@@ -299,7 +299,10 @@ const ShowcaseSite = () => {
           (supabase as any).from("businesses").select("id,name,slug,images,logo_url,city,latitude,longitude").eq(g.col, g.code).eq("is_active", true).neq("id", master.id).neq("id", biz.id).limit(40),
           (supabase as any).from("kp_group_titles").select("title").eq("kp_code", g.code).eq("kp_type", g.type).maybeSingle(),
         ]);
-        return { key: g.key, display: g.display, title: t?.title || g.code, members: (members || []) as Array<{ id: string; name: string; slug: string; images: string[] | null; logo_url: string | null }> };
+        // Sur une sous-page, le business master est toujours en position n°1.
+        const list = (members || []) as any[];
+        if (sub && g.display === "pages") list.unshift({ id: master.id, name: master.name, slug: master.slug, images: master.images, logo_url: master.logo_url, city: master.city, latitude: master.latitude, longitude: master.longitude });
+        return { key: g.key, display: g.display, title: t?.title || g.code, members: list as Array<{ id: string; name: string; slug: string; images: string[] | null; logo_url: string | null }> };
       }));
       setKpSections(kpLoaded.filter((s) => s.members.length > 0));
 
