@@ -1,6 +1,6 @@
 # Architecture Rules
 
-- Showcase group layout is stored in the existing cta_config.groups_layout and resolved through groupLayout.ts, keeping older showcases compatible without a schema change.
+- Showcase group layout is stored in cta_config.groups_layout and resolved through groupLayout.ts; both templates share ShowcaseGroupCards, using CSS sticky stacking (normal flow with reduced motion) or the existing HScroll carousel, without a schema change.
 
 - EmbedAsk hotel counts, tiles and pagination use the same hotelResultView collection; explicit radii are scoped by message and cleared on a new availability search, preventing stale filtering and empty pagination.
 

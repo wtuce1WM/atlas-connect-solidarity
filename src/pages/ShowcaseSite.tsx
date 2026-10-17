@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveShowcaseTemplate } from "@/components/showcase/templates";
+import ShowcaseGroupCards from "@/components/showcase/ShowcaseGroupCards";
 import { ArrowDown, CalendarDays, ExternalLink, ChevronLeft, ChevronRight, Volume2, VolumeX, Loader2, Mail, MapPin, MessageCircle, Phone, X } from "lucide-react";
 import { trackBusinessEvent } from "@/lib/businessAnalytics";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ interface ShowcaseData {
     email?: string;
     reserve_url?: string;
     primary_label?: string;
+    groups_layout?: string;
   };
   business?: Record<string, any>;
 }
@@ -798,19 +800,7 @@ const ShowcaseSite = () => {
             <section key={s.key} className="scroll-mt-8 px-4 pb-20 md:px-8 md:pb-28">
               <div className="mx-auto max-w-7xl">
                 <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Same group" : "Même groupe"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{s.title}</h2></div>
-                <HScroll className="scrollbar-hide mt-10 flex gap-4 overflow-x-auto pb-3 cursor-grab md:gap-6" aria-label={s.title}>
-                  {s.members.map((m) => {
-                    const img = m.images?.[0] || m.logo_url;
-                    return (
-                      <a key={m.id} href={`/fiche/${m.slug}`} target="_blank" rel="noreferrer" className="w-64 shrink-0 text-left md:w-80">
-                        <div className="h-40 overflow-hidden rounded-lg bg-showcase-night md:h-48">
-                          {img && <img src={img} alt={m.name} loading="lazy" draggable={false} className="h-full w-full object-cover" />}
-                        </div>
-                        <p className="mt-3 font-josefin text-lg font-semibold leading-snug line-clamp-2">{m.name}</p>
-                      </a>
-                    );
-                  })}
-                </HScroll>
+                <ShowcaseGroupCards members={s.members} title={s.title} layout={data.cta_config?.groups_layout} />
               </div>
             </section>
           ))}

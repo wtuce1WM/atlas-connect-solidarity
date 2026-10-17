@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Activer stacking cards pour les groupes des deux templates ; épinglage/recouvrement vérifiés sur Royal Mansour (8 cartes, desktop) et La Maison Arabe (5 cartes, mobile), carousel par défaut et réduction des animations préservés ; réglages simulés sans modification des données réelles, téléphone physique non vérifié.
+
 - [x] Rétablir le zoom molette des cartes ; zoom avant/arrière vérifié sur la carte La Mamounia, protection des Pills préservée.
 - [x] Synchroniser filtrage hôtelier, compteur et pagination ; rayon isolé par recherche, 5 tests réussis ; résultats réels Marrakech : 19 au total, 6 à 1 km, 3 à 500 m, bouton absent après épuisement.
 - Anomalie hors périmètre signalée : le tiroir Filtres ouvert recouvre parfois son bouton de fermeture ; non modifié.
