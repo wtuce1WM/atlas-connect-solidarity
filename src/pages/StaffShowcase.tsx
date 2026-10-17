@@ -173,7 +173,7 @@ const ShowcaseCard = ({ initial }: { initial: Row }) => {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <Label>Groupes affichés sur la vitrine</Label>
           <Select value={resolveShowcaseGroupLayout(r.cta_config?.groups_layout)} onValueChange={(value) => setCta("groups_layout", value)}>
-            <SelectTrigger className="w-44" aria-label="Affichage des groupes">
+            <SelectTrigger className="w-52 normal-case tracking-normal" aria-label="Affichage des groupes">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
