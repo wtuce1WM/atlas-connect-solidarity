@@ -115,8 +115,11 @@ const EllohaBookingCalendar = ({ language }: { language: "fr" | "en" }) => {
 };
 
 const ShowcaseSite = () => {
-  const { slug: rawSlug } = useParams<{ slug: string }>();
+  const { slug: rawSlug, sub: rawSub } = useParams<{ slug: string; sub?: string }>();
   const slug = rawSlug?.toLowerCase();
+  // Sous-page d'un business lié par groupe KP (mode « 1 page par business »).
+  const sub = rawSub?.toLowerCase();
+  const pageSlug = sub || slug;
 
   // PWA dédiée au business : manifeste généré à la volée (cf. script dans index.html),
   // icône et titre d'accueil propres à l'établissement tant que la page est affichée.
@@ -213,7 +216,7 @@ const ShowcaseSite = () => {
   const [ytIndex, setYtIndex] = useState<number | null>(null);
   const [menuDocs, setMenuDocs] = useState<Array<{ url: string; name: string; type: "pdf" | "flipbook" }>>([]);
   const [openDoc, setOpenDoc] = useState<{ url: string; name: string; type: "pdf" | "flipbook"; ts: number } | null>(null);
-  const [kpSections, setKpSections] = useState<Array<{ key: string; title: string; members: Array<{ id: string; name: string; slug: string; images: string[] | null; logo_url: string | null }> }>>([]);
+  const [kpSections, setKpSections] = useState<Array<{ key: string; display: string; title: string; members: any[] }>>([]);
   const [isPortrait, setIsPortrait] = useState(() => typeof window !== "undefined" && window.innerHeight > window.innerWidth);
   useEffect(() => {
     const mq = window.matchMedia("(orientation: portrait)");
@@ -225,21 +228,41 @@ const ShowcaseSite = () => {
   useEffect(() => {
     const load = async () => {
       if (!slug) return;
-      const { data: biz } = await supabase
+      const bizSelect = "id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, logo_url, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta, reserve_now_url, reserve_now_force_external, online_shop_cta, url_4_cta, url_5_cta, popup_image_url, online_shop_url, online_shop_force_external, url_4, url_4_force_external, url_5, url_5_force_external, opening_hours, show_opening_hours, is_open_24h, show_youtube_tab, website, website_cta, menu_url, menu_name, flipbook_url, flipbook_name, pdf_url";
+      const { data: master } = await supabase
         .from("businesses")
-        .select("id, name, name_en, slug, city, country, address, description_fr, description_en, hook_fr, hook_en, logo_url, images, latitude, longitude, phone, email, whatsapp, facebook_url, instagram_url, pinterest_url, services, default_service, google_rating, google_review_count, google_reviews_url, google_maps_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, total_review_count, computed_rating, min_price, manual_price_range, reserve_now_cta, reserve_now_url, reserve_now_force_external, online_shop_cta, url_4_cta, url_5_cta, popup_image_url, online_shop_url, online_shop_force_external, url_4, url_4_force_external, url_5, url_5_force_external, opening_hours, show_opening_hours, is_open_24h, show_youtube_tab, website, website_cta, menu_url, menu_name, flipbook_url, flipbook_name, pdf_url")
+        .select(bizSelect)
         .eq("slug", slug)
         .maybeSingle();
-      if (!biz) { setNotFound(true); setLoading(false); return; }
+      if (!master) { setNotFound(true); setLoading(false); return; }
 
-      const { data: showcase } = await (supabase as any)
+      const { data: masterShowcase } = await (supabase as any)
         .from("business_showcase_site")
         .select("*")
-        .eq("business_id", biz.id)
+        .eq("business_id", master.id)
         .eq("enabled", true)
         .maybeSingle();
 
-      if (!showcase) { setNotFound(true); setLoading(false); return; }
+      if (!masterShowcase) { setNotFound(true); setLoading(false); return; }
+
+      // Groupes KP du business master (affichés aussi sur les sous-pages).
+      const { data: kpBiz } = await (supabase as any).from("businesses").select("kp_regroupement,kp_regroupement_2").eq("id", master.id).maybeSingle();
+      const cfg = masterShowcase.cta_config || {};
+      const kpGroups: Array<{ key: string; code: string; col: string; type: string; display: string }> = [];
+      if (masterShowcase.show_kp1 && kpBiz?.kp_regroupement) kpGroups.push({ key: "kp1", code: kpBiz.kp_regroupement, col: "kp_regroupement", type: "kp1", display: cfg.kp1_display === "map" ? "map" : "pages" });
+      if (masterShowcase.show_kp2 && kpBiz?.kp_regroupement_2) kpGroups.push({ key: "kp2", code: kpBiz.kp_regroupement_2, col: "kp_regroupement_2", type: "kp2", display: cfg.kp2_display === "map" ? "map" : "pages" });
+
+      let biz: any = master;
+      let showcase: any = masterShowcase;
+      if (sub) {
+        const { data: child } = await (supabase as any).from("businesses").select(`${bizSelect}, kp_regroupement, kp_regroupement_2, is_active`).eq("slug", sub).maybeSingle();
+        const allowed = child && child.is_active && child.id !== master.id
+          && kpGroups.some((g) => g.display === "pages" && child[g.col] === g.code);
+        if (!allowed) { setNotFound(true); setLoading(false); return; }
+        biz = child;
+        // Même template/thème que le master ; contenus propres au master neutralisés.
+        showcase = { ...masterShowcase, hero_image_url: null, hero_landscape_video_id: null, hero_portrait_video_id: null, tagline_fr: null, tagline_en: null, tagline_ar: null, story_fr: null, story_en: null, story_ar: null, gallery_image_ids: null, testimonials: [], canonical_url: `https://oneworldmorocco.com/site/${slug}/${sub}` };
+      }
 
       const [highlightResult, reviewResult] = await Promise.all([
         supabase
@@ -270,16 +293,12 @@ const ShowcaseSite = () => {
       }
 
       // Groupes KP1/KP2 : membres actifs affichés si le staff a activé le toggle.
-      const { data: kpBiz } = await (supabase as any).from("businesses").select("kp_regroupement,kp_regroupement_2").eq("id", biz.id).maybeSingle();
-      const kpGroups: Array<{ key: string; code: string; col: string; type: string }> = [];
-      if (showcase.show_kp1 && kpBiz?.kp_regroupement) kpGroups.push({ key: "kp1", code: kpBiz.kp_regroupement, col: "kp_regroupement", type: "kp1" });
-      if (showcase.show_kp2 && kpBiz?.kp_regroupement_2) kpGroups.push({ key: "kp2", code: kpBiz.kp_regroupement_2, col: "kp_regroupement_2", type: "kp2" });
       const kpLoaded = await Promise.all(kpGroups.map(async (g) => {
         const [{ data: members }, { data: t }] = await Promise.all([
-          (supabase as any).from("businesses").select("id,name,slug,images,logo_url").eq(g.col, g.code).eq("is_active", true).neq("id", biz.id).limit(40),
+          (supabase as any).from("businesses").select("id,name,slug,images,logo_url,city,latitude,longitude").eq(g.col, g.code).eq("is_active", true).neq("id", master.id).neq("id", biz.id).limit(40),
           (supabase as any).from("kp_group_titles").select("title").eq("kp_code", g.code).eq("kp_type", g.type).maybeSingle(),
         ]);
-        return { key: g.key, title: t?.title || g.code, members: (members || []) as Array<{ id: string; name: string; slug: string; images: string[] | null; logo_url: string | null }> };
+        return { key: g.key, display: g.display, title: t?.title || g.code, members: (members || []) as Array<{ id: string; name: string; slug: string; images: string[] | null; logo_url: string | null }> };
       }));
       setKpSections(kpLoaded.filter((s) => s.members.length > 0));
 
@@ -368,7 +387,7 @@ const ShowcaseSite = () => {
       trackBusinessEvent(biz.id, "view", { subtype: "showcase" });
     };
     load();
-  }, [slug]);
+  }, [slug, sub]);
 
   useEffect(() => {
     const closeAssistant = () => setAssistantOpen(false);
@@ -494,7 +513,7 @@ const ShowcaseSite = () => {
     : heroVideoIds.landscape || heroVideoIds.portrait;
   const heroFile = isPortrait ? heroFiles.portrait || heroFiles.landscape : heroFiles.landscape || heroFiles.portrait;
   const heroMedia = heroLandscape || data.hero_image_url || gallery[0];
-  const canonicalUrl = data.canonical_url || `https://oneworldmorocco.com/site/${slug}`;
+  const canonicalUrl = data.canonical_url || `https://oneworldmorocco.com/site/${pageSlug}`;
   const primaryCta = data.cta_config?.primary_label || (isEn ? "Book your stay" : "Réserver votre séjour");
   const whatsapp = data.cta_config?.whatsapp || b.whatsapp;
   const phone = data.cta_config?.phone || b.phone;
@@ -800,7 +819,7 @@ const ShowcaseSite = () => {
             <section key={s.key} className="scroll-mt-8 px-4 pb-20 md:px-8 md:pb-28">
               <div className="mx-auto max-w-7xl">
                 <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Same group" : "Même groupe"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{s.title}</h2></div>
-                <ShowcaseGroupCards members={s.members} title={s.title} layout={data.cta_config?.groups_layout} />
+                <ShowcaseGroupCards members={s.members} title={s.title} layout={data.cta_config?.groups_layout} display={s.display} siteSlug={slug!} />
               </div>
             </section>
           ))}
@@ -845,7 +864,7 @@ const ShowcaseSite = () => {
                 <style>{`@media (max-width: 640px) { #owm-frame-0rm62fk { height: 580px !important; min-height: auto !important; } }`}</style>
                 <iframe
                   id="owm-frame-0rm62fk"
-                  src={`https://oneworldmorocco.com/embed/nearby/${slug}?lang=${language}&bg=F7F1E8&fit=w`}
+                  src={`https://oneworldmorocco.com/embed/nearby/${pageSlug}?lang=${language}&bg=F7F1E8&fit=w`}
                   style={{ width: "100%", display: "block", height: 720, border: 0, borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,0.15)" }}
                   title={isEn ? `Nearby — ${b.name}` : `À proximité — ${b.name}`}
                   loading="lazy"
@@ -893,7 +912,7 @@ const ShowcaseSite = () => {
           />
         </section>
 
-        <footer className="bg-showcase-night px-6 py-8 text-center text-xs text-primary-foreground/50"><Link to={`/fiche/${slug}`} className="hover:text-primary-foreground">Powered by <span className="font-semibold">One World Morocco</span></Link></footer>
+        <footer className="bg-showcase-night px-6 py-8 text-center text-xs text-primary-foreground/50"><Link to={`/fiche/${pageSlug}`} className="hover:text-primary-foreground">Powered by <span className="font-semibold">One World Morocco</span></Link></footer>
 
         <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 border-t border-showcase-line bg-showcase-paper p-2 md:hidden">
           {hasBooking ? (
@@ -927,7 +946,7 @@ const ShowcaseSite = () => {
         >
           <iframe
             ref={assistantFrameRef}
-            src={`/embed/ask/${slug}?theme=light&lang=${language}&bg=transparent&card=F7F1E8&panel=1&name=${encodeURIComponent(assistantName)}`}
+            src={`/embed/ask/${pageSlug}?theme=light&lang=${language}&bg=transparent&card=F7F1E8&panel=1&name=${encodeURIComponent(assistantName)}`}
             title={`${assistantName} — ${b.name}`}
             allow="clipboard-write; geolocation; microphone"
             loading="lazy"

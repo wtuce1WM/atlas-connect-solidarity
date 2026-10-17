@@ -321,6 +321,7 @@ const LocalizedRoutes = () => {
               <Route path="/ar/u/:pseudo" element={renderLazyRoute(<PublicClubProfile />)} />
               <Route path="/b/:slug" element={renderLazyRoute(<PublicBusinessProfile />)} />
               <Route path="/site/:slug" element={renderLazyRoute(<ShowcaseSite />)} />
+              <Route path="/site/:slug/:sub" element={renderLazyRoute(<ShowcaseSite />)} />
               <Route path="/embed/weather" element={renderLazyRoute(<EmbedWeather />)} />
               <Route path="/embed/tides" element={renderLazyRoute(<EmbedTides />)} />
               <Route path="/embed/spotify/:slug" element={renderLazyRoute(<EmbedSpotify />)} />
