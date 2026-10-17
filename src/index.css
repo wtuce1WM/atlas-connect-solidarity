@@ -108,6 +108,7 @@ All colors MUST be HSL.
     --showcase-line: 35 18% 85%;
     --showcase-night: 150 8% 9%;
     --showcase-stack-shadow: 0 12px 32px hsl(var(--showcase-night) / 0.18);
+    --showcase-map-shadow: 0 4px 24px hsl(0 0% 0% / 0.15);
 
     /* Substack embed */
     --substack-card: 33 53% 83%;

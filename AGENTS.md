@@ -1,6 +1,6 @@
 # Architecture Rules
 
-- Showcase group layout is stored in cta_config.groups_layout and resolved through groupLayout.ts; both templates share ShowcaseGroupCards, using CSS sticky stacking (normal flow with reduced motion) or the existing HScroll carousel, without a schema change. kpN_display=map renders BusinessMap; pages mode links to /site/:master/:sub, which reuses the master showcase template only for active members of a pages-mode group.
+- Showcase group layout is stored in cta_config.groups_layout and resolved through groupLayout.ts; both templates share ShowcaseGroupCards, using CSS sticky stacking (normal flow with reduced motion) or the existing HScroll carousel, without a schema change. kpN_display=map and Nearby share ShowcaseMapFrame and EmbedNearby (group member IDs use the existing closed POI corpus) to preserve identical appearance and fiche interactions; pages mode links to /site/:master/:sub, which reuses the master showcase template only for active members of a pages-mode group.
 
 - EmbedAsk hotel counts, tiles and pagination use the same hotelResultView collection; explicit radii are scoped by message and cleared on a new availability search, preventing stale filtering and empty pagination.
 
