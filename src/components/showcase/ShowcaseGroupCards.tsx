@@ -33,7 +33,7 @@ export default function ShowcaseGroupCards({ members, title, layout, display, si
   const cards = members.map((member) => {
     const image = member.images?.[0] || member.logo_url;
     return (
-      <a key={member.id} href={`/site/${siteSlug}/${member.slug}`}
+      <a key={member.id} href={member.slug === siteSlug ? `/site/${siteSlug}` : `/site/${siteSlug}/${member.slug}`}
         className={stacked ? "showcase-group-stack-card" : "w-64 shrink-0 text-left md:w-80"}>
         <div className={stacked ? "showcase-group-stack-image" : "h-40 overflow-hidden rounded-lg bg-showcase-night md:h-48"}>
           {image && <img src={image} alt={member.name} loading="lazy" draggable={false} className="h-full w-full object-cover" />}
