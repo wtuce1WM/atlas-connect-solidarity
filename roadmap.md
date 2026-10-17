@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Uniformiser les cartes des groupes et À proximité via la même carte embarquée et le même cadre plein écran ; Royal Mansour : 8 membres chargés, contrôles et rendu vérifiés, deux tests réussis, compilation OK ; ouverture de fiche au clic non revérifiée.
+
 - [x] Activer stacking cards pour les groupes des deux templates ; épinglage/recouvrement vérifiés sur Royal Mansour (8 cartes, desktop) et La Maison Arabe (5 cartes, mobile), carousel par défaut et réduction des animations préservés ; réglages simulés sans modification des données réelles, téléphone physique non vérifié.
 
 - [x] Rétablir le zoom molette des cartes ; zoom avant/arrière vérifié sur la carte La Mamounia, protection des Pills préservée.

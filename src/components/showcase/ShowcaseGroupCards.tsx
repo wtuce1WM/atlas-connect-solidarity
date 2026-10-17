@@ -1,5 +1,5 @@
 import HScroll from "@/components/HScroll";
-import BusinessMap from "@/components/BusinessMap";
+import ShowcaseMapFrame from "./ShowcaseMapFrame";
 import { resolveShowcaseGroupLayout } from "./groupLayout";
 import "./groupCards.css";
 
@@ -14,21 +14,19 @@ interface GroupMember {
   longitude?: number | null;
 }
 
-export default function ShowcaseGroupCards({ members, title, layout, display, siteSlug }: {
+export default function ShowcaseGroupCards({ members, title, layout, display, siteSlug, mapSlug, language }: {
   members: GroupMember[];
   title: string;
   layout?: string;
   display?: string;
   siteSlug: string;
+  mapSlug: string;
+  language: string;
 }) {
   if (display === "map") {
-    const pins = members.filter((m) => m.latitude != null && m.longitude != null)
-      .map((m) => ({ id: m.id, name: m.name, city: m.city || "", latitude: m.latitude!, longitude: m.longitude!, images: m.images, logo_url: m.logo_url, slug: m.slug }));
     return (
-      <div className="mt-10 overflow-hidden rounded-lg" aria-label={title}>
-        <BusinessMap businesses={pins} height="480px"
-          onBusinessClick={(b: any) => window.open(`/fiche/${b.slug}`, "_blank", "noopener")} />
-      </div>
+      <ShowcaseMapFrame slug={mapSlug} language={language} title={title}
+        memberIds={members.map((member) => member.id)} />
     );
   }
   const stacked = resolveShowcaseGroupLayout(layout) === "stacking_cards";

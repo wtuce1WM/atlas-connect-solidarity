@@ -1,7 +1,7 @@
 // Standalone embeddable "À proximité" overlay: /embed/nearby/:slug?lang=fr
 // Réutilise l'overlay POI de BookOnlineSlidePanel (aucun fork de logique).
 import { Suspense, lazy, useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { embedBusinessQuery } from "@/lib/embedBusinessQuery";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { applyEmbedBg } from "@/lib/embedFit";
@@ -27,6 +27,7 @@ const EmbedNearby = () => {
   const langParam = (params.get("lang") || "fr").toLowerCase();
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];
+  const memberIds = params.get("members")?.split(",").filter(Boolean);
 
   const bgParam = params.get("bg") || "";
   // En overlay (Full Description) : aucun réglage backoffice n'est utilisé, la
@@ -104,6 +105,7 @@ const EmbedNearby = () => {
             businessId={businessId}
             initialOverlay="poi"
             embedMode
+            poiOverrideIds={memberIds}
             mapBaseColor={mapPainted ? mapBaseColor : null}
             mapTheme={mapTheme}
             onMapReady={() => setMapPainted(true)}

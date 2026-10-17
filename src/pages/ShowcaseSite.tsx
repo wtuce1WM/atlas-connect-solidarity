@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveShowcaseTemplate } from "@/components/showcase/templates";
 import ShowcaseGroupCards from "@/components/showcase/ShowcaseGroupCards";
+import ShowcaseMapFrame from "@/components/showcase/ShowcaseMapFrame";
 import { ArrowDown, CalendarDays, ExternalLink, ChevronLeft, ChevronRight, Volume2, VolumeX, Loader2, Mail, MapPin, MessageCircle, Phone, X } from "lucide-react";
 import { trackBusinessEvent } from "@/lib/businessAnalytics";
 import { Button } from "@/components/ui/button";
@@ -819,7 +820,7 @@ const ShowcaseSite = () => {
             <section key={s.key} className="scroll-mt-8 px-4 pb-20 md:px-8 md:pb-28">
               <div className="mx-auto max-w-7xl">
                 <div className="px-2 md:px-4"><p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Same group" : "Même groupe"}</p><h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{s.title}</h2></div>
-                <ShowcaseGroupCards members={s.members} title={s.title} layout={data.cta_config?.groups_layout} display={s.display} siteSlug={slug!} />
+                <ShowcaseGroupCards members={s.members} title={s.title} layout={data.cta_config?.groups_layout} display={s.display} siteSlug={slug || ""} mapSlug={pageSlug || ""} language={language} />
               </div>
             </section>
           ))}
@@ -860,17 +861,8 @@ const ShowcaseSite = () => {
             <div className="mx-auto max-w-6xl">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-showcase-brass">{isEn ? "Around you" : "À proximité"}</p>
               <h2 className="mt-4 font-josefin text-4xl font-semibold md:text-6xl">{isEn ? "Nearby" : "À proximité"}</h2>
-              <div className="mt-10 w-screen relative left-1/2 -translate-x-1/2">
-                <style>{`@media (max-width: 640px) { #owm-frame-0rm62fk { height: 580px !important; min-height: auto !important; } }`}</style>
-                <iframe
-                  id="owm-frame-0rm62fk"
-                  src={`https://oneworldmorocco.com/embed/nearby/${pageSlug}?lang=${language}&bg=F7F1E8&fit=w`}
-                  style={{ width: "100%", display: "block", height: 720, border: 0, borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,0.15)" }}
-                  title={isEn ? `Nearby — ${b.name}` : `À proximité — ${b.name}`}
-                  loading="lazy"
-                  allow="geolocation"
-                />
-              </div>
+              <ShowcaseMapFrame slug={pageSlug || ""} language={language}
+                title={isEn ? `Nearby — ${b.name}` : `À proximité — ${b.name}`} />
             </div>
           </section>
 
