@@ -1,5 +1,7 @@
 # Architecture Rules
 
+- Showcase group layout is stored in the existing cta_config.groups_layout and resolved through groupLayout.ts, keeping older showcases compatible without a schema change.
+
 - EmbedAsk hotel counts, tiles and pagination use the same hotelResultView collection; explicit radii are scoped by message and cleared on a new availability search, preventing stale filtering and empty pagination.
 
 - Both `build` and `build:dev` in package.json must keep `NODE_OPTIONS=--max-old-space-size=4096`; the Vite build OOMs (~3 GB heap) during minification without it.
