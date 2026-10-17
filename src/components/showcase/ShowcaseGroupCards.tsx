@@ -1,4 +1,5 @@
 import HScroll from "@/components/HScroll";
+import BusinessMap from "@/components/BusinessMap";
 import { resolveShowcaseGroupLayout } from "./groupLayout";
 import "./groupCards.css";
 
@@ -8,18 +9,33 @@ interface GroupMember {
   slug: string;
   images: string[] | null;
   logo_url: string | null;
+  city?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
-export default function ShowcaseGroupCards({ members, title, layout }: {
+export default function ShowcaseGroupCards({ members, title, layout, display, siteSlug }: {
   members: GroupMember[];
   title: string;
   layout?: string;
+  display?: string;
+  siteSlug: string;
 }) {
+  if (display === "map") {
+    const pins = members.filter((m) => m.latitude != null && m.longitude != null)
+      .map((m) => ({ id: m.id, name: m.name, city: m.city || "", latitude: m.latitude!, longitude: m.longitude!, images: m.images, logo_url: m.logo_url, slug: m.slug }));
+    return (
+      <div className="mt-10 overflow-hidden rounded-lg" aria-label={title}>
+        <BusinessMap businesses={pins} height="480px"
+          onBusinessClick={(b: any) => window.open(`/fiche/${b.slug}`, "_blank", "noopener")} />
+      </div>
+    );
+  }
   const stacked = resolveShowcaseGroupLayout(layout) === "stacking_cards";
   const cards = members.map((member) => {
     const image = member.images?.[0] || member.logo_url;
     return (
-      <a key={member.id} href={`/fiche/${member.slug}`} target="_blank" rel="noreferrer"
+      <a key={member.id} href={`/site/${siteSlug}/${member.slug}`}
         className={stacked ? "showcase-group-stack-card" : "w-64 shrink-0 text-left md:w-80"}>
         <div className={stacked ? "showcase-group-stack-image" : "h-40 overflow-hidden rounded-lg bg-showcase-night md:h-48"}>
           {image && <img src={image} alt={member.name} loading="lazy" draggable={false} className="h-full w-full object-cover" />}
